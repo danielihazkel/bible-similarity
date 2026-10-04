@@ -1,12 +1,14 @@
 import json
 import math
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from bsim.config import load_config
 from bsim.eval.metrics import evaluate_system, metric_names, mrr_at, ndcg_at, recall_at
-from bsim.eval.report import gold_pairs, run_evaluate
+from bsim.eval.report import gold_pairs, run_evaluate, unit_gold
+from bsim.retrieve.topk import Units
 
 RANKED = [5, 3, 9, 7]
 GOLD = {3, 7}
@@ -107,3 +109,61 @@ def test_run_evaluate_end_to_end(tmp_path):
     assert "## Dev" in report and "## Test" in report
     assert "| A 1:1 | B 1:1 |" in report  # bad's missed pair, found by good
     assert "B 1:1" in report
+
+
+def _unit_links(rows: list[tuple[int, int, int, int, str, str]]) -> pd.DataFrame:
+    cols = ["src_vid", "src_end_vid", "tgt_vid", "tgt_end_vid", "level", "split"]
+    df = pd.DataFrame(rows, columns=cols)
+    df["rule"], df["connection_type"] = "x", ""
+    return df
+
+
+def test_unit_gold_threshold_and_ranges():
+    # 3 units over verses 0..8; verse 9 lies outside every unit (parasha-like)
+    units = Units(np.array(["a", "b", "c"], dtype=object), np.array([0, 3, 6]), np.array([2, 5, 8]))
+    links = _unit_links(
+        [
+            (0, 0, 3, 3, "verse", "dev"),  # a<->b: two distinct verse links -> gold
+            (3, 3, 0, 0, "verse", "dev"),
+            (1, 1, 4, 4, "verse", "dev"),
+            (4, 4, 1, 1, "verse", "dev"),
+            (0, 0, 6, 6, "verse", "dev"),  # a<->c: only one link -> not gold
+            (6, 6, 0, 0, "verse", "dev"),
+            (0, 0, 1, 1, "verse", "dev"),  # same unit -> ignored
+            (2, 2, 9, 9, "verse", "dev"),  # target outside the units -> ignored
+            (7, 7, 8, 8, "verse", "test"),
+            (5, 6, 1, 1, "unit", "dev"),  # range overlaps b and c -> b->a, c->a
+        ]
+    )
+    gold = unit_gold(links, units, "dev", m=2)
+    assert gold == {0: {1}, 1: {0}, 2: {0}}
+    assert unit_gold(links, units, "dev", m=1)[0] == {1, 2}
+    assert unit_gold(links, units, "train", m=1) == {}
+
+
+def test_test_split_runs_once_and_only_final_systems(tmp_path):
+    cfg = load_config()
+    proc, art = tmp_path / "processed", tmp_path / "artifacts"
+    cfg["paths"] = {**cfg["paths"], "data_processed": str(proc), "artifacts": str(art)}
+    cfg["final_systems"] = {**cfg["final_systems"], "lexical": "good", "semantic": "sem"}
+    proc.mkdir()
+    pd.DataFrame(
+        {
+            "verse_id": range(8),
+            "book_id": [0] * 4 + [1] * 4,
+            "chapter": [1] * 8,
+            "ref": [f"R {i}" for i in range(8)],
+        }
+    ).to_parquet(proc / "verses.parquet")
+    _links([(0, 4, "verse", "test"), (4, 0, "verse", "test")]).to_parquet(proc / "links.parquet")
+    verse_dir = art / "topk" / "verse"
+    verse_dir.mkdir(parents=True)
+    _topk([(0, 4, 9), (4, 0, 5)]).to_parquet(verse_dir / "good.parquet")
+    _topk([(0, 7, 9)]).to_parquet(verse_dir / "other.parquet")
+
+    metrics = run_evaluate(cfg, "test", log=lambda _: None)
+    assert list(metrics["splits"]["test"]["results"]["verse"]) == ["good"]
+    assert metrics["splits"]["test"]["gold"]["verse"] == {"queries": 2, "pairs": 2}
+    with pytest.raises(RuntimeError, match="once"):
+        run_evaluate(cfg, "test", log=lambda _: None)
+    run_evaluate(cfg, "test", log=lambda _: None, force=True)

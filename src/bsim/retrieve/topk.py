@@ -11,13 +11,14 @@ is excluded here; neighbour / chapter / book exclusion happens at query time (`f
   `r(·)` is computed here, and the stored scores are CSLS values, not cosines.
 
 Writes `artifacts/topk/verse/{name}.parquet` (unit_type, src_id, rank, tgt_id, score; ranks are
-1-based, ids `v:{verse_id}`) and `{name}.meta.json`.
+1-based, ids `v:{verse_id}`) and `{name}.meta.json`. `Units`, `load_units` and `write_topk` are
+shared with the unit-level stages (`units.py`, `fusion.py`).
 """
 
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -77,19 +78,27 @@ def dense_scorer(emb: np.ndarray, device: torch.device) -> ScoreFn:
     return lambda start, stop: e[start:stop] @ e.T
 
 
-def topk_frame(idx: np.ndarray, score: np.ndarray, drop_nonpositive: bool = False) -> pd.DataFrame:
-    """Top-k arrays -> the verse top-k Parquet schema."""
+def topk_frame(
+    idx: np.ndarray,
+    score: np.ndarray,
+    drop_nonpositive: bool = False,
+    unit_type: str = "verse",
+    ids: np.ndarray | None = None,
+) -> pd.DataFrame:
+    """Top-k arrays -> the top-k Parquet schema. Rows are verse ids unless `ids` (unit ids in
+    position order) is given."""
     keep = np.isfinite(score)
     if drop_nonpositive:
         keep &= score > 0
     rank = np.cumsum(keep, axis=1)
     src = np.broadcast_to(np.arange(len(idx))[:, None], idx.shape)
+    to_id = verse_ids if ids is None else (lambda pos: np.asarray(ids, dtype=object)[pos])
     return pd.DataFrame(
         {
-            "unit_type": "verse",
-            "src_id": verse_ids(src[keep]),
+            "unit_type": unit_type,
+            "src_id": to_id(src[keep]),
             "rank": rank[keep].astype(np.int32),
-            "tgt_id": verse_ids(idx[keep]),
+            "tgt_id": to_id(idx[keep]),
             "score": score[keep].astype(np.float32),
         }
     )
@@ -103,13 +112,65 @@ def parse_verse_ids(ids: pd.Series) -> np.ndarray:
     return ids.str.removeprefix(VERSE_PREFIX).astype(np.int32).to_numpy()
 
 
-def read_topk(path: Path) -> pd.DataFrame:
-    """A top-k Parquet; verse files get integer `src` / `tgt` columns."""
+def read_topk(path: Path, positions: Mapping[str, int] | None = None) -> pd.DataFrame:
+    """A top-k Parquet with integer `src` / `tgt` columns: verse ids for verse files, else the
+    unit positions from `positions` (`Units.position()`)."""
     df = pd.read_parquet(path)
-    if len(df) and (df.unit_type == "verse").all():
+    if positions is not None:
+        df["src"] = df.src_id.map(positions).astype(np.int64)
+        df["tgt"] = df.tgt_id.map(positions).astype(np.int64)
+    elif len(df) and (df.unit_type == "verse").all():
         df["src"] = parse_verse_ids(df.src_id)
         df["tgt"] = parse_verse_ids(df.tgt_id)
     return df
+
+
+@dataclass
+class Units:
+    """Units of one type in canon order (position = row of every unit-level matrix)."""
+
+    ids: np.ndarray  # unit_id strings (object)
+    start: np.ndarray  # first verse_id
+    end: np.ndarray  # last verse_id (inclusive)
+
+    def __len__(self) -> int:
+        return len(self.ids)
+
+    def position(self) -> dict[str, int]:
+        return {u: i for i, u in enumerate(self.ids)}
+
+
+def load_units(cfg: dict[str, Any], unit_type: str) -> Units:
+    path = resolve_path(cfg, "data_processed") / "units.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim build-corpus` first")
+    u = pd.read_parquet(path, columns=["unit_id", "unit_type", "start_verse_id", "end_verse_id"])
+    u = u[u.unit_type == unit_type].sort_values("start_verse_id", kind="stable")
+    if u.empty:
+        raise RuntimeError(f"no units of type {unit_type!r} in {path}")
+    return Units(
+        u.unit_id.to_numpy(object),
+        u.start_verse_id.to_numpy(np.int64),
+        u.end_verse_id.to_numpy(np.int64),
+    )
+
+
+def write_topk(
+    cfg: dict[str, Any], unit_type: str, system: str, df: pd.DataFrame, meta: dict[str, Any]
+) -> Path:
+    """Write `artifacts/topk/{unit_type}/{system}.parquet` + `.meta.json`."""
+    out = resolve_path(cfg, "artifacts") / "topk" / unit_type
+    out.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(out / f"{system}.parquet", index=False)
+    meta = {
+        "system": system,
+        "unit_type": unit_type,
+        **meta,
+        "rows": len(df),
+        "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
+    }
+    (out / f"{system}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    return out / f"{system}.parquet"
 
 
 @dataclass
@@ -176,22 +237,15 @@ def run_topk(cfg: dict[str, Any], system: str, log: Log = print) -> pd.DataFrame
     log(f"{system}: {src.kind} top-{r['k']} over {src.n} verses on {device}")
     idx, score = topk_chunks(src.scorer(device), src.n, r["k"], r["chunk_size"], device)
     df = topk_frame(idx, score, drop_nonpositive=src.kind == "sparse")
-
-    out = resolve_path(cfg, "artifacts") / "topk" / "verse"
-    out.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(out / f"{system}.parquet", index=False)
     meta = {
-        "system": system,
         "kind": src.kind,
         "source": src.path.name,
         "source_config_hash": src.source_hash,
         "config_hash": config_hash(cfg, "retrieval"),
         "k": int(r["k"]),
         "device": str(device),
-        "rows": len(df),
-        "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / f"{system}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    path = write_topk(cfg, "verse", system, df, meta)
     short = src.n - int((df.groupby("src_id").size() >= r["k"]).sum())
-    log(f"  wrote {out / (system + '.parquet')}: {len(df)} rows ({short} verses with < k hits)")
+    log(f"  wrote {path}: {len(df)} rows ({short} verses with < k hits)")
     return df

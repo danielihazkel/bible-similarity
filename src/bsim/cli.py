@@ -167,24 +167,47 @@ def topk(
 
 @app.command()
 def units(
-    system: Annotated[str, typer.Option(help="Retrieval system name")],
+    system: Annotated[
+        list[str],
+        typer.Option(help="'tfidf' (lexical) or a dense / *_csls verse system (repeatable)"),
+    ],
     config: ConfigOpt = None,
 ) -> None:
     """Aggregate to chapter / pericope / parasha top-k."""
-    load_config(config)
-    _not_implemented("units", "M9")
+    from bsim.retrieve.units import run_units
+
+    cfg = load_config(config)
+    try:
+        for name in system:
+            run_units(cfg, name, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
-def fuse(config: ConfigOpt = None) -> None:
+def fuse(
+    tune: Annotated[
+        bool, typer.Option(help="Score fusion.w_lex_grid on dev instead of writing fused lists")
+    ] = False,
+    config: ConfigOpt = None,
+) -> None:
     """Fuse lexical and semantic rankings with weighted RRF."""
-    load_config(config)
-    _not_implemented("fuse", "M9")
+    from bsim.retrieve.fusion import run_fuse, run_fuse_tune
+
+    try:
+        (run_fuse_tune if tune else run_fuse)(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def evaluate(
     split: Annotated[str, typer.Option(help="dev or test")] = "dev",
+    force: Annotated[
+        bool, typer.Option(help="Replace an existing test run (the test split is run once)")
+    ] = False,
     config: ConfigOpt = None,
 ) -> None:
     """Evaluate all systems against Sefaria links."""
@@ -193,7 +216,7 @@ def evaluate(
     from bsim.eval.report import run_evaluate
 
     try:
-        run_evaluate(load_config(config), split=split, log=typer.echo)
+        run_evaluate(load_config(config), split=split, log=typer.echo, force=force)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

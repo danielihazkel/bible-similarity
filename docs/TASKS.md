@@ -93,11 +93,11 @@ M0 → M1 → M2 → M3 ─┐
 ✔ Training runs within 11 GB VRAM; best semantic system chosen on dev and recorded in config.
 
 ## M9 — Fusion & unit-level results (§5.3, §6.2)
-- [ ] `retrieve/fusion.py`: weighted RRF; tune `w_lex` on dev
-- [ ] `retrieve/units.py`: mean and BMA aggregation (segment max on GPU) for chapter, pericope, parasha
-- [ ] Unit-level lexical (TF-IDF) and fused lists
-- [ ] Unit-level gold (≥ m shared links / unit-level links) + eval
-- [ ] **Single final test-set run** of the chosen lexical / semantic / fused systems → report section "Test"
+- [x] `retrieve/fusion.py`: weighted RRF; tune `w_lex` on dev (grid extended to 2.0; verse dev nDCG@10: w_lex 1.0 → **0.189** vs bm25_lemma 0.176, berel_sup_csls 0.150 → `fusion.w_lex: 1.0`, one weight for all unit types)
+- [x] `retrieve/units.py`: mean and BMA aggregation (segment max on GPU) for chapter, pericope, parasha (5 systems × 3 unit types in ~22 s; dev nDCG@10 berel_sup_csls BMA vs mean: chapter 0.156 vs 0.147, pericope 0.098 vs 0.093 → `unit_aggregation: bma`)
+- [x] Unit-level lexical (TF-IDF) and fused lists (dev nDCG@10 tfidf / fused: chapter 0.192 / 0.168, pericope 0.112 / 0.114; fusion does not beat TF-IDF on dev at chapter level)
+- [x] Unit-level gold (≥ m shared links / unit-level links) + eval (dev: 154 chapter / 348 pericope queries; parasha has no dev/test gold, Torah = train)
+- [x] **Single final test-set run** of the chosen lexical / semantic / fused systems → report section "Test" (nDCG@10 lex / sem / fused: verse 0.118 / 0.118 / **0.136**, chapter 0.153 / 0.152 / **0.157**, pericope 0.062 / 0.061 / **0.068**)
 
 ✔ Top-k Parquet for 4 unit types × 3 modes; report has dev + final test numbers; BMA vs mean comparison recorded.
 

@@ -33,6 +33,7 @@ corpus:
 
 units:
   types: [verse, chapter, pericope, parasha]
+  aggregations: [bma, mean]   # semantic unit aggregation (§6.2): `bsim units` writes {system}_{agg}
 
 retrieval:
   k: 50
@@ -92,8 +93,9 @@ train:
 
 fusion:
   rrf_k: 60
-  w_lex: 0.5
+  w_lex: 1.0                  # chosen on dev from w_lex_grid (`bsim fuse --tune`): verse nDCG@10 0.189
   w_sem: 1.0
+  w_lex_grid: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
 
 links:
   cartesian_max: 3            # both sides <= this many verses -> Cartesian product (else positional/unit)
@@ -111,8 +113,10 @@ eval:
   spot_checks: ["Psalms 14:1", "Exodus 20:2", "II Samuel 22:2"]   # top-5 printed in reports
 
 final_systems:                # chosen on dev in M8/M9
-  lexical: bm25_lemma
+  lexical: bm25_lemma          # verse level
+  unit_lexical: tfidf          # chapter / pericope / parasha (§5.1 unit TF-IDF)
   semantic: berel_sup_csls     # dev nDCG@10 0.150 (M8)
+  unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
 
 serve:

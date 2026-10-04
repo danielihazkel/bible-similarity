@@ -148,3 +148,17 @@ def test_real_topk_acceptance():
     df = read_topk(path)
     top = df[(df.src == vid["Psalms 14:1"]) & (df["rank"] <= 5)].tgt.tolist()
     assert vid["Psalms 53:2"] in top
+
+
+def test_topk_frame_with_unit_ids():
+    idx = np.array([[1, 2], [0, 2], [1, 0]], np.int32)
+    score = np.array([[0.9, 0.0], [0.5, 0.4], [0.3, -0.1]], np.float32)
+    ids = np.array(["c:x", "c:y", "c:z"], dtype=object)
+    df = topk_frame(idx, score, drop_nonpositive=True, unit_type="chapter", ids=ids)
+    assert set(df.unit_type) == {"chapter"}
+    assert list(zip(df.src_id, df.tgt_id, df["rank"], strict=True)) == [
+        ("c:x", "c:y", 1),
+        ("c:y", "c:x", 1),
+        ("c:y", "c:z", 2),
+        ("c:z", "c:y", 1),
+    ]

@@ -148,9 +148,9 @@ bible-similarity/
 | 6 | `bsim train-sup` | verses, links (train/dev), lexical | `models/berel-sup/` |
 | 7 | `bsim embed --model X` | verses, model | `artifacts/embeddings/{X}.npy` (float32, L2-normalized, row = verse_id) |
 | 8 | `bsim topk --system X` | embeddings or lexical | `artifacts/topk/verse/{X}.parquet` + `{X}.meta.json` |
-| 9 | `bsim units --system X` | verse sims, units | `artifacts/topk/{chapter,pericope,parasha}/{X}.parquet` |
-| 10 | `bsim fuse` | lexical + semantic topk | `artifacts/topk/*/fused.parquet` |
-| 11 | `bsim evaluate` | topk, links, splits | `artifacts/eval/report.md`, `metrics.json` |
+| 9 | `bsim units --system X` | embeddings or unit TF-IDF, units | `artifacts/topk/{chapter,pericope,parasha}/{X}_{bma,mean}.parquet` (dense / `*_csls` X) or `tfidf.parquet` (X = `tfidf`) |
+| 10 | `bsim fuse [--tune]` | final lexical + semantic topk | `artifacts/topk/*/fused.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
+| 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
 | 12 | `bsim build-db` | processed + final topk | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim all` | — | runs 1–12 with config defaults |
