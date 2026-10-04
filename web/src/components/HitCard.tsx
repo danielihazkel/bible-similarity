@@ -41,6 +41,11 @@ export function HitCard(p: Props) {
           </span>
         </Link>
         <LinkBadge link={hit.link} />
+        {hit.phrase && (
+          <span className="phrase-tag" title={`Aligned shared phrase: ${hit.phrase.n_tokens} lemmas, score ${hit.phrase.score.toFixed(1)}`}>
+            phrase · {hit.phrase.n_tokens}
+          </span>
+        )}
         <ScoreBreakdown hit={hit} mode={mode} />
         <span className="hit-actions">
           {isVerse && (

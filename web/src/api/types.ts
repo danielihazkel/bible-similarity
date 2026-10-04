@@ -58,12 +58,42 @@ export interface GoldLink {
   types: string[]
 }
 
+export interface PhraseInfo {
+  score: number
+  n_tokens: number
+}
+
 export interface Hit extends Breakdown {
   rank: number
   unit: UnitSummary
   verse: Verse | null
   preview: string | null
   link: GoldLink | null
+  phrase: PhraseInfo | null
+}
+
+export interface PhrasePair {
+  score: number
+  n_tokens: number
+  spread: number
+  a: UnitSummary
+  b: UnitSummary
+  a_verse: Verse
+  b_verse: Verse
+  a_display: number[]
+  b_display: number[]
+  link: GoldLink | null
+}
+
+export interface PhrasesResponse {
+  book: number | null
+  cross_book: boolean
+  min_tokens: number
+  max_spread: number | null
+  total: number
+  offset: number
+  limit: number
+  items: PhrasePair[]
 }
 
 export interface Discovery {

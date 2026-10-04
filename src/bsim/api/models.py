@@ -67,12 +67,18 @@ class GoldLink(BaseModel):
     types: list[str]  # connection types (quotation, related, ...); empty when untyped
 
 
+class PhraseInfo(BaseModel):
+    score: float  # local-alignment score (idf-weighted matched lemmas minus penalties)
+    n_tokens: int  # matched lemma tokens
+
+
 class Hit(Breakdown):
     rank: int
     unit: UnitSummary
     verse: Verse | None = None  # verse hits
     preview: str | None = None  # larger units: start of the first verse's display text
     link: GoldLink | None = None  # None: not a Sefaria-linked pair
+    phrase: PhraseInfo | None = None  # verse hits sharing an aligned phrase with the source
 
 
 class SimilarResponse(BaseModel):
@@ -107,6 +113,32 @@ class DiscoveriesResponse(BaseModel):
     offset: int
     limit: int
     items: list[Discovery]
+
+
+class PhrasePair(BaseModel):
+    """A shared phrase: `a_display` / `b_display` = the display tokens of the matched words."""
+
+    score: float
+    n_tokens: int
+    spread: int  # verses sharing this exact lemma sequence (2 = only this pair)
+    a: UnitSummary
+    b: UnitSummary
+    a_verse: Verse
+    b_verse: Verse
+    a_display: list[int]
+    b_display: list[int]
+    link: GoldLink | None = None
+
+
+class PhrasesResponse(BaseModel):
+    book: int | None
+    cross_book: bool
+    min_tokens: int
+    max_spread: int | None
+    total: int
+    offset: int
+    limit: int
+    items: list[PhrasePair]
 
 
 class WordRef(BaseModel):

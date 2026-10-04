@@ -85,6 +85,20 @@ CREATE TABLE discoveries (
     PRIMARY KEY (unit_type, mode, a_id, b_id)
 ) WITHOUT ROWID;
 
+-- Shared phrases between verses (`bsim phrases`), a < b; *_words = JSON lists of words.idx.
+CREATE TABLE phrases (
+    a INTEGER NOT NULL,
+    b INTEGER NOT NULL,
+    score REAL NOT NULL,
+    n_tokens INTEGER NOT NULL,
+    a_words TEXT NOT NULL,
+    b_words TEXT NOT NULL,
+    spread INTEGER NOT NULL,        -- verses sharing the exact matched lemma sequence (2 = unique)
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    PRIMARY KEY (a, b)
+) WITHOUT ROWID;
+
 CREATE TABLE lemma_gloss (
     lemma TEXT PRIMARY KEY,
     he_lemma TEXT NOT NULL,         -- most common consonantal form, prefixes stripped

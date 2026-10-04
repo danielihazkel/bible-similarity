@@ -226,3 +226,56 @@ def lemma_page(
         args.append(book_id)
     cur = conn.execute(sql + " ORDER BY verse_id LIMIT ? OFFSET ?", [*args, limit, offset])
     return [r[0] for r in cur.fetchall()]
+
+
+PHRASE_COLS = "a, b, score, n_tokens, a_words, b_words, spread"
+
+
+def phrases_of(conn: sqlite3.Connection, verse_id: int) -> list[dict[str, Any]]:
+    """Phrase rows involving `verse_id`, strongest first."""
+    cur = conn.execute(
+        f"SELECT {PHRASE_COLS} FROM phrases WHERE a = ? OR b = ? ORDER BY score DESC, a, b",
+        (verse_id, verse_id),
+    )
+    return _dicts(cur)
+
+
+def phrases_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    cross_book: bool,
+    min_tokens: int,
+    max_spread: int | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    where, args = "n_tokens >= ?", [min_tokens]
+    if max_spread is not None:
+        where += " AND spread <= ?"
+        args.append(max_spread)
+    if book_id is not None:
+        where += " AND (a_book = ? OR b_book = ?)"
+        args += [book_id, book_id]
+    if cross_book:
+        where += " AND a_book != b_book"
+    total = conn.execute(f"SELECT COUNT(*) FROM phrases WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT {PHRASE_COLS} FROM phrases WHERE {where}"
+        " ORDER BY score DESC, a, b LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def verse_links(conn: sqlite3.Connection, pairs: Iterable[tuple[int, int]]) -> dict:
+    """(src, tgt) verse pair -> (link_level, link_type) from any stored verse match row."""
+    out = {}
+    for a, b in pairs:
+        row = conn.execute(
+            "SELECT link_level, link_type FROM matches WHERE unit_type = 'verse'"
+            " AND src_id = ? AND tgt_id = ? AND link_level IS NOT NULL LIMIT 1",
+            (f"v:{a}", f"v:{b}"),
+        ).fetchone()
+        if row:
+            out[(a, b)] = row
+    return out

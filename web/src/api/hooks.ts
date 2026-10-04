@@ -10,6 +10,8 @@ import type {
   ExplainResponse,
   Meta,
   Mode,
+  PhrasePair,
+  PhrasesResponse,
   ResolveResponse,
   SearchResponse,
   SimilarResponse,
@@ -125,6 +127,43 @@ export const useLemma = (lemma: string, book: number | undefined, limit: number,
     queryKey: ['lemma', lemma, book, limit, offset],
     queryFn: ({ signal }) =>
       getJson<ConcordanceResponse>(`/lemma/${encodeURIComponent(lemma)}`, { book, limit, offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePhrasesOf = (verseId: number | undefined) =>
+  useQuery({
+    queryKey: ['phrases-of', verseId],
+    queryFn: ({ signal }) => getJson<PhrasePair[]>(`/phrases/${verseId}`, {}, signal),
+    enabled: verseId !== undefined,
+    ...forever,
+  })
+
+export interface PhrasesQuery {
+  book: number | undefined
+  crossBook: boolean
+  minTokens: number
+  maxSpread: number | undefined
+  limit: number
+  offset: number
+}
+
+export const usePhrases = (q: PhrasesQuery) =>
+  useQuery({
+    queryKey: ['phrases', q],
+    queryFn: ({ signal }) =>
+      getJson<PhrasesResponse>(
+        '/phrases',
+        {
+          book: q.book,
+          cross_book: q.crossBook ? 'true' : undefined,
+          min_tokens: q.minTokens,
+          max_spread: q.maxSpread,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
     placeholderData: keepPreviousData,
     ...forever,
   })

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { useExplain, useSimilar, useUnit } from '../api/hooks'
+import { useExplain, usePhrasesOf, useSimilar, useUnit } from '../api/hooks'
 import type { UnitDetail, UnitSummary, Verse } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
+import { PhraseCard } from '../components/PhraseCard'
 import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
@@ -43,6 +44,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const isVerse = unit.unit_type === 'verse'
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
+  const phrases = usePhrasesOf(isVerse ? unit.start_verse_id : undefined)
 
   const onHover = (tgt: number, on: boolean) => {
     window.clearTimeout(hoverTimer.current)
@@ -133,6 +135,20 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         )}
       </section>
+
+      {isVerse && phrases.data && phrases.data.length > 0 && (
+        <section className="results" aria-label="Shared phrases">
+          <h2>
+            Shared phrases <span className="muted small">({phrases.data.length})</span>
+          </h2>
+          <p className="muted small">Verses that share an aligned run of lemmas with this one (rare words weigh more).</p>
+          <ol className="disc-list">
+            {phrases.data.map((p) => (
+              <PhraseCard key={p.b.unit_id} p={p} />
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   )
 }

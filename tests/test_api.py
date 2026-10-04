@@ -308,3 +308,33 @@ def test_lemma_concordance(client):
     assert [i["verse"]["verse_id"] for i in page["items"]] == [3, 4]
     assert client.get("/api/lemma/0000").status_code == 404
     assert client.get("/api/lemma/7225?limit=0").status_code == 422
+
+
+def test_phrases(client):
+    hits = client.get("/api/similar/v:0?mode=semantic").json()["hits"]
+    phrase = {h["unit"]["unit_id"]: h["phrase"] for h in hits}
+    assert phrase["v:5"] == {"score": 15.0, "n_tokens": 3}
+    assert phrase["v:3"] is None
+    assert all(h["phrase"] is None for h in client.get("/api/similar/c:0:1").json()["hits"])
+
+    of5 = client.get("/api/phrases/5").json()
+    assert len(of5) == 1
+    p = of5[0]  # v:5 is put on the `a` side
+    assert (p["a"]["unit_id"], p["b"]["unit_id"], p["a_display"], p["b_display"]) == (
+        "v:5",
+        "v:0",
+        [0],
+        [0, 1],
+    )
+    assert p["link"] == {"level": "verse", "types": ["quotation"]}
+    assert client.get("/api/phrases/2").json() == []
+    assert client.get("/api/phrases/99").status_code == 404
+
+    board = client.get("/api/phrases").json()
+    assert board["total"] == 1 and board["items"][0]["a"]["unit_id"] == "v:0"
+    assert client.get("/api/phrases?min_tokens=4").json()["total"] == 0
+    assert client.get("/api/phrases?max_spread=2").json()["total"] == 1
+    assert board["items"][0]["spread"] == 2
+    assert client.get("/api/phrases?cross_book=true").json()["total"] == 1
+    assert client.get("/api/phrases?book=0").json()["total"] == 1
+    assert client.get("/api/phrases?limit=0").status_code == 422

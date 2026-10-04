@@ -217,6 +217,18 @@ def evaluate(
         raise typer.Exit(code=1) from e
 
 
+@app.command()
+def phrases(config: ConfigOpt = None) -> None:
+    """Find shared phrases between verses (local alignment of lemma streams)."""
+    from bsim.analysis.phrases import run_phrases
+
+    try:
+        run_phrases(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("build-db")
 def build_db(config: ConfigOpt = None) -> None:
     """Build artifacts/results.sqlite for the viewer."""

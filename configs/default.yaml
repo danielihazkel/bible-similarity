@@ -120,6 +120,13 @@ final_systems:                # chosen on dev in M8/M9
   unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
 
+phrases:                      # `bsim phrases`: shared phrases by local alignment (DESIGN.md §16)
+  candidate_rank: 50          # align pairs within the final lexical verse top-k
+  mismatch: 1.5               # Smith-Waterman penalties; a match scores idf x formula weight
+  gap: 1.5
+  min_tokens: 3               # matched lemma tokens
+  min_score: 14
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface]   # verse top-k before training (hard negatives)

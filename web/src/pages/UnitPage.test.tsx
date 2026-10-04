@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ExplainResponse, SimilarResponse, UnitDetail, UnitSummary, Verse, WordDetail } from '../api/types'
+import type { ExplainResponse, SimilarResponse, UnitDetail, UnitSummary, PhrasePair, Verse, WordDetail } from '../api/types'
 import { UnitPage } from './UnitPage'
 
 const unit = (id: number, label: string): UnitSummary => ({
@@ -37,7 +37,7 @@ const similar = (mode: string): SimilarResponse => ({
   k: 10,
   exclude: ['neighbors'],
   hits: [
-    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null, link: { level: 'verse', types: ['quotation'] } },
+    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null, link: { level: 'verse', types: ['quotation'] }, phrase: { score: 20, n_tokens: 4 } },
   ],
 })
 const EXPLAIN: ExplainResponse = {
@@ -67,6 +67,21 @@ const WORDS: WordDetail[] = [
   },
 ]
 
+const PHRASES: PhrasePair[] = [
+  {
+    score: 20,
+    n_tokens: 4,
+    spread: 2,
+    a: unit(0, 'Test 1:1'),
+    b: unit(5, 'Phrase partner'),
+    a_verse: SRC,
+    b_verse: TGT,
+    a_display: [0, 1],
+    b_display: [0, 1],
+    link: null,
+  },
+]
+
 function mockApi() {
   const calls: string[] = []
   vi.stubGlobal(
@@ -82,7 +97,9 @@ function mockApi() {
             ? EXPLAIN
             : u.pathname === '/api/words/0'
               ? WORDS
-              : null
+              : u.pathname === '/api/phrases/0'
+                ? PHRASES
+                : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -121,10 +138,21 @@ describe('UnitPage', () => {
     expect(calls.some((c) => c.includes('/api/similar/v%3A0?mode=fused&k=10&exclude=neighbors'))).toBe(true)
 
     fireEvent.mouseEnter(hit)
-    await waitFor(() => expect(container.querySelectorAll('.w-shared')).toHaveLength(2))
-    const marked = [...container.querySelectorAll('.w-shared')].map((e) => e.textContent)
+    await waitFor(() => expect(container.querySelectorAll('.source .w-shared, .hits .w-shared')).toHaveLength(2))
+    const marked = [...container.querySelectorAll('.source .w-shared, .hits .w-shared')].map((e) => e.textContent)
     expect(marked).toEqual(['אָמַר', 'אָמַר']) // source token 0 and hit token 1
     expect(screen.getByLabelText('Shared lemmas').textContent).toContain('אמר')
+  })
+
+  it('shows the phrase badge and the shared-phrases section', async () => {
+    mockApi()
+    const { container } = renderAt('/unit/v:0')
+    const hit = (await screen.findByText('Test 1:6')).closest('li')!
+    expect(hit.querySelector('.phrase-tag')?.textContent).toBe('phrase · 4')
+    const section = await screen.findByLabelText('Shared phrases')
+    expect(section.textContent).toContain('4 lemmas')
+    expect(section.querySelectorAll('.w-shared')).toHaveLength(4)
+    expect(container.querySelector('h2')).toBeTruthy()
   })
 
   it('marks Sefaria-linked hits and can hide them', async () => {

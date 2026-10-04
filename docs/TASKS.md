@@ -157,3 +157,11 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Tests: resolver, morph decoder, endpoints (pytest); word panel, concordance, reference banner (vitest)
 
 ✔ "שמואל א יז מט" → I Samuel 17:49; Gen 1:1 word 1 = מילת יחס + שם עצם · נקבה · יחיד · נפרד, lemma ראשית in 49 verses over 19 books.
+
+## M16 — Shared phrases (roadmap A2)
+- [x] `analysis/phrases.py` + `bsim phrases` (pipeline stage before build-db): Smith-Waterman over lemma streams of the lexical top-50 pairs, idf × formula-weight scoring, `spread` of each matched sequence (18,163 pairs, 51 s)
+- [x] `phrases` table; `/similar` verse hits carry `phrase`; `/phrases/{verse_id}`; paginated `/phrases` leaderboard
+- [x] Viewer: phrase badge on hits, "Shared phrases" section on verse pages, Phrases page (book, min length, cross-book, recurring-idiom filters) with matched words highlighted on both sides
+- [x] Tests: alignment, candidates, spread (pytest); endpoints; badge / section / leaderboard (vitest)
+
+✔ II Kings 18–19 ↔ Isaiah 36–37 lead the leaderboard; unlinked allusions such as Hos 13:8 ↔ Prov 17:12 appear with their shared words highlighted.

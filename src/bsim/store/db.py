@@ -13,6 +13,7 @@ Derived columns:
   splits). `verse`: a verse-level link joins a verse of the source to a verse of the target;
   `unit`: only a passage-level link covers them (its ranges expanded to verse pairs).
 - `discoveries`: the strong pairs Sefaria does not link (`discoveries()`).
+- `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
 SQL, matching `retrieve/filters.py`, plus `known` (drop gold-linked hits).
@@ -52,6 +53,8 @@ INDEXES = (
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",
     "CREATE INDEX members_by_verse ON unit_members (verse_id, unit_id)",
     "CREATE INDEX discoveries_by_score ON discoveries (unit_type, mode, score DESC, tie DESC)",
+    "CREATE INDEX phrases_by_b ON phrases (b)",
+    "CREATE INDEX phrases_by_score ON phrases (score DESC)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -115,6 +118,7 @@ TABLE_COLUMNS = {
         "a_book",
         "b_book",
     ],
+    "phrases": ["a", "b", "score", "n_tokens", "a_words", "b_words", "spread", "a_book", "b_book"],
     "lemma_gloss": ["lemma", "he_lemma", "n_words", "n_verses"],
     "lemma_verses": ["lemma", "verse_id", "book_id"],
 }
@@ -356,11 +360,14 @@ def similar(
         where.append("m.link_level IS NULL")
     sql = (
         "SELECT m.rank, m.tgt_id, m.score, m.lex_score, m.lex_rank, m.sem_score, m.sem_rank,"
-        " m.link_level, m.link_type,"
+        " m.link_level, m.link_type, p.score AS phrase_score, p.n_tokens AS phrase_tokens,"
         " t.label_en, t.label_he, t.book_id, t.start_verse_id, t.end_verse_id"
         " FROM matches m"
         " JOIN units s ON s.unit_id = m.src_id"
         " JOIN units t ON t.unit_id = m.tgt_id"
+        " LEFT JOIN phrases p ON m.unit_type = 'verse'"
+        " AND p.a = min(s.start_verse_id, t.start_verse_id)"
+        " AND p.b = max(s.start_verse_id, t.start_verse_id)"
         f"{joins}"
         " WHERE m.unit_type = ? AND m.mode = ? AND m.src_id = ?"
         + "".join(f" AND {w}" for w in where)
@@ -384,6 +391,10 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             cmd = "build-links" if name == "links" else "build-corpus"
             raise RuntimeError(f"{path} missing; run `bsim {cmd}` first")
         out[name] = pd.read_parquet(path)
+    path = resolve_path(cfg, "artifacts") / "phrases" / "verse.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim phrases` first")
+    out["phrases"] = pd.read_parquet(path)
     return out
 
 
@@ -496,6 +507,10 @@ def _write_db(
             "unit_members": inputs["unit_members"],
             "lemma_gloss": gloss,
             "lemma_verses": lemma_verses(inputs["words"], inputs["verses"]),
+            "phrases": inputs["phrases"].assign(
+                a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
+                b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
+            ),
         }
         expected = {}
         for table, df in tables.items():

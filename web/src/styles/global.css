@@ -754,9 +754,17 @@ a.verse-num {
   background: transparent;
   border-style: dashed;
 }
-.mutual-tag {
+.mutual-tag,
+.phrase-tag {
   color: var(--accent);
   border: 1px solid var(--accent-soft);
+}
+.phrase-tag {
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  white-space: nowrap;
+  background: var(--accent-soft);
 }
 
 /* ---------- Discoveries ---------- */

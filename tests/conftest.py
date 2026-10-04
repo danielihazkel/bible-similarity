@@ -42,6 +42,8 @@ VERSE_ROWS += [("v:5", "v:0", 1)]
 CHAPTER_ROWS = [("c:0:1", "c:0:2", 1), ("c:0:1", "c:1:1", 2), ("c:1:1", "c:0:1", 1)]
 # Gold links (both directions): v0 <-> v5 verse-level quotation; v1-v2 <-> v3-v4 passage-level.
 # So v:0 -> v:5 is a known hit and v:0 -> v:3 the one unlinked (discovery) verse pair.
+# One shared phrase: v0 words 0-1 ~ v5 word 0 (made up; only the plumbing is tested).
+PHRASES = [(0, 5, 15.0, 3, [0, 1], [0], 2)]
 LINKS = [(0, 5, 0, 5, "verse", "positional", "quotation"), (1, 3, 2, 4, "unit", "unit", "")]
 
 
@@ -174,6 +176,11 @@ def write_inputs(cfg, tmp_path):
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):
         for mode, name in final_systems(cfg, unit_type).items():
             write_topk(art, unit_type, name, rows, fused=mode == "fused")
+    (art / "phrases").mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(a, b, sc, n, json.dumps(wa), json.dumps(wb), s) for a, b, sc, n, wa, wb, s in PHRASES],
+        columns=["a", "b", "score", "n_tokens", "a_words", "b_words", "spread"],
+    ).to_parquet(art / "phrases" / "verse.parquet")
     emb_dir = art / "embeddings"
     emb_dir.mkdir(parents=True, exist_ok=True)
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)

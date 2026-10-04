@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections import defaultdict
 from collections.abc import Iterator
@@ -29,6 +30,9 @@ from bsim.api.models import (
     Meta,
     Mode,
     Pair,
+    PhraseInfo,
+    PhrasePair,
+    PhrasesResponse,
     ResolveResponse,
     SearchHit,
     SearchResponse,
@@ -175,6 +179,9 @@ def similar(
                 verse=verses.get(t["start_verse_id"]),
                 preview=previews.get(t["start_verse_id"]),
                 link=_gold_link(r["link_level"], r["link_type"]),
+                phrase=None
+                if r["phrase_score"] is None
+                else PhraseInfo(score=r["phrase_score"], n_tokens=r["phrase_tokens"]),
             )
         )
     return {"unit": u, "mode": mode, "k": k, "exclude": filters, "hits": hits}
@@ -441,6 +448,81 @@ def lemma(
             )
             for v in vids
         ],
+    }
+
+
+def _phrase_pairs(
+    conn: sqlite3.Connection, rows: list[dict[str, Any]], first: int | None = None
+) -> list[PhrasePair]:
+    """Phrase rows -> response items; `first` puts that verse on the `a` side."""
+    flipped = [
+        r
+        if first is None or r["a"] == first
+        else {**r, "a": r["b"], "b": r["a"], "a_words": r["b_words"], "b_words": r["a_words"]}
+        for r in rows
+    ]
+    vids = [v for r in flipped for v in (r["a"], r["b"])]
+    verses = queries.verses_by_id(conn, vids)
+    units_ = queries.units_by_id(conn, [f"v:{v}" for v in vids])
+    display: dict[tuple[int, int], int] = {
+        (w["verse_id"], w["idx"]): w["display_idx"]
+        for w in queries.words(conn, vids)
+        if w["display_idx"] is not None
+    }
+    links = queries.verse_links(conn, [(r["a"], r["b"]) for r in flipped])
+
+    def shown(vid: int, idxs: str) -> list[int]:
+        return sorted({display[(vid, i)] for i in json.loads(idxs) if (vid, i) in display})
+
+    return [
+        PhrasePair(
+            score=r["score"],
+            n_tokens=r["n_tokens"],
+            spread=r["spread"],
+            a=UnitSummary(**units_[f"v:{r['a']}"]),
+            b=UnitSummary(**units_[f"v:{r['b']}"]),
+            a_verse=verses[r["a"]],
+            b_verse=verses[r["b"]],
+            a_display=shown(r["a"], r["a_words"]),
+            b_display=shown(r["b"], r["b_words"]),
+            link=_gold_link(*links[(r["a"], r["b"])]) if (r["a"], r["b"]) in links else None,
+        )
+        for r in flipped
+    ]
+
+
+@router.get("/phrases/{verse_id}", response_model=list[PhrasePair])
+def phrases_of(verse_id: int, state: State, conn: Conn) -> list[PhrasePair]:
+    """Every verse sharing an aligned phrase with this one (this verse on the `a` side)."""
+    _verse_or_404(state, verse_id)
+    return _phrase_pairs(conn, queries.phrases_of(conn, verse_id), first=verse_id)
+
+
+@router.get("/phrases", response_model=PhrasesResponse)
+def phrases(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    cross_book: bool = False,
+    min_tokens: int = 3,
+    max_spread: int | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms)."""
+    _page(state, limit, offset)
+    total, rows = queries.phrases_page(
+        conn, book, cross_book, min_tokens, max_spread, limit, offset
+    )
+    return {
+        "book": book,
+        "cross_book": cross_book,
+        "min_tokens": min_tokens,
+        "max_spread": max_spread,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": _phrase_pairs(conn, rows),
     }
 
 
