@@ -9,6 +9,7 @@ import { DiscoveriesPage } from './pages/DiscoveriesPage'
 import { MapPage } from './pages/MapPage'
 import { PhrasesPage } from './pages/PhrasesPage'
 import { StructurePage } from './pages/StructurePage'
+import { StylometryPage } from './pages/StylometryPage'
 import { SearchPage } from './pages/SearchPage'
 import { UnitPage } from './pages/UnitPage'
 
@@ -26,6 +27,7 @@ export function App() {
           <Route path="phrases" element={<PhrasesPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
+          <Route path="style" element={<StylometryPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route

@@ -53,6 +53,8 @@ lexical:
     max_n: 6
     min_verses: 15            # T
     weight: 0.2               # alpha
+  morph:                      # `structural` mode: BM25 / TF-IDF over word-shape n-grams (lexical/morph.py)
+    max_n: 3
 
 encoders:
   berel: dicta-il/BEREL_3.0
@@ -119,6 +121,8 @@ final_systems:                # chosen on dev in M8/M9
   semantic: berel_sup_csls     # dev nDCG@10 0.150 (M8)
   unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
+  structural: bm25_morph       # grammatical shape (DESIGN.md §16.5): verse level
+  unit_structural: tfidf_morph # chapter / pericope / parasha
 
 rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encoder over the fused verse lists (DESIGN.md §16.3)
   base: dicta-il/BEREL_3.0
@@ -165,15 +169,21 @@ map:                          # `bsim map`: layout, clusters, book affinity (DES
   affinity_rank: 10           # cross-book verse pairs within the fused top-N
   examples: 10                # strongest verse pairs kept per book pair
 
+stylometry:                   # `bsim stylometry`: style profiles (DESIGN.md §16.6)
+  mfw: 100                    # most frequent content lemmas used as features
+  min_words: 150              # chapters shorter than this are not projected
+  top_features: 8             # most over- / under-used features kept per book
+  axis_features: 6            # loadings listed per principal axis
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
-  lexical_systems: [bm25_lemma, bm25_surface]   # verse top-k before training (hard negatives)
+  lexical_systems: [bm25_lemma, bm25_surface, bm25_morph]   # verse top-k before training (hard negatives)
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
-  unit_systems: [tfidf, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
+  unit_systems: [tfidf, tfidf_morph, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch
-  max_size_mb: 400            # warn when results.sqlite is larger
+  max_size_mb: 600            # warn when results.sqlite is larger (402 MB with 4 modes + analyses)
   bench_queries: 20           # timed /similar runs per spot-check verse and mode (target < 10 ms)
   discoveries:
     max_rank: 10              # unlinked pair kept when either unit ranks the other within this

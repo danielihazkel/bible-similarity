@@ -9,12 +9,12 @@ import { ErrorBox, Loading } from '../components/Status'
 import { MODE_HINTS } from '../lib/format'
 import { hasHebrew } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
-import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, useQueryParams } from '../lib/urlState'
+import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_MODES, useQueryParams } from '../lib/urlState'
 
 export function SearchPage() {
   const [params, update] = useQueryParams()
   const q = params.get('q') ?? ''
-  const mode = parseMode(params.get('mode'))
+  const mode = parseMode(params.get('mode'), SEARCH_MODES)
   const k = parseK(params.get('k'))
   const search = useSearch(q, mode, k)
   const resolved = useResolve(q).data?.unit
@@ -26,7 +26,7 @@ export function SearchPage() {
       {/* key: the draft restarts from the URL query on back / forward navigation */}
       <SearchForm key={q} initial={q} onSubmit={(text) => update({ q: text.trim() || null }, false)} />
       <div className="toolbar">
-        <ModeToggle value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
+        <ModeToggle modes={SEARCH_MODES} value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
         <KSelect value={k} onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })} />
       </div>
       <p className="muted small">

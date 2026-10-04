@@ -133,6 +133,12 @@ def stage_map(cfg: dict[str, Any], log: Log) -> None:
     run_map(cfg, log=log)
 
 
+def stage_stylometry(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.stylometry import run_stylometry
+
+    run_stylometry(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -156,6 +162,7 @@ STAGES: dict[str, str] = {
     "phrases": "stage_phrases",
     "structure": "stage_structure",
     "map": "stage_map",
+    "stylometry": "stage_stylometry",
     "build-db": "stage_build_db",
 }
 

@@ -5,6 +5,7 @@ import type {
   AffinityPair,
   AffinityResponse,
   Book,
+  BookStyle,
   CompareResponse,
   ConcordanceResponse,
   DiscoveriesResponse,
@@ -21,6 +22,7 @@ import type {
   StructureRankingResponse,
   StructureResponse,
   StructureSort,
+  StylometryResponse,
   UnitDetail,
   UnitSummary,
   UnitType,
@@ -222,6 +224,21 @@ export const useAffinityPairs = (a: number | undefined, b: number | undefined) =
     queryKey: ['affinity-pairs', a, b],
     queryFn: ({ signal }) => getJson<AffinityPair[]>(`/affinity/${a}/${b}`, {}, signal),
     enabled: a !== undefined && b !== undefined,
+    ...forever,
+  })
+
+export const useStylometry = () =>
+  useQuery({
+    queryKey: ['stylometry'],
+    queryFn: ({ signal }) => getJson<StylometryResponse>('/stylometry', {}, signal),
+    ...forever,
+  })
+
+export const useBookStyle = (book: number | undefined) =>
+  useQuery({
+    queryKey: ['book-style', book],
+    queryFn: ({ signal }) => getJson<BookStyle>(`/stylometry/book/${book}`, {}, signal),
+    enabled: book !== undefined,
     ...forever,
   })
 

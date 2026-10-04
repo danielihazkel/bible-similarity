@@ -8,6 +8,7 @@ import pytest
 
 from bsim.analysis.corpus_map import run_map
 from bsim.analysis.structure import run_structure
+from bsim.analysis.stylometry import run_stylometry
 from bsim.config import load_config
 from bsim.retrieve.fusion import final_systems
 from bsim.store.db import run_build_db
@@ -72,6 +73,7 @@ def fixture_cfg(tmp_path, semantic="sm"):
     cfg["serve"] = {**cfg["serve"], "device": "cpu"}
     cfg["structure"] = {**cfg["structure"], "unit_types": ["chapter"], "leitwort_min_count": 2}
     cfg["map"] = {**cfg["map"], "clusters": {"chapter": 2}}
+    cfg["stylometry"] = {**cfg["stylometry"], "min_words": 1}
     return cfg
 
 
@@ -195,6 +197,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_inputs(cfg, tmp_path)
     run_structure(cfg, log=lambda _: None)
     run_map(cfg, log=lambda _: None)
+    run_stylometry(cfg, log=lambda _: None)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

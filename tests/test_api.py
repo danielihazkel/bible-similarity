@@ -377,3 +377,20 @@ def test_affinity(client):
     assert [(p["a"]["unit_id"], p["b"]["unit_id"]) for p in pairs] == [("v:5", "v:0")]
     assert pairs[0]["link"] == {"level": "verse", "types": ["quotation"]}
     assert client.get("/api/affinity/3/4").json() == []
+
+
+def test_structural_mode(client):
+    body = client.get("/api/similar/v:0?mode=structural").json()
+    assert body["mode"] == "structural" and body["hits"][0]["unit"]["unit_id"] == "v:1"
+    assert client.get("/api/search?q=רשית&mode=structural").status_code == 422
+
+
+def test_stylometry(client):
+    body = client.get("/api/stylometry").json()
+    assert {p["unit_id"] for p in body["points"]} == {"c:0:1", "c:0:2", "c:1:1"}
+    assert [a["pc"] for a in body["axes"]] == [1, 2]
+    assert len(body["delta"]) == 39 * 38 // 2 and len(body["order"]) == 39
+    book = client.get("/api/stylometry/book/0").json()
+    assert book["n_words"] == 10 and book["over"] and book["under"]
+    assert book["closest"][0]["a"] == 0
+    assert client.get("/api/stylometry/book/99").status_code == 404

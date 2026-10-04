@@ -22,6 +22,7 @@ from bsim.api.models import (
     AffinityResponse,
     Book,
     BookCount,
+    BookStyle,
     CompareResponse,
     ConcordanceHit,
     ConcordanceResponse,
@@ -45,6 +46,7 @@ from bsim.api.models import (
     PhrasesResponse,
     ResolveResponse,
     SearchHit,
+    SearchMode,
     SearchResponse,
     SharedLemma,
     SimilarResponse,
@@ -53,6 +55,11 @@ from bsim.api.models import (
     StructureRankingResponse,
     StructureResponse,
     StructureScore,
+    StyloAxis,
+    StyloDelta,
+    StyloFeature,
+    StylometryResponse,
+    StyloPoint,
     UnitDetail,
     UnitSummary,
     WordDetail,
@@ -341,7 +348,7 @@ def compare(a: str, b: str, state: State, conn: Conn) -> dict[str, Any]:
 
 @router.get("/search", response_model=SearchResponse)
 def search(
-    q: str, state: State, conn: Conn, mode: Mode = "fused", k: int | None = None
+    q: str, state: State, conn: Conn, mode: SearchMode = "fused", k: int | None = None
 ) -> dict[str, Any]:
     k = _k(state, k)
     max_chars = state.cfg["serve"]["search"]["max_query_chars"]
@@ -710,6 +717,53 @@ def affinity_pairs(a: int, b: int, conn: Conn) -> list[AffinityPair]:
         )
         for r in rows
     ]
+
+
+@router.get("/stylometry", response_model=StylometryResponse)
+def stylometry(state: State, conn: Conn) -> dict[str, Any]:
+    """Chapter PCA of style features, the axes' loadings and the book Delta matrix."""
+    sm = state.meta.get("stylometry") or {}
+    return {
+        "points": [StyloPoint(**p) for p in queries.stylo_points(conn)],
+        "axes": [StyloAxis(**a) for a in sm.get("axes") or []],
+        "order": sm.get("book_order") or [],
+        "delta": [
+            StyloDelta(a=r["a_book"], b=r["b_book"], delta=r["delta"])
+            for r in queries.stylo_delta(conn)
+        ],
+    }
+
+
+@router.get("/stylometry/book/{book_id}", response_model=BookStyle)
+def book_style(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
+    """A book's most over- / under-used style features and its nearest books by Delta."""
+    rows = queries.stylo_features(conn, book_id)
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"unknown book {book_id}")
+    words = (state.meta.get("stylometry") or {}).get("book_words") or []
+    near = queries.stylo_delta(conn, book_id)[: state.cfg["stylometry"]["top_features"]]
+    return {
+        "book_id": book_id,
+        "n_words": words[book_id] if book_id < len(words) else 0,
+        "over": [
+            StyloFeature(**{k: r[k] for k in ("feature", "label", "rate", "z")})
+            for r in rows
+            if r["side"] == "over"
+        ],
+        "under": [
+            StyloFeature(**{k: r[k] for k in ("feature", "label", "rate", "z")})
+            for r in rows
+            if r["side"] == "under"
+        ],
+        "closest": [
+            StyloDelta(
+                a=book_id,
+                b=r["b_book"] if r["a_book"] == book_id else r["a_book"],
+                delta=r["delta"],
+            )
+            for r in near
+        ],
+    }
 
 
 @router.get("/meta", response_model=Meta)

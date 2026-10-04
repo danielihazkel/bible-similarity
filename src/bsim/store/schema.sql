@@ -152,6 +152,32 @@ CREATE TABLE book_examples (
     PRIMARY KEY (a_book, b_book, rank)
 ) WITHOUT ROWID;
 
+-- Stylometry (`bsim stylometry`, DESIGN.md §16.6).
+CREATE TABLE stylo_points (
+    unit_id TEXT PRIMARY KEY,       -- chapters with >= stylometry.min_words words
+    x REAL NOT NULL,                -- PC1 / PC2 of the feature z-scores, scaled to 0..1
+    y REAL NOT NULL,
+    n_words INTEGER NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE stylo_delta (
+    a_book INTEGER NOT NULL,        -- a < b
+    b_book INTEGER NOT NULL,
+    delta REAL NOT NULL,            -- Burrows' Delta (mean |z| difference)
+    PRIMARY KEY (a_book, b_book)
+) WITHOUT ROWID;
+
+CREATE TABLE stylo_features (
+    book_id INTEGER NOT NULL,
+    side TEXT NOT NULL,             -- over | under
+    rank INTEGER NOT NULL,
+    feature TEXT NOT NULL,          -- lemma:<lemma> | pos:N | verb:w | article ...
+    label TEXT NOT NULL,            -- Hebrew label
+    rate REAL NOT NULL,             -- per word
+    z REAL NOT NULL,
+    PRIMARY KEY (book_id, side, rank)
+) WITHOUT ROWID;
+
 CREATE TABLE lemma_gloss (
     lemma TEXT PRIMARY KEY,
     he_lemma TEXT NOT NULL,         -- most common consonantal form, prefixes stripped

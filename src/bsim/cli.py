@@ -280,6 +280,18 @@ def corpus_map(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command()
+def stylometry(config: ConfigOpt = None) -> None:
+    """Style profiles: feature rates, Burrows' Delta between books, chapter PCA."""
+    from bsim.analysis.stylometry import run_stylometry
+
+    try:
+        run_stylometry(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("build-db")
 def build_db(config: ConfigOpt = None) -> None:
     """Build artifacts/results.sqlite for the viewer."""

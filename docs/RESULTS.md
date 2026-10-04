@@ -179,6 +179,8 @@ The test split was run once, at M9; these systems are compared on dev only.
 | fused (final) | 0.098 | 0.213 | 0.274 | 0.400 | 0.184 | 0.189 |
 | fused_rerank (cross-encoder, w_ce 0.25) | 0.103 | 0.217 | 0.274 | 0.400 | 0.188 | 0.194 |
 | cross-encoder alone (epoch 1) | 0.076 | 0.142 | 0.195 | 0.400 | 0.134 | 0.135 |
+| bm25_morph (structural mode) | 0.044 | 0.074 | 0.092 | 0.132 | 0.069 | 0.068 |
+| 3-way RRF lex + sem + morph (w_morph 0.1) | | | | | | 0.192 |
 
-Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 95 % CI [−0.0007, +0.0092]; the blend weight was chosen on the same queries. Not adopted (DESIGN §16.3, D31).
+Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 95 % CI [−0.0007, +0.0092]; the blend weight was chosen on the same queries. Not adopted (DESIGN §16.3, D31). The structural mode is shown in the viewer as its own mode, not fused (§16.5, D32).
 

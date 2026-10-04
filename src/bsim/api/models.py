@@ -6,7 +6,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-Mode = Literal["lexical", "semantic", "fused"]
+Mode = Literal["lexical", "semantic", "fused", "structural"]
+SearchMode = Literal["lexical", "semantic", "fused"]  # no morphology for free text
 
 
 class Book(BaseModel):
@@ -350,6 +351,51 @@ class AffinityPair(BaseModel):
     a_verse: Verse
     b_verse: Verse
     link: GoldLink | None = None
+
+
+class StyloPoint(BaseModel):
+    unit_id: str
+    label_en: str
+    label_he: str
+    book_id: int
+    n_words: int
+    x: float
+    y: float
+
+
+class StyloAxis(BaseModel):
+    pc: int
+    variance: float  # share of the z-score variance
+    positive: list[str]  # Hebrew labels of the heaviest positive loadings
+    negative: list[str]
+
+
+class StyloDelta(BaseModel):
+    a: int
+    b: int
+    delta: float
+
+
+class StylometryResponse(BaseModel):
+    points: list[StyloPoint]
+    axes: list[StyloAxis]
+    order: list[int]  # books, stylistically similar ones adjacent
+    delta: list[StyloDelta]
+
+
+class StyloFeature(BaseModel):
+    feature: str
+    label: str
+    rate: float  # per word
+    z: float  # against the other books
+
+
+class BookStyle(BaseModel):
+    book_id: int
+    n_words: int
+    over: list[StyloFeature]
+    under: list[StyloFeature]
+    closest: list[StyloDelta]  # the stylistically nearest books
 
 
 class Meta(BaseModel):

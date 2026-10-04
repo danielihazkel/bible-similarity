@@ -3,6 +3,8 @@
 Writes to `paths.artifacts`/lexical:
     bm25_lemma.{doc,query}.npz + .vocab.json     verse-level BM25 over content lemmas
     bm25_surface.{doc,query}.npz + .vocab.json   same over surface forms (eval baseline)
+    bm25_morph.{doc,query}.npz + .vocab.json     word-shape n-grams (structural mode, §16.5)
+    tfidf_morph_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the same
     tfidf_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF rows (L2-normalized)
     formulas.parquet                             closed lemma formulas
     lexical_meta.json, lexical_report.md
@@ -30,6 +32,7 @@ from bsim.lexical.formulas import (
     formulas_frame,
     frequent_ngrams,
 )
+from bsim.lexical.morph import morph_streams, ngram_tokens
 from bsim.lexical.tfidf import unit_tfidf
 from bsim.lexical.tokens import Stream, lemma_streams, surface_streams, with_bigrams
 from bsim.text.normalize import consonantal
@@ -130,7 +133,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         raise RuntimeError(f"{proc / 'words.parquet'} missing; run `bsim build-corpus` first")
     verses = pd.read_parquet(proc / "verses.parquet", columns=["verse_id", "ref"])
     words = pd.read_parquet(
-        proc / "words.parquet", columns=["verse_id", "idx", "surface", "content_lemmas"]
+        proc / "words.parquet", columns=["verse_id", "idx", "surface", "content_lemmas", "morph"]
     )
     units = pd.read_parquet(proc / "units.parquet", columns=["unit_id", "unit_type"])
     members = pd.read_parquet(proc / "unit_members.parquet")
@@ -150,16 +153,22 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
     log("BM25 (surface forms)")
     surf_tokens, surf_weights, surf_ngrams = prepare(surface_streams(words, n), lex)
     surface_index = bm25.build_bm25(surf_tokens, surf_weights, k1, b)
+    log("BM25 (word-shape n-grams)")
+    morph_tokens = [ngram_tokens(t, lex["morph"]["max_n"]) for t in morph_streams(words, n)]
+    morph_weights = [np.ones(len(t)) for t in morph_tokens]
+    morph_index = bm25.build_bm25(morph_tokens, morph_weights, k1, b)
 
     out.mkdir(parents=True, exist_ok=True)
     bm25.save(lemma_index, out, "bm25_lemma")
     bm25.save(surface_index, out, "bm25_surface")
+    bm25.save(morph_index, out, "bm25_morph")
     formulas.to_parquet(out / "formulas.parquet", index=False)
 
     sizes = {
         "verses": n,
         "bm25_lemma vocabulary": len(lemma_index.vocab),
         "bm25_surface vocabulary": len(surface_index.vocab),
+        "bm25_morph vocabulary": len(morph_index.vocab),
         "lemma n-grams over threshold": len(ngrams),
         "closed lemma formulas": len(formulas),
         "surface n-grams over threshold": len(surf_ngrams),
@@ -171,6 +180,9 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         x = unit_tfidf(lem_tokens, lem_weights, members, ids)
         sp.save_npz(out / f"tfidf_{unit_type}.npz", x)
         (out / f"tfidf_{unit_type}.ids.json").write_text(json.dumps(ids), encoding="utf-8")
+        xm = unit_tfidf(morph_tokens, morph_weights, members, ids)
+        sp.save_npz(out / f"tfidf_morph_{unit_type}.npz", xm)
+        (out / f"tfidf_morph_{unit_type}.ids.json").write_text(json.dumps(ids), encoding="utf-8")
         sizes[f"{unit_type} units (TF-IDF)"] = len(ids)
 
     queries = cfg["eval"]["spot_checks"]
@@ -182,7 +194,11 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
     meta = {
         "config_hash": config_hash(cfg, "lexical"),
         "corpus_config_hash": corpus_meta["config_hash"],
-        "vocab": {"bm25_lemma": len(lemma_index.vocab), "bm25_surface": len(surface_index.vocab)},
+        "vocab": {
+            "bm25_lemma": len(lemma_index.vocab),
+            "bm25_surface": len(surface_index.vocab),
+            "bm25_morph": len(morph_index.vocab),
+        },
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
     (out / "lexical_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")

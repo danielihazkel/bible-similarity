@@ -16,6 +16,7 @@ Derived columns:
 - `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
+- `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
 SQL, matching `retrieve/filters.py`, plus `known` (drop gold-linked hits).
@@ -50,7 +51,7 @@ from bsim.text.normalize import consonantal
 Log = Callable[[str], None]
 
 SCHEMA = Path(__file__).with_name("schema.sql")
-MODES = ("lexical", "semantic", "fused")
+MODES = ("lexical", "semantic", "fused", "structural")
 SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",
@@ -127,6 +128,9 @@ TABLE_COLUMNS = {
     "map_clusters": ["unit_type", "cluster", "size", "lemmas"],
     "book_affinity": ["a_book", "b_book", "n_pairs", "expected", "lift"],
     "book_examples": ["a_book", "b_book", "rank", "a_vid", "b_vid", "score"],
+    "stylo_points": ["unit_id", "x", "y", "n_words"],
+    "stylo_delta": ["a_book", "b_book", "delta"],
+    "stylo_features": ["book_id", "side", "rank", "feature", "label", "rate", "z"],
     "lemma_gloss": ["lemma", "he_lemma", "n_words", "n_verses", "pos"],
     "lemma_verses": ["lemma", "verse_id", "book_id"],
 }
@@ -439,6 +443,13 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             raise RuntimeError(f"{path} missing; run `bsim map` first")
         out[f"map_{name}"] = pd.read_parquet(path)
     out["map_meta"] = _read_json(map_dir / "map.meta.json")
+    stylo_dir = resolve_path(cfg, "artifacts") / "stylometry"
+    for name in ("points", "book_delta", "book_features"):
+        path = stylo_dir / f"{name}.parquet"
+        if not path.exists():
+            raise RuntimeError(f"{path} missing; run `bsim stylometry` first")
+        out[f"stylo_{name}"] = pd.read_parquet(path)
+    out["stylo_meta"] = _read_json(stylo_dir / "stylometry.meta.json")
     return out
 
 
@@ -556,6 +567,9 @@ def _write_db(
             "map_clusters": inputs["map_clusters"],
             "book_affinity": inputs["map_book_affinity"],
             "book_examples": inputs["map_book_examples"],
+            "stylo_points": inputs["stylo_points"],
+            "stylo_delta": inputs["stylo_book_delta"],
+            "stylo_features": inputs["stylo_book_features"],
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
@@ -602,6 +616,10 @@ def _write_db(
         conn.execute("ANALYZE")
         meta = _meta(cfg, files, expected)
         meta["book_order"] = inputs["map_meta"].get("book_order", [b.book_id for b in BOOKS])
+        sm = inputs["stylo_meta"]
+        meta["stylometry"] = {
+            k: sm.get(k) for k in ("book_order", "axes", "book_words", "features")
+        }
         conn.executemany(
             "INSERT INTO meta (key, value) VALUES (?, ?)",
             [(k, json.dumps(v, ensure_ascii=False)) for k, v in meta.items()],

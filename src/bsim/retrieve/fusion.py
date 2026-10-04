@@ -41,7 +41,9 @@ def final_lists(cfg: dict[str, Any], unit_type: str) -> tuple[str, str]:
 def final_systems(cfg: dict[str, Any], unit_type: str) -> dict[str, str]:
     """mode -> system file name of a unit type (the systems that go into the DB)."""
     lex, sem = final_lists(cfg, unit_type)
-    return {"lexical": lex, "semantic": sem, "fused": cfg["final_systems"]["fused"]}
+    fs = cfg["final_systems"]
+    structural = fs["structural"] if unit_type == "verse" else fs["unit_structural"]
+    return {"lexical": lex, "semantic": sem, "fused": fs["fused"], "structural": structural}
 
 
 def rrf(

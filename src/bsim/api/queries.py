@@ -338,3 +338,27 @@ def book_examples(conn: sqlite3.Connection, a: int, b: int) -> list[dict[str, An
         (min(a, b), max(a, b)),
     )
     return _dicts(cur)
+
+
+def stylo_points(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT p.unit_id, u.label_en, u.label_he, u.book_id, p.n_words, p.x, p.y"
+        " FROM stylo_points p JOIN units u ON u.unit_id = p.unit_id ORDER BY u.start_verse_id"
+    )
+    return _dicts(cur)
+
+
+def stylo_delta(conn: sqlite3.Connection, book: int | None = None) -> list[dict[str, Any]]:
+    sql, args = "SELECT a_book, b_book, delta FROM stylo_delta", []
+    if book is not None:
+        sql += " WHERE a_book = ? OR b_book = ?"
+        args = [book, book]
+    return _dicts(conn.execute(sql + " ORDER BY delta", args))
+
+
+def stylo_features(conn: sqlite3.Connection, book: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT side, feature, label, rate, z FROM stylo_features WHERE book_id = ? ORDER BY rank",
+        (book,),
+    )
+    return _dicts(cur)

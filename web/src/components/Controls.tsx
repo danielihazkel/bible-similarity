@@ -32,13 +32,13 @@ export function Segmented<T extends string | number>({ label, value, options, on
   )
 }
 
-export function ModeToggle({ value, onChange }: { value: Mode; onChange: (m: Mode) => void }) {
+export function ModeToggle({ value, onChange, modes = MODES }: { value: Mode; onChange: (m: Mode) => void; modes?: Mode[] }) {
   return (
     <Segmented
       label="Similarity mode"
       value={value}
       onChange={onChange}
-      options={MODES.map((m) => ({ value: m, label: MODE_LABELS[m], title: MODE_HINTS[m] }))}
+      options={modes.map((m) => ({ value: m, label: MODE_LABELS[m], title: MODE_HINTS[m] }))}
     />
   )
 }

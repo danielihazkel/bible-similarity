@@ -4,8 +4,9 @@ Units of a type are disjoint, contiguous verse ranges (`retrieve/topk.py:load_un
 cover the Torah only, so parasha is compared with parasha. Self is excluded; same-book filtering
 is a query-time option.
 
-- `tfidf` (the unit lexical system): `artifacts/lexical/tfidf_{type}.npz` rows (L2-normalized),
-  cosine `X @ X.T`, zero-score hits dropped -> `{type}/tfidf.parquet`.
+- `tfidf` (the unit lexical system) and `tfidf_morph` (unit structural): `artifacts/lexical/
+  {system}_{type}.npz` rows (L2-normalized), cosine `X @ X.T`, zero-score hits dropped ->
+  `{type}/{system}.parquet`.
 - semantic systems (any `bsim topk` dense or `*_csls` system), one file per aggregation in
   `units.aggregations`:
   - `bma`: best-match average over the system's verse scores (CSLS values for `*_csls`):
@@ -132,17 +133,17 @@ def _meta(cfg: dict[str, Any], device: torch.device, **extra: Any) -> dict[str, 
     }
 
 
-def run_tfidf_units(cfg: dict[str, Any], log: Log = print) -> None:
+def run_tfidf_units(cfg: dict[str, Any], log: Log = print, system: str = "tfidf") -> None:
     lex_dir = resolve_path(cfg, "artifacts") / "lexical"
     device = get_device(cfg["retrieval"]["device"])
     meta_path = lex_dir / "lexical_meta.json"
     lex_meta = json.loads(meta_path.read_text("utf-8")) if meta_path.exists() else {}
     for unit_type in unit_types(cfg):
-        npz = lex_dir / f"tfidf_{unit_type}.npz"
+        npz = lex_dir / f"{system}_{unit_type}.npz"
         if not npz.exists():
             raise RuntimeError(f"{npz} missing; run `bsim lexical` first")
         units = load_units(cfg, unit_type)
-        ids = json.loads((lex_dir / f"tfidf_{unit_type}.ids.json").read_text("utf-8"))
+        ids = json.loads((lex_dir / f"{system}_{unit_type}.ids.json").read_text("utf-8"))
         pos = {u: i for i, u in enumerate(ids)}
         if set(pos) != set(units.ids):
             raise RuntimeError(f"{npz.name} units differ from units.parquet; rerun `bsim lexical`")
@@ -155,7 +156,7 @@ def run_tfidf_units(cfg: dict[str, Any], log: Log = print) -> None:
             source=npz.name,
             source_config_hash=lex_meta.get("config_hash"),
         )
-        path = write_topk(cfg, unit_type, "tfidf", df, meta)
+        path = write_topk(cfg, unit_type, system, df, meta)
         log(f"  {unit_type}: {len(units)} units -> {path} ({len(df)} rows)")
 
 
@@ -204,7 +205,8 @@ def run_semantic_units(cfg: dict[str, Any], system: str, log: Log = print) -> No
 
 def run_units(cfg: dict[str, Any], system: str, log: Log = print) -> None:
     log(f"{system}: unit top-{cfg['retrieval']['k']} for {', '.join(unit_types(cfg))}")
-    if system == cfg["final_systems"]["unit_lexical"]:
-        run_tfidf_units(cfg, log)
+    fs = cfg["final_systems"]
+    if system in (fs["unit_lexical"], fs["unit_structural"]):
+        run_tfidf_units(cfg, log, system)
     else:
         run_semantic_units(cfg, system, log)

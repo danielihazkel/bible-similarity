@@ -192,3 +192,19 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Chapter clusters read as genres (wisdom, praise psalms, Tabernacle, sacrifices, genealogies); Ezra–Nehemiah and Haggai–Zechariah have the highest book lift.
 
+## M20 — Structural mode (roadmap A5)
+- [x] `lexical/morph.py`: word-shape tokens + n-grams; `bsim lexical` builds `bm25_morph` and `tfidf_morph_{type}`; `bsim topk` / `bsim units` handle them (pipeline lists updated)
+- [x] Fourth mode `structural` through `final_systems`, the DB (`matches`, discoveries), the API (`Mode`; search keeps three modes) and the viewer (mode toggle, hint)
+- [x] Dev: bm25_morph nDCG@10 0.068; 3-way fusion at best 0.192 vs 0.189 → not fused
+- [x] Tests: shape tokens and n-grams, 4-mode store counts, structural `/similar`, search rejects it, search page hides it
+
+✔ Prov 10:1 → antithetic proverbs; Gen 1:3 → the other fiats; Ex 20:13 → Deut 5:17.
+
+## M21 — Stylometry (roadmap A6)
+- [x] `analysis/stylometry.py` + `bsim stylometry` (pipeline stage before build-db): MFW + morphology rates, z-scores, Burrows' Delta and clustered book order, chapter PCA with described axes, per-book over / under features
+- [x] `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`; `/stylometry`, `/stylometry/book/{id}`
+- [x] Viewer: Style page (chapter scatter with book highlight, axis descriptions, book profile with z bars and nearest books, Delta heatmap via a shared `BookHeatmap`)
+- [x] Tests: features, Delta, PCA (pytest); endpoints; Style page (vitest)
+
+✔ Late books (Esther–Chronicles) group together; Isaiah / Jeremiah / Ezekiel are mutual nearest neighbours.
+

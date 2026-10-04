@@ -1,6 +1,7 @@
 // Mirrors the pydantic response models in src/bsim/api/models.py (DESIGN.md §10).
 
-export type Mode = 'lexical' | 'semantic' | 'fused'
+export type Mode = 'lexical' | 'semantic' | 'fused' | 'structural'
+export type SearchMode = 'lexical' | 'semantic' | 'fused'
 export type UnitType = 'verse' | 'chapter' | 'pericope' | 'parasha'
 export type Exclude = 'neighbors' | 'chapter' | 'book' | 'known'
 
@@ -339,6 +340,51 @@ export interface AffinityPair {
   a_verse: Verse
   b_verse: Verse
   link: GoldLink | null
+}
+
+export interface StyloPoint {
+  unit_id: string
+  label_en: string
+  label_he: string
+  book_id: number
+  n_words: number
+  x: number
+  y: number
+}
+
+export interface StyloAxis {
+  pc: number
+  variance: number
+  positive: string[]
+  negative: string[]
+}
+
+export interface StyloDelta {
+  a: number
+  b: number
+  delta: number
+}
+
+export interface StylometryResponse {
+  points: StyloPoint[]
+  axes: StyloAxis[]
+  order: number[]
+  delta: StyloDelta[]
+}
+
+export interface StyloFeature {
+  feature: string
+  label: string
+  rate: number
+  z: number
+}
+
+export interface BookStyle {
+  book_id: number
+  n_words: number
+  over: StyloFeature[]
+  under: StyloFeature[]
+  closest: StyloDelta[]
 }
 
 export interface Meta {

@@ -4,12 +4,14 @@ export const MODE_LABELS: Record<Mode, string> = {
   lexical: 'Lexical',
   semantic: 'Semantic',
   fused: 'Fused',
+  structural: 'Structural',
 }
 
 export const MODE_HINTS: Record<Mode, string> = {
   lexical: 'Shared wording: BM25 / TF-IDF over OSHB lemmas, formulas down-weighted',
   semantic: 'Shared meaning: fine-tuned BEREL embeddings (CSLS)',
   fused: 'Both, combined by weighted reciprocal rank fusion',
+  structural: 'Same grammatical shape, any words: BM25 / TF-IDF over n-grams of word forms (part of speech, verb form, state)',
 }
 
 /** Scores differ per mode (BM25, CSLS, RRF): show 3 significant digits. */
