@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useSearch } from '../api/hooks'
+import { useResolve, useSearch } from '../api/hooks'
 import { KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
 import { ScoreBreakdown } from '../components/ScoreBreakdown'
 import { ErrorBox, Loading } from '../components/Status'
 import { MODE_HINTS } from '../lib/format'
+import { hasHebrew } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
 import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
@@ -16,6 +17,7 @@ export function SearchPage() {
   const mode = parseMode(params.get('mode'))
   const k = parseK(params.get('k'))
   const search = useSearch(q, mode, k)
+  const resolved = useResolve(q).data?.unit
   const slow = useSlow(search.isFetching && mode !== 'lexical')
 
   return (
@@ -31,7 +33,19 @@ export function SearchPage() {
         {MODE_HINTS[mode]}. Pointed or unpointed input; lexical matching strips prefixes (ו ה ב כ ל מ ש).
       </p>
 
-      {!q ? null : search.isPending ? (
+      {resolved && (
+        <p className="goto">
+          Reference: <Link to={unitLink(resolved.unit_id)}>{resolved.label_en}</Link>{' '}
+          <span className="he-label" dir="rtl" lang="he">
+            {resolved.label_he}
+          </span>{' '}
+          →
+        </p>
+      )}
+
+      {!q ? null : !hasHebrew(q) ? (
+        !resolved && <p className="status">Not a reference; free-text search needs Hebrew letters.</p>
+      ) : search.isPending ? (
         <Loading
           label={slow ? 'Searching… the semantic encoder may still be loading after startup (about 30 s).' : 'Searching…'}
         />
@@ -102,8 +116,8 @@ function SearchForm({ initial, onSubmit }: { initial: string; onSubmit: (text: s
           type="search"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="חיפוש בתנ״ך…"
-          aria-label="Hebrew search text"
+          placeholder="חיפוש בתנ״ך… או הפניה: בראשית א א / Gen 1:1"
+          aria-label="Hebrew search text or reference"
           autoFocus
         />
         <button type="submit" className="primary">

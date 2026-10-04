@@ -115,7 +115,8 @@ TABLE_COLUMNS = {
         "a_book",
         "b_book",
     ],
-    "lemma_gloss": ["lemma", "he_lemma"],
+    "lemma_gloss": ["lemma", "he_lemma", "n_words", "n_verses"],
+    "lemma_verses": ["lemma", "verse_id", "book_id"],
 }
 
 # OSHB prefix morphemes -> their letter; the article's ה is elided after ב / כ / ל (בַּשָּׁמַיִם).
@@ -143,18 +144,36 @@ def strip_prefixes(surface: str, lemma: str) -> str:
 
 
 def lemma_display_forms(words: pd.DataFrame) -> pd.DataFrame:
-    """`lemma, he_lemma`: each content lemma's most common prefix-stripped form (ties: first
-    seen)."""
+    """`lemma, he_lemma, n_words, n_verses`: each content lemma's most common prefix-stripped
+    form (ties: first seen), its number of occurrences and of verses containing it."""
     forms: dict[str, Counter[str]] = defaultdict(Counter)
-    for surface, lemma, content in zip(
-        words.surface, words.lemma, words.content_lemmas, strict=True
+    verses: dict[str, set[int]] = defaultdict(set)
+    for vid, surface, lemma, content in zip(
+        words.verse_id, words.surface, words.lemma, words.content_lemmas, strict=True
     ):
         if len(content):
             form = strip_prefixes(surface, lemma)
             for lem in content:
                 forms[lem][form] += 1
-    rows = [(lem, c.most_common(1)[0][0]) for lem, c in sorted(forms.items())]
-    return pd.DataFrame(rows, columns=["lemma", "he_lemma"])
+                verses[lem].add(int(vid))
+    rows = [
+        (lem, c.most_common(1)[0][0], c.total(), len(verses[lem]))
+        for lem, c in sorted(forms.items())
+    ]
+    return pd.DataFrame(rows, columns=TABLE_COLUMNS["lemma_gloss"])
+
+
+def lemma_verses(words: pd.DataFrame, verses: pd.DataFrame) -> pd.DataFrame:
+    """`lemma, verse_id, book_id`: distinct (content lemma, verse) pairs, the concordance."""
+    pairs = (
+        words[["verse_id", "content_lemmas"]]
+        .explode("content_lemmas")
+        .dropna()
+        .rename(columns={"content_lemmas": "lemma"})
+        .drop_duplicates()
+    )
+    pairs["book_id"] = pairs.verse_id.map(verses.set_index("verse_id").book_id)
+    return pairs.sort_values(["lemma", "verse_id"])[TABLE_COLUMNS["lemma_verses"]]
 
 
 def formula_flags(words: pd.DataFrame, n_verses: int, formulas: dict[str, Any]) -> np.ndarray:
@@ -476,6 +495,7 @@ def _write_db(
             "units": inputs["units"],
             "unit_members": inputs["unit_members"],
             "lemma_gloss": gloss,
+            "lemma_verses": lemma_verses(inputs["words"], inputs["verses"]),
         }
         expected = {}
         for table, df in tables.items():

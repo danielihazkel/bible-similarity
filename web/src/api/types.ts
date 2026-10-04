@@ -155,6 +155,53 @@ export interface SearchResponse {
   hits: SearchHit[]
 }
 
+export interface ResolveResponse {
+  query: string
+  unit: UnitSummary | null
+}
+
+export interface LemmaStat {
+  lemma: string
+  he_lemma: string
+  n_verses: number
+}
+
+export interface WordDetail {
+  idx: number
+  display_idx: number | null
+  surface: string
+  lemma: string
+  morph: string | null
+  morph_he: string[]
+  in_formula: boolean
+  lemmas: LemmaStat[]
+}
+
+export interface BookCount {
+  book_id: number
+  n_verses: number
+}
+
+export interface ConcordanceHit {
+  verse: Verse
+  label_en: string
+  label_he: string
+  display_idxs: number[]
+}
+
+export interface ConcordanceResponse {
+  lemma: string
+  he_lemma: string
+  n_words: number
+  n_verses: number
+  by_book: BookCount[]
+  book: number | null
+  total: number
+  offset: number
+  limit: number
+  items: ConcordanceHit[]
+}
+
 export interface Meta {
   build: Record<string, unknown>
   runtime: Record<string, unknown>

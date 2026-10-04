@@ -19,6 +19,12 @@ export function parseK(v: string | null): number {
   return (K_OPTIONS as readonly number[]).includes(k) ? k : DEFAULT_K
 }
 
+/** 1-based page from a `page` parameter (anything invalid → 1). */
+export function parsePage(v: string | null): number {
+  const n = Number(v)
+  return Number.isInteger(n) && n > 1 ? n : 1
+}
+
 /** Filters that `/similar` accepts for a unit type: neighbours / chapter are verse-only. */
 export function allowedExcludes(type: UnitType): Exclude[] {
   return type === 'verse' ? EXCLUDES : ['book', 'known']

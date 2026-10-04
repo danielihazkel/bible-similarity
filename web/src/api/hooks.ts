@@ -1,18 +1,22 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { hasHebrew } from '../lib/hebrew'
 import { getJson } from './client'
 import type {
   Book,
   CompareResponse,
+  ConcordanceResponse,
   DiscoveriesResponse,
   Exclude,
   ExplainResponse,
   Meta,
   Mode,
+  ResolveResponse,
   SearchResponse,
   SimilarResponse,
   UnitDetail,
   UnitSummary,
   UnitType,
+  WordDetail,
 } from './types'
 
 // The DB is read-only while the server runs: everything except search is immutable.
@@ -66,7 +70,8 @@ export const useSearch = (q: string, mode: Mode, k: number) =>
   useQuery({
     queryKey: ['search', q, mode, k],
     queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k }, signal),
-    enabled: q.trim().length > 0,
+    // the API rejects queries without Hebrew letters (e.g. an English reference)
+    enabled: hasHebrew(q),
     ...forever,
   })
 
@@ -95,6 +100,31 @@ export const useDiscoveries = (q: DiscoveriesQuery) =>
         },
         signal,
       ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useResolve = (q: string) =>
+  useQuery({
+    queryKey: ['resolve', q],
+    queryFn: ({ signal }) => getJson<ResolveResponse>('/resolve', { q }, signal),
+    enabled: q.trim().length > 0,
+    ...forever,
+  })
+
+export const useWords = (verseId: number | undefined) =>
+  useQuery({
+    queryKey: ['words', verseId],
+    queryFn: ({ signal }) => getJson<WordDetail[]>(`/words/${verseId}`, {}, signal),
+    enabled: verseId !== undefined,
+    ...forever,
+  })
+
+export const useLemma = (lemma: string, book: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['lemma', lemma, book, limit, offset],
+    queryFn: ({ signal }) =>
+      getJson<ConcordanceResponse>(`/lemma/${encodeURIComponent(lemma)}`, { book, limit, offset }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

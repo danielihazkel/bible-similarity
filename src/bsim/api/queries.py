@@ -128,12 +128,16 @@ def previews(conn: sqlite3.Connection, start_ids: Iterable[int], chars: int) -> 
     return out
 
 
-def words(conn: sqlite3.Connection, verse_ids: Iterable[int]) -> list[dict[str, Any]]:
+def words(
+    conn: sqlite3.Connection, verse_ids: Iterable[int], detail: bool = False
+) -> list[dict[str, Any]]:
+    """`words` rows in order; `detail` adds surface, raw lemma and morph."""
     ids = list(dict.fromkeys(int(i) for i in verse_ids))
     if not ids:
         return []
+    extra = ", surface, lemma, morph" if detail else ""
     cur = conn.execute(
-        "SELECT verse_id, idx, display_idx, content_lemmas, in_formula FROM words"
+        f"SELECT verse_id, idx, display_idx, content_lemmas, in_formula{extra} FROM words"
         f" WHERE verse_id IN ({_marks(len(ids))}) ORDER BY verse_id, idx",
         ids,
     )
@@ -181,3 +185,44 @@ def discoveries(
         [*args, limit, offset],
     )
     return total, _dicts(cur)
+
+
+def lemma_stats(conn: sqlite3.Connection, lemmas: Iterable[str]) -> dict[str, dict[str, Any]]:
+    lemmas = sorted(set(lemmas))
+    if not lemmas:
+        return {}
+    cur = conn.execute(
+        "SELECT lemma, he_lemma, n_words, n_verses FROM lemma_gloss"
+        f" WHERE lemma IN ({_marks(len(lemmas))})",
+        lemmas,
+    )
+    return {r["lemma"]: r for r in _dicts(cur)}
+
+
+def verse_at(conn: sqlite3.Connection, book_id: int, chapter: int, verse: int) -> int | None:
+    row = conn.execute(
+        "SELECT verse_id FROM verses WHERE book_id = ? AND chapter = ? AND verse = ?",
+        (book_id, chapter, verse),
+    ).fetchone()
+    return row[0] if row else None
+
+
+def lemma_books(conn: sqlite3.Connection, lemma: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT book_id, COUNT(*) AS n_verses FROM lemma_verses WHERE lemma = ?"
+        " GROUP BY book_id ORDER BY book_id",
+        (lemma,),
+    )
+    return _dicts(cur)
+
+
+def lemma_page(
+    conn: sqlite3.Connection, lemma: str, book_id: int | None, limit: int, offset: int
+) -> list[int]:
+    """Verse ids containing `lemma` (in one book, if given), canon order."""
+    sql, args = "SELECT verse_id FROM lemma_verses WHERE lemma = ?", [lemma]
+    if book_id is not None:
+        sql += " AND book_id = ?"
+        args.append(book_id)
+    cur = conn.execute(sql + " ORDER BY verse_id LIMIT ? OFFSET ?", [*args, limit, offset])
+    return [r[0] for r in cur.fetchall()]

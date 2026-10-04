@@ -87,7 +87,17 @@ CREATE TABLE discoveries (
 
 CREATE TABLE lemma_gloss (
     lemma TEXT PRIMARY KEY,
-    he_lemma TEXT NOT NULL          -- most common consonantal form, prefixes stripped
+    he_lemma TEXT NOT NULL,         -- most common consonantal form, prefixes stripped
+    n_words INTEGER NOT NULL,       -- occurrences in the corpus
+    n_verses INTEGER NOT NULL       -- verses containing it
+) WITHOUT ROWID;
+
+-- Concordance: every verse containing a content lemma.
+CREATE TABLE lemma_verses (
+    lemma TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    PRIMARY KEY (lemma, verse_id)
 ) WITHOUT ROWID;
 
 CREATE TABLE meta (

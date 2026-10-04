@@ -100,12 +100,15 @@ def test_strip_prefixes():
 def test_lemma_display_forms_most_common():
     words = pd.DataFrame(
         {
+            "verse_id": [0, 0, 1, 2],
             "surface": ["הָאָרֶץ", "אֶרֶץ", "אַרְצָה", "וְאֶרֶץ"],
             "lemma": ["d/776", "776", "776", "c/776"],
             "content_lemmas": [["776"]] * 4,
         }
     )
-    assert lemma_display_forms(words).to_dict("records") == [{"lemma": "776", "he_lemma": "ארץ"}]
+    assert lemma_display_forms(words).to_dict("records") == [
+        {"lemma": "776", "he_lemma": "ארץ", "n_words": 4, "n_verses": 3}
+    ]
 
 
 def test_formula_flags():

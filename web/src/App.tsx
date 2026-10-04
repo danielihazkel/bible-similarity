@@ -4,6 +4,7 @@ import { AboutPage } from './pages/AboutPage'
 import { BookPage } from './pages/BookPage'
 import { BooksPage } from './pages/BooksPage'
 import { ComparePage } from './pages/ComparePage'
+import { ConcordancePage } from './pages/ConcordancePage'
 import { DiscoveriesPage } from './pages/DiscoveriesPage'
 import { SearchPage } from './pages/SearchPage'
 import { UnitPage } from './pages/UnitPage'
@@ -18,6 +19,7 @@ export function App() {
           <Route path="unit/:unitId" element={<UnitPage />} />
           <Route path="compare" element={<ComparePage />} />
           <Route path="discoveries" element={<DiscoveriesPage />} />
+          <Route path="lemma/:lemma" element={<ConcordancePage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route

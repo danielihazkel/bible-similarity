@@ -3,10 +3,11 @@ import { useBooks, useDiscoveries } from '../api/hooks'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
 import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
+import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { formatScore, MODE_HINTS, unitTypeLabel } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
-import { MODES, useQueryParams } from '../lib/urlState'
+import { MODES, parsePage, useQueryParams } from '../lib/urlState'
 
 const UNIT_TYPES: UnitType[] = ['verse', 'chapter', 'pericope', 'parasha']
 const PAGE_SIZE = 50
@@ -17,10 +18,6 @@ function parseType(v: string | null): UnitType {
   return UNIT_TYPES.includes(v as UnitType) ? (v as UnitType) : 'verse'
 }
 
-function parsePage(v: string | null): number {
-  const n = Number(v)
-  return Number.isInteger(n) && n > 1 ? n : 1
-}
 
 export function DiscoveriesPage() {
   const [params, update] = useQueryParams()
@@ -144,22 +141,5 @@ function Side({ unit, verse, preview }: { unit: UnitSummary; verse: Verse | null
         )
       )}
     </div>
-  )
-}
-
-function Pager({ page, pages, onPage }: { page: number; pages: number; onPage: (p: number) => void }) {
-  if (pages <= 1) return null
-  return (
-    <nav className="pager" aria-label="Pages">
-      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-        ← Previous
-      </button>
-      <span className="muted small">
-        {page} / {pages}
-      </span>
-      <button type="button" disabled={page >= pages} onClick={() => onPage(page + 1)}>
-        Next →
-      </button>
-    </nav>
   )
 }

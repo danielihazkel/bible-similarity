@@ -619,6 +619,124 @@ a.verse-num {
   color: #fff;
 }
 
+/* Word analysis (click a word in the source text) */
+.w-click {
+  cursor: pointer;
+  border-radius: 3px;
+}
+.w-click:hover,
+.w-click:focus-visible {
+  background: var(--accent-soft);
+  outline: none;
+}
+.w-selected {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.hint {
+  margin: 0.4rem 0 0;
+}
+.word-panel {
+  margin-top: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+}
+.word-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+.word-head button {
+  margin-inline-start: auto;
+}
+.word-form {
+  font-size: 1.6rem;
+}
+.word-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.2rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--border);
+}
+.word-surface {
+  font-size: 1.25rem;
+  min-width: 5em;
+}
+.morph {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-he);
+  font-size: 1.05rem;
+  color: var(--text);
+}
+.lemma-chip {
+  text-decoration: none;
+}
+.goto {
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+}
+.verse-link {
+  color: inherit;
+  text-decoration: none;
+}
+.verse-link:hover {
+  color: var(--accent);
+}
+
+/* Concordance: verses per book */
+.book-bars {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.15rem 1.5rem;
+}
+.book-bars button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 8.5em 1fr 3em;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  padding: 0.15rem 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.book-bars button:hover,
+.book-bars button.on {
+  background: var(--accent-soft);
+}
+.bar-track {
+  height: 0.5rem;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.bar-n {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
 /* Sefaria-linked hits */
 .link-badge,
 .mutual-tag {

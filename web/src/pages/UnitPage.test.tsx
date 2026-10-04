@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ExplainResponse, SimilarResponse, UnitDetail, UnitSummary, Verse } from '../api/types'
+import type { ExplainResponse, SimilarResponse, UnitDetail, UnitSummary, Verse, WordDetail } from '../api/types'
 import { UnitPage } from './UnitPage'
 
 const unit = (id: number, label: string): UnitSummary => ({
@@ -54,6 +54,19 @@ const EXPLAIN: ExplainResponse = {
   ],
 }
 
+const WORDS: WordDetail[] = [
+  {
+    idx: 0,
+    display_idx: 0,
+    surface: 'אָמַר',
+    lemma: '559',
+    morph: 'HVqp3ms',
+    morph_he: ['פועל · קל · עבר · גוף שלישי · זכר · יחיד'],
+    in_formula: false,
+    lemmas: [{ lemma: '559', he_lemma: 'אמר', n_verses: 4300 }],
+  },
+]
+
 function mockApi() {
   const calls: string[] = []
   vi.stubGlobal(
@@ -67,7 +80,9 @@ function mockApi() {
           ? similar(u.searchParams.get('mode')!)
           : u.pathname === '/api/explain'
             ? EXPLAIN
-            : null
+            : u.pathname === '/api/words/0'
+              ? WORDS
+              : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -119,6 +134,19 @@ describe('UnitPage', () => {
     expect(hit.querySelector('.link-badge')?.getAttribute('title')).toContain('quotation')
     fireEvent.click(screen.getByLabelText('Hide Sefaria-linked'))
     await waitFor(() => expect(calls.some((c) => c.includes('exclude=neighbors%2Cknown'))).toBe(true))
+  })
+
+  it('shows the morphology and a concordance link for a clicked word', async () => {
+    mockApi()
+    renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    const source = screen.getByLabelText('Source text')
+    fireEvent.click(source.querySelector('[role="button"]')!)
+    const panel = await screen.findByLabelText('Word analysis')
+    await waitFor(() => expect(panel.textContent).toContain('פועל · קל · עבר'))
+    expect(panel.querySelector('a')?.getAttribute('href')).toBe('/lemma/559')
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    expect(screen.queryByLabelText('Word analysis')).toBeNull()
   })
 
   it('keeps mode in the URL', async () => {

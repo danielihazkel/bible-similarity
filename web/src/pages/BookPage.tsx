@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router'
 import { useBooks, useUnit, useUnits } from '../api/hooks'
 import type { Book, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
+import { HebrewText } from '../components/HebrewText'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
@@ -81,7 +82,7 @@ export function BookPage() {
   )
 }
 
-/** Chapter picker → grid of that chapter's verses, each linking to the verse unit page. */
+/** Chapter picker → that chapter's verses with their text, each linking to the verse unit page. */
 function VerseBrowser({ book, chapter, onChapter }: { book: Book; chapter: string | null; onChapter: (n: number) => void }) {
   const n = Number(chapter)
   const ch = Number.isInteger(n) && n >= 1 && n <= book.n_chapters ? n : 1
@@ -104,15 +105,18 @@ function VerseBrowser({ book, chapter, onChapter }: { book: Book; chapter: strin
       ) : detail.error ? (
         <ErrorBox error={detail.error} />
       ) : (
-        <ul className="chapter-grid" aria-label="Verses">
+        <ol className="verse-list source" aria-label="Verses">
           {detail.data.verses.map((v) => (
             <li key={v.verse_id}>
-              <Link to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
+              <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
                 {v.verse}
+              </Link>
+              <Link className="verse-link" to={unitLink(`v:${v.verse_id}`)} tabIndex={-1}>
+                <HebrewText verse={v} />
               </Link>
             </li>
           ))}
-        </ul>
+        </ol>
       )}
     </>
   )

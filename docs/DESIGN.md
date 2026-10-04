@@ -222,7 +222,9 @@ CREATE TABLE matches (unit_type TEXT, mode TEXT, src_id TEXT, rank INTEGER, tgt_
 CREATE TABLE discoveries (unit_type TEXT, mode TEXT, a_id TEXT, b_id TEXT, score REAL, tie REAL,
                       rank_ab INTEGER, rank_ba INTEGER, a_book INTEGER, b_book INTEGER,
                       PRIMARY KEY (unit_type, mode, a_id, b_id)) WITHOUT ROWID;
-CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT) WITHOUT ROWID;   -- for showing shared lemmas
+CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT, n_words INTEGER, n_verses INTEGER) WITHOUT ROWID;
+CREATE TABLE lemma_verses (lemma TEXT, verse_id INTEGER, book_id INTEGER,
+                      PRIMARY KEY (lemma, verse_id)) WITHOUT ROWID;   -- concordance (263k rows)
 CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;            -- JSON values
 -- after loading: units(unit_type, book_id, start_verse_id), unit_members(verse_id, unit_id),
 --                discoveries(unit_type, mode, score DESC, tie DESC)
@@ -251,6 +253,9 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/compare?a={unit_id}&b={unit_id}` | verse-level alignment of two units: for each verse in A its best match in B (and vice versa) with cosine, computed from the cached verse matrix; plus shared lemmas per pair |
 | `GET /api/search?q=...&mode=&k=` | free-text Hebrew search over verses (§10.1) |
 | `GET /api/discoveries?unit_type=verse&mode=semantic&book=&cross_book=&limit=50&offset=0` | strongest pairs without a Sefaria link (§9 `discoveries`), paginated (`limit` ≤ `serve.max_page`), with `total` |
+| `GET /api/resolve?q=` | the verse / chapter a reference names (`Gen 1:1`, `1Sam 3`, `בראשית א א`, `תהלים קי"ט קה`), or `unit: null` (`api/resolve.py`: English titles, OSIS ids, Hebrew names and their unambiguous prefixes; Arabic or canonically written Hebrew numerals) |
+| `GET /api/words/{verse_id}` | every OSHB word: surface, raw lemma, morph code + Hebrew description per morpheme (`text/morph.py`), content lemmas with verse counts |
+| `GET /api/lemma/{lemma}?book=&limit=&offset=` | concordance: occurrences, verses per book, a page of verses with the lemma's display tokens |
 | `GET /api/meta` | build info |
 
 ### 10.1 Free-text search
@@ -350,3 +355,4 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D24 | Viewer | React + Vite + TS in `web/` with TanStack Query and react-router; English LTR chrome, Hebrew in RTL spans built from `display_tokens`; plain CSS (no framework); te'amim / niqqud / consonants toggle by client-side Unicode stripping (localStorage); all view state in the URL, verses default to `exclude=neighbors`; shared-lemma highlights via `/explain` on hover in unit detail and compare; `bsim serve` serves `paths.web_dist` with an SPA fallback |
 | D25 | End-to-end | `bsim all` runs stages 1–12 in a fixed order from `bsim/pipeline.py` with the system lists in config `pipeline`; `--from/--to/--skip` select stages; fuse records the dev `w_lex` grid before writing fused lists; the test split runs only when absent (never forced); training ablations and the web build stay manual. Results are published as metrics only in `docs/RESULTS.md` |
 | D26 | Gold links in the viewer | Sefaria links (all splits; the viewer is not an evaluation) are flagged per stored match (`link_level` verse/unit) and drive a "Discoveries" list of strong unlinked pairs (top-10 either way, neighbours dropped). Discoveries default to `semantic` mode: CSLS scores are comparable across sources, BM25 scores are not, and fused RRF scores tie at the top (secondary sort by semantic score) |
+| D27 | Word study | Morphology is decoded from the OSHB codes into Hebrew labels at request time (no lexicon, English glosses or translations); the concordance is keyed by content lemma (Strong's number) via a `lemma_verses` table; references are resolved by `api/resolve.py` independently of the search modes, and the search page offers the resolved unit next to (or instead of, for non-Hebrew input) the text results |

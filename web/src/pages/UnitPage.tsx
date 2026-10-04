@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { useExplain, useSimilar, useUnit } from '../api/hooks'
-import type { UnitDetail, UnitSummary } from '../api/types'
+import type { UnitDetail, UnitSummary, Verse } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
+import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
@@ -35,6 +36,10 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const [focusLemma, setFocusLemma] = useState<string>()
   const hoverTimer = useRef<number>(undefined)
   useEffect(() => () => window.clearTimeout(hoverTimer.current), [])
+  const [word, setWord] = useState<{ verse: Verse; idx: number }>()
+  const pick = (verse: Verse) => (idx: number) =>
+    setWord(word?.verse.verse_id === verse.verse_id && word.idx === idx ? undefined : { verse, idx })
+  const selectedIn = (verse: Verse) => (word?.verse.verse_id === verse.verse_id ? word.idx : undefined)
   const isVerse = unit.unit_type === 'verse'
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
@@ -62,7 +67,12 @@ function UnitView({ detail }: { detail: UnitDetail }) {
       <section className={`source ${isVerse ? 'single' : ''}`} aria-label="Source text">
         {isVerse ? (
           <p className="source-text">
-            <HebrewText verse={verses[0]} highlight={highlightFor(explain.data, 'a', focusLemma)} />
+            <HebrewText
+              verse={verses[0]}
+              highlight={highlightFor(explain.data, 'a', focusLemma)}
+              onWordClick={pick(verses[0])}
+              selected={selectedIn(verses[0])}
+            />
           </p>
         ) : (
           <ol className="verse-list">
@@ -71,12 +81,17 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                 <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
                   {v.verse}
                 </Link>
-                <HebrewText verse={v} />
+                <HebrewText verse={v} onWordClick={pick(v)} selected={selectedIn(v)} />
               </li>
             ))}
           </ol>
         )}
       </section>
+      {word ? (
+        <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
+      ) : (
+        <p className="muted small hint">Click a word for its morphology and concordance.</p>
+      )}
 
       <section className="results" aria-label="Similar units">
         <div className="results-head">

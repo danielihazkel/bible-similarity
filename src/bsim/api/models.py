@@ -166,6 +166,53 @@ class SearchResponse(BaseModel):
     hits: list[SearchHit]
 
 
+class ResolveResponse(BaseModel):
+    query: str
+    unit: UnitSummary | None  # the verse or chapter the query names; None if it is not a reference
+
+
+class LemmaStat(BaseModel):
+    lemma: str
+    he_lemma: str
+    n_verses: int  # verses containing it
+
+
+class WordDetail(BaseModel):
+    idx: int
+    display_idx: int | None
+    surface: str  # OSHB (WLC) form, morphemes separated by `/`
+    lemma: str  # raw OSHB lemma attribute, e.g. b/7225
+    morph: str | None  # OSHB code, e.g. HR/Ncfsa
+    morph_he: list[str]  # Hebrew description per morpheme (text/morph.py)
+    in_formula: bool
+    lemmas: list[LemmaStat]  # its content lemmas
+
+
+class BookCount(BaseModel):
+    book_id: int
+    n_verses: int
+
+
+class ConcordanceHit(BaseModel):
+    verse: Verse
+    label_en: str
+    label_he: str
+    display_idxs: list[int]  # display tokens carrying the lemma
+
+
+class ConcordanceResponse(BaseModel):
+    lemma: str
+    he_lemma: str
+    n_words: int
+    n_verses: int
+    by_book: list[BookCount]  # canon order, books without it left out
+    book: int | None
+    total: int  # verses after the book filter
+    offset: int
+    limit: int
+    items: list[ConcordanceHit]
+
+
 class Meta(BaseModel):
     build: dict[str, Any]  # the DB `meta` table
     runtime: dict[str, Any]

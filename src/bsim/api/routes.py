@@ -15,27 +15,35 @@ from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
     Book,
+    BookCount,
     CompareResponse,
+    ConcordanceHit,
+    ConcordanceResponse,
     DiscoveriesResponse,
     Discovery,
     ExplainResponse,
     GoldLink,
     Hit,
     LemmaForm,
+    LemmaStat,
     Meta,
     Mode,
     Pair,
+    ResolveResponse,
     SearchHit,
     SearchResponse,
     SharedLemma,
     SimilarResponse,
     UnitDetail,
     UnitSummary,
+    WordDetail,
     WordRef,
 )
+from bsim.api.resolve import resolve as resolve_ref
 from bsim.api.search import EncoderUnavailable
 from bsim.api.search import search as run_search
 from bsim.store.db import similar as db_similar
+from bsim.text.morph import decode as decode_morph
 from bsim.text.normalize import consonantal
 
 router = APIRouter(prefix="/api")
@@ -67,6 +75,14 @@ def _k(state: ServeState, k: int | None) -> int:
     if not 1 <= k <= k_max:
         raise _unprocessable(f"k must be between 1 and {k_max}")
     return k
+
+
+def _page(state: ServeState, limit: int, offset: int) -> None:
+    max_page = state.cfg["serve"]["max_page"]
+    if not 1 <= limit <= max_page:
+        raise _unprocessable(f"limit must be between 1 and {max_page}")
+    if offset < 0:
+        raise _unprocessable("offset must not be negative")
 
 
 def _unit_or_404(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any]:
@@ -193,11 +209,7 @@ def discoveries(
     types = state.cfg["units"]["types"]
     if unit_type not in types:
         raise _unprocessable(f"unknown unit type {unit_type!r}; choose from {types}")
-    max_page = state.cfg["serve"]["max_page"]
-    if not 1 <= limit <= max_page:
-        raise _unprocessable(f"limit must be between 1 and {max_page}")
-    if offset < 0:
-        raise _unprocessable("offset must not be negative")
+    _page(state, limit, offset)
     total, rows = queries.discoveries(conn, unit_type, mode, book, cross_book, limit, offset)
     units_ = queries.units_by_id(conn, [i for r in rows for i in (r["a_id"], r["b_id"])])
     verses, previews = _texts(
@@ -345,6 +357,90 @@ def search(
         "mode": mode,
         "k": k,
         "hits": hits,
+    }
+
+
+@router.get("/resolve", response_model=ResolveResponse)
+def resolve(q: str, conn: Conn) -> dict[str, Any]:
+    """The verse or chapter a reference names (`Gen 1:1`, `בראשית א א`), or `unit: null`."""
+    r = resolve_ref(q)
+    unit_id = None
+    if r is not None and r.verse is None:
+        unit_id = f"c:{r.book.book_id}:{r.chapter}"
+    elif r is not None:
+        vid = queries.verse_at(conn, r.book.book_id, r.chapter, r.verse)
+        unit_id = None if vid is None else f"v:{vid}"
+    return {"query": q, "unit": queries.unit(conn, unit_id) if unit_id else None}
+
+
+def _lemma_stat(stats: dict[str, dict[str, Any]], lemma: str) -> LemmaStat:
+    s = stats.get(lemma, {})
+    return LemmaStat(lemma=lemma, he_lemma=s.get("he_lemma", lemma), n_verses=s.get("n_verses", 0))
+
+
+@router.get("/words/{verse_id}", response_model=list[WordDetail])
+def words(verse_id: int, state: State, conn: Conn) -> list[WordDetail]:
+    """Every OSHB word of a verse with its morphology and content lemmas."""
+    _verse_or_404(state, verse_id)
+    rows = queries.words(conn, [verse_id], detail=True)
+    stats = queries.lemma_stats(conn, (lem for w in rows for lem in w["content_lemmas"].split()))
+    return [
+        WordDetail(
+            idx=w["idx"],
+            display_idx=w["display_idx"],
+            surface=w["surface"],
+            lemma=w["lemma"],
+            morph=w["morph"],
+            morph_he=decode_morph(w["morph"]),
+            in_formula=bool(w["in_formula"]),
+            lemmas=[_lemma_stat(stats, lem) for lem in dict.fromkeys(w["content_lemmas"].split())],
+        )
+        for w in rows
+    ]
+
+
+@router.get("/lemma/{lemma}", response_model=ConcordanceResponse)
+def lemma(
+    lemma: str,
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Concordance: the verses containing a content lemma, with per-book counts."""
+    stats = queries.lemma_stats(conn, [lemma]).get(lemma)
+    if stats is None:
+        raise HTTPException(status_code=404, detail=f"unknown lemma {lemma!r}")
+    _page(state, limit, offset)
+    by_book = queries.lemma_books(conn, lemma)
+    total = sum(b["n_verses"] for b in by_book if book is None or b["book_id"] == book)
+    vids = queries.lemma_page(conn, lemma, book, limit, offset)
+    verses = queries.verses_by_id(conn, vids)
+    labels = queries.verse_labels(conn, vids)
+    marks: dict[int, set[int]] = defaultdict(set)
+    for w in queries.words(conn, vids):
+        if w["display_idx"] is not None and lemma in w["content_lemmas"].split():
+            marks[w["verse_id"]].add(w["display_idx"])
+    return {
+        "lemma": lemma,
+        "he_lemma": stats["he_lemma"],
+        "n_words": stats["n_words"],
+        "n_verses": stats["n_verses"],
+        "by_book": [BookCount(**b) for b in by_book],
+        "book": book,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            ConcordanceHit(
+                verse=verses[v],
+                label_en=labels[v][0],
+                label_he=labels[v][1],
+                display_idxs=sorted(marks[v]),
+            )
+            for v in vids
+        ],
     }
 
 

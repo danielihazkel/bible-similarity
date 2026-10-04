@@ -31,5 +31,8 @@ export function joinTokens(tokens: string[]): string {
   return tokens.map((t, i) => (i < tokens.length - 1 && !endsWithMaqaf(t) ? `${t} ` : t)).join('')
 }
 
+/** True when `s` contains a Hebrew letter (the API's requirement for free-text search). */
+export const hasHebrew = (s: string) => /[\u05D0-\u05EA]/.test(s)
+
 /** Hebrew letters for the on-screen keypad (finals after their base letters). */
 export const KEYPAD_LETTERS = 'אבגדהוזחטיכךלמםנןסעפףצץקרשת'.split('')

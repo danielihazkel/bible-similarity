@@ -7,10 +7,13 @@ interface Props {
   verse: Verse
   highlight?: Highlight
   className?: string
+  /** Makes every token a button reporting its display index (word analysis). */
+  onWordClick?: (displayIdx: number) => void
+  selected?: number
 }
 
 /** A verse's display tokens, right to left, with the text mode and lemma highlights applied. */
-export function HebrewText({ verse, highlight, className }: Props) {
+export function HebrewText({ verse, highlight, className, onWordClick, selected }: Props) {
   const { mode } = useTextMode()
   const tokens = verse.display_tokens
   return (
@@ -18,9 +21,30 @@ export function HebrewText({ verse, highlight, className }: Props) {
       {tokens.map((t, i) => {
         const mark = highlight?.get(i)
         const sep = i < tokens.length - 1 && !endsWithMaqaf(t) ? ' ' : ''
+        const cls = [mark && `w w-${mark}`, onWordClick && 'w-click', selected === i && 'w-selected']
+          .filter(Boolean)
+          .join(' ')
         return (
           <span key={i}>
-            <span className={mark ? `w w-${mark}` : undefined}>{displayForm(t, mode)}</span>
+            {onWordClick ? (
+              <span
+                className={cls}
+                role="button"
+                tabIndex={0}
+                aria-pressed={selected === i}
+                onClick={() => onWordClick(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onWordClick(i)
+                  }
+                }}
+              >
+                {displayForm(t, mode)}
+              </span>
+            ) : (
+              <span className={cls || undefined}>{displayForm(t, mode)}</span>
+            )}
             {sep}
           </span>
         )

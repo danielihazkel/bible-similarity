@@ -271,3 +271,40 @@ def test_discoveries(client):
     assert client.get("/api/discoveries?offset=1").json()["items"] == []
     for bad in ("unit_type=book", "limit=0", "limit=100000", "offset=-1", "mode=x"):
         assert client.get(f"/api/discoveries?{bad}").status_code == 422
+
+
+def test_resolve(client):
+    unit = lambda q: client.get("/api/resolve", params={"q": q}).json()["unit"]  # noqa: E731
+    assert unit("Gen 1:2")["unit_id"] == "v:1"
+    assert unit("בראשית ב")["unit_id"] == "c:0:2"
+    assert unit("Exod 1:1")["unit_id"] == "v:5"
+    assert unit("Gen 1:9") is None  # no such verse in the fixture
+    assert unit("בראשית ברא") is None
+
+
+def test_words(client):
+    words = client.get("/api/words/0").json()
+    assert [w["surface"] for w in words] == TEXTS[0].split()
+    assert words[0]["lemma"] == "b/7225"
+    assert words[0]["lemmas"] == [{"lemma": "7225", "he_lemma": "ראשית", "n_verses": 5}]
+    assert words[0]["morph_he"] == []  # the fixture's morph is just the language letter
+    assert client.get("/api/words/99").status_code == 404
+
+
+def test_lemma_concordance(client):
+    body = client.get("/api/lemma/7225").json()
+    assert (body["he_lemma"], body["n_words"], body["n_verses"], body["total"]) == (
+        "ראשית",
+        5,
+        5,
+        5,
+    )
+    assert body["by_book"] == [{"book_id": 0, "n_verses": 4}, {"book_id": 1, "n_verses": 1}]
+    assert [i["verse"]["verse_id"] for i in body["items"]] == [0, 2, 3, 4, 5]
+    assert body["items"][0]["display_idxs"] == [0]
+    one = client.get("/api/lemma/7225?book=1").json()
+    assert (one["total"], [i["label_en"] for i in one["items"]]) == (1, ["v:5"])
+    page = client.get("/api/lemma/7225?limit=2&offset=2").json()
+    assert [i["verse"]["verse_id"] for i in page["items"]] == [3, 4]
+    assert client.get("/api/lemma/0000").status_code == 404
+    assert client.get("/api/lemma/7225?limit=0").status_code == 422

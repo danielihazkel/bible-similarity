@@ -148,3 +148,12 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Tests: store (`gold_verse_pairs`, link flags, discoveries), API, vitest (badge, filter, Discoveries paging)
 
 ✔ Ps 14:1 → Ps 53:2 is badged as a Sefaria link; unlinked strong pairs such as Ps 115:8 ↔ Ps 135:18, Judg 17:6 ↔ 21:25 and I Kings 17 ↔ II Kings 4 appear on the Discoveries page.
+
+## M15 — Word study and navigation (roadmap C + D)
+- [x] `text/morph.py`: OSHB morphology code → Hebrew description per morpheme (Hebrew and Aramaic stems, verb forms, person / gender / number / state)
+- [x] `build-db`: `lemma_gloss.n_words / n_verses`, `lemma_verses` concordance table (263,300 rows; DB 307 MB)
+- [x] API: `/resolve` (English / OSIS / Hebrew references, prefixes, Hebrew numerals), `/words/{verse_id}`, paginated `/lemma/{lemma}` with per-book counts
+- [x] Viewer: click any source word → morphology panel with concordance links; Concordance page (bars per book as a filter, highlighted occurrences, paging); Search offers the referenced verse / chapter ("Gen 1:1", "בראשית א א"); Verses tab shows the chapter's text
+- [x] Tests: resolver, morph decoder, endpoints (pytest); word panel, concordance, reference banner (vitest)
+
+✔ "שמואל א יז מט" → I Samuel 17:49; Gen 1:1 word 1 = מילת יחס + שם עצם · נקבה · יחיד · נפרד, lemma ראשית in 49 verses over 19 books.
