@@ -1,0 +1,87 @@
+# Every tunable value lives here (DESIGN.md §12). Artifacts record a hash of the sections they depend on.
+
+seed: 13
+
+paths:
+  data_raw: data/raw
+  data_interim: data/interim
+  data_processed: data/processed
+  models: models
+  artifacts: artifacts
+  db: artifacts/results.sqlite
+
+sources:
+  oshb:
+    repo: openscriptures/morphhb
+    commit: master            # pin to a commit SHA in M1
+    raw_url: https://raw.githubusercontent.com/openscriptures/morphhb/{commit}/wlc/{osis}.xml
+  sefaria:
+    bucket_url: https://storage.googleapis.com/sefaria-export
+    text_version: Miqra according to the Masorah
+    n_link_files: 13          # links0.csv .. links12.csv
+
+text:
+  kq: qere                    # qere | ketiv — reading used for text_model
+  max_seq_length: 128         # verify against the longest verse in M2
+
+units:
+  types: [verse, chapter, pericope, parasha]
+
+retrieval:
+  k: 50
+  neighbor_window: 2
+  chunk_size: 2048
+  device: cuda                # falls back to cpu if unavailable
+
+lexical:
+  bm25:
+    k1: 1.2
+    b: 0.75
+  bigrams: true
+  formulas:
+    min_n: 3
+    max_n: 6
+    min_verses: 15            # T
+    weight: 0.2               # alpha
+
+encoders:
+  berel: dicta-il/BEREL_3.0
+  bge_m3: BAAI/bge-m3
+  batch_size: 64
+
+train:
+  simcse:
+    batch_size: 64
+    lr: 3.0e-5
+    epochs: 3
+    dropout: 0.1
+  supervised:
+    batch_size: 256
+    mini_batch_size: 32
+    lr: 2.0e-5
+    warmup_ratio: 0.1
+    epochs: 5
+    hard_negative_rank_range: [5, 50]
+    init_from: berel-simcse   # berel-simcse | base
+
+fusion:
+  rrf_k: 60
+  w_lex: 0.5
+  w_sem: 1.0
+
+splits:
+  ratios: {train: 0.75, dev: 0.10, test: 0.15}
+
+eval:
+  ks: [1, 5, 10, 50]
+  unit_gold_min_links: 2      # m
+  csls_neighbors: 10
+
+final_systems:                # chosen on dev in M8/M9
+  lexical: bm25_lemma
+  semantic: berel_sup
+  fused: fused
+
+serve:
+  host: 127.0.0.1
+  port: 8000
