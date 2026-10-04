@@ -121,8 +121,9 @@ Weighted Reciprocal Rank Fusion over the lexical and semantic top-50 lists:
 ## 6. Retrieval
 
 ### 6.1 Verse top-k
-- Dense: load the `N × d` matrix on GPU; for chunks of 2,048 rows compute `chunk @ E.T` (fp32), set self-similarity to −∞, `torch.topk(k=50)`. CPU fallback: numpy + `argpartition`.
-- Sparse (lexical): sparse matmul per chunk, then the same top-k.
+- Dense: load the `N × d` matrix on GPU; for chunks of 2,048 rows compute `chunk @ E.T` (fp32), set self-similarity to −∞, `torch.topk(k=50)`. CPU fallback: the same code on a CPU torch device.
+- Sparse (lexical): scipy sparse matmul per chunk on the CPU, then the same top-k on the device. Hits with score ≤ 0 (no shared terms) are dropped, so a verse can have fewer than 50.
+- Within the top-k, ties are ordered by target `verse_id`. Ranks are 1-based. `artifacts/topk/verse/{X}.parquet` gets a `{X}.meta.json` sidecar (retrieval config hash, source artifact hash, device).
 - **Only self is excluded at compute time.** Neighbour (±2 verses, same book), same-chapter and same-book exclusion are applied at query time over the stored 50 (§9, §10). The eval harness applies the ±2 neighbour filter to both predictions and gold by default.
 
 ### 6.2 Unit aggregation (chapter, pericope, parasha)
@@ -175,6 +176,9 @@ Result (2026-10): ~6.0k undirected verse pairs (5,103 rows positional, 508 Carte
 - Verse level: for each query verse with ≥ 1 gold link in the split: **recall@{1,5,10,50}, MRR@10, nDCG@10** (binary relevance). The ±2 neighbour filter is applied to predictions.
 - Unit level: chapter (and pericope) pairs are gold when they share ≥ *m* verse links (default *m* = 2) or a unit-level link; same metrics.
 - `bsim evaluate` runs every system in `artifacts/topk/` on dev (default) or test (`--split test`, run once at the end) and writes `artifacts/eval/report.md` + `metrics.json` (system × unit type × metric table, plus the 20 worst-missed gold pairs per system for error analysis).
+- Metrics are macro-averaged over all gold queries; a query with no predictions scores 0. MRR/nDCG use `eval.rank_k` = 10.
+- "Worst misses" = gold pairs absent from the system's filtered top-50, ordered by how many *other* systems have them in their top-10, then by best other-system rank.
+- `metrics.json` is keyed by split (`{"splits": {split: {evaluated_at, config_hash, results: {unit_type: {system: metrics}}}}}`); a run replaces its own split only, so the report shows dev next to the single test run.
 
 ### 8.4 Known limitation
 Sefaria links reflect what commentators and editors linked, biased toward "famous" connections. The supervised model learns that notion of relatedness. The `lexical` mode and the un-supervised baselines remain available in the viewer as an independent view.
@@ -283,3 +287,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D14 | Versification | `verse_id` follows MAM/Sefaria (23,206 verses); OSHB is re-keyed via `canon.VERSE_OVERRIDES` (Decalogue in Ex 20 / Deut 5, Num 25:19 → 26:1) |
 | D15 | Link filter & split | Gold = links whose two texts are both canon books (not `Category == Tanakh`); book split balances pair fractions with a 35 % cap on any single book's share of dev/test |
 | D16 | Lexical weighting | Formula weight α applies to both BM25 sides (doc tf/length, query term weight = max token weight); bigram weight = min of its tokens; `bm25_surface` uses the same pipeline on `match_key` tokens (its own formulas, not exported); unit TF-IDF tf = `(1 + log c)·(w/c)` |
+| D17 | Top-k & eval | One torch top-k path for GPU and CPU; lexical lists drop zero-score hits; ranks 1-based with ties ordered by target id; metrics macro-averaged over gold queries (missing = 0); `metrics.json` keyed by split |

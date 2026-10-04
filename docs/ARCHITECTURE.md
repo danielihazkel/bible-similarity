@@ -147,7 +147,7 @@ bible-similarity/
 | 5 | `bsim train-simcse` | verses | `models/berel-simcse/` |
 | 6 | `bsim train-sup` | verses, links (train/dev), lexical | `models/berel-sup/` |
 | 7 | `bsim embed --model X` | verses, model | `artifacts/embeddings/{X}.npy` (float32, L2-normalized, row = verse_id) |
-| 8 | `bsim topk --system X` | embeddings or lexical | `artifacts/topk/verse/{X}.parquet` |
+| 8 | `bsim topk --system X` | embeddings or lexical | `artifacts/topk/verse/{X}.parquet` + `{X}.meta.json` |
 | 9 | `bsim units --system X` | verse sims, units | `artifacts/topk/{chapter,pericope,parasha}/{X}.parquet` |
 | 10 | `bsim fuse` | lexical + semantic topk | `artifacts/topk/*/fused.parquet` |
 | 11 | `bsim evaluate` | topk, links, splits | `artifacts/eval/report.md`, `metrics.json` |

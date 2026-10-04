@@ -110,12 +110,21 @@ def train_sup(config: ConfigOpt = None) -> None:
 
 @app.command()
 def topk(
-    system: Annotated[str, typer.Option(help="Retrieval system name, e.g. bm25_lemma")],
+    system: Annotated[
+        list[str], typer.Option(help="Retrieval system name, e.g. bm25_lemma (repeatable)")
+    ],
     config: ConfigOpt = None,
 ) -> None:
-    """Compute verse-level top-k for a system."""
-    load_config(config)
-    _not_implemented("topk", "M5")
+    """Compute verse-level top-k for one or more systems."""
+    from bsim.retrieve.topk import run_topk
+
+    cfg = load_config(config)
+    try:
+        for name in system:
+            run_topk(cfg, name, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
@@ -143,8 +152,13 @@ def evaluate(
     """Evaluate all systems against Sefaria links."""
     if split not in {"dev", "test"}:
         raise typer.BadParameter("split must be 'dev' or 'test'")
-    load_config(config)
-    _not_implemented("evaluate", "M5")
+    from bsim.eval.report import run_evaluate
+
+    try:
+        run_evaluate(load_config(config), split=split, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("build-db")

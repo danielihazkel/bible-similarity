@@ -61,11 +61,11 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `formulas.parquet` lists the expected formulas (e.g. *וידבר ה' אל משה לאמר*); top-5 for Ps 14:1 contains Ps 53:2.
 
 ## M5 — Retrieval core & evaluation harness (§6.1, §8.3)
-- [ ] `retrieve/topk.py`: chunked GPU top-k (self excluded, k=50), CPU fallback; writes top-k Parquet
-- [ ] `retrieve/filters.py`: neighbour/chapter/book filters (shared by eval and API)
-- [ ] `eval/metrics.py` (recall@k, MRR@10, nDCG@10) + tests against hand-computed values
-- [ ] `eval/report.py`: system × unit × metric table, worst misses, sanity spot-checks
-- [ ] Run `bm25_lemma` and `bm25_surface` on dev
+- [x] `retrieve/topk.py`: chunked GPU top-k (self excluded, k=50), CPU fallback; writes top-k Parquet
+- [x] `retrieve/filters.py`: neighbour/chapter/book filters (shared by eval and API)
+- [x] `eval/metrics.py` (recall@k, MRR@10, nDCG@10) + tests against hand-computed values
+- [x] `eval/report.py`: system × unit × metric table, worst misses, sanity spot-checks
+- [x] Run `bm25_lemma` and `bm25_surface` on dev (nDCG@10 0.176 vs 0.144)
 
 ✔ `artifacts/eval/report.md` shows dev metrics for both BM25 systems; `bm25_lemma` ≥ `bm25_surface`.
 
