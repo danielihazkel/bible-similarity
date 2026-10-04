@@ -117,15 +117,16 @@ M0 → M1 → M2 → M3 ─┐
 ✔ All endpoints covered by tests; `bsim serve` starts in < 30 s; search responds in < 300 ms on CPU.
 
 ## M12 — Frontend (§11)
-- [ ] Vite + React + TS scaffold in `web/`, TanStack Query, react-router, API proxy
-- [ ] Hebrew fonts (Ezra SIL / Noto Serif Hebrew), RTL layout, te'amim/niqqud toggle
-- [ ] Browse page (book → chapter → verses; parasha & pericope tabs)
-- [ ] Unit detail + results panel (mode toggle, k, filters, score breakdown bars)
-- [ ] Shared-lemma highlighting via `/explain`
-- [ ] Compare page (side-by-side, best-match pairs)
-- [ ] Search page
-- [ ] URL state for all views; MAM CC-BY-SA attribution footer
-- [ ] Production build served by FastAPI
+- [x] Vite + React + TS scaffold in `web/`, TanStack Query, react-router, API proxy (Vite 8, React 19, react-router 8; oxlint + vitest)
+- [x] Hebrew fonts (Ezra SIL / Noto Serif Hebrew), RTL layout, te'amim/niqqud toggle (Noto bundled via fontsource; Ezra SIL when installed)
+- [x] Browse page (book → chapter → verses; parasha & pericope tabs)
+- [x] Unit detail + results panel (mode toggle, k, filters, score breakdown bars)
+- [x] Shared-lemma highlighting via `/explain`
+- [x] Compare page (side-by-side, best-match pairs)
+- [x] Search page
+- [x] URL state for all views; MAM CC-BY-SA attribution footer
+- [x] Production build served by FastAPI (`paths.web_dist`, SPA fallback; JS 318 kB / 100 kB gzip)
+- [x] Walkthrough on the real DB (headless Edge): Ps 14:1 → Ps 53:2 at rank 1 in lexical / semantic / fused; II Sam 22 ↔ Ps 18 pairs all 51 verses (BMA 0.902); search "בראשית ברא אלהים" / "ויאמר אלהים יהי אור" → Gen 1:1 / 1:3 at rank 1 in every mode
 
 ✔ Manual walkthrough: open Ps 14:1 → Ps 53:2 appears under all modes; compare II Sam 22 ↔ Ps 18 shows aligned verses; free-text search for a phrase returns its verse first.
 

@@ -10,6 +10,9 @@ missing DB or embedding file:
   waits for it, and a failed load makes those searches 503;
 - the surface-form BM25 index for lexical `/search`.
 
+The production viewer build (`paths.web_dist`) is served at `/` when present; any non-`/api` path
+without a file falls back to its `index.html` (client-side routes).
+
 Tests pass a stub `encoder` instead of loading the model.
 """
 
@@ -23,8 +26,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from bsim.api import queries
 from bsim.api.search import (
@@ -159,4 +164,26 @@ def create_app(
         return response
 
     app.include_router(router)
+    _mount_web(app, resolve_path(cfg, "web_dist"), log)
     return app
+
+
+def _mount_web(app: FastAPI, dist: Path, log: Log) -> None:
+    """Serve the production viewer build: files under `dist`, `index.html` for client routes."""
+    index = dist / "index.html"
+    if not index.exists():
+        log(f"{dist} missing; run `npm run build` in web/ for the viewer (serving the API only)")
+        return
+    root = dist.resolve()
+    app.mount("/assets", StaticFiles(directory=dist / "assets", check_dir=False), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str) -> FileResponse:
+        if path == "api" or path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        f = (root / path).resolve()
+        if path and f.is_file() and f.is_relative_to(root):
+            return FileResponse(f)
+        return FileResponse(index)
+
+    log(f"viewer: {dist}")

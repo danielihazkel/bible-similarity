@@ -131,7 +131,14 @@ bible-similarity/
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       └── search.py               # free-text search (dense + surface BM25)
-├── web/                            # Vite + React + TypeScript viewer
+├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
+│   └── src/
+│       ├── api/                    # types mirroring api/models.py, fetch client, TanStack Query hooks
+│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
+│       ├── context/                # te'amim / niqqud / consonants preference
+│       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
+│       ├── pages/                  # books, book, unit, compare, search, about
+│       └── styles/global.css
 ├── tests/                          # pytest
 ├── data/          (gitignored)     # raw/ interim/ processed/
 ├── models/        (gitignored)     # fine-tuned checkpoints

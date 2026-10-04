@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
@@ -218,3 +220,26 @@ def test_failed_encoder_is_503(built):
     r = client.get("/api/search?q=דגן&mode=fused")
     assert r.status_code == 503 and "no model" in r.json()["detail"]
     assert client.get("/api/search?q=דגן&mode=lexical").status_code == 200
+
+
+def test_web_dist_served(built):
+    cfg, _ = built
+    dist = Path(cfg["paths"]["web_dist"])
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<html>viewer</html>", encoding="utf-8")
+    (dist / "assets" / "x.js").write_text("console.log(1)", encoding="utf-8")
+    (dist / "favicon.svg").write_text("<svg/>", encoding="utf-8")
+    client = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    for path in ["/", "/unit/v:1", "/compare?a=c:0:1&b=c:0:2", "/../secret"]:
+        r = client.get(path)
+        assert r.status_code == 200 and r.text == "<html>viewer</html>", path
+    assert client.get("/assets/x.js").text == "console.log(1)"
+    assert client.get("/favicon.svg").text == "<svg/>"
+    r = client.get("/api/nope")
+    assert r.status_code == 404 and r.json() == {"detail": "Not Found"}
+    assert client.get("/api/books").status_code == 200
+
+
+def test_web_dist_missing(client):
+    assert client.get("/").status_code == 404
+    assert client.get("/api/books").status_code == 200

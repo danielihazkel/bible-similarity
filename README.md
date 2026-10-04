@@ -19,8 +19,11 @@ The results are precomputed into SQLite and browsed in a local FastAPI + React v
 ```bash
 uv sync                      # installs PyTorch cu126 (needed for Pascal GPUs such as the GTX 1080 Ti)
 uv run bsim all              # download → corpus → links → lexical → train → embed → top-k → eval → DB
-uv run bsim serve            # http://localhost:8000
+(cd web && npm ci && npm run build)   # viewer → web/dist (Node 20+)
+uv run bsim serve            # API + viewer on http://localhost:8000
 ```
+
+Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend.
 
 ## Data & licenses
 - Hebrew text and morphology: [OSHB morphhb](https://github.com/openscriptures/morphhb) (WLC: public domain; morphology: CC BY 4.0)

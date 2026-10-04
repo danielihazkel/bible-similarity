@@ -9,6 +9,7 @@ paths:
   models: models
   artifacts: artifacts
   db: artifacts/results.sqlite
+  web_dist: web/dist          # production viewer build (`npm run build` in web/), served by `bsim serve`
 
 sources:
   oshb:

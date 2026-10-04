@@ -1,0 +1,73 @@
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { getJson } from './client'
+import type {
+  Book,
+  CompareResponse,
+  Exclude,
+  ExplainResponse,
+  Meta,
+  Mode,
+  SearchResponse,
+  SimilarResponse,
+  UnitDetail,
+  UnitSummary,
+  UnitType,
+} from './types'
+
+// The DB is read-only while the server runs: everything except search is immutable.
+const forever = { staleTime: Infinity, gcTime: 30 * 60_000 }
+
+export const useBooks = () =>
+  useQuery({ queryKey: ['books'], queryFn: ({ signal }) => getJson<Book[]>('/books', {}, signal), ...forever })
+
+export const useUnits = (type: UnitType, book: number | undefined) =>
+  useQuery({
+    queryKey: ['units', type, book],
+    queryFn: ({ signal }) => getJson<UnitSummary[]>(`/units/${type}`, { book }, signal),
+    enabled: book !== undefined,
+    ...forever,
+  })
+
+export const useUnit = (id: string | undefined) =>
+  useQuery({
+    queryKey: ['unit', id],
+    queryFn: ({ signal }) => getJson<UnitDetail>(`/unit/${encodeURIComponent(id!)}`, {}, signal),
+    enabled: !!id,
+    ...forever,
+  })
+
+export const useSimilar = (id: string, mode: Mode, k: number, exclude: Exclude[]) =>
+  useQuery({
+    queryKey: ['similar', id, mode, k, exclude.join(',')],
+    queryFn: ({ signal }) =>
+      getJson<SimilarResponse>(`/similar/${encodeURIComponent(id)}`, { mode, k, exclude: exclude.join(',') }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useExplain = (a: number | undefined, b: number | undefined) =>
+  useQuery({
+    queryKey: ['explain', a, b],
+    queryFn: ({ signal }) => getJson<ExplainResponse>('/explain', { a, b }, signal),
+    enabled: a !== undefined && b !== undefined,
+    ...forever,
+  })
+
+export const useCompare = (a: string | undefined, b: string | undefined) =>
+  useQuery({
+    queryKey: ['compare', a, b],
+    queryFn: ({ signal }) => getJson<CompareResponse>('/compare', { a, b }, signal),
+    enabled: !!a && !!b,
+    ...forever,
+  })
+
+export const useSearch = (q: string, mode: Mode, k: number) =>
+  useQuery({
+    queryKey: ['search', q, mode, k],
+    queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k }, signal),
+    enabled: q.trim().length > 0,
+    ...forever,
+  })
+
+export const useMeta = () =>
+  useQuery({ queryKey: ['meta'], queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal) })

@@ -50,6 +50,7 @@ def fixture_cfg(tmp_path, semantic="sm"):
         "data_processed": str(proc),
         "artifacts": str(art),
         "db": str(art / "results.sqlite"),
+        "web_dist": str(tmp_path / "web_dist"),
     }
     cfg["units"] = {**cfg["units"], "types": ["verse", "chapter"]}
     cfg["final_systems"] = {
