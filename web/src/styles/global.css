@@ -390,8 +390,13 @@ button.linkish:hover {
   grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
   gap: 0.4rem;
 }
-.chapter-grid a {
+.chapter-grid a,
+.chapter-grid button {
   display: block;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   text-align: center;
   padding: 0.5rem 0;
   background: var(--surface);
@@ -399,9 +404,15 @@ button.linkish:hover {
   border-radius: var(--radius);
   font-variant-numeric: tabular-nums;
 }
-.chapter-grid a:hover {
+.chapter-grid a:hover,
+.chapter-grid button:hover {
   border-color: var(--accent);
   text-decoration: none;
+}
+.chapter-grid button[aria-current] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  font-weight: 600;
 }
 
 .unit-list {

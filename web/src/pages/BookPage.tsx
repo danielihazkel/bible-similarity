@@ -1,13 +1,13 @@
 import { Link, useParams } from 'react-router'
-import { useBooks, useUnits } from '../api/hooks'
-import type { UnitType } from '../api/types'
+import { useBooks, useUnit, useUnits } from '../api/hooks'
+import type { Book, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 
-type Tab = 'chapters' | 'parashot' | 'pericopes'
-const TAB_TYPE: Record<Tab, UnitType> = { chapters: 'chapter', parashot: 'parasha', pericopes: 'pericope' }
+type Tab = 'chapters' | 'verses' | 'parashot' | 'pericopes'
+const TAB_TYPE: Partial<Record<Tab, UnitType>> = { parashot: 'parasha', pericopes: 'pericope' }
 
 export function BookPage() {
   const bookId = Number(useParams().bookId)
@@ -15,10 +15,11 @@ export function BookPage() {
   const books = useBooks()
   const book = books.data?.find((b) => b.book_id === bookId)
   const isTorah = book?.section === 'Torah'
-  const tabs: Tab[] = isTorah ? ['chapters', 'parashot', 'pericopes'] : ['chapters', 'pericopes']
+  const tabs: Tab[] = isTorah ? ['chapters', 'verses', 'parashot', 'pericopes'] : ['chapters', 'verses', 'pericopes']
   const raw = params.get('tab') as Tab | null
   const tab: Tab = raw && tabs.includes(raw) ? raw : 'chapters'
-  const units = useUnits(TAB_TYPE[tab], book ? bookId : undefined)
+  const listType = TAB_TYPE[tab]
+  const units = useUnits(listType ?? 'chapter', book && listType ? bookId : undefined)
 
   if (books.isPending) return <Loading />
   if (books.error) return <ErrorBox error={books.error} />
@@ -38,7 +39,7 @@ export function BookPage() {
       <Segmented
         label="Unit type"
         value={tab}
-        onChange={(t) => update({ tab: t === 'chapters' ? null : t })}
+        onChange={(t) => update({ tab: t === 'chapters' ? null : t, ...(t !== 'verses' && { ch: null }) })}
         options={tabs.map((t) => ({ value: t, label: t[0].toUpperCase() + t.slice(1) }))}
       />
       {tab === 'chapters' ? (
@@ -50,6 +51,8 @@ export function BookPage() {
             </li>
           ))}
         </ul>
+      ) : tab === 'verses' ? (
+        <VerseBrowser book={book} chapter={params.get('ch')} onChapter={(n) => update({ ch: String(n) })} />
       ) : units.isPending ? (
         <Loading />
       ) : units.error ? (
@@ -75,5 +78,42 @@ export function BookPage() {
         </ul>
       )}
     </div>
+  )
+}
+
+/** Chapter picker → grid of that chapter's verses, each linking to the verse unit page. */
+function VerseBrowser({ book, chapter, onChapter }: { book: Book; chapter: string | null; onChapter: (n: number) => void }) {
+  const n = Number(chapter)
+  const ch = Number.isInteger(n) && n >= 1 && n <= book.n_chapters ? n : 1
+  const detail = useUnit(`c:${book.book_id}:${ch}`)
+
+  return (
+    <>
+      <ul className="chapter-grid" aria-label="Chapter">
+        {Array.from({ length: book.n_chapters }, (_, i) => i + 1).map((c) => (
+          <li key={c}>
+            <button type="button" aria-current={c === ch || undefined} onClick={() => onChapter(c)}>
+              {c}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <h2>Chapter {ch}</h2>
+      {detail.isPending ? (
+        <Loading />
+      ) : detail.error ? (
+        <ErrorBox error={detail.error} />
+      ) : (
+        <ul className="chapter-grid" aria-label="Verses">
+          {detail.data.verses.map((v) => (
+            <li key={v.verse_id}>
+              <Link to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
+                {v.verse}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
