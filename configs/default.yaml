@@ -120,6 +120,12 @@ final_systems:                # chosen on dev in M8/M9
   unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
 
+pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
+  download_workers: 8
+  lexical_systems: [bm25_lemma, bm25_surface]   # verse top-k before training (hard negatives)
+  csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
+  unit_systems: [tfidf, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
+
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch
   max_size_mb: 400            # warn when results.sqlite is larger

@@ -131,9 +131,9 @@ M0 → M1 → M2 → M3 ─┐
 ✔ Manual walkthrough: open Ps 14:1 → Ps 53:2 appears under all modes; compare II Sam 22 ↔ Ps 18 shows aligned verses; free-text search for a phrase returns its verse first.
 
 ## M13 — Polish & end-to-end
-- [ ] `bsim all` runs the full pipeline from a clean `data/`
-- [ ] README quickstart verified on a clean clone
-- [ ] Final eval report committed as `docs/RESULTS.md` (metrics only, no raw data)
-- [ ] Update DESIGN decision log with any changes made during implementation
+- [x] `bsim all` runs the full pipeline from a clean `data/` (`bsim/pipeline.py`, 13 stages, `--from/--to/--skip`; test split only when absent; 38 min on the 1080 Ti)
+- [x] README quickstart verified on a clean clone (clone → `uv sync` → `bsim all` → `npm ci && npm run build` → `bsim serve`; metrics identical to 3 decimals)
+- [x] Final eval report committed as `docs/RESULTS.md` (metrics only, no raw data)
+- [x] Update DESIGN decision log with any changes made during implementation (D25, §12 `pipeline` section)
 
 ✔ Fresh clone → `uv sync` → `bsim all` → `bsim serve` works end-to-end.

@@ -20,11 +20,6 @@ ConfigOpt = Annotated[
 ]
 
 
-def _not_implemented(stage: str, milestone: str) -> None:
-    typer.echo(f"`{stage}` is not implemented yet (planned in {milestone}, see docs/TASKS.md).")
-    raise typer.Exit(code=1)
-
-
 @app.command()
 def download(
     only: Annotated[
@@ -255,10 +250,30 @@ def serve(
 
 
 @app.command("all")
-def run_all(config: ConfigOpt = None) -> None:
-    """Run the full offline pipeline end to end."""
-    load_config(config)
-    _not_implemented("all", "M13")
+def run_all(
+    start: Annotated[
+        str | None, typer.Option("--from", help="First stage to run (default: download)")
+    ] = None,
+    stop: Annotated[
+        str | None, typer.Option("--to", help="Last stage to run (default: build-db)")
+    ] = None,
+    skip: Annotated[list[str] | None, typer.Option(help="Stage to leave out (repeatable)")] = None,
+    config: ConfigOpt = None,
+) -> None:
+    """Run the full offline pipeline end to end (download ... build-db)."""
+    from bsim import pipeline
+
+    try:
+        pipeline.select_stages(start, stop, skip or ())
+    except ValueError as e:
+        raise typer.BadParameter(str(e)) from e
+    try:
+        pipeline.run_all(
+            load_config(config), log=typer.echo, start=start, stop=stop, skip=skip or ()
+        )
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 if __name__ == "__main__":

@@ -84,11 +84,13 @@ bible-similarity/
 ├── README.md
 ├── CLAUDE.md
 ├── pyproject.toml / uv.lock        # uv-managed; torch from the cu126 index
+├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only)
 ├── configs/
 │   └── default.yaml                # all paths, hyperparameters, k, seeds
 ├── src/bsim/
 │   ├── cli.py                      # Typer app: one command per pipeline stage
 │   ├── config.py                   # load + hash config
+│   ├── pipeline.py                 # `bsim all`: stage order, system lists from config
 │   ├── data/
 │   │   ├── download.py             # fetch sources, write manifest (url, sha256, date)
 │   │   ├── corpus.py               # build-corpus orchestration + corpus_report.md
@@ -162,7 +164,7 @@ bible-similarity/
 | 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
 | 12 | `bsim build-db` | processed + final topk | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all` | — | runs 1–12 with config defaults |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

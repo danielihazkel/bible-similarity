@@ -1,0 +1,171 @@
+# Results — bible-similarity
+
+Metrics only: no verse text and no per-pair listings (those are in the local, gitignored `artifacts/eval/report.md`). Section numbers (§) refer to [DESIGN.md](DESIGN.md). All numbers are from the 2026-10-04 build (config hash `183fd8d2ec2c` for evaluation).
+
+## Setup
+
+| item | value |
+|---|---|
+| verses / chapters / pericopes / parashiyot | 23,206 / 929 / 3,482 / 54 (MAM versification) |
+| OSHB words / aligned to MAM display tokens | 305,517 / 99.96 % |
+| gold (Sefaria book↔book links) | 6,018 undirected verse pairs + 818 unit-level links |
+| book split train / dev / test (§8.2) | 20 / 6 / 13 books; 4,513 / 602 / 903 verse pairs (75 / 10 / 15 %) |
+| dev queries (verse / chapter / pericope) | 884 / 154 / 348 |
+| test queries (verse / chapter / pericope) | 1,345 / 232 / 686 |
+| parasha | no dev/test gold (all of the Torah is train) |
+
+Dev books: Joshua, Judges, Haggai, Zechariah, Ecclesiastes, Nehemiah. Test books: I Samuel, Ezekiel, Micah, Nahum, Zephaniah, Proverbs, Job, Song of Songs, Ruth, Lamentations, Esther, Daniel, Ezra.
+
+Metrics: recall@{1,5,10,50}, MRR@10 and nDCG@10 with binary relevance, macro-averaged over queries with ≥ 1 gold link; verse predictions have the ±2 same-book neighbours removed; unit gold = ≥ 2 shared verse links or an overlapping unit-level link (§8.3).
+
+## Final systems
+
+| mode | verse | chapter / pericope / parasha |
+|---|---|---|
+| lexical | `bm25_lemma` (lemma + bigram BM25, formula weight 0.2) | `tfidf` (sublinear TF-IDF on lemma bags) |
+| semantic | `berel_sup_csls` (BEREL 3.0 supervised fine-tune + CSLS) | `berel_sup_csls_bma` (best-match average) |
+| fused | `fused` (weighted RRF, `w_lex = w_sem = 1`, k = 60) | `fused` (same weights) |
+
+All choices were made on dev; the test split was evaluated once, at the end (M9).
+
+## Test (single run, final systems)
+
+Evaluated 2026-10-04T12:11:49Z.
+
+### verse
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| fused | 0.071 | 0.155 | 0.199 | 0.314 | 0.130 | 0.136 | 1345 |
+| bm25_lemma | 0.065 | 0.131 | 0.167 | 0.281 | 0.114 | 0.118 | 1345 |
+| berel_sup_csls | 0.064 | 0.133 | 0.166 | 0.266 | 0.115 | 0.118 | 1345 |
+
+### chapter
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| fused | 0.066 | 0.168 | 0.230 | 0.449 | 0.177 | 0.157 | 232 |
+| tfidf | 0.077 | 0.153 | 0.204 | 0.416 | 0.179 | 0.153 | 232 |
+| berel_sup_csls_bma | 0.063 | 0.156 | 0.228 | 0.410 | 0.171 | 0.152 | 232 |
+
+### pericope
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| fused | 0.023 | 0.067 | 0.106 | 0.215 | 0.072 | 0.068 | 686 |
+| tfidf | 0.025 | 0.056 | 0.097 | 0.167 | 0.068 | 0.062 | 686 |
+| berel_sup_csls_bma | 0.021 | 0.064 | 0.097 | 0.227 | 0.065 | 0.061 | 686 |
+
+Fusion is the best system at every level on test: verse nDCG@10 0.136 vs 0.118 for either input, chapter 0.157, pericope 0.068.
+
+## Dev (all systems)
+
+### verse
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| fused | 0.098 | 0.213 | 0.274 | 0.400 | 0.184 | 0.189 | 884 |
+| bm25_lemma | 0.102 | 0.194 | 0.237 | 0.356 | 0.178 | 0.176 | 884 |
+| berel_sup_csls | 0.069 | 0.169 | 0.226 | 0.346 | 0.143 | 0.150 | 884 |
+| bm25_surface | 0.081 | 0.162 | 0.203 | 0.297 | 0.143 | 0.144 | 884 |
+| berel_sup | 0.072 | 0.162 | 0.210 | 0.341 | 0.141 | 0.144 | 884 |
+| bge_m3_csls | 0.080 | 0.149 | 0.183 | 0.259 | 0.135 | 0.135 | 884 |
+| berel_simcse_csls | 0.066 | 0.154 | 0.190 | 0.304 | 0.130 | 0.132 | 884 |
+| berel_mean_csls | 0.069 | 0.134 | 0.172 | 0.275 | 0.124 | 0.124 | 884 |
+| berel_simcse | 0.060 | 0.140 | 0.181 | 0.302 | 0.121 | 0.123 | 884 |
+| bge_m3 | 0.071 | 0.140 | 0.167 | 0.228 | 0.124 | 0.123 | 884 |
+| berel_mean | 0.060 | 0.121 | 0.161 | 0.253 | 0.111 | 0.113 | 884 |
+
+### chapter
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| tfidf | 0.091 | 0.189 | 0.243 | 0.427 | 0.232 | 0.192 | 154 |
+| fused | 0.073 | 0.156 | 0.217 | 0.404 | 0.201 | 0.168 | 154 |
+| berel_sup_csls_bma | 0.068 | 0.164 | 0.202 | 0.373 | 0.185 | 0.156 | 154 |
+| bge_m3_csls_bma | 0.064 | 0.144 | 0.195 | 0.355 | 0.178 | 0.148 | 154 |
+| berel_sup_csls_mean | 0.061 | 0.149 | 0.187 | 0.350 | 0.180 | 0.147 | 154 |
+| berel_sup_bma | 0.052 | 0.152 | 0.188 | 0.370 | 0.165 | 0.141 | 154 |
+| berel_sup_mean | 0.057 | 0.119 | 0.181 | 0.316 | 0.164 | 0.135 | 154 |
+| bge_m3_csls_mean | 0.058 | 0.110 | 0.151 | 0.307 | 0.160 | 0.120 | 154 |
+| berel_mean_bma | 0.033 | 0.121 | 0.159 | 0.305 | 0.134 | 0.115 | 154 |
+| berel_mean_mean | 0.054 | 0.103 | 0.155 | 0.295 | 0.144 | 0.115 | 154 |
+
+### pericope
+| system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
+|---|---|---|---|---|---|---|---|
+| fused | 0.046 | 0.105 | 0.171 | 0.318 | 0.128 | 0.114 | 348 |
+| tfidf | 0.051 | 0.112 | 0.146 | 0.293 | 0.134 | 0.112 | 348 |
+| berel_sup_csls_bma | 0.043 | 0.100 | 0.139 | 0.300 | 0.116 | 0.098 | 348 |
+| berel_sup_csls_mean | 0.040 | 0.104 | 0.140 | 0.280 | 0.105 | 0.093 | 348 |
+| berel_sup_mean | 0.042 | 0.094 | 0.134 | 0.305 | 0.103 | 0.091 | 348 |
+| berel_sup_bma | 0.030 | 0.086 | 0.116 | 0.273 | 0.103 | 0.083 | 348 |
+| bge_m3_csls_bma | 0.036 | 0.074 | 0.113 | 0.218 | 0.091 | 0.078 | 348 |
+| bge_m3_csls_mean | 0.036 | 0.071 | 0.100 | 0.237 | 0.092 | 0.073 | 348 |
+| berel_mean_mean | 0.028 | 0.061 | 0.102 | 0.246 | 0.080 | 0.068 | 348 |
+| berel_mean_bma | 0.027 | 0.056 | 0.081 | 0.206 | 0.069 | 0.057 | 348 |
+
+
+### Unit aggregation: BMA vs mean (dev)
+
+**chapter**
+| system | ndcg@10 bma | ndcg@10 mean | recall@10 bma | recall@10 mean | recall@50 bma | recall@50 mean |
+|---|---|---|---|---|---|---|
+| berel_mean | 0.115 | 0.115 | 0.159 | 0.155 | 0.305 | 0.295 |
+| berel_sup | 0.141 | 0.135 | 0.188 | 0.181 | 0.370 | 0.316 |
+| berel_sup_csls | 0.156 | 0.147 | 0.202 | 0.187 | 0.373 | 0.350 |
+| bge_m3_csls | 0.148 | 0.120 | 0.195 | 0.151 | 0.355 | 0.307 |
+
+**pericope**
+| system | ndcg@10 bma | ndcg@10 mean | recall@10 bma | recall@10 mean | recall@50 bma | recall@50 mean |
+|---|---|---|---|---|---|---|
+| berel_mean | 0.057 | 0.068 | 0.081 | 0.102 | 0.206 | 0.246 |
+| berel_sup | 0.083 | 0.091 | 0.116 | 0.134 | 0.273 | 0.305 |
+| berel_sup_csls | 0.098 | 0.093 | 0.139 | 0.140 | 0.300 | 0.280 |
+| bge_m3_csls | 0.078 | 0.073 | 0.113 | 0.100 | 0.218 | 0.237 |
+
+With CSLS, best-match average beats mean pooling at both levels → `unit_aggregation: bma`.
+
+### Fusion weight (dev nDCG@10, `w_sem = 1`)
+
+| unit type | lexical | semantic | w_lex 0.25 | 0.5 | 0.75 | **1.0** | 1.5 | 2.0 |
+|---|---|---|---|---|---|---|---|---|
+| verse | 0.176 | 0.150 | 0.178 | 0.184 | 0.184 | **0.189** | 0.185 | 0.188 |
+| chapter | 0.192 | 0.156 | 0.161 | 0.165 | 0.166 | 0.168 | 0.168 | 0.171 |
+| pericope | 0.112 | 0.098 | 0.114 | 0.116 | 0.112 | 0.114 | 0.110 | 0.112 |
+
+One weight for all unit types, chosen on verse dev. At chapter level fusion does not beat TF-IDF on dev (it does on test).
+
+## Training (dev, verse level)
+
+| run | recall@10 | nDCG@10 |
+|---|---|---|
+| raw BEREL, mean pooling (`berel_mean`) | 0.161 | 0.113 |
+| SimCSE epoch 1 / **2** / 3 | 0.176 / **0.181** / 0.179 | — / 0.123 / — |
+| supervised, SimCSE init + hard negatives | 0.208 | 0.141 |
+| supervised, SimCSE init, no hard negatives | 0.205 | 0.140 |
+| **supervised, raw BEREL init + hard negatives** (`berel_sup`) | **0.210** | **0.144** |
+| `berel_sup` + CSLS (`berel_sup_csls`) | 0.226 | 0.150 |
+
+CSLS helps every encoder (nDCG@10: `berel_mean` 0.113 → 0.124, `bge_m3` 0.123 → 0.135, `berel_simcse` 0.123 → 0.132, `berel_sup` 0.144 → 0.150). No dense system alone beats `bm25_lemma` (0.176) on dev; fusion does (0.189). Supervised training peaks at 3.8 GB VRAM on the GTX 1080 Ti (fp32).
+
+## Serving
+
+| item | value |
+|---|---|
+| `results.sqlite` | 241 MB, 4,144,976 matches (3 modes × 4 unit types × top-50), built in ~40–50 s |
+| `/similar` (SQLite, k = 50, neighbours excluded) | median 0.53 ms, max 2.3 ms |
+| `/search` on CPU, median (max) of 20 queries | lexical 7.7 (14.8) ms, semantic 57 (87) ms, fused 72 (82) ms |
+| `bsim serve` startup | serving after ~12–14 s, query encoder ready after ~32 s |
+| spot checks | Ps 14:1 → Ps 53:2 and Ex 20:2 → Deut 5:6 at rank 1 in every mode; II Sam 22 ↔ Ps 18 compare pairs all 51 verses (BMA 0.90) |
+
+## Reproduction
+
+`git clone` → `uv sync` → `uv run bsim all` in an empty clone (2026-10-04, GTX 1080 Ti, Windows 11; BEREL 3.0 and BGE-M3 already in the Hugging Face cache): **38 min 28 s**, exit 0.
+
+| stage | time | stage | time |
+|---|---|---|---|
+| download | 1:47 | embed | 2:32 |
+| build-corpus | 1:34 | topk | 0:15 |
+| build-links | 0:25 | units | 0:16 |
+| lexical | 0:14 | fuse | 0:31 |
+| lexical-topk | 0:14 | evaluate | 0:26 |
+| train-simcse | 10:08 | build-db | 0:40 |
+| train-sup | 19:28 | | |
+
+Every dev and test metric above (all systems, all unit types) came out identical to three decimals, and `results.sqlite` again held 4,144,976 matches (`/similar` median 0.58 ms). `data/` + `models/` + `artifacts/` take 2.8 GB. `bsim serve` on the clone (after `npm ci && npm run build` in `web/`) served the viewer and answered Ps 14:1 → Ps 53:2 at rank 1 in all three modes and the search "בראשית ברא אלהים" → Genesis 1:1 first in every mode.

@@ -8,20 +8,29 @@ Find, for every **verse, chapter, parasha and Masoretic pericope** of the Hebrew
 
 The results are precomputed into SQLite and browsed in a local FastAPI + React viewer. The viewer supports shared-word highlighting, side-by-side unit comparison and free-text Hebrew search.
 
-> Status: planning. See the docs below; implementation follows [docs/TASKS.md](docs/TASKS.md).
+Status: complete (milestones M0–M13). On the held-out test books, fused retrieval reaches nDCG@10 **0.136** at verse level (lexical 0.118, semantic 0.118), 0.157 for chapters and 0.068 for pericopes; see [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Docs
 - [Architecture](docs/ARCHITECTURE.md): system overview, pipeline stages, repo layout, stack
 - [Design](docs/DESIGN.md): data sources, text processing, models, evaluation, DB/API/UI design, decision log
 - [Tasks](docs/TASKS.md): milestones with acceptance criteria
+- [Results](docs/RESULTS.md): evaluation metrics (dev, the single test run, ablations)
 
-## Quickstart (once implemented)
+## Quickstart
+Requirements: [uv](https://docs.astral.sh/uv/), an NVIDIA GPU with a driver for CUDA 12.6 (developed on a GTX 1080 Ti; training on CPU is impractically slow), Node 20+ for the viewer, internet access for the first run, and about 11 GB (Python environment 4.5 GB, Hugging Face models ~3 GB, `data/` + `models/` + `artifacts/` 2.8 GB) of free disk.
+
 ```bash
 uv sync                      # installs PyTorch cu126 (needed for Pascal GPUs such as the GTX 1080 Ti)
 uv run bsim all              # download → corpus → links → lexical → train → embed → top-k → eval → DB
-(cd web && npm ci && npm run build)   # viewer → web/dist (Node 20+)
+(cd web && npm ci && npm run build)   # viewer → web/dist
 uv run bsim serve            # API + viewer on http://localhost:8000
 ```
+
+`bsim all` took 38 minutes on the GTX 1080 Ti from an empty clone, with BEREL 3.0 and BGE-M3 already in the Hugging Face cache (they are fetched on first use, about 3 GB). It runs these stages, each also available as its own command (`uv run bsim --help`):
+
+`download` → `build-corpus` → `build-links` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `build-db`
+
+Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 
 Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend.
 
