@@ -145,7 +145,7 @@ Common: `sentence-transformers` (v3+ trainer API), max_seq_length 128 (verified 
 ### 7.1 SimCSE (unsupervised)
 - Data: all ~23k verses (no labels → no test leakage of gold pairs).
 - Loss: MultipleNegativesRankingLoss with `(verse, verse)` pairs; dropout (0.1) provides the noise.
-- Batch 64, lr 3e-5, 1–3 epochs (a few minutes per epoch on the 1080 Ti). Pick the epoch by dev recall@10.
+- Batch 64, lr 3e-5, 1–3 epochs (~7 min per epoch on the 1080 Ti). Pick the epoch by dev recall@10 (2026-10: epoch 2, dev recall@10 0.181 vs 0.161 raw BEREL mean pooling).
 
 ### 7.2 Supervised contrastive
 - Positives: **train-split** Sefaria link pairs (§8), both directions.
@@ -292,3 +292,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D16 | Lexical weighting | Formula weight α applies to both BM25 sides (doc tf/length, query term weight = max token weight); bigram weight = min of its tokens; `bm25_surface` uses the same pipeline on `match_key` tokens (its own formulas, not exported); unit TF-IDF tf = `(1 + log c)·(w/c)` |
 | D17 | Top-k & eval | One torch top-k path for GPU and CPU; lexical lists drop zero-score hits; ranks 1-based with ties ordered by target id; metrics macro-averaged over gold queries (missing = 0); `metrics.json` keyed by split |
 | D18 | Encoders | All encoders via sentence-transformers (fp32, max_len 128) from an `encoders.systems` registry; BEREL baseline = mean pooling; BGE-M3 = its native CLS dense vector; `*_csls` computed at top-k time from the base embeddings (`retrieval.csls_neighbors`), CSLS scores stored as-is |
+| D19 | SimCSE | `bsim train-simcse`: MNRL on (verse, verse) over the *distinct* `text_model` strings (repeated formula verses would be false in-batch negatives), `no_duplicates` batch sampler, hidden + attention dropout from `train.simcse.dropout`. Epochs are selected by `train/dev_eval.py:DevEvaluator`, which reproduces `bsim topk` + `bsim evaluate` in memory (±2 neighbour filter) instead of ST's IR evaluator; epoch 0 (raw BEREL) is scored as a reference, never saved. Output `models/berel-simcse/` is a native ST checkpoint (Transformer + mean pooling) + `bsim_train.json`; registered as `berel_simcse` (pooling `native`) |

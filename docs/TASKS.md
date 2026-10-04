@@ -78,9 +78,9 @@ M0 → M1 → M2 → M3 ─┐
 ✔ Report includes 4+ new systems on dev.
 
 ## M7 — SimCSE (§7.1)
-- [ ] `train/simcse.py` with sentence-transformers trainer, fp32, batch 64, lr 3e-5
-- [ ] Epoch selection on dev recall@10 → `models/berel-simcse/`
-- [ ] Embed + top-k + eval `berel_simcse`
+- [x] `train/simcse.py` with sentence-transformers trainer, fp32, batch 64, lr 3e-5
+- [x] Epoch selection on dev recall@10 → `models/berel-simcse/` (dev recall@10 by epoch: 0.161 raw → 0.176 / **0.181** / 0.179; epoch 2 kept)
+- [x] Embed + top-k + eval `berel_simcse` (dev nDCG@10: berel_simcse_csls 0.132, berel_simcse 0.123 vs berel_mean 0.113; recall@50 0.302 vs 0.253; still below bm25_lemma 0.176)
 
 ✔ `berel_simcse` beats `berel_mean` on dev nDCG@10 (if not: record the finding in the report and continue with the better one).
 

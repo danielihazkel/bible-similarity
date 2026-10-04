@@ -106,8 +106,13 @@ def embed(
 @app.command("train-simcse")
 def train_simcse(config: ConfigOpt = None) -> None:
     """Unsupervised SimCSE adaptation of BEREL."""
-    load_config(config)
-    _not_implemented("train-simcse", "M7")
+    from bsim.train.simcse import run_train_simcse
+
+    try:
+        run_train_simcse(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("train-sup")

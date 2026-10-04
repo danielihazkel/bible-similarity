@@ -60,13 +60,19 @@ encoders:
   systems:                    # system name -> encoder; `bsim embed --model {name}`
     berel_mean: {model: dicta-il/BEREL_3.0, pooling: mean}   # Transformer + mean pooling
     bge_m3: {model: BAAI/bge-m3, pooling: native}            # its own ST config: CLS + normalize (dense)
+    berel_simcse: {model: models/berel-simcse, pooling: native}   # `bsim train-simcse` output
 
 train:
   simcse:
+    base: dicta-il/BEREL_3.0
+    output: berel-simcse        # under paths.models
     batch_size: 64
     lr: 3.0e-5
     epochs: 3
-    dropout: 0.1
+    dropout: 0.1                # hidden + attention dropout: the SimCSE noise
+    warmup_ratio: 0.0
+    logging_steps: 50
+    select_metric: recall@10    # epoch chosen on dev
   supervised:
     batch_size: 256
     mini_batch_size: 32

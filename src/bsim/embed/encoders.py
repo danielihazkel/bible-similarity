@@ -36,16 +36,25 @@ def model_path(name: str) -> str:
     return str(local) if local.exists() else name
 
 
-def load_encoder(spec: dict[str, Any], max_seq_length: int, device: str) -> Any:
-    """A fp32 SentenceTransformer for an `encoders.systems` entry."""
+def mean_pooling_model(
+    name: str, max_seq_length: int, device: str, config_kwargs: dict[str, Any] | None = None
+) -> Any:
+    """A plain HF encoder + mean pooling as a SentenceTransformer (`config_kwargs` e.g. dropout)."""
     from sentence_transformers import SentenceTransformer
     from sentence_transformers.sentence_transformer.modules import Pooling, Transformer
 
+    tf = Transformer(name, max_seq_length=max_seq_length, config_kwargs=config_kwargs)
+    pool = Pooling(tf.get_embedding_dimension(), "mean")
+    return SentenceTransformer(modules=[tf, pool], device=device)
+
+
+def load_encoder(spec: dict[str, Any], max_seq_length: int, device: str) -> Any:
+    """A fp32 SentenceTransformer for an `encoders.systems` entry."""
+    from sentence_transformers import SentenceTransformer
+
     pooling, name = spec.get("pooling", "native"), model_path(spec["model"])
     if pooling == "mean":
-        tf = Transformer(name, max_seq_length=max_seq_length)
-        pool = Pooling(tf.get_embedding_dimension(), "mean")
-        model = SentenceTransformer(modules=[tf, pool], device=device)
+        model = mean_pooling_model(name, max_seq_length, device)
     elif pooling == "native":
         model = SentenceTransformer(name, device=device)
         model.max_seq_length = max_seq_length
