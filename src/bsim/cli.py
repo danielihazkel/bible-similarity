@@ -51,8 +51,13 @@ def download(
 @app.command("build-corpus")
 def build_corpus(config: ConfigOpt = None) -> None:
     """Parse, normalize and align texts; build verses/words/units tables."""
-    load_config(config)
-    _not_implemented("build-corpus", "M2")
+    from bsim.data.corpus import run_build_corpus
+
+    try:
+        run_build_corpus(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("build-links")

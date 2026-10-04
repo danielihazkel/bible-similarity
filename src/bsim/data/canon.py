@@ -70,8 +70,60 @@ _BOOKS: list[tuple[str, str, str, str, int]] = [
 ]
 
 BOOKS: tuple[Book, ...] = tuple(
-    Book(i, sefaria, osis, he, section, n) for i, (sefaria, osis, he, section, n) in enumerate(_BOOKS)
+    Book(i, sefaria, osis, he, section, n)
+    for i, (sefaria, osis, he, section, n) in enumerate(_BOOKS)
 )
 BY_SEFARIA: dict[str, Book] = {b.sefaria: b for b in BOOKS}
 BY_OSIS: dict[str, Book] = {b.osis: b for b in BOOKS}
 TORAH: tuple[Book, ...] = tuple(b for b in BOOKS if b.section == "Torah")
+
+
+# --- Versification -------------------------------------------------------------------------
+# OSHB (WLC) and MAM/Sefaria number verses differently in three places. `verse_id` follows
+# MAM/Sefaria (DESIGN.md §2, D14). Each rule: (osis, chapter, first_v, last_v) of OSHB verses
+# -> MAM (chapter, verse) of the first one, plus whether the range collapses into that verse
+# (True) or shifts verse by verse (False). Verse ranges are inclusive; None = to chapter end.
+VERSE_OVERRIDES: tuple[tuple[str, int, int, int | None, int, int, bool], ...] = (
+    # Decalogue: the four short commandments form one verse in MAM.
+    ("Exod", 20, 13, 16, 20, 13, True),
+    ("Exod", 20, 17, None, 20, 14, False),
+    ("Deut", 5, 17, 20, 5, 17, True),
+    ("Deut", 5, 21, None, 5, 18, False),
+    # "ויהי אחרי המגפה" opens MAM Numbers 26:1.
+    ("Num", 25, 19, 19, 26, 1, True),
+)
+
+
+def oshb_to_mam(osis: str, chapter: int, verse: int) -> tuple[int, int]:
+    """Map an OSHB verse to its MAM (chapter, verse); unlisted verses map to themselves."""
+    for o, c, first, last, mc, mv, collapse in VERSE_OVERRIDES:
+        if o == osis and c == chapter and verse >= first and (last is None or verse <= last):
+            return (mc, mv) if collapse else (mc, mv + verse - first)
+    return chapter, verse
+
+
+# --- Hebrew numerals -----------------------------------------------------------------------
+_ONES = "אבגדהוזחט"
+_TENS = "יכלמנסעפצ"
+_HUNDREDS = "קרשת"
+
+
+def hebrew_numeral(n: int) -> str:
+    """Gematria without geresh marks (e.g. 15 -> טו, 16 -> טז, 150 -> קנ)."""
+    if not 1 <= n < 1000:
+        raise ValueError(f"unsupported number {n}")
+    out = ""
+    h, rest = divmod(n, 100)
+    while h > 4:
+        out += "ת"
+        h -= 4
+    if h:
+        out += _HUNDREDS[h - 1]
+    if rest in (15, 16):
+        return out + ("טו" if rest == 15 else "טז")
+    t, o = divmod(rest, 10)
+    if t:
+        out += _TENS[t - 1]
+    if o:
+        out += _ONES[o - 1]
+    return out

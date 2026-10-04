@@ -91,11 +91,13 @@ bible-similarity/
 │   ├── config.py                   # load + hash config
 │   ├── data/
 │   │   ├── download.py             # fetch sources, write manifest (url, sha256, date)
+│   │   ├── corpus.py               # build-corpus orchestration + corpus_report.md
 │   │   ├── oshb.py                 # parse OSHB OSIS XML -> words
 │   │   ├── sefaria.py              # parse MAM JSON (strip HTML, kq, markers), schemas
 │   │   ├── canon.py                # book list, Jewish canon order, ref <-> verse_id, OSIS ids
 │   │   ├── align.py                # OSHB word <-> MAM display word alignment
 │   │   ├── units.py                # chapters, parashiyot, pericopes
+│   │   ├── refs.py                 # Sefaria citation -> verse range
 │   │   └── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
 │   ├── text/
 │   │   └── normalize.py            # strip points, maqaf, finals, prefix stripping

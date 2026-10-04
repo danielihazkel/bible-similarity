@@ -34,7 +34,11 @@ Rules:
 - **Canon order**: Jewish order — Torah, Nevi'im (Joshua…Malachi, Twelve as separate books), Ketuvim (Psalms, Proverbs, Job, Song of Songs, Ruth, Lamentations, Ecclesiastes, Esther, Daniel, Ezra, Nehemiah, I & II Chronicles), following Sefaria's category tree.
 - `canon.py` holds the book table: `book_id, sefaria_name, osis_name, he_name, section (Torah|Prophets|Writings), n_chapters`.
 - **`verse_id`** = 0-based ordinal of the verse in canon order. It is the row index of every embedding matrix. Also stored: `ref` (Sefaria style, `Genesis 1:1`), `osis` (`Gen.1.1`), `book_id`, `chapter`, `verse`.
-- `build-corpus` **asserts** that per-chapter verse counts agree between OSHB and MAM; any mismatch fails the stage with a report (none are expected; if one appears it is resolved explicitly in `canon.py`).
+- **`verse_id` follows MAM/Sefaria versification** (23,206 verses; D14), the numbering used by the Sefaria links and the display text. OSHB (23,213 verses) differs in three places, resolved by `canon.VERSE_OVERRIDES` (OSHB words of merged verses are concatenated in order):
+  - Exodus 20: OSHB 20:13–16 (the four short commandments) = MAM 20:13; OSHB 20:17–26 = MAM 20:14–23.
+  - Deuteronomy 5: OSHB 5:17–20 = MAM 5:17; OSHB 5:21–33 = MAM 5:18–30.
+  - OSHB Numbers 25:19 (ויהי אחרי המגפה) opens MAM 26:1.
+- `build-corpus` **asserts** that per-chapter verse counts agree between MAM and the re-keyed OSHB; any mismatch fails the stage with a report and must be resolved explicitly in `canon.py`.
 
 ---
 
@@ -48,12 +52,13 @@ Rules:
 | `lemmas` | OSHB | lexical mode, highlighting |
 
 ### 3.2 Normalization (`text/normalize.py`)
-- Strip cantillation and vowel points: Unicode `U+0591–U+05C7` except letters; remove `U+05BD` meteg, `U+05C0` paseq, `U+05C3` sof pasuq.
+- Consonantal text keeps **Hebrew letters (`U+05D0–U+05EA`) and whitespace only**: this removes points, te'amim, meteg, paseq, sof pasuq, inverted nun and the combining grapheme joiner (`U+034F`, used in MAM's ירושלם) with a single rule.
 - Maqaf (`U+05BE`) → space.
 - Final letters (ך ם ן ף ץ) kept as-is for the encoder input (BEREL saw them); folded to non-final forms **only** for surface-form matching keys.
 - Remove morpheme separators `/` from OSHB surface forms.
 - Ketiv/qere policy: `text_model` uses the **qere** reading (what is read, closer to rabbinic usage BEREL was trained on); lemmas follow whichever word OSHB tags for that reading. Configurable (`text.kq: qere|ketiv`).
-- MAM cleaning: drop footnotes, `{פ}`/`{ס}` markers (recorded as unit boundaries first), `&nbsp;`, HTML tags; `<big>`/`<small>` letters kept as normal letters.
+- MAM cleaning: drop footnotes, the inverted nun, `{פ}`/`{ס}` markers (recorded as unit boundaries first, with whether they fall mid-verse), `&nbsp;`/`&thinsp;`/`<br>`, HTML tags; `<big>`/`<small>`/`<b>` content kept (the paseq/legarmeh ׀ stays in `text_display`); qere shown, ketiv moved to `ketiv_note`; `mam-kq-trivial` words kept as they are.
+- Display tokens (`normalize.display_tokens`): `text_display` split on whitespace and after each maqaf; `words.display_idx` indexes this list (stored as `verses.display_tokens`).
 
 ### 3.3 Lemma tokens
 - Parse `lemma="c/1961"` → morphemes `["c", "1961"]`; keep numeric (content) lemmas only, dropping prefix particles (`b,c,d,k,l,m,s`) and the sense letter normalised as part of the key (`1121a`).
@@ -129,7 +134,7 @@ Two semantic aggregations, both evaluated:
 
 ## 7. Training (GTX 1080 Ti, fp32)
 
-Common: `sentence-transformers` (v3+ trainer API), max_seq_length 128 (**⚠ verify** in M2 that the longest verse, Esther 8:9, fits after BEREL tokenization; raise to 160 if not), mean pooling head on BEREL, fixed seeds, `fp16=False, bf16=False`, checkpoints to `models/{name}/`, training config + config hash saved alongside.
+Common: `sentence-transformers` (v3+ trainer API), max_seq_length 128 (verified in M2: the longest verse in BEREL tokens is Daniel 3:15 with 60 tokens; Esther 8:9 has 49), mean pooling head on BEREL, fixed seeds, `fp16=False, bf16=False`, checkpoints to `models/{name}/`, training config + config hash saved alongside.
 
 ### 7.1 SimCSE (unsupervised)
 - Data: all ~23k verses (no labels → no test leakage of gold pairs).
@@ -271,3 +276,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D11 | Top-k | Store k = 50 per unit per mode (self excluded); neighbour/chapter/book filters at query time |
 | D12 | Tooling | uv + pyproject; git; raw data downloaded by scripts into gitignored `data/`; models/results local |
 | D13 | Docs | Markdown in `docs/` |
+| D14 | Versification | `verse_id` follows MAM/Sefaria (23,206 verses); OSHB is re-keyed via `canon.VERSE_OVERRIDES` (Decalogue in Ex 20 / Deut 5, Num 25:19 → 26:1) |

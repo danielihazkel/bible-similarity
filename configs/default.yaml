@@ -27,6 +27,10 @@ text:
   kq: qere                    # qere | ketiv — reading used for text_model
   max_seq_length: 128         # verify against the longest verse in M2
 
+corpus:
+  min_alignment_coverage: 0.99   # share of OSHB words aligned to a MAM display token
+  expected: {verses: 23206, chapters: 929, parashiyot: 54}   # MAM/Sefaria versification
+
 units:
   types: [verse, chapter, pericope, parasha]
 

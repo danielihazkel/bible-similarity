@@ -30,6 +30,6 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["build-corpus"])
+    result = runner.invoke(app, ["build-links"])
     assert result.exit_code == 1
-    assert "M2" in result.output
+    assert "M3" in result.output

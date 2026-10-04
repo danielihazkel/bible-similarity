@@ -129,7 +129,9 @@ def plan_targets(
 
     if "links" in groups:
         pattern = re.compile(sef["links_regex"])
-        metas = [m for m in _gcs_list(session, api, sef["links_prefix"]) if pattern.match(m["name"])]
+        metas = [
+            m for m in _gcs_list(session, api, sef["links_prefix"]) if pattern.match(m["name"])
+        ]
         if not metas:
             raise RuntimeError(f"No link files matched {sef['links_regex']!r} in the bucket")
         for meta in sorted(metas, key=lambda m: m["name"]):

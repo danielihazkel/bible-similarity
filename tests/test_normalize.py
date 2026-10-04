@@ -1,0 +1,24 @@
+from bsim.text.normalize import consonantal, display_tokens, fold_finals, match_key
+
+
+def test_points_and_teamim_stripped():
+    assert consonantal("בְּ/רֵאשִׁ֖ית") == "בראשית"
+    assert consonantal("הָאָֽרֶץ׃") == "הארץ"
+
+
+def test_maqaf_paseq_cgj_removed():
+    assert consonantal("וַֽיְהִי־עֶ֥רֶב") == "ויהי ערב"
+    assert consonantal("אֱלֹהִ֤ים ׀ לָאוֹר֙") == "אלהים לאור"
+    assert consonantal("מִירוּשָׁלַ֙" + "\u034f" + "ִם֙") == "מירושלם"
+    assert consonantal("׆ וַיְהִ֛י׃") == "ויהי"
+
+
+def test_finals_folded_only_in_key():
+    assert consonantal("הָאָֽרֶץ") == "הארץ"
+    assert match_key("הָאָֽרֶץ") == "הארצ"
+    assert fold_finals("ךםןףץ") == "כמנפצ"
+
+
+def test_display_tokens_split_after_maqaf():
+    assert display_tokens("וַֽיְהִי־עֶ֥רֶב יוֹם") == ["וַֽיְהִי־", "עֶ֥רֶב", "יוֹם"]
+    assert display_tokens("בִּימֵ֣י ׀ עֻזִּיָּ֣ה") == ["בִּימֵ֣י", "׀", "עֻזִּיָּ֣ה"]

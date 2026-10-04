@@ -32,13 +32,13 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `bsim download` is idempotent; all 39 + 39 + 39 + 17 files present; manifest complete.
 
 ## M2 — Corpus build (§2–§4)
-- [ ] `text/normalize.py` + tests (points, te'amim, maqaf, finals, `/` separators)
-- [ ] `data/oshb.py`: parse `<w>` (surface, lemma, morph, id), ketiv/qere, `x-pe`/`x-samekh` segs → `words` rows
-- [ ] `data/sefaria.py`: MAM HTML cleaning → `text_display`, ketiv note, pe/samekh positions
-- [ ] Verse table with `verse_id` in canon order; per-chapter verse-count assertion OSHB vs MAM
-- [ ] `data/align.py`: OSHB ↔ MAM word alignment → `words.display_idx`
-- [ ] `data/units.py`: chapters, parashiyot (from schemas), pericopes (MAM markers, mid-verse breaks snapped, books always break)
-- [ ] Write `verses/words/units/unit_members.parquet` + `corpus_report.md` (counts, alignment coverage, pe/samekh comparison, longest verse in BEREL tokens)
+- [x] `text/normalize.py` + tests (points, te'amim, maqaf, finals, `/` separators)
+- [x] `data/oshb.py`: parse `<w>` (surface, lemma, morph, id), ketiv/qere, `x-pe`/`x-samekh` segs → `words` rows
+- [x] `data/sefaria.py`: MAM HTML cleaning → `text_display`, ketiv note, pe/samekh positions
+- [x] Verse table with `verse_id` in canon order; per-chapter verse-count assertion OSHB vs MAM
+- [x] `data/align.py`: OSHB ↔ MAM word alignment → `words.display_idx`
+- [x] `data/units.py`: chapters, parashiyot (from schemas), pericopes (MAM markers, mid-verse breaks snapped, books always break)
+- [x] Write `verses/words/units/unit_members.parquet` + `corpus_report.md` (counts, alignment coverage, pe/samekh comparison, longest verse in BEREL tokens)
 
 ✔ ~23.2k verses, 929 chapters, 54 parashiyot; every verse in exactly one chapter and one pericope; alignment coverage ≥ 99 %; longest verse ≤ max_seq_length.
 
