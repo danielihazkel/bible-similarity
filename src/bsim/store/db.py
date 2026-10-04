@@ -384,8 +384,10 @@ def _write_db(
     return meta
 
 
-def connect_readonly(path: Path) -> sqlite3.Connection:
-    return sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+def connect_readonly(path: Path, check_same_thread: bool = True) -> sqlite3.Connection:
+    return sqlite3.connect(
+        f"{path.resolve().as_uri()}?mode=ro", uri=True, check_same_thread=check_same_thread
+    )
 
 
 def benchmark(conn: sqlite3.Connection, cfg: dict[str, Any]) -> dict[str, Any]:

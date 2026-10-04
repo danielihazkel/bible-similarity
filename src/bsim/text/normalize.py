@@ -44,3 +44,18 @@ def display_tokens(text_display: str) -> list[str]:
         if parts[-1]:
             tokens.append(parts[-1])
     return tokens
+
+
+PREFIX_LETTERS = "והבכלמש"
+
+
+def strip_prefix(word: str, min_root: int = 2) -> str:
+    """Greedily drop leading prefix letters (ו ה ב כ ל מ ש) while `min_root` letters remain.
+
+    Used for surface-form search (DESIGN.md §10.1) on query and corpus alike, so over-stripping
+    (משה -> שה) is harmless: both sides are stripped the same way.
+    """
+    i = 0
+    while i < len(word) and word[i] in PREFIX_LETTERS and len(word) - i - 1 >= min_root:
+        i += 1
+    return word[i:]

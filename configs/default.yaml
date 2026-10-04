@@ -124,6 +124,15 @@ store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   max_size_mb: 400            # warn when results.sqlite is larger
   bench_queries: 20           # timed /similar runs per spot-check verse and mode (target < 10 ms)
 
-serve:
+serve:                        # `bsim serve` (DESIGN.md §10)
   host: 127.0.0.1
   port: 8000
+  device: cuda                # query encoder + hubness; falls back to cpu if unavailable
+  cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server
+  default_k: 10
+  preview_chars: 200          # /similar: first-verse preview of chapter / pericope / parasha hits
+  cache_dir: api              # under paths.artifacts: CSLS hubness cache for /search
+  search:
+    min_root_letters: 2       # greedy prefix stripping keeps at least this many letters
+    bigrams: true             # surface BM25 also indexes adjacent-token bigrams
+    max_query_chars: 500

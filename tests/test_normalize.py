@@ -22,3 +22,15 @@ def test_finals_folded_only_in_key():
 def test_display_tokens_split_after_maqaf():
     assert display_tokens("וַֽיְהִי־עֶ֥רֶב יוֹם") == ["וַֽיְהִי־", "עֶ֥רֶב", "יוֹם"]
     assert display_tokens("בִּימֵ֣י ׀ עֻזִּיָּ֣ה") == ["בִּימֵ֣י", "׀", "עֻזִּיָּ֣ה"]
+
+
+def test_strip_prefix():
+    from bsim.text.normalize import strip_prefix
+
+    assert strip_prefix("ובראשית") == "ראשית"
+    assert strip_prefix("והארצ") == "ארצ"
+    assert strip_prefix("משה") == "שה"  # greedy; only the min-root guard stops it
+    assert strip_prefix("לב") == "לב"  # would leave one letter
+    assert strip_prefix("ושמ", min_root=1) == "מ"
+    assert strip_prefix("ארצ") == "ארצ"
+    assert strip_prefix("") == ""

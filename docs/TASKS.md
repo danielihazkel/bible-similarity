@@ -108,10 +108,11 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `results.sqlite` builds from scratch in one command; row counts match Parquet; a `/similar`-style query takes < 10 ms.
 
 ## M11 — API (§10)
-- [ ] App factory, startup loading (sqlite read-only, mmap embeddings, encoder, surface-BM25 index)
-- [ ] Endpoints: books, units, unit, similar (with exclude filters), explain, compare, search, meta
-- [ ] Pydantic response models; CORS for Vite dev
-- [ ] TestClient tests on a small fixture DB
+- [x] App factory, startup loading (sqlite read-only, mmap embeddings, encoder, surface-BM25 index) (encoder on a background thread; CSLS hubness cached in `artifacts/api/`)
+- [x] Endpoints: books, units, unit, similar (with exclude filters), explain, compare, search, meta
+- [x] Pydantic response models; CORS for Vite dev (+ `Server-Timing` header)
+- [x] TestClient tests on a small fixture DB (`tests/conftest.py`, shared with `test_store`)
+- [x] Measured on the real DB: serving after ~12–14 s, encoder ready after ~32 s; CPU `/search` median lexical 8 / semantic 57 / fused 72 ms (max 87 ms); Ps 14:1 → Ps 53:2 rank 1 in all modes
 
 ✔ All endpoints covered by tests; `bsim serve` starts in < 30 s; search responds in < 300 ms on CPU.
 

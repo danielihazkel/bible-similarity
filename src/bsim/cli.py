@@ -235,10 +235,23 @@ def build_db(config: ConfigOpt = None) -> None:
 
 
 @app.command()
-def serve(config: ConfigOpt = None) -> None:
+def serve(
+    host: Annotated[str | None, typer.Option(help="Bind address (default: serve.host)")] = None,
+    port: Annotated[int | None, typer.Option(help="Port (default: serve.port)")] = None,
+    config: ConfigOpt = None,
+) -> None:
     """Run the FastAPI viewer backend."""
-    load_config(config)
-    _not_implemented("serve", "M11")
+    import uvicorn
+
+    from bsim.api.app import create_app
+
+    cfg = load_config(config)
+    try:
+        api = create_app(cfg, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+    uvicorn.run(api, host=host or cfg["serve"]["host"], port=port or cfg["serve"]["port"])
 
 
 @app.command("all")

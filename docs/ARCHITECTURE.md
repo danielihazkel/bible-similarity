@@ -127,7 +127,9 @@ bible-similarity/
 │   │   └── db.py                   # build results.sqlite
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
-│       ├── routes.py
+│       ├── routes.py               # /api endpoints
+│       ├── models.py               # pydantic response models
+│       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer
 ├── tests/                          # pytest
