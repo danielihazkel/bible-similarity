@@ -202,22 +202,33 @@ Sefaria links reflect what commentators and editors linked, biased toward "famou
 
 ## 9. Results database (`artifacts/results.sqlite`)
 
+Built by `bsim build-db` (`store/db.py`, DDL in `store/schema.sql`) from the processed tables and the final top-k lists only (`fusion.final_systems`: one system per mode and unit type).
+
 ```sql
 CREATE TABLE books   (book_id INTEGER PRIMARY KEY, name TEXT, he_name TEXT, osis TEXT, section TEXT, n_chapters INTEGER);
 CREATE TABLE verses  (verse_id INTEGER PRIMARY KEY, book_id INTEGER, chapter INTEGER, verse INTEGER,
-                      ref TEXT, osis TEXT, text_display TEXT, text_plain TEXT, ketiv_note TEXT);
-CREATE TABLE words   (verse_id INTEGER, idx INTEGER, display_idx INTEGER, surface TEXT, lemma TEXT, morph TEXT,
-                      PRIMARY KEY (verse_id, idx));
+                      ref TEXT, osis TEXT, text_display TEXT, text_plain TEXT, ketiv_note TEXT,
+                      display_tokens TEXT);                       -- JSON list; words.display_idx indexes it
+CREATE TABLE words   (verse_id INTEGER, idx INTEGER, display_idx INTEGER, surface TEXT, lemma TEXT,
+                      content_lemmas TEXT, morph TEXT, in_formula INTEGER,
+                      PRIMARY KEY (verse_id, idx)) WITHOUT ROWID;
 CREATE TABLE units   (unit_id TEXT PRIMARY KEY, unit_type TEXT, label_en TEXT, label_he TEXT,
-                      book_id INTEGER, start_verse_id INTEGER, end_verse_id INTEGER, n_verses INTEGER);
-CREATE TABLE unit_members (unit_id TEXT, verse_id INTEGER, PRIMARY KEY (unit_id, verse_id));
+                      book_id INTEGER, start_verse_id INTEGER, end_verse_id INTEGER, n_verses INTEGER, marker TEXT);
+CREATE TABLE unit_members (unit_id TEXT, verse_id INTEGER, PRIMARY KEY (unit_id, verse_id)) WITHOUT ROWID;
 CREATE TABLE matches (unit_type TEXT, mode TEXT, src_id TEXT, rank INTEGER, tgt_id TEXT, score REAL,
                       lex_score REAL, lex_rank INTEGER, sem_score REAL, sem_rank INTEGER,
-                      PRIMARY KEY (unit_type, mode, src_id, rank));
-CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT);   -- for showing shared lemmas
-CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT);            -- model names, config hash, build date, source SHAs
+                      PRIMARY KEY (unit_type, mode, src_id, rank)) WITHOUT ROWID;
+CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT) WITHOUT ROWID;   -- for showing shared lemmas
+CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;            -- JSON values
+-- after loading: units(unit_type, book_id, start_verse_id), unit_members(verse_id, unit_id)
 ```
-Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB). `src_id`/`tgt_id` use the unit_id strings (`v:123`, …) for uniformity.
+- `src_id`/`tgt_id` use the unit_id strings (`v:123`, …) for uniformity; `lex_*`/`sem_*` are set on fused rows only. The clustered `matches` key makes `/similar` one range scan.
+- `words.content_lemmas` = space-joined content lemmas (the `/explain` key); `words.in_formula` = the word carries a token inside a formula occurrence (same `lexical.formulas` code and config as `bsim lexical`).
+- `lemma_gloss.he_lemma`: no lexicon is downloaded, so a lemma is shown as its most common consonantal surface form with the OSHB prefix morphemes stripped (`b c d k l m s` → ב ו ה כ ל מ ש; the article's ה is elided after ב/כ/ל; the whole word is kept when it does not start with the expected letters, 1 of 305,517 words). E.g. 430 → אלהים, 776 → ארץ; verbs show their most frequent inflection (559 → יאמר).
+- `meta`: build date, config hash, OSHB commit, corpus hash, MAM version + license, the system/config hash per unit type and mode, fusion weights, `k`, neighbour window, the semantic system with its encoder (`models/berel-sup`) and embedding file (`embeddings/berel_sup.npy`) for the API, row counts, file size and the `/similar` benchmark.
+- Build: written to `results.sqlite.tmp`, every table (and every unit type × mode of `matches`) checked against its source row count, no dangling unit ids, indexes + `ANALYZE` + `VACUUM`, then moved into place; a failed build leaves the previous DB.
+- `store.db.similar()` is the `/similar` query: the stored list of one unit with exclusions in SQL (same semantics as `retrieve/filters.py`; `neighbors`/`chapter` for verses, `book` for every unit type), in stored rank order.
+- Result (2026-10-04): 4,144,976 matches (verse 3.48M, pericope 522k, chapter 139k, parasha 8k), 9,204 lemmas, **241 MB**, ~50 s to build; `/similar` (k = 50, neighbours excluded) median 0.53 ms, max 2.3 ms.
 
 ---
 
@@ -307,3 +318,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D19 | SimCSE | `bsim train-simcse`: MNRL on (verse, verse) over the *distinct* `text_model` strings (repeated formula verses would be false in-batch negatives), `no_duplicates` batch sampler, hidden + attention dropout from `train.simcse.dropout`. Epochs are selected by `train/dev_eval.py:DevEvaluator`, which reproduces `bsim topk` + `bsim evaluate` in memory (±2 neighbour filter) instead of ST's IR evaluator; epoch 0 (raw BEREL) is scored as a reference, never saved. Output `models/berel-simcse/` is a native ST checkpoint (Transformer + mean pooling) + `bsim_train.json`; registered as `berel_simcse` (pooling `native`) |
 | D20 | Supervised fine-tune | `bsim train-sup` (`--init`, `--[no-]hard-negatives`, `--output` for ablations): CachedMNRL on train-split verse links (both directions) + one BM25 hard negative per row, `no_duplicates` sampler; checkpoints selected every `eval_steps` by `DevEvaluator` (not ST's IR evaluator). The dev ablation chose raw BEREL over the SimCSE start (`init_from: base`); `final_systems.semantic = berel_sup_csls` |
 | D21 | Fusion & units | `bsim units`: BMA (primary) and mean aggregation for every dense / `*_csls` system → `{system}_{bma\|mean}`; unit lexical = `tfidf`. Unit gold = ≥ m shared verse links or overlapping unit-link ranges, no neighbour filter; parasha has no dev/test gold (Torah = train). `bsim fuse`: RRF of `final_lists` (verse `bm25_lemma` + `berel_sup_csls`; units `tfidf` + `berel_sup_csls_bma`), w_lex grid extended to 2.0, one weight for all unit types chosen on verse dev (`w_lex = 1.0`). Test split = final systems only, run once (guarded) |
+| D22 | Results DB | `bsim build-db` rebuilds `results.sqlite` from scratch (tmp file + row-count checks, then replace) with the final systems only; DESIGN §9 schema plus `verses.display_tokens`, `words.content_lemmas`/`in_formula`, `units.marker`, `WITHOUT ROWID` matches keyed for `/similar`; `lemma_gloss` = most common prefix-stripped consonantal form (no lexicon); `store.db.similar()` holds the query-time filters for the API |

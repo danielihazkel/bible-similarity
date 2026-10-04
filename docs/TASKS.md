@@ -102,8 +102,8 @@ M0 → M1 → M2 → M3 ─┐
 ✔ Top-k Parquet for 4 unit types × 3 modes; report has dev + final test numbers; BMA vs mean comparison recorded.
 
 ## M10 — Results database (§9)
-- [ ] `store/schema.sql`, `store/db.py`: load books, verses, words, units, members, matches (3 modes × 4 unit types), lemma display forms, meta
-- [ ] Indexes; `VACUUM`; size check
+- [x] `store/schema.sql`, `store/db.py`: load books, verses, words, units, members, matches (3 modes × 4 unit types), lemma display forms, meta (4.14M matches, 9,204 lemma forms)
+- [x] Indexes; `VACUUM`; size check (241 MB, ~50 s build; `/similar` median 0.53 ms)
 
 ✔ `results.sqlite` builds from scratch in one command; row counts match Parquet; a `/similar`-style query takes < 10 ms.
 

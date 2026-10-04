@@ -1,0 +1,78 @@
+-- results.sqlite (DESIGN.md §9). Written by `bsim build-db`; read-only for the API.
+-- Indexes beyond the primary keys are created after loading (db.INDEXES).
+
+CREATE TABLE books (
+    book_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,             -- Sefaria title
+    he_name TEXT NOT NULL,
+    osis TEXT NOT NULL,
+    section TEXT NOT NULL,          -- Torah | Prophets | Writings
+    n_chapters INTEGER NOT NULL
+);
+
+CREATE TABLE verses (
+    verse_id INTEGER PRIMARY KEY,   -- canon ordinal = embedding row
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    verse INTEGER NOT NULL,
+    ref TEXT NOT NULL,
+    osis TEXT NOT NULL,
+    text_display TEXT NOT NULL,     -- MAM, pointed + te'amim
+    text_plain TEXT NOT NULL,       -- consonantal MAM
+    ketiv_note TEXT,
+    display_tokens TEXT NOT NULL    -- JSON list; words.display_idx indexes it
+);
+
+CREATE TABLE words (
+    verse_id INTEGER NOT NULL,
+    idx INTEGER NOT NULL,
+    display_idx INTEGER,            -- NULL when not aligned to a MAM token
+    surface TEXT NOT NULL,
+    lemma TEXT NOT NULL,            -- OSHB lemma attribute, e.g. b/7225
+    content_lemmas TEXT NOT NULL,   -- space-joined content lemmas, e.g. 7225
+    morph TEXT,
+    in_formula INTEGER NOT NULL,    -- 1 if inside a down-weighted formula occurrence
+    PRIMARY KEY (verse_id, idx)
+) WITHOUT ROWID;
+
+CREATE TABLE units (
+    unit_id TEXT PRIMARY KEY,
+    unit_type TEXT NOT NULL,
+    label_en TEXT NOT NULL,
+    label_he TEXT NOT NULL,
+    book_id INTEGER NOT NULL,
+    start_verse_id INTEGER NOT NULL,
+    end_verse_id INTEGER NOT NULL,
+    n_verses INTEGER NOT NULL,
+    marker TEXT                     -- pericope closing marker: pe | samekh
+);
+
+CREATE TABLE unit_members (
+    unit_id TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    PRIMARY KEY (unit_id, verse_id)
+) WITHOUT ROWID;
+
+CREATE TABLE matches (
+    unit_type TEXT NOT NULL,
+    mode TEXT NOT NULL,             -- lexical | semantic | fused
+    src_id TEXT NOT NULL,
+    rank INTEGER NOT NULL,          -- 1-based, self excluded
+    tgt_id TEXT NOT NULL,
+    score REAL NOT NULL,
+    lex_score REAL,                 -- breakdown: fused rows only
+    lex_rank INTEGER,
+    sem_score REAL,
+    sem_rank INTEGER,
+    PRIMARY KEY (unit_type, mode, src_id, rank)
+) WITHOUT ROWID;
+
+CREATE TABLE lemma_gloss (
+    lemma TEXT PRIMARY KEY,
+    he_lemma TEXT NOT NULL          -- most common consonantal form, prefixes stripped
+) WITHOUT ROWID;
+
+CREATE TABLE meta (
+    key TEXT PRIMARY KEY,
+    value TEXT                      -- JSON-encoded
+) WITHOUT ROWID;

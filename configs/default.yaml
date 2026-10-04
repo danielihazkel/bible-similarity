@@ -119,6 +119,11 @@ final_systems:                # chosen on dev in M8/M9
   unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
 
+store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
+  batch_rows: 200000          # rows per executemany batch
+  max_size_mb: 400            # warn when results.sqlite is larger
+  bench_queries: 20           # timed /similar runs per spot-check verse and mode (target < 10 ms)
+
 serve:
   host: 127.0.0.1
   port: 8000

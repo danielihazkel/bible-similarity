@@ -225,8 +225,13 @@ def evaluate(
 @app.command("build-db")
 def build_db(config: ConfigOpt = None) -> None:
     """Build artifacts/results.sqlite for the viewer."""
-    load_config(config)
-    _not_implemented("build-db", "M10")
+    from bsim.store.db import run_build_db
+
+    try:
+        run_build_db(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()

@@ -30,9 +30,9 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["build-db"])
+    result = runner.invoke(app, ["serve"])
     assert result.exit_code == 1
-    assert "M10" in result.output
+    assert "M11" in result.output
 
 
 def test_embed_unknown_system_exits_nonzero():
