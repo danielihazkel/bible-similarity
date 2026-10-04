@@ -116,7 +116,8 @@ bible-similarity/
 │   ├── train/
 │   │   ├── simcse.py
 │   │   ├── supervised.py           # CachedMNRL fine-tune
-│   │   └── negatives.py            # BM25 hard-negative mining
+│   │   ├── negatives.py            # BM25 hard-negative mining
+│   │   └── rerank.py               # cross-encoder reranker (§16.3)
 │   ├── retrieve/
 │   │   ├── topk.py                 # chunked GPU matmul + topk
 │   │   ├── units.py                # mean-pool & best-match-average aggregation
@@ -124,7 +125,8 @@ bible-similarity/
 │   │   └── filters.py              # self / neighbour / chapter / book exclusion
 │   ├── analysis/
 │   │   ├── phrases.py              # `bsim phrases`: Smith-Waterman shared phrases (§16.1)
-│   │   └── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
+│   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
+│   │   └── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG
 │   │   └── report.py               # markdown report of all systems
@@ -144,7 +146,7 @@ bible-similarity/
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
 │       ├── context/                # te'amim / niqqud / consonants preference
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
-│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, structure, lemma, about
+│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, structure, map, lemma, about
 │       └── styles/global.css
 ├── tests/                          # pytest
 ├── data/          (gitignored)     # raw/ interim/ processed/
@@ -167,11 +169,13 @@ bible-similarity/
 | 9 | `bsim units --system X` | embeddings or unit TF-IDF, units | `artifacts/topk/{chapter,pericope,parasha}/{X}_{bma,mean}.parquet` (dense / `*_csls` X) or `tfidf.parquet` (X = `tfidf`) |
 | 10 | `bsim fuse [--tune]` | final lexical + semantic topk | `artifacts/topk/*/fused.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
 | 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
+| — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
-| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + structure | `artifacts/results.sqlite` |
+| 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |
+| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + structure + map | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, structure, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, structure, map, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

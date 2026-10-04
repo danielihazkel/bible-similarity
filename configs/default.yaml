@@ -120,6 +120,25 @@ final_systems:                # chosen on dev in M8/M9
   unit_aggregation: bma        # bma | mean, chosen on dev
   fused: fused
 
+rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encoder over the fused verse lists (DESIGN.md §16.3)
+  base: dicta-il/BEREL_3.0
+  output: berel-rerank        # under paths.models
+  system: fused_rerank        # artifacts/topk/verse/{system}.parquet
+  depth: 50                   # fused candidates reranked per verse
+  max_length: 256             # verse pair tokens
+  negatives_per_query: 7      # from the anchor's own fused list
+  pos_weight: null            # BCE positive weight (null = 1)
+  batch_size: 32
+  eval_batch_size: 128
+  lr: 2.0e-5
+  warmup_ratio: 0.1
+  epochs: 3                   # dev nDCG@10 (alone) by epoch: 0.135 / 0.128 / 0.120 -> epoch 1 kept
+  logging_steps: 50
+  select_metric: ndcg@10      # epoch chosen on dev (cross-encoder alone)
+  rrf_k: 60
+  w_ce: 0.25                  # weight of the cross-encoder rank vs the fused rank; null = alone (dev grid)
+  w_ce_grid: [0.25, 0.5, 1.0, 2.0, 4.0, null]
+
 phrases:                      # `bsim phrases`: shared phrases by local alignment (DESIGN.md §16)
   candidate_rank: 50          # align pairs within the final lexical verse top-k
   mismatch: 1.5               # Smith-Waterman penalties; a match scores idf x formula weight
@@ -138,6 +157,13 @@ structure:                    # `bsim structure` + /structure: inclusio, chiasm,
   leitwort_min_count: 3
   leitwort_top: 12
   leitwort_skip_pos: [C, R, T, P]   # conjunctions, prepositions, particles, pronouns
+
+map:                          # `bsim map`: layout, clusters, book affinity (DESIGN.md §16.4)
+  clusters: {chapter: 20, pericope: 30, parasha: 8}   # KMeans k per unit type (also the types mapped)
+  perplexity: 30              # t-SNE (capped for small sets)
+  label_lemmas: 5             # cluster label: top G² lemmas
+  affinity_rank: 10           # cross-book verse pairs within the fused top-N
+  examples: 10                # strongest verse pairs kept per book pair
 
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8

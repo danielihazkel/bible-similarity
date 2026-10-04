@@ -217,6 +217,33 @@ def evaluate(
         raise typer.Exit(code=1) from e
 
 
+@app.command("train-rerank")
+def train_rerank(config: ConfigOpt = None) -> None:
+    """Fine-tune the cross-encoder reranker on train-split links (epoch chosen on dev)."""
+    from bsim.train.rerank import run_train_rerank
+
+    try:
+        run_train_rerank(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def rerank(
+    tune: Annotated[bool, typer.Option(help="Score rerank.w_ce_grid on dev first")] = False,
+    config: ConfigOpt = None,
+) -> None:
+    """Rerank the fused verse lists with the cross-encoder."""
+    from bsim.train.rerank import run_rerank
+
+    try:
+        run_rerank(load_config(config), log=typer.echo, tune=tune)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def phrases(config: ConfigOpt = None) -> None:
     """Find shared phrases between verses (local alignment of lemma streams)."""
@@ -236,6 +263,18 @@ def structure(config: ConfigOpt = None) -> None:
 
     try:
         run_structure(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("map")
+def corpus_map(config: ConfigOpt = None) -> None:
+    """Lay out units in 2-D, cluster them and measure book-to-book affinity."""
+    from bsim.analysis.corpus_map import run_map
+
+    try:
+        run_map(load_config(config), log=typer.echo)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

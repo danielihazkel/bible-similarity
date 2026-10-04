@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from bsim.analysis.corpus_map import run_map
 from bsim.analysis.structure import run_structure
 from bsim.config import load_config
 from bsim.retrieve.fusion import final_systems
@@ -70,6 +71,7 @@ def fixture_cfg(tmp_path, semantic="sm"):
     cfg["store"] = {**cfg["store"], "bench_queries": 2}
     cfg["serve"] = {**cfg["serve"], "device": "cpu"}
     cfg["structure"] = {**cfg["structure"], "unit_types": ["chapter"], "leitwort_min_count": 2}
+    cfg["map"] = {**cfg["map"], "clusters": {"chapter": 2}}
     return cfg
 
 
@@ -192,6 +194,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
     run_structure(cfg, log=lambda _: None)
+    run_map(cfg, log=lambda _: None)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

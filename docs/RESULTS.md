@@ -169,3 +169,16 @@ CSLS helps every encoder (nDCG@10: `berel_mean` 0.113 → 0.124, `bge_m3` 0.123 
 | train-sup | 19:28 | | |
 
 Every dev and test metric above (all systems, all unit types) came out identical to three decimals, and `results.sqlite` again held 4,144,976 matches (`/similar` median 0.58 ms). `data/` + `models/` + `artifacts/` take 2.8 GB. `bsim serve` on the clone (after `npm ci && npm run build` in `web/`) served the viewer and answered Ps 14:1 → Ps 53:2 at rank 1 in all three modes and the search "בראשית ברא אלהים" → Genesis 1:1 first in every mode.
+
+## Later experiments (dev only)
+
+The test split was run once, at M9; these systems are compared on dev only.
+
+| system | R@1 | R@5 | R@10 | R@50 | MRR@10 | nDCG@10 |
+|---|---|---|---|---|---|---|
+| fused (final) | 0.098 | 0.213 | 0.274 | 0.400 | 0.184 | 0.189 |
+| fused_rerank (cross-encoder, w_ce 0.25) | 0.103 | 0.217 | 0.274 | 0.400 | 0.188 | 0.194 |
+| cross-encoder alone (epoch 1) | 0.076 | 0.142 | 0.195 | 0.400 | 0.134 | 0.135 |
+
+Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 95 % CI [−0.0007, +0.0092]; the blend weight was chosen on the same queries. Not adopted (DESIGN §16.3, D31).
+

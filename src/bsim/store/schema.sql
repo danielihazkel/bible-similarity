@@ -116,6 +116,42 @@ CREATE TABLE structure (
     lexical_chiasm_z REAL
 ) WITHOUT ROWID;
 
+-- Corpus map (`bsim map`, DESIGN.md §16.4).
+CREATE TABLE map_points (
+    unit_id TEXT PRIMARY KEY,
+    unit_type TEXT NOT NULL,
+    x REAL NOT NULL,                -- t-SNE, scaled to 0..1
+    y REAL NOT NULL,
+    cluster INTEGER NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE map_clusters (
+    unit_type TEXT NOT NULL,
+    cluster INTEGER NOT NULL,
+    size INTEGER NOT NULL,
+    lemmas TEXT NOT NULL,           -- JSON list: label lemmas, strongest first
+    PRIMARY KEY (unit_type, cluster)
+) WITHOUT ROWID;
+
+CREATE TABLE book_affinity (
+    a_book INTEGER NOT NULL,        -- a < b
+    b_book INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,       -- cross-book verse pairs within the fused top-N
+    expected REAL NOT NULL,
+    lift REAL NOT NULL,
+    PRIMARY KEY (a_book, b_book)
+) WITHOUT ROWID;
+
+CREATE TABLE book_examples (
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    rank INTEGER NOT NULL,
+    a_vid INTEGER NOT NULL,
+    b_vid INTEGER NOT NULL,
+    score REAL NOT NULL,            -- fused score (best of both directions)
+    PRIMARY KEY (a_book, b_book, rank)
+) WITHOUT ROWID;
+
 CREATE TABLE lemma_gloss (
     lemma TEXT PRIMARY KEY,
     he_lemma TEXT NOT NULL,         -- most common consonantal form, prefixes stripped

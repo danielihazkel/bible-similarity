@@ -307,3 +307,34 @@ def structure_page(
 
 def corpus_lemma_total(conn: sqlite3.Connection) -> int:
     return conn.execute("SELECT SUM(n_words) FROM lemma_gloss").fetchone()[0] or 0
+
+
+def map_points(conn: sqlite3.Connection, unit_type: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT p.unit_id, u.label_en, u.label_he, u.book_id, u.n_verses, p.x, p.y, p.cluster"
+        " FROM map_points p JOIN units u ON u.unit_id = p.unit_id"
+        " WHERE p.unit_type = ? ORDER BY u.start_verse_id",
+        (unit_type,),
+    )
+    return _dicts(cur)
+
+
+def map_clusters(conn: sqlite3.Connection, unit_type: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT cluster, size, lemmas FROM map_clusters WHERE unit_type = ? ORDER BY cluster",
+        (unit_type,),
+    )
+    return [{**r, "lemmas": json.loads(r["lemmas"])} for r in _dicts(cur)]
+
+
+def book_affinity(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    return _dicts(conn.execute("SELECT * FROM book_affinity ORDER BY a_book, b_book"))
+
+
+def book_examples(conn: sqlite3.Connection, a: int, b: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT a_vid, b_vid, score FROM book_examples WHERE a_book = ? AND b_book = ?"
+        " ORDER BY rank",
+        (min(a, b), max(a, b)),
+    )
+    return _dicts(cur)

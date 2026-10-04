@@ -174,3 +174,21 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Tests: analysis functions, endpoints (pytest); panel + ranking (vitest)
 
 ✔ Ps 8 inclusio 8:2 ↔ 8:10 at the 100th percentile; Ps 29 Leitwort קול ×7 flagged as a multiple of 7.
+
+## M18 — Cross-encoder reranker (roadmap B1)
+- [x] `train/rerank.py`: `bsim train-rerank` (BEREL cross-encoder, BCE, train-book anchors with in-list fused negatives, epoch chosen on dev) and `bsim rerank [--tune]` (RRF blend of cross-encoder and fused ranks, dev grid) → `fused_rerank`
+- [x] Dev: alone 0.135 / 0.128 / 0.120 nDCG@10 by epoch; best blend w_ce 0.25 → 0.194 vs fused 0.189; paired bootstrap +0.0042, 95 % CI [−0.0007, +0.0092]
+- [x] Decision: not adopted (fused stays the final list); `fused_rerank` reported in the dev eval; test split untouched
+- [x] Tests: blend and training-pair rules
+
+✔ Reranker trained and evaluated on dev; the gain is recorded as not significant and the final systems are unchanged.
+
+## M19 — Corpus map (roadmap A4)
+- [x] `analysis/corpus_map.py` + `bsim map` (pipeline stage before build-db, ~30 s): t-SNE layout and KMeans clusters of chapters / pericopes / parashot with G² lemma labels; book × book lift of fused cross-book verse pairs, clustered book order, example pairs
+- [x] `map_points`, `map_clusters`, `book_affinity`, `book_examples` tables + `meta.book_order`
+- [x] API: `/map/{unit_type}`, `/affinity`, `/affinity/{a}/{b}`
+- [x] Viewer: Map page (canvas scatter coloured by cluster or section, clickable points, cluster legend as a filter; book affinity heatmap in related / canon order with the strongest pairs of a clicked cell)
+- [x] Tests: map functions, endpoints (pytest); Map page (vitest)
+
+✔ Chapter clusters read as genres (wisdom, praise psalms, Tabernacle, sacrifices, genealogies); Ezra–Nehemiah and Haggai–Zechariah have the highest book lift.
+

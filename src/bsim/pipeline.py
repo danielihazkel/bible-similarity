@@ -127,6 +127,12 @@ def stage_structure(cfg: dict[str, Any], log: Log) -> None:
     run_structure(cfg, log=log)
 
 
+def stage_map(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.corpus_map import run_map
+
+    run_map(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -149,6 +155,7 @@ STAGES: dict[str, str] = {
     "evaluate": "stage_evaluate",
     "phrases": "stage_phrases",
     "structure": "stage_structure",
+    "map": "stage_map",
     "build-db": "stage_build_db",
 }
 

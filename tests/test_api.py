@@ -359,3 +359,21 @@ def test_structure_ranking(client):
     assert (body["by"], body["total"], body["items"]) == ("semantic_chiasm", 0, [])
     assert client.get("/api/structure?unit_type=verse").status_code == 422
     assert client.get("/api/structure?by=nope").status_code == 422
+
+
+def test_corpus_map(client):
+    body = client.get("/api/map/chapter").json()
+    assert [p["unit_id"] for p in body["points"]] == ["c:0:1", "c:0:2", "c:1:1"]
+    assert all(0 <= p["x"] <= 1 and 0 <= p["y"] <= 1 for p in body["points"])
+    assert sum(c["size"] for c in body["clusters"]) == 3
+    assert client.get("/api/map/verse").status_code == 422
+
+
+def test_affinity(client):
+    body = client.get("/api/affinity").json()
+    assert sorted(body["order"]) == [0, 1]
+    assert [(c["a"], c["b"], c["n_pairs"]) for c in body["cells"]] == [(0, 1, 1)]
+    pairs = client.get("/api/affinity/1/0").json()  # book 1 on the `a` side
+    assert [(p["a"]["unit_id"], p["b"]["unit_id"]) for p in pairs] == [("v:5", "v:0")]
+    assert pairs[0]["link"] == {"level": "verse", "types": ["quotation"]}
+    assert client.get("/api/affinity/3/4").json() == []

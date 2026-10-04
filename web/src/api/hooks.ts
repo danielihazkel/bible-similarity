@@ -2,6 +2,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
 import { getJson } from './client'
 import type {
+  AffinityPair,
+  AffinityResponse,
   Book,
   CompareResponse,
   ConcordanceResponse,
@@ -9,6 +11,7 @@ import type {
   Exclude,
   ExplainResponse,
   Meta,
+  MapResponse,
   Mode,
   PhrasePair,
   PhrasesResponse,
@@ -197,6 +200,28 @@ export const useStructureRanking = (q: StructureQuery) =>
         signal,
       ),
     placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useCorpusMap = (unitType: UnitType) =>
+  useQuery({
+    queryKey: ['map', unitType],
+    queryFn: ({ signal }) => getJson<MapResponse>(`/map/${unitType}`, {}, signal),
+    ...forever,
+  })
+
+export const useAffinity = () =>
+  useQuery({
+    queryKey: ['affinity'],
+    queryFn: ({ signal }) => getJson<AffinityResponse>('/affinity', {}, signal),
+    ...forever,
+  })
+
+export const useAffinityPairs = (a: number | undefined, b: number | undefined) =>
+  useQuery({
+    queryKey: ['affinity-pairs', a, b],
+    queryFn: ({ signal }) => getJson<AffinityPair[]>(`/affinity/${a}/${b}`, {}, signal),
+    enabled: a !== undefined && b !== undefined,
     ...forever,
   })
 

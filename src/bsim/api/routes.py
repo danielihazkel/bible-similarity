@@ -17,6 +17,9 @@ from bsim.analysis import structure as st
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
+    AffinityCell,
+    AffinityPair,
+    AffinityResponse,
     Book,
     BookCount,
     CompareResponse,
@@ -31,6 +34,9 @@ from bsim.api.models import (
     Leitwort,
     LemmaForm,
     LemmaStat,
+    MapCluster,
+    MapPoint,
+    MapResponse,
     Meta,
     Mode,
     Pair,
@@ -639,6 +645,71 @@ def structure_ranking(
         "limit": limit,
         "items": items,
     }
+
+
+@router.get("/map/{unit_type}", response_model=MapResponse)
+def corpus_map(unit_type: str, state: State, conn: Conn) -> dict[str, Any]:
+    """2-D layout and thematic clusters of one unit type (DESIGN.md §16.4)."""
+    types = list(state.cfg["map"]["clusters"])
+    if unit_type not in types:
+        raise _unprocessable(f"unknown unit type {unit_type!r}; choose from {types}")
+    clusters = queries.map_clusters(conn, unit_type)
+    gloss = queries.gloss(conn, (lem for c in clusters for lem in c["lemmas"]))
+    return {
+        "unit_type": unit_type,
+        "points": [MapPoint(**p) for p in queries.map_points(conn, unit_type)],
+        "clusters": [
+            MapCluster(
+                cluster=c["cluster"],
+                size=c["size"],
+                lemmas=[LemmaForm(lemma=lem, he_lemma=gloss.get(lem, lem)) for lem in c["lemmas"]],
+            )
+            for c in clusters
+        ],
+    }
+
+
+@router.get("/affinity", response_model=AffinityResponse)
+def affinity(state: State, conn: Conn) -> dict[str, Any]:
+    """Book x book lift of cross-book verse matches."""
+    return {
+        "order": state.meta.get("book_order", []),
+        "cells": [
+            AffinityCell(
+                a=r["a_book"],
+                b=r["b_book"],
+                n_pairs=r["n_pairs"],
+                expected=r["expected"],
+                lift=r["lift"],
+            )
+            for r in queries.book_affinity(conn)
+        ],
+    }
+
+
+@router.get("/affinity/{a}/{b}", response_model=list[AffinityPair])
+def affinity_pairs(a: int, b: int, conn: Conn) -> list[AffinityPair]:
+    """The strongest verse pairs between two books (book `a` on the `a` side)."""
+    rows = queries.book_examples(conn, a, b)
+    if a > b:
+        rows = [{**r, "a_vid": r["b_vid"], "b_vid": r["a_vid"]} for r in rows]
+    vids = [v for r in rows for v in (r["a_vid"], r["b_vid"])]
+    verses = queries.verses_by_id(conn, vids)
+    units_ = queries.units_by_id(conn, [f"v:{v}" for v in vids])
+    links = queries.verse_links(conn, [(r["a_vid"], r["b_vid"]) for r in rows])
+    return [
+        AffinityPair(
+            score=r["score"],
+            a=UnitSummary(**units_[f"v:{r['a_vid']}"]),
+            b=UnitSummary(**units_[f"v:{r['b_vid']}"]),
+            a_verse=verses[r["a_vid"]],
+            b_verse=verses[r["b_vid"]],
+            link=_gold_link(*links[(r["a_vid"], r["b_vid"])])
+            if (r["a_vid"], r["b_vid"]) in links
+            else None,
+        )
+        for r in rows
+    ]
 
 
 @router.get("/meta", response_model=Meta)

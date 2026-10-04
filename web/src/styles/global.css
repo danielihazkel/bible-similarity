@@ -822,6 +822,76 @@ button.chip {
   font-variant-numeric: tabular-nums;
 }
 
+/* Map */
+.map-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 720px) minmax(220px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.scatter {
+  margin: 0;
+}
+.scatter canvas {
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.cluster-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 560px;
+  overflow-y: auto;
+}
+.cluster-legend button,
+.legend-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  padding: 0.2rem 0.35rem;
+  font: inherit;
+  color: var(--text);
+  text-align: start;
+  border-radius: 4px;
+}
+.cluster-legend button {
+  cursor: pointer;
+}
+.cluster-legend button:hover,
+.cluster-legend button.on {
+  background: var(--accent-soft);
+}
+.cluster-legend .he {
+  flex: 1;
+  font-size: 1.05rem;
+}
+.swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  flex: none;
+}
+.affinity svg .axis {
+  font-size: 10px;
+  fill: var(--muted);
+}
+.aff-cell {
+  fill: var(--accent);
+  cursor: pointer;
+}
+.aff-cell:hover,
+.aff-cell.on {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
 /* Sefaria-linked hits */
 .link-badge,
 .mutual-tag {
@@ -1106,7 +1176,8 @@ button.chip {
     margin-inline-start: 0;
   }
   .disc-pair,
-  .structure-grid {
+  .structure-grid,
+  .map-grid {
     grid-template-columns: 1fr;
   }
   .echoes {

@@ -296,6 +296,51 @@ export interface StructureRankingResponse {
   items: StructureRank[]
 }
 
+export interface MapPoint {
+  unit_id: string
+  label_en: string
+  label_he: string
+  book_id: number
+  n_verses: number
+  x: number
+  y: number
+  cluster: number
+}
+
+export interface MapCluster {
+  cluster: number
+  size: number
+  lemmas: LemmaForm[]
+}
+
+export interface MapResponse {
+  unit_type: UnitType
+  points: MapPoint[]
+  clusters: MapCluster[]
+}
+
+export interface AffinityCell {
+  a: number
+  b: number
+  n_pairs: number
+  expected: number
+  lift: number
+}
+
+export interface AffinityResponse {
+  order: number[]
+  cells: AffinityCell[]
+}
+
+export interface AffinityPair {
+  score: number
+  a: UnitSummary
+  b: UnitSummary
+  a_verse: Verse
+  b_verse: Verse
+  link: GoldLink | null
+}
+
 export interface Meta {
   build: Record<string, unknown>
   runtime: Record<string, unknown>

@@ -307,6 +307,51 @@ class StructureRankingResponse(BaseModel):
     items: list[StructureRank]
 
 
+class MapPoint(BaseModel):
+    unit_id: str
+    label_en: str
+    label_he: str
+    book_id: int
+    n_verses: int
+    x: float
+    y: float
+    cluster: int
+
+
+class MapCluster(BaseModel):
+    cluster: int
+    size: int
+    lemmas: list[LemmaForm]  # label lemmas, strongest first
+
+
+class MapResponse(BaseModel):
+    unit_type: str
+    points: list[MapPoint]
+    clusters: list[MapCluster]
+
+
+class AffinityCell(BaseModel):
+    a: int  # book_id, a < b
+    b: int
+    n_pairs: int
+    expected: float
+    lift: float  # observed / expected pairs
+
+
+class AffinityResponse(BaseModel):
+    order: list[int]  # book_ids, related books adjacent
+    cells: list[AffinityCell]
+
+
+class AffinityPair(BaseModel):
+    score: float
+    a: UnitSummary
+    b: UnitSummary
+    a_verse: Verse
+    b_verse: Verse
+    link: GoldLink | None = None
+
+
 class Meta(BaseModel):
     build: dict[str, Any]  # the DB `meta` table
     runtime: dict[str, Any]
