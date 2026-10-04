@@ -102,7 +102,8 @@ bible-similarity/
 │   │   ├── refs.py                 # Sefaria citation -> verse range
 │   │   └── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
 │   ├── text/
-│   │   └── normalize.py            # strip points, maqaf, finals, prefix stripping
+│   │   ├── normalize.py            # strip points, maqaf, finals, prefix stripping
+│   │   └── morph.py                # OSHB morphology code -> Hebrew description
 │   ├── lexical/
 │   │   ├── tokens.py               # lemma / surface token streams, bigrams
 │   │   ├── bm25.py                 # sparse BM25 (verse level)
@@ -121,6 +122,9 @@ bible-similarity/
 │   │   ├── units.py                # mean-pool & best-match-average aggregation
 │   │   ├── fusion.py               # weighted RRF
 │   │   └── filters.py              # self / neighbour / chapter / book exclusion
+│   ├── analysis/
+│   │   ├── phrases.py              # `bsim phrases`: Smith-Waterman shared phrases (§16.1)
+│   │   └── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG
 │   │   └── report.py               # markdown report of all systems
@@ -132,6 +136,7 @@ bible-similarity/
 │       ├── routes.py               # /api endpoints
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
+│       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
 │   └── src/
@@ -139,7 +144,7 @@ bible-similarity/
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
 │       ├── context/                # te'amim / niqqud / consonants preference
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
-│       ├── pages/                  # books, book, unit, compare, search, about
+│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, structure, lemma, about
 │       └── styles/global.css
 ├── tests/                          # pytest
 ├── data/          (gitignored)     # raw/ interim/ processed/
@@ -163,9 +168,10 @@ bible-similarity/
 | 10 | `bsim fuse [--tune]` | final lexical + semantic topk | `artifacts/topk/*/fused.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
 | 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
-| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases | `artifacts/results.sqlite` |
+| 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
+| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + structure | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, structure, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

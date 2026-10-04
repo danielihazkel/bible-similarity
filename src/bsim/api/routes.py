@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Iterator
 from typing import Annotated, Any
 
@@ -12,6 +13,7 @@ import numpy as np
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from bsim.analysis import structure as st
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
@@ -22,9 +24,11 @@ from bsim.api.models import (
     ConcordanceResponse,
     DiscoveriesResponse,
     Discovery,
+    Echo,
     ExplainResponse,
     GoldLink,
     Hit,
+    Leitwort,
     LemmaForm,
     LemmaStat,
     Meta,
@@ -38,6 +42,11 @@ from bsim.api.models import (
     SearchResponse,
     SharedLemma,
     SimilarResponse,
+    StructureBasis,
+    StructureRank,
+    StructureRankingResponse,
+    StructureResponse,
+    StructureScore,
     UnitDetail,
     UnitSummary,
     WordDetail,
@@ -523,6 +532,112 @@ def phrases(
         "offset": offset,
         "limit": limit,
         "items": _phrase_pairs(conn, rows),
+    }
+
+
+def _score(s: st.Score | None, verse_ids: list[int]) -> StructureScore | None:
+    if s is None:
+        return None
+    pair = (verse_ids[s.pair[0]], verse_ids[s.pair[1]]) if s.pair else None
+    return StructureScore(value=s.value, pct=s.pct, z=s.z, pair=pair)
+
+
+@router.get("/structure/{unit_id}", response_model=StructureResponse)
+def structure(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
+    """Verse-by-verse similarity, inclusio, chiasm and Leitworte of a chapter / pericope /
+    parasha (DESIGN.md §16.2)."""
+    u = _unit_or_404(conn, unit_id)
+    c = state.cfg["structure"]
+    if u["unit_type"] == "verse":
+        raise _unprocessable("structure applies to chapters, pericopes and parashot")
+    if u["n_verses"] > c["max_verses"]:
+        raise _unprocessable(f"unit has more than structure.max_verses = {c['max_verses']} verses")
+    vids = list(range(u["start_verse_id"], u["end_verse_id"] + 1))
+    rows = queries.words(conn, vids)
+    bags: dict[int, list[str]] = defaultdict(list)
+    for w in rows:
+        bags[w["verse_id"]].extend(w["content_lemmas"].split())
+    stats = queries.lemma_stats(conn, (t for b in bags.values() for t in b))
+    idf = {t: math.log(state.n_verses / s["n_verses"]) for t, s in stats.items()}
+    mats = {
+        "semantic": st.semantic_matrix(np.asarray(state.emb[vids[0] : vids[-1] + 1])),
+        "lexical": st.lexical_matrix([bags[v] for v in vids], idf),
+    }
+    bases = {}
+    for basis, s in mats.items():
+        inc = st.inclusio(s, c["min_verses_inclusio"], c["samples"], c["seed"])
+        chi = st.chiasm(s, c["min_verses_chiasm"], c["samples"], c["seed"])
+        bases[basis] = StructureBasis(
+            matrix=np.round(s, 3).tolist(),
+            inclusio=_score(inc, vids),
+            chiasm=_score(chi, vids),
+            echoes=[Echo(a=vids[i], b=vids[j], sim=v) for i, j, v in st.echoes(s, c["echoes"])],
+        )
+    skip = set(c["leitwort_skip_pos"])
+    counts = Counter(t for b in bags.values() for t in b if stats.get(t, {}).get("pos") not in skip)
+    keys = st.leitworte(
+        counts,
+        {t: s["n_words"] for t, s in stats.items()},
+        queries.corpus_lemma_total(conn),
+        c["leitwort_min_count"],
+        c["leitwort_top"],
+    )
+    occ: dict[str, dict[int, set[int]]] = defaultdict(lambda: defaultdict(set))
+    wanted = {k.lemma for k in keys}
+    for w in rows:
+        if w["display_idx"] is not None:
+            for t in set(w["content_lemmas"].split()) & wanted:
+                occ[t][w["verse_id"]].add(w["display_idx"])
+    return {
+        "unit": u,
+        "verse_ids": vids,
+        **bases,
+        "leitworte": [
+            Leitwort(
+                lemma=k.lemma,
+                he_lemma=stats[k.lemma]["he_lemma"],
+                count=k.count,
+                expected=k.expected,
+                g2=k.g2,
+                multiple_of=[m for m in (7, 10) if k.count % m == 0],
+                occurrences={v: sorted(ix) for v, ix in occ[k.lemma].items()},
+            )
+            for k in keys
+        ],
+    }
+
+
+@router.get("/structure", response_model=StructureRankingResponse)
+def structure_ranking(
+    state: State,
+    conn: Conn,
+    unit_type: str = "chapter",
+    by: str = "semantic_chiasm",
+    min_verses: int = 5,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Units ranked by an inclusio / chiasm percentile."""
+    types = state.cfg["structure"]["unit_types"]
+    if unit_type not in types:
+        raise _unprocessable(f"unknown unit type {unit_type!r}; choose from {types}")
+    if by not in queries.STRUCTURE_SORT:
+        raise _unprocessable(f"by must be one of {sorted(queries.STRUCTURE_SORT)}")
+    _page(state, limit, offset)
+    total, rows = queries.structure_page(conn, unit_type, by, min_verses, limit, offset)
+    units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
+    items = [
+        StructureRank(unit=UnitSummary(**units_[r["unit_id"]]), **{k: r[k] for k in st.SCORE_COLS})
+        for r in rows
+    ]
+    return {
+        "unit_type": unit_type,
+        "by": by,
+        "min_verses": min_verses,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": items,
     }
 
 

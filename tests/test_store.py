@@ -9,6 +9,7 @@ from bsim.store.db import (
     formula_flags,
     gold_verse_pairs,
     lemma_display_forms,
+    lemma_parts_pos,
     run_build_db,
     similar,
     strip_prefixes,
@@ -104,11 +105,19 @@ def test_lemma_display_forms_most_common():
             "surface": ["הָאָרֶץ", "אֶרֶץ", "אַרְצָה", "וְאֶרֶץ"],
             "lemma": ["d/776", "776", "776", "c/776"],
             "content_lemmas": [["776"]] * 4,
+            "morph": ["HTd/Ncbsa", "HNcbsa", "HNcbsa/Sd", "HC/Ncbsa"],
         }
     )
     assert lemma_display_forms(words).to_dict("records") == [
-        {"lemma": "776", "he_lemma": "ארץ", "n_words": 4, "n_verses": 3}
+        {"lemma": "776", "he_lemma": "ארץ", "n_words": 4, "n_verses": 3, "pos": "N"}
     ]
+
+
+def test_lemma_parts_pos():
+    assert lemma_parts_pos("c/6965 b", "HC/Vqq3ms") == {"6965b": "V"}
+    assert lemma_parts_pos("l/4327", "HR/Ncmsc/Sp3ms") == {"4327": "N"}
+    assert lemma_parts_pos("b", "HR/Sp3ms") == {}
+    assert lemma_parts_pos("430", None) == {}
 
 
 def test_formula_flags():

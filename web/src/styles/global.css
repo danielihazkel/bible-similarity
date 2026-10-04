@@ -737,6 +737,91 @@ a.verse-num {
   color: var(--muted);
 }
 
+/* Structure */
+details.structure {
+  margin-top: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+}
+details.structure summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.structure-panel {
+  margin-top: 0.5rem;
+}
+.structure-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.heatmap {
+  margin: 0;
+}
+.heatmap canvas {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+  border: 1px solid var(--border);
+}
+.structure-facts h3,
+.leitworte h3 {
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0.25rem;
+}
+.fact {
+  margin: 0 0 0.6rem;
+}
+.fact-strong {
+  color: var(--known);
+  font-weight: 600;
+}
+.echoes {
+  margin: 0;
+  padding-inline-start: 1.4rem;
+  columns: 2;
+  font-size: 0.9rem;
+}
+.multiple {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+button.chip {
+  cursor: pointer;
+  font: inherit;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+.rank-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9rem;
+  transition: opacity 0.15s;
+}
+.rank-table.stale {
+  opacity: 0.55;
+}
+.rank-table th,
+.rank-table td {
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  white-space: nowrap;
+}
+.rank-table th.on,
+.rank-table td.on {
+  background: var(--accent-soft);
+}
+.rank-table td.num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Sefaria-linked hits */
 .link-badge,
 .mutual-tag {
@@ -1020,7 +1105,11 @@ a.verse-num {
   .hit-actions {
     margin-inline-start: 0;
   }
-  .disc-pair {
+  .disc-pair,
+  .structure-grid {
     grid-template-columns: 1fr;
+  }
+  .echoes {
+    columns: 1;
   }
 }

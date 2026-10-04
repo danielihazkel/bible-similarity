@@ -192,7 +192,7 @@ def lemma_stats(conn: sqlite3.Connection, lemmas: Iterable[str]) -> dict[str, di
     if not lemmas:
         return {}
     cur = conn.execute(
-        "SELECT lemma, he_lemma, n_words, n_verses FROM lemma_gloss"
+        "SELECT lemma, he_lemma, n_words, n_verses, pos FROM lemma_gloss"
         f" WHERE lemma IN ({_marks(len(lemmas))})",
         lemmas,
     )
@@ -279,3 +279,31 @@ def verse_links(conn: sqlite3.Connection, pairs: Iterable[tuple[int, int]]) -> d
         if row:
             out[(a, b)] = row
     return out
+
+
+STRUCTURE_SORT = {
+    "semantic_chiasm": "semantic_chiasm_pct DESC, semantic_chiasm_z DESC",
+    "lexical_chiasm": "lexical_chiasm_pct DESC, lexical_chiasm_z DESC",
+    "semantic_inclusio": "semantic_inclusio_pct DESC, semantic_inclusio DESC",
+    "lexical_inclusio": "lexical_inclusio_pct DESC, lexical_inclusio DESC",
+}
+
+
+def structure_page(
+    conn: sqlite3.Connection, unit_type: str, by: str, min_verses: int, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    """Units ranked by one structure score (units without that score left out)."""
+    score = by + "_pct"
+    where = f"unit_type = ? AND n_verses >= ? AND {score} IS NOT NULL"
+    args: list[Any] = [unit_type, min_verses]
+    total = conn.execute(f"SELECT COUNT(*) FROM structure WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM structure WHERE {where} ORDER BY {STRUCTURE_SORT[by]}, unit_id"
+        " LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def corpus_lemma_total(conn: sqlite3.Connection) -> int:
+    return conn.execute("SELECT SUM(n_words) FROM lemma_gloss").fetchone()[0] or 0

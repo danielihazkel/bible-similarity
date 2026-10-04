@@ -14,6 +14,7 @@ Derived columns:
   `unit`: only a passage-level link covers them (its ranges expanded to verse pairs).
 - `discoveries`: the strong pairs Sefaria does not link (`discoveries()`).
 - `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
+- `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
 SQL, matching `retrieve/filters.py`, plus `known` (drop gold-linked hits).
@@ -35,6 +36,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.structure import SCORE_COLS
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS
 from bsim.lexical.formulas import formula_weights, frequent_ngrams
@@ -119,7 +121,8 @@ TABLE_COLUMNS = {
         "b_book",
     ],
     "phrases": ["a", "b", "score", "n_tokens", "a_words", "b_words", "spread", "a_book", "b_book"],
-    "lemma_gloss": ["lemma", "he_lemma", "n_words", "n_verses"],
+    "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
+    "lemma_gloss": ["lemma", "he_lemma", "n_words", "n_verses", "pos"],
     "lemma_verses": ["lemma", "verse_id", "book_id"],
 }
 
@@ -147,21 +150,46 @@ def strip_prefixes(surface: str, lemma: str) -> str:
     return word
 
 
+def lemma_parts_pos(lemma: str, morph: str | None) -> dict[str, str]:
+    """Content lemma -> part-of-speech letter of its morpheme. OSHB lemma parts (`c/6965 b`) line
+    up with the morph's morphemes (`HC/Vqq3ms`); suffix morphemes come after and have no lemma."""
+    if not morph:
+        return {}
+    parts, morphemes = lemma.split("/"), morph[1:].split("/")
+    out = {}
+    for part, m in zip(parts, morphemes, strict=False):
+        lem = part.replace(" ", "")
+        if lem[:1].isdigit() and m:
+            out[lem] = m[0]
+    return out
+
+
 def lemma_display_forms(words: pd.DataFrame) -> pd.DataFrame:
-    """`lemma, he_lemma, n_words, n_verses`: each content lemma's most common prefix-stripped
-    form (ties: first seen), its number of occurrences and of verses containing it."""
+    """`lemma, he_lemma, n_words, n_verses, pos`: each content lemma's most common
+    prefix-stripped form (ties: first seen), its number of occurrences and of verses containing
+    it, and its most common part of speech (OSHB letter; None without morphology)."""
     forms: dict[str, Counter[str]] = defaultdict(Counter)
     verses: dict[str, set[int]] = defaultdict(set)
-    for vid, surface, lemma, content in zip(
-        words.verse_id, words.surface, words.lemma, words.content_lemmas, strict=True
+    pos: dict[str, Counter[str]] = defaultdict(Counter)
+    morphs = words.morph if "morph" in words else [None] * len(words)
+    for vid, surface, lemma, content, morph in zip(
+        words.verse_id, words.surface, words.lemma, words.content_lemmas, morphs, strict=True
     ):
         if len(content):
             form = strip_prefixes(surface, lemma)
             for lem in content:
                 forms[lem][form] += 1
                 verses[lem].add(int(vid))
+            for lem, p in lemma_parts_pos(lemma, morph).items():
+                pos[lem][p] += 1
     rows = [
-        (lem, c.most_common(1)[0][0], c.total(), len(verses[lem]))
+        (
+            lem,
+            c.most_common(1)[0][0],
+            c.total(),
+            len(verses[lem]),
+            pos[lem].most_common(1)[0][0] if pos[lem] else None,
+        )
         for lem, c in sorted(forms.items())
     ]
     return pd.DataFrame(rows, columns=TABLE_COLUMNS["lemma_gloss"])
@@ -395,6 +423,10 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim phrases` first")
     out["phrases"] = pd.read_parquet(path)
+    path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim structure` first")
+    out["structure"] = pd.read_parquet(path)
     return out
 
 
@@ -507,6 +539,7 @@ def _write_db(
             "unit_members": inputs["unit_members"],
             "lemma_gloss": gloss,
             "lemma_verses": lemma_verses(inputs["words"], inputs["verses"]),
+            "structure": inputs["structure"],
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),

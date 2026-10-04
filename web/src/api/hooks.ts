@@ -15,6 +15,9 @@ import type {
   ResolveResponse,
   SearchResponse,
   SimilarResponse,
+  StructureRankingResponse,
+  StructureResponse,
+  StructureSort,
   UnitDetail,
   UnitSummary,
   UnitType,
@@ -162,6 +165,35 @@ export const usePhrases = (q: PhrasesQuery) =>
           limit: q.limit,
           offset: q.offset,
         },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useStructure = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['structure', unitId],
+    queryFn: ({ signal }) => getJson<StructureResponse>(`/structure/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
+
+export interface StructureQuery {
+  unitType: UnitType
+  by: StructureSort
+  minVerses: number
+  limit: number
+  offset: number
+}
+
+export const useStructureRanking = (q: StructureQuery) =>
+  useQuery({
+    queryKey: ['structure-ranking', q],
+    queryFn: ({ signal }) =>
+      getJson<StructureRankingResponse>(
+        '/structure',
+        { unit_type: q.unitType, by: q.by, min_verses: q.minVerses, limit: q.limit, offset: q.offset },
         signal,
       ),
     placeholderData: keepPreviousData,

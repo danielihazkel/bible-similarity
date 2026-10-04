@@ -165,3 +165,12 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Tests: alignment, candidates, spread (pytest); endpoints; badge / section / leaderboard (vitest)
 
 ✔ II Kings 18–19 ↔ Isaiah 36–37 lead the leaderboard; unlinked allusions such as Hos 13:8 ↔ Prov 17:12 appear with their shared words highlighted.
+
+## M17 — Inner-unit structure (roadmap A3)
+- [x] `analysis/structure.py`: semantic + lexical verse matrices, inclusio (frame pairs, max-null), chiasm (same-distance Monte Carlo null, pct + z), echoes, Leitworte (G², function-word POS skipped, ×7 / ×10 flags)
+- [x] `bsim structure` (pipeline stage before build-db; 4,464 units in ~6 s) → `structure` table; `lemma_gloss.pos`
+- [x] API: `/structure/{unit_id}` (on demand, ≤ 200 verses), `/structure` ranking
+- [x] Viewer: Structure panel on chapter / pericope / parasha pages (canvas heatmap with mirror pairs, scores, echoes, Leitwort highlighting in the text; `?structure=1`), Structure ranking page
+- [x] Tests: analysis functions, endpoints (pytest); panel + ranking (vitest)
+
+✔ Ps 8 inclusio 8:2 ↔ 8:10 at the 100th percentile; Ps 29 Leitwort קול ×7 flagged as a multiple of 7.

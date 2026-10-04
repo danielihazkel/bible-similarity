@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { useExplain, usePhrasesOf, useSimilar, useUnit } from '../api/hooks'
-import type { UnitDetail, UnitSummary, Verse } from '../api/types'
+import type { Leitwort, UnitDetail, UnitSummary, Verse } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
 import { PhraseCard } from '../components/PhraseCard'
+import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
-import { highlightFor } from '../lib/highlight'
+import { highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
 export function UnitPage() {
@@ -41,6 +42,11 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const pick = (verse: Verse) => (idx: number) =>
     setWord(word?.verse.verse_id === verse.verse_id && word.idx === idx ? undefined : { verse, idx })
   const selectedIn = (verse: Verse) => (word?.verse.verse_id === verse.verse_id ? word.idx : undefined)
+  // Structure (larger units): open from the URL (`?structure=1`), Leitwort highlight in the text.
+  const structureOpen = params.get('structure') === '1'
+  const [leitwort, setLeitwort] = useState<Leitwort>()
+  const leitwortMarks = (v: Verse): Highlight | undefined =>
+    leitwort ? new Map((leitwort.occurrences[v.verse_id] ?? []).map((i) => [i, 'focus'])) : undefined
   const isVerse = unit.unit_type === 'verse'
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
@@ -83,7 +89,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                 <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
                   {v.verse}
                 </Link>
-                <HebrewText verse={v} onWordClick={pick(v)} selected={selectedIn(v)} />
+                <HebrewText verse={v} highlight={leitwortMarks(v)} onWordClick={pick(v)} selected={selectedIn(v)} />
               </li>
             ))}
           </ol>
@@ -93,6 +99,28 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (
         <p className="muted small hint">Click a word for its morphology and concordance.</p>
+      )}
+
+      {!isVerse && (
+        <details
+          className="structure"
+          open={structureOpen}
+          onToggle={(e) => {
+            const open = (e.currentTarget as HTMLDetailsElement).open
+            if (open !== structureOpen) update({ structure: open ? '1' : null })
+            if (!open) setLeitwort(undefined)
+          }}
+        >
+          <summary>Structure: inclusio, chiasm, Leitworte</summary>
+          {structureOpen && (
+            <StructurePanel
+              unitId={unit.unit_id}
+              verses={verses}
+              lemma={leitwort?.lemma}
+              onLemma={(_, k) => setLeitwort(k && k.lemma !== leitwort?.lemma ? k : undefined)}
+            />
+          )}
+        </details>
       )}
 
       <section className="results" aria-label="Similar units">

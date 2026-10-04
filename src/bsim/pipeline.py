@@ -1,4 +1,4 @@
-"""`bsim all`: the offline pipeline end to end (ARCHITECTURE.md §4, stages 1–12 + phrases).
+"""`bsim all`: the offline pipeline end to end (ARCHITECTURE.md §4, stages 1–12 + analyses).
 
 Stages run in a fixed dependency order and call the same runners as the single-stage
 commands; the system lists come from `pipeline` in the config. The test split is evaluated
@@ -121,6 +121,12 @@ def stage_phrases(cfg: dict[str, Any], log: Log) -> None:
     run_phrases(cfg, log=log)
 
 
+def stage_structure(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.structure import run_structure
+
+    run_structure(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -142,6 +148,7 @@ STAGES: dict[str, str] = {
     "fuse": "stage_fuse",
     "evaluate": "stage_evaluate",
     "phrases": "stage_phrases",
+    "structure": "stage_structure",
     "build-db": "stage_build_db",
 }
 

@@ -245,6 +245,68 @@ class ConcordanceResponse(BaseModel):
     items: list[ConcordanceHit]
 
 
+class StructureScore(BaseModel):
+    value: float  # similarity (inclusio) or mean mirror-pair similarity (chiasm)
+    pct: float  # percentile against the unit's own null, 0..1
+    z: float | None = None  # chiasm: distance from the null mean in null SDs
+    pair: tuple[int, int] | None = None  # inclusio: verse_ids of the frame pair that scored
+
+
+class Echo(BaseModel):
+    a: int  # verse_id
+    b: int
+    sim: float
+
+
+class StructureBasis(BaseModel):
+    matrix: list[list[float]]  # verse x verse similarity, rounded to 3 decimals
+    inclusio: StructureScore | None
+    chiasm: StructureScore | None
+    echoes: list[Echo]  # strongest non-adjacent pairs
+
+
+class Leitwort(BaseModel):
+    lemma: str
+    he_lemma: str
+    count: int
+    expected: float  # occurrences expected from the corpus rate
+    g2: float  # Dunning log-likelihood
+    multiple_of: list[int]  # 7 / 10 when the count is a multiple
+    occurrences: dict[int, list[int]]  # verse_id -> display token indices
+
+
+class StructureResponse(BaseModel):
+    unit: UnitSummary
+    verse_ids: list[int]
+    semantic: StructureBasis
+    lexical: StructureBasis
+    leitworte: list[Leitwort]
+
+
+class StructureRank(BaseModel):
+    unit: UnitSummary
+    semantic_inclusio: float | None
+    semantic_inclusio_pct: float | None
+    semantic_chiasm: float | None
+    semantic_chiasm_pct: float | None
+    semantic_chiasm_z: float | None
+    lexical_inclusio: float | None
+    lexical_inclusio_pct: float | None
+    lexical_chiasm: float | None
+    lexical_chiasm_pct: float | None
+    lexical_chiasm_z: float | None
+
+
+class StructureRankingResponse(BaseModel):
+    unit_type: str
+    by: str
+    min_verses: int
+    total: int
+    offset: int
+    limit: int
+    items: list[StructureRank]
+
+
 class Meta(BaseModel):
     build: dict[str, Any]  # the DB `meta` table
     runtime: dict[str, Any]

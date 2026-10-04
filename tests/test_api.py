@@ -338,3 +338,24 @@ def test_phrases(client):
     assert client.get("/api/phrases?cross_book=true").json()["total"] == 1
     assert client.get("/api/phrases?book=0").json()["total"] == 1
     assert client.get("/api/phrases?limit=0").status_code == 422
+
+
+def test_structure(client):
+    body = client.get("/api/structure/c:0:1").json()
+    assert body["verse_ids"] == [0, 1, 2]
+    sem = body["semantic"]
+    assert sem["matrix"][0][1] == pytest.approx(0.8) and sem["matrix"][0][0] == pytest.approx(1)
+    assert sem["inclusio"] is None and sem["chiasm"] is None  # 3 verses: too short
+    assert sem["echoes"] == [{"a": 0, "b": 2, "sim": 0.0}]
+    keys = {k["lemma"]: k for k in body["leitworte"]}
+    assert set(keys) == {"430", "559", "3068"}  # 2 of 2 corpus occurrences each; 7225 is not
+    assert keys["430"]["occurrences"] == {"0": [1], "1": [0]}
+    assert client.get("/api/structure/v:0").status_code == 422
+    assert client.get("/api/structure/c:9:9").status_code == 404
+
+
+def test_structure_ranking(client):
+    body = client.get("/api/structure?unit_type=chapter").json()
+    assert (body["by"], body["total"], body["items"]) == ("semantic_chiasm", 0, [])
+    assert client.get("/api/structure?unit_type=verse").status_code == 422
+    assert client.get("/api/structure?by=nope").status_code == 422

@@ -99,11 +99,29 @@ CREATE TABLE phrases (
     PRIMARY KEY (a, b)
 ) WITHOUT ROWID;
 
+-- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
+CREATE TABLE structure (
+    unit_id TEXT PRIMARY KEY,
+    unit_type TEXT NOT NULL,
+    n_verses INTEGER NOT NULL,
+    semantic_inclusio REAL,
+    semantic_inclusio_pct REAL,
+    semantic_chiasm REAL,
+    semantic_chiasm_pct REAL,
+    semantic_chiasm_z REAL,
+    lexical_inclusio REAL,
+    lexical_inclusio_pct REAL,
+    lexical_chiasm REAL,
+    lexical_chiasm_pct REAL,
+    lexical_chiasm_z REAL
+) WITHOUT ROWID;
+
 CREATE TABLE lemma_gloss (
     lemma TEXT PRIMARY KEY,
     he_lemma TEXT NOT NULL,         -- most common consonantal form, prefixes stripped
     n_words INTEGER NOT NULL,       -- occurrences in the corpus
-    n_verses INTEGER NOT NULL       -- verses containing it
+    n_verses INTEGER NOT NULL,      -- verses containing it
+    pos TEXT                        -- most common OSHB part of speech (N V A C R T P D ...)
 ) WITHOUT ROWID;
 
 -- Concordance: every verse containing a content lemma.

@@ -229,6 +229,18 @@ def phrases(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command()
+def structure(config: ConfigOpt = None) -> None:
+    """Score inclusio and chiasm for every chapter, pericope and parasha."""
+    from bsim.analysis.structure import run_structure
+
+    try:
+        run_structure(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("build-db")
 def build_db(config: ConfigOpt = None) -> None:
     """Build artifacts/results.sqlite for the viewer."""

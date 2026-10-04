@@ -232,6 +232,70 @@ export interface ConcordanceResponse {
   items: ConcordanceHit[]
 }
 
+export interface StructureScore {
+  value: number
+  pct: number
+  z: number | null
+  pair: [number, number] | null
+}
+
+export interface Echo {
+  a: number
+  b: number
+  sim: number
+}
+
+export interface StructureBasis {
+  matrix: number[][]
+  inclusio: StructureScore | null
+  chiasm: StructureScore | null
+  echoes: Echo[]
+}
+
+export interface Leitwort {
+  lemma: string
+  he_lemma: string
+  count: number
+  expected: number
+  g2: number
+  multiple_of: number[]
+  occurrences: Record<string, number[]>
+}
+
+export interface StructureResponse {
+  unit: UnitSummary
+  verse_ids: number[]
+  semantic: StructureBasis
+  lexical: StructureBasis
+  leitworte: Leitwort[]
+}
+
+export type StructureSort = 'semantic_chiasm' | 'lexical_chiasm' | 'semantic_inclusio' | 'lexical_inclusio'
+
+export interface StructureRank {
+  unit: UnitSummary
+  semantic_inclusio: number | null
+  semantic_inclusio_pct: number | null
+  semantic_chiasm: number | null
+  semantic_chiasm_pct: number | null
+  semantic_chiasm_z: number | null
+  lexical_inclusio: number | null
+  lexical_inclusio_pct: number | null
+  lexical_chiasm: number | null
+  lexical_chiasm_pct: number | null
+  lexical_chiasm_z: number | null
+}
+
+export interface StructureRankingResponse {
+  unit_type: UnitType
+  by: StructureSort
+  min_verses: number
+  total: number
+  offset: number
+  limit: number
+  items: StructureRank[]
+}
+
 export interface Meta {
   build: Record<string, unknown>
   runtime: Record<string, unknown>

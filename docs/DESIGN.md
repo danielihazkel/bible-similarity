@@ -222,7 +222,11 @@ CREATE TABLE matches (unit_type TEXT, mode TEXT, src_id TEXT, rank INTEGER, tgt_
 CREATE TABLE discoveries (unit_type TEXT, mode TEXT, a_id TEXT, b_id TEXT, score REAL, tie REAL,
                       rank_ab INTEGER, rank_ba INTEGER, a_book INTEGER, b_book INTEGER,
                       PRIMARY KEY (unit_type, mode, a_id, b_id)) WITHOUT ROWID;
-CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT, n_words INTEGER, n_verses INTEGER) WITHOUT ROWID;
+CREATE TABLE lemma_gloss (lemma TEXT PRIMARY KEY, he_lemma TEXT, n_words INTEGER, n_verses INTEGER, pos TEXT) WITHOUT ROWID;
+CREATE TABLE phrases (a INTEGER, b INTEGER, score REAL, n_tokens INTEGER, a_words TEXT, b_words TEXT, spread INTEGER,
+                      a_book INTEGER, b_book INTEGER, PRIMARY KEY (a, b)) WITHOUT ROWID;             -- §16.1
+CREATE TABLE structure (unit_id TEXT PRIMARY KEY, unit_type TEXT, n_verses INTEGER,
+                      semantic_* / lexical_* inclusio, inclusio_pct, chiasm, chiasm_pct, chiasm_z REAL) WITHOUT ROWID;  -- §16.2
 CREATE TABLE lemma_verses (lemma TEXT, verse_id INTEGER, book_id INTEGER,
                       PRIMARY KEY (lemma, verse_id)) WITHOUT ROWID;   -- concordance (263k rows)
 CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;            -- JSON values
@@ -356,6 +360,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D25 | End-to-end | `bsim all` runs stages 1–12 in a fixed order from `bsim/pipeline.py` with the system lists in config `pipeline`; `--from/--to/--skip` select stages; fuse records the dev `w_lex` grid before writing fused lists; the test split runs only when absent (never forced); training ablations and the web build stay manual. Results are published as metrics only in `docs/RESULTS.md` |
 | D26 | Gold links in the viewer | Sefaria links (all splits; the viewer is not an evaluation) are flagged per stored match (`link_level` verse/unit) and drive a "Discoveries" list of strong unlinked pairs (top-10 either way, neighbours dropped). Discoveries default to `semantic` mode: CSLS scores are comparable across sources, BM25 scores are not, and fused RRF scores tie at the top (secondary sort by semantic score) |
 | D27 | Word study | Morphology is decoded from the OSHB codes into Hebrew labels at request time (no lexicon, English glosses or translations); the concordance is keyed by content lemma (Strong's number) via a `lemma_verses` table; references are resolved by `api/resolve.py` independently of the search modes, and the search page offers the resolved unit next to (or instead of, for non-Hebrew input) the text results |
+| D29 | Structure | Inclusio / chiasm are percentiles against each unit's own Monte Carlo null (same-distance pairs for chiasm, max over the frame pairs for inclusio) on a semantic and a lexical verse matrix; there is no gold, so the scores rank candidates for reading; Leitworte by G² with function-word POS skipped |
 | D28 | Shared phrases | Phrase-level matches are an alignment over the lexical candidates rather than a new retrieval system: Smith-Waterman on content-lemma streams with idf × formula-weight match scores (§16.1); not evaluated against the gold links (no phrase-level gold), thresholds read off samples |
 
 ---
@@ -368,3 +373,11 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 - `spread` = verses sharing the exact matched lemma sequence; an idiom used in many verses (כי על כן) forms a clique of pairs, so the leaderboard hides `spread > 3` by default (a Kings / Isaiah / Chronicles triple survives).
 - Result (2026-10-04): 18,163 phrase pairs in 51 s on CPU (pure Python DP), 8,068 across books; the top is the synoptic material (Kings ↔ Chronicles / Isaiah / Jeremiah), and below rank ~1,500 most cross-book pairs have no Sefaria link (Hos 13:8 ↔ Prov 17:12, Mal 1:11 ↔ Ps 113:3, Amos 5:11 ↔ Zeph 1:13, Deut 32:36 ↔ Ps 135:14).
 - Served from the `phrases` table: `/similar` verse hits carry `phrase: {score, n_tokens}`, `/phrases/{verse_id}` lists a verse's phrase partners, `/phrases` is the paginated leaderboard (`book`, `cross_book`, `min_tokens`, `max_spread`); matched words are returned as display-token indices for highlighting.
+
+### 16.2 Inner-unit structure (`bsim structure`, `analysis/structure.py`, `/structure`)
+- Each chapter / pericope / parasha (≤ `structure.max_verses` = 200 verses) gets two verse × verse similarity matrices: `semantic` (cosine of the final semantic system's verse embeddings) and `lexical` (cosine of tf-idf content-lemma bags, `idf = log(N/df)`).
+- **Inclusio**: the best of the frame pairs first ↔ last, second ↔ last and first ↔ penultimate (for n ≥ 6; otherwise first ↔ last only), so a Psalm superscription or closing formula does not hide the frame, as a percentile of the best of as many random non-adjacent pairs of the same unit (a max-of-3 null for a max-of-3 statistic).
+- **Chiasm**: mean similarity of the mirror pairs (i, n−1−i), the adjacent centre pair left out (n ≥ 5, ≥ 2 pairs), against a Monte Carlo null of random pairs at the same distances (`samples` = 2000, seeded), because similarity decays with distance. `pct` = share of null means below the observed mean, `z` in null SDs. With 4,464 scored units about 5 % would pass 0.95 by chance (2.4 % semantic / 1.9 % lexical do), so the UI presents high scores as leads, not findings. Chiasm at verse granularity is coarse; list-like units (Num 7, Num 33, Josh 21) score high because repeated paragraphs line up.
+- **Echoes**: the `echoes` (8) most similar non-adjacent verse pairs.
+- **Leitworte**: content lemmas over-represented in the unit by Dunning's G² against the rest of the corpus (count ≥ `leitwort_min_count` = 3, observed > expected), skipping conjunctions, prepositions, particles and pronouns by their most common OSHB part of speech (`lemma_gloss.pos`); counts that are multiples of 7 or 10 are flagged (Buber–Rosenzweig). E.g. Ps 29 קול ×7, Gen 1 רקיע ×9 / מינהו ×10, Gen 22 אברהם ×20 / יחיד ×3.
+- `bsim structure` (5–6 s) writes `artifacts/structure/units.parquet` → `structure` table for the ranking (`/structure?unit_type=&by=semantic_chiasm|lexical_chiasm|semantic_inclusio|lexical_inclusio&min_verses=`); `/structure/{unit_id}` recomputes one unit with the same code (30–100 ms; Ps 119, 176 verses, 260 ms) and adds the matrices, echoes and Leitworte with their display-token positions. Spot checks: Ps 8 inclusio 8:2 ↔ 8:10 (0.89, 100th percentile); Ps 118 / 136 / 103 / 1 at the 100th.

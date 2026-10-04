@@ -127,6 +127,18 @@ phrases:                      # `bsim phrases`: shared phrases by local alignmen
   min_tokens: 3               # matched lemma tokens
   min_score: 14
 
+structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
+  unit_types: [chapter, pericope, parasha]
+  max_verses: 200             # larger units are not scored (and /structure refuses them)
+  min_verses_inclusio: 4
+  min_verses_chiasm: 5        # and at least 2 non-adjacent mirror pairs
+  samples: 2000               # chiasm null: random same-distance pairs
+  seed: 13
+  echoes: 8                   # strongest non-adjacent verse pairs shown per unit
+  leitwort_min_count: 3
+  leitwort_top: 12
+  leitwort_skip_pos: [C, R, T, P]   # conjunctions, prepositions, particles, pronouns
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface]   # verse top-k before training (hard negatives)
