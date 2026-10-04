@@ -153,17 +153,19 @@ Common: `sentence-transformers` (v3+ trainer API), max_seq_length 128 (verified 
 ## 8. Gold links, splits & evaluation
 
 ### 8.1 Link processing (`data/links.py`)
-1. Read all `links*.csv`; keep rows with `Category 1 == Category 2 == "Tanakh"`.
-2. Parse both citations into verse ranges (book name → `canon.py`; handle `Book C:V`, `Book C:V-V`, `Book C:V-C:V`, whole chapters `Book C`).
-3. Expand to verse pairs:
+1. Read all `links*.csv`; keep rows whose `Text 1` **and** `Text 2` are both canon books (D15). `Category == "Tanakh"` is not enough, because commentaries and targumim on Tanakh (`Ibn Ezra on Exodus`, `Aramaic Targum to Psalms`, …) carry that category too: it matches ~675k rows, of which only **6,468** are book↔book.
+2. Parse both citations into verse ranges (`refs.parse_ref` + `RefIndex`; book name → `canon.py`; forms `Book C:V`, `Book C:V-V`, `Book C:V-C:V`, whole chapters `Book C`, chapter ranges `Book C-C`). Refs that do not exist in MAM versification (39 in 2026-10, e.g. `Genesis 21:2047-2073`, `Nehemiah 7:6-73`) drop their row and are listed in the report — no clamping.
+3. Expand to verse pairs (`links.cartesian_max = 3`):
    - equal-length ranges → positional alignment (handles parallels like `II Samuel 22 ↔ Psalms 18`);
    - both sides ≤ 3 verses → Cartesian product;
    - otherwise → keep as a **unit-level** link only (used for chapter/pericope evaluation, not for verse training).
-4. Drop self-pairs and pairs within ±2 verses; symmetrize; deduplicate. Keep `connection_type` for analysis.
-5. Write `links.parquet(src_vid, tgt_vid, connection_type, level)` and `links_report.md` (counts per book, per type).
+4. Drop self-pairs and same-book pairs within ±`retrieval.neighbor_window` verses (unit links: overlapping same-book ranges); symmetrize; deduplicate (positional wins over Cartesian; `connection_type` = comma-joined set of non-empty types).
+5. Write `links.parquet(src_vid, tgt_vid, src_end_vid, tgt_end_vid, level, rule, connection_type, split)` — both directions stored; verse rows have `*_end_vid == *_vid`, unit rows keep their inclusive ranges — and `links_report.md` (input/drop counts, per split, per book, per type, invalid refs).
+
+Result (2026-10): ~6.0k undirected verse pairs (5,103 rows positional, 508 Cartesian) + 818 unit links; Torah books dominate (Exodus touches 1.1k pairs).
 
 ### 8.2 Split by book
-- Books are assigned to train / dev / test with a fixed seed so that the pairs are split roughly **75 / 10 / 15**. Greedy balancing by pair count; the assignment is saved in `splits.json`.
+- Books are assigned to train / dev / test with a fixed seed so that the pairs are split **75 / 10 / 15**; the assignment is saved in `splits.json`. Loss = L1 distance of achieved pair fractions to the ratios + how far any single book exceeds `splits.max_book_share` (0.35) of the dev or test pairs. Search: `splits.restarts` seeded random assignments, each improved by single-book moves and two-book swaps; best kept. (Pure greedy-by-pair-count put only Leviticus in dev and Numbers + Ecclesiastes in test; the share cap makes dev/test span several books — 6 and 13 in 2026-10.)
 - A pair belongs to **test** if either verse is in a test book, else to **dev** if either verse is in a dev book, else **train**. Training uses train pairs only; hard negatives never involve dev/test books.
 - A pytest asserts there is no train pair touching a dev/test book.
 
@@ -277,3 +279,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D12 | Tooling | uv + pyproject; git; raw data downloaded by scripts into gitignored `data/`; models/results local |
 | D13 | Docs | Markdown in `docs/` |
 | D14 | Versification | `verse_id` follows MAM/Sefaria (23,206 verses); OSHB is re-keyed via `canon.VERSE_OVERRIDES` (Decalogue in Ex 20 / Deut 5, Num 25:19 → 26:1) |
+| D15 | Link filter & split | Gold = links whose two texts are both canon books (not `Category == Tanakh`); book split balances pair fractions with a 35 % cap on any single book's share of dev/test |

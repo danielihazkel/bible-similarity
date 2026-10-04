@@ -22,6 +22,7 @@ from bsim.config import config_hash, resolve_path
 from bsim.data.align import align
 from bsim.data.canon import BOOKS, TORAH, VERSE_OVERRIDES, Book, oshb_to_mam
 from bsim.data.oshb import OshbVerse, parse_book
+from bsim.data.report import md_table
 from bsim.data.sefaria import MamVerse, load_mam, load_parashiyot
 from bsim.data.units import build_units
 from bsim.text.normalize import consonantal, display_tokens, match_key
@@ -157,12 +158,6 @@ def longest_verses(cfg: dict[str, Any], verses: pd.DataFrame, n: int = 5) -> pd.
     return out.nlargest(n, "n_tokens")
 
 
-def _md_table(headers: list[str], rows: list[list[Any]]) -> str:
-    lines = ["| " + " | ".join(headers) + " |", "|" + "---|" * len(headers)]
-    lines += ["| " + " | ".join(str(x) for x in r) + " |" for r in rows]
-    return "\n".join(lines)
-
-
 def write_report(
     path: Path,
     cfg: dict[str, Any],
@@ -185,7 +180,7 @@ def write_report(
         f"OSHB commit `{cfg['sources']['oshb']['commit'][:7]}`; reading `{cfg['text']['kq']}`.",
         "",
         "## Counts",
-        _md_table(
+        md_table(
             ["item", "count"],
             [
                 ["verses", len(verses)],
@@ -205,7 +200,7 @@ def write_report(
         ),
         "",
         "## Versification overrides (OSHB -> MAM)",
-        _md_table(
+        md_table(
             ["OSHB", "MAM", "rule"],
             [
                 [
@@ -225,7 +220,7 @@ def write_report(
     words_book["aligned"] = aligned.to_numpy()
     per_book = words_book.groupby("book_id").aligned.mean()
     parts.append(
-        _md_table(
+        md_table(
             ["book", "coverage"], [[BOOKS[b].sefaria, f"{c:.2%}"] for b, c in per_book.items()]
         )
     )
@@ -234,7 +229,7 @@ def write_report(
     parts += [
         "",
         "### 20 least-aligned verses",
-        _md_table(
+        md_table(
             ["verse", "coverage", "words"],
             [[ref, f"{r['mean']:.0%}", int(r["size"])] for ref, r in worst.iterrows()],
         ),
@@ -247,13 +242,13 @@ def write_report(
         mam = Counter(bv.break_after.dropna())
         oshb = Counter(bv.oshb_break.dropna())
         rows.append([b.sefaria, mam["pe"], mam["samekh"], oshb["pe"], oshb["samekh"]])
-    parts.append(_md_table(["book", "MAM pe", "MAM samekh", "OSHB pe", "OSHB samekh"], rows))
+    parts.append(md_table(["book", "MAM pe", "MAM samekh", "OSHB pe", "OSHB samekh"], rows))
     parts += ["", f"## Longest verses in BEREL tokens (max_seq_length = {max_len})"]
     if longest is None:
         parts.append("Not computed: the BEREL tokenizer could not be loaded.")
     else:
         parts.append(
-            _md_table(
+            md_table(
                 ["verse", "tokens", "fits"],
                 [
                     [r.ref, r.n_tokens, "yes" if r.n_tokens <= max_len else "**NO**"]

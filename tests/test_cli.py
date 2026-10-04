@@ -30,6 +30,6 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["build-links"])
+    result = runner.invoke(app, ["lexical"])
     assert result.exit_code == 1
-    assert "M3" in result.output
+    assert "M4" in result.output

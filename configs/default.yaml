@@ -76,8 +76,13 @@ fusion:
   w_lex: 0.5
   w_sem: 1.0
 
+links:
+  cartesian_max: 3            # both sides <= this many verses -> Cartesian product (else positional/unit)
+
 splits:
   ratios: {train: 0.75, dev: 0.10, test: 0.15}
+  restarts: 50                # seeded random restarts + local search; the best fit is kept
+  max_book_share: 0.35        # no single book may hold more of the dev/test pairs than this
 
 eval:
   ks: [1, 5, 10, 50]

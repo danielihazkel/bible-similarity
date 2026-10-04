@@ -43,11 +43,11 @@ M0 → M1 → M2 → M3 ─┐
 ✔ ~23.2k verses, 929 chapters, 54 parashiyot; every verse in exactly one chapter and one pericope; alignment coverage ≥ 99 %; longest verse ≤ max_seq_length.
 
 ## M3 — Gold links & splits (§8.1–8.2)
-- [ ] Ref parser for Sefaria citations (+ tests for all range forms)
-- [ ] Filter Tanakh↔Tanakh, expand ranges (positional / Cartesian / unit-level), drop self & ±2, symmetrize, dedupe
-- [ ] Book-level split 75/10/15 by pair count (seeded, greedy-balanced) → `splits.json`
-- [ ] `links_report.md`: totals per split, per book, per connection type
-- [ ] Leakage test: no train pair touches a dev/test book
+- [x] Ref parser for Sefaria citations (+ tests for all range forms)
+- [x] Filter Tanakh↔Tanakh, expand ranges (positional / Cartesian / unit-level), drop self & ±2, symmetrize, dedupe
+- [x] Book-level split 75/10/15 by pair count (seeded, balanced with a per-book share cap) → `splits.json`
+- [x] `links_report.md`: totals per split, per book, per connection type
+- [x] Leakage test: no train pair touches a dev/test book
 
 ✔ `links.parquet` + `splits.json` exist; report shows non-empty dev and test; leakage test passes.
 

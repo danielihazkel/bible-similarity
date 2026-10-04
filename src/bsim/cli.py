@@ -63,8 +63,13 @@ def build_corpus(config: ConfigOpt = None) -> None:
 @app.command("build-links")
 def build_links(config: ConfigOpt = None) -> None:
     """Filter and expand Sefaria Tanakh links; split by book."""
-    load_config(config)
-    _not_implemented("build-links", "M3")
+    from bsim.data.links import run_build_links
+
+    try:
+        run_build_links(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
