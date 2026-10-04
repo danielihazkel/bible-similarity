@@ -130,6 +130,8 @@ store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch
   max_size_mb: 400            # warn when results.sqlite is larger
   bench_queries: 20           # timed /similar runs per spot-check verse and mode (target < 10 ms)
+  discoveries:
+    max_rank: 10              # unlinked pair kept when either unit ranks the other within this
 
 serve:                        # `bsim serve` (DESIGN.md §10)
   host: 127.0.0.1
@@ -138,6 +140,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server
   default_k: 10
   preview_chars: 200          # /similar: first-verse preview of chapter / pericope / parasha hits
+  max_page: 200               # largest `limit` of paginated endpoints (/discoveries)
   cache_dir: api              # under paths.artifacts: CSLS hubness cache for /search
   search:
     min_root_letters: 2       # greedy prefix stripping keeps at least this many letters

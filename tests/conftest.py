@@ -40,6 +40,9 @@ EMB = np.array(
 VERSE_ROWS = [("v:0", "v:1", 1), ("v:0", "v:3", 2), ("v:0", "v:5", 3), ("v:0", "v:2", 4)]
 VERSE_ROWS += [("v:5", "v:0", 1)]
 CHAPTER_ROWS = [("c:0:1", "c:0:2", 1), ("c:0:1", "c:1:1", 2), ("c:1:1", "c:0:1", 1)]
+# Gold links (both directions): v0 <-> v5 verse-level quotation; v1-v2 <-> v3-v4 passage-level.
+# So v:0 -> v:5 is a known hit and v:0 -> v:3 the one unlinked (discovery) verse pair.
+LINKS = [(0, 5, 0, 5, "verse", "positional", "quotation"), (1, 3, 2, 4, "unit", "unit", "")]
 
 
 def fixture_cfg(tmp_path, semantic="sm"):
@@ -151,6 +154,21 @@ def write_inputs(cfg, tmp_path):
         (u, v) for u, _, s, e in CHAPTERS for v in range(s, e + 1)
     ]
     pd.DataFrame(members, columns=["unit_id", "verse_id"]).to_parquet(proc / "unit_members.parquet")
+    links = [
+        r for a, b, ae, be, *rest in LINKS for r in ((a, b, ae, be, *rest), (b, a, be, ae, *rest))
+    ]
+    pd.DataFrame(
+        links,
+        columns=[
+            "src_vid",
+            "tgt_vid",
+            "src_end_vid",
+            "tgt_end_vid",
+            "level",
+            "rule",
+            "connection_type",
+        ],
+    ).assign(split="train").to_parquet(proc / "links.parquet")
     (proc / "corpus_meta.json").write_text(json.dumps({"config_hash": "c0"}), encoding="utf-8")
 
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):

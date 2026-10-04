@@ -37,7 +37,7 @@ const similar = (mode: string): SimilarResponse => ({
   k: 10,
   exclude: ['neighbors'],
   hits: [
-    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null },
+    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null, link: { level: 'verse', types: ['quotation'] } },
   ],
 })
 const EXPLAIN: ExplainResponse = {
@@ -110,6 +110,15 @@ describe('UnitPage', () => {
     const marked = [...container.querySelectorAll('.w-shared')].map((e) => e.textContent)
     expect(marked).toEqual(['אָמַר', 'אָמַר']) // source token 0 and hit token 1
     expect(screen.getByLabelText('Shared lemmas').textContent).toContain('אמר')
+  })
+
+  it('marks Sefaria-linked hits and can hide them', async () => {
+    const calls = mockApi()
+    renderAt('/unit/v:0')
+    const hit = (await screen.findByText('Test 1:6')).closest('li')!
+    expect(hit.querySelector('.link-badge')?.getAttribute('title')).toContain('quotation')
+    fireEvent.click(screen.getByLabelText('Hide Sefaria-linked'))
+    await waitFor(() => expect(calls.some((c) => c.includes('exclude=neighbors%2Cknown'))).toBe(true))
   })
 
   it('keeps mode in the URL', async () => {

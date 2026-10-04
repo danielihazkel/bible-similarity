@@ -59,11 +59,20 @@ class Breakdown(BaseModel):
     sem_rank: int | None = None
 
 
+class GoldLink(BaseModel):
+    """A Sefaria link between the two units: `verse` = a direct verse-to-verse link, `unit` =
+    only a passage-level link covers them."""
+
+    level: Literal["verse", "unit"]
+    types: list[str]  # connection types (quotation, related, ...); empty when untyped
+
+
 class Hit(Breakdown):
     rank: int
     unit: UnitSummary
     verse: Verse | None = None  # verse hits
     preview: str | None = None  # larger units: start of the first verse's display text
+    link: GoldLink | None = None  # None: not a Sefaria-linked pair
 
 
 class SimilarResponse(BaseModel):
@@ -72,6 +81,32 @@ class SimilarResponse(BaseModel):
     k: int
     exclude: list[str]
     hits: list[Hit]
+
+
+class Discovery(BaseModel):
+    """An unordered strong pair without a Sefaria link (`a` = the earlier unit)."""
+
+    score: float
+    tie: float  # secondary sort: semantic score for fused pairs, else the score
+    rank_ab: int | None  # rank of b in a's list; None when b is not in it
+    rank_ba: int | None
+    a: UnitSummary
+    b: UnitSummary
+    a_verse: Verse | None = None  # verse pairs
+    b_verse: Verse | None = None
+    a_preview: str | None = None  # larger units
+    b_preview: str | None = None
+
+
+class DiscoveriesResponse(BaseModel):
+    unit_type: str
+    mode: Mode
+    book: int | None
+    cross_book: bool
+    total: int  # pairs matching the filters
+    offset: int
+    limit: int
+    items: list[Discovery]
 
 
 class WordRef(BaseModel):

@@ -156,3 +156,28 @@ def gloss(conn: sqlite3.Connection, lemmas: Iterable[str]) -> dict[str, str]:
         f"SELECT lemma, he_lemma FROM lemma_gloss WHERE lemma IN ({_marks(len(lemmas))})", lemmas
     )
     return dict(cur.fetchall())
+
+
+def discoveries(
+    conn: sqlite3.Connection,
+    unit_type: str,
+    mode: str,
+    book_id: int | None,
+    cross_book: bool,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """(total, page) of `discoveries` rows, strongest first."""
+    where, args = "unit_type = ? AND mode = ?", [unit_type, mode]
+    if book_id is not None:
+        where += " AND (a_book = ? OR b_book = ?)"
+        args += [book_id, book_id]
+    if cross_book:
+        where += " AND a_book != b_book"
+    total = conn.execute(f"SELECT COUNT(*) FROM discoveries WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        "SELECT a_id, b_id, score, tie, rank_ab, rank_ba FROM discoveries"
+        f" WHERE {where} ORDER BY score DESC, tie DESC, a_id, b_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)

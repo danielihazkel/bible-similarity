@@ -9,9 +9,13 @@ Derived columns:
   same `lexical.formulas` code and config as `bsim lexical` (formula words are shown dimmer).
 - `lemma_gloss.he_lemma`: OSHB lemmas are Strong's numbers and no lexicon is downloaded, so each
   lemma is shown as its most common consonantal surface form with the prefix particles stripped.
+- `matches.link_level / link_type`: whether the pair is a Sefaria gold link (`links.parquet`, all
+  splits). `verse`: a verse-level link joins a verse of the source to a verse of the target;
+  `unit`: only a passage-level link covers them (its ranges expanded to verse pairs).
+- `discoveries`: the strong pairs Sefaria does not link (`discoveries()`).
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
-SQL, matching `retrieve/filters.py`.
+SQL, matching `retrieve/filters.py`, plus `known` (drop gold-linked hits).
 """
 
 from __future__ import annotations
@@ -43,9 +47,11 @@ Log = Callable[[str], None]
 
 SCHEMA = Path(__file__).with_name("schema.sql")
 MODES = ("lexical", "semantic", "fused")
+SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",
     "CREATE INDEX members_by_verse ON unit_members (verse_id, unit_id)",
+    "CREATE INDEX discoveries_by_score ON discoveries (unit_type, mode, score DESC, tie DESC)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -94,6 +100,20 @@ TABLE_COLUMNS = {
         "lex_rank",
         "sem_score",
         "sem_rank",
+        "link_level",
+        "link_type",
+    ],
+    "discoveries": [
+        "unit_type",
+        "mode",
+        "a_id",
+        "b_id",
+        "score",
+        "tie",
+        "rank_ab",
+        "rank_ba",
+        "a_book",
+        "b_book",
     ],
     "lemma_gloss": ["lemma", "he_lemma"],
 }
@@ -153,6 +173,110 @@ def formula_flags(words: pd.DataFrame, n_verses: int, formulas: dict[str, Any]) 
     )
 
 
+def _join_types(types: Iterable[str]) -> str:
+    return ",".join(sorted({t for s in types for t in s.split(",") if t}))
+
+
+def gold_verse_pairs(links: pd.DataFrame) -> pd.DataFrame:
+    """`src, tgt, direct, types`: every gold-linked verse pair (both directions, as in
+    `links.parquet`). Unit-level rows are expanded to their Cartesian verse pairs
+    (`direct` False)."""
+    parts = []
+    for row in links.itertuples(index=False):
+        src = np.arange(row.src_vid, row.src_end_vid + 1)
+        tgt = np.arange(row.tgt_vid, row.tgt_end_vid + 1)
+        s, t = np.meshgrid(src, tgt, indexing="ij")
+        parts.append((s.ravel(), t.ravel(), row.level == "verse", row.connection_type))
+    if not parts:
+        return pd.DataFrame({"src": [], "tgt": [], "direct": [], "types": []})
+    df = pd.DataFrame(
+        {
+            "src": np.concatenate([p[0] for p in parts]),
+            "tgt": np.concatenate([p[1] for p in parts]),
+            "direct": np.concatenate([np.full(len(p[0]), p[2]) for p in parts]),
+            "types": np.concatenate([np.full(len(p[0]), p[3], dtype=object) for p in parts]),
+        }
+    )
+    return (
+        df.groupby(["src", "tgt"], sort=False)
+        .agg(direct=("direct", "any"), types=("types", _join_types))
+        .reset_index()
+    )
+
+
+def unit_links(
+    pairs: pd.DataFrame, units: pd.DataFrame, members: pd.DataFrame, unit_type: str
+) -> pd.DataFrame:
+    """`src_id, tgt_id, link_level, link_type` of the units of `unit_type` joined by a gold verse
+    pair (a pair inside one unit is dropped)."""
+    ids = set(units.unit_id[units.unit_type == unit_type])
+    m = members[members.unit_id.isin(ids)]
+    of_verse = pd.Series(m.unit_id.to_numpy(), index=m.verse_id.to_numpy())
+    df = pd.DataFrame(
+        {
+            "src_id": pairs.src.map(of_verse),
+            "tgt_id": pairs.tgt.map(of_verse),
+            "direct": pairs.direct,
+            "types": pairs.types,
+        }
+    ).dropna(subset=["src_id", "tgt_id"])
+    df = df[df.src_id != df.tgt_id]
+    out = (
+        df.groupby(["src_id", "tgt_id"], sort=False)
+        .agg(direct=("direct", "any"), link_type=("types", _join_types))
+        .reset_index()
+    )
+    out["link_level"] = np.where(out.direct, "verse", "unit")
+    return out[["src_id", "tgt_id", "link_level", "link_type"]]
+
+
+def discoveries(
+    matches: pd.DataFrame, units: pd.DataFrame, max_rank: int, window: int
+) -> pd.DataFrame:
+    """Unordered pairs of one (unit_type, mode) list without a gold link where either unit has
+    the other in its top-`max_rank` (`TABLE_COLUMNS["discoveries"]`). Verse pairs within
+    ±`window` verses of the same book are left out, as with the `neighbors` filter."""
+    df = matches[(matches["rank"] <= max_rank) & matches.link_level.isna()]
+    cols = TABLE_COLUMNS["discoveries"]
+    if df.empty:
+        return pd.DataFrame(columns=cols)
+    info = units.set_index("unit_id")
+    start, book = info.start_verse_id, info.book_id
+    s_start, t_start = df.src_id.map(start).to_numpy(), df.tgt_id.map(start).to_numpy()
+    forward = s_start < t_start
+    tie = df.sem_score if df["mode"].iloc[0] == "fused" else df.score
+    pairs = pd.DataFrame(
+        {
+            "a_id": np.where(forward, df.src_id, df.tgt_id),
+            "b_id": np.where(forward, df.tgt_id, df.src_id),
+            "score": df.score.to_numpy(),
+            "tie": pd.to_numeric(tie, errors="coerce").fillna(df.score).to_numpy(),
+            "rank_ab": np.where(forward, df["rank"], -1),
+            "rank_ba": np.where(forward, -1, df["rank"]),
+        }
+    )
+    out = (
+        pairs.groupby(["a_id", "b_id"], sort=False)
+        .agg(
+            score=("score", "max"),
+            tie=("tie", "max"),
+            rank_ab=("rank_ab", "max"),
+            rank_ba=("rank_ba", "max"),
+        )
+        .reset_index()
+    )
+    for col in ("rank_ab", "rank_ba"):
+        out[col] = out[col].where(out[col] > 0).astype("Int32")
+    out["a_book"] = out.a_id.map(book).to_numpy()
+    out["b_book"] = out.b_id.map(book).to_numpy()
+    if df.unit_type.iloc[0] == "verse":
+        gap = (out.b_id.map(start) - out.a_id.map(start)).abs()
+        out = out[~((out.a_book == out.b_book) & (gap <= window))]
+    out["unit_type"] = df.unit_type.iloc[0]
+    out["mode"] = df["mode"].iloc[0]
+    return out.sort_values(["score", "tie"], ascending=False, kind="stable")[cols]
+
+
 def _rows(df: pd.DataFrame, cols: list[str], batch: int) -> Iterator[list[tuple[Any, ...]]]:
     """Batches of Python-typed tuples (NaN / NA -> None) for `executemany`."""
     for start in range(0, len(df), batch):
@@ -186,12 +310,13 @@ def similar(
     """Top-`k` stored matches of `src_id` after query-time exclusion, in stored rank order.
 
     `neighbors` (same book, within ±window verses) and `chapter` (same book and chapter) apply to
-    verses only; `book` applies to every unit type. Hits keep their stored `rank`.
+    verses only; `book` and `known` (gold-linked hits) apply to every unit type. Hits keep their
+    stored `rank`.
     """
     exclude = set(exclude)
-    unknown = exclude - set(EXCLUDES)
+    unknown = exclude - set(SIMILAR_EXCLUDES)
     if unknown:
-        raise ValueError(f"unknown filters {sorted(unknown)}; choose from {EXCLUDES}")
+        raise ValueError(f"unknown filters {sorted(unknown)}; choose from {SIMILAR_EXCLUDES}")
     if unit_type != "verse" and exclude & {"neighbors", "chapter"}:
         raise ValueError("the neighbors / chapter filters apply to verses only")
     joins, where, params = "", [], [unit_type, mode, src_id]
@@ -208,8 +333,11 @@ def similar(
         where.append("NOT (t.book_id = s.book_id AND tv.chapter = sv.chapter)")
     if "book" in exclude:
         where.append("t.book_id != s.book_id")
+    if "known" in exclude:
+        where.append("m.link_level IS NULL")
     sql = (
         "SELECT m.rank, m.tgt_id, m.score, m.lex_score, m.lex_rank, m.sem_score, m.sem_rank,"
+        " m.link_level, m.link_type,"
         " t.label_en, t.label_he, t.book_id, t.start_verse_id, t.end_verse_id"
         " FROM matches m"
         " JOIN units s ON s.unit_id = m.src_id"
@@ -231,10 +359,11 @@ def _read_json(path: Path) -> dict[str, Any]:
 def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     proc = resolve_path(cfg, "data_processed")
     out = {}
-    for name in ("verses", "words", "units", "unit_members"):
+    for name in ("verses", "words", "units", "unit_members", "links"):
         path = proc / f"{name}.parquet"
         if not path.exists():
-            raise RuntimeError(f"{path} missing; run `bsim build-corpus` first")
+            cmd = "build-links" if name == "links" else "build-corpus"
+            raise RuntimeError(f"{path} missing; run `bsim {cmd}` first")
         out[name] = pd.read_parquet(path)
     return out
 
@@ -318,7 +447,8 @@ def _write_db(
     files: list[tuple[str, str, str, Path]],
     log: Log,
 ) -> dict[str, Any]:
-    batch = cfg["store"]["batch_rows"]
+    batch, disc = cfg["store"]["batch_rows"], cfg["store"]["discoveries"]
+    window = cfg["retrieval"]["neighbor_window"]
     verses, words = inputs["verses"], inputs["words"]
     conn = sqlite3.connect(path)
     try:
@@ -353,6 +483,14 @@ def _write_db(
             _insert(conn, table, df, batch)
             expected[table] = len(df)
 
+        log("gold links")
+        units, members = inputs["units"], inputs["unit_members"]
+        pairs = gold_verse_pairs(inputs["links"])
+        links = {
+            unit_type: unit_links(pairs, units, members, unit_type)
+            for unit_type in cfg["units"]["types"]
+        }
+        found = []
         for unit_type, mode, system, file in files:
             df = pd.read_parquet(file).assign(mode=mode)
             if (df.unit_type != unit_type).any():
@@ -360,10 +498,17 @@ def _write_db(
             for col in ("lex_score", "lex_rank", "sem_score", "sem_rank"):
                 if col not in df:
                     df[col] = None
+            df = df.merge(links[unit_type], on=["src_id", "tgt_id"], how="left")
             df = df.sort_values(["src_id", "rank"], kind="stable")
             _insert(conn, "matches", df, batch)
             expected[f"matches/{unit_type}/{mode}"] = len(df)
-            log(f"  matches {unit_type}/{mode} ({system}): {len(df)} rows")
+            n_known = int(df.link_level.notna().sum())
+            log(f"  matches {unit_type}/{mode} ({system}): {len(df)} rows, {n_known} gold-linked")
+            found.append(discoveries(df, units, disc["max_rank"], window))
+        found_df = pd.concat(found, ignore_index=True)
+        _insert(conn, "discoveries", found_df, batch)
+        expected["discoveries"] = len(found_df)
+        log(f"  discoveries: {len(found_df)} unlinked pairs")
         conn.commit()
 
         log("checking row counts, indexing")

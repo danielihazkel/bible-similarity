@@ -243,3 +243,31 @@ def test_web_dist_served(built):
 def test_web_dist_missing(client):
     assert client.get("/").status_code == 404
     assert client.get("/api/books").status_code == 200
+
+
+def test_similar_gold_links(client):
+    hits = client.get("/api/similar/v:0?mode=semantic").json()["hits"]
+    links = {h["unit"]["unit_id"]: h["link"] for h in hits}
+    assert links["v:5"] == {"level": "verse", "types": ["quotation"]}
+    assert links["v:3"] is None
+    known = client.get("/api/similar/v:0?mode=semantic&exclude=known").json()["hits"]
+    assert "v:5" not in {h["unit"]["unit_id"] for h in known}
+    chapter = client.get("/api/similar/c:0:1?mode=lexical").json()["hits"]
+    assert chapter[0]["link"] == {"level": "unit", "types": []}
+
+
+def test_discoveries(client):
+    r = client.get("/api/discoveries")
+    assert r.status_code == 200
+    body = r.json()
+    assert (body["unit_type"], body["mode"], body["total"]) == ("verse", "semantic", 1)
+    item = body["items"][0]
+    assert (item["a"]["unit_id"], item["b"]["unit_id"]) == ("v:0", "v:3")
+    assert (item["rank_ab"], item["rank_ba"]) == (2, None)
+    assert item["a_verse"]["text_display"] == TEXTS[0]
+    assert client.get("/api/discoveries?cross_book=true").json()["total"] == 0
+    assert client.get("/api/discoveries?book=1").json()["total"] == 0
+    assert client.get("/api/discoveries?unit_type=chapter").json()["items"] == []
+    assert client.get("/api/discoveries?offset=1").json()["items"] == []
+    for bad in ("unit_type=book", "limit=0", "limit=100000", "offset=-1", "mode=x"):
+        assert client.get(f"/api/discoveries?{bad}").status_code == 422

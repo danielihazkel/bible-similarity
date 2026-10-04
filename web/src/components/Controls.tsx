@@ -62,6 +62,7 @@ const EXCLUDE_LABELS: Record<Exclude, string> = {
   neighbors: 'Hide neighbours ±2',
   chapter: 'Hide same chapter',
   book: 'Hide same book',
+  known: 'Hide Sefaria-linked',
 }
 
 export function ExcludeFilters({

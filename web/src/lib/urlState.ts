@@ -5,7 +5,7 @@ import type { Exclude, Mode, UnitType } from '../api/types'
 
 export const MODES: Mode[] = ['lexical', 'semantic', 'fused']
 export const K_OPTIONS = [10, 20, 50] as const
-export const EXCLUDES: Exclude[] = ['neighbors', 'chapter', 'book']
+export const EXCLUDES: Exclude[] = ['neighbors', 'chapter', 'book', 'known']
 
 export const DEFAULT_MODE: Mode = 'fused'
 export const DEFAULT_K = 10
@@ -21,7 +21,7 @@ export function parseK(v: string | null): number {
 
 /** Filters that `/similar` accepts for a unit type: neighbours / chapter are verse-only. */
 export function allowedExcludes(type: UnitType): Exclude[] {
-  return type === 'verse' ? EXCLUDES : ['book']
+  return type === 'verse' ? EXCLUDES : ['book', 'known']
 }
 
 /**

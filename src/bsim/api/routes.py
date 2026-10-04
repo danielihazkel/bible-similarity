@@ -16,7 +16,10 @@ from bsim.api.app import ServeState
 from bsim.api.models import (
     Book,
     CompareResponse,
+    DiscoveriesResponse,
+    Discovery,
     ExplainResponse,
+    GoldLink,
     Hit,
     LemmaForm,
     Meta,
@@ -119,7 +122,9 @@ def similar(
     conn: Conn,
     mode: Mode = "fused",
     k: int | None = None,
-    exclude: Annotated[str, Query(description="comma-separated: neighbors, chapter, book")] = "",
+    exclude: Annotated[
+        str, Query(description="comma-separated: neighbors, chapter, book, known")
+    ] = "",
 ) -> dict[str, Any]:
     u = _unit_or_404(conn, unit_id)
     k = _k(state, k)
@@ -138,10 +143,7 @@ def similar(
         raise _unprocessable(str(e)) from e
     targets = queries.units_by_id(conn, [r["tgt_id"] for r in rows])
     starts = [t["start_verse_id"] for t in targets.values()]
-    if u["unit_type"] == "verse":
-        verses, previews = queries.verses_by_id(conn, starts), {}
-    else:
-        verses, previews = {}, queries.previews(conn, starts, state.cfg["serve"]["preview_chars"])
+    verses, previews = _texts(state, conn, u["unit_type"], starts)
     hits = []
     for r in rows:
         t = targets[r["tgt_id"]]
@@ -156,9 +158,79 @@ def similar(
                 unit=UnitSummary(**t),
                 verse=verses.get(t["start_verse_id"]),
                 preview=previews.get(t["start_verse_id"]),
+                link=_gold_link(r["link_level"], r["link_type"]),
             )
         )
     return {"unit": u, "mode": mode, "k": k, "exclude": filters, "hits": hits}
+
+
+def _gold_link(level: str | None, types: str | None) -> GoldLink | None:
+    if level is None:
+        return None
+    return GoldLink(level=level, types=[t for t in (types or "").split(",") if t])
+
+
+def _texts(
+    state: ServeState, conn: sqlite3.Connection, unit_type: str, starts: list[int]
+) -> tuple[dict[int, Any], dict[int, str]]:
+    """(verses, previews) by start verse_id: full verses for verse units, else previews."""
+    if unit_type == "verse":
+        return queries.verses_by_id(conn, starts), {}
+    return {}, queries.previews(conn, starts, state.cfg["serve"]["preview_chars"])
+
+
+@router.get("/discoveries", response_model=DiscoveriesResponse)
+def discoveries(
+    state: State,
+    conn: Conn,
+    unit_type: str = "verse",
+    mode: Mode = "semantic",
+    book: int | None = None,
+    cross_book: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    types = state.cfg["units"]["types"]
+    if unit_type not in types:
+        raise _unprocessable(f"unknown unit type {unit_type!r}; choose from {types}")
+    max_page = state.cfg["serve"]["max_page"]
+    if not 1 <= limit <= max_page:
+        raise _unprocessable(f"limit must be between 1 and {max_page}")
+    if offset < 0:
+        raise _unprocessable("offset must not be negative")
+    total, rows = queries.discoveries(conn, unit_type, mode, book, cross_book, limit, offset)
+    units_ = queries.units_by_id(conn, [i for r in rows for i in (r["a_id"], r["b_id"])])
+    verses, previews = _texts(
+        state, conn, unit_type, [u["start_verse_id"] for u in units_.values()]
+    )
+    items = []
+    for r in rows:
+        a, b = units_[r["a_id"]], units_[r["b_id"]]
+        sa, sb = a["start_verse_id"], b["start_verse_id"]
+        items.append(
+            Discovery(
+                score=r["score"],
+                tie=r["tie"],
+                rank_ab=r["rank_ab"],
+                rank_ba=r["rank_ba"],
+                a=UnitSummary(**a),
+                b=UnitSummary(**b),
+                a_verse=verses.get(sa),
+                b_verse=verses.get(sb),
+                a_preview=previews.get(sa),
+                b_preview=previews.get(sb),
+            )
+        )
+    return {
+        "unit_type": unit_type,
+        "mode": mode,
+        "book": book,
+        "cross_book": cross_book,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": items,
+    }
 
 
 @router.get("/explain", response_model=ExplainResponse)

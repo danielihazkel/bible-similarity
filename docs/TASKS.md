@@ -137,3 +137,14 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Update DESIGN decision log with any changes made during implementation (D25, §12 `pipeline` section)
 
 ✔ Fresh clone → `uv sync` → `bsim all` → `bsim serve` works end-to-end.
+
+---
+
+## M14 — Known vs undiscovered parallels (roadmap A1)
+- [x] `build-db`: flag every stored match that is a Sefaria gold link (`matches.link_level` verse / unit, `link_type`); unit links expanded to verse pairs, mapped to chapters / pericopes / parashot
+- [x] `discoveries` table: unordered strong pairs (either direction within top `store.discoveries.max_rank`) with no gold link, verse neighbours dropped (515,782 rows; DB 241 → 303 MB, `/similar` median unchanged at 0.54 ms)
+- [x] API: `link` on `/similar` hits, `exclude=known`, paginated `/discoveries` (unit type, mode, book, cross-book)
+- [x] Viewer: "Sefaria link" / "Sefaria passage" badge on hits, "Hide Sefaria-linked" filter, Discoveries page (filters + paging in the URL)
+- [x] Tests: store (`gold_verse_pairs`, link flags, discoveries), API, vitest (badge, filter, Discoveries paging)
+
+✔ Ps 14:1 → Ps 53:2 is badged as a Sefaria link; unlinked strong pairs such as Ps 115:8 ↔ Ps 135:18, Judg 17:6 ↔ 21:25 and I Kings 17 ↔ II Kings 4 appear on the Discoveries page.

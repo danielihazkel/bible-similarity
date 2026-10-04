@@ -4,6 +4,7 @@ import { highlightFor } from '../lib/highlight'
 import { compareLink, unitLink } from '../lib/links'
 import { HebrewPlain, HebrewText } from './HebrewText'
 import { LemmaChips } from './LemmaChips'
+import { LinkBadge } from './LinkBadge'
 import { ScoreBreakdown } from './ScoreBreakdown'
 
 interface Props {
@@ -39,6 +40,7 @@ export function HitCard(p: Props) {
             {hit.unit.label_he}
           </span>
         </Link>
+        <LinkBadge link={hit.link} />
         <ScoreBreakdown hit={hit} mode={mode} />
         <span className="hit-actions">
           {isVerse && (

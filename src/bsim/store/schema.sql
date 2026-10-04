@@ -64,7 +64,25 @@ CREATE TABLE matches (
     lex_rank INTEGER,
     sem_score REAL,
     sem_rank INTEGER,
+    link_level TEXT,                -- Sefaria gold link: verse (direct) | unit (passage) | NULL
+    link_type TEXT,                 -- comma-joined connection types ('' when untyped)
     PRIMARY KEY (unit_type, mode, src_id, rank)
+) WITHOUT ROWID;
+
+-- Strong unlinked pairs (db.discoveries): unordered (a = earlier unit), min rank <= max_rank,
+-- no Sefaria link, verse neighbours dropped.
+CREATE TABLE discoveries (
+    unit_type TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    a_id TEXT NOT NULL,
+    b_id TEXT NOT NULL,
+    score REAL NOT NULL,            -- max of the two directional scores
+    tie REAL NOT NULL,              -- secondary sort: semantic score for fused pairs, else score
+    rank_ab INTEGER,                -- rank of b in a's list (NULL: not in it)
+    rank_ba INTEGER,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    PRIMARY KEY (unit_type, mode, a_id, b_id)
 ) WITHOUT ROWID;
 
 CREATE TABLE lemma_gloss (

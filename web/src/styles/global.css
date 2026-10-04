@@ -18,6 +18,8 @@
 
   --lex: #3f7cac;
   --sem: #a8577e;
+  --known: #3f7a3a;
+  --known-soft: #e3efdc;
 
   /* similarity bands for compare (low → high) */
   --sim-0: #e8e2d6;
@@ -51,6 +53,8 @@
     --hl-focus: #a8641a;
     --lex: #6aa6d6;
     --sem: #d589ad;
+    --known: #8fbf8a;
+    --known-soft: #22331f;
     --sim-0: #2d2a24;
     --sim-1: #4a4630;
     --sim-2: #6a6a2e;
@@ -615,6 +619,65 @@ a.verse-num {
   color: #fff;
 }
 
+/* Sefaria-linked hits */
+.link-badge,
+.mutual-tag {
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  white-space: nowrap;
+}
+.link-badge {
+  color: var(--known);
+  background: var(--known-soft);
+  border: 1px solid var(--known);
+}
+.link-badge.unit {
+  background: transparent;
+  border-style: dashed;
+}
+.mutual-tag {
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+}
+
+/* ---------- Discoveries ---------- */
+
+.disc-list {
+  padding: 0;
+  margin: 0.5rem 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: opacity 0.15s;
+}
+.disc-list.stale {
+  opacity: 0.55;
+}
+.disc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+}
+.disc-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1.25rem;
+  margin-top: 0.35rem;
+}
+.disc-side .hit-text {
+  font-size: 1.2rem;
+}
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
 /* ---------- Compare ---------- */
 
 .pickers {
@@ -830,5 +893,8 @@ a.verse-num {
   }
   .hit-actions {
     margin-inline-start: 0;
+  }
+  .disc-pair {
+    grid-template-columns: 1fr;
   }
 }

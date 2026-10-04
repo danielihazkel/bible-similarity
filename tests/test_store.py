@@ -7,6 +7,7 @@ import pytest
 from bsim.store.db import (
     connect_readonly,
     formula_flags,
+    gold_verse_pairs,
     lemma_display_forms,
     run_build_db,
     similar,
@@ -25,6 +26,7 @@ def test_build_counts_and_meta(built):
     assert count("SELECT COUNT(*) FROM unit_members") == 12
     assert count("SELECT COUNT(*) FROM books") == 39
     assert count("SELECT COUNT(*) FROM matches") == 3 * 5 + 3 * 3
+    assert count("SELECT COUNT(*) FROM discoveries") == 3
     assert count("SELECT COUNT(*) FROM matches WHERE unit_type='chapter' AND mode='fused'") == 3
     # breakdown only on fused rows; NaN stored as NULL
     assert count("SELECT COUNT(*) FROM matches WHERE mode!='fused' AND lex_rank IS NOT NULL") == 0
@@ -116,3 +118,47 @@ def test_formula_flags():
     )
     f = {"min_n": 2, "max_n": 2, "min_verses": 1, "weight": 0.2}
     assert formula_flags(words, 3, f).tolist() == [True, True, True, True, False]
+
+
+def test_gold_verse_pairs_expand_units():
+    links = pd.DataFrame(
+        {
+            "src_vid": [0, 0],
+            "tgt_vid": [5, 4],
+            "src_end_vid": [0, 1],
+            "tgt_end_vid": [5, 5],
+            "level": ["verse", "unit"],
+            "connection_type": ["quotation", "related"],
+        }
+    )
+    pairs = gold_verse_pairs(links).set_index(["src", "tgt"]).sort_index()
+    assert list(pairs.index) == [(0, 4), (0, 5), (1, 4), (1, 5)]
+    assert pairs.loc[(0, 5)].tolist() == [True, "quotation,related"]  # direct wins, types merged
+    assert pairs.loc[(1, 4)].tolist() == [False, "related"]
+
+
+def test_link_flags_and_discoveries(built):
+    _, db = built
+    conn = connect_readonly(db)
+    rows = conn.execute(
+        "SELECT unit_type, src_id, tgt_id, link_level, link_type FROM matches"
+        " WHERE mode='semantic' AND link_level IS NOT NULL ORDER BY unit_type, src_id, tgt_id"
+    ).fetchall()
+    assert rows == [
+        ("chapter", "c:0:1", "c:0:2", "unit", ""),
+        ("chapter", "c:0:1", "c:1:1", "verse", "quotation"),
+        ("chapter", "c:1:1", "c:0:1", "verse", "quotation"),
+        ("verse", "v:0", "v:5", "verse", "quotation"),
+        ("verse", "v:5", "v:0", "verse", "quotation"),
+    ]
+    # v:0 -> v:1 / v:2 are neighbours, v:5 is linked: v:0 - v:3 is the one verse discovery
+    found = conn.execute(
+        "SELECT unit_type, mode, a_id, b_id, rank_ab, rank_ba, a_book, b_book FROM discoveries"
+        " ORDER BY unit_type, mode"
+    ).fetchall()
+    assert found == [
+        ("verse", m, "v:0", "v:3", 2, None, 0, 0) for m in ("fused", "lexical", "semantic")
+    ]
+    hits = similar(conn, "verse", "semantic", "v:0", k=10, exclude=["known"])
+    assert [h["tgt_id"] for h in hits] == ["v:1", "v:3", "v:2"]
+    assert similar(conn, "verse", "semantic", "v:0", k=10)[2]["link_type"] == "quotation"

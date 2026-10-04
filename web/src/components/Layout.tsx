@@ -16,6 +16,7 @@ export function Layout() {
             Browse
           </NavLink>
           <NavLink to="/compare">Compare</NavLink>
+          <NavLink to="/discoveries">Discoveries</NavLink>
           <NavLink to="/search">Search</NavLink>
           <NavLink to="/about">About</NavLink>
         </nav>

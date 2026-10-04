@@ -2,7 +2,7 @@
 
 export type Mode = 'lexical' | 'semantic' | 'fused'
 export type UnitType = 'verse' | 'chapter' | 'pericope' | 'parasha'
-export type Exclude = 'neighbors' | 'chapter' | 'book'
+export type Exclude = 'neighbors' | 'chapter' | 'book' | 'known'
 
 export interface Book {
   book_id: number
@@ -52,11 +52,42 @@ export interface Breakdown {
   sem_rank: number | null
 }
 
+/** A Sefaria link: `verse` = direct verse-to-verse, `unit` = only a passage-level link covers it. */
+export interface GoldLink {
+  level: 'verse' | 'unit'
+  types: string[]
+}
+
 export interface Hit extends Breakdown {
   rank: number
   unit: UnitSummary
   verse: Verse | null
   preview: string | null
+  link: GoldLink | null
+}
+
+export interface Discovery {
+  score: number
+  tie: number
+  rank_ab: number | null
+  rank_ba: number | null
+  a: UnitSummary
+  b: UnitSummary
+  a_verse: Verse | null
+  b_verse: Verse | null
+  a_preview: string | null
+  b_preview: string | null
+}
+
+export interface DiscoveriesResponse {
+  unit_type: UnitType
+  mode: Mode
+  book: number | null
+  cross_book: boolean
+  total: number
+  offset: number
+  limit: number
+  items: Discovery[]
 }
 
 export interface SimilarResponse {

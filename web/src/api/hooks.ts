@@ -3,6 +3,7 @@ import { getJson } from './client'
 import type {
   Book,
   CompareResponse,
+  DiscoveriesResponse,
   Exclude,
   ExplainResponse,
   Meta,
@@ -66,6 +67,35 @@ export const useSearch = (q: string, mode: Mode, k: number) =>
     queryKey: ['search', q, mode, k],
     queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k }, signal),
     enabled: q.trim().length > 0,
+    ...forever,
+  })
+
+export interface DiscoveriesQuery {
+  unitType: UnitType
+  mode: Mode
+  book: number | undefined
+  crossBook: boolean
+  limit: number
+  offset: number
+}
+
+export const useDiscoveries = (q: DiscoveriesQuery) =>
+  useQuery({
+    queryKey: ['discoveries', q],
+    queryFn: ({ signal }) =>
+      getJson<DiscoveriesResponse>(
+        '/discoveries',
+        {
+          unit_type: q.unitType,
+          mode: q.mode,
+          book: q.book,
+          cross_book: q.crossBook ? 'true' : undefined,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 
