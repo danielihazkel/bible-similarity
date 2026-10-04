@@ -7,6 +7,8 @@ is excluded here; neighbour / chapter / book exclusion happens at query time (`f
 - sparse (lexical) systems: `artifacts/lexical/{name}.{doc,query}.npz`, scores `query @ doc.T`
   per chunk on the CPU; hits with score <= 0 (no shared terms) are dropped.
 - dense systems: `artifacts/embeddings/{name}.npy` (L2-normalized fp32), scores `E[chunk] @ E.T`.
+- `{base}_csls` systems: `artifacts/embeddings/{base}.npy` scored with CSLS (`embed/csls.py`);
+  `r(·)` is computed here, and the stored scores are CSLS values, not cosines.
 
 Writes `artifacts/topk/verse/{name}.parquet` (unit_type, src_id, rank, tgt_id, score; ranks are
 1-based, ids `v:{verse_id}`) and `{name}.meta.json`.
@@ -32,6 +34,7 @@ Log = Callable[[str], None]
 ScoreFn = Callable[[int, int], "np.ndarray | torch.Tensor"]
 
 VERSE_PREFIX = "v:"
+CSLS_SUFFIX = "_csls"
 
 
 def get_device(name: str) -> torch.device:
@@ -69,7 +72,8 @@ def sparse_scorer(index: bm25.Bm25Index) -> ScoreFn:
 
 
 def dense_scorer(emb: np.ndarray, device: torch.device) -> ScoreFn:
-    e = torch.as_tensor(np.ascontiguousarray(emb, dtype=np.float32), device=device)
+    # copy: emb may be a read-only memmap
+    e = torch.as_tensor(np.array(emb, dtype=np.float32), device=device)
     return lambda start, stop: e[start:stop] @ e.T
 
 
@@ -117,6 +121,12 @@ class Source:
     source_hash: str | None
 
 
+def _load_embeddings(path: Path) -> tuple[np.ndarray, dict[str, Any]]:
+    meta_path = path.with_suffix(".meta.json")
+    meta = json.loads(meta_path.read_text("utf-8")) if meta_path.exists() else {}
+    return np.load(path, mmap_mode="r"), meta
+
+
 def resolve_system(cfg: dict[str, Any], name: str) -> Source:
     art = resolve_path(cfg, "artifacts")
     lex_dir, emb_path = art / "lexical", art / "embeddings" / f"{name}.npy"
@@ -132,9 +142,7 @@ def resolve_system(cfg: dict[str, Any], name: str) -> Source:
             meta.get("config_hash"),
         )
     if emb_path.exists():
-        emb = np.load(emb_path, mmap_mode="r")
-        meta_path = emb_path.with_suffix(".meta.json")
-        meta = json.loads(meta_path.read_text("utf-8")) if meta_path.exists() else {}
+        emb, meta = _load_embeddings(emb_path)
         return Source(
             "dense",
             emb_path,
@@ -142,6 +150,19 @@ def resolve_system(cfg: dict[str, Any], name: str) -> Source:
             lambda device: dense_scorer(emb, device),
             meta.get("config_hash"),
         )
+    base_path = art / "embeddings" / f"{name.removesuffix(CSLS_SUFFIX)}.npy"
+    if name.endswith(CSLS_SUFFIX) and base_path.exists():
+        from bsim.embed.csls import csls_scorer, hubness
+
+        emb, meta = _load_embeddings(base_path)
+        r = cfg["retrieval"]
+
+        def scorer(device: torch.device) -> ScoreFn:
+            return csls_scorer(
+                emb, hubness(emb, r["csls_neighbors"], r["chunk_size"], device), device
+            )
+
+        return Source("dense", base_path, emb.shape[0], scorer, meta.get("config_hash"))
     raise RuntimeError(
         f"unknown system {name!r}: neither {lex_dir / (name + '.doc.npz')} nor {emb_path} "
         "exists; run `bsim lexical` or `bsim embed` first"

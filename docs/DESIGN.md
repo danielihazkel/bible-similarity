@@ -110,6 +110,9 @@ Candidates (all produce L2-normalized float32 vectors from `text_model`):
 
 **CSLS**: `csls(x,y) = 2·cos(x,y) − r(x) − r(y)`, where `r(·)` is the mean cosine to its 10 nearest neighbours. Reduces "hub" verses that appear in everyone's top-k. Kept only if it improves dev metrics.
 
+- Encoders are registered in `encoders.systems` (`name → {model, pooling}`) and all run through sentence-transformers in fp32 at `text.max_seq_length` (128). `pooling: mean` = HF encoder + mean pooling (raw BEREL, tokenizer via `AutoTokenizer`, fast tokenizer asserted); `pooling: native` = the model's own ST config (BGE-M3: CLS + normalize = its dense vector; fine-tuned checkpoints under `models/`). `bsim embed` records `[UNK]` and truncation counts in `{X}.meta.json`.
+- `{base}_csls` is resolved by `bsim topk` from `embeddings/{base}.npy`: `r(·)` (`retrieval.csls_neighbors`, self excluded) is computed at top-k time and the stored scores are CSLS values, not cosines.
+
 The final `semantic` system is chosen on **dev** (not test) by nDCG@10.
 
 ### 5.3 Fused
@@ -288,3 +291,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D15 | Link filter & split | Gold = links whose two texts are both canon books (not `Category == Tanakh`); book split balances pair fractions with a 35 % cap on any single book's share of dev/test |
 | D16 | Lexical weighting | Formula weight α applies to both BM25 sides (doc tf/length, query term weight = max token weight); bigram weight = min of its tokens; `bm25_surface` uses the same pipeline on `match_key` tokens (its own formulas, not exported); unit TF-IDF tf = `(1 + log c)·(w/c)` |
 | D17 | Top-k & eval | One torch top-k path for GPU and CPU; lexical lists drop zero-score hits; ranks 1-based with ties ordered by target id; metrics macro-averaged over gold queries (missing = 0); `metrics.json` keyed by split |
+| D18 | Encoders | All encoders via sentence-transformers (fp32, max_len 128) from an `encoders.systems` registry; BEREL baseline = mean pooling; BGE-M3 = its native CLS dense vector; `*_csls` computed at top-k time from the base embeddings (`retrieval.csls_neighbors`), CSLS scores stored as-is |

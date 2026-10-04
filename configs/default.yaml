@@ -39,6 +39,7 @@ retrieval:
   neighbor_window: 2
   chunk_size: 2048
   device: cuda                # falls back to cpu if unavailable
+  csls_neighbors: 10          # r(x) = mean cosine to this many nearest neighbours (*_csls systems)
 
 lexical:
   bm25:
@@ -55,6 +56,10 @@ encoders:
   berel: dicta-il/BEREL_3.0
   bge_m3: BAAI/bge-m3
   batch_size: 64
+  device: cuda                # falls back to cpu if unavailable
+  systems:                    # system name -> encoder; `bsim embed --model {name}`
+    berel_mean: {model: dicta-il/BEREL_3.0, pooling: mean}   # Transformer + mean pooling
+    bge_m3: {model: BAAI/bge-m3, pooling: native}            # its own ST config: CLS + normalize (dense)
 
 train:
   simcse:
@@ -89,7 +94,6 @@ eval:
   rank_k: 10                  # MRR@k and nDCG@k cutoff
   worst_misses: 20            # missed gold pairs listed per system in the report
   unit_gold_min_links: 2      # m
-  csls_neighbors: 10
   spot_checks: ["Psalms 14:1", "Exodus 20:2", "II Samuel 22:2"]   # top-5 printed in reports
 
 final_systems:                # chosen on dev in M8/M9

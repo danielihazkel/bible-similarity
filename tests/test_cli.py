@@ -30,6 +30,12 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["embed", "--model", "x"])
+    result = runner.invoke(app, ["train-simcse"])
     assert result.exit_code == 1
-    assert "M6" in result.output
+    assert "M7" in result.output
+
+
+def test_embed_unknown_system_exits_nonzero():
+    result = runner.invoke(app, ["embed", "--model", "nope"])
+    assert result.exit_code == 1
+    assert "unknown encoder system" in result.output

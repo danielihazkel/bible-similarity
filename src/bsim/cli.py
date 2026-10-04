@@ -86,12 +86,21 @@ def lexical(config: ConfigOpt = None) -> None:
 
 @app.command()
 def embed(
-    model: Annotated[str, typer.Option(help="Encoder system name, e.g. berel_mean")],
+    model: Annotated[
+        list[str], typer.Option(help="Encoder system name, e.g. berel_mean (repeatable)")
+    ],
     config: ConfigOpt = None,
 ) -> None:
     """Embed all verses with an encoder."""
-    load_config(config)
-    _not_implemented("embed", "M6")
+    from bsim.embed.encoders import run_embed
+
+    cfg = load_config(config)
+    try:
+        for name in model:
+            run_embed(cfg, name, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("train-simcse")

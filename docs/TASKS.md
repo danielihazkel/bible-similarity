@@ -70,10 +70,10 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `artifacts/eval/report.md` shows dev metrics for both BM25 systems; `bm25_lemma` ≥ `bm25_surface`.
 
 ## M6 — Baseline encoders (§5.2)
-- [ ] `embed/encoders.py`: BEREL mean pooling (AutoTokenizer!), BGE-M3 dense; batched fp32 inference → `.npy`
-- [ ] Tokenizer sanity test: no `[UNK]` on sample verses
-- [ ] `embed/csls.py` + `*_csls` variants
-- [ ] Top-k + eval for `berel_mean`, `bge_m3` (+ CSLS)
+- [x] `embed/encoders.py`: BEREL mean pooling (AutoTokenizer!), BGE-M3 dense; batched fp32 inference → `.npy`
+- [x] Tokenizer sanity test: no `[UNK]` on sample verses (and none on the whole corpus; 0 truncated at 128)
+- [x] `embed/csls.py` + `*_csls` variants
+- [x] Top-k + eval for `berel_mean`, `bge_m3` (+ CSLS) (dev nDCG@10: bge_m3_csls 0.135, berel_mean_csls 0.124, bge_m3 0.123, berel_mean 0.113; CSLS helps both, all below bm25_lemma 0.176)
 
 ✔ Report includes 4+ new systems on dev.
 
