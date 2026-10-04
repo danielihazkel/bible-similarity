@@ -85,10 +85,10 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `berel_simcse` beats `berel_mean` on dev nDCG@10 (if not: record the finding in the report and continue with the better one).
 
 ## M8 — Supervised contrastive fine-tune (§7.2)
-- [ ] `train/negatives.py`: BM25 hard negatives (rank 5–50, unlinked, not neighbours, train books only)
-- [ ] `train/supervised.py`: CachedMNRL (mini 32, batch 256), lr 2e-5, warmup 10 %, dev evaluator, best checkpoint → `models/berel-sup/`
-- [ ] Ablation on dev: with vs without hard negatives; start from SimCSE vs raw BEREL
-- [ ] Embed + top-k + eval `berel_sup` (+ CSLS)
+- [x] `train/negatives.py`: BM25 hard negatives (rank 5–50, unlinked, not neighbours, train books only) (9,026 train rows, 24 random fallbacks)
+- [x] `train/supervised.py`: CachedMNRL (mini 32, batch 256), lr 2e-5, warmup 10 %, dev evaluator, best checkpoint → `models/berel-sup/` (peak VRAM 3.8 GB)
+- [x] Ablation on dev (recall@10 / nDCG@10 at the chosen step): SimCSE init + HN 0.208 / 0.141; SimCSE init, no HN 0.205 / 0.140; **raw BEREL + HN 0.210 / 0.144** → `init_from: base`
+- [x] Embed + top-k + eval `berel_sup` (+ CSLS) (dev nDCG@10: berel_sup_csls **0.150**, berel_sup 0.144; recall@50 0.346; still below bm25_lemma 0.176) → `final_systems.semantic: berel_sup_csls`
 
 ✔ Training runs within 11 GB VRAM; best semantic system chosen on dev and recorded in config.
 

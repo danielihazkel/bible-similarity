@@ -30,9 +30,9 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["train-sup"])
+    result = runner.invoke(app, ["fuse"])
     assert result.exit_code == 1
-    assert "M8" in result.output
+    assert "M9" in result.output
 
 
 def test_embed_unknown_system_exits_nonzero():

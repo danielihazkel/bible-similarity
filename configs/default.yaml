@@ -61,6 +61,7 @@ encoders:
     berel_mean: {model: dicta-il/BEREL_3.0, pooling: mean}   # Transformer + mean pooling
     bge_m3: {model: BAAI/bge-m3, pooling: native}            # its own ST config: CLS + normalize (dense)
     berel_simcse: {model: models/berel-simcse, pooling: native}   # `bsim train-simcse` output
+    berel_sup: {model: models/berel-sup, pooling: native}         # `bsim train-sup` output
 
 train:
   simcse:
@@ -74,13 +75,20 @@ train:
     logging_steps: 50
     select_metric: recall@10    # epoch chosen on dev
   supervised:
+    base: dicta-il/BEREL_3.0    # used when init_from: base
+    init_from: base             # a checkpoint under paths.models (e.g. berel-simcse) | base; dev ablation 2026-10
+    output: berel-sup           # under paths.models
     batch_size: 256
-    mini_batch_size: 32
+    mini_batch_size: 32         # CachedMNRL chunk: bounds VRAM, not the effective batch
     lr: 2.0e-5
     warmup_ratio: 0.1
     epochs: 5
-    hard_negative_rank_range: [5, 50]
-    init_from: berel-simcse   # berel-simcse | base
+    dropout: 0.1                # hidden + attention dropout for init_from: base
+    hard_negatives: true        # one BM25 hard negative per pair (train/negatives.py)
+    hard_negative_rank_range: [5, 50]   # inclusive, after the ±neighbour filter
+    eval_steps: 10              # dev evaluation every N optimizer steps (and each epoch end)
+    logging_steps: 10
+    select_metric: recall@10    # checkpoint chosen on dev
 
 fusion:
   rrf_k: 60
@@ -104,7 +112,7 @@ eval:
 
 final_systems:                # chosen on dev in M8/M9
   lexical: bm25_lemma
-  semantic: berel_sup
+  semantic: berel_sup_csls     # dev nDCG@10 0.150 (M8)
   fused: fused
 
 serve:

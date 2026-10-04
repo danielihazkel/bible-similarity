@@ -116,10 +116,34 @@ def train_simcse(config: ConfigOpt = None) -> None:
 
 
 @app.command("train-sup")
-def train_sup(config: ConfigOpt = None) -> None:
+def train_sup(
+    init: Annotated[
+        str | None,
+        typer.Option(help="Start point: a checkpoint under models/ or 'base' (default: config)"),
+    ] = None,
+    hard_negatives: Annotated[
+        bool | None,
+        typer.Option("--hard-negatives/--no-hard-negatives", help="BM25 hard negatives"),
+    ] = None,
+    output: Annotated[
+        str | None, typer.Option(help="Output checkpoint name under models/ (default: config)")
+    ] = None,
+    config: ConfigOpt = None,
+) -> None:
     """Supervised contrastive fine-tune on Sefaria links."""
-    load_config(config)
-    _not_implemented("train-sup", "M8")
+    from bsim.train.supervised import run_train_sup
+
+    try:
+        run_train_sup(
+            load_config(config),
+            log=typer.echo,
+            init=init,
+            hard_negatives=hard_negatives,
+            output=output,
+        )
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()

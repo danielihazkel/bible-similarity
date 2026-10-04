@@ -105,7 +105,7 @@ Candidates (all produce L2-normalized float32 vectors from `text_model`):
 | `berel_mean` | BEREL 3.0, mean pooling of last hidden state, no training |
 | `bge_m3` | BGE-M3 dense vector, no training |
 | `berel_simcse` | BEREL 3.0 + unsupervised SimCSE (§7.1) |
-| `berel_sup` | `berel_simcse` + supervised contrastive fine-tune (§7.2) |
+| `berel_sup` | BEREL 3.0 + supervised contrastive fine-tune (§7.2; starting from `berel_simcse` lost the dev ablation) |
 | `*_csls` | any of the above with CSLS hubness correction |
 
 **CSLS**: `csls(x,y) = 2·cos(x,y) − r(x) − r(y)`, where `r(·)` is the mean cosine to its 10 nearest neighbours. Reduces "hub" verses that appear in everyone's top-k. Kept only if it improves dev metrics.
@@ -151,8 +151,9 @@ Common: `sentence-transformers` (v3+ trainer API), max_seq_length 128 (verified 
 - Positives: **train-split** Sefaria link pairs (§8), both directions.
 - Hard negatives (`train/negatives.py`): for each anchor, verses ranked 5–50 by `bm25_lemma` that are **not** linked to it, not within ±2 neighbours, and not in dev/test books. One hard negative per pair → triplets.
 - Loss: **CachedMultipleNegativesRankingLoss** (mini_batch_size 32, batch 256) — large effective batch without exceeding 11 GB.
-- lr 2e-5, warmup 10 %, up to 5 epochs, eval every N steps on dev (recall@10 via an `InformationRetrievalEvaluator` built from dev links); keep the best checkpoint.
-- Start from `models/berel-simcse` (fallback: raw BEREL, compared on dev).
+- Negatives are also excluded when linked to the positive, within ±2 of the positive, or textually identical to the anchor or positive; the rank range applies after the neighbour filter. Pairs with no eligible candidate get a random train-book verse (24 of 9,026 in 2026-10).
+- lr 2e-5, warmup 10 %, up to 5 epochs, eval every 10 steps and each epoch end on dev (recall@10 via `DevEvaluator`, as in §7.1); keep the best checkpoint.
+- Start point compared on dev (2026-10, recall@10 / nDCG@10): raw BEREL + HN 0.210 / 0.144 > `berel-simcse` + HN 0.208 / 0.141 > `berel-simcse` without HN 0.205 / 0.140. Config: `init_from: base`. With CSLS, `berel_sup_csls` reaches dev nDCG@10 0.150 and is the chosen semantic system. Peak VRAM 3.8 GB.
 
 ---
 
@@ -293,3 +294,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D17 | Top-k & eval | One torch top-k path for GPU and CPU; lexical lists drop zero-score hits; ranks 1-based with ties ordered by target id; metrics macro-averaged over gold queries (missing = 0); `metrics.json` keyed by split |
 | D18 | Encoders | All encoders via sentence-transformers (fp32, max_len 128) from an `encoders.systems` registry; BEREL baseline = mean pooling; BGE-M3 = its native CLS dense vector; `*_csls` computed at top-k time from the base embeddings (`retrieval.csls_neighbors`), CSLS scores stored as-is |
 | D19 | SimCSE | `bsim train-simcse`: MNRL on (verse, verse) over the *distinct* `text_model` strings (repeated formula verses would be false in-batch negatives), `no_duplicates` batch sampler, hidden + attention dropout from `train.simcse.dropout`. Epochs are selected by `train/dev_eval.py:DevEvaluator`, which reproduces `bsim topk` + `bsim evaluate` in memory (±2 neighbour filter) instead of ST's IR evaluator; epoch 0 (raw BEREL) is scored as a reference, never saved. Output `models/berel-simcse/` is a native ST checkpoint (Transformer + mean pooling) + `bsim_train.json`; registered as `berel_simcse` (pooling `native`) |
+| D20 | Supervised fine-tune | `bsim train-sup` (`--init`, `--[no-]hard-negatives`, `--output` for ablations): CachedMNRL on train-split verse links (both directions) + one BM25 hard negative per row, `no_duplicates` sampler; checkpoints selected every `eval_steps` by `DevEvaluator` (not ST's IR evaluator). The dev ablation chose raw BEREL over the SimCSE start (`init_from: base`); `final_systems.semantic = berel_sup_csls` |
