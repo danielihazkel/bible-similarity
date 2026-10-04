@@ -10,13 +10,13 @@ Detailed technical design. See [ARCHITECTURE.md](ARCHITECTURE.md) for the system
 |---|---|---|---|
 | **OSHB morphhb** (Westminster Leningrad Codex) | lemmas, morphology, model input text, pe/samekh cross-check | `https://raw.githubusercontent.com/openscriptures/morphhb/master/wlc/{Book}.xml` (OSIS XML, 39 files) — pin to a release tag/commit | WLC public domain; morphology CC BY 4.0 |
 | **Sefaria — *Miqra according to the Masorah* (MAM)** | display text (pointed + te'amim), pericope markers | `https://storage.googleapis.com/sefaria-export/json/Tanakh/{Section}/{Book}/Hebrew/Miqra according to the Masorah.json` | **CC-BY-SA** (stated in the file's `license` field) |
-| **Sefaria schemas** | parasha boundaries | `https://storage.googleapis.com/sefaria-export/schemas/{Book}.json` → `alts.Parasha.nodes[]` | Sefaria |
-| **Sefaria links** | training pairs + evaluation gold | `https://storage.googleapis.com/sefaria-export/links/links{0..12}.csv` | Sefaria (per-link sources vary; research use) |
+| **Sefaria schemas** | parasha boundaries | `https://storage.googleapis.com/sefaria-export/schemas/{Book_Slug}.json` (spaces → underscores, e.g. `I_Samuel.json`) → `alts.Parasha.nodes[]` | Sefaria |
+| **Sefaria links** | training pairs + evaluation gold | `https://storage.googleapis.com/sefaria-export/links/links{N}.csv`, discovered by listing the bucket (17 files, ~680 MB as of 2026-10) | Sefaria (per-link sources vary; research use) |
 | **BEREL 3.0** | base encoder | HF `dicta-il/BEREL_3.0` (BERT, ~0.2B params, fp32 safetensors) | Apache-2.0 |
 | **BGE-M3** | multilingual baseline | HF `BAAI/bge-m3` | MIT |
 
 Rules:
-- `bsim download` writes `data/raw/manifest.json` with `{url, sha256, bytes, downloaded_at}` per file. The OSHB commit SHA is recorded.
+- `bsim download` writes `data/raw/manifest.json` with `{url, sha256, md5, bytes, downloaded_at}` per file. Sefaria files are verified against the GCS `md5Hash` (via the JSON API `storage/v1/b/sefaria-export/o`); OSHB files are pinned by commit (`3d15126`, 2024-08-27) and verified against their recorded sha256.
 - Raw data is never committed. Sefaria fallback if the bucket layout changes: the public API (`/api/v3/texts/{ref}?version=hebrew|Miqra according to the Masorah`, `/api/v2/raw/index/{book}`). **⚠ verify** fallback only if needed.
 - BEREL tokenizer: must use `AutoTokenizer` / `BertTokenizerFast` (the model card warns `BertTokenizer` gives bad results).
 

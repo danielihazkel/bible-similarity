@@ -22,14 +22,14 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `uv sync` succeeds; `uv run python scripts/check_gpu.py` reports the GTX 1080 Ti with capability 6.1 and no "no kernel image" error; `uv run bsim --help` lists all commands; `uv run pytest` passes.
 
 ## M1 — Download sources (§1)
-- [ ] `data/download.py`: OSHB 39 `wlc/*.xml` at a pinned commit (record SHA)
-- [ ] MAM JSON for all 39 books from the Sefaria-Export bucket (URL-encode spaces in paths)
-- [ ] Schemas for the 5 Torah books (parasha `alts`) — and all 39 for book metadata
-- [ ] `links0.csv … links12.csv` (stream to disk; they are large)
-- [ ] `manifest.json` (url, sha256, bytes, date); skip files already present with matching hash
-- [ ] Book table in `data/canon.py` (Sefaria name ↔ OSIS name ↔ Hebrew name, section, canon order)
+- [x] `data/download.py`: OSHB 39 `wlc/*.xml` at a pinned commit (record SHA)
+- [x] MAM JSON for all 39 books from the Sefaria-Export bucket (URL-encode spaces in paths)
+- [x] Schemas for the 5 Torah books (parasha `alts`) — and all 39 for book metadata
+- [x] all `linksN.csv` files, discovered by listing the bucket (17 files, ~680 MB; streamed, MD5-verified)
+- [x] `manifest.json` (url, sha256, bytes, date); skip files already present with matching hash
+- [x] Book table in `data/canon.py` (Sefaria name ↔ OSIS name ↔ Hebrew name, section, canon order)
 
-✔ `bsim download` is idempotent; all 39 + 39 + 13 files present; manifest complete.
+✔ `bsim download` is idempotent; all 39 + 39 + 39 + 17 files present; manifest complete.
 
 ## M2 — Corpus build (§2–§4)
 - [ ] `text/normalize.py` + tests (points, te'amim, maqaf, finals, `/` separators)

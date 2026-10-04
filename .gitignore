@@ -6,9 +6,9 @@ __pycache__/
 .ruff_cache/
 
 # Data, models, outputs (downloaded / generated)
-data/
-models/
-artifacts/
+/data/
+/models/
+/artifacts/
 
 # Frontend
 node_modules/

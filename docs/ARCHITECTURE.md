@@ -27,7 +27,7 @@ flowchart TD
         OSHB[OSHB morphhb<br/>WLC + lemmas + morph]
         MAM[Sefaria-Export<br/>Miqra al pi ha-Masorah JSON]
         SCH[Sefaria-Export<br/>schemas: Parasha alts]
-        LNK[Sefaria-Export<br/>links0..12.csv]
+        LNK[Sefaria-Export<br/>links0..N.csv]
     end
 
     OSHB --> DL[bsim download]

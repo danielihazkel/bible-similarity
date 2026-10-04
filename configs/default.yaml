@@ -13,12 +13,15 @@ paths:
 sources:
   oshb:
     repo: openscriptures/morphhb
-    commit: master            # pin to a commit SHA in M1
+    commit: 3d15126fb1ef74867fc1434be1942e837932691f   # master @ 2024-08-27
     raw_url: https://raw.githubusercontent.com/openscriptures/morphhb/{commit}/wlc/{osis}.xml
   sefaria:
-    bucket_url: https://storage.googleapis.com/sefaria-export
+    bucket: sefaria-export    # public GCS bucket
     text_version: Miqra according to the Masorah
-    n_link_files: 13          # links0.csv .. links12.csv
+    text_path: "json/Tanakh/{section}/{book}/Hebrew/{version}.json"
+    schema_path: "schemas/{slug}.json"     # slug = title with spaces -> underscores
+    links_prefix: links/links
+    links_regex: '^links/links\d+\.csv$'   # links0.csv .. linksN.csv (17 files in 2026-10)
 
 text:
   kq: qere                    # qere | ketiv — reading used for text_model

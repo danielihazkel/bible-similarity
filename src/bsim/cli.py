@@ -26,10 +26,26 @@ def _not_implemented(stage: str, milestone: str) -> None:
 
 
 @app.command()
-def download(config: ConfigOpt = None) -> None:
+def download(
+    only: Annotated[
+        list[str] | None,
+        typer.Option(help="Restrict to groups: oshb, text, schemas, links (repeatable)"),
+    ] = None,
+    workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
+    config: ConfigOpt = None,
+) -> None:
     """Download OSHB, Sefaria MAM text, schemas and links into data/raw."""
-    load_config(config)
-    _not_implemented("download", "M1")
+    from bsim.data.download import GROUPS, run_download
+
+    groups = only or list(GROUPS)
+    unknown = set(groups) - set(GROUPS)
+    if unknown:
+        raise typer.BadParameter(f"unknown groups {sorted(unknown)}; choose from {GROUPS}")
+    try:
+        run_download(load_config(config), groups=groups, workers=workers, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("build-corpus")
