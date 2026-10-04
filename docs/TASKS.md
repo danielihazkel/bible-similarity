@@ -52,11 +52,11 @@ M0 → M1 → M2 → M3 ─┐
 ✔ `links.parquet` + `splits.json` exist; report shows non-empty dev and test; leakage test passes.
 
 ## M4 — Lexical mode (§5.1)
-- [ ] Lemma token streams (+ bigrams) from `words`
-- [ ] Sparse BM25 (k1, b from config) with all-pairs via chunked sparse matmul
-- [ ] `lexical/formulas.py`: frequent n-gram detection (n=3..6, > T verses), down-weighting α; export `formulas.parquet`
-- [ ] `bm25_surface` baseline
-- [ ] Unit-level TF-IDF (sublinear) on lemma bags
+- [x] Lemma token streams (+ bigrams) from `words`
+- [x] Sparse BM25 (k1, b from config) with all-pairs via chunked sparse matmul
+- [x] `lexical/formulas.py`: frequent n-gram detection (n=3..6, > T verses), down-weighting α; export `formulas.parquet`
+- [x] `bm25_surface` baseline
+- [x] Unit-level TF-IDF (sublinear) on lemma bags
 
 ✔ `formulas.parquet` lists the expected formulas (e.g. *וידבר ה' אל משה לאמר*); top-5 for Ps 14:1 contains Ps 53:2.
 

@@ -92,8 +92,10 @@ MAM (Aleppo-based) and WLC (Leningrad) differ in a handful of letters (plene/def
 - Documents = verses; tokens = content lemmas + lemma bigrams (adjacent content lemmas).
 - BM25 (k1 = 1.2, b = 0.75, tuned on dev), implemented as sparse matrices: query weights × document weights → scipy sparse matmul gives all-pairs scores in one pass.
 - **Formula down-weighting** (`lexical/formulas.py`): find lemma n-grams (n = 3..6) that occur in more than *T* verses (default *T* = 15; e.g. *וידבר ה' אל משה לאמר*, *ויאמר ה' אל משה*, *כה אמר ה'*). Tokens inside a formula occurrence get weight × α (default α = 0.2). Tuned on dev; the list is exported to `formulas.parquet` for inspection.
+- Weights in BM25: document side uses the formula-weighted term frequency and length; query side is binary BM25 with each term weighted by its max token weight in the query verse. A bigram's weight is the min of its two tokens' weights. `bsim lexical` stores the doc and query matrices; scores = `query @ doc.T` (M5 does the top-k).
+- The exported formula list keeps only *closed* n-grams (not a prefix/suffix of a longer formula with the same verse count); down-weighting uses all of them.
 - Baseline variant `bm25_surface`: same on normalized surface forms (finals folded, prefixes not stripped) — for the eval report only.
-- **Unit level**: sublinear TF-IDF cosine over each unit's lemma bag (with the same formula down-weighting), sparse matmul all-pairs.
+- **Unit level**: sublinear TF-IDF cosine over each unit's lemma bag (unigrams + bigrams, with the same formula down-weighting), sparse matmul all-pairs. With raw count `c` and weighted count `w`, tf = `(1 + log c)·(w/c)`; smooth idf within the unit type; rows L2-normalized.
 
 ### 5.2 Semantic
 Candidates (all produce L2-normalized float32 vectors from `text_model`):
@@ -280,3 +282,4 @@ Size estimate: verse matches ≈ 23.2k × 50 × 3 modes ≈ 3.5M rows (~200 MB).
 | D13 | Docs | Markdown in `docs/` |
 | D14 | Versification | `verse_id` follows MAM/Sefaria (23,206 verses); OSHB is re-keyed via `canon.VERSE_OVERRIDES` (Decalogue in Ex 20 / Deut 5, Num 25:19 → 26:1) |
 | D15 | Link filter & split | Gold = links whose two texts are both canon books (not `Category == Tanakh`); book split balances pair fractions with a 35 % cap on any single book's share of dev/test |
+| D16 | Lexical weighting | Formula weight α applies to both BM25 sides (doc tf/length, query term weight = max token weight); bigram weight = min of its tokens; `bm25_surface` uses the same pipeline on `match_key` tokens (its own formulas, not exported); unit TF-IDF tf = `(1 + log c)·(w/c)` |

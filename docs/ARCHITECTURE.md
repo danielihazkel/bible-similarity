@@ -102,9 +102,11 @@ bible-similarity/
 │   ├── text/
 │   │   └── normalize.py            # strip points, maqaf, finals, prefix stripping
 │   ├── lexical/
+│   │   ├── tokens.py               # lemma / surface token streams, bigrams
 │   │   ├── bm25.py                 # sparse BM25 (verse level)
 │   │   ├── tfidf.py                # unit-level TF-IDF cosine
-│   │   └── formulas.py             # frequent-formula detection & down-weighting
+│   │   ├── formulas.py             # frequent-formula detection & down-weighting
+│   │   └── build.py                # `bsim lexical` orchestration + lexical_report.md
 │   ├── embed/
 │   │   ├── encoders.py             # BEREL mean-pool, BGE-M3, fine-tuned ST models
 │   │   └── csls.py                 # hubness correction
@@ -141,7 +143,7 @@ bible-similarity/
 | 1 | `bsim download` | internet | `data/raw/oshb/*.xml`, `data/raw/sefaria/{text,schemas,links}/…`, `data/raw/manifest.json` |
 | 2 | `bsim build-corpus` | raw | `data/processed/verses.parquet`, `words.parquet`, `units.parquet`, `unit_members.parquet`, `corpus_report.md` |
 | 3 | `bsim build-links` | raw links, verses | `data/processed/links.parquet`, `splits.json`, `links_report.md` |
-| 4 | `bsim lexical` | verses, words | `artifacts/lexical/bm25.npz` (sparse), `formulas.parquet` |
+| 4 | `bsim lexical` | verses, words, units | `artifacts/lexical/{bm25_lemma,bm25_surface}.{doc,query}.npz` + `.vocab.json`, `tfidf_{chapter,pericope,parasha}.npz` + `.ids.json`, `formulas.parquet`, `lexical_report.md` |
 | 5 | `bsim train-simcse` | verses | `models/berel-simcse/` |
 | 6 | `bsim train-sup` | verses, links (train/dev), lexical | `models/berel-sup/` |
 | 7 | `bsim embed --model X` | verses, model | `artifacts/embeddings/{X}.npy` (float32, L2-normalized, row = verse_id) |

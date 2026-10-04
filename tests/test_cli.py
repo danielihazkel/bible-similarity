@@ -30,6 +30,6 @@ def test_help_lists_all_commands():
 
 
 def test_stub_exits_nonzero():
-    result = runner.invoke(app, ["lexical"])
+    result = runner.invoke(app, ["embed", "--model", "x"])
     assert result.exit_code == 1
-    assert "M4" in result.output
+    assert "M6" in result.output

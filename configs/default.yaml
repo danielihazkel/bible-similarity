@@ -88,6 +88,7 @@ eval:
   ks: [1, 5, 10, 50]
   unit_gold_min_links: 2      # m
   csls_neighbors: 10
+  spot_checks: ["Psalms 14:1", "Exodus 20:2", "II Samuel 22:2"]   # top-5 printed in reports
 
 final_systems:                # chosen on dev in M8/M9
   lexical: bm25_lemma
