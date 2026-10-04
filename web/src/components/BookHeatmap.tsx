@@ -13,16 +13,45 @@ interface Props {
   label: string
 }
 
-/** Book x book SVG heatmap; a cell key is `{a}-{b}` (row book, column book). */
+/**
+ * Book x book SVG heatmap; a cell key is `{a}-{b}` (row book, column book). With keyboard focus the
+ * arrow keys move a cursor over the cells (its title is announced) and Enter / Space selects.
+ */
 export function BookHeatmap({ books, order, value, title, selected, onSelect, label }: Props) {
   const [hover, setHover] = useState<string>()
+  const [cursor, setCursor] = useState<[number, number]>()
+  const n = order.length
+  const cursorKey = cursor && `${order[cursor[0]]}-${order[cursor[1]]}`
+  const onKey = (e: React.KeyboardEvent<SVGSVGElement>) => {
+    const move = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key]
+    if (move && n > 1) {
+      e.preventDefault()
+      setCursor((c) => {
+        if (!c) return [0, 1]
+        let [i, j] = [(c[0] + move[0] + n) % n, (c[1] + move[1] + n) % n]
+        if (i === j) [i, j] = [(i + move[0] + n) % n, (j + move[1] + n) % n] // skip the diagonal
+        return [i, j]
+      })
+    } else if ((e.key === 'Enter' || e.key === ' ') && cursorKey) {
+      e.preventDefault()
+      onSelect(selected === cursorKey ? null : cursorKey)
+    }
+  }
   const name = new Map(books.map((b) => [b.book_id, b.name]))
   const cell = 14
   const pad = 96
   const size = pad + order.length * cell
   return (
     <div className="table-wrap">
-      <svg width={size + 36} height={size} role="img" aria-label={label}>
+      <svg
+        width={size + 36}
+        height={size}
+        role="img"
+        aria-label={`${label}. Use the arrow keys to move between cells and Enter to select one.`}
+        tabIndex={0}
+        onKeyDown={onKey}
+        onBlur={() => setCursor(undefined)}
+      >
         {order.map((id, i) => (
           <text key={`r${id}`} x={pad - 4} y={pad + i * cell + cell * 0.75} textAnchor="end" className="axis">
             {name.get(id)}
@@ -45,7 +74,7 @@ export function BookHeatmap({ books, order, value, title, selected, onSelect, la
                 y={pad + i * cell}
                 width={cell - 1}
                 height={cell - 1}
-                className={`aff-cell ${selected === key || hover === key ? 'on' : ''}`}
+                className={`aff-cell ${selected === key || hover === key || cursorKey === key ? 'on' : ''}`}
                 style={{ fillOpacity: v === undefined ? 0.03 : 0.06 + 0.94 * v }}
                 onMouseEnter={() => setHover(key)}
                 onMouseLeave={() => setHover(undefined)}
@@ -57,6 +86,11 @@ export function BookHeatmap({ books, order, value, title, selected, onSelect, la
           }),
         )}
       </svg>
+      {cursor && (
+        <p className="sr-only" aria-live="polite">
+          {title(order[cursor[0]], order[cursor[1]])}
+        </p>
+      )}
     </div>
   )
 }

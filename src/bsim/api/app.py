@@ -8,7 +8,13 @@ missing DB or embedding file:
 - the final encoder (fp32, `serve.device` with CPU fallback) for `/search`, loaded on a background
   thread (its imports dominate startup): everything else serves at once, semantic / fused search
   waits for it, and a failed load makes those searches 503;
-- the surface-form BM25 index for lexical `/search`.
+- the surface-form BM25 index for lexical `/search` (cached next to the hubness, pinned to the DB
+  file).
+
+`/structure/{unit}` responses are kept in a bounded in-memory LRU (`serve.structure_cache`); they
+are deterministic for a given DB. Responses of at least `serve.gzip_min_bytes` are gzipped, and
+GET `/api` responses carry `Cache-Control: max-age=serve.api_max_age` (hashed viewer assets are
+cached as immutable).
 
 The production viewer build (`paths.web_dist`) is served at `/` when present; any non-`/api` path
 without a file falls back to its `index.html` (client-side routes).
@@ -19,7 +25,9 @@ Tests pass a stub `encoder` instead of loading the model.
 from __future__ import annotations
 
 import sqlite3
+import threading
 import time
+from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -28,6 +36,7 @@ from typing import Any
 import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -37,14 +46,39 @@ from bsim.api.search import (
     Encoder,
     StEncoder,
     SurfaceIndex,
-    build_surface_index,
     load_hubness,
+    load_surface_index,
 )
 from bsim.config import resolve_path
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
 from bsim.store.db import connect_readonly
 
 Log = Callable[[str], None]
+
+
+class LruCache:
+    """A small thread-safe LRU (sync handlers run on FastAPI's thread pool)."""
+
+    def __init__(self, size: int):
+        self.size = size
+        self._items: OrderedDict[Any, Any] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def get(self, key: Any) -> Any | None:
+        with self._lock:
+            if key not in self._items:
+                return None
+            self._items.move_to_end(key)
+            return self._items[key]
+
+    def put(self, key: Any, value: Any) -> None:
+        if self.size <= 0:
+            return
+        with self._lock:
+            self._items[key] = value
+            self._items.move_to_end(key)
+            while len(self._items) > self.size:
+                self._items.popitem(last=False)
 
 
 @dataclass
@@ -58,6 +92,14 @@ class ServeState:
     encoder: Encoder
     surface: SurfaceIndex
     runtime: dict[str, Any] = field(default_factory=dict)
+    structure_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    _lemma_total: int | None = None
+
+    def lemma_total(self, conn: sqlite3.Connection) -> int:
+        """Corpus word count over lemmas (`queries.corpus_lemma_total`), read once."""
+        if self._lemma_total is None:
+            self._lemma_total = queries.corpus_lemma_total(conn)
+        return self._lemma_total
 
     def connect(self) -> sqlite3.Connection:
         # FastAPI may close a sync dependency on another thread than it opened it on.
@@ -87,7 +129,6 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
     try:
         meta = queries.meta(conn)
         n = queries.n_verses(conn)
-        texts = [t for (t,) in conn.execute("SELECT text_plain FROM verses ORDER BY verse_id")]
     finally:
         conn.close()
 
@@ -121,7 +162,23 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         log(f"CSLS hubness for {len(hub)} verses")
 
     s, bm = serve["search"], cfg["lexical"]["bm25"]
-    surface = build_surface_index(texts, bm["k1"], bm["b"], s["min_root_letters"], s["bigrams"])
+
+    def texts() -> list[str]:
+        conn = connect_readonly(db)
+        try:
+            return [t for (t,) in conn.execute("SELECT text_plain FROM verses ORDER BY verse_id")]
+        finally:
+            conn.close()
+
+    surface = load_surface_index(
+        texts,
+        db,
+        art / serve["cache_dir"],
+        bm["k1"],
+        bm["b"],
+        s["min_root_letters"],
+        s["bigrams"],
+    )
     log(f"surface BM25: {len(surface.terms)} terms")
 
     runtime = {
@@ -134,7 +191,18 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         "startup_s": round(time.perf_counter() - t0, 2),
     }
     log(f"ready in {runtime['startup_s']:.1f} s")
-    return ServeState(cfg, db, meta, n, emb, hub, encoder, surface, runtime)
+    return ServeState(
+        cfg,
+        db,
+        meta,
+        n,
+        emb,
+        hub,
+        encoder,
+        surface,
+        runtime,
+        structure_cache=LruCache(serve["structure_cache"]),
+    )
 
 
 def create_app(
@@ -156,11 +224,20 @@ def create_app(
         expose_headers=["Server-Timing"],
     )
 
+    app.add_middleware(GZipMiddleware, minimum_size=cfg["serve"]["gzip_min_bytes"])
+    max_age = cfg["serve"]["api_max_age"]
+
     @app.middleware("http")
     async def server_timing(request: Request, call_next):
         t0 = time.perf_counter()
         response = await call_next(request)
         response.headers["Server-Timing"] = f"app;dur={(time.perf_counter() - t0) * 1000:.1f}"
+        if request.method == "GET" and response.status_code == 200:
+            path = request.url.path
+            if path.startswith("/api/"):
+                response.headers.setdefault("Cache-Control", f"public, max-age={max_age}")
+            elif path.startswith("/assets/"):  # content-hashed file names
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         return response
 
     app.include_router(router)

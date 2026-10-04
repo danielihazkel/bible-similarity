@@ -208,3 +208,13 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Late books (Esther–Chronicles) group together; Isaiah / Jeremiah / Ezekiel are mutual nearest neighbours.
 
+## H1 — Serving and viewer hardening (roadmap Part B/C quick wins)
+- [x] `/structure/{unit}` LRU (`serve.structure_cache`) and the corpus lemma total read once
+- [x] Surface BM25 index cached under `artifacts/api/` (sidecar pins DB size/mtime and parameters)
+- [x] GZip + `Cache-Control` (API max-age, `/meta` no-store, immutable `/assets`); `/compare` cap (`serve.max_compare_verses`)
+- [x] Viewer: `UnitPicker` reference box (`/resolve`: `Gen 1:1`, `בראשית א`) with loading / error states
+- [x] Viewer: shared DPR-aware `Scatter` (touch-sized hit radius, ←/→ + Enter) for Map and Style; Map affinity reuses `BookHeatmap` (arrow-key cursor + Enter)
+- [x] Tests: caches, headers, compare cap (pytest); `UnitPicker`, `BookHeatmap` (vitest)
+
+✔ Real DB: warm startup 1.8 s → 0.13 s (surface index cached); `/structure/c:0:1` 201 ms → 28 ms on repeat; responses gzipped.
+

@@ -1007,6 +1007,22 @@ button.chip {
 .picker select {
   max-width: 14rem;
 }
+.picker-ref {
+  display: flex;
+  gap: 0.3rem;
+}
+.picker-ref input {
+  width: 11rem;
+}
+.picker-status {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+.picker-status.error {
+  color: #b3261e;
+}
 .swap {
   border: 1px solid var(--border);
   background: var(--surface);
@@ -1206,4 +1222,20 @@ button.chip {
   .echoes {
     columns: 1;
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.scatter canvas:focus-visible,
+svg[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

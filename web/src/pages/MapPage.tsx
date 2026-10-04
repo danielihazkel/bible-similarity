@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { useAffinity, useAffinityPairs, useBooks, useCorpusMap } from '../api/hooks'
 import type { Book, MapPoint, UnitSummary, UnitType, Verse } from '../api/types'
+import { BookHeatmap } from '../components/BookHeatmap'
 import { Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { LinkBadge } from '../components/LinkBadge'
+import { Scatter } from '../components/Scatter'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitTypeLabel } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
@@ -64,7 +66,7 @@ export function MapPage() {
         <ErrorBox error={books.error} />
       ) : (
         <div className="map-grid">
-          <Scatter
+          <MapScatter
             points={map.data.points}
             books={books.data}
             colorBy={colorBy}
@@ -124,81 +126,34 @@ export function MapPage() {
   )
 }
 
-function Scatter({ points, books, colorBy, focus }: { points: MapPoint[]; books: Book[]; colorBy: ColorBy; focus?: number }) {
-  const ref = useRef<HTMLCanvasElement>(null)
-  const navigate = useNavigate()
-  const [hover, setHover] = useState<MapPoint>()
+function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; books: Book[]; colorBy: ColorBy; focus?: number }) {
   const section = useMemo(() => new Map(books.map((b) => [b.book_id, SECTIONS.indexOf(b.section)])), [books])
-  const W = 720
-  const H = 560
-  const pad = 12
-  const px = (p: MapPoint) => pad + p.x * (W - 2 * pad)
-  const py = (p: MapPoint) => pad + p.y * (H - 2 * pad)
-  const radius = points.length > 1000 ? 3 : points.length > 100 ? 4.5 : 8
-
-  useEffect(() => {
-    const ctx = ref.current?.getContext('2d')
-    if (!ctx) return
-    ctx.clearRect(0, 0, W, H)
-    for (const p of points) {
-      const c = colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0)
-      const dim = focus !== undefined && p.cluster !== focus
-      ctx.fillStyle = color(c, dim ? 0.12 : 0.85)
-      ctx.beginPath()
-      ctx.arc(px(p), py(p), radius, 0, 2 * Math.PI)
-      ctx.fill()
-    }
-  })
-
-  const nearest = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    const x = ((e.clientX - r.left) / r.width) * W
-    const y = ((e.clientY - r.top) / r.height) * H
-    let best: MapPoint | undefined
-    let bd = (radius + 4) ** 2
-    for (const p of points) {
-      const d = (px(p) - x) ** 2 + (py(p) - y) ** 2
-      if (d < bd) [best, bd] = [p, d]
-    }
-    return best
-  }
-
+  const r = points.length > 1000 ? 3 : points.length > 100 ? 4.5 : 8
   return (
-    <figure className="scatter">
-      <canvas
-        ref={ref}
-        width={W}
-        height={H}
-        role="img"
-        aria-label="Map of units by meaning"
-        style={{ cursor: hover ? 'pointer' : 'default' }}
-        onMouseMove={(e) => setHover(nearest(e))}
-        onMouseLeave={() => setHover(undefined)}
-        onClick={(e) => {
-          const p = nearest(e)
-          if (p) navigate(unitLink(p.unit_id))
-        }}
-      />
-      <figcaption className="muted small">
-        {hover ? (
-          <>
-            {hover.label_en}{' '}
-            <span dir="rtl" lang="he">
-              {hover.label_he}
-            </span>{' '}
-            · {hover.n_verses} verses · click to open
-          </>
-        ) : (
-          'Hover a point; click to open the unit.'
-        )}
-      </figcaption>
-    </figure>
+    <Scatter
+      points={points}
+      width={720}
+      height={560}
+      label="Map of units by meaning"
+      fill={(p) => color(colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0), focus !== undefined && p.cluster !== focus ? 0.12 : 0.85)}
+      radius={() => r}
+      front={focus === undefined ? undefined : (p) => p.cluster === focus}
+      caption={(p) => (
+        <>
+          {p.label_en}{' '}
+          <span dir="rtl" lang="he">
+            {p.label_he}
+          </span>{' '}
+          · {p.n_verses} verses · click to open
+        </>
+      )}
+      idle="Hover a point; click to open the unit."
+    />
   )
 }
 
 function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order; pair: string | null; onPair: (p: string | null) => void }) {
   const aff = useAffinity()
-  const [sel, setSel] = useState<string>()
   const [a, b] = (pair ?? '').split('-').map(Number)
   const examples = useAffinityPairs(Number.isInteger(a) && Number.isInteger(b) && pair ? a : undefined, b)
   if (aff.isPending) return <Loading />
@@ -211,57 +166,23 @@ function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order;
     lift.set(`${c.b}-${c.a}`, { lift: c.lift, n: c.n_pairs })
   }
   const maxLog = Math.max(...aff.data.cells.map((c) => Math.log1p(c.lift)), 1e-9)
-  const cell = 14
-  const label = 96
-  const n = ids.length
-  const size = label + n * cell
   return (
     <div className="affinity">
-      <div className="table-wrap">
-        <svg width={size + 36} height={size} role="img" aria-label="Book by book affinity">
-          {ids.map((id, i) => (
-            <text key={`r${id}`} x={label - 4} y={label + i * cell + cell * 0.75} textAnchor="end" className="axis">
-              {name.get(id)?.name}
-            </text>
-          ))}
-          {ids.map((id, j) => (
-            <text
-              key={`c${id}`}
-              transform={`translate(${label + j * cell + cell * 0.7}, ${label - 4}) rotate(-60)`}
-              className="axis"
-            >
-              {name.get(id)?.name}
-            </text>
-          ))}
-          {ids.map((ra, i) =>
-            ids.map((rb, j) => {
-              if (ra === rb) return null
-              const v = lift.get(`${ra}-${rb}`)
-              const t = v ? Math.log1p(v.lift) / maxLog : 0
-              const key = `${ra}-${rb}`
-              const on = sel === key || pair === key
-              return (
-                <rect
-                  key={key}
-                  x={label + j * cell}
-                  y={label + i * cell}
-                  width={cell - 1}
-                  height={cell - 1}
-                  className={`aff-cell ${on ? 'on' : ''}`}
-                  style={{ fillOpacity: 0.06 + 0.94 * t }}
-                  onMouseEnter={() => setSel(key)}
-                  onMouseLeave={() => setSel(undefined)}
-                  onClick={() => onPair(pair === key ? null : key)}
-                >
-                  <title>
-                    {`${name.get(ra)?.name} ↔ ${name.get(rb)?.name}: ${v?.n ?? 0} pairs, lift ${(v?.lift ?? 0).toFixed(1)}`}
-                  </title>
-                </rect>
-              )
-            }),
-          )}
-        </svg>
-      </div>
+      <BookHeatmap
+        books={books}
+        order={ids}
+        value={(ra, rb) => {
+          const v = lift.get(`${ra}-${rb}`)
+          return v ? Math.log1p(v.lift) / maxLog : 0
+        }}
+        title={(ra, rb) => {
+          const v = lift.get(`${ra}-${rb}`)
+          return `${name.get(ra)?.name} ↔ ${name.get(rb)?.name}: ${v?.n ?? 0} pairs, lift ${(v?.lift ?? 0).toFixed(1)}`
+        }}
+        selected={pair}
+        onSelect={onPair}
+        label="Book by book affinity"
+      />
       {pair && examples.data && (
         <section aria-label="Book pair examples">
           <h3>

@@ -11,7 +11,7 @@ from typing import Annotated, Any
 
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from bsim.analysis import structure as st
 from bsim.api import queries
@@ -328,6 +328,9 @@ def _best_pairs(
 @router.get("/compare", response_model=CompareResponse)
 def compare(a: str, b: str, state: State, conn: Conn) -> dict[str, Any]:
     ua, ub = _unit_or_404(conn, a), _unit_or_404(conn, b)
+    cap = state.cfg["serve"]["max_compare_verses"]
+    if max(ua["n_verses"], ub["n_verses"]) > cap:
+        raise _unprocessable(f"units longer than serve.max_compare_verses = {cap} verses")
     a_ids = list(range(ua["start_verse_id"], ua["end_verse_id"] + 1))
     b_ids = list(range(ub["start_verse_id"], ub["end_verse_id"] + 1))
     ea = np.asarray(state.emb[a_ids[0] : a_ids[-1] + 1], dtype=np.float32)
@@ -565,6 +568,15 @@ def structure(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         raise _unprocessable("structure applies to chapters, pericopes and parashot")
     if u["n_verses"] > c["max_verses"]:
         raise _unprocessable(f"unit has more than structure.max_verses = {c['max_verses']} verses")
+    cached = state.structure_cache.get(unit_id)
+    if cached is None:
+        cached = _structure(u, state, conn)
+        state.structure_cache.put(unit_id, cached)
+    return cached
+
+
+def _structure(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> dict[str, Any]:
+    c = state.cfg["structure"]
     vids = list(range(u["start_verse_id"], u["end_verse_id"] + 1))
     rows = queries.words(conn, vids)
     bags: dict[int, list[str]] = defaultdict(list)
@@ -591,7 +603,7 @@ def structure(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     keys = st.leitworte(
         counts,
         {t: s["n_words"] for t, s in stats.items()},
-        queries.corpus_lemma_total(conn),
+        state.lemma_total(conn),
         c["leitwort_min_count"],
         c["leitwort_top"],
     )
@@ -767,6 +779,7 @@ def book_style(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
 
 
 @router.get("/meta", response_model=Meta)
-def meta(state: State) -> dict[str, Any]:
+def meta(state: State, response: Response) -> dict[str, Any]:
+    response.headers["Cache-Control"] = "no-store"  # encoder_ready changes after startup
     ready = getattr(state.encoder, "ready", True)
     return {"build": state.meta, "runtime": {**state.runtime, "encoder_ready": ready}}

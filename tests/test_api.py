@@ -109,6 +109,14 @@ def test_compare(client):
     assert client.get("/api/compare?a=c:0:2&b=nope").status_code == 404
 
 
+def test_compare_cap(built):
+    cfg, _ = built
+    cfg["serve"]["max_compare_verses"] = 2
+    capped = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    assert capped.get("/api/compare?a=c:0:2&b=c:1:1").status_code == 200
+    assert capped.get("/api/compare?a=c:0:1&b=c:1:1").status_code == 422  # 3 verses
+
+
 def test_search_modes(client):
     lex = client.get("/api/search?q=רֵאשִׁית חָכְמָה&mode=lexical").json()
     assert lex["normalized"] == "ראשית חכמה"
@@ -146,6 +154,11 @@ def test_meta_cors_timing(client):
     assert m["build"]["semantic_system"] == "sm"
     assert m["runtime"]["csls"] is False and m["runtime"]["embeddings_shape"] == [6, 4]
     assert r.headers["server-timing"].startswith("app;dur=")
+    assert r.headers["cache-control"] == "no-store"
+    books = client.get("/api/books")
+    assert books.headers["cache-control"] == "public, max-age=300"
+    assert books.headers["content-encoding"] == "gzip"  # 39 books > gzip_min_bytes
+    assert "cache-control" not in client.get("/api/unit/v:99").headers  # errors are not cached
     pre = client.options(
         "/api/books",
         headers={"Origin": "http://localhost:5173", "Access-Control-Request-Method": "GET"},
@@ -164,6 +177,20 @@ def test_csls_hubness_cached(tmp_path):
     assert cache.stat().st_mtime_ns == stamp  # reused, not recomputed
     sem = client.get("/api/search?q=דגן&mode=semantic").json()["hits"]
     assert sem[0]["verse"]["verse_id"] == 3
+
+
+def test_surface_index_cached(built):
+    cfg, _ = built
+    cache = Path(cfg["paths"]["artifacts"]) / "api" / "surface_bm25.pkl"
+    create_app(cfg, encoder=fake_encoder, log=lambda _: None)
+    assert cache.exists()
+    stamp = cache.stat().st_mtime_ns
+    client = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    assert cache.stat().st_mtime_ns == stamp  # reused, not rebuilt
+    assert client.get("/api/search?q=חָכְמָה&mode=lexical").json()["hits"][0]["verse"]["verse_id"] == 5
+    cfg["serve"]["search"]["bigrams"] = False  # parameters are part of the key
+    create_app(cfg, encoder=fake_encoder, log=lambda _: None)
+    assert cache.stat().st_mtime_ns != stamp
 
 
 def test_missing_db(tmp_path):
@@ -350,6 +377,8 @@ def test_structure(client):
     keys = {k["lemma"]: k for k in body["leitworte"]}
     assert set(keys) == {"430", "559", "3068"}  # 2 of 2 corpus occurrences each; 7225 is not
     assert keys["430"]["occurrences"] == {"0": [1], "1": [0]}
+    assert client.get("/api/structure/c:0:1").json() == body  # served from the LRU
+    assert client.app.state.serve.structure_cache.get("c:0:1") is not None
     assert client.get("/api/structure/v:0").status_code == 422
     assert client.get("/api/structure/c:9:9").status_code == 404
 

@@ -15,6 +15,7 @@ Ranks are 1-based; ties are ordered by verse id, as in `retrieve.topk`.
 from __future__ import annotations
 
 import json
+import pickle
 import threading
 import time
 from collections.abc import Callable
@@ -79,6 +80,41 @@ def build_surface_index(
         min_root=min_root,
         bigrams=bigrams,
     )
+
+
+def load_surface_index(
+    texts: Callable[[], list[str]],
+    db_path: Path,
+    cache_dir: Path,
+    k1: float,
+    b: float,
+    min_root: int,
+    bigrams: bool,
+) -> SurfaceIndex:
+    """`build_surface_index`, cached next to a sidecar that pins the DB file and parameters."""
+    stat = db_path.stat()
+    key = {
+        "db": db_path.name,
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+        "k1": k1,
+        "b": b,
+        "min_root": min_root,
+        "bigrams": bigrams,
+    }
+    path = cache_dir / "surface_bm25.pkl"
+    side = path.with_suffix(".json")
+    if path.exists() and side.exists() and json.loads(side.read_text("utf-8")) == key:
+        with path.open("rb") as f:
+            cached = pickle.load(f)
+        if isinstance(cached, SurfaceIndex):
+            return cached
+    surface = build_surface_index(texts(), k1, b, min_root, bigrams)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as f:
+        pickle.dump(surface, f, protocol=pickle.HIGHEST_PROTOCOL)
+    side.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+    return surface
 
 
 def top(scores: np.ndarray, k: int, positive_only: bool = False) -> pd.DataFrame:

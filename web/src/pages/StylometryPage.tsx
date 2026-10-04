@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { useBooks, useBookStyle, useStylometry } from '../api/hooks'
 import type { Book, StyloFeature, StyloPoint } from '../api/types'
 import { BookHeatmap } from '../components/BookHeatmap'
+import { Scatter } from '../components/Scatter'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
@@ -152,68 +153,23 @@ function Features({ title, items }: { title: string; items: StyloFeature[] }) {
 }
 
 function StyleScatter({ points, books, book }: { points: StyloPoint[]; books: Book[]; book?: number }) {
-  const ref = useRef<HTMLCanvasElement>(null)
-  const navigate = useNavigate()
-  const [hover, setHover] = useState<StyloPoint>()
   const section = useMemo(() => new Map(books.map((b) => [b.book_id, SECTIONS.indexOf(b.section)])), [books])
-  const W = 720
-  const H = 520
-  const pad = 12
-  const px = (p: StyloPoint) => pad + p.x * (W - 2 * pad)
-  const py = (p: StyloPoint) => pad + p.y * (H - 2 * pad)
-
-  useEffect(() => {
-    const ctx = ref.current?.getContext('2d')
-    if (!ctx) return
-    ctx.clearRect(0, 0, W, H)
-    const draw = (p: StyloPoint, on: boolean) => {
-      ctx.fillStyle = color(section.get(p.book_id) ?? 0, book === undefined ? 0.75 : on ? 0.95 : 0.1)
-      ctx.beginPath()
-      ctx.arc(px(p), py(p), on && book !== undefined ? 5.5 : 4, 0, 2 * Math.PI)
-      ctx.fill()
-    }
-    for (const p of points) if (p.book_id !== book) draw(p, false)
-    for (const p of points) if (p.book_id === book) draw(p, true)
-  })
-
-  const nearest = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    const x = ((e.clientX - r.left) / r.width) * W
-    const y = ((e.clientY - r.top) / r.height) * H
-    let best: StyloPoint | undefined
-    let bd = 64
-    for (const p of points) {
-      const d = (px(p) - x) ** 2 + (py(p) - y) ** 2
-      if (d < bd) [best, bd] = [p, d]
-    }
-    return best
-  }
-
+  const on = (p: StyloPoint) => book !== undefined && p.book_id === book
   return (
-    <figure className="scatter">
-      <canvas
-        ref={ref}
-        width={W}
-        height={H}
-        role="img"
-        aria-label="Chapters by style"
-        style={{ cursor: hover ? 'pointer' : 'default' }}
-        onMouseMove={(e) => setHover(nearest(e))}
-        onMouseLeave={() => setHover(undefined)}
-        onClick={(e) => {
-          const p = nearest(e)
-          if (p) navigate(unitLink(p.unit_id))
-        }}
-      />
-      <figcaption className="muted small">
-        {hover ? (
-          <>
-            <Link to={unitLink(hover.unit_id)}>{hover.label_en}</Link> · {hover.n_words} words
-          </>
-        ) : (
-          'Each point is a chapter (≥ 150 words). Hover for its name; click to open it.'
-        )}
-      </figcaption>
-    </figure>
+    <Scatter
+      points={points}
+      width={720}
+      height={520}
+      label="Chapters by style"
+      fill={(p) => color(section.get(p.book_id) ?? 0, book === undefined ? 0.75 : on(p) ? 0.95 : 0.1)}
+      radius={(p) => (on(p) ? 5.5 : 4)}
+      front={book === undefined ? undefined : on}
+      caption={(p) => (
+        <>
+          <Link to={unitLink(p.unit_id)}>{p.label_en}</Link> · {p.n_words} words
+        </>
+      )}
+      idle="Each point is a chapter (≥ 150 words). Hover for its name; click to open it."
+    />
   )
 }
