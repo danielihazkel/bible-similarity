@@ -1,0 +1,98 @@
+i want to do a project that checks every verse in the Hebrew bible and gives the top k verses that are similar to it semantically. it could be also chapters or entire parasha. how can i do that and where can i get accurate sources?
+
+Searched the web, read 2 pages, loaded tools
+
+Yes, this is doable on a laptop. There are only about 23,200 verses, 929 chapters and 54 parashiyot, so you can compare every verse against every other verse directly. The difficult parts are choosing the text edition and getting good similarity for biblical Hebrew.
+
+1. Sources for the text
+Sefaria-Export is the easiest place to start. It has the Hebrew Tanakh as verse-level JSON. It also has the parasha divisions in its index metadata, and CSV files of cross-references between texts (links/). Those cross-references are useful later for testing and training. The Tanakh files are at paths like gs://sefaria-export/json/Tanakh/.... The Hebrew edition there is Miqra according to the Masorah, a careful edition based on the Aleppo Codex. Check LICENSE.md for the terms of each version you use.
+Open Scriptures Hebrew Bible (morphhb) is the Westminster Leningrad Codex with a lemma and morphology tag on every word. This matters because Hebrew attaches prefixes and suffixes to words. Matching on lemmas works much better than matching raw word forms.
+ETCBC BHSA is the most detailed scholarly linguistic database of the Hebrew Bible, loaded with the text-fabric Python library. It's useful if you later want features at the phrase or clause level. Its license is non-commercial.
+
+Two practical notes:
+
+Stick to Hebrew verse numbering throughout. English Bibles number some places differently (Malachi 3:19–24, Joel 3–4, and the Psalm headings).
+Strip the vowel points (niqqud) and cantillation marks for the model input, but keep the pointed text for display.
+2. Method: start simple, then add layers
+
+A. Lexical baseline: TF-IDF or BM25 on lemmas. Use the OSHB lemmas. This is fast, easy to explain, and already finds the classic parallels. It's a good baseline to beat.
+
+B. Embeddings. Pick one or more:
+
+BEREL 3.0 from Dicta (Apache-2.0) is trained on Rabbinic and biblical Hebrew, so it knows the language. It was not trained for sentence similarity, though, so averaging its token vectors out of the box gives mediocre results.
+Multilingual embedding models such as BGE-M3 or multilingual-e5-large, or an embedding API, work reasonably well on Hebrew.
+Embed an English translation too. The JPS 1917 translation is public domain and verse-aligned. Combining Hebrew and English scores often helps, because English embedding models are much stronger.
+
+C. Fine-tuning gives the biggest improvement. Use the Sefaria links or OpenBible.info cross-references as pairs of verses that should come out similar. Fine-tune BEREL on them with sentence-transformers, using MultipleNegativesRankingLoss.
+
+D. Combine the scores. Merge the lexical and embedding rankings with reciprocal rank fusion.
+
+3. Finding the top-k
+Verses: normalize the embeddings, multiply the matrices in chunks, and keep the top-k for each verse with argpartition. That's about 540 million dot products, which takes seconds. You don't need FAISS or a vector database.
+Chapters and parashiyot: you could embed the whole unit, but a parasha is far longer than BERT's 512-token limit. Two better options:
+Take the average of the verse vectors in each unit (simple).
+Score two units by how well each verse in one matches its best verse in the other, averaged over the unit. This catches shared passages much better than averaging does.
+Filter out noise, or it will dominate your results:
+Remove the verse itself and its neighbours (±2 verses).
+Down-weight repeated formulas such as "וידבר ה' אל משה לאמר". Without this, hundreds of verses will match each other just on that phrase.
+4. Testing it
+
+Measure recall@k on parallels you already know are there:
+
+Samuel/Kings ↔ Chronicles
+2 Samuel 22 ↔ Psalm 18
+Psalm 14 ↔ Psalm 53
+2 Kings 18–20 ↔ Isaiah 36–39
+Exodus 20 ↔ Deuteronomy 5 (the Ten Commandments)
+
+Then also score against the Sefaria links. If BM25 finds these and your embedding model doesn't, you'll know right away.
+
+Suggested stack
+
+Python with pandas, rank_bm25 or scikit-learn TF-IDF, sentence-transformers, and numpy. Store results as Parquet or SQLite with columns like (unit_type, src_ref, rank, tgt_ref, score). A small viewer for browsing the results can be added later.
+
+I can build the pipeline for you if you want: download and normalize the text, run the BM25 and embedding baselines, compute verse/chapter/parasha top-k, and evaluate on those known parallels.
+
+Sources:
+
+Sefaria-Export
+Sefaria developer FAQ
+Open Scriptures morphhb releases
+ETCBC BHSA · BHSA docs
+BEREL 3.0 on Hugging Face · BEREL paper
+OpenHebrewBible (aligns BHS, WLC and OpenScriptures)
+Hebrew AI models catalog
+
+do you think i should use the BEREL 3.0 embedder or should i build an embedder specifically for this task?
+
+I'd do both: build your task-specific embedder by fine-tuning BEREL 3.0, rather than using BEREL as-is or training a model from scratch.
+
+Why not use BEREL 3.0 as-is. It was trained to fill in masked words, not to embed sentences. If you average its token vectors, the resulting vectors tend to sit close together, so almost everything looks somewhat similar. Expect noisy results. Use it as one of your baselines, not as the final model. An off-the-shelf multilingual embedder such as BGE-M3 might even beat it at this stage.
+
+Why not train from scratch. The Tanakh is only about 300,000 words, which is far too little to pretrain a transformer. BEREL has already learned Hebrew morphology and vocabulary from a much larger Rabbinic corpus, and you'd be throwing that away.
+
+Why fine-tune. The real reason to make a task-specific model is that "similar" can mean different things:
+
+shared wording
+shared theme
+a parallel narrative
+an allusion or quotation
+
+Off-the-shelf models don't know which one you mean. The pairs you train on are what define it, so fine-tuning lets you choose.
+
+A practical path:
+
+Baselines: BM25 on lemmas, raw BEREL with mean pooling, and BGE-M3. Score them all against the known parallels.
+Unsupervised adaptation (SimCSE): train BEREL so two dropout-noised copies of the same verse come out as similar. It needs no labels, takes minutes on one GPU, and usually helps a lot.
+Supervised contrastive fine-tune: train on Tanakh↔Tanakh pairs from the Sefaria links and the OpenBible cross-references.
+Use sentence-transformers with MultipleNegativesRankingLoss.
+Add hard negatives: pairs that BM25 rates as close but that are not linked. These teach the model that sharing words is not the same as being related.
+Combine scores: merge the fine-tuned model with BM25 using reciprocal rank fusion.
+
+Pitfalls:
+
+Filter the Sefaria links down to Tanakh↔Tanakh. Most of them point to commentaries.
+Split train and test by link pair, or better, by book. Otherwise the model just memorizes the parallels it's later tested on.
+Cross-reference data is biased toward the "famous" connections, so your model will learn to think like the people who compiled those lists. Decide whether that's what you want.
+
+The fine-tuning itself is cheap: tens of thousands of pairs, about an hour on one consumer GPU or a free Colab T4.
