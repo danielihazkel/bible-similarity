@@ -200,21 +200,127 @@ h2 {
 }
 .nav {
   display: flex;
+  align-items: center;
   gap: 0.25rem;
   flex: 1;
 }
-.nav a {
+.nav a,
+.nav-group-button {
   padding: 0.35rem 0.7rem;
   border-radius: var(--radius);
   color: var(--muted);
 }
-.nav a:hover {
+.nav a:hover,
+.nav-group-button:hover {
   background: var(--surface-2);
   text-decoration: none;
 }
-.nav a.active {
+.nav a.active,
+.nav-group-button.active {
   color: var(--text);
   background: var(--accent-soft);
+}
+.nav-group {
+  position: relative;
+}
+.nav-group-button {
+  font: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.nav-group-button span {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+.nav-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  inset-inline-start: 0;
+  min-width: 16rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+.nav-group.open .nav-menu {
+  display: block;
+}
+.nav-menu a {
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0.6rem;
+}
+.nav-item-label {
+  color: var(--text);
+}
+.nav-item-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.menu-toggle {
+  display: none;
+  font: inherit;
+  margin-inline-start: auto;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* narrow screens: everything behind the menu button, groups as labelled lists */
+@media (max-width: 900px) {
+  .menu-toggle {
+    display: inline-block;
+  }
+  .nav {
+    display: none;
+    order: 10;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.1rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--border);
+  }
+  .nav.open {
+    display: flex;
+  }
+  .nav-group-button {
+    display: block;
+    width: 100%;
+    text-align: start;
+    pointer-events: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 0.6rem;
+  }
+  .nav-group-button span {
+    display: none;
+  }
+  .nav-group-button.active {
+    background: none;
+  }
+  .nav-menu {
+    display: block;
+    position: static;
+    min-width: 0;
+    padding: 0 0 0 0.6rem;
+    border: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .nav-item-hint {
+    display: none;
+  }
 }
 
 .main {
