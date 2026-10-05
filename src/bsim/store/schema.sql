@@ -32,6 +32,7 @@ CREATE TABLE words (
     content_lemmas TEXT NOT NULL,   -- space-joined content lemmas, e.g. 7225
     morph TEXT,
     in_formula INTEGER NOT NULL,    -- 1 if inside a down-weighted formula occurrence
+    domains TEXT,                   -- space-joined SDBH domain codes of its content morphemes (§16.22)
     PRIMARY KEY (verse_id, idx)
 ) WITHOUT ROWID;
 
@@ -148,7 +149,9 @@ CREATE TABLE parallelism (
     balance REAL,
     prob REAL,                      -- probability the halves are parallel like poetry
     clauses TEXT NOT NULL,          -- JSON spans between accent pauses of level 1-2 (§16.18)
-    next_prob REAL                  -- bicolon with the next verse (two one-colon verses)
+    next_prob REAL,                 -- bicolon with the next verse (two one-colon verses)
+    relation TEXT,                  -- antithetic | synonymous | NULL (parallel verses, §16.22)
+    relation_pairs TEXT             -- JSON [a, b, kind] lemma pairs that decided it
 );
 
 -- Fixed word pairs across the members of parallel lines (`bsim parallelism`, §16.18).
@@ -229,7 +232,9 @@ CREATE TABLE entities (
     first_vid INTEGER NOT NULL,
     last_vid INTEGER NOT NULL,
     place REAL NOT NULL,            -- context cue scores
-    person REAL NOT NULL
+    person REAL NOT NULL,
+    kind_cues TEXT NOT NULL,        -- the kind from the context cues alone
+    kind_source TEXT NOT NULL       -- lexicon (Strong's part of speech) | cues
 ) WITHOUT ROWID;
 
 CREATE TABLE entity_mentions (
@@ -445,6 +450,24 @@ CREATE TABLE lemma_verses (
     verse_id INTEGER NOT NULL,
     book_id INTEGER NOT NULL,
     PRIMARY KEY (lemma, verse_id)
+) WITHOUT ROWID;
+
+-- SDBH lexical semantic domains (`bsim lexicon`, §16.22); counts include the subdomains.
+CREATE TABLE domains (
+    code TEXT PRIMARY KEY,          -- 3 digits per level: 002001001069
+    level INTEGER NOT NULL,
+    parent TEXT,
+    label_en TEXT NOT NULL,
+    n_verses INTEGER NOT NULL,      -- verses with a content word in it
+    weight REAL NOT NULL            -- content words in it (a word split over k domains counts 1/k)
+) WITHOUT ROWID;
+
+-- Domain concordance: the verses whose content words fall in a (leaf) domain.
+CREATE TABLE domain_verses (
+    code TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    weight REAL NOT NULL,
+    PRIMARY KEY (code, verse_id)
 ) WITHOUT ROWID;
 
 CREATE TABLE meta (

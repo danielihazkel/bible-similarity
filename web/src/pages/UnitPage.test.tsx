@@ -76,6 +76,7 @@ const WORDS: WordDetail[] = [
     morph_he: ['פועל · קל · עבר · גוף שלישי · זכר · יחיד'],
     in_formula: false,
     lemmas: [{ lemma: '559', he_lemma: 'אמר', n_verses: 4300 }],
+    domains: ['002003001'],
   },
 ]
 
@@ -113,6 +114,8 @@ const HALVES: UnitParallelism = {
       prob: 0.8,
       clauses: [[0, 0], [1, 1], [2, 2]],
       next_prob: null,
+      relation: 'antithetic',
+      relation_pairs: [{ a: '6662', b: '7563', kind: 'antonym', a_he: 'צדיק', b_he: 'רשע' }],
     },
   ],
 }
@@ -257,7 +260,10 @@ describe('UnitPage', () => {
     fireEvent.click(screen.getByLabelText("Verse halves (te'amim)"))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?halves=1'))
     await waitFor(() => expect(container.querySelectorAll('.source .colon-break')).toHaveLength(1))
-    expect(container.querySelector('.source .parallel-badge')?.textContent).toBe('∥')
+    // typed antithetic (SDBH antonyms across the halves): marked, with the pair in the tooltip
+    const badge = container.querySelector('.source .parallel-badge')
+    expect(badge?.textContent).toBe('∥≠')
+    expect(badge?.getAttribute('title')).toContain('antithetic: צדיק / רשע (antonyms)')
     expect(calls.some((c) => c.startsWith('/api/parallelism/'))).toBe(true)
     // the weaker pause inside the second half shows on request
     expect(container.querySelector('.source .clause-break')).toBeNull()

@@ -127,7 +127,8 @@ export const ovEn = {
 
   names: {
     title: 'People and places',
-    lede: 'Every name in the text. Whether a name is a person or a place is guessed from its contexts (directional ־ה, "city of", "son of", "and X said"); tribes and peoples count as people. Two names are linked when they share verses more often than their frequencies predict.',
+    lede: 'Every name in the text. Whether a name is a person or a place comes from Strong\'s lexicon where it says, and is otherwise guessed from its contexts (directional ־ה, "city of", "son of", "and X said"); tribes and peoples count as people. Two names are linked when they share verses more often than their frequencies predict.',
+    kindSource: { lexicon: "from Strong's lexicon", cues: 'guessed from context' } as Record<'lexicon' | 'cues', string>,
     kind: 'Kind',
     all: 'All',
     kinds: { person: 'Person', place: 'Place', mixed: 'Person / place', unclear: 'Unclear' } satisfies Record<EntityKind, string>,
@@ -270,7 +271,8 @@ export const ovHe: typeof ovEn = {
 
   names: {
     title: 'אנשים ומקומות',
-    lede: 'כל השמות שבטקסט. אם שם הוא אדם או מקום — מנחשים מהקשריו (ה״א המגמה, ״עיר״, ״בן״, ״ויאמר״); שבטים ועמים נחשבים אנשים. שני שמות מקושרים כשהם חולקים פסוקים יותר משצופות השכיחויות שלהם.',
+    lede: 'כל השמות שבטקסט. אם שם הוא אדם או מקום — לפי מילון סטרונג כשהוא קובע, ואחרת מנחשים מהקשריו (ה״א המגמה, ״עיר״, ״בן״, ״ויאמר״); שבטים ועמים נחשבים אנשים. שני שמות מקושרים כשהם חולקים פסוקים יותר משצופות השכיחויות שלהם.',
+    kindSource: { lexicon: 'לפי מילון סטרונג', cues: 'לפי ההקשר' },
     kind: 'סוג',
     all: 'הכול',
     kinds: { person: 'אדם', place: 'מקום', mixed: 'אדם / מקום', unclear: 'לא ברור' },

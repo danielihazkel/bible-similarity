@@ -48,19 +48,34 @@ function UnitsView() {
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const excludePoetic = params.get('all') !== '1'
+  const sort = params.get('sort') === 'antithetic' ? 'antithetic' : 'prob'
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const query = { unitType, book, excludePoetic, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const query = { unitType, book, excludePoetic, sort, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE } as const
   const res = useParallelism(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   const name = new Map(books.data?.map((b) => [b.book_id, bookName(b, locale)]) ?? [])
   const auc = res.data ? Object.values(res.data.held_out_auc) : []
+  const typing = res.data?.typing
+  const pctOf = (x: number | null | undefined) => (x == null ? '—' : `${(x * 100).toFixed(1)}%`)
 
   return (
     <>
       <p className="lede">{t.lede}</p>
       {auc.length > 0 && <p className="muted small">{t.heldOut(auc.map((a) => a.toFixed(2)).join(' · '))}</p>}
+      {typing && (
+        <p className="muted small">
+          {t.typing(
+            typing.antithetic,
+            typing.synonymous,
+            pctOf(typing.check_share),
+            pctOf(typing.rest_share),
+            pctOf(typing.null_share),
+            pctOf(typing.pair_antithetic_share),
+          )}
+        </p>
+      )}
 
       {res.data && <BookBars books={res.data.books} name={name} onPick={(b) => set({ book: String(b) })} />}
 
@@ -82,6 +97,14 @@ function UnitsView() {
             ))}
           </select>
         </label>
+        {typing && (
+          <Segmented
+            label={t.sortBy}
+            value={sort}
+            onChange={(v) => set({ sort: v === 'prob' ? null : v })}
+            options={(['prob', 'antithetic'] as const).map((v) => ({ value: v, label: t.sorts[v] }))}
+          />
+        )}
         <label className="check" title={t.includePoeticTitle}>
           <input type="checkbox" checked={!excludePoetic} onChange={(e) => set({ all: e.target.checked ? '1' : null })} />
           {t.includePoetic}
@@ -97,7 +120,10 @@ function UnitsView() {
       ) : (
         <>
           <p className="muted small">
-            {t.ranked(res.data.total, m.units.plural(unitType))} · {m.pat.pageOf(page, pages)}
+            {sort === 'antithetic'
+              ? t.rankedAnti(res.data.total, m.units.plural(unitType), res.data.min_parallel)
+              : t.ranked(res.data.total, m.units.plural(unitType))}{' '}
+            · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'poetry', params: parallelismParams(query) }}
@@ -106,6 +132,7 @@ function UnitsView() {
                 res.data.items.map((r) => ({
                   unit: r.unit.label_en,
                   share_parallel: r.share_parallel,
+                  share_antithetic: r.share_antithetic,
                   mean_prob: r.mean_prob,
                   verses: r.n_scored,
                 }))
@@ -120,6 +147,11 @@ function UnitsView() {
                   <th className="num" title={t.parallelTitle}>
                     {t.parallelVerses}
                   </th>
+                  {typing && (
+                    <th className="num" title={t.antitheticTitle}>
+                      {t.antithetic}
+                    </th>
+                  )}
                   <th className="num" title={t.meanTitle}>
                     {t.mean}
                   </th>
@@ -141,6 +173,7 @@ function UnitsView() {
                       )}
                     </td>
                     <td className="num">{pct(r.share_parallel)}</td>
+                    {typing && <td className="num">{pct(r.share_antithetic)}</td>}
                     <td className="num">{r.mean_prob.toFixed(2)}</td>
                     <td className="num">{r.n_scored}</td>
                   </tr>

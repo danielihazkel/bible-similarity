@@ -3,7 +3,7 @@
 // Glossary (keep terms consistent across the viewer):
 //   verse פסוק · chapter פרק · pericope פיסקה (פתוחה / סתומה) · parasha פרשה · book ספר
 //   lemma ערך (ערך מילוני) · Strong's סטרונג · similarity דמיון · parallel מקבילה
-//   lexical מילולי · semantic סמנטי · fused משולב · structural מבני
+//   lexical מילולי · semantic סמנטי · fused משולב · structural מבני · domain (semantic domain) תחום
 //   te'amim טעמים · niqqud ניקוד · colon / verse half צלע · Leitwort מילה מנחה
 //   cross-reference הפניה · Sefaria ספריא
 
@@ -12,6 +12,7 @@ import type { Messages } from './en'
 import { ovHe } from './pages/overview'
 import { parHe } from './pages/parallels'
 import { patHe } from './pages/patterns'
+import { domHe } from './pages/domains'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -50,6 +51,7 @@ export const he: Messages = {
       mam: 'מקרא על פי המסורה',
       lemmas: 'ערכים ומורפולוגיה:',
       wlc: '(WLC בנחלת הכלל, מורפולוגיה CC BY 4.0). הפניות: ספריא; OpenBible.info ‏(CC-BY) להערכה. לשימוש אישי ולמחקר.',
+      lexicon: 'מובני מילים ותחומי משמעות: SDBH של חבר אגודות התנ״ך (CC BY-SA 4.0); סוגי שמות: OpenScriptures HebrewLexicon ‏(CC BY 4.0).',
     },
     notFound: 'הדף לא נמצא.',
     backToBooks: 'חזרה לספרים',
@@ -73,6 +75,7 @@ export const he: Messages = {
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
+    domains: { label: 'תחומים', hint: 'מילים לפי משמעות: שדות סמנטיים' },
     map: { label: 'מפה', hint: 'יחידות לפי משמעות, קרבה בין ספרים' },
     network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
@@ -123,12 +126,13 @@ export const he: Messages = {
 
   modes: {
     label: 'סוג דמיון',
-    names: { lexical: 'מילולי', semantic: 'סמנטי', fused: 'משולב', structural: 'מבני' },
+    names: { lexical: 'מילולי', semantic: 'סמנטי', fused: 'משולב', structural: 'מבני', domain: 'תחומים' },
     hints: {
       lexical: 'ניסוח משותף: BM25 / TF-IDF על ערכי OSHB, נוסחאות במשקל מופחת',
       semantic: 'משמעות משותפת: שיכוני BEREL מכווננים (CSLS)',
       fused: 'שניהם יחד, במיזוג דירוגים הדדי משוקלל',
       structural: 'אותה תבנית דקדוקית, בכל מילים: BM25 / TF-IDF על n-גרמים של צורות (חלק דיבר, בניין וזמן, מצב)',
+      domain: 'אותם תחומי משמעות, בכל מילים: BM25 / TF-IDF על התחום הסמנטי של כל מילה בהקשרה לפי SDBH',
     },
     score: (mode: string) => `ציון ${mode}`,
     top: 'מובילים',
@@ -361,5 +365,6 @@ export const he: Messages = {
   },
   par: parHe,
   pat: patHe,
+  dom: domHe,
   ov: ovHe,
 }

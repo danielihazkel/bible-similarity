@@ -176,6 +176,8 @@ final_systems:                # chosen on dev in M8/M9
   fused: fused
   structural: bm25_morph       # grammatical shape (DESIGN.md §16.5): verse level
   unit_structural: tfidf_morph # chapter / pericope / parasha
+  domain: bm25_domain          # semantic domains (DESIGN.md §16.22): shown as its own mode, not fused
+  unit_domain: tfidf_domain    # chapter / pericope / parasha
 
 rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encoder over the fused verse lists (DESIGN.md §16.3)
   base: dicta-il/BEREL_3.0
@@ -262,6 +264,7 @@ parallelism:                  # `bsim parallelism`: verse halves from the te'ami
   typing_check: {Prov: [10, 15]}   # chapters expected most antithetic (the check D49's negation cue failed)
   typing_null_reps: 50        # second halves shuffled between parallel lines: the antithetic share by chance
   typing_max_pairs: 6         # word pairs kept per verse to show why it was typed
+  typing_min_parallel: 10     # /parallelism?sort=antithetic: parallel verses a unit needs to be ranked
   seed: 13
 
 wordplay:                     # `bsim wordplay`: sound-alike words close together (DESIGN.md §16.10)
@@ -356,7 +359,7 @@ pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.p
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain]   # verse top-k before training (hard negatives) + the domain list
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
-  unit_systems: [tfidf, tfidf_morph, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
+  unit_systems: [tfidf, tfidf_morph, tfidf_domain, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch
@@ -366,6 +369,9 @@ store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
     max_rank: 10              # unlinked pair kept when either unit ranks the other within this
 
 serve:                        # `bsim serve` (DESIGN.md §10)
+  domains:                    # /unit-domains: a unit's themes (DESIGN.md §16.22)
+    top: 12                   # most over-represented domains listed
+    min_weight: 2             # content words a domain needs in the unit to be listed
   host: 127.0.0.1
   port: 8000
   device: cuda                # query encoder + hubness; falls back to cpu if unavailable

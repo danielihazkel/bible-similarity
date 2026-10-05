@@ -4,7 +4,8 @@ Units of a type are disjoint, contiguous verse ranges (`retrieve/topk.py:load_un
 cover the Torah only, so parasha is compared with parasha. Self is excluded; same-book filtering
 is a query-time option.
 
-- `tfidf` (the unit lexical system) and `tfidf_morph` (unit structural): `artifacts/lexical/
+- `tfidf` (the unit lexical system), `tfidf_morph` (unit structural) and `tfidf_domain` (unit
+  domain, §16.22): `artifacts/lexical/
   {system}_{type}.npz` rows (L2-normalized), cosine `X @ X.T`, zero-score hits dropped ->
   `{type}/{system}.parquet`.
 - semantic systems (any `bsim topk` dense or `*_csls` system), one file per aggregation in
@@ -206,7 +207,7 @@ def run_semantic_units(cfg: dict[str, Any], system: str, log: Log = print) -> No
 def run_units(cfg: dict[str, Any], system: str, log: Log = print) -> None:
     log(f"{system}: unit top-{cfg['retrieval']['k']} for {', '.join(unit_types(cfg))}")
     fs = cfg["final_systems"]
-    if system in (fs["unit_lexical"], fs["unit_structural"]):
+    if system in (fs["unit_lexical"], fs["unit_structural"], fs["unit_domain"]):
         run_tfidf_units(cfg, log, system)
     else:
         run_semantic_units(cfg, system, log)

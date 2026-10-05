@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-Mode = Literal["lexical", "semantic", "fused", "structural"]
+Mode = Literal["lexical", "semantic", "fused", "structural", "domain"]
 SearchMode = Literal["lexical", "semantic", "fused"]  # no morphology for free text
 
 
@@ -200,6 +200,17 @@ class VerseDiff(ApiModel):
     loose: bool  # below `diffs.min_shared`: no marks (not a close parallel)
 
 
+class RelationPair(ApiModel):
+    """A word pair that types a parallel verse: SDBH antonyms or synonyms, or two lemmas in one
+    semantic domain (DESIGN.md §16.22)."""
+
+    a: str  # content lemma in the first half
+    b: str
+    kind: Literal["antonym", "synonym", "domain"]
+    a_he: str
+    b_he: str
+
+
 class VerseHalves(ApiModel):
     """A verse's cola (te'amim pauses) and how parallel they are (DESIGN.md §16.9)."""
 
@@ -214,6 +225,8 @@ class VerseHalves(ApiModel):
     prob: float | None = None  # probability the halves are parallel like poetry
     clauses: list[tuple[int, int]] = []  # spans between accent pauses of level 1-2
     next_prob: float | None = None  # bicolon with the next verse (two one-colon verses)
+    relation: Literal["antithetic", "synonymous"] | None = None  # parallel verses with a lexicon
+    relation_pairs: list[RelationPair] = []
 
 
 class UnitParallelism(ApiModel):
@@ -230,6 +243,8 @@ class ParallelUnit(ApiModel):
     mean_prob: float
     share_parallel: float
     n_scored: int
+    n_parallel: int  # verses at `parallel_at` or above
+    share_antithetic: float | None  # of the parallel verses (None: none, or no lexicon)
 
 
 class ParallelBook(ApiModel):
@@ -247,6 +262,9 @@ class ParallelismResponse(ApiModel):
     parallel_at: float
     coefficients: dict[str, float]
     held_out_auc: dict[str, float]
+    sort: Literal["prob", "antithetic"]
+    min_parallel: int  # parallel verses a unit needs (0 unless sorted by antithetic share)
+    typing: dict[str, Any] | None  # antithetic / synonymous typing check (§16.22), None without it
     books: list[ParallelBook]
     total: int
     offset: int
@@ -301,6 +319,7 @@ class Entity(ApiModel):
     n_here: int | None = None  # mentions in the requested book / unit
     first_vid: int
     last_vid: int
+    kind_source: Literal["lexicon", "cues"]  # Strong's part of speech, or the context cues
 
 
 class EntitiesResponse(ApiModel):
@@ -507,6 +526,7 @@ class WordDetail(ApiModel):
     morph_he: list[str]  # Hebrew description per morpheme (text/morph.py)
     in_formula: bool
     lemmas: list[LemmaStat]  # its content lemmas
+    domains: list[str]  # SDBH domain codes of its content morphemes (`/domains` names them)
 
 
 class BookCount(ApiModel):
@@ -532,6 +552,52 @@ class ConcordanceResponse(ApiModel):
     offset: int
     limit: int
     items: list[ConcordanceHit]
+
+
+class DomainInfo(ApiModel):
+    """An SDBH lexical semantic domain (DESIGN.md §16.22); counts include its subdomains."""
+
+    code: str  # 3 digits per level
+    level: int
+    parent: str | None
+    label_en: str
+    n_verses: int
+    weight: float  # content words in it (a word split over k domains counts 1/k)
+
+
+class DomainHit(ApiModel):
+    verse: Verse
+    label_en: str
+    label_he: str
+    display_idxs: list[int]  # display tokens in the domain
+    weight: float
+
+
+class DomainResponse(ApiModel):
+    domain: DomainInfo
+    path: list[DomainInfo]  # its broader domains, from the top
+    children: list[DomainInfo]
+    by_book: list[BookCount]
+    book: int | None
+    total: int
+    offset: int
+    limit: int
+    items: list[DomainHit]
+
+
+class DomainShare(ApiModel):
+    domain: DomainInfo
+    weight: float  # its content words in the unit
+    expected: float  # at the corpus share
+    lift: float
+    g2: float  # Dunning's G², negative when under-represented
+
+
+class UnitDomains(ApiModel):
+    unit: UnitSummary
+    total: float  # tagged content words in the unit
+    themes: list[DomainShare]  # most over-represented domains below the top level
+    broad: list[DomainShare]  # every second-level domain present, largest first
 
 
 class StructureScore(ApiModel):

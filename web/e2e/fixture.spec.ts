@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page, test } from '@playwright/test'
 
 // CI end-to-end tests against `bsim fixture-serve`: the tiny synthetic DB of `bsim.fixture` (six
-// verses in Genesis and Exodus, verse and chapter units, made-up lists and analyses). Every page
+// verses in Genesis and Exodus, verse and chapter units, made-up lists, analyses and word senses). Every page
 // renders a heading without an error box or a console error, in both interface languages, with
 // no serious axe violations. smoke.spec.ts checks the same pages against the real data.
 const PAGES = [
@@ -27,6 +27,10 @@ const PAGES = [
   '/wordplay?view=alliteration',
   '/wordplay?view=rhyme',
   '/names',
+  '/domains',
+  '/domains/002001',
+  '/unit/c%3A0%3A1?mode=domain',
+  '/poetry?sort=antithetic',
   '/structure',
   '/acrostics',
   '/map',

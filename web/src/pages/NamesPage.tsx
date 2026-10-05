@@ -141,7 +141,10 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
         <span dir="rtl" lang="he" className="he">
           {e.he}
         </span>{' '}
-        <span className={`type-tag kind-${e.kind}`}>{m.ov.names.kinds[e.kind]}</span>
+        <span className={`type-tag kind-${e.kind}`} title={m.ov.names.kindSource[e.kind_source]}>
+          {m.ov.names.kinds[e.kind]}
+        </span>{' '}
+        <span className="muted small">{m.ov.names.kindSource[e.kind_source]}</span>
       </h2>
       <p className="muted small">
         {m.ov.names.mentions(e.n_mentions, e.n_verses)}

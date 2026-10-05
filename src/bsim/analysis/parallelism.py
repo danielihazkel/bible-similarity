@@ -199,16 +199,22 @@ def span_domains(vid: int, span: tuple[int, int], domains: dict) -> set[tuple[st
 def line_relation(
     a: set[str], b: set[str], a_dom: set, b_dom: set, rel: Relations
 ) -> tuple[str | None, list[tuple[str, str, str]]]:
-    """The type of two parallel members and the word pairs that make it (Strong keys)."""
+    """The type of two parallel members and the word pairs that make it, as the members'
+    content lemmas (`rel` and the domain sets are keyed by `strong_key`)."""
     ant, syn = rel
-    ka, kb = {strong_key(x) for x in a}, {strong_key(x) for x in b}
-    found = sorted((x, y, "antonym") for x in ka for y in kb if x != y and (x, y) in ant)
+    ka = {strong_key(x): x for x in sorted(a)}
+    kb = {strong_key(x): x for x in sorted(b)}
+    found = sorted(
+        (ka[x], kb[y], "antonym") for x in ka for y in kb if x != y and (x, y) in ant
+    )
     if found:
         return "antithetic", found
-    found = sorted((x, y, "synonym") for x in ka for y in kb if x != y and (x, y) in syn)
+    found = sorted(
+        (ka[x], kb[y], "synonym") for x in ka for y in kb if x != y and (x, y) in syn
+    )
     found += sorted(
         {
-            (x, y, "domain")
+            (ka.get(x, x), kb.get(y, y), "domain")
             for x, d in a_dom
             for y, e in b_dom
             if d == e and x != y and x not in kb and y not in ka and (x, y) not in syn

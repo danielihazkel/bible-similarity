@@ -42,8 +42,14 @@ def final_systems(cfg: dict[str, Any], unit_type: str) -> dict[str, str]:
     """mode -> system file name of a unit type (the systems that go into the DB)."""
     lex, sem = final_lists(cfg, unit_type)
     fs = cfg["final_systems"]
-    structural = fs["structural"] if unit_type == "verse" else fs["unit_structural"]
-    return {"lexical": lex, "semantic": sem, "fused": fs["fused"], "structural": structural}
+    verse = unit_type == "verse"
+    return {
+        "lexical": lex,
+        "semantic": sem,
+        "fused": fs["fused"],
+        "structural": fs["structural"] if verse else fs["unit_structural"],
+        "domain": fs["domain"] if verse else fs["unit_domain"],
+    }
 
 
 def rrf(

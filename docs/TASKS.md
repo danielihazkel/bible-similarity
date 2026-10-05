@@ -421,10 +421,13 @@ Phase 2 (M39b): analyses
 - [x] Tests: line typing (antonyms first, synonyms, domains of different lemmas), the typing check, Strong's name kinds and agreement
 
 Phase 3 (M39c): API and viewer
-- [ ] Domains of each word in the word panel; domain names in English and (top two levels) Hebrew
-- [ ] Domain profile of a unit and a domain concordance; `domain` mode next to structural
-- [ ] SDBH / HebrewLexicon credits in the footer and About
+- [x] DB: `domains`, `domain_verses`, `words.domains`, `parallelism.relation*`, `entities.kind_*` (empty without the lexicon); the `domain` mode (`bm25_domain`, `tfidf_domain`) in `matches`
+- [x] API: `/domains`, `/domain/{code}`, `/unit-domains/{unit_id}`; `/words` domains; typed `/parallelism/{unit}`; `/parallelism?sort=antithetic` (`typing_min_parallel`); `Entity.kind_source`
+- [x] Viewer: Patterns → Domains (tree, domain concordance), themes on units, domain chips in the word panel, Domains mode, `∥≠` antithetic halves with their pairs, Poetry sorted by antithetic share with the typing check, Names kind source; domain names in English and (top two levels) Hebrew
+- [x] SDBH / HebrewLexicon credits in the footer and About
+- [x] Tests: domains / themes / words / typed halves / ranking (pytest, fixture with word senses); Domains page, themes, Hebrew names, antithetic badge (vitest); e2e: new pages in both languages, axe (a chip contrast and an About link fixed)
 
 ✔ Phase 1: every word carries its attested sense and domains; domains help the lemma list but not the fused one, so the final systems are unchanged.
 ✔ Phase 2: antithetic parallelism is recovered where D49 failed; names are typed by the lexicon, confirming the cue heuristic.
+✔ Phase 3: domains, themes and antithetic lines are browsable in both languages; 72 / 72 fixture and 76 / 76 real-data e2e.
 

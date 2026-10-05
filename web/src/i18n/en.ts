@@ -5,6 +5,7 @@
 import { ovEn } from './pages/overview'
 import { parEn } from './pages/parallels'
 import { patEn } from './pages/patterns'
+import { domEn } from './pages/domains'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -43,6 +44,7 @@ export const en = {
       mam: 'Miqra according to the Masorah',
       lemmas: 'Lemmas and morphology:',
       wlc: '(WLC public domain, morphology CC BY 4.0). Cross-references: Sefaria; OpenBible.info (CC-BY) for evaluation. For personal and research use.',
+      lexicon: 'Word senses and semantic domains: UBS Dictionary of Biblical Hebrew, SDBH (CC BY-SA 4.0); name types: OpenScriptures HebrewLexicon (CC BY 4.0).',
     },
     notFound: 'Page not found.',
     backToBooks: 'Back to the books',
@@ -66,6 +68,7 @@ export const en = {
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
+    domains: { label: 'Domains', hint: 'Words by meaning: semantic fields' },
     map: { label: 'Map', hint: 'Units by meaning, book affinity' },
     network: { label: 'Network', hint: 'Echo communities, most echoed passages' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
@@ -118,13 +121,15 @@ export const en = {
 
   modes: {
     label: 'Similarity mode',
-    names: { lexical: 'Lexical', semantic: 'Semantic', fused: 'Fused', structural: 'Structural' } satisfies Record<Mode, string>,
+    names: { lexical: 'Lexical', semantic: 'Semantic', fused: 'Fused', structural: 'Structural', domain: 'Domains' } satisfies Record<Mode, string>,
     hints: {
       lexical: 'Shared wording: BM25 / TF-IDF over OSHB lemmas, formulas down-weighted',
       semantic: 'Shared meaning: fine-tuned BEREL embeddings (CSLS)',
       fused: 'Both, combined by weighted reciprocal rank fusion',
       structural:
         'Same grammatical shape, any words: BM25 / TF-IDF over n-grams of word forms (part of speech, verb form, state)',
+      domain:
+        'Same semantic fields, any words: BM25 / TF-IDF over the SDBH domain of each word in context (Move, Weak, Waterbodies…)',
     } satisfies Record<Mode, string>,
     score: (mode: string) => `${mode} score`,
     top: 'Top',
@@ -358,6 +363,7 @@ export const en = {
   },
   par: parEn,
   pat: patEn,
+  dom: domEn,
   ov: ovEn,
 }
 

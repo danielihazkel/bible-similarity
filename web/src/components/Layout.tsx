@@ -41,6 +41,7 @@ const NAV: NavEntry[] = [
       { to: '/poetry', key: 'poetry' },
       { to: '/wordplay', key: 'wordplay' },
       { to: '/names', key: 'names' },
+      { to: '/domains', key: 'domains' },
     ],
   },
   {
@@ -132,6 +133,7 @@ export function Layout() {
           </a>{' '}
           {m.site.footer.wlc}
         </p>
+        <p>{m.site.footer.lexicon}</p>
       </footer>
     </div>
   )

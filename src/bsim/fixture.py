@@ -198,6 +198,35 @@ def write_inputs(cfg, tmp_path):
         ],
     ).assign(split="train").to_parquet(proc / "links.parquet")
     (proc / "corpus_meta.json").write_text(json.dumps({"config_hash": "c0"}), encoding="utf-8")
+    # SDBH senses (`bsim lexicon`): ראשית "Begin" everywhere, אלהים and יהוה "Deities"
+    pd.DataFrame(
+        [
+            ("002", 1, None, "Events"),
+            ("002001", 2, "002", "Description"),
+            ("002001001", 3, "002001", "Begin"),
+            ("001", 1, None, "Objects"),
+            ("001001", 2, "001", "Beings"),
+            ("001001002", 3, "001001", "Deities"),
+        ],
+        columns=["code", "level", "parent", "label_en"],
+    ).to_parquet(proc / "lexicon_domains.parquet")
+    senses = [(0, 0, 1, "7225", "002001001"), (0, 1, 0, "430", "001001002")]
+    senses += [(0, 3, 0, "3068", "001001002"), (1, 0, 0, "430", "001001002")]
+    senses += [(1, 2, 0, "3068", "001001002")]
+    senses += [(v, 0, 0, "7225", "002001001") for v in range(2, n)]
+    pd.DataFrame(
+        {
+            "verse_id": [s[0] for s in senses],
+            "idx": [s[1] for s in senses],
+            "part": [s[2] for s in senses],
+            "strong": [s[3] for s in senses],
+            "lex_ids": [["x"] for _ in senses],
+            "domains": [[s[4]] for s in senses],
+            "weights": [[1.0] for _ in senses],
+            "source": "sdbh",
+        }
+    ).to_parquet(proc / "word_senses.parquet")
+    (proc / "lexicon_meta.json").write_text(json.dumps({"refs": 8, "matched": 8}), "utf-8")
 
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):
         for mode, name in final_systems(cfg, unit_type).items():
@@ -256,6 +285,9 @@ def write_inputs(cfg, tmp_path):
         ("prob", (0.9, 0.2)),
     ):
         par[col] = [vals[0], None, None, vals[1], None, None]
+    # v0's halves: אלהים // יהוה typed as synonymous through their shared domain
+    par["relation"] = ["synonymous", None, None, None, None, None]
+    par["relation_pairs"] = [json.dumps([["430", "3068", "domain"]]), None, None, None, None, None]
     par.to_parquet(art / "parallelism" / "verses.parquet")
     (art / "parallelism" / "parallelism.meta.json").write_text(
         json.dumps(
@@ -317,6 +349,8 @@ def write_inputs(cfg, tmp_path):
             "place",
             "person",
         ],
+    ).assign(
+        kind_cues=["person", "place", "unclear"], kind_source=["lexicon", "cues", "cues"]
     ).to_parquet(ent_dir / "entities.parquet")
     pd.DataFrame(
         [("430", 0, 1), ("430", 1, 1), ("559", 0, 1), ("559", 1, 1), ("7225", 5, 1)],

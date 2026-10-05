@@ -454,8 +454,10 @@ export interface paths {
         };
         /**
          * Parallelism Ranking
-         * @description Units ranked by how parallel their verse halves are, plus per-book means;
-         *     `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose and prophecy).
+         * @description Units ranked by how parallel their verse halves are (`sort=antithetic`: by the share of
+         *     their parallel verses typed antithetic, among units with `typing_min_parallel` of them),
+         *     plus per-book means; `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose
+         *     and prophecy).
          */
         get: operations["parallelism_ranking_api_parallelism_get"];
         put?: never;
@@ -871,6 +873,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Domains
+         * @description Every domain in tree order (by code), with its verse and word counts.
+         */
+        get: operations["domains_api_domains_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/domain/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Domain
+         * @description Concordance of a domain and its subdomains: the verses whose content words fall in it,
+         *     with per-book counts, its path from the top and its subdomains.
+         */
+        get: operations["domain_api_domain__code__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/unit-domains/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unit Domains
+         * @description What a unit is about: its domains (any level below the top) most over-represented
+         *     against the whole corpus (G²), and its share of each second-level domain.
+         */
+        get: operations["unit_domains_api_unit_domains__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1188,7 +1252,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
             /** Book */
             book: number | null;
             /** Cross Book */
@@ -1223,6 +1287,68 @@ export interface components {
             a_preview: string | null;
             /** B Preview */
             b_preview: string | null;
+        };
+        /** DomainHit */
+        DomainHit: {
+            verse: components["schemas"]["Verse"];
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Display Idxs */
+            display_idxs: number[];
+            /** Weight */
+            weight: number;
+        };
+        /**
+         * DomainInfo
+         * @description An SDBH lexical semantic domain (DESIGN.md §16.22); counts include its subdomains.
+         */
+        DomainInfo: {
+            /** Code */
+            code: string;
+            /** Level */
+            level: number;
+            /** Parent */
+            parent: string | null;
+            /** Label En */
+            label_en: string;
+            /** N Verses */
+            n_verses: number;
+            /** Weight */
+            weight: number;
+        };
+        /** DomainResponse */
+        DomainResponse: {
+            domain: components["schemas"]["DomainInfo"];
+            /** Path */
+            path: components["schemas"]["DomainInfo"][];
+            /** Children */
+            children: components["schemas"]["DomainInfo"][];
+            /** By Book */
+            by_book: components["schemas"]["BookCount"][];
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["DomainHit"][];
+        };
+        /** DomainShare */
+        DomainShare: {
+            domain: components["schemas"]["DomainInfo"];
+            /** Weight */
+            weight: number;
+            /** Expected */
+            expected: number;
+            /** Lift */
+            lift: number;
+            /** G2 */
+            g2: number;
         };
         /** Echo */
         Echo: {
@@ -1274,6 +1400,11 @@ export interface components {
             first_vid: number;
             /** Last Vid */
             last_vid: number;
+            /**
+             * Kind Source
+             * @enum {string}
+             */
+            kind_source: "lexicon" | "cues";
         };
         /** EntityDetail */
         EntityDetail: {
@@ -1589,6 +1720,10 @@ export interface components {
             share_parallel: number;
             /** N Scored */
             n_scored: number;
+            /** N Parallel */
+            n_parallel: number;
+            /** Share Antithetic */
+            share_antithetic: number | null;
         };
         /** ParallelismResponse */
         ParallelismResponse: {
@@ -1608,6 +1743,17 @@ export interface components {
             held_out_auc: {
                 [key: string]: number;
             };
+            /**
+             * Sort
+             * @enum {string}
+             */
+            sort: "prob" | "antithetic";
+            /** Min Parallel */
+            min_parallel: number;
+            /** Typing */
+            typing: {
+                [key: string]: unknown;
+            } | null;
             /** Books */
             books: components["schemas"]["ParallelBook"][];
             /** Total */
@@ -1665,6 +1811,26 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["PhrasePair"][];
+        };
+        /**
+         * RelationPair
+         * @description A word pair that types a parallel verse: SDBH antonyms or synonyms, or two lemmas in one
+         *     semantic domain (DESIGN.md §16.22).
+         */
+        RelationPair: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "antonym" | "synonym" | "domain";
+            /** A He */
+            a_he: string;
+            /** B He */
+            b_he: string;
         };
         /** ResolveResponse */
         ResolveResponse: {
@@ -1874,7 +2040,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
             /** K */
             k: number;
             /** Hits */
@@ -1978,7 +2144,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
             /** K */
             k: number;
             /** Exclude */
@@ -2180,6 +2346,16 @@ export interface components {
             /** Next Id */
             next_id: string | null;
         };
+        /** UnitDomains */
+        UnitDomains: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Total */
+            total: number;
+            /** Themes */
+            themes: components["schemas"]["DomainShare"][];
+            /** Broad */
+            broad: components["schemas"]["DomainShare"][];
+        };
         /**
          * UnitNetwork
          * @description Where a unit sits in the network: its metrics and its centrality rank.
@@ -2324,6 +2500,13 @@ export interface components {
             ][];
             /** Next Prob */
             next_prob: number | null;
+            /** Relation */
+            relation: ("antithetic" | "synonymous") | null;
+            /**
+             * Relation Pairs
+             * @default []
+             */
+            relation_pairs: components["schemas"]["RelationPair"][];
         };
         /** VerseLabel */
         VerseLabel: {
@@ -2352,6 +2535,8 @@ export interface components {
             in_formula: boolean;
             /** Lemmas */
             lemmas: components["schemas"]["LemmaStat"][];
+            /** Domains */
+            domains: string[];
         };
         /**
          * WordPair
@@ -2556,7 +2741,7 @@ export interface operations {
     similar_api_similar__unit_id__get: {
         parameters: {
             query?: {
-                mode?: "lexical" | "semantic" | "fused" | "structural";
+                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain";
                 k?: number | null;
                 /** @description comma-separated: neighbors, chapter, book, known */
                 exclude?: string;
@@ -2593,7 +2778,7 @@ export interface operations {
         parameters: {
             query?: {
                 unit_type?: string;
-                mode?: "lexical" | "semantic" | "fused" | "structural";
+                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain";
                 book?: number | null;
                 cross_book?: boolean;
                 limit?: number;
@@ -3197,6 +3382,7 @@ export interface operations {
                 book?: number | null;
                 exclude_poetic?: boolean;
                 min_verses?: number | null;
+                sort?: string;
                 limit?: number;
                 offset?: number;
             };
@@ -3845,6 +4031,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnitNetwork"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    domains_api_domains_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DomainInfo"][];
+                };
+            };
+        };
+    };
+    domain_api_domain__code__get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DomainResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unit_domains_api_unit_domains__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitDomains"];
                 };
             };
             /** @description Validation Error */

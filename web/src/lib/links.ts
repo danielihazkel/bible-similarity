@@ -7,4 +7,6 @@ export const compareLink = (a: string, b: string) =>
 
 export const nameLink = (lemma: string) => `/names?e=${encodeURIComponent(lemma)}`
 
+export const domainLink = (code: string) => `/domains/${encodeURIComponent(code)}`
+
 export const sequenceLink = (id: number) => `/sequences/${id}`

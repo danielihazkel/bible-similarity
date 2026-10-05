@@ -374,6 +374,7 @@ def words(verse_id: int, state: State, conn: Conn) -> list[WordDetail]:
             morph_he=decode_morph(w["morph"]),
             in_formula=bool(w["in_formula"]),
             lemmas=[_lemma_stat(stats, lem) for lem in dict.fromkeys(w["content_lemmas"].split())],
+            domains=(w["domains"] or "").split(),
         )
         for w in rows
     ]

@@ -11,6 +11,7 @@ const BookPage = lazy(() => import('./pages/BookPage').then((m) => ({ default: m
 const ChangesPage = lazy(() => import('./pages/ChangesPage').then((m) => ({ default: m.ChangesPage })))
 const ComparePage = lazy(() => import('./pages/ComparePage').then((m) => ({ default: m.ComparePage })))
 const ConcordancePage = lazy(() => import('./pages/ConcordancePage').then((m) => ({ default: m.ConcordancePage })))
+const DomainsPage = lazy(() => import('./pages/DomainsPage').then((m) => ({ default: m.DomainsPage })))
 const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
 const NetworkPage = lazy(() => import('./pages/NetworkPage').then((m) => ({ default: m.NetworkPage })))
@@ -55,6 +56,8 @@ export function App() {
           <Route path="poetry" element={<PoetryPage />} />
           <Route path="wordplay" element={<WordplayPage />} />
           <Route path="names" element={<NamesPage />} />
+          <Route path="domains" element={<DomainsPage />} />
+          <Route path="domains/:code" element={<DomainsPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="acrostics" element={<AcrosticsPage />} />
           <Route path="map" element={<MapPage />} />

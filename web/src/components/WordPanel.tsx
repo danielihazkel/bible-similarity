@@ -1,8 +1,9 @@
 import { Link } from 'react-router'
-import { useWords } from '../api/hooks'
+import { useDomains, useWords } from '../api/hooks'
 import type { Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
+import { DomainChip } from './DomainName'
 import { HebrewPlain } from './HebrewText'
 import { ErrorBox, Loading } from './Status'
 
@@ -10,6 +11,8 @@ import { ErrorBox, Loading } from './Status'
 export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displayIdx: number; onClose: () => void }) {
   const { m, locale } = useLocale()
   const words = useWords(verse.verse_id)
+  const domains = useDomains()
+  const domainOf = new Map(domains.data?.map((d) => [d.code, d]) ?? [])
   const here = words.data?.filter((w) => w.display_idx === displayIdx) ?? []
   return (
     <section className="word-panel" aria-label={m.word.panel}>
@@ -44,6 +47,17 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
                     </span>{' '}
                     <span className="muted small">{m.word.verses(l.n_verses)}</span>
                   </Link>
+                ))}
+              </div>
+            )}
+            {w.domains.length > 0 && (
+              <div className="chips word-domains" aria-label={m.dom.wordDomains}>
+                {w.domains.map((code) => (
+                  <DomainChip
+                    key={code}
+                    domain={domainOf.get(code) ?? { code, label_en: code }}
+                    title={m.dom.wordDomainTitle}
+                  />
                 ))}
               </div>
             )}

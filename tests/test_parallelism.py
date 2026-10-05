@@ -132,7 +132,7 @@ def test_line_relation_types_antonyms_before_synonyms_and_domains():
     rel = ({("6662", "7563"), ("7563", "6662")}, {("776", "8398"), ("8398", "776")})
     # צדיק // רשע: antithetic, whatever else the halves share
     kind, pairs = line_relation({"6662"}, {"7563a", "776"}, set(), set(), rel)
-    assert kind == "antithetic" and pairs == [("6662", "7563", "antonym")]
+    assert kind == "antithetic" and pairs == [("6662", "7563a", "antonym")]
     # ארץ // תבל: SDBH synonyms
     assert line_relation({"776"}, {"8398"}, set(), set(), rel) == (
         "synonymous",

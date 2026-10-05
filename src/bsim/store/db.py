@@ -31,6 +31,9 @@ Derived columns:
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `network_nodes`, `network_edges`, `network_communities`: `bsim network`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
+- `domains`, `domain_verses`, `words.domains` + `meta.lexicon`: `bsim lexicon` word senses
+  (`domain_tables`); empty without it. `parallelism.relation*` and `entities.kind_source` come
+  from the analyses run with the lexicon.
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
 SQL, matching `retrieve/filters.py`, plus `known` (drop gold-linked hits).
@@ -65,7 +68,7 @@ from bsim.text.normalize import consonantal
 Log = Callable[[str], None]
 
 SCHEMA = Path(__file__).with_name("schema.sql")
-MODES = ("lexical", "semantic", "fused", "structural")
+MODES = ("lexical", "semantic", "fused", "structural", "domain")
 SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",
@@ -84,6 +87,7 @@ INDEXES = (
     "CREATE INDEX entity_mentions_by_verse ON entity_mentions (verse_id)",
     "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
     "CREATE INDEX network_edges_by_a ON network_edges (unit_type, a)",
+    "CREATE INDEX domain_verses_by_verse ON domain_verses (verse_id, code)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -108,6 +112,7 @@ TABLE_COLUMNS = {
         "content_lemmas",
         "morph",
         "in_formula",
+        "domains",
     ],
     "units": [
         "unit_id",
@@ -190,6 +195,8 @@ TABLE_COLUMNS = {
         "prob",
         "clauses",
         "next_prob",
+        "relation",
+        "relation_pairs",
     ],
     "typescenes": [
         "a_unit",
@@ -240,7 +247,11 @@ TABLE_COLUMNS = {
         "last_vid",
         "place",
         "person",
+        "kind_cues",
+        "kind_source",
     ],
+    "domains": ["code", "level", "parent", "label_en", "n_verses", "weight"],
+    "domain_verses": ["code", "verse_id", "weight"],
     "entity_mentions": ["lemma", "verse_id", "n"],
     "entity_links": ["a", "b", "n_verses", "expected", "g2"],
     "seam_curve": ["book_id", "verse_id", "shift"],
@@ -595,6 +606,57 @@ def similar(
     return [dict(zip(names, r, strict=True)) for r in cur.fetchall()]
 
 
+def ancestors(code: str) -> list[str]:
+    """The code and its broader domains: `002001001` -> [`002001001`, `002001`, `002`]."""
+    return [code[:i] for i in range(len(code), 0, -3)]
+
+
+def domain_tables(
+    senses: pd.DataFrame | None, words: pd.DataFrame, domains: pd.DataFrame | None
+) -> tuple[list[str | None], pd.DataFrame, pd.DataFrame]:
+    """`words.domains` (aligned with `words`), `domain_verses` and `domains` from the word
+    senses of `bsim lexicon`; content morphemes only (as `bm25_domain`)."""
+    from bsim.data.lexicon import strong_key
+
+    empty_dv = pd.DataFrame(columns=TABLE_COLUMNS["domain_verses"])
+    if senses is None or domains is None:
+        return [None] * len(words), empty_dv, pd.DataFrame(columns=TABLE_COLUMNS["domains"])
+    content = {
+        (v, i): {strong_key(c) for c in cl}
+        for v, i, cl in zip(words.verse_id, words.idx, words.content_lemmas, strict=True)
+    }
+    keep = [
+        s in content.get((v, i), ())
+        for v, i, s in zip(senses.verse_id, senses.idx, senses.strong, strict=True)
+    ]
+    s = senses[keep]
+    long = pd.DataFrame(
+        [
+            (v, i, d, w)
+            for v, i, ds, ws in zip(s.verse_id, s.idx, s.domains, s.weights, strict=True)
+            for d, w in zip(ds, ws, strict=True)
+        ],
+        columns=["verse_id", "idx", "code", "weight"],
+    )
+    per_word = long.groupby(["verse_id", "idx"]).code.agg(lambda c: " ".join(sorted(set(c))))
+    word_domains = [
+        per_word.get((v, i)) for v, i in zip(words.verse_id, words.idx, strict=True)
+    ]
+    dv = long.groupby(["code", "verse_id"], as_index=False).weight.sum()
+    up = pd.DataFrame(
+        [(a, v, w) for c, v, w in zip(dv.code, dv.verse_id, dv.weight, strict=True)
+         for a in ancestors(c)],
+        columns=["code", "verse_id", "weight"],
+    )
+    stats = up.groupby("code").agg(n_verses=("verse_id", "nunique"), weight=("weight", "sum"))
+    doms = domains.merge(stats, left_on="code", right_index=True, how="left").fillna(
+        {"n_verses": 0, "weight": 0.0}
+    )
+    doms["n_verses"] = doms.n_verses.astype(int)
+    doms["weight"] = doms.weight.round(3)
+    return word_domains, dv.assign(weight=dv.weight.round(4)), doms[TABLE_COLUMNS["domains"]]
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8")) if path.exists() else {}
 
@@ -636,6 +698,8 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     par = pd.read_parquet(par_dir / "verses.parquet")
     if "clauses" not in par:  # artifacts from before the clause segmentation
         par = par.assign(clauses=par.cola, next_prob=None)
+    if "relation" not in par:  # run without the lexicon
+        par = par.assign(relation=None, relation_pairs=None)
     out["parallelism"] = par
     wp = par_dir / "word_pairs.parquet"
     out["word_pairs"] = (
@@ -664,6 +728,14 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         if not path.exists():
             raise RuntimeError(f"{path} missing; run `bsim entities` first")
         out[f"entity_{name}"] = pd.read_parquet(path)
+    ents = out["entity_entities"]
+    if "kind_source" not in ents:  # run without the lexicon
+        out["entity_entities"] = ents.assign(kind_cues=ents.kind, kind_source="cues")
+    for name in ("word_senses", "lexicon_domains"):
+        path = proc / f"{name}.parquet"
+        out[name] = pd.read_parquet(path) if path.exists() else None
+    meta_path = proc / "lexicon_meta.json"
+    out["lexicon_meta"] = _read_json(meta_path)
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -800,6 +872,10 @@ def _write_db(
             content_lemmas=[" ".join(c) for c in words.content_lemmas],
             in_formula=formula_flags(words, len(verses), cfg["lexical"]["formulas"]).astype(int),
         )
+        word_domains, domain_verses, domains = domain_tables(
+            inputs["word_senses"], inputs["words"], inputs["lexicon_domains"]
+        )
+        words = words.assign(domains=word_domains)
         gloss = lemma_display_forms(inputs["words"])
         gold = gold_verse_pairs(inputs["links"])
         tables = {
@@ -846,6 +922,8 @@ def _write_db(
             "entities": inputs["entity_entities"],
             "entity_mentions": inputs["entity_mentions"],
             "entity_links": inputs["entity_links"],
+            "domains": domains,
+            "domain_verses": domain_verses,
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
             ),
@@ -906,7 +984,14 @@ def _write_db(
             "block_words": cfg["seams"]["block_words"],
         }
         em = inputs["entities_meta"]
-        meta["entities"] = {k: em.get(k) for k in ("names", "kinds", "pairs")}
+        meta["entities"] = {
+            k: em.get(k) for k in ("names", "kinds", "pairs", "kind_sources", "lexicon_vs_cues")
+        }
+        lm = inputs["lexicon_meta"]
+        meta["lexicon"] = {
+            k: lm.get(k)
+            for k in ("refs", "matched", "lemma_morphemes", "tagged_sdbh", "tagged_lemma")
+        }
         meta["sound"] = {
             k: inputs["sound_meta"].get(k)
             for k in ("cola", "alliterations", "rhymes", "rhymes_q_below_0.05", "top_endings")
@@ -923,6 +1008,7 @@ def _write_db(
                 "book_means",
                 "cross_pairs",
                 "cross_parallel",
+                "typing",
             )
         } | {"parallel_at": cfg["parallelism"]["parallel_at"]}
         meta["stylometry"] = {

@@ -826,3 +826,53 @@ def test_search_book_filter_and_depth(client):
     assert client.get("/api/search?q=ראשית&k=200").status_code == 200
     assert client.get("/api/search?q=ראשית&k=201").status_code == 422
     assert client.get("/api/search?q=ראשית&book=99").status_code == 404
+
+
+def test_domains_tree_and_concordance(client):
+    doms = {d["code"]: d for d in client.get("/api/domains").json()}
+    assert list(doms) == sorted(doms) and len(doms) == 6
+    assert doms["002"]["n_verses"] == 5 and doms["001001002"]["n_verses"] == 2
+    assert doms["001001002"]["weight"] == 4.0  # אלהים and יהוה in v0 and v1
+    d = client.get("/api/domain/002001").json()
+    assert [p["code"] for p in d["path"]] == ["002"]
+    assert [c["code"] for c in d["children"]] == ["002001001"]
+    assert d["total"] == 5 and [(b["book_id"], b["n_verses"]) for b in d["by_book"]] == [
+        (0, 4),
+        (1, 1),
+    ]
+    first = d["items"][0]
+    assert first["verse"]["verse_id"] == 0 and first["display_idxs"] == [0]
+    assert client.get("/api/domain/002?book=1").json()["total"] == 1
+    assert client.get("/api/domain/999").status_code == 404
+
+
+def test_unit_domains(client):
+    d = client.get("/api/unit-domains/c:0:1").json()
+    assert d["total"] == 6.0  # ראשית in v0 and v2, two divine names in v0 and v1
+    assert [t["domain"]["code"] for t in d["themes"]] == ["001001", "001001002"]
+    deities = d["themes"][1]
+    assert deities["weight"] == 4.0 and deities["lift"] == pytest.approx(1.5, abs=1e-3)
+    assert [(b["domain"]["code"], b["weight"]) for b in d["broad"]] == [
+        ("001001", 4.0),
+        ("002001", 2.0),
+    ]
+    assert client.get("/api/unit-domains/nope").status_code == 404
+
+
+def test_words_domains_and_typed_halves(client):
+    words = client.get("/api/words/0").json()
+    assert [w["domains"] for w in words] == [["002001001"], ["001001002"], [], ["001001002"]]
+    v0 = client.get("/api/parallelism/c:0:1").json()["verses"][0]
+    assert v0["relation"] == "synonymous"
+    assert v0["relation_pairs"] == [
+        {"a": "430", "b": "3068", "kind": "domain", "a_he": "אלהים", "b_he": "יהוה"}
+    ]
+    ranking = client.get("/api/parallelism?min_verses=1").json()
+    assert ranking["min_parallel"] == 0 and ranking["items"][0]["n_parallel"] == 1
+    assert ranking["items"][0]["share_antithetic"] == 0.0  # v0 is typed synonymous
+    anti = client.get("/api/parallelism?sort=antithetic&min_verses=1").json()
+    assert anti["sort"] == "antithetic" and anti["min_parallel"] == 10
+    assert anti["items"] == []  # no fixture chapter has 10 parallel verses
+    assert client.get("/api/parallelism?sort=nope").status_code == 422
+    kinds = {e["lemma"]: e["kind_source"] for e in client.get("/api/entities").json()["items"]}
+    assert kinds["430"] == "lexicon" and kinds["559"] == "cues"

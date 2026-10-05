@@ -101,6 +101,8 @@ export const patEn = {
     includePoeticTitle: 'Psalms, Proverbs and Job: the books the model learned from',
     empty: 'No units match these filters.',
     ranked: (n: number, plural: string) => `${numEn(n)} ${plural}, most parallel first`,
+    rankedAnti: (n: number, plural: string, min: number) =>
+      `${numEn(n)} ${plural} with at least ${min} parallel verses, most antithetic first`,
     parallelVerses: 'Parallel verses',
     parallelTitle: 'Verses whose halves score as parallel',
     mean: 'Mean',
@@ -109,6 +111,14 @@ export const patEn = {
     byBook: 'By book',
     perBook: 'Parallel verses per book',
     perBookLede: "Share of each book's verses with parallel halves; green = the poetic-accent books.",
+    sortBy: 'Sort by',
+    sorts: { prob: 'Most parallel', antithetic: 'Most antithetic' } as Record<'prob' | 'antithetic', string>,
+    antithetic: 'Antithetic',
+    antitheticTitle: 'Share of the parallel verses whose halves set antonyms against each other (SDBH)',
+    typing: (anti: number, syn: number, check: string, rest: string, shuffled: string, pairs: string) =>
+      `Typing: ${numEn(anti)} parallel verses set antonyms against each other across their halves (antithetic), ${numEn(syn)} pair synonyms or words of one semantic domain (synonymous). Proverbs 10–15 are ${check} antithetic against ${rest} elsewhere; antonym pairs cross ${pairs} of the lines against ${shuffled} when the halves are shuffled between lines.`,
+    relations: { antithetic: 'antithetic', synonymous: 'synonymous' } as Record<'antithetic' | 'synonymous', string>,
+    pairKinds: { antonym: 'antonyms', synonym: 'synonyms', domain: 'same domain' } as Record<'antonym' | 'synonym' | 'domain', string>,
   },
 
   wordPairs: {
@@ -244,6 +254,8 @@ export const patHe: typeof patEn = {
     includePoeticTitle: 'תהלים, משלי ואיוב: הספרים שמהם המודל למד',
     empty: 'אין יחידות המתאימות לסינון.',
     ranked: (n: number, plural: string) => `${numHe(n)} ${plural}, המקבילים ביותר תחילה`,
+    rankedAnti: (n: number, plural: string, min: number) =>
+      `${numHe(n)} ${plural} עם ${numHe(min)} פסוקים מקבילים לפחות, הניגודיים ביותר תחילה`,
     parallelVerses: 'פסוקים מקבילים',
     parallelTitle: 'פסוקים שצלעותיהם מדורגות כמקבילות',
     mean: 'ממוצע',
@@ -252,6 +264,14 @@ export const patHe: typeof patEn = {
     byBook: 'לפי ספר',
     perBook: 'פסוקים מקבילים בכל ספר',
     perBookLede: 'שיעור הפסוקים בכל ספר שצלעותיהם מקבילות; ירוק = ספרי טעמי אמ״ת.',
+    sortBy: 'מיון לפי',
+    sorts: { prob: 'המקבילים ביותר', antithetic: 'הניגודיים ביותר' },
+    antithetic: 'ניגודי',
+    antitheticTitle: 'שיעור הפסוקים המקבילים שצלעותיהם מעמידות הפכים זו מול זו (SDBH)',
+    typing: (anti: number, syn: number, check: string, rest: string, shuffled: string, pairs: string) =>
+      `סיווג: ב־${numHe(anti)} פסוקים מקבילים הצלעות מעמידות הפכים זו מול זו (תקבולת ניגודית), ב־${numHe(syn)} נרדפים או מילים מאותו תחום משמעות (תקבולת נרדפת). במשלי י–טו ${check} מהפסוקים ניגודיים לעומת ${rest} בשאר; זוגות הפכים חוצים ${pairs} מהשורות לעומת ${shuffled} כשמערבבים צלעות בין שורות.`,
+    relations: { antithetic: 'ניגודית', synonymous: 'נרדפת' },
+    pairKinds: { antonym: 'הפכים', synonym: 'נרדפים', domain: 'אותו תחום' },
   },
 
   wordPairs: {

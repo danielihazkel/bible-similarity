@@ -15,6 +15,8 @@ import type {
   DiffOp,
   ConcordanceResponse,
   DiscoveriesResponse,
+  DomainInfo,
+  DomainResponse,
   EntitiesResponse,
   EvalResponse,
   Entity,
@@ -38,6 +40,7 @@ import type {
   SearchResponse,
   SequenceDetail,
   SequenceDirection,
+  UnitDomains,
   SequencesResponse,
   SimilarResponse,
   StructureRankingResponse,
@@ -176,6 +179,33 @@ export const useLemma = (lemma: string, book: number | undefined, limit: number,
     queryFn: ({ signal }) =>
       getJson<ConcordanceResponse>(`/lemma/${encodeURIComponent(lemma)}`, { book, limit, offset }, signal),
     placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Every SDBH semantic domain (DESIGN.md §16.22), in tree order. */
+export const useDomains = () =>
+  useQuery({
+    queryKey: ['domains'],
+    queryFn: ({ signal }) => getJson<DomainInfo[]>('/domains', {}, signal),
+    ...forever,
+  })
+
+/** The verses of a domain and its subdomains, with its place in the tree. */
+export const useDomain = (code: string, book: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['domain', code, book, limit, offset],
+    queryFn: ({ signal }) =>
+      getJson<DomainResponse>(`/domain/${encodeURIComponent(code)}`, { book, limit, offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** The semantic domains a unit uses more than the corpus. */
+export const useUnitDomains = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-domains', unitId],
+    queryFn: ({ signal }) => getJson<UnitDomains>(`/unit-domains/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: unitId !== undefined,
     ...forever,
   })
 
@@ -385,6 +415,7 @@ export interface ParallelismQuery {
   unitType: UnitType
   book?: number
   excludePoetic: boolean
+  sort?: 'prob' | 'antithetic'
   limit: number
   offset: number
 }
@@ -394,6 +425,7 @@ export const parallelismParams = (q: ParallelismQuery): Params => ({
   unit_type: q.unitType,
   book: q.book,
   exclude_poetic: q.excludePoetic ? 'true' : undefined,
+  sort: q.sort === 'antithetic' ? 'antithetic' : undefined,
   limit: q.limit,
   offset: q.offset,
 })

@@ -20,6 +20,7 @@ import { HitCard } from '../components/HitCard'
 import { PhraseCard } from '../components/PhraseCard'
 import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
+import { ThemesPanel } from '../components/ThemesPanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -213,6 +214,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </Link>
         </p>
       )}
+      {!isVerse && <ThemesPanel unitId={unit.unit_id} />}
       {word ? (
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (
@@ -402,16 +404,21 @@ function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {
       </span>
     )
   if (!h || h.prob === null || at === undefined || h.prob < at) return null
-  const tip = m.unit.halvesTip(
-    h.prob.toFixed(2),
-    String(h.cos?.toFixed(2)),
-    h.shared,
-    String(h.shape?.toFixed(2)),
-    String(h.balance?.toFixed(2)),
-  )
+  const p = m.pat.poetry
+  const typed = h.relation
+    ? ` · ${p.relations[h.relation]}: ${h.relation_pairs.map((r) => `${r.a_he} / ${r.b_he} (${p.pairKinds[r.kind]})`).join(', ')}`
+    : ''
+  const tip =
+    m.unit.halvesTip(
+      h.prob.toFixed(2),
+      String(h.cos?.toFixed(2)),
+      h.shared,
+      String(h.shape?.toFixed(2)),
+      String(h.balance?.toFixed(2)),
+    ) + typed
   return (
-    <span className="parallel-badge" title={tip}>
-      ∥
+    <span className={`parallel-badge ${h.relation === 'antithetic' ? 'antithetic' : ''}`} title={tip}>
+      {h.relation === 'antithetic' ? '∥≠' : '∥'}
     </span>
   )
 }

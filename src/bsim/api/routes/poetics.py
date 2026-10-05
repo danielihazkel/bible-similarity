@@ -26,6 +26,7 @@ from bsim.api.models import (
     ParallelBook,
     ParallelismResponse,
     ParallelUnit,
+    RelationPair,
     Rhyme,
     RhymesResponse,
     StructureBasis,
@@ -68,6 +69,8 @@ def unit_parallelism(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     rows = queries.parallelism_verses(conn, u["start_verse_id"], u["end_verse_id"])
     at = state.cfg["parallelism"]["parallel_at"]
     probs = [r["prob"] for r in rows if r["prob"] is not None]
+    pairs = {r["verse_id"]: json.loads(r["relation_pairs"] or "[]") for r in rows}
+    he = queries.gloss(conn, (x for ps in pairs.values() for a, b, _ in ps for x in (a, b)))
     return {
         "unit": u,
         "parallel_at": at,
@@ -81,6 +84,10 @@ def unit_parallelism(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                     "cola": json.loads(r["cola"]),
                     "pauses": json.loads(r["pauses"]),
                     "clauses": json.loads(r["clauses"]),
+                    "relation_pairs": [
+                        RelationPair(a=a, b=b, kind=k, a_he=he.get(a, a), b_he=he.get(b, b))
+                        for a, b, k in pairs[r["verse_id"]]
+                    ],
                 }
             )
             for r in rows
@@ -96,11 +103,16 @@ def parallelism_ranking(
     book: int | None = None,
     exclude_poetic: bool = False,
     min_verses: int | None = None,
+    sort: str = "prob",
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    """Units ranked by how parallel their verse halves are, plus per-book means;
-    `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose and prophecy)."""
+    """Units ranked by how parallel their verse halves are (`sort=antithetic`: by the share of
+    their parallel verses typed antithetic, among units with `typing_min_parallel` of them),
+    plus per-book means; `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose
+    and prophecy)."""
+    if sort not in ("prob", "antithetic"):
+        raise unprocessable(f"sort must be prob or antithetic, not {sort!r}")
     check_unit_type(unit_type, [t for t in state.cfg["units"]["types"] if t != "verse"])
     check_page(state, limit, offset)
     check_min(min_verses, "min_verses")
@@ -115,6 +127,8 @@ def parallelism_ranking(
         pc["min_chapter_verses"] if min_verses is None else min_verses,
         limit,
         offset,
+        sort,
+        pc["typing_min_parallel"] if sort == "antithetic" else 0,
     )
     units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
     meta = state.meta.get("parallelism", {})
@@ -125,6 +139,9 @@ def parallelism_ranking(
         "parallel_at": pc["parallel_at"],
         "coefficients": meta.get("coefficients", {}),
         "held_out_auc": meta.get("held_out_auc", {}),
+        "sort": sort,
+        "min_parallel": pc["typing_min_parallel"] if sort == "antithetic" else 0,
+        "typing": meta.get("typing"),
         "books": [
             ParallelBook(**b, poetic_accents=b["book_id"] in poetic)
             for b in queries.parallelism_books(conn, pc["parallel_at"])
@@ -138,6 +155,8 @@ def parallelism_ranking(
                 mean_prob=r["mean_prob"],
                 share_parallel=r["share_parallel"],
                 n_scored=r["n_scored"],
+                n_parallel=r["n_parallel"],
+                share_antithetic=r["share_antithetic"],
             )
             for r in rows
         ],

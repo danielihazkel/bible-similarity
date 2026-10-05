@@ -105,6 +105,7 @@ a:hover {
 p a:not(.hit-ref):not(.name-chip),
 .footer a,
 .seam-list a,
+.about-page li a,
 .compare-page .column > h2 a {
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -1947,4 +1948,38 @@ kbd {
   border: 1px solid var(--border);
   border-radius: 3px;
   background: var(--surface-2);
+}
+
+/* Semantic domains (DESIGN.md §16.22) */
+.domain-chip {
+  text-decoration: none;
+  background: var(--surface);  /* muted counts need ≥ 4.5:1; --surface-2 gives 4.3 */
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 0.05rem 0.6rem;
+}
+.domain-chip:hover {
+  border-color: var(--accent);
+}
+.word-domains {
+  margin-top: 0.3rem;
+}
+.unit-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: baseline;
+}
+.domain-top {
+  margin-top: 1.4rem;
+}
+.domain-mid {
+  margin: 0.6rem 0 0.9rem;
+}
+.domain-mid h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.parallel-badge.antithetic {
+  color: var(--sem-ink);
 }

@@ -17,6 +17,9 @@ const RES: ParallelismResponse = {
   parallel_at: 0.5,
   coefficients: { cos: 0.8 },
   held_out_auc: { Ps: 0.85, Prov: 0.9 },
+  sort: 'prob',
+  min_parallel: 0,
+  typing: null,
   books: [
     { book_id: 1, poetic_accents: false, mean_prob: 0.2, share_parallel: 0.1, n_scored: 1200 },
     { book_id: 26, poetic_accents: true, mean_prob: 0.5, share_parallel: 0.55, n_scored: 2400 },
@@ -38,6 +41,8 @@ const RES: ParallelismResponse = {
         marker: null,
       },
       mean_prob: 0.43,
+      n_parallel: 10,
+      share_antithetic: 0.2,
       share_parallel: 0.6,
       n_scored: 27,
     },

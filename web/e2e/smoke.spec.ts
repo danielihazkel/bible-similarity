@@ -31,6 +31,10 @@ const PAGES: [string, RegExp][] = [
   ['/sequences?order=reverse&q=all', /Parallel sequences/],
   ['/changes?view=rewrites&pair=8-37', /How parallels differ/],
   ['/unit/c%3A26%3A145?acrostic=1', /Psalms 145/],
+  ['/domains', /Semantic domains/],
+  ['/domains/001001', /Beings/],
+  ['/unit/c%3A0%3A1?mode=domain', /Genesis 1/],
+  ['/poetry?sort=antithetic', /Parallel halves/],
   ['/about', /About/],
 ]
 
@@ -91,7 +95,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

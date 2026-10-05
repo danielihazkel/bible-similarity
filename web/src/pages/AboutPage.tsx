@@ -37,6 +37,12 @@ function AboutEn() {
         </li>
         <li>Lemmas and morphology: Open Scriptures Hebrew Bible (WLC public domain; morphology CC BY 4.0).</li>
         <li>Parasha boundaries and cross-references: Sefaria-Export.</li>
+        <li>
+          Word senses and semantic domains (<Link to="/domains">Domains</Link>, the Domains mode, themes, antithetic
+          parallelism): UBS Dictionary of Biblical Hebrew, adapted from the Semantic Dictionary of Biblical Hebrew
+          (SDBH) © United Bible Societies, CC BY-SA 4.0. Its glosses and definitions are not used: the viewer shows
+          domain names only. Person / place types: OpenScriptures HebrewLexicon (Strong's), CC BY 4.0.
+        </li>
         <li>Models: BEREL 3.0 (Apache-2.0). Fonts: Noto Serif Hebrew / Ezra SIL (OFL).</li>
       </ul>
       <h2>Build</h2>
@@ -75,6 +81,12 @@ function AboutHe() {
         </li>
         <li>ערכים ומורפולוגיה: Open Scriptures Hebrew Bible ‏(WLC בנחלת הכלל; מורפולוגיה CC BY 4.0).</li>
         <li>גבולות הפרשות וההפניות: Sefaria-Export.</li>
+        <li>
+          מובני מילים ותחומי משמעות (<Link to="/domains">תחומים</Link>, סוג הדמיון ״תחומים״, נושאים, תקבולת ניגודית):
+          UBS Dictionary of Biblical Hebrew, על פי Semantic Dictionary of Biblical Hebrew ‏(SDBH) © חבר אגודות
+          התנ״ך, ‏CC BY-SA 4.0. פירושי המילים וההגדרות שבו אינם בשימוש: מוצגים רק שמות התחומים. סוגי שמות (אדם / מקום):
+          OpenScriptures HebrewLexicon ‏(סטרונג), ‏CC BY 4.0.
+        </li>
         <li>מודלים: BEREL 3.0 ‏(Apache-2.0). גופנים: Noto Serif Hebrew / Ezra SIL ‏(OFL).</li>
       </ul>
       <h2>בנייה</h2>

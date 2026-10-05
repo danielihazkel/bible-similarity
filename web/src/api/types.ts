@@ -1,6 +1,6 @@
 // Mirrors the pydantic response models in src/bsim/api/models.py (DESIGN.md §10).
 
-export type Mode = 'lexical' | 'semantic' | 'fused' | 'structural'
+export type Mode = 'lexical' | 'semantic' | 'fused' | 'structural' | 'domain'
 export type SearchMode = 'lexical' | 'semantic' | 'fused'
 export type UnitType = 'verse' | 'chapter' | 'pericope' | 'parasha'
 export type Exclude = 'neighbors' | 'chapter' | 'book' | 'known'
@@ -209,11 +209,61 @@ export interface WordDetail {
   morph_he: string[]
   in_formula: boolean
   lemmas: LemmaStat[]
+  /** SDBH domain codes of its content morphemes (named by `/domains`) */
+  domains: string[]
 }
 
 export interface BookCount {
   book_id: number
   n_verses: number
+}
+
+/** An SDBH semantic domain (DESIGN.md §16.22); counts include its subdomains. */
+export interface DomainInfo {
+  /** 3 digits per level, e.g. 002001001069 */
+  code: string
+  level: number
+  parent: string | null
+  label_en: string
+  n_verses: number
+  weight: number
+}
+
+export interface DomainHit {
+  verse: Verse
+  label_en: string
+  label_he: string
+  display_idxs: number[]
+  weight: number
+}
+
+export interface DomainResponse {
+  domain: DomainInfo
+  /** its broader domains, from the top */
+  path: DomainInfo[]
+  children: DomainInfo[]
+  by_book: BookCount[]
+  book: number | null
+  total: number
+  offset: number
+  limit: number
+  items: DomainHit[]
+}
+
+export interface DomainShare {
+  domain: DomainInfo
+  weight: number
+  expected: number
+  lift: number
+  /** Dunning's G², negative when under-represented */
+  g2: number
+}
+
+export interface UnitDomains {
+  unit: UnitSummary
+  total: number
+  themes: DomainShare[]
+  broad: DomainShare[]
 }
 
 export interface ConcordanceHit {
@@ -510,6 +560,18 @@ export interface VerseHalves {
   clauses: [number, number][]
   /** bicolon with the next verse (two one-colon verses) */
   next_prob: number | null
+  /** parallel verses, typed with the SDBH lexicon */
+  relation: 'antithetic' | 'synonymous' | null
+  relation_pairs: RelationPair[]
+}
+
+/** A word pair that types a parallel verse: antonyms, synonyms or two lemmas in one domain. */
+export interface RelationPair {
+  a: string
+  b: string
+  kind: 'antonym' | 'synonym' | 'domain'
+  a_he: string
+  b_he: string
 }
 
 export interface UnitParallelism {
@@ -526,6 +588,26 @@ export interface ParallelUnit {
   mean_prob: number
   share_parallel: number
   n_scored: number
+  /** verses at `parallel_at` or above */
+  n_parallel: number
+  /** share of the parallel verses typed antithetic (null: none, or no lexicon) */
+  share_antithetic: number | null
+}
+
+/** The antithetic / synonymous typing check of `bsim parallelism` (DESIGN.md §16.22). */
+export type ParallelTyping = {
+  lines: number
+  antithetic: number
+  synonymous: number
+  antithetic_share: number
+  pair_antithetic_share: number
+  null_share: number | null
+  null_p: number | null
+  check_share: number | null
+  check_lines: number
+  rest_share: number | null
+  check_p: number
+  [k: string]: unknown
 }
 
 export interface ParallelBook {
@@ -543,6 +625,10 @@ export interface ParallelismResponse {
   parallel_at: number
   coefficients: Record<string, number>
   held_out_auc: Record<string, number>
+  sort: 'prob' | 'antithetic'
+  /** parallel verses a unit needs (0 unless sorted by antithetic share) */
+  min_parallel: number
+  typing: ParallelTyping | null
   books: ParallelBook[]
   total: number
   offset: number
@@ -592,6 +678,8 @@ export interface Entity {
   n_here: number | null
   first_vid: number
   last_vid: number
+  /** `lexicon`: Strong's part of speech; `cues`: guessed from context */
+  kind_source: 'lexicon' | 'cues'
 }
 
 export interface EntitiesResponse {

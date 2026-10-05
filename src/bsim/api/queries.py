@@ -176,7 +176,7 @@ def words(
     ids = list(dict.fromkeys(int(i) for i in verse_ids))
     if not ids:
         return []
-    extra = ", surface, lemma, morph" if detail else ""
+    extra = ", surface, lemma, morph, domains" if detail else ""
     cur = conn.execute(
         f"SELECT verse_id, idx, display_idx, content_lemmas, in_formula{extra} FROM words"
         f" WHERE verse_id IN ({_marks(len(ids))}) ORDER BY verse_id, idx",
@@ -267,6 +267,67 @@ def lemma_page(
         args.append(book_id)
     cur = conn.execute(sql + " ORDER BY verse_id LIMIT ? OFFSET ?", [*args, limit, offset])
     return [r[0] for r in cur.fetchall()]
+
+
+def domains(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT code, level, parent, label_en, n_verses, weight FROM domains ORDER BY code"
+    )
+    return _dicts(cur)
+
+
+def _domain_range(code: str) -> tuple[str, str]:
+    """A domain and its subdomains: the codes it prefixes (codes are digits; `~` sorts after)."""
+    return code, code + "~"
+
+
+def domain_books(conn: sqlite3.Connection, code: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT v.book_id, COUNT(DISTINCT d.verse_id) AS n_verses FROM domain_verses d"
+        " JOIN verses v ON v.verse_id = d.verse_id WHERE d.code >= ? AND d.code < ?"
+        " GROUP BY v.book_id ORDER BY v.book_id",
+        _domain_range(code),
+    )
+    return _dicts(cur)
+
+
+def domain_page(
+    conn: sqlite3.Connection, code: str, book_id: int | None, limit: int, offset: int
+) -> list[tuple[int, float]]:
+    """(verse id, summed weight) of the verses in a domain (in one book, if given), canon order."""
+    sql = (
+        "SELECT d.verse_id, SUM(d.weight) FROM domain_verses d"
+        + (" JOIN verses v ON v.verse_id = d.verse_id" if book_id is not None else "")
+        + " WHERE d.code >= ? AND d.code < ?"
+    )
+    args: list[Any] = list(_domain_range(code))
+    if book_id is not None:
+        sql += " AND v.book_id = ?"
+        args.append(book_id)
+    sql += " GROUP BY d.verse_id ORDER BY d.verse_id LIMIT ? OFFSET ?"
+    return [(r[0], r[1]) for r in conn.execute(sql, [*args, limit, offset]).fetchall()]
+
+
+def word_domains(conn: sqlite3.Connection, verse_ids: Iterable[int]) -> list[dict[str, Any]]:
+    ids = list(dict.fromkeys(int(i) for i in verse_ids))
+    if not ids:
+        return []
+    cur = conn.execute(
+        f"SELECT verse_id, idx, display_idx, domains FROM words WHERE verse_id IN"
+        f" ({_marks(len(ids))}) AND domains IS NOT NULL ORDER BY verse_id, idx",
+        ids,
+    )
+    return _dicts(cur)
+
+
+def unit_domain_weights(
+    conn: sqlite3.Connection, first: int, last: int
+) -> list[tuple[str, float]]:
+    cur = conn.execute(
+        "SELECT code, SUM(weight) FROM domain_verses WHERE verse_id BETWEEN ? AND ? GROUP BY code",
+        (first, last),
+    )
+    return [(r[0], r[1]) for r in cur.fetchall()]
 
 
 PHRASE_COLS = "a, b, score, n_tokens, a_words, b_words, spread"
@@ -408,7 +469,8 @@ def change_totals(
 
 
 PARALLEL_COLS = (
-    "verse_id, n_cola, cola, pauses, cos, shared, shape, balance, prob, clauses, next_prob"
+    "verse_id, n_cola, cola, pauses, cos, shared, shape, balance, prob, clauses, next_prob,"
+    " relation, relation_pairs"
 )
 
 
@@ -429,8 +491,12 @@ def parallelism_units(
     min_verses: int,
     limit: int,
     offset: int,
+    sort: str = "prob",
+    min_parallel: int = 0,
 ) -> tuple[int, list[dict[str, Any]]]:
-    """Units ranked by the mean parallelism probability of their scored verses."""
+    """Units ranked by the mean parallelism probability of their scored verses, or
+    (`sort="antithetic"`) by the share of their parallel verses typed antithetic; units need
+    `min_parallel` parallel verses."""
     where, args = "u.unit_type = ?", [unit_type]
     if book_id is not None:
         where += " AND u.book_id = ?"
@@ -441,16 +507,22 @@ def parallelism_units(
     inner = (
         "SELECT u.unit_id, AVG(p.prob) AS mean_prob, COUNT(p.prob) AS n_scored,"
         " AVG(CASE WHEN p.prob IS NULL THEN NULL WHEN p.prob >= ? THEN 1.0 ELSE 0.0 END)"
-        " AS share_parallel, MIN(u.start_verse_id) AS start"
+        " AS share_parallel, MIN(u.start_verse_id) AS start,"
+        " SUM(CASE WHEN p.prob >= ? THEN 1 ELSE 0 END) AS n_parallel,"
+        " AVG(CASE WHEN p.prob >= ? AND p.relation IS NOT NULL"
+        " THEN p.relation = 'antithetic' END) AS share_antithetic"
         " FROM units u JOIN parallelism p"
         " ON p.verse_id BETWEEN u.start_verse_id AND u.end_verse_id"
-        f" WHERE {where} GROUP BY u.unit_id HAVING COUNT(p.prob) >= ?"
+        f" WHERE {where} GROUP BY u.unit_id HAVING COUNT(p.prob) >= ? AND n_parallel >= ?"
     )
-    iargs = [parallel_at, *args, min_verses]
+    iargs = [parallel_at, parallel_at, parallel_at, *args, min_verses, min_parallel]
     total = count(conn, f"SELECT COUNT(*) FROM ({inner})", iargs)
-    cur = conn.execute(
-        f"{inner} ORDER BY mean_prob DESC, start LIMIT ? OFFSET ?", [*iargs, limit, offset]
+    order = (
+        "COALESCE(share_antithetic, -1) DESC, n_parallel DESC, start"
+        if sort == "antithetic"
+        else "mean_prob DESC, start"
     )
+    cur = conn.execute(f"{inner} ORDER BY {order} LIMIT ? OFFSET ?", [*iargs, limit, offset])
     return total, _dicts(cur)
 
 
@@ -502,7 +574,7 @@ def wordplay_page(
     return total, _dicts(cur)
 
 
-ENTITY_COLS = "lemma, he, kind, n_mentions, n_verses, first_vid, last_vid"
+ENTITY_COLS = "lemma, he, kind, n_mentions, n_verses, first_vid, last_vid, kind_source"
 
 
 def entities_page(

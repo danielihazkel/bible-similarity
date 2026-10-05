@@ -10,7 +10,7 @@ const BOOKS: Book[] = [
   { book_id: 0, name: 'Genesis', he_name: 'בראשית', osis: 'Gen', section: 'Torah', n_chapters: 50 },
   { book_id: 1, name: 'Exodus', he_name: 'שמות', osis: 'Exod', section: 'Torah', n_chapters: 40 },
 ]
-const moses = { lemma: '4872', he: 'משה', kind: 'person' as const, n_mentions: 766, n_verses: 700, n_here: null, first_vid: 1, last_vid: 9 }
+const moses = { lemma: '4872', he: 'משה', kind: 'person' as const, n_mentions: 766, n_verses: 700, n_here: null, first_vid: 1, last_vid: 9, kind_source: 'lexicon' as const }
 const LIST: EntitiesResponse = { kind: null, book: null, q: null, total: 1, offset: 0, limit: 60, items: [moses] }
 const DETAIL: EntityDetail = {
   entity: moses,
