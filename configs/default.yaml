@@ -115,6 +115,41 @@ eval:
   unit_gold_min_links: 2      # m
   spot_checks: ["Psalms 14:1", "Exodus 20:2", "II Samuel 22:2"]   # top-5 printed in reports
 
+openbible:                    # `bsim eval-openbible`: second gold set, dev only (DESIGN.md §16.13)
+  url: https://a.openbible.info/data/cross-references.zip   # CC-BY, openbible.info
+  file: cross_references.txt
+  min_votes: 5                # crowd votes a reference needs
+  max_range: 10               # longest target range expanded to verses
+  # KJV versification differs from the Hebrew here: references touching these chapters are dropped
+  unsafe_chapters:
+    Gen: [31, 32]
+    Exod: [7, 8, 21, 22]
+    Lev: [5, 6]
+    Num: [16, 17, 29, 30]
+    Deut: [12, 13, 22, 23, 28, 29]
+    1Sam: [20, 21, 23, 24]
+    2Sam: [18, 19]
+    1Kgs: [4, 5, 18, 20, 22]
+    2Kgs: [11, 12]
+    1Chr: [5, 6, 12]
+    2Chr: [1, 2, 13, 14]
+    Neh: [3, 4, 9, 10]
+    Job: [40, 41]
+    Ps: all                   # psalm titles are counted as verses in Hebrew
+    Eccl: [4, 5]
+    Song: [6, 7]
+    Isa: [8, 9, 63, 64]
+    Jer: [8, 9]
+    Ezek: [20, 21]
+    Dan: [3, 4, 5, 6]
+    Hos: [1, 2, 11, 12, 13, 14]
+    Joel: [2, 3, 4]
+    Jonah: [1, 2]
+    Mic: [4, 5]
+    Nah: [1, 2]
+    Zech: [1, 2]
+    Mal: [3, 4]
+
 final_systems:                # chosen on dev in M8/M9
   lexical: bm25_lemma          # verse level
   unit_lexical: tfidf          # chapter / pericope / parasha (§5.1 unit TF-IDF)

@@ -115,6 +115,13 @@ def stage_evaluate(cfg: dict[str, Any], log: Log) -> None:
         run_evaluate(cfg, split="test", log=log)
 
 
+def stage_eval_openbible(cfg: dict[str, Any], log: Log) -> None:
+    """Second gold set (dev only); downloads the OpenBible file on first use."""
+    from bsim.eval.openbible import run_eval_openbible
+
+    run_eval_openbible(cfg, log=log)
+
+
 def stage_phrases(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.phrases import run_phrases
 
@@ -195,6 +202,7 @@ STAGES: dict[str, str] = {
     "units": "stage_units",
     "fuse": "stage_fuse",
     "evaluate": "stage_evaluate",
+    "eval-openbible": "stage_eval_openbible",
     "phrases": "stage_phrases",
     "sequences": "stage_sequences",
     "diffs": "stage_diffs",

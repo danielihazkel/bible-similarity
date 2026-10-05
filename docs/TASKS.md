@@ -267,3 +267,10 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Daniel's and Ezra's language switches, Proverbs 22:17, Isaiah 36 / 40, Zechariah 9, Job's frame and Elihu, Ezekiel 40 found without being told where to look.
 
+## M28 — A second gold set (roadmap A13)
+- [x] `eval/openbible.py` + `bsim eval-openbible` (pipeline stage after evaluate): OpenBible cross-references (≥ 5 votes), KJV-versification-unsafe chapters dropped, Sefaria split rule, dev only
+- [x] Final verse systems scored on OpenBible and Sefaria dev gold side by side; gold overlap reported (`artifacts/eval/openbible.md`)
+- [x] Tests: reference parsing / ranges / unsafe chapters, gold construction, file reading (pytest)
+
+✔ 6,318 dev pairs, only 3 % shared with Sefaria; fused > lexical > semantic > structural on both, and the Sefaria-trained encoder drops no more than BM25.
+

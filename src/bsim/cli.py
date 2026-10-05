@@ -328,6 +328,18 @@ def seams(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("eval-openbible")
+def eval_openbible(config: ConfigOpt = None) -> None:
+    """Score the final verse systems on OpenBible cross-references (dev split only)."""
+    from bsim.eval.openbible import run_eval_openbible
+
+    try:
+        run_eval_openbible(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""
