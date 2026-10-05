@@ -4,6 +4,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DiscoveriesResponse, UnitSummary, Verse } from '../api/types'
+import { LocaleProvider } from '../context/Locale'
+import type { Locale } from '../i18n'
 import { DiscoveriesPage } from './DiscoveriesPage'
 
 const unit = (id: number, label: string): UnitSummary => ({
@@ -77,17 +79,19 @@ function Location() {
   return <output data-testid="loc">{l.pathname + l.search}</output>
 }
 
-function renderAt(path: string) {
+function renderAt(path: string, locale: Locale = 'en') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/discoveries" element={<DiscoveriesPage />} />
-        </Routes>
-        <Location />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <LocaleProvider initial={locale}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/discoveries" element={<DiscoveriesPage />} />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </LocaleProvider>,
   )
 }
 
@@ -106,6 +110,18 @@ describe('DiscoveriesPage', () => {
     expect(card.querySelector('a[href^="/compare"]')?.getAttribute('href')).toBe('/compare?a=v%3A1&b=v%3A2')
     expect(calls).toContain('/api/discoveries?unit_type=verse&mode=semantic&limit=50&offset=0')
     expect(screen.getByText(/120 pairs · page 1 of 3/)).toBeTruthy()
+  })
+
+  it('speaks Hebrew in the Hebrew interface', async () => {
+    mockApi()
+    renderAt('/discoveries', 'he')
+    const card = (await screen.findByText('he Psalms 115:8')).closest('li')!
+    expect(screen.queryByText('Psalms 115:8')).toBeNull()
+    expect(card.textContent).toContain('הדדי')
+    expect(screen.getByRole('heading', { name: 'תגליות' })).toBeTruthy()
+    expect(screen.getByText(/120 זוגות · עמוד 1 מתוך 3/)).toBeTruthy()
+    expect(screen.getByLabelText('רק בין ספרים שונים')).toBeTruthy()
+    expect(screen.getByRole('radio', { name: 'פסוק' }).getAttribute('aria-checked')).toBe('true')
   })
 
   it('pages and resets the page on a filter change', async () => {

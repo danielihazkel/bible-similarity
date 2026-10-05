@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AcrosticsResponse } from '../api/types'
+import { LocaleProvider } from '../context/Locale'
 import { AcrosticsPage } from './AcrosticsPage'
 
 const unit = { unit_type: 'chapter' as const, book_id: 31, start_verse_id: 0, end_verse_id: 21, n_verses: 22, marker: null }
@@ -77,5 +78,37 @@ describe('AcrosticsPage', () => {
     fireEvent.change(screen.getByLabelText('Show'), { target: { value: 'all' } })
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/acrostics?q=all'))
     await waitFor(() => expect(calls.some((c) => c.startsWith('/api/acrostics?max_q=1&'))).toBe(true))
+  })
+
+  it('speaks Hebrew in the Hebrew interface', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        const p = new URL(url, 'http://x').pathname
+        const body = p === '/api/books' ? [] : p === '/api/acrostics' ? RES : null
+        return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
+      }),
+    )
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <LocaleProvider initial="he">
+        <QueryClientProvider client={client}>
+          <MemoryRouter initialEntries={['/acrostics']}>
+            <Routes>
+              <Route path="/acrostics" element={<AcrosticsPage />} />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </LocaleProvider>,
+    )
+    const link = await screen.findByRole('link', { name: 'איכה ב' })
+    expect(link.getAttribute('href')).toBe('/unit/c%3A31%3A2?acrostic=1')
+    expect(screen.getByRole('heading', { name: 'אקרוסטיכונים' })).toBeTruthy()
+    expect(screen.getByText('21 אותיות, 1 חסרות')).toBeTruthy()
+    expect(screen.getByText('פסוק אחר פסוק · פ לפני ע')).toBeTruthy()
+    expect(screen.getByText(/פרק אחד · עמוד 1 מתוך 1/)).toBeTruthy()
+    expect(screen.getByLabelText('הצגה')).toBeTruthy()
+    expect(screen.queryByText(/Lamentations/)).toBeNull()
+    expect(screen.queryByText(/letters/)).toBeNull()
   })
 })

@@ -5,8 +5,9 @@ import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { unitTypeLabel } from '../lib/format'
+import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import { bookName, bookOption, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { WordPairsView } from './WordPairsView'
 
@@ -16,19 +17,20 @@ const pct = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}%
 
 /** Where verses split into parallel halves: poetry by the te'amim, including poems inside prose. */
 export function PoetryPage() {
+  const m = useT()
   const [params, update] = useQueryParams()
   const view = params.get('view') === 'pairs' ? 'pairs' : 'units'
   return (
     <div className="page poetry-page">
-      <h1>Parallel halves</h1>
+      <h1>{m.pat.poetry.title}</h1>
       <div className="toolbar">
         <Segmented
-          label="View"
+          label={m.pat.view}
           value={view}
           onChange={(v) => update({ view: v === 'units' ? null : v, page: null })}
           options={[
-            { value: 'units', label: 'Parallel verses' },
-            { value: 'pairs', label: 'Word pairs' },
+            { value: 'units', label: m.pat.poetry.unitsView },
+            { value: 'pairs', label: m.pat.poetry.pairsView },
           ]}
         />
       </div>
@@ -38,6 +40,8 @@ export function PoetryPage() {
 }
 
 function UnitsView() {
+  const { m, locale } = useLocale()
+  const t = m.pat.poetry
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
@@ -50,46 +54,37 @@ function UnitsView() {
   const res = useParallelism(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
-  const name = new Map(books.data?.map((b) => [b.book_id, b.name]) ?? [])
+  const name = new Map(books.data?.map((b) => [b.book_id, bookName(b, locale)]) ?? [])
   const auc = res.data ? Object.values(res.data.held_out_auc) : []
 
   return (
     <>
-      <p className="lede">
-        The accents divide every verse at its main pause (etnahta; oleh-ve-yored in Psalms, Proverbs and Job). In poetry the
-        two halves restate each other: similar meaning, other words, the same grammar, balanced length. A model trained only
-        on how the halves relate — Psalms, Proverbs and Job against narrative and law — scores every verse; the share of
-        parallel verses shows poetry wherever it is, including poems embedded in prose.
-      </p>
-      {auc.length > 0 && (
-        <p className="muted small">
-          Held-out accuracy (AUC on a poetic book the model did not see): {auc.map((a) => a.toFixed(2)).join(' · ')}
-        </p>
-      )}
+      <p className="lede">{t.lede}</p>
+      {auc.length > 0 && <p className="muted small">{t.heldOut(auc.map((a) => a.toFixed(2)).join(' · '))}</p>}
 
       {res.data && <BookBars books={res.data.books} name={name} onPick={(b) => set({ book: String(b) })} />}
 
       <div className="toolbar">
         <Segmented
-          label="Unit type"
+          label={m.units.unitType}
           value={unitType}
-          onChange={(t) => set({ type: t === 'chapter' ? null : t })}
-          options={TYPES.map((t) => ({ value: t, label: unitTypeLabel(t) }))}
+          onChange={(v) => set({ type: v === 'chapter' ? null : v })}
+          options={TYPES.map((v) => ({ value: v, label: m.units.type(v) }))}
         />
         <label className="control">
-          <span>Book</span>
+          <span>{m.search.book}</span>
           <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.search.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
         </label>
-        <label className="check" title="Psalms, Proverbs and Job: the books the model learned from">
+        <label className="check" title={t.includePoeticTitle}>
           <input type="checkbox" checked={!excludePoetic} onChange={(e) => set({ all: e.target.checked ? '1' : null })} />
-          Include Psalms, Proverbs, Job
+          {t.includePoetic}
         </label>
       </div>
 
@@ -98,12 +93,11 @@ function UnitsView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No units match these filters.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} {unitTypeLabel(unitType).toLowerCase()}s, most parallel first · page {page} of{' '}
-            {pages}
+            {t.ranked(res.data.total, m.units.plural(unitType))} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'poetry', params: parallelismParams(query) }}
@@ -122,24 +116,29 @@ function UnitsView() {
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
               <thead>
                 <tr>
-                  <th>{unitTypeLabel(unitType)}</th>
-                  <th className="num" title="Verses whose halves score as parallel">
-                    Parallel verses
+                  <th>{m.units.type(unitType)}</th>
+                  <th className="num" title={t.parallelTitle}>
+                    {t.parallelVerses}
                   </th>
-                  <th className="num" title="Mean probability over the unit's verses">
-                    Mean
+                  <th className="num" title={t.meanTitle}>
+                    {t.mean}
                   </th>
-                  <th className="num">Verses</th>
+                  <th className="num">{t.verses}</th>
                 </tr>
               </thead>
               <tbody>
                 {res.data.items.map((r) => (
                   <tr key={r.unit.unit_id}>
                     <td>
-                      <Link to={unitLink(r.unit.unit_id, '?halves=1')}>{r.unit.label_en}</Link>{' '}
-                      <span className="he-label" dir="rtl" lang="he">
-                        {r.unit.label_he}
-                      </span>
+                      <Link to={unitLink(r.unit.unit_id, '?halves=1')}>{unitLabel(r.unit, locale)}</Link>
+                      {locale === 'en' && (
+                        <>
+                          {' '}
+                          <span className="he-label" dir="rtl" lang="he">
+                            {r.unit.label_he}
+                          </span>
+                        </>
+                      )}
                     </td>
                     <td className="num">{pct(r.share_parallel)}</td>
                     <td className="num">{r.mean_prob.toFixed(2)}</td>
@@ -157,10 +156,11 @@ function UnitsView() {
 }
 
 function BookBars({ books, name, onPick }: { books: ParallelBook[]; name: Map<number, string>; onPick: (b: number) => void }) {
+  const t = useT().pat.poetry
   return (
-    <section aria-label="Parallel verses per book">
-      <h2>By book</h2>
-      <p className="muted small">Share of each book's verses with parallel halves; green = the poetic-accent books.</p>
+    <section aria-label={t.perBook}>
+      <h2>{t.byBook}</h2>
+      <p className="muted small">{t.perBookLede}</p>
       <ul className="book-bars">
         {books.map((b) => (
           <li key={b.book_id} className={b.poetic_accents ? 'poetic' : undefined}>

@@ -4,21 +4,22 @@ import { useBooks, useCommunity, useNetwork, useUnitNetwork } from '../api/hooks
 import type { Book, CommunityResponse, NetworkCommunity, NetworkNode, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ErrorBox, Loading } from '../components/Status'
-import { unitTypeLabel } from '../lib/format'
+import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
 const SECTION_HUES = [210, 25, 140]
+const sectionName = (names: Record<string, string>, s: string | undefined) => (s === undefined ? undefined : (names[s] ?? s))
 const W = 960
 const H = 620
 const PAD = 28
 
-const plural = (t: UnitType) => (t === 'parasha' ? 'parashot' : `${unitTypeLabel(t).toLowerCase()}s`)
-
 /** Passages as a network of echoes: communities that echo each other, and the most echoed passages. */
 export function NetworkPage() {
+  const m = useT()
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
@@ -38,18 +39,20 @@ export function NetworkPage() {
 
   return (
     <div className="page network-page">
-      <h1>Network of echoes</h1>
+      <h1>{m.ov.network.title}</h1>
       <p className="lede">
-        Every {unitTypeLabel(unitType).toLowerCase()} is linked to those in its top ten (lexical and semantic, fused),
-        consecutive ones of the same book left out. <em>Communities</em> are groups that echo each other more than the
-        rest — often across books; <em>central</em> passages (PageRank) are the ones the rest of the Bible echoes most.
+        {m.ov.network.ledeLinked(unitType)}
+        <em>{m.ov.network.communities}</em>
+        {m.ov.network.ledeCommunities}
+        <em>{m.ov.network.central}</em>
+        {m.ov.network.ledeCentral}
       </p>
       <div className="toolbar">
         <Segmented
-          label="Unit type"
+          label={m.units.unitType}
           value={unitType}
           onChange={(t) => update({ type: t === 'chapter' ? null : t, c: null, unit: null })}
-          options={TYPES.map((t) => ({ value: t, label: unitTypeLabel(t) }))}
+          options={TYPES.map((t) => ({ value: t, label: m.units.type(t) }))}
         />
       </div>
       {net.isPending ? (
@@ -59,8 +62,8 @@ export function NetworkPage() {
       ) : (
         <>
           <div className="network-grid">
-            <section aria-label="Communities">
-              <h2>{net.data.communities.length} communities</h2>
+            <section aria-label={m.ov.network.communities}>
+              <h2>{m.ov.network.nCommunities(net.data.communities.length)}</h2>
               <ul className="community-list">
                 {net.data.communities.map((c) => (
                   <li key={c.community}>
@@ -76,7 +79,7 @@ export function NetworkPage() {
                 ))}
               </ul>
             </section>
-            <section aria-label="Community graph">
+            <section aria-label={m.ov.network.graph}>
               {detail.isPending ? (
                 <Loading />
               ) : detail.error ? (
@@ -86,8 +89,8 @@ export function NetworkPage() {
               )}
             </section>
           </div>
-          <section aria-label="Most echoed passages">
-            <h2>Most echoed {plural(unitType)}</h2>
+          <section aria-label={m.ov.network.mostEchoedLabel}>
+            <h2>{m.ov.network.mostEchoed(unitType)}</h2>
             <NodeTable nodes={net.data.central} bookOf={bookOf} onCommunity={(k) => update({ c: String(k) }, false)} />
           </section>
         </>
@@ -97,6 +100,11 @@ export function NetworkPage() {
 }
 
 function CommunityLabel({ c, bookOf }: { c: NetworkCommunity; bookOf: Map<number, Book> }) {
+  const { m, locale } = useLocale()
+  const name = (id: number) => {
+    const b = bookOf.get(id)
+    return b ? bookName(b, locale) : id
+  }
   return (
     <>
       <span className="community-size">{c.size}</span>
@@ -107,9 +115,9 @@ function CommunityLabel({ c, bookOf }: { c: NetworkCommunity; bookOf: Map<number
         <span className="muted small">
           {c.books
             .slice(0, 3)
-            .map((b) => `${bookOf.get(b.book_id)?.name ?? b.book_id} ${b.n_verses}`)
+            .map((b) => `${name(b.book_id)} ${b.n_verses}`)
             .join(', ')}
-          {c.books.length > 3 && ` +${c.books.length - 3} books`}
+          {c.books.length > 3 && m.ov.network.moreBooks(c.books.length - 3)}
         </span>
       </span>
     </>
@@ -117,6 +125,7 @@ function CommunityLabel({ c, bookOf }: { c: NetworkCommunity; bookOf: Map<number
 }
 
 function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; bookOf: Map<number, Book>; focus?: string }) {
+  const { m, locale } = useLocale()
   const { nodes, edges } = data
   const at = new Map(nodes.map((n) => [n.unit.unit_id, n]))
   const maxRank = Math.max(...nodes.map((n) => n.pagerank))
@@ -133,21 +142,16 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
   if (focus) labelled.add(focus)
   return (
     <>
-      <h2>
-        Community of {data.community.size} {plural(data.unit_type)}
-      </h2>
-      <p className="muted small">
-        Circle size: centrality · colour: Torah / Prophets / Writings · lines: echoes (darker = stronger). Select a
-        passage to open it.
-      </p>
+      <h2>{m.ov.network.communityOf(data.community.size, data.unit_type)}</h2>
+      <p className="muted small">{m.ov.network.legend}</p>
       <p className="section-legend small" aria-hidden="true">
         {SECTIONS.map((s, i) => (
           <span key={s}>
-            <span className="swatch" style={{ background: `hsl(${SECTION_HUES[i]}, 62%, 48%)` }} /> {s}
+            <span className="swatch" style={{ background: `hsl(${SECTION_HUES[i]}, 62%, 48%)` }} /> {m.units.sections[s] ?? s}
           </span>
         ))}
       </p>
-      <svg className="network-graph" viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Passages and their echoes">
+      <svg className="network-graph" viewBox={`0 0 ${W} ${H}`} role="group" aria-label={m.ov.network.graphLabel} direction="ltr">
         <g className="edges" aria-hidden="true">
           {edges.map((e) => {
             const a = at.get(e.a)
@@ -158,10 +162,11 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
         </g>
         {nodes.map((n) => {
           const on = n.unit.unit_id === focus
+          const label = unitLabel(n.unit, locale)
           return (
             // a router Link inside <svg> renders an SVG <a>, keeping client-side navigation
-            <Link key={n.unit.unit_id} to={unitLink(n.unit.unit_id)} aria-label={`${n.unit.label_en}, ${n.partners} echoes`}>
-              <title>{`${n.unit.label_en} · ${n.partners} echoes · ${Math.round(n.cross_book * 100)}% to other books`}</title>
+            <Link key={n.unit.unit_id} to={unitLink(n.unit.unit_id)} aria-label={m.ov.network.node(label, n.partners)}>
+              <title>{m.ov.network.nodeTitle(label, n.partners, n.cross_book)}</title>
               <circle
                 cx={px(n)}
                 cy={py(n)}
@@ -171,7 +176,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
               />
               {labelled.has(n.unit.unit_id) && (
                 <text x={px(n) + radius(n) + 3} y={py(n) + 4} className="node-label">
-                  {n.unit.label_en}
+                  {label}
                 </text>
               )}
             </Link>
@@ -179,7 +184,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
         })}
       </svg>
       <details className="community-members">
-        <summary>All {nodes.length} passages, most central first</summary>
+        <summary>{m.ov.network.allPassages(nodes.length)}</summary>
         <NodeTable nodes={nodes} bookOf={bookOf} />
       </details>
     </>
@@ -195,30 +200,36 @@ function NodeTable({
   bookOf: Map<number, Book>
   onCommunity?: (k: number) => void
 }) {
+  const { m, locale } = useLocale()
   return (
     <div className="table-wrap">
       <table className="rank-table">
         <thead>
           <tr>
-            <th scope="col">Passage</th>
+            <th scope="col">{m.ov.network.passage}</th>
             <th scope="col" className="num">
-              Echoes
+              {m.ov.network.echoes}
             </th>
-            <th scope="col" className="num" title="Share of the echo weight that reaches other books">
-              Other books
+            <th scope="col" className="num" title={m.ov.network.otherBooksTitle}>
+              {m.ov.network.otherBooks}
             </th>
-            {onCommunity && <th scope="col">Community</th>}
+            {onCommunity && <th scope="col">{m.ov.network.community}</th>}
           </tr>
         </thead>
         <tbody>
           {nodes.map((n) => (
             <tr key={n.unit.unit_id}>
               <th scope="row">
-                <Link to={unitLink(n.unit.unit_id)}>{n.unit.label_en}</Link>{' '}
-                <span className="he-label" dir="rtl" lang="he">
-                  {n.unit.label_he}
-                </span>
-                <span className="muted small"> {bookOf.get(n.unit.book_id)?.section}</span>
+                <Link to={unitLink(n.unit.unit_id)}>{unitLabel(n.unit, locale)}</Link>
+                {locale === 'en' && (
+                  <>
+                    {' '}
+                    <span className="he-label" dir="rtl" lang="he">
+                      {n.unit.label_he}
+                    </span>
+                  </>
+                )}
+                <span className="muted small"> {sectionName(m.units.sections, bookOf.get(n.unit.book_id)?.section)}</span>
               </th>
               <td className="num">{n.partners}</td>
               <td className="num">{Math.round(n.cross_book * 100)}%</td>

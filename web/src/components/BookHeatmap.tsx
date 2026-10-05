@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import type { Book } from '../api/types'
+import { useLocale } from '../context/localeContext'
+import { bookName } from '../lib/names'
 
 interface Props {
   books: Book[]
@@ -18,6 +20,7 @@ interface Props {
  * arrow keys move a cursor over the cells (its title is announced) and Enter / Space selects.
  */
 export function BookHeatmap({ books, order, value, title, selected, onSelect, label }: Props) {
+  const { m, locale } = useLocale()
   const [hover, setHover] = useState<string>()
   const [cursor, setCursor] = useState<[number, number]>()
   const n = order.length
@@ -37,17 +40,18 @@ export function BookHeatmap({ books, order, value, title, selected, onSelect, la
       onSelect(selected === cursorKey ? null : cursorKey)
     }
   }
-  const name = new Map(books.map((b) => [b.book_id, b.name]))
+  const name = new Map(books.map((b) => [b.book_id, bookName(b, locale)]))
   const cell = 14
   const pad = 96
   const size = pad + order.length * cell
   return (
-    <div className="table-wrap">
+    // left to right in either interface language (rows and columns keep their order)
+    <div className="table-wrap" dir="ltr">
       <svg
         width={size + 36}
         height={size}
         role="img"
-        aria-label={`${label}. Use the arrow keys to move between cells and Enter to select one.`}
+        aria-label={m.ov.chart.heatmapKeys(label)}
         tabIndex={0}
         onKeyDown={onKey}
         onBlur={() => setCursor(undefined)}

@@ -5,33 +5,32 @@ import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { qLabel, unitTypeLabel } from '../lib/format'
+import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
-const SORTS: { value: StructureSort; label: string }[] = [
-  { value: 'semantic_chiasm', label: 'Chiasm (semantic)' },
-  { value: 'lexical_chiasm', label: 'Chiasm (lexical)' },
-  { value: 'semantic_inclusio', label: 'Inclusio (semantic)' },
-  { value: 'lexical_inclusio', label: 'Inclusio (lexical)' },
-]
+const SORTS: StructureSort[] = ['semantic_chiasm', 'lexical_chiasm', 'semantic_inclusio', 'lexical_inclusio']
 const MIN_VERSES = [5, 8, 12, 20]
-const COLS: { key: keyof StructureRank; label: string; sort: StructureSort }[] = [
-  { key: 'semantic_chiasm_pct', label: 'Chiasm sem', sort: 'semantic_chiasm' },
-  { key: 'lexical_chiasm_pct', label: 'Chiasm lex', sort: 'lexical_chiasm' },
-  { key: 'semantic_inclusio_pct', label: 'Inclusio sem', sort: 'semantic_inclusio' },
-  { key: 'lexical_inclusio_pct', label: 'Inclusio lex', sort: 'lexical_inclusio' },
-]
+// `csv`: the export's column name (English in every interface language); display labels are in the catalog
+const COLS = [
+  { key: 'semantic_chiasm_pct', csv: 'Chiasm sem', sort: 'semantic_chiasm' },
+  { key: 'lexical_chiasm_pct', csv: 'Chiasm lex', sort: 'lexical_chiasm' },
+  { key: 'semantic_inclusio_pct', csv: 'Inclusio sem', sort: 'semantic_inclusio' },
+  { key: 'lexical_inclusio_pct', csv: 'Inclusio lex', sort: 'lexical_inclusio' },
+] as const satisfies readonly { key: keyof StructureRank; csv: string; sort: StructureSort }[]
 
 /** Units ranked by inclusio / chiasm percentiles. */
 export function StructurePage() {
+  const { m, locale } = useLocale()
+  const t = m.pat.structure
   const [params, update] = useQueryParams()
   const rawType = params.get('type') as UnitType | null
   const unitType = rawType && TYPES.includes(rawType) ? rawType : 'chapter'
   const rawBy = params.get('by') as StructureSort | null
-  const by = SORTS.some((s) => s.value === rawBy) ? rawBy! : 'semantic_chiasm'
+  const by = rawBy && SORTS.includes(rawBy) ? rawBy : 'semantic_chiasm'
   const minRaw = Number(params.get('min'))
   const minVerses = MIN_VERSES.includes(minRaw) ? minRaw : 8
   const page = parsePage(params.get('page'))
@@ -42,43 +41,43 @@ export function StructurePage() {
 
   return (
     <div className="page structure-page">
-      <h1>Structure</h1>
+      <h1>{t.title}</h1>
       <p className="lede">
-        Units whose verses frame them (<em>inclusio</em>: the opening returns at the close) or mirror each other (<em>chiasm</em>:
-        A B C … C′ B′ A′), each scored against random pairs of the same unit. Open a unit for its heatmap and Leitworte.
+        {t.lede[0]}
+        <em>{t.lede[1]}</em>
+        {t.lede[2]}
+        <em>{t.lede[3]}</em>
+        {t.lede[4]}
       </p>
       <div className="toolbar">
         <Segmented
-          label="Unit type"
+          label={m.units.unitType}
           value={unitType}
-          onChange={(t) => set({ type: t === 'chapter' ? null : t })}
-          options={TYPES.map((t) => ({ value: t, label: unitTypeLabel(t) }))}
+          onChange={(v) => set({ type: v === 'chapter' ? null : v })}
+          options={TYPES.map((v) => ({ value: v, label: m.units.type(v) }))}
         />
         <label className="control">
-          <span>Sort by</span>
+          <span>{t.sortBy}</span>
           <select value={by} onChange={(e) => set({ by: e.target.value === 'semantic_chiasm' ? null : e.target.value })}>
             {SORTS.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
+              <option key={s} value={s}>
+                {t.sorts[s]}
               </option>
             ))}
           </select>
         </label>
         <label className="control">
-          <span>At least</span>
+          <span>{t.atLeast}</span>
           <select value={minVerses} onChange={(e) => set({ min: e.target.value === '8' ? null : e.target.value })}>
             {MIN_VERSES.map((n) => (
               <option key={n} value={n}>
-                {n} verses
+                {t.minVerses(n)}
               </option>
             ))}
           </select>
         </label>
       </div>
-      <p className="muted small">
-        Percentiles are per unit; with thousands of units about 5 % reach the 95th by chance. The q column corrects for
-        that (Benjamini–Hochberg over all units of the type): only units with q ≤ 0.05 stand out from chance.
-      </p>
+      <p className="muted small">{t.note}</p>
       {res.data?.leitwort_numbers && <SevenNote n={res.data.leitwort_numbers} />}
 
       {res.isPending ? (
@@ -86,11 +85,11 @@ export function StructurePage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No scored units.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} units · page {page} of {pages}
+            {m.pat.units(res.data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
               filename={`structure-${unitType}-p${page}.csv`}
@@ -98,7 +97,7 @@ export function StructurePage() {
                 res.data.items.map((r) => ({
                   unit: r.unit.label_en,
                   verses: r.unit.n_verses,
-                  ...Object.fromEntries(COLS.map((c) => [c.label, r[c.key] as number | null])),
+                  ...Object.fromEntries(COLS.map((c) => [c.csv, r[c.key] as number | null])),
                 }))
               }
               all={{ list: 'structure', params: structureParams(query) }}
@@ -109,14 +108,14 @@ export function StructurePage() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Unit</th>
-                  <th>Verses</th>
+                  <th>{t.unit}</th>
+                  <th className="num">{t.verses}</th>
                   {COLS.map((c) => (
-                    <th key={c.key} className={c.sort === by ? 'on' : undefined}>
-                      {c.label}
+                    <th key={c.key} className={c.sort === by ? 'num on' : 'num'}>
+                      {t.cols[c.key]}
                     </th>
                   ))}
-                  <th title="Benjamini–Hochberg q of the sorted score">q</th>
+                  <th title={t.qTitle}>q</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,12 +123,17 @@ export function StructurePage() {
                   <tr key={r.unit.unit_id}>
                     <td className="muted">{res.data.offset + i + 1}</td>
                     <td>
-                      <Link to={unitLink(r.unit.unit_id, '?structure=1')}>{r.unit.label_en}</Link>{' '}
-                      <span className="he-label" dir="rtl" lang="he">
-                        {r.unit.label_he}
-                      </span>
+                      <Link to={unitLink(r.unit.unit_id, '?structure=1')}>{unitLabel(r.unit, locale)}</Link>
+                      {locale === 'en' && (
+                        <>
+                          {' '}
+                          <span className="he-label" dir="rtl" lang="he">
+                            {r.unit.label_he}
+                          </span>
+                        </>
+                      )}
                     </td>
-                    <td>{r.unit.n_verses}</td>
+                    <td className="num">{r.unit.n_verses}</td>
                     {COLS.map((c) => {
                       const v = r[c.key] as number | null
                       return (
@@ -152,12 +156,14 @@ export function StructurePage() {
 }
 
 function QCell({ q }: { q: number | null | undefined }) {
+  const m = useT()
   if (q === null || q === undefined) return <td className="muted">—</td>
-  return <td className={`small ${q <= 0.05 ? 'q-strong' : 'muted'}`}>{qLabel(q)}</td>
+  return <td className={`small ${q <= 0.05 ? 'q-strong' : 'muted'}`}>{m.q(q)}</td>
 }
 
 /** Do Leitworte occur 7 (or 10) times more often than chance? The count-matched check, with controls. */
 function SevenNote({ n }: { n: LeitwortNumbers }) {
+  const m = useT()
   type Stat = { multiples: number; expected: number }
   const ratio = (m: string) => {
     const s = n[m] as Stat | undefined
@@ -170,11 +176,15 @@ function SevenNote({ n }: { n: LeitwortNumbers }) {
   const below = others.filter((r) => r < r7).length
   return (
     <p className="muted small seven-note">
-      Sevens: of {n.leitworte.toLocaleString()} chapter Leitworte, {(n['7'] as Stat).multiples} occur a multiple of 7
-      times against {(n['7'] as Stat).expected} expected from words with similar counts ({r7.toFixed(2)}×). Other
-      divisors ({moduli.filter((m) => m !== '7').join(', ')}) show{' '}
-      {others.length ? `${Math.min(...others).toFixed(2)}–${Math.max(...others).toFixed(2)}×` : 'no data'}
-      {below === 0 ? ', so nothing singles out 7.' : `; ${below} of them less than 7.`}
+      {m.pat.structure.sevens(
+        n.leitworte,
+        (n['7'] as Stat).multiples,
+        (n['7'] as Stat).expected,
+        r7.toFixed(2),
+        moduli.filter((d) => d !== '7').join(', '),
+        others.length ? `${Math.min(...others).toFixed(2)}–${Math.max(...others).toFixed(2)}×` : null,
+        below,
+      )}
     </p>
   )
 }

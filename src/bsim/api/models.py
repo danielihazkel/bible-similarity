@@ -152,6 +152,8 @@ class ChangeExample(BaseModel):
     b: int
     a_label: str
     b_label: str
+    a_label_he: str
+    b_label_he: str
 
 
 class ChangeGroup(BaseModel):
@@ -262,6 +264,8 @@ class WordplayPair(BaseModel):
     q: float
     a_label: str
     b_label: str
+    a_label_he: str
+    b_label_he: str
     verses: list[Verse]  # one verse, or two when the pair crosses a verse boundary
 
 
@@ -322,6 +326,8 @@ class EntityDetail(BaseModel):
     entity: Entity
     first_label: str
     last_label: str
+    first_label_he: str
+    last_label_he: str
     by_book: list[BookCount]
     partners: list[EntityPartner]
     links: list[EntityLink]  # links among the partners (for the network drawing)
@@ -339,6 +345,7 @@ class Seam(BaseModel):
     book_id: int
     verse_id: int  # first verse after the seam
     label: str
+    label_he: str
     shift: float
     threshold: float
     rank: int
@@ -846,6 +853,7 @@ class Alliteration(BaseModel):
 
     verse: Verse
     label: str
+    label_he: str
     colon: int
     sound: str
     count: int
@@ -870,6 +878,7 @@ class Rhyme(BaseModel):
     start_vid: int
     end_vid: int
     label: str
+    label_he: str
     n_cola: int
     ending: str
     members: list[tuple[int, int]]  # (verse_id, display_idx) of each colon's last word

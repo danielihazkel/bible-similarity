@@ -6,15 +6,17 @@ import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { useLocale, useT } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
+import { bookName, bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 60
-const KIND_LABELS: Record<EntityKind, string> = { person: 'Person', place: 'Place', mixed: 'Person / place', unclear: 'Unclear' }
-const KINDS = Object.keys(KIND_LABELS) as EntityKind[]
+const KINDS: EntityKind[] = ['person', 'place', 'mixed', 'unclear']
 
 /** People and places: who is mentioned where, and who appears with whom. */
 export function NamesPage() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const rawKind = params.get('kind') as EntityKind | null
   const kind = rawKind && KINDS.includes(rawKind) ? rawKind : undefined
@@ -32,26 +34,22 @@ export function NamesPage() {
 
   return (
     <div className="page names-page">
-      <h1>People and places</h1>
-      <p className="lede">
-        Every name in the text. Whether a name is a person or a place is guessed from its contexts (directional ־ה, "city of",
-        "son of", "and X said"); tribes and peoples count as people. Two names are linked when they share verses more often
-        than their frequencies predict.
-      </p>
+      <h1>{m.ov.names.title}</h1>
+      <p className="lede">{m.ov.names.lede}</p>
       <div className="toolbar">
         <Segmented
-          label="Kind"
+          label={m.ov.names.kind}
           value={kind ?? 'all'}
           onChange={(k) => set({ kind: k === 'all' ? null : k })}
-          options={[{ value: 'all', label: 'All' }, ...KINDS.map((k) => ({ value: k, label: KIND_LABELS[k] }))]}
+          options={[{ value: 'all', label: m.ov.names.all }, ...KINDS.map((k) => ({ value: k, label: m.ov.names.kinds[k] }))]}
         />
         <label className="control">
-          <span>Book</span>
+          <span>{m.ov.names.book}</span>
           <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.ov.names.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
@@ -68,7 +66,7 @@ export function NamesPage() {
             type="search"
             dir="rtl"
             lang="he"
-            aria-label="Find a name"
+            aria-label={m.ov.names.find}
             placeholder="שם…"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -77,17 +75,17 @@ export function NamesPage() {
       </div>
 
       <div className="names-grid">
-        <section aria-label="Names">
+        <section aria-label={m.ov.names.list}>
           {res.isPending ? (
             <Loading />
           ) : res.error ? (
             <ErrorBox error={res.error} />
           ) : res.data.items.length === 0 ? (
-            <EmptyList total={res.data.total} limit={res.data.limit}>No names match.</EmptyList>
+            <EmptyList total={res.data.total} limit={res.data.limit}>{m.ov.names.noMatch}</EmptyList>
           ) : (
             <>
               <p className="muted small">
-                {res.data.total.toLocaleString()} names{book !== undefined ? ' in this book' : ''} · page {page} of {pages}
+                {m.ov.names.count(res.data.total, book !== undefined, page, pages)}
                 {' · '}
                 <ExportCsv
                   all={{ list: 'names', params: entitiesParams(query) }}
@@ -130,6 +128,7 @@ export function NamesPage() {
 }
 
 function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; onPick: (lemma: string) => void }) {
+  const { m, locale } = useLocale()
   const res = useEntity(lemma)
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
@@ -137,36 +136,39 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
   const counts = new Map(by_book.map((b) => [b.book_id, b.n_verses]))
   const max = Math.max(1, ...by_book.map((b) => b.n_verses))
   return (
-    <section className="entity-panel" aria-label="Name details">
+    <section className="entity-panel" aria-label={m.ov.names.details}>
       <h2>
         <span dir="rtl" lang="he" className="he">
           {e.he}
         </span>{' '}
-        <span className={`type-tag kind-${e.kind}`}>{KIND_LABELS[e.kind]}</span>
+        <span className={`type-tag kind-${e.kind}`}>{m.ov.names.kinds[e.kind]}</span>
       </h2>
       <p className="muted small">
-        {e.n_mentions} mentions in {e.n_verses} verses · first <Link to={unitLink(`v:${e.first_vid}`)}>{res.data.first_label}</Link>
-        , last <Link to={unitLink(`v:${e.last_vid}`)}>{res.data.last_label}</Link> ·{' '}
-        <Link to={lemmaLink(e.lemma)}>all verses</Link>
+        {m.ov.names.mentions(e.n_mentions, e.n_verses)}
+        <Link to={unitLink(`v:${e.first_vid}`)}>{locale === 'he' ? res.data.first_label_he : res.data.first_label}</Link>
+        {m.ov.names.last}
+        <Link to={unitLink(`v:${e.last_vid}`)}>{locale === 'he' ? res.data.last_label_he : res.data.last_label}</Link> ·{' '}
+        <Link to={lemmaLink(e.lemma)}>{m.ov.names.allVerses}</Link>
       </p>
-      <h3>Where</h3>
-      <ol className="book-strip" aria-label="Verses per book">
+      <h3>{m.ov.names.where}</h3>
+      {/* canon order runs left to right in either interface language, as its end labels say */}
+      <ol className="book-strip" aria-label={m.ov.names.perBook} dir="ltr">
         {books.map((b) => {
           const n = counts.get(b.book_id) ?? 0
           return (
-            <li key={b.book_id} title={`${b.name}: ${n} verses`}>
+            <li key={b.book_id} title={m.ov.names.bookCount(bookName(b, locale), n)}>
               <span className="strip-bar" style={{ height: `${(n / max) * 100}%`, opacity: n ? 1 : 0 }} />
             </li>
           )
         })}
       </ol>
-      <p className="muted small strip-axis">
-        <span>Genesis</span>
-        <span>Chronicles</span>
+      <p className="muted small strip-axis" dir="ltr">
+        <span>{books.length ? bookName(books[0], locale) : ''}</span>
+        <span>{books.length ? bookName(books[books.length - 1], locale) : ''}</span>
       </p>
       {partners.length > 0 && (
         <>
-          <h3>Appears with</h3>
+          <h3>{m.ov.names.appearsWith}</h3>
           <EgoNetwork data={res.data} onPick={onPick} />
           <ul className="partner-list">
             {partners.map((p) => (
@@ -177,7 +179,7 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
                   </span>
                 </button>{' '}
                 <span className="muted small">
-                  {p.n_verses} verses together ({p.expected < 0.1 ? '<0.1' : p.expected.toFixed(1)} by chance)
+                  {m.ov.names.together(p.n_verses, p.expected < 0.1 ? '<0.1' : p.expected.toFixed(1))}
                 </span>
               </li>
             ))}
@@ -190,6 +192,7 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
 
 /** The name in the centre, its partners on a circle (by strength), lines between linked partners. */
 function EgoNetwork({ data, onPick }: { data: EntityDetail; onPick: (lemma: string) => void }) {
+  const m = useT()
   const size = 320
   const c = size / 2
   const r = size / 2 - 42
@@ -202,7 +205,7 @@ function EgoNetwork({ data, onPick }: { data: EntityDetail; onPick: (lemma: stri
     }),
   )
   return (
-    <svg className="ego" viewBox={`0 0 ${size} ${size}`} role="group" aria-label={`Names appearing with ${data.entity.he}`}>
+    <svg className="ego" viewBox={`0 0 ${size} ${size}`} role="group" aria-label={m.ov.names.ego(data.entity.he)}>
       {data.links.map((l) => {
         const a = pos.get(l.a)
         const b = pos.get(l.b)
@@ -220,7 +223,7 @@ function EgoNetwork({ data, onPick }: { data: EntityDetail; onPick: (lemma: stri
             className={`ego-node kind-${p.kind}`}
             role="button"
             tabIndex={0}
-            aria-label={`${p.he}: show this name`}
+            aria-label={m.ov.names.show(p.he)}
             onClick={() => onPick(p.lemma)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {

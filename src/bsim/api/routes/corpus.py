@@ -99,6 +99,8 @@ def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
         "entity": Entity(**e),
         "first_label": labels[e["first_vid"]][0],
         "last_label": labels[e["last_vid"]][0],
+        "first_label_he": labels[e["first_vid"]][1],
+        "last_label_he": labels[e["last_vid"]][1],
         "by_book": [
             BookCount(book_id=b["book_id"], n_verses=b["n"])
             for b in queries.entity_books(conn, lemma)
@@ -141,6 +143,7 @@ def seams(
             Seam(
                 **{k: r[k] for k in ("book_id", "verse_id", "shift", "threshold", "rank")},
                 label=labels[r["verse_id"]][0],
+                label_he=labels[r["verse_id"]][1],
                 features=[
                     SeamFeature(feature=f, label=lab, z=z)
                     for f, lab, z in json.loads(r["features"])

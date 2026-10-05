@@ -4,7 +4,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SequenceDetail, SequenceSummary, SequencesResponse } from '../api/types'
-import { qLabel } from '../lib/format'
+import { LocaleProvider } from '../context/Locale'
+import type { Locale } from '../i18n'
+import { en } from '../i18n/en'
+import { he } from '../i18n/he'
 import { SequencePage } from './SequencePage'
 import { SequencesPage } from './SequencesPage'
 
@@ -57,7 +60,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-function renderAt(path: string, calls: string[]) {
+function renderAt(path: string, calls: string[], locale: Locale = 'en') {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -91,15 +94,17 @@ function renderAt(path: string, calls: string[]) {
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/sequences" element={<SequencesPage />} />
-          <Route path="/sequences/:seqId" element={<SequencePage />} />
-        </Routes>
-        <Location />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <LocaleProvider initial={locale}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/sequences" element={<SequencesPage />} />
+            <Route path="/sequences/:seqId" element={<SequencePage />} />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </LocaleProvider>,
   )
 }
 
@@ -157,10 +162,30 @@ describe('SequencePage', () => {
   })
 })
 
-describe('qLabel', () => {
+describe('Sequences in Hebrew', () => {
+  it('lists chains with Hebrew labels and controls', async () => {
+    renderAt('/sequences', [], 'he')
+    expect(await screen.findByText('שמואל ב כב א–ג')).toBeTruthy()
+    expect(screen.queryByText('II Samuel 22:1–3')).toBeNull()
+    expect(screen.getByRole('heading', { name: 'רצפים מקבילים' })).toBeTruthy()
+    expect(screen.getByText('ספריא מקשרת 1/2')).toBeTruthy()
+    expect(screen.getByText(/רצף אחד · עמוד 1 מתוך 1/)).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'סדר הפוך' })).toBeTruthy()
+  })
+
+  it('shows the ladder with Hebrew references', async () => {
+    renderAt('/sequences/4', [], 'he')
+    expect(await screen.findByRole('heading', { name: 'שמואל ב כב א–ג ↔ תהלים יח א–ב' })).toBeTruthy()
+    expect(screen.getAllByText('הפניה').length).toBeGreaterThan(0)
+    expect(screen.getByText(/שני זוגות פסוקים באותו סדר/)).toBeTruthy()
+    expect(screen.getByLabelText('סימון שינויי מילים')).toBeTruthy()
+  })
+})
+
+describe('q labels', () => {
   it('formats q values', () => {
-    expect(qLabel(0)).toBe('q < 0.001')
-    expect(qLabel(0.0042)).toBe('q = 0.004')
-    expect(qLabel(0.25)).toBe('q = 0.25')
+    expect(en.q(0)).toBe('q < 0.001')
+    expect(en.q(0.0042)).toBe('q = 0.004')
+    expect(he.q(0.25)).toBe('q = 0.25')
   })
 })

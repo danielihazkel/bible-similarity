@@ -5,8 +5,10 @@ import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { DIFF_LABELS, DIFF_OPS } from '../lib/diff'
+import { useLocale, useT } from '../context/localeContext'
+import { DIFF_OPS } from '../lib/diff'
 import { sequenceLink } from '../lib/links'
+import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { RewritesView } from './RewritesView'
 
@@ -14,25 +16,22 @@ const PAGE_SIZE = 50
 
 /** How parallel passages differ across the corpus: word changes grouped and counted. */
 export function ChangesPage() {
+  const m = useT()
   const [params, update] = useQueryParams()
   const view = params.get('view') === 'rewrites' ? 'rewrites' : 'words'
 
   return (
     <div className="page changes-page">
-      <h1>How parallels differ</h1>
-      <p className="lede">
-        Every verse pair of a strong parallel sequence aligned word by word, the earlier passage (in canon order) on the
-        left. Counted across the corpus, the changes show habits of the later text: Chronicles writes דויד for דוד, על for
-        אל, אני for אנכי, and often אלהים where Samuel–Kings has יהוה.
-      </p>
+      <h1>{m.par.changes.title}</h1>
+      <p className="lede">{m.par.changes.lede}</p>
       <div className="toolbar">
         <Segmented
-          label="View"
+          label={m.par.changes.view}
           value={view}
           onChange={(v) => update({ view: v === 'words' ? null : v, page: null })}
           options={[
-            { value: 'words', label: 'All changes by word' },
-            { value: 'rewrites', label: 'Systematic rewrites' },
+            { value: 'words', label: m.par.changes.byWord },
+            { value: 'rewrites', label: m.par.changes.rewrites },
           ]}
         />
       </div>
@@ -46,6 +45,7 @@ export function ChangesPage() {
 }
 
 function ChangesByWord() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const raw = params.get('op') as DiffOp | null
   const op: DiffOp = raw && DIFF_OPS.includes(raw) ? raw : 'substitution'
@@ -67,10 +67,10 @@ function ChangesByWord() {
     <label className="control">
       <span>{label}</span>
       <select value={value ?? ''} onChange={(e) => set({ [key]: e.target.value || null })}>
-        <option value="">Any book</option>
+        <option value="">{m.par.changes.anyBook}</option>
         {books.data?.map((b) => (
           <option key={b.book_id} value={b.book_id}>
-            {b.name} · {b.he_name}
+            {bookOption(b, locale)}
           </option>
         ))}
       </select>
@@ -81,19 +81,19 @@ function ChangesByWord() {
     <>
       <div className="toolbar">
         <Segmented
-          label="Kind of change"
+          label={m.par.changes.kind}
           value={op}
           onChange={(o) => set({ op: o === 'substitution' ? null : o })}
           options={DIFF_OPS.map((o) => ({
             value: o,
-            label: totals?.[o] !== undefined ? `${DIFF_LABELS[o].label} ${totals[o]!.toLocaleString()}` : DIFF_LABELS[o].label,
-            title: DIFF_LABELS[o].hint,
+            label: totals?.[o] !== undefined ? m.par.changes.opCount(m.diff.ops[o].label, totals[o]!) : m.diff.ops[o].label,
+            title: m.diff.ops[o].hint,
           }))}
         />
       </div>
       <div className="toolbar">
-        {bookSelect('Earlier passage in', 'a', aBook)}
-        {bookSelect('Later passage in', 'b', bBook)}
+        {bookSelect(m.par.changes.earlierIn, 'a', aBook)}
+        {bookSelect(m.par.changes.laterIn, 'b', bBook)}
       </div>
 
       {res.isPending ? (
@@ -101,11 +101,11 @@ function ChangesByWord() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No changes of this kind for these books.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.changes.none}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} distinct changes · page {page} of {pages}
+            {m.par.changes.page(res.data.total, page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'changes', params: changesParams(query) }}
@@ -126,12 +126,12 @@ function ChangesByWord() {
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
               <thead>
                 <tr>
-                  <th>Earlier</th>
+                  <th>{m.par.changes.earlier}</th>
                   <th aria-hidden="true" />
-                  <th>Later</th>
-                  <th className="num">Times</th>
-                  <th className="num">Sequences</th>
-                  <th>Examples</th>
+                  <th>{m.par.changes.later}</th>
+                  <th className="num">{m.par.changes.times}</th>
+                  <th className="num">{m.par.changes.sequences}</th>
+                  <th>{m.par.changes.examples}</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,6 +149,7 @@ function ChangesByWord() {
 }
 
 function Row({ g }: { g: ChangeGroup }) {
+  const { m, locale } = useLocale()
   const word = (he: string | null) =>
     he === null ? (
       <span className="muted">—</span>
@@ -161,15 +162,15 @@ function Row({ g }: { g: ChangeGroup }) {
     <tr>
       <td>{word(g.a_he)}</td>
       <td className="muted" aria-hidden="true">
-        →
+        {m.par.arrow}
       </td>
       <td>{word(g.b_he)}</td>
       <td className="num">{g.count}</td>
       <td className="num">{g.n_sequences}</td>
       <td className="change-examples small">
         {g.examples.map((e) => (
-          <Link key={`${e.a}|${e.b}`} to={sequenceLink(e.seq_id)} title="Open the parallel sequence">
-            {e.a_label} → {e.b_label}
+          <Link key={`${e.a}|${e.b}`} to={sequenceLink(e.seq_id)} title={m.par.changes.openSequence}>
+            {locale === 'he' ? e.a_label_he : e.a_label} {m.par.arrow} {locale === 'he' ? e.b_label_he : e.b_label}
           </Link>
         ))}
       </td>

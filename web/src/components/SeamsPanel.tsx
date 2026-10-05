@@ -1,29 +1,27 @@
 import { Link } from 'react-router'
 import { useSeams } from '../api/hooks'
 import type { CurvePoint, Seam } from '../api/types'
+import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { ErrorBox, Loading } from './Status'
 
 /** Where the style of a book changes: the shift curve along the book, its threshold and seams.
  * Without a book: the strongest seams of the corpus. */
 export function SeamsPanel({ book, name }: { book?: number; name: Map<number, string> }) {
+  const m = useT()
   const res = useSeams(book)
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
   const { curve, seams, threshold, block_words } = res.data
   return (
-    <section aria-label="Style shifts">
-      <h2>Where the style changes</h2>
-      <p className="muted small">
-        At every verse boundary the {block_words} words before and after are compared (Burrows' Delta of the same features).
-        Peaks above the dashed line — the highest a book with shuffled verse order reaches 19 times in 20 — are seams: a new
-        genre, language, speaker or source. Descriptive, not a claim about authorship.
-      </p>
+    <section aria-label={m.ov.seams.label}>
+      <h2>{m.ov.seams.title}</h2>
+      <p className="muted small">{m.ov.seams.lede(block_words)}</p>
       {book !== undefined && curve.length > 0 && threshold !== null && (
         <ShiftChart curve={curve} seams={seams} threshold={threshold} />
       )}
       {seams.length === 0 ? (
-        <p className="status">No significant seams{book !== undefined ? ' in this book' : ''}.</p>
+        <p className="status">{m.ov.seams.none(book !== undefined)}</p>
       ) : (
         <ol className="seam-list">
           {seams.map((s) => (
@@ -36,12 +34,13 @@ export function SeamsPanel({ book, name }: { book?: number; name: Map<number, st
 }
 
 function SeamRow({ s, book }: { s: Seam; book?: string }) {
+  const { m, locale } = useLocale()
   return (
     <li>
-      <Link to={unitLink(`v:${s.verse_id}`)}>{s.label}</Link>
+      <Link to={unitLink(`v:${s.verse_id}`)}>{locale === 'he' ? s.label_he : s.label}</Link>
       {book && <span className="muted small"> · {book}</span>}{' '}
       <span className="muted small">
-        shift {s.shift.toFixed(2)} (threshold {s.threshold.toFixed(2)})
+        {m.ov.seams.shift(s.shift.toFixed(2), s.threshold.toFixed(2))}
       </span>
       <span className="seam-features">
         {s.features.map((f) => (
@@ -58,6 +57,13 @@ function SeamRow({ s, book }: { s: Seam; book?: string }) {
 }
 
 function ShiftChart({ curve, seams, threshold }: { curve: CurvePoint[]; seams: Seam[]; threshold: number }) {
+  const { m, locale } = useLocale()
+  const at = new Map(curve.map((c) => [c.verse_id, c]))
+  /** chapter:verse of a seam, from the curve (labels differ per language) */
+  const cv = (s: Seam) => {
+    const c = at.get(s.verse_id)
+    return c ? m.cv(c.chapter, c.verse) : ''
+  }
   const W = 760
   const H = 180
   const pad = { l: 34, r: 8, t: 10, b: 24 }
@@ -73,7 +79,7 @@ function ShiftChart({ curve, seams, threshold }: { curve: CurvePoint[]; seams: S
   const chapterStarts = curve.filter((c, i) => i === 0 || c.chapter !== curve[i - 1].chapter)
   const every = Math.max(1, Math.ceil(chapterStarts.length / 12))
   return (
-    <svg className="shift-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Style shift along the book">
+    <svg className="shift-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={m.ov.seams.chart} direction="ltr">
       {chapterStarts.map((c, i) =>
         i % every === 0 ? (
           <g key={c.verse_id}>
@@ -89,11 +95,11 @@ function ShiftChart({ curve, seams, threshold }: { curve: CurvePoint[]; seams: S
       {seams.map((s) => (
         <g key={s.rank}>
           <circle cx={x(s.verse_id)} cy={y(s.shift)} r={4} className="chart-peak">
-            <title>{`${s.label}: ${s.shift.toFixed(2)}`}</title>
+            <title>{`${locale === 'he' ? s.label_he : s.label}: ${s.shift.toFixed(2)}`}</title>
           </circle>
           {s.rank <= 5 && (
             <text x={x(s.verse_id)} y={y(s.shift) - 7} textAnchor="middle" className="axis">
-              {s.label.split(' ').pop()}
+              {cv(s)}
             </text>
           )}
         </g>

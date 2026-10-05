@@ -1,19 +1,3 @@
-import type { Mode } from '../api/types'
-
-export const MODE_LABELS: Record<Mode, string> = {
-  lexical: 'Lexical',
-  semantic: 'Semantic',
-  fused: 'Fused',
-  structural: 'Structural',
-}
-
-export const MODE_HINTS: Record<Mode, string> = {
-  lexical: 'Shared wording: BM25 / TF-IDF over OSHB lemmas, formulas down-weighted',
-  semantic: 'Shared meaning: fine-tuned BEREL embeddings (CSLS)',
-  fused: 'Both, combined by weighted reciprocal rank fusion',
-  structural: 'Same grammatical shape, any words: BM25 / TF-IDF over n-grams of word forms (part of speech, verb form, state)',
-}
-
 /** Scores differ per mode (BM25, CSLS, RRF): show 3 significant digits. */
 export function formatScore(s: number): string {
   if (s === 0) return '0'
@@ -36,13 +20,3 @@ export function similarityLevel(cosine: number, lo = 0.3, hi = 0.9): number {
 export function similarityBand(cosine: number): number {
   return Math.min(4, Math.floor(similarityLevel(cosine) * 5))
 }
-
-export function unitTypeLabel(type: string): string {
-  return { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }[type] ?? type
-}
-
-/** q as a short label: the expected share of chance chains at least this strong. */
-export const qLabel = (q: number) => (q < 0.001 ? 'q < 0.001' : `q = ${q < 0.01 ? q.toFixed(3) : q.toFixed(2)}`)
-
-/** Line unit of an acrostic. */
-export const granularityLabel = (g: 'verse' | 'colon') => (g === 'verse' ? 'verse by verse' : 'half-verse by half-verse')

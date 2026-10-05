@@ -165,7 +165,7 @@ bible-similarity/
 │   └── src/
 │       ├── api/                    # types mirroring api/models.py, fetch client, TanStack Query hooks
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
-│       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape)
+│       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
 │       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, structure, acrostics, map, network, style, lemma, eval, about

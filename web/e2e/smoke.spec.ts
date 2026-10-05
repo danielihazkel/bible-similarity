@@ -100,3 +100,30 @@ async function checkA11y(page: Page) {
     expect(serious.map((v) => `${path}: ${v.id} (${v.nodes.length})`)).toEqual([])
   }
 }
+
+test('the Hebrew interface is right to left, persists and loads every page cleanly', async ({ page }) => {
+  test.setTimeout(120_000)
+  const errors = collectErrors(page)
+  await page.goto('/')
+  await page.getByRole('radio', { name: 'עב' }).click()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await expect(page.locator('h1').first()).toHaveText('עיון')
+  for (const [path] of PAGES) {
+    await page.goto(path)
+    await expect(page.locator('h1').first()).not.toBeEmpty()
+    await expect(page.locator('.status.error')).toHaveCount(0)
+    // no English words left in the headings
+    expect(await page.locator('h1, h2').allTextContents()).not.toContainEqual(expect.stringMatching(/\b(the|of|and|in)\b/))
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  expect(overflow).toBeLessThanOrEqual(1)
+  expect(errors).toEqual([])
+})
+
+test('the Hebrew interface has no serious accessibility violations', async ({ page }) => {
+  test.setTimeout(150_000)
+  await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
+  await checkA11y(page)
+})

@@ -187,6 +187,8 @@ def wordplay(
                 b_he=gloss.get(r["b_lemma"], r["b_form"]),
                 a_label=labels[r["a_vid"]][0],
                 b_label=labels[r["b_vid"]][0],
+                a_label_he=labels[r["a_vid"]][1],
+                b_label_he=labels[r["b_vid"]][1],
                 verses=[verses[v] for v in dict.fromkeys((r["a_vid"], r["b_vid"]))],
             )
             for r in rows
@@ -425,6 +427,7 @@ def alliteration(
             Alliteration(
                 verse=verses[r["verse_id"]],
                 label=labels[r["verse_id"]][0],
+                label_he=labels[r["verse_id"]][1],
                 words=json.loads(r["words"]),
                 **{k: r[k] for k in ("colon", "sound", "count", "n_words", "p", "q")},
             )
@@ -451,8 +454,8 @@ def rhymes(
     verses = queries.verses_by_id(conn, vids)
     labels = queries.verse_labels(conn, [v for r in rows for v in (r["start_vid"], r["end_vid"])])
 
-    def label(a: int, b: int) -> str:
-        return labels[a][0] if a == b else f"{labels[a][0]} – {labels[b][0]}"
+    def label(a: int, b: int, lang: int = 0) -> str:
+        return labels[a][lang] if a == b else f"{labels[a][lang]} – {labels[b][lang]}"
 
     return {
         "book": book,
@@ -465,6 +468,7 @@ def rhymes(
                 start_vid=r["start_vid"],
                 end_vid=r["end_vid"],
                 label=label(r["start_vid"], r["end_vid"]),
+                label_he=label(r["start_vid"], r["end_vid"], 1),
                 n_cola=r["n_cola"],
                 ending=r["ending"],
                 members=[tuple(m) for m in json.loads(r["members"])],

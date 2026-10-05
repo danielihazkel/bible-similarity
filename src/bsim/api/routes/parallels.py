@@ -146,7 +146,13 @@ def changes(
                 a_he=g["a_form"] if by_form else _key_he(g["a_key"], gloss),
                 b_he=g["b_form"] if by_form else _key_he(g["b_key"], gloss),
                 examples=[
-                    ChangeExample(**e, a_label=labels[e["a"]][0], b_label=labels[e["b"]][0])
+                    ChangeExample(
+                        **e,
+                        a_label=labels[e["a"]][0],
+                        b_label=labels[e["b"]][0],
+                        a_label_he=labels[e["a"]][1],
+                        b_label_he=labels[e["b"]][1],
+                    )
                     for e in ex[group(g)]
                 ],
             )

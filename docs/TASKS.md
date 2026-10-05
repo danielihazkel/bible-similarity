@@ -383,11 +383,14 @@ Phase 1 (M38a): infrastructure, chrome and core flow
 - [x] Tests: `ref_he` (pytest); catalog parity, Hebrew plurals and numerals, language toggle and persistence, Browse / Search / Unit in Hebrew (vitest)
 
 Phase 2 (M38b): analysis pages
-- [ ] Map, Network, Names, Stylometry, Discoveries, Phrases, Sequences / Sequence, Changes (+ rewrites, word pairs, sound), Action sequences, Poetry, Wordplay, Structure, Acrostics, Evaluation; StructurePanel, SeamsPanel
-- [ ] Hebrew labels from the API where only English ones exist (`*_label_he`: seams, names first / last, change examples, wordplay, alliteration, rhyme, stylometry points)
-- [ ] Charts in Hebrew (book names, `label_he`) with left-to-right axes; About as `AboutEn` / `AboutHe`
-- [ ] Remove the English-only label tables left in `lib/format.ts` and `lib/diff.ts`
-- [ ] Tests: the new label fields (pytest); analysis pages in Hebrew (vitest); e2e: switch to Hebrew, reload, RTL and Hebrew nav
+- [x] Parallels (`i18n/pages/parallels.ts`): Discoveries, Phrases, Sequences / Sequence, Changes + rewrites, Action sequences
+- [x] Patterns (`i18n/pages/patterns.ts`): Structure + StructurePanel, Acrostics, Poetry + word pairs, Wordplay + alliteration / rhyme
+- [x] Overview (`i18n/pages/overview.ts`): Map, Network, Style + SeamsPanel, Evaluation, Names; Scatter and BookHeatmap
+- [x] API `*_label_he` next to the English-only labels: change examples, wordplay pairs, names first / last, seams, alliteration, rhyme
+- [x] Charts in the interface language with left-to-right geometry (`dir="ltr"`); seam peaks from chapter / verse, not the English label; About as `AboutEn` / `AboutHe`
+- [x] English-only label tables removed from `lib/format.ts` and `lib/diff.ts`; Structure CSV columns keyed separately from their display labels
+- [x] Tests: the new label fields (pytest); every page group in Hebrew (vitest); e2e: switch, reload, every page in Hebrew without errors or overflow, axe in Hebrew
 
 ✔ Phase 1: the core flow (browse → unit → compare / search / concordance) reads fully in Hebrew and RTL; English is unchanged.
+✔ Phase 2: every page reads in Hebrew; 68 / 68 e2e (desktop and phone) including the Hebrew run and its accessibility check.
 

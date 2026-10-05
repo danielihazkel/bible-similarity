@@ -9,6 +9,9 @@
 
 import { hebrewNumeral } from '../lib/hebrew'
 import type { Messages } from './en'
+import { ovHe } from './pages/overview'
+import { parHe } from './pages/parallels'
+import { patHe } from './pages/patterns'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -356,4 +359,7 @@ export const he: Messages = {
     verses: 'פסוקים',
     versesIn: (book: string) => `פסוקים ב${book}`,
   },
+  par: parHe,
+  pat: patHe,
+  ov: ovHe,
 }

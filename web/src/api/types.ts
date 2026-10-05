@@ -461,6 +461,8 @@ export interface ChangeExample {
   b: number
   a_label: string
   b_label: string
+  a_label_he: string
+  b_label_he: string
 }
 
 export interface ChangeGroup {
@@ -561,6 +563,8 @@ export interface WordplayPair {
   q: number
   a_label: string
   b_label: string
+  a_label_he: string
+  b_label_he: string
   verses: Verse[]
 }
 
@@ -611,6 +615,8 @@ export interface EntityDetail {
   entity: Entity
   first_label: string
   last_label: string
+  first_label_he: string
+  last_label_he: string
   by_book: BookCount[]
   partners: EntityPartner[]
   links: { a: string; b: string; n_verses: number; g2: number }[]
@@ -626,6 +632,7 @@ export interface Seam {
   book_id: number
   verse_id: number
   label: string
+  label_he: string
   shift: number
   threshold: number
   rank: number
@@ -820,6 +827,7 @@ export interface WordPairsResponse {
 export interface Alliteration {
   verse: Verse
   label: string
+  label_he: string
   colon: number
   sound: string
   count: number
@@ -842,6 +850,7 @@ export interface Rhyme {
   start_vid: number
   end_vid: number
   label: string
+  label_he: string
   n_cola: number
   ending: string
   members: [number, number][]

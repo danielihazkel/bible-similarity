@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 
 /** A plotted unit: `x`, `y` in 0..1. */
@@ -34,6 +35,7 @@ const BUCKET = 24 // hover lookup grid, in canvas pixels
  * a bucket grid instead of scanning every point.
  */
 export function Scatter<P extends ScatterPoint>({ points, width: W, height: H, label, fill, radius, front, caption, idle }: Props<P>) {
+  const m = useT()
   const ref = useRef<HTMLCanvasElement>(null)
   const overlay = useRef<HTMLCanvasElement>(null)
   const navigate = useNavigate()
@@ -117,7 +119,8 @@ export function Scatter<P extends ScatterPoint>({ points, width: W, height: H, l
   }
 
   return (
-    <figure className="scatter">
+    // left to right in either interface language: the axes have no reading direction to mirror
+    <figure className="scatter" dir="ltr">
       <div className="scatter-stack">
       <canvas
         ref={ref}
@@ -125,7 +128,7 @@ export function Scatter<P extends ScatterPoint>({ points, width: W, height: H, l
         height={H * dpr}
         style={{ aspectRatio: `${W} / ${H}`, cursor: current ? 'pointer' : 'default' }}
         role="img"
-        aria-label={`${label}. Use the arrow keys to step through points and Enter to open one.`}
+        aria-label={m.ov.chart.scatterKeys(label)}
         tabIndex={0}
         onKeyDown={onKey}
         onMouseMove={(e) => setHover(nearest(e))}
@@ -144,7 +147,7 @@ export function Scatter<P extends ScatterPoint>({ points, width: W, height: H, l
         aria-hidden="true"
       />
       </div>
-      <figcaption className="muted small" aria-live="polite">
+      <figcaption className="muted small" aria-live="polite" dir="auto">
         {current ? caption(current) : idle}
       </figcaption>
     </figure>

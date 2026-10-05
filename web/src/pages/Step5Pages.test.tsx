@@ -101,11 +101,11 @@ describe('WordplayPage sound views', () => {
   it('shows alliteration and rhyme with their words marked', async () => {
     const { container } = mount('/wordplay?view=alliteration', '/wordplay', <WordplayPage />, {
       '/api/alliteration': page(
-        [{ verse: verse(17, ['פַּחַד', 'וָפַחַת', 'וָפָח', 'עָלֶיךָ']), label: 'Isaiah 24:17', colon: 0, sound: 'פ', count: 3, n_words: 3, words: [0, 1, 2], p: 0.007, q: 0.55 }],
+        [{ verse: verse(17, ['פַּחַד', 'וָפַחַת', 'וָפָח', 'עָלֶיךָ']), label: 'Isaiah 24:17', label_he: 'ישעיהו כד:יז', colon: 0, sound: 'פ', count: 3, n_words: 3, words: [0, 1, 2], p: 0.007, q: 0.55 }],
         { book: null, unit: null },
       ),
       '/api/rhymes': page(
-        [{ start_vid: 8, end_vid: 8, label: 'Job 10:8', n_cola: 3, ending: 'נִי', members: [[8, 1], [8, 3]], verses: [verse(8, ['יָדֶיךָ', 'עֲצָּבוּנִי', 'וַיַּעֲשׂוּנִי', 'וַתְּבַלְּעֵנִי'])], p: 1e-8, q: 1e-7 }],
+        [{ start_vid: 8, end_vid: 8, label: 'Job 10:8', label_he: 'איוב י:ח', n_cola: 3, ending: 'נִי', members: [[8, 1], [8, 3]], verses: [verse(8, ['יָדֶיךָ', 'עֲצָּבוּנִי', 'וַיַּעֲשׂוּנִי', 'וַתְּבַלְּעֵנִי'])], p: 1e-8, q: 1e-7 }],
         { book: null, max_q: 0.05 },
       ),
     })

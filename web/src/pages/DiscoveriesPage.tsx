@@ -6,8 +6,11 @@ import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { formatScore, MODE_HINTS, unitTypeLabel } from '../lib/format'
+import { UnitName } from '../components/UnitName'
+import { useLocale, useT } from '../context/localeContext'
+import { formatScore } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
+import { bookOption, unitLabel } from '../lib/names'
 import { MODES, parsePage, useQueryParams } from '../lib/urlState'
 
 const UNIT_TYPES: UnitType[] = ['verse', 'chapter', 'pericope', 'parasha']
@@ -21,6 +24,7 @@ function parseType(v: string | null): UnitType {
 
 
 export function DiscoveriesPage() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const unitType = parseType(params.get('type'))
   const mode = MODES.includes(params.get('mode') as Mode) ? (params.get('mode') as Mode) : DEFAULT_MODE
@@ -37,47 +41,48 @@ export function DiscoveriesPage() {
 
   return (
     <div className="page discoveries-page">
-      <h1>Discoveries</h1>
+      <h1>{m.par.discoveries.title}</h1>
       <p className="lede">
-        The strongest pairs that Sefaria does <em>not</em> cross-reference: one unit ranks the other in its top 10,
-        no Sefaria link joins them, and neighbouring verses are left out.
+        {m.par.discoveries.ledeBefore}
+        <em>{m.par.discoveries.ledeNot}</em>
+        {m.par.discoveries.ledeAfter}
       </p>
       <div className="toolbar">
         <Segmented
-          label="Unit type"
+          label={m.units.unitType}
           value={unitType}
           onChange={(t) => set({ type: t === 'verse' ? null : t })}
-          options={UNIT_TYPES.map((t) => ({ value: t, label: unitTypeLabel(t) }))}
+          options={UNIT_TYPES.map((t) => ({ value: t, label: m.units.type(t) }))}
         />
-        <ModeToggle value={mode} onChange={(m) => set({ mode: m === DEFAULT_MODE ? null : m })} />
+        <ModeToggle value={mode} onChange={(v) => set({ mode: v === DEFAULT_MODE ? null : v })} />
         <label className="control">
-          <span>Book</span>
+          <span>{m.par.book}</span>
           <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.par.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
         </label>
         <label className="check">
           <input type="checkbox" checked={crossBook} onChange={(e) => set({ cross: e.target.checked ? '1' : null })} />
-          Different books only
+          {m.par.differentBooks}
         </label>
       </div>
-      <p className="muted small">{MODE_HINTS[mode]}.</p>
+      <p className="muted small">{m.modes.hints[mode]}.</p>
 
       {disc.isPending ? (
         <Loading />
       ) : disc.error ? (
         <ErrorBox error={disc.error} />
       ) : disc.data.items.length === 0 ? (
-        <EmptyList total={disc.data.total} limit={disc.data.limit}>No unlinked pairs match these filters.</EmptyList>
+        <EmptyList total={disc.data.total} limit={disc.data.limit}>{m.par.discoveries.none}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {disc.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {m.par.pairsPage(disc.data.total, page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'discoveries', params: discoveriesParams(query) }}
@@ -106,9 +111,12 @@ export function DiscoveriesPage() {
 }
 
 function DiscoveryCard({ d }: { d: Discovery }) {
+  const { m, locale } = useLocale()
+  const a = unitLabel(d.a, locale)
+  const b = unitLabel(d.b, locale)
   const ranks = [
-    d.rank_ab !== null && `${d.b.label_en} is #${d.rank_ab} for ${d.a.label_en}`,
-    d.rank_ba !== null && `${d.a.label_en} is #${d.rank_ba} for ${d.b.label_en}`,
+    d.rank_ab !== null && m.par.discoveries.rankFor(b, d.rank_ab, a),
+    d.rank_ba !== null && m.par.discoveries.rankFor(a, d.rank_ba, b),
   ].filter(Boolean)
   return (
     <li className="disc">
@@ -117,13 +125,13 @@ function DiscoveryCard({ d }: { d: Discovery }) {
           {formatScore(d.score)}
         </span>
         {d.rank_ab !== null && d.rank_ba !== null && (
-          <span className="mutual-tag" title="Each is in the other's top 10">
-            mutual
+          <span className="mutual-tag" title={m.par.discoveries.mutualTitle}>
+            {m.par.discoveries.mutual}
           </span>
         )}
         <span className="hit-actions">
-          <Link className="linkish" to={compareLink(d.a.unit_id, d.b.unit_id)} title="Side-by-side comparison">
-            Compare
+          <Link className="linkish" to={compareLink(d.a.unit_id, d.b.unit_id)} title={m.hit.compareTitle}>
+            {m.hit.compare}
           </Link>
         </span>
       </div>
@@ -136,13 +144,11 @@ function DiscoveryCard({ d }: { d: Discovery }) {
 }
 
 function Side({ unit, verse, preview }: { unit: UnitSummary; verse: Verse | null; preview: string | null }) {
+  const m = useT()
   return (
     <div className="disc-side">
       <Link className="hit-ref" to={unitLink(unit.unit_id)}>
-        {unit.label_en}
-        <span className="he-label" dir="rtl" lang="he">
-          {unit.label_he}
-        </span>
+        <UnitName en={unit.label_en} he={unit.label_he} />
       </Link>
       {verse ? (
         <p className="hit-text">
@@ -152,7 +158,7 @@ function Side({ unit, verse, preview }: { unit: UnitSummary; verse: Verse | null
         preview && (
           <p className="hit-text preview">
             <HebrewPlain text={preview} />
-            {unit.n_verses > 1 && <span className="muted"> … ({unit.n_verses} verses)</span>}
+            {unit.n_verses > 1 && <span className="muted">{m.hit.moreVerses(unit.n_verses)}</span>}
           </p>
         )
       )}

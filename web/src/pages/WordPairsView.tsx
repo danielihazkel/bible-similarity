@@ -3,14 +3,17 @@ import { useWordPairs, wordPairsParams } from '../api/hooks'
 import { ExportCsv } from '../components/ExportCsv'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { qLabel } from '../lib/format'
+import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
+import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
 
 /** Fixed word pairs: lemmas that answer each other across the two members of parallel lines. */
 export function WordPairsView() {
+  const { m, locale } = useLocale()
+  const t = m.pat.wordPairs
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
   const all = params.get('pq') === 'all'
@@ -24,16 +27,11 @@ export function WordPairsView() {
   )
   return (
     <>
-      <p className="lede">
-        Hebrew poets answer a word in the first half of a line with a fixed partner in the second: ארץ // תבל, יעקב //
-        ישראל, צדיק // רשע. Counted over every line whose halves score as parallel (and pairs of verses that form one line),
-        these are the lemma pairs found together across the halves far more often than their frequencies predict, in at
-        least three chapters.
-      </p>
+      <p className="lede">{t.lede}</p>
       <div className="toolbar">
         <label className="check">
           <input type="checkbox" checked={all} onChange={(e) => update({ pq: e.target.checked ? 'all' : null, page: null })} />
-          Include q &gt; 0.05
+          {m.pat.includeQ}
         </label>
       </div>
       {res.isPending ? (
@@ -41,11 +39,11 @@ export function WordPairsView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No word pairs.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {m.pat.pairs(res.data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'word-pairs', params: wordPairsParams(query) }}
@@ -59,17 +57,17 @@ export function WordPairsView() {
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
               <thead>
                 <tr>
-                  <th>First half</th>
+                  <th>{t.first}</th>
                   <th aria-hidden="true" />
-                  <th>Second half</th>
-                  <th className="num" title="Parallel lines with the pair / expected by chance">
-                    Lines
+                  <th>{t.second}</th>
+                  <th className="num" title={t.linesTitle}>
+                    {t.lines}
                   </th>
-                  <th className="num" title="The pair in the other order">
-                    Reversed
+                  <th className="num" title={t.reversedTitle}>
+                    {t.reversed}
                   </th>
                   <th>q</th>
-                  <th>Examples</th>
+                  <th>{t.examples}</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,11 +86,11 @@ export function WordPairsView() {
                       {w.n} <span className="muted small">/ {w.expected.toFixed(1)}</span>
                     </td>
                     <td className="num">{w.reverse}</td>
-                    <td className={`small ${w.q <= 0.05 ? 'q-strong' : 'muted'}`}>{qLabel(w.q)}</td>
+                    <td className={`small ${w.q <= 0.05 ? 'q-strong' : 'muted'}`}>{m.q(w.q)}</td>
                     <td className="change-examples small">
                       {w.examples.slice(0, 3).map((e) => (
                         <Link key={e.verse_id} to={unitLink(`v:${e.verse_id}`, '?halves=1')}>
-                          {e.label_en}
+                          {unitLabel(e, locale)}
                         </Link>
                       ))}
                     </td>

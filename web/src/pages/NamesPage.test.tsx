@@ -16,6 +16,8 @@ const DETAIL: EntityDetail = {
   entity: moses,
   first_label: 'Exodus 2:10',
   last_label: 'Malachi 3:22',
+  first_label_he: 'שמות ב:י',
+  last_label_he: 'מלאכי ג:כב',
   by_book: [{ book_id: 1, n_verses: 290 }],
   partners: [
     { lemma: '175', he: 'אהרן', kind: 'person', n_verses: 141, expected: 2.1, g2: 900 },

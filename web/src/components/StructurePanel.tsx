@@ -2,18 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { useStructure } from '../api/hooks'
 import type { Leitwort, StructureBasis, StructureScore, Verse } from '../api/types'
+import { useT } from '../context/localeContext'
 import { compareLink } from '../lib/links'
 import { Segmented } from './Controls'
 import { ErrorBox, Loading } from './Status'
 
 type Basis = 'semantic' | 'lexical'
-
-const BASIS_HINT: Record<Basis, string> = {
-  semantic: 'cosine of the semantic verse embeddings',
-  lexical: 'cosine of idf-weighted lemma bags (shared rare words)',
-}
-
-const pct = (p: number) => `${Math.round(p * 100)}th percentile`
 
 interface Props {
   unitId: string
@@ -25,39 +19,38 @@ interface Props {
 /** Inner structure of a chapter / pericope / parasha: self-similarity heatmap, inclusio, chiasm,
  * internal echoes and Leitworte (DESIGN.md §16.2). */
 export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
+  const m = useT()
+  const t = m.pat.panel
   const res = useStructure(unitId)
   const [basis, setBasis] = useState<Basis>('semantic')
-  if (res.isPending) return <Loading label="Computing structure…" />
+  if (res.isPending) return <Loading label={t.computing} />
   if (res.error) return <ErrorBox error={res.error} />
   const data = res.data[basis]
   const label = (vid: number) => {
     const v = verses.find((x) => x.verse_id === vid)
-    return v ? `${v.chapter}:${v.verse}` : String(vid)
+    return v ? m.cv(v.chapter, v.verse) : String(vid)
   }
   return (
     <div className="structure-panel">
       <div className="toolbar">
         <Segmented
-          label="Similarity basis"
+          label={t.basis}
           value={basis}
           onChange={setBasis}
           options={[
-            { value: 'semantic', label: 'Semantic', title: BASIS_HINT.semantic },
-            { value: 'lexical', label: 'Lexical', title: BASIS_HINT.lexical },
+            { value: 'semantic', label: m.modes.names.semantic, title: t.hints.semantic },
+            { value: 'lexical', label: m.modes.names.lexical, title: t.hints.lexical },
           ]}
         />
-        <span className="muted small">Verse × verse similarity: {BASIS_HINT[basis]}.</span>
+        <span className="muted small">{t.verseByVerse(t.hints[basis])}</span>
       </div>
       <div className="structure-grid">
         <Heatmap basis={data} labels={res.data.verse_ids.map(label)} />
         <div className="structure-facts">
-          <Fact title="Inclusio" score={data.inclusio} label={label} hint="opening and closing verses echo each other" />
-          <Fact title="Chiasm" score={data.chiasm} label={label} hint="mirror pairs (1st ↔ last, 2nd ↔ second-to-last …) are more alike than other pairs at the same distance" />
-          <p className="muted small">
-            Percentiles compare the unit with itself (random pairs of the same unit). Across thousands of units some reach the
-            95th by chance: treat them as leads to read.
-          </p>
-          <h3>Strongest internal echoes</h3>
+          <Fact title={t.inclusio} score={data.inclusio} label={label} hint={t.inclusioHint} />
+          <Fact title={t.chiasm} score={data.chiasm} label={label} hint={t.chiasmHint} />
+          <p className="muted small">{t.note}</p>
+          <h3>{t.echoes}</h3>
           <ol className="echoes">
             {data.echoes.map((e) => (
               <li key={`${e.a}-${e.b}`}>
@@ -72,8 +65,8 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
       </div>
       {res.data.leitworte.length > 0 && (
         <div className="leitworte">
-          <h3>Leitworte</h3>
-          <p className="muted small">Lemmas this unit uses far more than the rest of the Tanakh (log-likelihood). Click to highlight.</p>
+          <h3>{t.leitworte}</h3>
+          <p className="muted small">{t.leitworteLede}</p>
           <div className="chips">
             {res.data.leitworte.map((k) => (
               <button
@@ -81,7 +74,7 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
                 type="button"
                 className={`chip ${lemma === k.lemma ? 'on' : ''}`}
                 aria-pressed={lemma === k.lemma}
-                title={`${k.count} times here, ${k.expected.toFixed(1)} expected · G² ${k.g2.toFixed(0)}`}
+                title={t.leitwortTitle(k.count, k.expected.toFixed(1), k.g2.toFixed(0))}
                 onClick={() => onLemma(lemma === k.lemma ? undefined : k.lemma, k)}
               >
                 <span dir="rtl" lang="he">
@@ -99,17 +92,18 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
 }
 
 function Fact({ title, score, label, hint }: { title: string; score: StructureScore | null; label: (v: number) => string; hint: string }) {
+  const t = useT().pat.panel
   return (
     <p className="fact">
       <strong>{title}</strong> <span className="muted small">({hint})</span>
       <br />
       {score === null ? (
-        <span className="muted">Too few verses.</span>
+        <span className="muted">{t.tooFew}</span>
       ) : (
         <>
-          <span className={score.pct >= 0.95 ? 'fact-strong' : undefined}>{pct(score.pct)}</span>
+          <span className={score.pct >= 0.95 ? 'fact-strong' : undefined}>{t.percentile(score.pct)}</span>
           {' · '}
-          {score.pair ? `${label(score.pair[0])} ↔ ${label(score.pair[1])}, ` : 'mean mirror similarity '}
+          {score.pair ? `${label(score.pair[0])} ↔ ${label(score.pair[1])}, ` : t.meanMirror}
           {score.value.toFixed(2)}
           {score.z !== null && score.z !== undefined && ` · z ${score.z.toFixed(1)}`}
         </>
@@ -129,6 +123,7 @@ function cssColor(name: string, fallback: [number, number, number]): [number, nu
 /** Canvas heatmap; mirror pairs outlined (the chiasm diagonal). Drawn at the screen's pixel
  * density; the mouse or, once focused, the arrow keys read out a cell. */
 function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] }) {
+  const t = useT().pat.panel
   const ref = useRef<HTMLCanvasElement>(null)
   const [cursor, setCursor] = useState<[number, number]>()
   const n = basis.matrix.length
@@ -176,13 +171,13 @@ function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] })
   }
   const clamp = (v: number) => Math.min(n - 1, Math.max(0, v))
   return (
-    <figure className="heatmap">
+    <figure className="heatmap" dir="ltr">
       <canvas
         ref={ref}
         style={{ width: size, height: size }}
         tabIndex={0}
         role="img"
-        aria-label="Verse-by-verse similarity heatmap; arrow keys move between cells"
+        aria-label={t.heatmap}
         onFocus={() => setCursor((c) => c ?? [0, n - 1])}
         onBlur={() => setCursor(undefined)}
         onKeyDown={(e) => {
@@ -202,7 +197,7 @@ function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] })
       <figcaption className="muted small" aria-live="polite">
         {cursor
           ? `${labels[cursor[0]]} ↔ ${labels[cursor[1]]}: ${basis.matrix[cursor[0]][cursor[1]].toFixed(2)}`
-          : 'Darker = more similar · outlined cells = mirror pairs'}
+          : t.heatmapKey}
       </figcaption>
     </figure>
   )

@@ -2,15 +2,16 @@ import { Link } from 'react-router'
 import { useBooks, useTypeScenes } from '../api/hooks'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { qLabel } from '../lib/format'
+import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
+import { bookOption, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
-const Q_TITLE = 'Expected share of chance alignments among those at least this strong (verb order shuffled inside each passage)'
 
 /** Passages whose actions follow the same order: the verbs of two pericopes aligned. */
 export function TypeScenesPage() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
@@ -30,36 +31,28 @@ export function TypeScenesPage() {
 
   return (
     <div className="page typescenes-page">
-      <h1>Action sequences</h1>
-      <p className="lede">
-        Two passages that tell the same actions in the same order, whatever the names and wording: the verbs of every
-        pericope are aligned with those of others (rare verbs count more), and each alignment is compared with the same
-        passages' verbs shuffled. The strongest are court tales (Daniel 3 and 6: accused, thrown in, rescued), ritual
-        procedures and visions retold.
-      </p>
-      <p className="muted small">
-        The classic literary type-scenes (meetings at a well, annunciations to barren women) vary their verbs too much to
-        stand out this way: they score little above random pairs of chapters.
-      </p>
+      <h1>{m.par.typeScenes.title}</h1>
+      <p className="lede">{m.par.typeScenes.lede}</p>
+      <p className="muted small">{m.par.typeScenes.note}</p>
       <div className="toolbar">
         <label className="control">
-          <span>Book</span>
+          <span>{m.par.book}</span>
           <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.par.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
         </label>
         <label className="check">
           <input type="checkbox" checked={all} onChange={(e) => set({ q: e.target.checked ? 'all' : null })} />
-          Include q &gt; 0.05
+          {m.par.includeQ}
         </label>
-        <label className="check" title="Pairs joined by a parallel sequence: the same text told twice">
+        <label className="check" title={m.par.typeScenes.textualTitle}>
           <input type="checkbox" checked={showTextual} onChange={(e) => set({ textual: e.target.checked ? '1' : null })} />
-          Include textual parallels
+          {m.par.typeScenes.textual}
         </label>
       </div>
       {res.isPending ? (
@@ -67,27 +60,27 @@ export function TypeScenesPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No aligned passages for these filters.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.typeScenes.none}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {m.par.pairsPage(res.data.total, page, pages)}
           </p>
           <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
             {res.data.items.map((t) => (
               <li key={`${t.a.unit_id}|${t.b.unit_id}`} className="disc">
                 <div className="hit-head">
-                  <Link to={unitLink(t.a.unit_id)}>{t.a.label_en}</Link>
+                  <Link to={unitLink(t.a.unit_id)}>{unitLabel(t.a, locale)}</Link>
                   <span className="muted">↔</span>
-                  <Link to={unitLink(t.b.unit_id)}>{t.b.label_en}</Link>
-                  <span className="phrase-tag">{t.n_matches} actions in order</span>
-                  <span className={`small ${t.q <= 0.05 ? 'q-strong' : 'muted'}`} title={Q_TITLE}>
-                    {qLabel(t.q)}
+                  <Link to={unitLink(t.b.unit_id)}>{unitLabel(t.b, locale)}</Link>
+                  <span className="phrase-tag">{m.par.typeScenes.actions(t.n_matches)}</span>
+                  <span className={`small ${t.q <= 0.05 ? 'q-strong' : 'muted'}`} title={m.par.typeScenes.qTitle}>
+                    {m.q(t.q)}
                   </span>
-                  {t.parallel_text && <span className="muted small">textual parallel</span>}
+                  {t.parallel_text && <span className="muted small">{m.par.typeScenes.textualTag}</span>}
                   <span className="hit-actions">
                     <Link className="linkish" to={compareLink(t.a.unit_id, t.b.unit_id)}>
-                      Compare
+                      {m.hit.compare}
                     </Link>
                   </span>
                 </div>

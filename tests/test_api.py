@@ -483,7 +483,17 @@ def test_changes(client):
     assert body["total"] == 3 and [g["count"] for g in body["items"]] == [1, 1, 1]
     g = next(g for g in body["items"] if g["a_key"] == "430")
     assert (g["a_he"], g["b_key"], g["b_he"]) == ("אלהים", None, None)
-    assert g["examples"] == [{"seq_id": 1, "a": 0, "b": 3, "a_label": "v:0", "b_label": "v:3"}]
+    assert g["examples"] == [
+        {
+            "seq_id": 1,
+            "a": 0,
+            "b": 3,
+            "a_label": "v:0",
+            "b_label": "v:3",
+            "a_label_he": "v:0",
+            "b_label_he": "v:3",
+        }
+    ]
     # form changes are grouped by written form
     [f] = client.get("/api/changes?op=form").json()["items"]
     assert (f["a_he"], f["b_he"], f["a_key"]) == ("בראשית", "ראשית", None)
@@ -536,6 +546,7 @@ def test_wordplay(client):
     assert [v["verse_id"] for v in first["verses"]] == [0]  # one verse
     assert [v["verse_id"] for v in second["verses"]] == [3, 4]  # crosses a verse boundary
     assert (second["a_label"], second["b_label"]) == ("v:3", "v:4")
+    assert (second["a_label_he"], second["b_label_he"]) == ("v:3", "v:4")
     ids = lambda q: [i["a_vid"] for i in client.get(f"/api/wordplay?{q}").json()["items"]]  # noqa: E731
     assert ids("kind=extension") == [3]
     assert ids("unit=c:0:2") == [3]
@@ -559,6 +570,7 @@ def test_entities(client):
 def test_entity_detail_and_unit(client):
     d = client.get("/api/entities/430").json()
     assert (d["entity"]["he"], d["first_label"], d["last_label"]) == ("אלהים", "v:0", "v:1")
+    assert (d["first_label_he"], d["last_label_he"]) == ("v:0", "v:1")
     assert d["by_book"] == [{"book_id": 0, "n_verses": 2}]
     assert [(p["lemma"], p["n_verses"]) for p in d["partners"]] == [("559", 2)]
     assert d["links"] == []  # one partner: no links among partners
@@ -578,7 +590,7 @@ def test_seams(client):
         (4, 2),
     ]
     [seam] = body["seams"]
-    assert (seam["verse_id"], seam["label"], seam["rank"]) == (3, "v:3", 1)
+    assert (seam["verse_id"], seam["label"], seam["label_he"], seam["rank"]) == (3, "v:3", "v:3", 1)
     assert seam["features"][0] == {"feature": "aramaic", "label": "ארמית", "z": -9.7}
     top = client.get("/api/seams").json()
     assert top["curve"] == [] and top["threshold"] is None and len(top["seams"]) == 1

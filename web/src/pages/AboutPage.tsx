@@ -1,13 +1,14 @@
 import { Link } from 'react-router'
 import { useMeta } from '../api/hooks'
 import { ErrorBox, Loading } from '../components/Status'
+import { useT } from '../context/localeContext'
 
 const show = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v))
 
-export function AboutPage() {
-  const meta = useMeta()
+// Prose is written per language (a component each) rather than pieced together from catalog strings.
+function AboutEn() {
   return (
-    <div className="page about-page">
+    <>
       <h1>About</h1>
       <p>
         For every verse, chapter, parasha and Masoretic pericope of the Hebrew Bible, this viewer lists the most
@@ -39,12 +40,61 @@ export function AboutPage() {
         <li>Models: BEREL 3.0 (Apache-2.0). Fonts: Noto Serif Hebrew / Ezra SIL (OFL).</li>
       </ul>
       <h2>Build</h2>
+    </>
+  )
+}
+
+function AboutHe() {
+  return (
+    <>
+      <h1>אודות</h1>
+      <p>
+        לכל פסוק, פרק, פרשה ופיסקה (פתוחה או סתומה) בתנ״ך מציג הממשק את היחידות הדומות לה ביותר מאותו סוג, בשלושה
+        אופנים:
+      </p>
+      <ul>
+        <li>
+          <b>מילולי</b>: ניסוח משותף (BM25 / TF-IDF על ערכי OSHB, ונוסחאות חוזרות במשקל מופחת).
+        </li>
+        <li>
+          <b>סמנטי</b>: משמעות משותפת (BEREL 3.0 שכוונן על ההפניות של ספריא, בציון CSLS).
+        </li>
+        <li>
+          <b>משולב</b>: שניהם יחד, במיזוג דירוגים הדדי משוקלל.
+        </li>
+      </ul>
+      <p>
+        חלוקת הפסוקים העברית וסדר הספרים של התנ״ך לאורך כל הדרך. נסו את <Link to="/unit/v:15291">תהלים יד:א</Link> או
+        את <Link to="/compare?a=c:8:22&b=c:26:18">שמואל ב כב ↔ תהלים יח</Link>. עד כמה כל שיטה מוצאת הפניות ידועות:{' '}
+        <Link to="/eval">הערכה</Link>.
+      </p>
+      <h2>מקורות ורישיונות</h2>
+      <ul>
+        <li>
+          טקסט התצוגה: ספריא, <i>מקרא על פי המסורה</i>, CC-BY-SA.
+        </li>
+        <li>ערכים ומורפולוגיה: Open Scriptures Hebrew Bible ‏(WLC בנחלת הכלל; מורפולוגיה CC BY 4.0).</li>
+        <li>גבולות הפרשות וההפניות: Sefaria-Export.</li>
+        <li>מודלים: BEREL 3.0 ‏(Apache-2.0). גופנים: Noto Serif Hebrew / Ezra SIL ‏(OFL).</li>
+      </ul>
+      <h2>בנייה</h2>
+    </>
+  )
+}
+
+export function AboutPage() {
+  const m = useT()
+  const meta = useMeta()
+  return (
+    <div className="page about-page">
+      {m.locale === 'he' ? <AboutHe /> : <AboutEn />}
       {meta.isPending ? (
         <Loading />
       ) : meta.error ? (
         <ErrorBox error={meta.error} />
       ) : (
-        <table className="meta-table">
+        // build keys and values are technical: left to right in either language
+        <table className="meta-table" dir="ltr">
           <tbody>
             {Object.entries({ ...meta.data.build, ...meta.data.runtime }).map(([key, v]) => (
               <tr key={key}>

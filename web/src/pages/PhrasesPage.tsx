@@ -3,6 +3,8 @@ import { EmptyList, Pager } from '../components/Pager'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { ErrorBox, Loading } from '../components/Status'
+import { useLocale } from '../context/localeContext'
+import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
@@ -13,6 +15,7 @@ const MAX_SPREAD = 3
 
 /** The strongest shared phrases in the Tanakh (local alignment of lemma streams). */
 export function PhrasesPage() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
@@ -36,40 +39,37 @@ export function PhrasesPage() {
 
   return (
     <div className="page phrases-page">
-      <h1>Shared phrases</h1>
-      <p className="lede">
-        Verse pairs whose lemmas line up as a phrase (same words in the same order, small gaps allowed). Rare words weigh
-        more and formulaic phrases barely count, so quotations, allusions and parallel accounts come first.
-      </p>
+      <h1>{m.par.phrases.title}</h1>
+      <p className="lede">{m.par.phrases.lede}</p>
       <div className="toolbar">
         <label className="control">
-          <span>Book</span>
+          <span>{m.par.book}</span>
           <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.par.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
         </label>
         <label className="control">
-          <span>At least</span>
+          <span>{m.par.phrases.atLeast}</span>
           <select value={minTokens} onChange={(e) => set({ min: e.target.value === '3' ? null : e.target.value })}>
             {MIN_TOKENS.map((n) => (
               <option key={n} value={n}>
-                {n} lemmas
+                {m.cards.lemmas(n)}
               </option>
             ))}
           </select>
         </label>
         <label className="check">
           <input type="checkbox" checked={crossBook} onChange={(e) => set({ cross: e.target.checked ? '1' : null })} />
-          Different books only
+          {m.par.differentBooks}
         </label>
-        <label className="check" title={`Show phrases shared by more than ${MAX_SPREAD} verses (idioms)`}>
+        <label className="check" title={m.par.phrases.recurringTitle(MAX_SPREAD)}>
           <input type="checkbox" checked={recurring} onChange={(e) => set({ recurring: e.target.checked ? '1' : null })} />
-          Include recurring phrases
+          {m.par.phrases.recurring}
         </label>
       </div>
 
@@ -78,11 +78,11 @@ export function PhrasesPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No shared phrases match these filters.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.phrases.none}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {m.par.pairsPage(res.data.total, page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'phrases', params: phrasesParams(query) }}

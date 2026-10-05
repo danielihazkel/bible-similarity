@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { LocaleProvider } from '../context/Locale'
+import type { Locale } from '../i18n'
 import type { Book, BookStyle, SeamsResponse, StylometryResponse } from '../api/types'
 import { SearchPage } from './SearchPage'
 import { StylometryPage } from './StylometryPage'
@@ -37,6 +39,7 @@ const SEAM = {
   book_id: 1,
   verse_id: 12,
   label: 'Psalms 3:1',
+  label_he: 'תהלים ג:א',
   shift: 0.9,
   threshold: 0.5,
   rank: 1,
@@ -55,7 +58,7 @@ const SEAMS_BOOK: SeamsResponse = {
 }
 const SEAMS_TOP: SeamsResponse = { book: null, block_words: 600, threshold: null, curve: [], seams: [SEAM] }
 
-function renderAt(path: string) {
+function renderAt(path: string, locale: Locale = 'en') {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -78,15 +81,17 @@ function renderAt(path: string) {
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/style" element={<StylometryPage />} />
-          <Route path="/search" element={<SearchPage />} />
-        </Routes>
-        <Location />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <LocaleProvider initial={locale}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/style" element={<StylometryPage />} />
+            <Route path="/search" element={<SearchPage />} />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </LocaleProvider>,
   )
 }
 
@@ -114,6 +119,24 @@ describe('StylometryPage', () => {
     const { container } = renderAt('/style')
     await waitFor(() => expect(container.querySelector('.seam-list')?.textContent).toContain('Psalms 3:1 · Psalms'))
     expect(container.querySelector('.shift-chart')).toBeNull()
+  })
+})
+
+describe('StylometryPage in Hebrew', () => {
+  it('names books, axes and seams in Hebrew and keeps the charts left to right', async () => {
+    const { container } = renderAt('/style?book=1', 'he')
+    expect(await screen.findByRole('heading', { name: 'סגנון' })).toBeTruthy()
+    expect(screen.getByText('הציר האופקי')).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'היכן הסגנון משתנה' })).toBeTruthy()
+    const profile = await screen.findByLabelText('הפרופיל הסגנוני של הספר')
+    expect(profile.textContent).toContain('תהילים')
+    expect(profile.textContent).toContain('בראשית (1.20)')
+    expect(container.textContent).not.toMatch(/Genesis|Psalms|Horizontal axis/)
+    await waitFor(() => expect(container.querySelector('.seam-list')?.textContent).toContain('תהלים ג:א'))
+    // the peak is labelled from the curve with Hebrew numerals, not parsed from the English label
+    expect([...container.querySelectorAll('.shift-chart text')].map((t) => t.textContent)).toContain('ג:א')
+    expect(container.querySelector('.scatter')?.getAttribute('dir')).toBe('ltr')
+    expect(container.querySelector('.table-wrap')?.getAttribute('dir')).toBe('ltr')
   })
 })
 

@@ -2,6 +2,9 @@
 // shape (checked by tsc). Static text is a string; text with values is a function, which formats
 // its own numbers and plurals. Scripture is never translated: these are interface strings only.
 
+import { ovEn } from './pages/overview'
+import { parEn } from './pages/parallels'
+import { patEn } from './pages/patterns'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -353,6 +356,9 @@ export const en = {
     verses: 'Verses',
     versesIn: (book: string) => `Verses in ${book}`,
   },
+  par: parEn,
+  pat: patEn,
+  ov: ovEn,
 }
 
 export type Messages = typeof en

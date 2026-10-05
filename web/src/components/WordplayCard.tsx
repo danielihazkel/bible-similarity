@@ -34,7 +34,13 @@ export function WordplayCard({ p }: { p: WordplayPair }) {
       {p.verses.map((v) => (
         <div key={v.verse_id} className="disc-side">
           <Link className="hit-ref" to={unitLink(`v:${v.verse_id}`)}>
-            {v.verse_id === p.a_vid ? p.a_label : p.b_label}
+            {v.verse_id === p.a_vid
+              ? m.locale === 'he'
+                ? p.a_label_he
+                : p.a_label
+              : m.locale === 'he'
+                ? p.b_label_he
+                : p.b_label}
           </Link>
           <p className="hit-text">
             <HebrewText verse={v} highlight={marks(v.verse_id)} />

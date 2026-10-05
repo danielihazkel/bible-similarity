@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ChangesResponse, RewriteProfile, RewritesResponse } from '../api/types'
+import { LocaleProvider } from '../context/Locale'
 import { ChangesPage } from './ChangesPage'
 
 const RES: ChangesResponse = {
@@ -24,7 +25,7 @@ const RES: ChangesResponse = {
       b_he: 'אלהים',
       count: 31,
       n_sequences: 9,
-      examples: [{ seq_id: 7, a: 15292, b: 15956, a_label: 'Psalms 14:2', b_label: 'Psalms 53:3' }],
+      examples: [{ seq_id: 7, a: 15292, b: 15956, a_label: 'Psalms 14:2', b_label: 'Psalms 53:3', a_label_he: 'תהלים יד:ב', b_label_he: 'תהלים נג:ג' }],
     },
   ],
 }
@@ -69,6 +70,37 @@ describe('ChangesPage', () => {
     fireEvent.click(screen.getByText('Added 1,632'))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/changes?op=added'))
     await waitFor(() => expect(calls.some((c) => c.includes('op=added'))).toBe(true))
+  })
+})
+
+describe('ChangesPage in Hebrew', () => {
+  it('names the kinds of change and the examples in Hebrew', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        const p = new URL(url, 'http://x').pathname
+        const body = p === '/api/books' ? [] : p === '/api/changes' ? RES : null
+        return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
+      }),
+    )
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <LocaleProvider initial="he">
+        <QueryClientProvider client={client}>
+          <MemoryRouter initialEntries={['/changes']}>
+            <Routes>
+              <Route path="/changes" element={<ChangesPage />} />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </LocaleProvider>,
+    )
+    expect(await screen.findByText('אלהים')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'במה נבדלות המקבילות' })).toBeTruthy()
+    expect(screen.getByText('הוחלף 1,963')).toBeTruthy()
+    expect(screen.getByText('תהלים יד:ב ← תהלים נג:ג').getAttribute('href')).toBe('/sequences/7')
+    expect(screen.getByRole('columnheader', { name: 'מוקדם' })).toBeTruthy()
+    expect(screen.queryByText('Earlier')).toBeNull()
   })
 })
 

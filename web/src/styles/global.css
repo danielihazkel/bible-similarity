@@ -961,6 +961,7 @@ button.chip {
 .rank-table td.on {
   background: var(--accent-soft);
 }
+.rank-table th.num,
 .rank-table td.num {
   text-align: end;
   font-variant-numeric: tabular-nums;

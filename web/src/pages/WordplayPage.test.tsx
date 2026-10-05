@@ -41,6 +41,8 @@ const RES: WordplayResponse = {
       q: 0.25,
       a_label: 'Isaiah 5:7',
       b_label: 'Isaiah 5:7',
+      a_label_he: 'ישעיהו ה:ז',
+      b_label_he: 'ישעיהו ה:ז',
       verses: [verse(7, ['וַיְקַו', 'לְמִשְׁפָּט', 'וְהִנֵּה', 'מִשְׂפָּח'])],
     },
   ],

@@ -8,8 +8,10 @@ import { HebrewText } from '../components/HebrewText'
 import { LinkBadge } from '../components/LinkBadge'
 import { Scatter } from '../components/Scatter'
 import { ErrorBox, Loading } from '../components/Status'
-import { unitTypeLabel } from '../lib/format'
+import { UnitName } from '../components/UnitName'
+import { useLocale, useT } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
+import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -22,6 +24,7 @@ const color = (i: number, alpha = 1) => `hsla(${HUES[i % HUES.length]}, 62%, ${i
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
 
 export function MapPage() {
+  const m = useT()
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
@@ -33,28 +36,25 @@ export function MapPage() {
 
   return (
     <div className="page map-page">
-      <h1>Map of the Tanakh</h1>
-      <p className="lede">
-        Every {unitTypeLabel(unitType).toLowerCase()} placed by meaning (t-SNE of the semantic embeddings): nearby points read
-        alike. Colours are thematic clusters, labelled by the lemmas they use most.
-      </p>
+      <h1>{m.ov.map.title}</h1>
+      <p className="lede">{m.ov.map.lede(unitType)}</p>
       <div className="toolbar">
         <Segmented
-          label="Unit type"
+          label={m.units.unitType}
           value={unitType}
           onChange={(t) => {
             setFocus(undefined)
             update({ type: t === 'chapter' ? null : t })
           }}
-          options={TYPES.map((t) => ({ value: t, label: unitTypeLabel(t) }))}
+          options={TYPES.map((t) => ({ value: t, label: m.units.type(t) }))}
         />
         <Segmented
-          label="Colour by"
+          label={m.ov.map.colourBy}
           value={colorBy}
           onChange={(c) => update({ color: c === 'cluster' ? null : c })}
           options={[
-            { value: 'cluster', label: 'Clusters' },
-            { value: 'section', label: 'Torah / Prophets / Writings' },
+            { value: 'cluster', label: m.ov.map.clusters },
+            { value: 'section', label: m.ov.map.sections },
           ]}
         />
       </div>
@@ -73,7 +73,7 @@ export function MapPage() {
             focus={focus}
           />
           {colorBy === 'cluster' ? (
-            <ul className="cluster-legend" aria-label="Clusters">
+            <ul className="cluster-legend" aria-label={m.ov.map.clusters}>
               {map.data.clusters.map((c) => (
                 <li key={c.cluster}>
                   <button
@@ -96,7 +96,7 @@ export function MapPage() {
               {SECTIONS.map((s, i) => (
                 <li key={s}>
                   <span className="legend-row">
-                    <span className="swatch" style={{ background: color(i) }} /> {s}
+                    <span className="swatch" style={{ background: color(i) }} /> {m.units.sections[s] ?? s}
                   </span>
                 </li>
               ))}
@@ -105,19 +105,16 @@ export function MapPage() {
         </div>
       )}
 
-      <h2>How the books talk to each other</h2>
-      <p className="muted small">
-        Cross-book verse pairs in each other's fused top 10, relative to what the books' sizes would predict (lift; darker =
-        more). Click a cell for its strongest pairs.
-      </p>
+      <h2>{m.ov.map.affinity}</h2>
+      <p className="muted small">{m.ov.map.affinityLede}</p>
       <div className="toolbar">
         <Segmented
-          label="Book order"
+          label={m.ov.map.bookOrder}
           value={order}
           onChange={(o) => update({ order: o === 'related' ? null : o })}
           options={[
-            { value: 'related', label: 'Related books together' },
-            { value: 'canon', label: 'Canon order' },
+            { value: 'related', label: m.ov.map.related },
+            { value: 'canon', label: m.ov.map.canon },
           ]}
         />
       </div>
@@ -127,6 +124,7 @@ export function MapPage() {
 }
 
 function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; books: Book[]; colorBy: ColorBy; focus?: number }) {
+  const m = useT()
   const section = useMemo(() => new Map(books.map((b) => [b.book_id, SECTIONS.indexOf(b.section)])), [books])
   const r = points.length > 1000 ? 3 : points.length > 100 ? 4.5 : 8
   return (
@@ -134,25 +132,22 @@ function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; boo
       points={points}
       width={720}
       height={560}
-      label="Map of units by meaning"
+      label={m.ov.map.scatter}
       fill={(p) => color(colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0), focus !== undefined && p.cluster !== focus ? 0.12 : 0.85)}
       radius={() => r}
       front={focus === undefined ? undefined : (p) => p.cluster === focus}
       caption={(p) => (
         <>
-          {p.label_en}{' '}
-          <span dir="rtl" lang="he">
-            {p.label_he}
-          </span>{' '}
-          · {p.n_verses} verses · click to open
+          <UnitName en={p.label_en} he={p.label_he} spaced /> {m.ov.map.point(p.n_verses)}
         </>
       )}
-      idle="Hover a point; click to open the unit."
+      idle={m.ov.map.idle}
     />
   )
 }
 
 function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order; pair: string | null; onPair: (p: string | null) => void }) {
+  const { m, locale } = useLocale()
   const aff = useAffinity()
   const [a, b] = (pair ?? '').split('-').map(Number)
   const examples = useAffinityPairs(Number.isInteger(a) && Number.isInteger(b) && pair ? a : undefined, b)
@@ -160,6 +155,10 @@ function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order;
   if (aff.error) return <ErrorBox error={aff.error} />
   const ids = order === 'canon' || aff.data.order.length === 0 ? books.map((x) => x.book_id) : aff.data.order
   const name = new Map(books.map((x) => [x.book_id, x]))
+  const nameOf = (id: number) => {
+    const b = name.get(id)
+    return b ? bookName(b, locale) : String(id)
+  }
   const lift = new Map<string, { lift: number; n: number }>()
   for (const c of aff.data.cells) {
     lift.set(`${c.a}-${c.b}`, { lift: c.lift, n: c.n_pairs })
@@ -177,19 +176,17 @@ function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order;
         }}
         title={(ra, rb) => {
           const v = lift.get(`${ra}-${rb}`)
-          return `${name.get(ra)?.name} ↔ ${name.get(rb)?.name}: ${v?.n ?? 0} pairs, lift ${(v?.lift ?? 0).toFixed(1)}`
+          return m.ov.map.cell(nameOf(ra), nameOf(rb), v?.n ?? 0, (v?.lift ?? 0).toFixed(1))
         }}
         selected={pair}
         onSelect={onPair}
-        label="Book by book affinity"
+        label={m.ov.map.heatmap}
       />
       {pair && examples.data && (
-        <section aria-label="Book pair examples">
-          <h3>
-            {name.get(a)?.name} ↔ {name.get(b)?.name}: strongest pairs
-          </h3>
+        <section aria-label={m.ov.map.examples}>
+          <h3>{m.ov.map.strongest(nameOf(a), nameOf(b))}</h3>
           {examples.data.length === 0 ? (
-            <p className="status">No pairs.</p>
+            <p className="status">{m.ov.map.noPairs}</p>
           ) : (
             <ol className="disc-list">
               {examples.data.map((p) => (
@@ -199,7 +196,7 @@ function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order;
                     <LinkBadge link={p.link} />
                     <span className="hit-actions">
                       <Link className="linkish" to={compareLink(p.a.unit_id, p.b.unit_id)}>
-                        Compare
+                        {m.hit.compare}
                       </Link>
                     </span>
                   </div>
@@ -218,10 +215,11 @@ function Affinity({ books, order, pair, onPair }: { books: Book[]; order: Order;
 }
 
 function ExampleSide({ unit, verse }: { unit: UnitSummary; verse: Verse }) {
+  const { locale } = useLocale()
   return (
     <div className="disc-side">
       <Link className="hit-ref" to={unitLink(unit.unit_id)}>
-        {unit.label_en}
+        {unitLabel(unit, locale)}
       </Link>
       <p className="hit-text">
         <HebrewText verse={verse} />

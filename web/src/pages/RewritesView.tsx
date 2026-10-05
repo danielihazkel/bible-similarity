@@ -4,16 +4,12 @@ import type { Rewrite, RewriteOp, RewriteProfile } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { qLabel } from '../lib/format'
+import { useLocale } from '../context/localeContext'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
-const OPS: { value: RewriteOp; label: string; hint: string }[] = [
-  { value: 'substitution', label: 'Substituted', hint: 'one word regularly replaced by another' },
-  { value: 'omitted', label: 'Dropped', hint: 'a word the later text regularly leaves out' },
-  { value: 'added', label: 'Added', hint: 'a word the later text regularly adds' },
-]
-const Q_TITLE = 'Benjamini–Hochberg q over all book pairs and changes'
+const OPS: RewriteOp[] = ['substitution', 'omitted', 'added']
 
 const pairKey = (p: { a_book: number; b_book: number }) => `${p.a_book}-${p.b_book}`
 
@@ -23,14 +19,21 @@ const pairKey = (p: { a_book: number; b_book: number }) => `${p.a_book}-${p.b_bo
  * rate of change explains (G², BH q), plus the pair's profile of changes.
  */
 export function RewritesView() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const books = useBooks()
   const profiles = useRewriteProfiles()
-  const name = (id: number) => books.data?.find((b) => b.book_id === id)?.name ?? String(id)
+  const book = (id: number) => books.data?.find((b) => b.book_id === id)
+  // CSV rows keep the English names; the page shows the interface language's
+  const nameEn = (id: number) => book(id)?.name ?? String(id)
+  const name = (id: number) => {
+    const b = book(id)
+    return b ? bookName(b, locale) : String(id)
+  }
   const pairParam = params.get('pair')
   const profile = profiles.data?.find((p) => pairKey(p) === pairParam)
   const rawOp = params.get('rop') as RewriteOp | null
-  const op = OPS.some((o) => o.value === rawOp) ? rawOp! : undefined
+  const op = OPS.some((o) => o === rawOp) ? rawOp! : undefined
   const all = params.get('rq') === 'all'
   const page = parsePage(params.get('page'))
   const query = {
@@ -47,38 +50,34 @@ export function RewritesView() {
 
   return (
     <>
-      <p className="muted small">
-        A change counts as a habit when it recurs between two books more often than their overall rate of change
-        explains: the later book's word, given the earlier one, compared by log-likelihood (G²), with q corrected for
-        testing every change of every book pair.
-      </p>
+      <p className="muted small">{m.par.rewrites.intro}</p>
       <div className="toolbar">
         <label className="control">
-          <span>Books</span>
+          <span>{m.par.rewrites.books}</span>
           <select value={profile ? pairKey(profile) : ''} onChange={(e) => set({ pair: e.target.value || null })}>
-            <option value="">All book pairs</option>
+            <option value="">{m.par.rewrites.allPairs}</option>
             {profiles.data?.map((p) => (
               <option key={pairKey(p)} value={pairKey(p)}>
-                {p.a_book === p.b_book ? `${name(p.a_book)} (repeats within)` : `${name(p.a_book)} → ${name(p.b_book)}`} ·{' '}
-                {p.verse_pairs} verse pairs
+                {p.a_book === p.b_book ? m.par.rewrites.within(name(p.a_book)) : m.par.rewrites.pair(name(p.a_book), name(p.b_book))}{' '}
+                · {m.par.rewrites.optionPairs(p.verse_pairs)}
               </option>
             ))}
           </select>
         </label>
         <label className="control">
-          <span>Change</span>
+          <span>{m.par.rewrites.change}</span>
           <select value={op ?? ''} onChange={(e) => set({ rop: e.target.value || null })}>
-            <option value="">Any</option>
+            <option value="">{m.par.rewrites.any}</option>
             {OPS.map((o) => (
-              <option key={o.value} value={o.value} title={o.hint}>
-                {o.label}
+              <option key={o} value={o} title={m.par.rewrites.ops[o].hint}>
+                {m.par.rewrites.ops[o].label}
               </option>
             ))}
           </select>
         </label>
         <label className="check">
           <input type="checkbox" checked={all} onChange={(e) => set({ rq: e.target.checked ? 'all' : null })} />
-          Include q &gt; 0.05
+          {m.par.includeQ}
         </label>
       </div>
       {profile && <Profile p={profile} from={name(profile.a_book)} to={name(profile.b_book)} />}
@@ -88,19 +87,19 @@ export function RewritesView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>No systematic changes for these filters.</EmptyList>
+        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.rewrites.none}</EmptyList>
       ) : (
         <>
           <p className="muted small">
-            {res.data.total.toLocaleString()} changes · page {page} of {pages}
+            {m.par.rewrites.page(res.data.total, page, pages)}
             {' · '}
             <ExportCsv
               all={{ list: 'rewrites', params: rewritesParams(query) }}
               filename={`rewrites-p${page}.csv`}
               rows={() =>
                 res.data.items.map((r) => ({
-                  earlier_book: name(r.a_book),
-                  later_book: name(r.b_book),
+                  earlier_book: nameEn(r.a_book),
+                  later_book: nameEn(r.b_book),
                   change: r.op,
                   earlier: r.a_he ?? '',
                   later: r.b_he ?? '',
@@ -116,12 +115,12 @@ export function RewritesView() {
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
               <thead>
                 <tr>
-                  {!profile && <th>Books</th>}
-                  <th>Earlier</th>
+                  {!profile && <th>{m.par.rewrites.books}</th>}
+                  <th>{m.par.changes.earlier}</th>
                   <th aria-hidden="true" />
-                  <th>Later</th>
-                  <th className="num" title="Times this change occurs / words it could apply to">
-                    Times
+                  <th>{m.par.changes.later}</th>
+                  <th className="num" title={m.par.rewrites.timesTitle}>
+                    {m.par.changes.times}
                   </th>
                   <th className="num">G²</th>
                   <th>q</th>
@@ -143,29 +142,32 @@ export function RewritesView() {
 }
 
 function Profile({ p, from, to }: { p: RewriteProfile; from: string; to: string }) {
+  const { m } = useLocale()
   const per100 = (n: number) => ((100 * n) / Math.max(1, p.a_words)).toFixed(1)
   const spell = p.to_plene + p.to_defective
   return (
-    <dl className="rewrite-profile" aria-label="How these books differ">
+    <dl className="rewrite-profile" aria-label={m.par.rewrites.profile}>
       <div>
-        <dt>Parallel verses</dt>
-        <dd>
-          {p.verse_pairs} pairs, {p.a_words.toLocaleString()} → {p.b_words.toLocaleString()} words
-        </dd>
+        <dt>{m.par.rewrites.parallelVerses}</dt>
+        <dd>{m.par.rewrites.profilePairs(p.verse_pairs, p.a_words, p.b_words)}</dd>
       </div>
       <div>
-        <dt>Per 100 words of {from}</dt>
+        <dt>{m.par.rewrites.per100Of(from)}</dt>
         <dd>
-          {per100(p.substitution)} substituted · {per100(p.omitted)} dropped · {per100(p.added)} added ·{' '}
-          {per100(p.form)} other form · {per100(p.spelling)} spelling
+          {m.par.rewrites.per100(
+            per100(p.substitution),
+            per100(p.omitted),
+            per100(p.added),
+            per100(p.form),
+            per100(p.spelling),
+          )}
         </dd>
       </div>
       {spell > 0 && (
         <div>
-          <dt>Spelling</dt>
+          <dt>{m.par.rewrites.spelling}</dt>
           <dd>
-            {to} writes a vowel letter (ו / י) {from} lacks {p.to_plene}× and drops one {p.to_defective}× (
-            {Math.round((100 * p.to_plene) / spell)}% fuller)
+            {m.par.rewrites.spellingText(to, from, p.to_plene, p.to_defective, Math.round((100 * p.to_plene) / spell))}
           </dd>
         </div>
       )}
@@ -174,6 +176,7 @@ function Profile({ p, from, to }: { p: RewriteProfile; from: string; to: string 
 }
 
 function Row({ r, showBooks, name }: { r: Rewrite; showBooks: boolean; name: (id: number) => string }) {
+  const { m } = useLocale()
   const word = (he: string | null) =>
     he === null ? (
       <span className="muted">—</span>
@@ -187,23 +190,23 @@ function Row({ r, showBooks, name }: { r: Rewrite; showBooks: boolean; name: (id
     <tr>
       {showBooks && (
         <td className="small">
-          {name(r.a_book)} → {name(r.b_book)}
+          {m.par.rewrites.pair(name(r.a_book), name(r.b_book))}
         </td>
       )}
       <td>{word(r.a_he)}</td>
       <td className="muted" aria-hidden="true">
-        →
+        {m.par.arrow}
       </td>
       <td>{word(r.b_he)}</td>
-      <td className="num" title={r.rate === null ? undefined : `${Math.round(r.rate * 100)}% of the time`}>
+      <td className="num" title={r.rate === null ? undefined : m.par.rewrites.rateTitle(r.rate)}>
         {r.n} / {r.base}
       </td>
       <td className="num">{r.g2.toFixed(1)}</td>
-      <td className={`small ${r.q <= 0.05 ? 'q-strong' : 'muted'}`} title={Q_TITLE}>
-        {qLabel(r.q)}
+      <td className={`small ${r.q <= 0.05 ? 'q-strong' : 'muted'}`} title={m.par.rewrites.qTitle}>
+        {m.q(r.q)}
       </td>
       <td className="small">
-        <Link to={examples}>Examples</Link>
+        <Link to={examples}>{m.par.changes.examples}</Link>
       </td>
     </tr>
   )
