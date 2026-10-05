@@ -26,6 +26,7 @@ const NAV: NavEntry[] = [
       { to: '/phrases', label: 'Phrases', hint: 'Shared runs of words' },
       { to: '/sequences', label: 'Sequences', hint: 'Passages parallel verse by verse' },
       { to: '/changes', label: 'Changes', hint: 'How parallel passages differ' },
+      { to: '/typescenes', label: 'Action sequences', hint: 'The same actions in the same order' },
     ],
   },
   {

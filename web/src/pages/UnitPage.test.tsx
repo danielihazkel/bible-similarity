@@ -98,7 +98,19 @@ const HALVES: UnitParallelism = {
   share_parallel: 1,
   n_scored: 1,
   verses: [
-    { verse_id: 0, n_cola: 2, cola: [[0, 0], [1, 2]], pauses: ['etnahta'], cos: 0.7, shared: 0, shape: 0.5, balance: 0.5, prob: 0.8 },
+    {
+      verse_id: 0,
+      n_cola: 2,
+      cola: [[0, 0], [1, 2]],
+      pauses: ['etnahta'],
+      cos: 0.7,
+      shared: 0,
+      shape: 0.5,
+      balance: 0.5,
+      prob: 0.8,
+      clauses: [[0, 0], [1, 1], [2, 2]],
+      next_prob: null,
+    },
   ],
 }
 
@@ -223,6 +235,10 @@ describe('UnitPage', () => {
     await waitFor(() => expect(container.querySelectorAll('.source .colon-break')).toHaveLength(1))
     expect(container.querySelector('.source .parallel-badge')?.textContent).toBe('∥')
     expect(calls.some((c) => c.startsWith('/api/parallelism/'))).toBe(true)
+    // the weaker pause inside the second half shows on request
+    expect(container.querySelector('.source .clause-break')).toBeNull()
+    fireEvent.click(screen.getByLabelText('Finer clauses'))
+    await waitFor(() => expect(container.querySelectorAll('.source .clause-break')).toHaveLength(1))
   })
 
   it('keeps mode in the URL', async () => {

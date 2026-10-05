@@ -500,6 +500,10 @@ export interface VerseHalves {
   shape: number | null
   balance: number | null
   prob: number | null
+  /** spans between accent pauses of level 1-2 */
+  clauses?: [number, number][]
+  /** bicolon with the next verse (two one-colon verses) */
+  next_prob?: number | null
 }
 
 export interface UnitParallelism {
@@ -789,4 +793,87 @@ export interface UnitNetwork {
   rank: number
   of: number
   community_size: number
+}
+
+export interface WordPair {
+  a: LemmaForm
+  b: LemmaForm
+  n: number
+  expected: number
+  g2: number
+  q: number
+  reverse: number
+  examples: { verse_id: number; label_en: string; label_he: string }[]
+}
+
+export interface WordPairsResponse {
+  max_q: number | null
+  lemma: string | null
+  total: number
+  offset: number
+  limit: number
+  items: WordPair[]
+}
+
+export interface Alliteration {
+  verse: Verse
+  label: string
+  colon: number
+  sound: string
+  count: number
+  n_words: number
+  words: number[]
+  p: number
+  q: number
+}
+
+export interface AlliterationResponse {
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: Alliteration[]
+}
+
+export interface Rhyme {
+  start_vid: number
+  end_vid: number
+  label: string
+  n_cola: number
+  ending: string
+  members: [number, number][]
+  verses: Verse[]
+  p: number
+  q: number
+}
+
+export interface RhymesResponse {
+  book: number | null
+  max_q: number | null
+  total: number
+  offset: number
+  limit: number
+  items: Rhyme[]
+}
+
+export interface TypeScene {
+  a: UnitSummary
+  b: UnitSummary
+  score: number
+  n_matches: number
+  aligned: { a_vid: number; b_vid: number; lemma: string; he_lemma: string }[]
+  parallel_text: boolean
+  q: number
+}
+
+export interface TypeScenesResponse {
+  book: number | null
+  max_q: number | null
+  hide_textual: boolean
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: TypeScene[]
 }

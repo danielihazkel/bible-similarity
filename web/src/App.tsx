@@ -22,6 +22,7 @@ const SequencesPage = lazy(() => import('./pages/SequencesPage').then((m) => ({ 
 const StructurePage = lazy(() => import('./pages/StructurePage').then((m) => ({ default: m.StructurePage })))
 const StylometryPage = lazy(() => import('./pages/StylometryPage').then((m) => ({ default: m.StylometryPage })))
 const SearchPage = lazy(() => import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })))
+const TypeScenesPage = lazy(() => import('./pages/TypeScenesPage').then((m) => ({ default: m.TypeScenesPage })))
 const UnitPage = lazy(() => import('./pages/UnitPage').then((m) => ({ default: m.UnitPage })))
 const WordplayPage = lazy(() => import('./pages/WordplayPage').then((m) => ({ default: m.WordplayPage })))
 
@@ -40,6 +41,7 @@ export function App() {
           <Route path="sequences" element={<SequencesPage />} />
           <Route path="sequences/:seqId" element={<SequencePage />} />
           <Route path="changes" element={<ChangesPage />} />
+          <Route path="typescenes" element={<TypeScenesPage />} />
           <Route path="poetry" element={<PoetryPage />} />
           <Route path="wordplay" element={<WordplayPage />} />
           <Route path="names" element={<NamesPage />} />

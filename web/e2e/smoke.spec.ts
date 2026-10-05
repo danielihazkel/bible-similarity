@@ -22,6 +22,11 @@ const PAGES: [string, RegExp][] = [
   ['/lemma/430', /Concordance|אלה/],
   ['/eval', /Evaluation/],
   ['/acrostics', /Acrostics/],
+  ['/typescenes', /Action sequences/],
+  ['/wordplay?view=alliteration', /Wordplay/],
+  ['/wordplay?view=rhyme', /Wordplay/],
+  ['/poetry?view=pairs', /Parallel halves/],
+  ['/unit/c%3A26%3A1?halves=1&clauses=1', /Psalms 1/],
   ['/network?type=pericope&unit=s%3A50', /Network of echoes/],
   ['/sequences?order=reverse&q=all', /Parallel sequences/],
   ['/changes?view=rewrites&pair=8-37', /How parallels differ/],
@@ -79,13 +84,14 @@ test('navigation menus work at the current width', async ({ page }, info) => {
 
 for (const scheme of ['light', 'dark'] as const) {
   test(`main pages have no serious accessibility violations (${scheme})`, async ({ page }) => {
+    test.setTimeout(150_000) // axe on every listed page
     await page.emulateMedia({ colorScheme: scheme })
     await checkA11y(page)
   })
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval']) {
+  for (const path of ['/', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

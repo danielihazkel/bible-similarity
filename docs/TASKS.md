@@ -333,3 +333,24 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ 28 chapter / 49 pericope communities, many across books; the Abraham-cycle community holds the wife–sister triad.
 
+## M34 — Finer accents and word pairs (roadmap A7)
+- [x] `text/accents.py`: disjunctive hierarchy for prose and poetry, `token_levels`, `clauses`; `parallelism.clauses`; "Finer clauses" on the Unit page
+- [x] Bicola across two verses (`next_prob`, ∥↓ badge)
+- [x] Word pairs across parallel members (G², BH, ≥ 3 chapters): `word_pairs` table, `/word-pairs`, Poetry page → Word pairs
+- [x] Parallelism typing by negation tried and dropped (Prov 10–15 lowest), documented
+- [x] Tests: accent levels / clauses, word pairs (pytest); API; clause toggle and word pairs view (vitest)
+
+✔ 683 significant word pairs (צדיק // רשע, יום // שנה, חכמה // בינה, ציון // ירושלם …).
+
+## M35 — Alliteration and rhyme (roadmap A6)
+- [x] `analysis/sound.py` + `bsim sound`: phoneme sounds, shape-conditioned alliteration per colon, rhyme runs; `alliteration`, `rhymes` tables, `/alliteration`, `/rhymes`; Wordplay page tabs
+- [x] Tests: sounds, prefixes, endings, tails, content words (pytest); API; views (vitest)
+
+✔ 4 significant rhymes (Job 10:8–11 ‑נִי); no alliteration beyond chance, shown as candidates.
+
+## M36 — Action sequences (roadmap A4)
+- [x] `analysis/typescenes.py` + `bsim typescenes`: verb-lemma Smith–Waterman between pericopes, verb-order shuffle null, textual parallels flagged; `typescenes` table, `/typescenes`, Action sequences page
+- [x] Tests: alignment, candidates, verb sequences (pytest); API; page (vitest)
+
+✔ Dan 3 ↔ 6, Dan 2 ↔ 7, Lev 8 ↔ 9, purity procedures; classic type-scenes not recovered (documented).
+

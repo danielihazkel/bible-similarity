@@ -82,6 +82,8 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
+  const clausesOn = halvesOn && params.get('clauses') === '1'
+  const minorOf = (v: Verse) => (clausesOn ? clauseBreaks(halvesOf.get(v.verse_id)) : undefined)
   const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
   const network = useUnitNetwork(isVerse ? undefined : unit.unit_id)
   const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 })
@@ -118,6 +120,12 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />
           Verse halves (te'amim)
         </label>
+        {halvesOn && (
+          <label className="check" title="Also split at the weaker pauses (zaqef, segolta, tipeha; revia and tsinnor in poetry)">
+            <input type="checkbox" checked={clausesOn} onChange={(e) => update({ clauses: e.target.checked ? '1' : null }, false)} />
+            Finer clauses
+          </label>
+        )}
         {halvesOn && halves.isPending && (
           <span className="muted small" role="status">
             Loading verse halves…
@@ -147,6 +155,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
               onWordClick={pick(verses[0])}
               selected={selectedIn(verses[0])}
               breaks={breaksOf(verses[0])}
+              minorBreaks={minorOf(verses[0])}
             />
             {halvesOn && <ParallelBadge h={halvesOf.get(verses[0].verse_id)} at={halves.data?.parallel_at} />}
           </p>
@@ -163,6 +172,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                   onWordClick={pick(v)}
                   selected={selectedIn(v)}
                   breaks={breaksOf(v)}
+                  minorBreaks={minorOf(v)}
                 />
                 {halvesOn && <ParallelBadge h={halvesOf.get(v.verse_id)} at={halves.data?.parallel_at} />}
               </li>
@@ -351,7 +361,20 @@ function colonBreaks(h: VerseHalves | undefined): Set<number> | undefined {
   return h && h.n_cola > 1 ? new Set(h.cola.slice(0, -1).map(([, end]) => end)) : undefined
 }
 
+/** Display indexes ending a clause that are not colon ends (every clause but the last). */
+function clauseBreaks(h: VerseHalves | undefined): Set<number> | undefined {
+  if (!h?.clauses || h.clauses.length < 2) return undefined
+  const major = colonBreaks(h) ?? new Set<number>()
+  return new Set(h.clauses.slice(0, -1).map(([, end]) => end).filter((e) => !major.has(e)))
+}
+
 function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {
+  if (h && at !== undefined && h.next_prob != null && h.next_prob >= at)
+    return (
+      <span className="parallel-badge" title={`Parallel with the next verse (one bicolon over two verses): p = ${h.next_prob.toFixed(2)}`}>
+        ∥↓
+      </span>
+    )
   if (!h || h.prob === null || at === undefined || h.prob < at) return null
   const tip =
     `Parallel halves: p = ${h.prob.toFixed(2)} · meaning ${h.cos?.toFixed(2)} · shared lemmas ${h.shared}` +

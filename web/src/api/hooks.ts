@@ -5,6 +5,7 @@ import type {
   Acrostic,
   AcrosticsResponse,
   AffinityPair,
+  AlliterationResponse,
   AffinityResponse,
   Book,
   BookStyle,
@@ -29,6 +30,7 @@ import type {
   PhrasePair,
   PhrasesResponse,
   ResolveResponse,
+  RhymesResponse,
   RewriteOp,
   RewriteProfile,
   RewritesResponse,
@@ -42,6 +44,7 @@ import type {
   StructureResponse,
   StructureSort,
   StylometryResponse,
+  TypeScenesResponse,
   UnitDetail,
   UnitNetwork,
   UnitParallelism,
@@ -51,6 +54,7 @@ import type {
   WordDetail,
   WordplayPair,
   WordplayResponse,
+  WordPairsResponse,
 } from './types'
 
 // The DB is read-only while the server runs: everything except search is immutable.
@@ -548,5 +552,63 @@ export const useUnitNetwork = (unitId: string | undefined) =>
     queryKey: ['unit-network', unitId],
     queryFn: ({ signal }) => getJson<UnitNetwork | null>(`/unit-network/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
+    ...forever,
+  })
+
+export const useWordPairs = (q: { maxQ?: number; lemma?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['word-pairs', q],
+    queryFn: ({ signal }) =>
+      getJson<WordPairsResponse>(
+        '/word-pairs',
+        { max_q: q.maxQ ?? 1, lemma: q.lemma, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useAlliteration = (q: { book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['alliteration', q],
+    queryFn: ({ signal }) =>
+      getJson<AlliterationResponse>('/alliteration', { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useRhymes = (q: { book?: number; maxQ?: number; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['rhymes', q],
+    queryFn: ({ signal }) =>
+      getJson<RhymesResponse>('/rhymes', { book: q.book, max_q: q.maxQ, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useTypeScenes = (q: {
+  book?: number
+  maxQ?: number
+  hideTextual: boolean
+  unit?: string
+  limit: number
+  offset: number
+}) =>
+  useQuery({
+    queryKey: ['typescenes', q],
+    queryFn: ({ signal }) =>
+      getJson<TypeScenesResponse>(
+        '/typescenes',
+        {
+          book: q.book,
+          max_q: q.maxQ ?? 1,
+          hide_textual: q.hideTextual ? 'true' : 'false',
+          unit: q.unit,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })

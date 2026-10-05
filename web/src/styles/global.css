@@ -15,6 +15,7 @@
   --hl-shared-text: #3a2a00;
   --hl-formula: #ece6da;
   --hl-focus: #f2a33a;
+  --hl-focus-text: #2a1600; /* 8.9:1 on --hl-focus */
   --diff-sub: #f4c7c1;
   --diff-add: #c9e8cb;
   --diff-omit: #f6d9b8;
@@ -56,7 +57,8 @@
     --hl-shared: #6b5310;
     --hl-shared-text: #fff3cf;
     --hl-formula: #3a352c;
-    --hl-focus: #a8641a;
+    --hl-focus: #8a4f12;
+    --hl-focus-text: #fff; /* 5.6:1 on --hl-focus */
     --diff-sub: #6a2a24;
     --diff-add: #244d2a;
     --diff-omit: #5c3d17;
@@ -160,7 +162,7 @@ h2 {
 }
 .w-focus {
   background: var(--hl-focus);
-  color: #fff;
+  color: var(--hl-focus-text);
 }
 .w-acrostic {
   background: var(--accent-soft);
@@ -751,7 +753,7 @@ a.verse-num {
 }
 .chip.on {
   background: var(--hl-focus);
-  color: #fff;
+  color: var(--hl-focus-text);
 }
 
 /* Word analysis (click a word in the source text) */
@@ -1820,4 +1822,14 @@ svg[tabindex]:focus-visible {
 }
 .community-list button.on .muted {
   color: var(--text); /* muted on the selected background is below 4.5:1 */
+}
+
+.clause-break {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.action-chain {
+  margin: 0.35rem 0 0;
+  line-height: 1.9;
 }

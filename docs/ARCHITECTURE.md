@@ -134,6 +134,8 @@ bible-similarity/
 │   │   ├── wordplay.py             # `bsim wordplay`: sound-alike words close together (§16.10)
 │   │   ├── acrostic.py             # `bsim acrostics`: alphabetic acrostics, whole or broken (§16.15)
 │   │   ├── stats.py                # shared p / Benjamini–Hochberg q helpers (§16.14)
+│   │   ├── sound.py                # `bsim sound`: alliteration and rhyme (§16.19)
+│   │   ├── typescenes.py           # `bsim typescenes`: verb-order alignment of pericopes (§16.20)
 │   │   ├── entities.py             # `bsim entities`: people / places, co-occurrence network (§16.11)
 │   │   ├── seams.py                # `bsim seams`: where a book's style changes (§16.12)
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
@@ -192,6 +194,8 @@ bible-similarity/
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |
 | 11b'''' | `bsim wordplay` | verses, words | `artifacts/wordplay/pairs.parquet` + `.meta.json` (§16.10) |
+| 11a''' | `bsim typescenes` | units, words, sequences | `artifacts/typescenes/pairs.parquet` + `.meta.json` (§16.20) |
+| 11b'''''' | `bsim sound` | verses, words, parallelism cola | `artifacts/sound/{alliteration,rhymes}.parquet` + `sound.meta.json` (§16.19) |
 | 11b''''' | `bsim acrostics` | verses, units, parallelism cola | `artifacts/acrostics/units.parquet` + `.meta.json` (§16.15) |
 | 11b⁵ | `bsim entities` | words | `artifacts/entities/{entities,mentions,links}.parquet` + `.meta.json` (§16.11) |
 | 11b⁶ | `bsim seams` | verses, words | `artifacts/seams/{curve,seams}.parquet` + `.meta.json` (§16.12) |
@@ -201,7 +205,7 @@ bible-similarity/
 | 11e | `bsim stylometry` | verses, words, units | `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `.meta.json` (§16.6) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, parallelism, acrostics, wordplay, entities, seams, structure, map, network, stylometry, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, seams, structure, map, network, stylometry, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

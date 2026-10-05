@@ -8,6 +8,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { unitTypeLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { WordPairsView } from './WordPairsView'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -15,6 +16,28 @@ const pct = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}%
 
 /** Where verses split into parallel halves: poetry by the te'amim, including poems inside prose. */
 export function PoetryPage() {
+  const [params, update] = useQueryParams()
+  const view = params.get('view') === 'pairs' ? 'pairs' : 'units'
+  return (
+    <div className="page poetry-page">
+      <h1>Parallel halves</h1>
+      <div className="toolbar">
+        <Segmented
+          label="View"
+          value={view}
+          onChange={(v) => update({ view: v === 'units' ? null : v, page: null })}
+          options={[
+            { value: 'units', label: 'Parallel verses' },
+            { value: 'pairs', label: 'Word pairs' },
+          ]}
+        />
+      </div>
+      {view === 'pairs' ? <WordPairsView /> : <UnitsView />}
+    </div>
+  )
+}
+
+function UnitsView() {
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
@@ -30,8 +53,7 @@ export function PoetryPage() {
   const auc = res.data ? Object.values(res.data.held_out_auc) : []
 
   return (
-    <div className="page poetry-page">
-      <h1>Parallel halves</h1>
+    <>
       <p className="lede">
         The accents divide every verse at its main pause (etnahta; oleh-ve-yored in Psalms, Proverbs and Job). In poetry the
         two halves restate each other: similar meaning, other words, the same grammar, balanced length. A model trained only
@@ -128,7 +150,7 @@ export function PoetryPage() {
           <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
         </>
       )}
-    </div>
+    </>
   )
 }
 

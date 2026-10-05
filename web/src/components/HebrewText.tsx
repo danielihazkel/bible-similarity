@@ -12,10 +12,12 @@ interface Props {
   selected?: number
   /** Display indexes after which a verse member (colon) ends: shown as ‖. */
   breaks?: Set<number>
+  /** Display indexes after which a clause (a weaker accent pause) ends: shown as a thin |. */
+  minorBreaks?: Set<number>
 }
 
 /** A verse's display tokens, right to left, with the text mode and lemma highlights applied. */
-export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks }: Props) {
+export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks, minorBreaks }: Props) {
   const { mode } = useTextMode()
   const tokens = verse.display_tokens
   return (
@@ -50,6 +52,10 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
             {breaks?.has(i) ? (
               <span className="colon-break" aria-label="pause">
                 {' ‖ '}
+              </span>
+            ) : minorBreaks?.has(i) ? (
+              <span className="clause-break" aria-hidden="true">
+                {' | '}
               </span>
             ) : (
               sep
