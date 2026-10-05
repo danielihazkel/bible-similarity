@@ -42,6 +42,7 @@ const NAV: NavEntry[] = [
     label: 'Overview',
     items: [
       { to: '/map', label: 'Map', hint: 'Units by meaning, book affinity' },
+      { to: '/network', label: 'Network', hint: 'Echo communities, most echoed passages' },
       { to: '/style', label: 'Style', hint: 'Stylometry and style shifts' },
       { to: '/eval', label: 'Evaluation', hint: 'How well known cross-references are found' },
     ],

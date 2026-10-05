@@ -138,6 +138,7 @@ bible-similarity/
 │   │   ├── seams.py                # `bsim seams`: where a book's style changes (§16.12)
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
+│   │   ├── network.py              # `bsim network`: echo graph, PageRank, communities (§16.17)
 │   │   └── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG
@@ -161,7 +162,7 @@ bible-similarity/
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
 │       ├── context/                # te'amim / niqqud / consonants preference
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
-│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, structure, acrostics, map, style, lemma, eval, about
+│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, structure, acrostics, map, network, style, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest
 ├── data/          (gitignored)     # raw/ interim/ processed/
@@ -196,10 +197,11 @@ bible-similarity/
 | 11b⁶ | `bsim seams` | verses, words | `artifacts/seams/{curve,seams}.parquet` + `.meta.json` (§16.12) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
 | 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |
+| 11d' | `bsim network` | units, words, fused chapter / pericope topk | `artifacts/network/{nodes,edges,communities}.parquet` + `network.meta.json` (§16.17) |
 | 11e | `bsim stylometry` | verses, words, units | `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `.meta.json` (§16.6) |
-| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + stylometry | `artifacts/results.sqlite` |
+| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, parallelism, acrostics, wordplay, entities, seams, structure, map, stylometry, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, parallelism, acrostics, wordplay, entities, seams, structure, map, network, stylometry, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

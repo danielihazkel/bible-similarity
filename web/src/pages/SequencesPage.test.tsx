@@ -127,6 +127,20 @@ describe('SequencesPage unit filter', () => {
   })
 })
 
+describe('SequencesPage order filter', () => {
+  it('asks for same-order chains by default and other orders on request', async () => {
+    const calls: string[] = []
+    renderAt('/sequences', calls)
+    await screen.findByText('II Samuel 22:1–3')
+    expect(calls.some((c) => c.startsWith('/api/sequences?') && c.includes('direction=forward'))).toBe(true)
+    fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'reverse' } })
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/sequences?order=reverse'))
+    await waitFor(() => expect(calls.some((c) => c.includes('direction=reverse'))).toBe(true))
+    fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'any' } })
+    await waitFor(() => expect(calls.some((c) => c.startsWith('/api/sequences?') && !c.includes('direction='))).toBe(true))
+  })
+})
+
 describe('SequencePage', () => {
   it('shows aligned pairs and skipped verses as a ladder', async () => {
     const { container } = renderAt('/sequences/4', [])

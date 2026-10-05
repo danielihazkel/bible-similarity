@@ -1700,6 +1700,7 @@ svg[tabindex]:focus-visible {
   border-radius: 0.6rem;
   font-size: 0.75rem;
   background: var(--accent-soft);
+  color: var(--text);
 }
 
 /* Acrostics */
@@ -1725,4 +1726,98 @@ svg[tabindex]:focus-visible {
 .acrostic-chain .acr-out {
   color: var(--muted);
   opacity: 0.5;
+}
+
+/* Network */
+.network-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .network-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.community-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 640px;
+  overflow-y: auto;
+}
+.community-list button {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  width: 100%;
+  text-align: start;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0.35rem 0.4rem;
+  cursor: pointer;
+}
+.community-list button:hover,
+.community-list button.on {
+  background: var(--accent-soft);
+}
+.community-size {
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5ch;
+  text-align: end;
+  font-weight: 600;
+}
+.community-text {
+  display: flex;
+  flex-direction: column;
+}
+.network-graph {
+  width: 100%;
+  height: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.network-graph line {
+  stroke: var(--text);
+  stroke-width: 1;
+}
+.network-graph .node {
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+.network-graph .node.focus {
+  stroke: var(--text);
+  stroke-width: 3;
+}
+.network-graph a:focus-visible .node,
+.network-graph a:hover .node {
+  stroke: var(--text);
+  stroke-width: 3;
+}
+.network-graph .node-label {
+  font-size: 13px;
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
+.section-legend {
+  display: flex;
+  gap: 1rem;
+}
+.section-legend .swatch {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.network-page table a {
+  text-decoration: underline; /* links share a cell with other text */
+}
+.community-list button.on .muted {
+  color: var(--text); /* muted on the selected background is below 4.5:1 */
 }

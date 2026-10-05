@@ -410,6 +410,8 @@ export interface SequenceSummary {
   a_end: number
   b_start: number
   b_end: number
+  /** order of the b side: same, mirrored, or the same scene reordered */
+  direction?: SequenceDirection
   a_label: string
   b_label: string
   a_label_he: string
@@ -422,6 +424,8 @@ export interface SequenceSummary {
   q: number
   n_gold: number
 }
+
+export type SequenceDirection = 'forward' | 'reverse' | 'mixed'
 
 export interface SequencesResponse {
   book: number | null
@@ -747,4 +751,42 @@ export interface RewritesResponse {
   offset: number
   limit: number
   items: Rewrite[]
+}
+
+export interface NetworkNode {
+  unit: UnitSummary
+  pagerank: number
+  strength: number
+  partners: number
+  cross_book: number
+  community: number
+  x: number
+  y: number
+}
+
+export interface NetworkCommunity {
+  community: number
+  size: number
+  lemmas: LemmaForm[]
+  books: BookCount[]
+}
+
+export interface NetworkResponse {
+  unit_type: UnitType
+  communities: NetworkCommunity[]
+  central: NetworkNode[]
+}
+
+export interface CommunityResponse {
+  unit_type: UnitType
+  community: NetworkCommunity
+  nodes: NetworkNode[]
+  edges: { a: string; b: string; weight: number }[]
+}
+
+export interface UnitNetwork {
+  node: NetworkNode
+  rank: number
+  of: number
+  community_size: number
 }

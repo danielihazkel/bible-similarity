@@ -95,7 +95,8 @@ function MetricTable({ caption, rows }: { caption: string; rows: Row[] }) {
   const sorted = [...rows].sort((a, b) => (b.metrics['ndcg@10'] ?? 0) - (a.metrics['ndcg@10'] ?? 0))
   const best = Math.max(...rows.map((r) => r.metrics['ndcg@10'] ?? 0))
   return (
-    <div className="table-wrap">
+    // focusable so keyboard users can scroll a wide table on a narrow screen
+    <div className="table-wrap" tabIndex={0} role="region" aria-label={caption}>
       <table className="rank-table eval-table">
         <caption>{caption}</caption>
         <thead>

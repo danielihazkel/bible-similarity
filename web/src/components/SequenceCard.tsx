@@ -14,7 +14,9 @@ export function SequenceCard({ s }: { s: SequenceSummary }) {
         <span className="score" title="Chain score: pair weights minus gap costs">
           {s.score.toFixed(1)}
         </span>
-        <span className="phrase-tag">{s.n_pairs} verses in order</span>
+        <span className="phrase-tag">
+          {s.n_pairs} verses {s.direction === 'reverse' ? 'in mirrored order' : s.direction === 'mixed' ? 'reordered' : 'in order'}
+        </span>
         <span className={`small ${s.q <= 0.05 ? 'q-strong' : 'muted'}`} title={Q_TITLE}>
           {qLabel(s.q)}
         </span>

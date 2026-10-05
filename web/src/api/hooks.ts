@@ -9,6 +9,7 @@ import type {
   Book,
   BookStyle,
   ChangesResponse,
+  CommunityResponse,
   CompareResponse,
   DiffOp,
   ConcordanceResponse,
@@ -22,6 +23,7 @@ import type {
   ExplainResponse,
   Meta,
   MapResponse,
+  NetworkResponse,
   Mode,
   ParallelismResponse,
   PhrasePair,
@@ -33,6 +35,7 @@ import type {
   SeamsResponse,
   SearchResponse,
   SequenceDetail,
+  SequenceDirection,
   SequencesResponse,
   SimilarResponse,
   StructureRankingResponse,
@@ -40,6 +43,7 @@ import type {
   StructureSort,
   StylometryResponse,
   UnitDetail,
+  UnitNetwork,
   UnitParallelism,
   UnitSummary,
   UnitType,
@@ -281,6 +285,7 @@ export interface SequencesQuery {
   hideSameChapter?: boolean
   maxQ?: number
   unit?: string
+  direction?: SequenceDirection
   limit: number
   offset: number
 }
@@ -297,6 +302,7 @@ export const useSequences = (q: SequencesQuery, enabled = true) =>
           hide_same_chapter: q.hideSameChapter ? 'true' : undefined,
           max_q: q.maxQ,
           unit: q.unit,
+          direction: q.direction,
           limit: q.limit,
           offset: q.offset,
         },
@@ -519,5 +525,28 @@ export const useRewriteProfiles = () =>
   useQuery({
     queryKey: ['rewrite-profiles'],
     queryFn: ({ signal }) => getJson<RewriteProfile[]>('/rewrite-profiles', {}, signal),
+    ...forever,
+  })
+
+export const useNetwork = (unitType: UnitType) =>
+  useQuery({
+    queryKey: ['network', unitType],
+    queryFn: ({ signal }) => getJson<NetworkResponse>(`/network/${unitType}`, {}, signal),
+    ...forever,
+  })
+
+export const useCommunity = (unitType: UnitType, community: number | undefined) =>
+  useQuery({
+    queryKey: ['network', unitType, community],
+    queryFn: ({ signal }) => getJson<CommunityResponse>(`/network/${unitType}/${community}`, {}, signal),
+    enabled: community !== undefined,
+    ...forever,
+  })
+
+export const useUnitNetwork = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-network', unitId],
+    queryFn: ({ signal }) => getJson<UnitNetwork | null>(`/unit-network/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
     ...forever,
   })

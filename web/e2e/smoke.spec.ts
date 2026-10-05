@@ -22,6 +22,8 @@ const PAGES: [string, RegExp][] = [
   ['/lemma/430', /Concordance|אלה/],
   ['/eval', /Evaluation/],
   ['/acrostics', /Acrostics/],
+  ['/network?type=pericope&unit=s%3A50', /Network of echoes/],
+  ['/sequences?order=reverse&q=all', /Parallel sequences/],
   ['/changes?view=rewrites&pair=8-37', /How parallels differ/],
   ['/unit/c%3A26%3A145?acrostic=1', /Psalms 145/],
   ['/about', /About/],
@@ -83,7 +85,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1']) {
+  for (const path of ['/', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

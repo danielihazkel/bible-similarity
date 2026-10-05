@@ -12,6 +12,7 @@ const ComparePage = lazy(() => import('./pages/ComparePage').then((m) => ({ defa
 const ConcordancePage = lazy(() => import('./pages/ConcordancePage').then((m) => ({ default: m.ConcordancePage })))
 const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
+const NetworkPage = lazy(() => import('./pages/NetworkPage').then((m) => ({ default: m.NetworkPage })))
 const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
 const NamesPage = lazy(() => import('./pages/NamesPage').then((m) => ({ default: m.NamesPage })))
 const PhrasesPage = lazy(() => import('./pages/PhrasesPage').then((m) => ({ default: m.PhrasesPage })))
@@ -45,6 +46,7 @@ export function App() {
           <Route path="structure" element={<StructurePage />} />
           <Route path="acrostics" element={<AcrosticsPage />} />
           <Route path="map" element={<MapPage />} />
+          <Route path="network" element={<NetworkPage />} />
           <Route path="style" element={<StylometryPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="eval" element={<EvalPage />} />

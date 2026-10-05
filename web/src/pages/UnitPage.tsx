@@ -7,6 +7,7 @@ import {
   useSimilar,
   useUnit,
   useUnitAcrostic,
+  useUnitNetwork,
   useUnitEntities,
   useUnitParallelism,
   useWordplay,
@@ -82,8 +83,15 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
   const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
+  const network = useUnitNetwork(isVerse ? undefined : unit.unit_id)
   const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 })
-  const sequences = useSequences({ unit: unit.unit_id, maxQ: SEQUENCE_MAX_Q, limit: SEQUENCES_SHOWN, offset: 0 })
+  const sequences = useSequences({
+    unit: unit.unit_id,
+    direction: 'forward',
+    maxQ: SEQUENCE_MAX_Q,
+    limit: SEQUENCES_SHOWN,
+    offset: 0,
+  })
 
   const onHover = (tgt: number, on: boolean) => {
     window.clearTimeout(hoverTimer.current)
@@ -174,6 +182,16 @@ function UnitView({ detail }: { detail: UnitDetail }) {
               <span className="muted small">{e.n_here}</span>
             </Link>
           ))}
+        </p>
+      )}
+      {network.data && (
+        <p className="muted small unit-network">
+          Echo network: {ordinal(network.data.rank)} most echoed of {network.data.of}{' '}
+          {unitTypeLabel(unit.unit_type).toLowerCase()}s · {network.data.node.partners} echoes,{' '}
+          {Math.round(network.data.node.cross_book * 100)}% to other books ·{' '}
+          <Link to={`/network?type=${unit.unit_type}&unit=${encodeURIComponent(unit.unit_id)}`}>
+            its community of {network.data.community_size}
+          </Link>
         </p>
       )}
       {word ? (
@@ -321,6 +339,11 @@ function AcrosticBar({ a, on, onToggle }: { a: Acrostic; on: boolean; onToggle: 
       <Link to="/acrostics">All acrostics</Link>
     </div>
   )
+}
+
+const ordinal = (n: number) => {
+  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'
+  return `${n}${s}`
 }
 
 /** Display indexes ending a colon (every colon but the last). */

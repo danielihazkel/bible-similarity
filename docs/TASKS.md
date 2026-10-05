@@ -319,3 +319,17 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ II Sam → I Chr יהוה → אלהים tops 151 significant rewrites; Chronicles spells fuller than Samuel–Kings.
 
+## M32 — Mirrored and reordered parallels (roadmap A2)
+- [x] `find_chains(direction=forward|reverse|mixed)`; `all_chains`: kinds in order, overlap dedup, monotone mixed chains dropped; q per kind against the same kind's shuffle chains; spans stored as min / max, `direction` column
+- [x] `/sequences?direction=`; the ladder runs the b side backwards for reverse chains; Sequences page "Order" filter, card and detail wording; the Unit page keeps same-order runs
+- [x] Tests: reverse / nested / crossing chains, dedup, frame (pytest); order filter (vitest)
+
+✔ No mirrored or reordered chain beats the shuffle (best q 0.33 / 0.08); the wife–sister stories are found as weak chains only.
+
+## M33 — Network of echoes (roadmap A5)
+- [x] `analysis/network.py` + `bsim network` (pipeline stage after map): unit edges from the fused top-10, PageRank, Louvain communities with G² labels, per-community layout
+- [x] `network_*` tables, `/network/{type}`, `/network/{type}/{community}`, `/unit-network/{unit}`; Network page; "most echoed" line on unit pages
+- [x] Tests: edges, communities, centrality, layout bounds (pytest); API (pytest); Network page (vitest)
+
+✔ 28 chapter / 49 pericope communities, many across books; the Abraham-cycle community holds the wife–sister triad.
+

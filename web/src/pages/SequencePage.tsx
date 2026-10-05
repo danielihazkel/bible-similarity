@@ -42,7 +42,13 @@ export function SequencePage() {
         </span>
       </p>
       <p className="lede">
-        {s.n_pairs} verse pairs in the same order · {qLabel(s.q)} · score {s.score.toFixed(1)} ·{' '}
+        {s.n_pairs} verse pairs{' '}
+        {s.direction === 'reverse'
+          ? 'in mirrored order (the right side runs backwards)'
+          : s.direction === 'mixed'
+            ? 'in another order (the right side jumps back and forth)'
+            : 'in the same order'}{' '}
+        · {qLabel(s.q)} · score {s.score.toFixed(1)} ·{' '}
         {s.n_gold === 0 ? 'none linked in Sefaria' : `${s.n_gold} linked in Sefaria (★)`}
         {onlyA + onlyB > 0 && ` · ${onlyA} verse(s) only on the left, ${onlyB} only on the right`}
       </p>
