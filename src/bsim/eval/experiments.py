@@ -1,11 +1,14 @@
-"""`bsim retrieval-exp`: do contextual embeddings or late interaction improve the fused verse
-lists? (DESIGN.md §16.21, roadmap A9). Dev split only.
+"""`bsim retrieval-exp`: do contextual embeddings, late interaction or semantic domains improve
+the fused verse lists? (DESIGN.md §16.21, §16.22). Dev split only.
 
 Families of candidate verse lists, each compared with the final fused list:
     context {system}   for every `retrieval_experiments.context_systems` top-k (`bsim embed-context`
                        + `bsim topk`): the system alone, in place of the semantic list (lexical +
                        it, RRF), and as a third RRF list next to lexical + semantic at each weight
                        of `w_grid`
+    lexical {system}   for every `retrieval_experiments.lexical_systems` top-k (`bsim lexical` +
+                       `bsim topk`; SDBH domains, §16.22): the system alone, in place of the lexical
+                       list (it + semantic, RRF), and as a third list at each weight of `w_grid`
     maxsim {encoder}   the fused top-`maxsim.depth` reordered by MaxSim (`bsim maxsim`), blended
                        with the fused rank at each weight of `maxsim_grid` (null = MaxSim alone)
     cross-encoder      the same blend with the M18 cross-encoder scores (`bsim rerank`), when its
@@ -111,6 +114,21 @@ def families(cfg: dict[str, Any], log: Log) -> dict[str, dict[str, pd.DataFrame]
                 [lex, sem, x], [fu["w_lex"], fu["w_sem"], w], fu["rrf_k"], k
             )
         out[f"context {system}"] = members
+    for system in rx["lexical_systems"]:
+        path = art / "topk" / "verse" / f"{system}.parquet"
+        if not path.exists():
+            log(f"  {path} missing (`bsim lexicon` + `bsim lexical` + `bsim topk`): skipped")
+            continue
+        x = read_topk(path)
+        members = {
+            "alone": x,
+            "in place of lexical": rrf_many([x, sem], [fu["w_lex"], fu["w_sem"]], fu["rrf_k"], k),
+        }
+        for w in rx["w_grid"]:
+            members[f"third list w={w}"] = rrf_many(
+                [lex, sem, x], [fu["w_lex"], fu["w_sem"], w], fu["rrf_k"], k
+            )
+        out[f"lexical {system}"] = members
     mc = cfg["maxsim"]
     for enc in mc["encoders"]:
         path = art / "maxsim" / f"{enc}.parquet"

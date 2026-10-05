@@ -34,6 +34,12 @@ def stage_build_links(cfg: dict[str, Any], log: Log) -> None:
     run_build_links(cfg, log=log)
 
 
+def stage_lexicon(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.data.lexicon import run_lexicon
+
+    run_lexicon(cfg, log=log)
+
+
 def stage_lexical(cfg: dict[str, Any], log: Log) -> None:
     from bsim.lexical.build import run_lexical
 
@@ -217,6 +223,7 @@ STAGES: dict[str, str] = {
     "download": "stage_download",
     "build-corpus": "stage_build_corpus",
     "build-links": "stage_build_links",
+    "lexicon": "stage_lexicon",
     "lexical": "stage_lexical",
     "lexical-topk": "stage_lexical_topk",
     "train-simcse": "stage_train_simcse",

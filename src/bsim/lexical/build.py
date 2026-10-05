@@ -4,6 +4,11 @@ Writes to `paths.artifacts`/lexical:
     bm25_lemma.{doc,query}.npz + .vocab.json     verse-level BM25 over content lemmas
     bm25_surface.{doc,query}.npz + .vocab.json   same over surface forms (eval baseline)
     bm25_morph.{doc,query}.npz + .vocab.json     word-shape n-grams (structural mode, §16.5)
+    bm25_domain.{doc,query}.npz + .vocab.json    SDBH semantic domains (§16.22; when `bsim lexicon`
+                                                 has written word_senses.parquet)
+    bm25_lemma_domain.{doc,query}.npz + .vocab.json   bm25_lemma's tokens + the domain tokens at
+                                                 `lexical.domain.expansion_weight` (experiment)
+    tfidf_domain_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the same
     tfidf_morph_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the same
     tfidf_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF rows (L2-normalized)
     formulas.parquet                             closed lemma formulas
@@ -25,6 +30,7 @@ import scipy.sparse as sp
 from bsim.config import config_hash, resolve_path
 from bsim.data.report import md_table
 from bsim.lexical import bm25
+from bsim.lexical.domains import domain_streams
 from bsim.lexical.formulas import (
     Ngram,
     closed,
@@ -158,10 +164,41 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
     morph_weights = [np.ones(len(t)) for t in morph_tokens]
     morph_index = bm25.build_bm25(morph_tokens, morph_weights, k1, b)
 
+    domain_tokens: list[list[str]] | None = None
+    if (proc / "word_senses.parquet").exists():
+        log("BM25 (semantic domains)")
+        dc = lex["domain"]
+        lemma_words = pd.read_parquet(
+            proc / "words.parquet", columns=["verse_id", "idx", "content_lemmas"]
+        )
+        domain_tokens, domain_weights = domain_streams(
+            pd.read_parquet(proc / "word_senses.parquet"),
+            lemma_words,
+            n,
+            dc["ancestor_weight"],
+            dc["content_only"],
+        )
+        domain_index = bm25.build_bm25(domain_tokens, domain_weights, k1, b)
+        beta = dc["expansion_weight"]
+        expanded_index = bm25.build_bm25(
+            [a + d for a, d in zip(lem_tokens, domain_tokens, strict=True)],
+            [
+                np.concatenate([a, d * beta])
+                for a, d in zip(lem_weights, domain_weights, strict=True)
+            ],
+            k1,
+            b,
+        )
+    else:
+        log(f"  {proc / 'word_senses.parquet'} missing (`bsim lexicon`): no bm25_domain")
+
     out.mkdir(parents=True, exist_ok=True)
     bm25.save(lemma_index, out, "bm25_lemma")
     bm25.save(surface_index, out, "bm25_surface")
     bm25.save(morph_index, out, "bm25_morph")
+    if domain_tokens is not None:
+        bm25.save(domain_index, out, "bm25_domain")
+        bm25.save(expanded_index, out, "bm25_lemma_domain")
     formulas.to_parquet(out / "formulas.parquet", index=False)
 
     sizes = {
@@ -172,6 +209,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         "lemma n-grams over threshold": len(ngrams),
         "closed lemma formulas": len(formulas),
         "surface n-grams over threshold": len(surf_ngrams),
+        **({"bm25_domain vocabulary": len(domain_index.vocab)} if domain_tokens else {}),
         "lemma tokens down-weighted": f"{np.mean(np.concatenate(lem_weights) < 1):.1%}",
     }
     for unit_type in [t for t in cfg["units"]["types"] if t != "verse"]:
@@ -183,6 +221,10 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         xm = unit_tfidf(morph_tokens, morph_weights, members, ids)
         sp.save_npz(out / f"tfidf_morph_{unit_type}.npz", xm)
         (out / f"tfidf_morph_{unit_type}.ids.json").write_text(json.dumps(ids), encoding="utf-8")
+        if domain_tokens is not None:
+            xd = unit_tfidf(domain_tokens, domain_weights, members, ids)
+            sp.save_npz(out / f"tfidf_domain_{unit_type}.npz", xd)
+            (out / f"tfidf_domain_{unit_type}.ids.json").write_text(json.dumps(ids), "utf-8")
         sizes[f"{unit_type} units (TF-IDF)"] = len(ids)
 
     queries = cfg["eval"]["spot_checks"]
@@ -198,6 +240,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
             "bm25_lemma": len(lemma_index.vocab),
             "bm25_surface": len(surface_index.vocab),
             "bm25_morph": len(morph_index.vocab),
+            **({"bm25_domain": len(domain_index.vocab)} if domain_tokens else {}),
         },
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }

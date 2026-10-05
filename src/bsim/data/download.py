@@ -5,9 +5,11 @@ Layout under `paths.data_raw`:
     sefaria/text/{Book}.json           Miqra according to the Masorah
     sefaria/schemas/{Book_Slug}.json   index schema (parasha `alts`)
     sefaria/links/linksN.csv           all Sefaria links (discovered by listing the bucket)
+    lexicon/{file}                     SDBH (UBS, senses and domains) and OpenScriptures
+                                       HebrewStrong.xml, each at a pinned commit (§16.22)
 
 Idempotent: a file is skipped when it is already on disk and still matches its checksum
-(GCS md5 for Sefaria files, the recorded sha256 for OSHB files).
+(GCS md5 for Sefaria files, the recorded sha256 for files from GitHub).
 """
 
 from __future__ import annotations
@@ -32,7 +34,7 @@ from bsim.config import resolve_path
 from bsim.data.canon import BOOKS
 
 MANIFEST = "manifest.json"
-GROUPS = ("oshb", "text", "schemas", "links")
+GROUPS = ("oshb", "text", "schemas", "links", "lexicon")
 _CHUNK = 1 << 20
 _TIMEOUT = 60
 
@@ -110,6 +112,13 @@ def plan_targets(
         for b in BOOKS:
             url = oshb["raw_url"].format(commit=oshb["commit"], osis=b.osis)
             targets.append(Target("oshb", f"oshb/{b.osis}.xml", url))
+
+    if "lexicon" in groups:
+        for key in ("sdbh", "hebrew_lexicon"):
+            s = src[key]
+            for file in s["files"]:
+                url = s["raw_url"].format(commit=s["commit"], file=file)
+                targets.append(Target("lexicon", f"lexicon/{file}", url))
 
     sef = src["sefaria"]
     if "text" in groups:
@@ -261,6 +270,8 @@ def run_download(
                 log(f"  downloaded {t.rel} ({entry['bytes'] / 1e6:.1f} MB)")
 
     manifest["oshb_commit"] = cfg["sources"]["oshb"]["commit"]
+    manifest["sdbh_commit"] = cfg["sources"]["sdbh"]["commit"]
+    manifest["hebrew_lexicon_commit"] = cfg["sources"]["hebrew_lexicon"]["commit"]
     manifest["sefaria_text_version"] = cfg["sources"]["sefaria"]["text_version"]
     manifest["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     save_manifest(raw_dir, manifest)

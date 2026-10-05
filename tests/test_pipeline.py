@@ -55,7 +55,7 @@ def test_all_failing_stage_names_it(monkeypatch, calls):
     result = runner.invoke(app, ["all"])
     assert result.exit_code == 1
     assert "stage 'lexical' failed: no verses" in result.output
-    assert calls == ["download", "build-corpus", "build-links"]
+    assert calls == ["download", "build-corpus", "build-links", "lexicon"]
 
 
 def test_dense_systems_adds_csls():

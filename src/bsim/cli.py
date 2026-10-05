@@ -24,7 +24,7 @@ ConfigOpt = Annotated[
 def download(
     only: Annotated[
         list[str] | None,
-        typer.Option(help="Restrict to groups: oshb, text, schemas, links (repeatable)"),
+        typer.Option(help="Restrict to groups: oshb, text, schemas, links, lexicon (repeatable)"),
     ] = None,
     workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
     config: ConfigOpt = None,
@@ -62,6 +62,18 @@ def build_links(config: ConfigOpt = None) -> None:
 
     try:
         run_build_links(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def lexicon(config: ConfigOpt = None) -> None:
+    """Tag every word with its SDBH sense and semantic domains; read Strong's name types."""
+    from bsim.data.lexicon import run_lexicon
+
+    try:
+        run_lexicon(load_config(config), log=typer.echo)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

@@ -406,3 +406,23 @@ Phase 2 (M38b): analysis pages
 - [x] Tests: `openapi` / `fixture-serve` in the CLI tests
 
 ✔ The full check runs without the 1.1 GB of artifacts; the fixture e2e suite passes 64 / 64 locally.
+
+## M39: Word senses and semantic domains (§16.22, D56; roadmap A1)
+Phase 1 (M39a): data, tagging, retrieval experiment
+- [x] `bsim download --only lexicon`: SDBH (UBS, CC BY-SA 4.0) and OpenScriptures HebrewStrong.xml (CC BY 4.0) at pinned commits
+- [x] `bsim lexicon` (`data/lexicon.py`): SDBH word references matched to OSHB morphemes (92.2 % of 288k; positions over lemma parts + the article in `Rd`, ±2 window); 262,588 of 299,516 lemma morphemes tagged with a meaning and its domains; synonym / antonym lemma pairs; Strong's name types. Glosses never stored
+- [x] `lexical/domains.py`: `bm25_domain`, `tfidf_domain_{unit}`, `bm25_lemma_domain` (expansion) in `bsim lexical`; `bm25_domain` in `pipeline.lexical_systems`
+- [x] `bsim retrieval-exp`: `lexical {system}` families (alone, in place of lexical, third list); results on dev: not adopted (lemma + domain beats lemma, not fused)
+- [x] Tests: Strong keys, references, morpheme counting, matching and fallback, relations, readers, domain tokens; download, CLI, pipeline order
+
+Phase 2 (M39b): analyses
+- [ ] Antithetic / synonymous parallelism from SDBH antonym / synonym pairs across verse halves
+- [ ] People and places typed from Strong's parts of speech, compared with the context-cue heuristics
+
+Phase 3 (M39c): API and viewer
+- [ ] Domains of each word in the word panel; domain names in English and (top two levels) Hebrew
+- [ ] Domain profile of a unit and a domain concordance; `domain` mode next to structural
+- [ ] SDBH / HebrewLexicon credits in the footer and About
+
+✔ Phase 1: every word carries its attested sense and domains; domains help the lemma list but not the fused one, so the final systems are unchanged.
+
