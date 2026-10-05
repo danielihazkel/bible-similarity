@@ -160,8 +160,8 @@ class StEncoder:
 
 
 class BackgroundEncoder:
-    """An `Encoder` loaded on a daemon thread; calls wait for it (EncoderUnavailable if it
-    failed)."""
+    """An `Encoder` loaded on a daemon thread. Calls fail fast instead of holding a worker:
+    `EncoderLoading` while it loads, `EncoderUnavailable` if it failed."""
 
     def __init__(self, load: Callable[[], Encoder], log: Callable[[str], None] = print):
         self._done = threading.Event()
@@ -185,8 +185,18 @@ class BackgroundEncoder:
     def ready(self) -> bool:
         return self._done.is_set() and self._error is None
 
+    @property
+    def error(self) -> str | None:
+        """Why loading failed (None while loading or once loaded)."""
+        return None if self._error is None else str(self._error)
+
+    def wait(self, timeout: float | None = None) -> bool:
+        """Block until loading has finished (either way); False on timeout."""
+        return self._done.wait(timeout)
+
     def __call__(self, texts: list[str]) -> np.ndarray:
-        self._done.wait()
+        if not self._done.is_set():
+            raise EncoderLoading("the query encoder is still loading; retry shortly")
         if self._encoder is None:
             raise EncoderUnavailable(f"the query encoder failed to load: {self._error}")
         return self._encoder(texts)
@@ -194,6 +204,10 @@ class BackgroundEncoder:
 
 class EncoderUnavailable(RuntimeError):
     pass
+
+
+class EncoderLoading(EncoderUnavailable):
+    """The encoder has not finished loading yet (temporary)."""
 
 
 def search(state: Any, query: str, mode: str, k: int) -> tuple[str, list[str], pd.DataFrame]:

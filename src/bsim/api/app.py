@@ -2,7 +2,9 @@
 
 `create_app(cfg)` loads everything before returning, so `bsim serve` fails fast (exit 1) on a
 missing DB or embedding file:
-- `results.sqlite`, opened read-only per request (`ServeState.connect`);
+- `results.sqlite`, opened read-only; requests borrow connections from a small pool
+  (`ServeState.acquire` / `release`, at most `serve.sqlite_pool` kept idle) so each connection's
+  page cache outlives the request;
 - the final semantic system's verse matrix, memory-mapped (`meta.embeddings`), plus its CSLS
   hubness when the system is a `*_csls` one (cached under `paths.artifacts/serve.cache_dir`);
 - the final encoder (fp32, `serve.device` with CPU fallback) for `/search`, loaded on a background
@@ -25,6 +27,7 @@ Tests pass a stub `encoder` instead of loading the model.
 
 from __future__ import annotations
 
+import queue
 import sqlite3
 import threading
 import time
@@ -94,8 +97,10 @@ class ServeState:
     surface: SurfaceIndex
     runtime: dict[str, Any] = field(default_factory=dict)
     structure_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _lemma_total: int | None = None
+    _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
 
     def lemma_total(self, conn: sqlite3.Connection) -> int:
         """Corpus word count over lemmas (`queries.corpus_lemma_total`), read once."""
@@ -111,6 +116,20 @@ class ServeState:
         conn.execute(f"PRAGMA mmap_size = {mb * 4 << 20}")
         conn.execute("PRAGMA query_only = 1")
         return conn
+
+    def acquire(self) -> sqlite3.Connection:
+        """An idle pooled connection, or a new one."""
+        try:
+            return self._pool.get_nowait()
+        except queue.Empty:
+            return self.connect()
+
+    def release(self, conn: sqlite3.Connection) -> None:
+        """Return a connection to the pool (closed instead when `serve.sqlite_pool` are idle)."""
+        if self._pool.qsize() < self.cfg["serve"]["sqlite_pool"]:
+            self._pool.put(conn)
+        else:
+            conn.close()
 
 
 def _encoder_loader(cfg: dict[str, Any], base: str, device: str) -> Callable[[], Encoder]:
@@ -209,6 +228,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         surface,
         runtime,
         structure_cache=LruCache(serve["structure_cache"]),
+        sequence_cache=LruCache(serve["sequence_cache"]),
         query_cache=LruCache(serve["search"]["query_cache"]),
     )
 
@@ -229,7 +249,7 @@ def create_app(
         allow_origins=cfg["serve"]["cors_origins"],
         allow_methods=["GET"],
         allow_headers=["*"],
-        expose_headers=["Server-Timing"],
+        expose_headers=["Server-Timing", "X-Total-Count", "Retry-After"],
     )
 
     app.add_middleware(GZipMiddleware, minimum_size=cfg["serve"]["gzip_min_bytes"])

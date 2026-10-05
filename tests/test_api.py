@@ -28,9 +28,10 @@ def test_books(client):
 
 
 def test_units(client):
-    assert [u["unit_id"] for u in client.get("/api/units/verse").json()] == [
-        f"v:{i}" for i in range(6)
+    assert [u["unit_id"] for u in client.get("/api/units/verse?book=0").json()] == [
+        f"v:{i}" for i in range(5)
     ]
+    assert client.get("/api/units/verse").status_code == 422  # all 23k verses: per book only
     assert [u["unit_id"] for u in client.get("/api/units/chapter?book=0").json()] == [
         "c:0:1",
         "c:0:2",
@@ -227,9 +228,12 @@ def test_background_encoder(built):
     enc = BackgroundEncoder(slow_load, log=lambda _: None)
     client = TestClient(create_app(cfg, encoder=enc, log=lambda _: None))
     assert client.get("/api/meta").json()["runtime"]["encoder_ready"] is False
-    # lexical search does not need the encoder
+    # lexical search does not need the encoder; semantic search fails fast while it loads
     assert client.get("/api/search?q=ראשית&mode=lexical").status_code == 200
+    r = client.get("/api/search?q=דגן&mode=semantic")
+    assert r.status_code == 503 and r.headers["Retry-After"] == "5"
     gate.set()
+    assert enc.wait(5)
     sem = client.get("/api/search?q=דגן&mode=semantic").json()
     assert sem["hits"][0]["verse"]["verse_id"] == 3
     assert client.get("/api/meta").json()["runtime"]["encoder_ready"] is True
@@ -243,10 +247,14 @@ def test_failed_encoder_is_503(built):
 
     cfg, _ = built
     enc = BackgroundEncoder(broken, log=lambda _: None)
+    assert enc.wait(5)
     client = TestClient(create_app(cfg, encoder=enc, log=lambda _: None))
     r = client.get("/api/search?q=דגן&mode=fused")
     assert r.status_code == 503 and "no model" in r.json()["detail"]
+    assert "Retry-After" not in r.headers
     assert client.get("/api/search?q=דגן&mode=lexical").status_code == 200
+    runtime = client.get("/api/meta").json()["runtime"]
+    assert runtime["encoder_ready"] is False and "no model" in runtime["encoder_error"]
 
 
 def test_web_dist_served(built):
@@ -607,3 +615,63 @@ def test_connection_settings(client):
         assert conn.execute("PRAGMA cache_size").fetchone()[0] < 0  # KiB budget
     finally:
         conn.close()
+
+
+def test_connection_pool_reuses_connections(client):
+    state = client.app.state.serve
+    while not state._pool.empty():
+        state._pool.get_nowait().close()
+    assert client.get("/api/books").status_code == 200
+    conn = state.acquire()
+    assert client.get("/api/books").status_code == 200  # opened a second one meanwhile
+    state.release(conn)
+    assert state._pool.qsize() == 2
+    for _ in range(state.cfg["serve"]["sqlite_pool"] + 2):
+        state.release(state.connect())
+    assert state._pool.qsize() == state.cfg["serve"]["sqlite_pool"]
+
+
+def test_parameter_checks(client):
+    for path in (
+        "sequences?min_pairs=0",
+        "phrases?min_tokens=0",
+        "parallelism?min_verses=0",
+        "structure?min_verses=0",
+        "seams?offset=-1",
+        "seams?limit=0",
+    ):
+        assert client.get(f"/api/{path}").status_code == 422, path
+    assert client.get("/api/affinity/0/999").status_code == 404
+    assert client.get("/api/affinity/0/1").status_code == 200
+    detail = client.get("/api/compare?a=c:0:1&b=c:0:2").status_code
+    assert detail == 200
+
+
+def test_phrases_of_paging(client):
+    r = client.get("/api/phrases/5?limit=1")
+    assert r.status_code == 200 and r.headers["X-Total-Count"] == "1" and len(r.json()) == 1
+    r = client.get("/api/phrases/5?offset=1")
+    assert r.json() == [] and r.headers["X-Total-Count"] == "1"
+
+
+def test_sequence_detail_cached(client):
+    items = client.get("/api/sequences").json()["items"]
+    if not items:
+        pytest.skip("fixture has no sequences")
+    sid = items[0]["seq_id"]
+    first = client.get(f"/api/sequences/{sid}").json()
+    assert client.app.state.serve.sequence_cache.get(sid) is not None
+    assert client.get(f"/api/sequences/{sid}").json() == first
+
+
+def test_eval(client, built):
+    import json
+
+    cfg, _ = built
+    body = client.get("/api/eval").json()
+    assert body["splits"] == {} and body["openbible"] is None
+    assert body["final"]["verse"]["fused"] == cfg["final_systems"]["fused"]
+    folder = Path(cfg["paths"]["artifacts"]) / "eval"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "metrics.json").write_text(json.dumps({"splits": {"dev": {"results": {}}}}))
+    assert client.get("/api/eval").json()["splits"] == {"dev": {"results": {}}}

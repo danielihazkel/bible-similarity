@@ -34,6 +34,7 @@ from bsim.api.models import (
 from bsim.api.routes._common import (
     Conn,
     State,
+    check_min,
     check_page,
     check_unit_type,
     unit_or_404,
@@ -84,6 +85,7 @@ def parallelism_ranking(
     `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose and prophecy)."""
     check_unit_type(unit_type, [t for t in state.cfg["units"]["types"] if t != "verse"])
     check_page(state, limit, offset)
+    check_min(min_verses, "min_verses")
     pc = state.cfg["parallelism"]
     poetic = _poetic_book_ids(state)
     total, rows = queries.parallelism_units(
@@ -190,7 +192,7 @@ def structure(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     if u["unit_type"] == "verse":
         raise unprocessable("structure applies to chapters, pericopes and parashot")
     if u["n_verses"] > c["max_verses"]:
-        raise unprocessable(f"unit has more than structure.max_verses = {c['max_verses']} verses")
+        raise unprocessable(f"structure is shown for units of at most {c['max_verses']} verses")
     cached = state.structure_cache.get(unit_id)
     if cached is None:
         cached = _structure(u, state, conn)
@@ -270,6 +272,7 @@ def structure_ranking(
     if by not in queries.STRUCTURE_SORT:
         raise unprocessable(f"by must be one of {sorted(queries.STRUCTURE_SORT)}")
     check_page(state, limit, offset)
+    check_min(min_verses, "min_verses")
     total, rows = queries.structure_page(conn, unit_type, by, min_verses, limit, offset)
     units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
     items = [

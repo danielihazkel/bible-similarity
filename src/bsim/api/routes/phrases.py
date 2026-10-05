@@ -6,7 +6,7 @@ import json
 import sqlite3
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 
 from bsim.api import queries
 from bsim.api.models import (
@@ -17,6 +17,7 @@ from bsim.api.models import (
 from bsim.api.routes._common import (
     Conn,
     State,
+    check_min,
     check_page,
     gold_link,
     verse_or_404,
@@ -66,12 +67,16 @@ def _phrase_pairs(
 
 
 @router.get("/phrases/{verse_id}", response_model=list[PhrasePair])
-def phrases_of(verse_id: int, state: State, conn: Conn, limit: int = 50) -> list[PhrasePair]:
+def phrases_of(
+    verse_id: int, state: State, conn: Conn, response: Response, limit: int = 50, offset: int = 0
+) -> list[PhrasePair]:
     """The verses sharing an aligned phrase with this one, strongest first (this verse on the
-    `a` side; at most `limit`, ≤ `serve.max_page`)."""
+    `a` side; at most `limit`, ≤ `serve.max_page`). `X-Total-Count` has the number of all."""
     verse_or_404(state, verse_id)
-    check_page(state, limit, 0)
-    return _phrase_pairs(conn, queries.phrases_of(conn, verse_id)[:limit], first=verse_id)
+    check_page(state, limit, offset)
+    rows = queries.phrases_of(conn, verse_id)
+    response.headers["X-Total-Count"] = str(len(rows))
+    return _phrase_pairs(conn, rows[offset : offset + limit], first=verse_id)
 
 
 @router.get("/phrases", response_model=PhrasesResponse)
@@ -87,6 +92,7 @@ def phrases(
 ) -> dict[str, Any]:
     """The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms)."""
     check_page(state, limit, offset)
+    check_min(min_tokens, "min_tokens")
     total, rows = queries.phrases_page(
         conn, book, cross_book, min_tokens, max_spread, limit, offset
     )

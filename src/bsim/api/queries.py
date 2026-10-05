@@ -8,6 +8,8 @@ from collections import defaultdict
 from collections.abc import Iterable
 from typing import Any
 
+from bsim.store.db import MODES
+
 UNIT_COLS = (
     "unit_id, unit_type, label_en, label_he, book_id, start_verse_id, end_verse_id, n_verses,"
     " marker"
@@ -321,19 +323,29 @@ def change_examples(
     op: str,
     a_book: int | None,
     b_book: int | None,
-    a_value: str | None,
-    b_value: str | None,
+    groups: list[tuple[str | None, str | None]],
     n: int,
-) -> list[dict[str, Any]]:
-    """Example verse pairs of one group (`a_value, b_value` = its grouping columns)."""
+) -> dict[tuple[str | None, str | None], list[dict[str, Any]]]:
+    """Up to `n` example verse pairs of each group (`groups`: values of its grouping columns),
+    in one query."""
+    out: dict[tuple[str | None, str | None], list[dict[str, Any]]] = {g: [] for g in groups}
+    if not groups:
+        return out
     where, args = _change_filter(op, a_book, b_book)
     ca, cb = _group_cols(op)
+    values = ", ".join("(?, ?)" for _ in groups)
     cur = conn.execute(
-        f"SELECT DISTINCT seq_id, a, b FROM diff_changes WHERE {where}"
-        f" AND {ca} IS ? AND {cb} IS ? ORDER BY seq_id, a LIMIT ?",
-        [*args, a_value, b_value, n],
+        f"WITH g(ga, gb) AS (VALUES {values}),"
+        f" d AS (SELECT DISTINCT g.ga, g.gb, c.seq_id, c.a, c.b FROM diff_changes c"
+        f" JOIN g ON c.{ca} IS g.ga AND c.{cb} IS g.gb WHERE {where}),"
+        " r AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY ga, gb ORDER BY seq_id, a, b) AS rn"
+        " FROM d)"
+        " SELECT ga, gb, seq_id, a, b FROM r WHERE rn <= ? ORDER BY ga, gb, rn",
+        [*(v for g in groups for v in g), *args, n],
     )
-    return _dicts(cur)
+    for ga, gb, seq_id, a, b in cur:
+        out[(ga, gb)].append({"seq_id": seq_id, "a": a, "b": b})
+    return out
 
 
 def change_totals(
@@ -540,14 +552,15 @@ def seam_curve(conn: sqlite3.Connection, book_id: int) -> list[dict[str, Any]]:
     return _dicts(cur)
 
 
-def seams_of(conn: sqlite3.Connection, book_id: int | None, limit: int) -> list[dict[str, Any]]:
+def seams_of(
+    conn: sqlite3.Connection, book_id: int | None, limit: int, offset: int = 0
+) -> list[dict[str, Any]]:
     """A book's seams by rank, or the strongest seams of all books (by shift / threshold)."""
     if book_id is not None:
-        sql, args = "SELECT * FROM seams WHERE book_id = ? ORDER BY rank LIMIT ?", [book_id, limit]
+        sql, args = "SELECT * FROM seams WHERE book_id = ? ORDER BY rank", [book_id]
     else:
-        sql = "SELECT * FROM seams ORDER BY shift / threshold DESC, book_id, rank LIMIT ?"
-        args = [limit]
-    return _dicts(conn.execute(sql, args))
+        sql, args = "SELECT * FROM seams ORDER BY shift / threshold DESC, book_id, rank", []
+    return _dicts(conn.execute(sql + " LIMIT ? OFFSET ?", [*args, limit, offset]))
 
 
 def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
@@ -594,15 +607,21 @@ def phrases_page(
 
 def verse_links(conn: sqlite3.Connection, pairs: Iterable[tuple[int, int]]) -> dict:
     """(src, tgt) verse pair -> (link_level, link_type) from any stored verse match row."""
+    pairs = set(pairs)
+    if not pairs:
+        return {}
+    srcs = sorted({f"v:{a}" for a, _ in pairs})
+    cur = conn.execute(
+        "SELECT src_id, tgt_id, link_level, link_type FROM matches WHERE unit_type = 'verse'"
+        f" AND mode IN ({_marks(len(MODES))}) AND src_id IN ({_marks(len(srcs))})"
+        " AND link_level IS NOT NULL",
+        [*MODES, *srcs],
+    )
     out = {}
-    for a, b in pairs:
-        row = conn.execute(
-            "SELECT link_level, link_type FROM matches WHERE unit_type = 'verse'"
-            " AND src_id = ? AND tgt_id = ? AND link_level IS NOT NULL LIMIT 1",
-            (f"v:{a}", f"v:{b}"),
-        ).fetchone()
-        if row:
-            out[(a, b)] = row
+    for src, tgt, level, types in cur:
+        key = (int(src[2:]), int(tgt[2:]))
+        if key in pairs and key not in out:
+            out[key] = (level, types)
     return out
 
 

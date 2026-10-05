@@ -115,13 +115,14 @@ def unit_entities(unit_id: str, conn: Conn, limit: int = 30) -> list[Entity]:
 
 
 @router.get("/seams", response_model=SeamsResponse)
-def seams(state: State, conn: Conn, book: int | None = None, limit: int = 30) -> dict[str, Any]:
+def seams(
+    state: State, conn: Conn, book: int | None = None, limit: int = 30, offset: int = 0
+) -> dict[str, Any]:
     """Where style changes (DESIGN.md §16.12): a book's shift curve and seams, or without a
     book the strongest seams of the corpus."""
-    if not 1 <= limit <= state.cfg["serve"]["max_page"]:
-        raise unprocessable(f"limit must be between 1 and {state.cfg['serve']['max_page']}")
+    check_page(state, limit, offset)
     meta = state.meta.get("seams", {})
-    rows = queries.seams_of(conn, book, limit)
+    rows = queries.seams_of(conn, book, limit, offset)
     labels = queries.verse_labels(conn, [r["verse_id"] for r in rows])
     return {
         "book": book,
@@ -185,6 +186,10 @@ def affinity(state: State, conn: Conn) -> dict[str, Any]:
 @router.get("/affinity/{a}/{b}", response_model=list[AffinityPair])
 def affinity_pairs(a: int, b: int, conn: Conn) -> list[AffinityPair]:
     """The strongest verse pairs between two books (book `a` on the `a` side)."""
+    known = {r["book_id"] for r in queries.books(conn)}
+    for book in (a, b):
+        if book not in known:
+            raise HTTPException(status_code=404, detail=f"unknown book {book}")
     rows = queries.book_examples(conn, a, b)
     if a > b:
         rows = [{**r, "a_vid": r["b_vid"], "b_vid": r["a_vid"]} for r in rows]

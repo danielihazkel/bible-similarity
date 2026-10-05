@@ -26,6 +26,7 @@ from bsim.api.models import (
 from bsim.api.routes._common import (
     Conn,
     State,
+    check_min,
     check_page,
     unit_or_404,
     unprocessable,
@@ -119,7 +120,7 @@ def changes(
     def group(g: dict[str, Any]) -> tuple[str | None, str | None]:
         return (g["a_form"], g["b_form"]) if by_form else (g["a_key"], g["b_key"])
 
-    ex = {group(g): queries.change_examples(conn, op, a_book, b_book, *group(g), 3) for g in groups}
+    ex = queries.change_examples(conn, op, a_book, b_book, [group(g) for g in groups], 3)
     labels = queries.verse_labels(
         conn, (v for es in ex.values() for e in es for v in (e["a"], e["b"]))
     )
@@ -191,6 +192,7 @@ def sequences(
     """Passages that run parallel in the same verse order, strongest first (DESIGN.md §16.7);
     `unit`: only chains touching that unit's verses."""
     check_page(state, limit, offset)
+    check_min(min_pairs, "min_pairs")
     if max_q is not None and not 0 <= max_q <= 1:
         raise unprocessable("max_q must be between 0 and 1")
     span = None
@@ -216,7 +218,16 @@ def sequences(
 
 @router.get("/sequences/{seq_id}", response_model=SequenceDetail)
 def sequence_detail(seq_id: int, state: State, conn: Conn) -> dict[str, Any]:
-    """One chain side by side: aligned pairs, plus the verses skipped on either side."""
+    """One chain side by side: aligned pairs, plus the verses skipped on either side (cached:
+    every pair is word-aligned)."""
+    cached = state.sequence_cache.get(seq_id)
+    if cached is None:
+        cached = _sequence_detail(seq_id, state, conn)
+        state.sequence_cache.put(seq_id, cached)
+    return cached
+
+
+def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -> dict[str, Any]:
     r = queries.sequence(conn, seq_id)
     if r is None:
         raise HTTPException(status_code=404, detail=f"unknown sequence {seq_id}")

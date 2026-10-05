@@ -285,6 +285,9 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   gzip_min_bytes: 1000        # responses at least this large are gzip-compressed
   api_max_age: 300            # Cache-Control max-age (s) of GET /api responses (data is read-only)
   sqlite_cache_mb: 64         # per-connection page cache; the DB file is also memory-mapped
+  sqlite_pool: 4              # idle read-only connections kept between requests (keeps their cache)
+  encoder_retry_s: 5          # Retry-After of a semantic /search sent while the encoder still loads
+  sequence_cache: 256         # /sequences/{id}: responses kept in memory (LRU; deterministic)
   search:
     min_root_letters: 2       # greedy prefix stripping keeps at least this many letters
     bigrams: true             # surface BM25 also indexes adjacent-token bigrams

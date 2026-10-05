@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections import defaultdict
 from typing import Annotated, Any
@@ -19,6 +20,7 @@ from bsim.api.models import (
     ConcordanceResponse,
     DiscoveriesResponse,
     Discovery,
+    EvalResponse,
     ExplainResponse,
     Hit,
     LemmaForm,
@@ -51,8 +53,10 @@ from bsim.api.routes._common import (
     unprocessable,
     verse_or_404,
 )
-from bsim.api.search import EncoderUnavailable
+from bsim.api.search import EncoderLoading, EncoderUnavailable
 from bsim.api.search import search as run_search
+from bsim.config import resolve_path
+from bsim.retrieve.fusion import final_systems
 from bsim.store.db import similar as db_similar
 from bsim.text.morph import decode as decode_morph
 from bsim.text.normalize import consonantal
@@ -70,6 +74,8 @@ def units(
     unit_type: str, state: State, conn: Conn, book: int | None = None
 ) -> list[dict[str, Any]]:
     check_unit_type(unit_type, state.cfg["units"]["types"])
+    if unit_type == "verse" and book is None:
+        raise unprocessable("verse units are listed per book: pass `book`")
     return queries.units_of_type(conn, unit_type, book)
 
 
@@ -251,7 +257,7 @@ def compare(a: str, b: str, state: State, conn: Conn) -> dict[str, Any]:
     ua, ub = unit_or_404(conn, a), unit_or_404(conn, b)
     cap = state.cfg["serve"]["max_compare_verses"]
     if max(ua["n_verses"], ub["n_verses"]) > cap:
-        raise unprocessable(f"units longer than serve.max_compare_verses = {cap} verses")
+        raise unprocessable(f"only units of at most {cap} verses can be compared")
     a_ids = list(range(ua["start_verse_id"], ua["end_verse_id"] + 1))
     b_ids = list(range(ub["start_verse_id"], ub["end_verse_id"] + 1))
     ea = np.asarray(state.emb[a_ids[0] : a_ids[-1] + 1], dtype=np.float32)
@@ -282,6 +288,9 @@ def search(
         raise unprocessable("the query has no Hebrew letters")
     try:
         normalized, tokens, df = run_search(state, q, mode, k)
+    except EncoderLoading as e:
+        retry = str(state.cfg["serve"]["encoder_retry_s"])
+        raise HTTPException(status_code=503, detail=str(e), headers={"Retry-After": retry}) from e
     except EncoderUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
     vids = df.tgt.tolist()
@@ -401,4 +410,26 @@ def lemma(
 def meta(state: State, response: Response) -> dict[str, Any]:
     response.headers["Cache-Control"] = "no-store"  # encoder_ready changes after startup
     ready = getattr(state.encoder, "ready", True)
-    return {"build": state.meta, "runtime": {**state.runtime, "encoder_ready": ready}}
+    error = getattr(state.encoder, "error", None)
+    return {
+        "build": state.meta,
+        "runtime": {**state.runtime, "encoder_ready": ready, "encoder_error": error},
+    }
+
+
+@router.get("/eval", response_model=EvalResponse)
+def evaluation(state: State) -> dict[str, Any]:
+    """Retrieval metrics against the Sefaria gold (dev, and the one test run) and OpenBible."""
+    folder = resolve_path(state.cfg, "artifacts") / "eval"
+
+    def read(name: str) -> dict[str, Any] | None:
+        path = folder / name
+        return json.loads(path.read_text("utf-8")) if path.exists() else None
+
+    metrics = read("metrics.json") or {}
+    types = [t for t in state.cfg["units"]["types"] if t != "parasha"]  # no parasha gold
+    return {
+        "splits": metrics.get("splits", {}),
+        "openbible": read("openbible.json"),
+        "final": {t: final_systems(state.cfg, t) for t in types},
+    }

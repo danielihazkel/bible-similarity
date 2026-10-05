@@ -669,3 +669,9 @@ class BookStyle(BaseModel):
 class Meta(BaseModel):
     build: dict[str, Any]  # the DB `meta` table
     runtime: dict[str, Any]
+
+
+class EvalResponse(BaseModel):
+    splits: dict[str, Any]  # artifacts/eval/metrics.json `splits` (empty before `bsim eval`)
+    openbible: dict[str, Any] | None  # artifacts/eval/openbible.json
+    final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it

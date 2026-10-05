@@ -21,11 +21,11 @@ def get_state(request: Request) -> ServeState:
 
 
 def get_conn(state: Annotated[ServeState, Depends(get_state)]) -> Iterator[sqlite3.Connection]:
-    conn = state.connect()
+    conn = state.acquire()
     try:
         yield conn
     finally:
-        conn.close()
+        state.release(conn)
 
 
 State = Annotated[ServeState, Depends(get_state)]
@@ -52,6 +52,11 @@ def check_page(state: ServeState, limit: int, offset: int) -> None:
         raise unprocessable(f"limit must be between 1 and {max_page}")
     if offset < 0:
         raise unprocessable("offset must not be negative")
+
+
+def check_min(value: int | None, name: str, low: int = 1) -> None:
+    if value is not None and value < low:
+        raise unprocessable(f"{name} must be at least {low}")
 
 
 def unit_or_404(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any]:
