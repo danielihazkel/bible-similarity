@@ -3,6 +3,7 @@ import { Pager } from '../components/Pager'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { ErrorBox, Loading } from '../components/Status'
+import { UnitFilter } from '../components/UnitFilter'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
@@ -22,12 +23,14 @@ export function SequencesPage() {
   const hideSameChapter = params.get('internal') === '0'
   const qRaw = params.get('q') ?? '0.05'
   const qChoice = Q_OPTIONS.some((o) => o.value === qRaw) ? qRaw : '0.05'
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useSequences({
     book,
     crossBook,
     hideSameChapter,
+    unit,
     maxQ: qChoice === 'all' ? undefined : Number(qChoice),
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
@@ -44,6 +47,7 @@ export function SequencesPage() {
         positions advance together on both sides; q estimates how often such a chain appears when verse order is shuffled
         within chapters.
       </p>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <label className="control">
           <span>Book</span>

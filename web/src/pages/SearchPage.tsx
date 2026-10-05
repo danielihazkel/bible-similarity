@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useEncoderReady, useResolve, useSearch } from '../api/hooks'
+import { useEncoderStatus, useResolve, useSearch } from '../api/hooks'
 import { KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
@@ -16,10 +16,12 @@ export function SearchPage() {
   const q = params.get('q') ?? ''
   const mode = parseMode(params.get('mode'), SEARCH_MODES)
   const k = parseK(params.get('k'))
-  const search = useSearch(q, mode, k)
   const resolved = useResolve(q).data?.unit
   const needsEncoder = mode !== 'lexical'
-  const encoderReady = useEncoderReady(needsEncoder)
+  const encoder = useEncoderStatus(needsEncoder)
+  const encoderLoading = needsEncoder && !encoder.ready && !encoder.error
+  // the server answers semantic / fused queries only once the encoder has loaded
+  const search = useSearch(q, mode, k, !needsEncoder || encoder.ready === true)
 
   return (
     <div className="page search-page">
@@ -34,11 +36,21 @@ export function SearchPage() {
         {MODE_HINTS[mode]}. Pointed or unpointed input; lexical matching strips prefixes (ו ה ב כ ל מ ש).
       </p>
 
-      {needsEncoder && encoderReady === false && (
-        <p className="status" role="status">
-          The semantic encoder is still loading on the server; {mode} search will answer as soon as it is ready
-          (lexical search works now).
+      {needsEncoder && encoder.error ? (
+        <p className="status error" role="alert">
+          The semantic encoder failed to load on the server ({encoder.error}); only lexical search is available.{' '}
+          <button type="button" className="linkish" onClick={() => update({ mode: 'lexical' })}>
+            Search lexically
+          </button>
         </p>
+      ) : (
+        needsEncoder &&
+        encoder.ready === false && (
+          <p className="status" role="status">
+            The semantic encoder is still loading on the server; {mode} search will answer as soon as it is ready
+            (lexical search works now).
+          </p>
+        )
       )}
 
       {resolved && (
@@ -53,8 +65,8 @@ export function SearchPage() {
 
       {!q ? null : !hasHebrew(q) ? (
         !resolved && <p className="status">Not a reference; free-text search needs Hebrew letters.</p>
-      ) : search.isPending ? (
-        <Loading label={needsEncoder && encoderReady === false ? 'Waiting for the semantic encoder…' : 'Searching…'} />
+      ) : needsEncoder && encoder.error ? null : search.isPending ? (
+        <Loading label={encoderLoading ? 'Waiting for the semantic encoder…' : 'Searching…'} />
       ) : search.error ? (
         <ErrorBox error={search.error} />
       ) : (

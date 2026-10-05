@@ -63,12 +63,14 @@ const COMPARE: CompareResponse = {
   verses: { '1': verse(1, ['אָמַר', 'נָבָל']), '2': verse(2, ['אָמַר', 'נָבָל']) },
 }
 
+const DIFF = { a: 1, b: 2, a_marks: {}, b_marks: { '1': 'substitution' }, counts: { same: 1, substitution: 1 }, shared: 0.5, loose: false }
+
 function Location() {
   const l = useLocation()
   return <output data-testid="loc">{l.pathname + l.search}</output>
 }
 
-function mockApi(encoderReady: boolean) {
+function mockApi(encoderReady: boolean, encoderError: string | null = null) {
   const calls: string[] = []
   vi.stubGlobal(
     'fetch',
@@ -83,12 +85,14 @@ function mockApi(encoderReady: boolean) {
             : p === '/api/compare'
               ? COMPARE
               : p === '/api/meta'
-                ? { build: {}, runtime: { encoder_ready: encoderReady } }
+                ? { build: {}, runtime: { encoder_ready: encoderReady, encoder_error: encoderError } }
                 : p === '/api/resolve'
                   ? { query: '', unit: null }
                   : p.startsWith('/api/unit/')
                     ? { unit: COMPARE.a, verses: [], parents: [], prev_id: null, next_id: null }
-                    : null
+                    : p === '/api/diff'
+                      ? DIFF
+                      : null
       return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
     }),
   )
@@ -123,12 +127,23 @@ describe('BooksPage', () => {
 })
 
 describe('SearchPage', () => {
-  it('shows hits and says when the semantic encoder is still loading', async () => {
+  it('waits for the semantic encoder while it is still loading', async () => {
     const calls = mockApi(false)
     renderAt('/search?q=נבל', <Route path="/search" element={<SearchPage />} />)
-    expect(await screen.findByText('Psalms 14:1')).toBeTruthy()
     expect(await screen.findByText(/semantic encoder is still loading/)).toBeTruthy()
+    expect(screen.getByText('Waiting for the semantic encoder…')).toBeTruthy()
     expect(calls.some((c) => c.startsWith('/api/meta'))).toBe(true)
+    expect(calls.some((c) => c.startsWith('/api/search'))).toBe(false)
+  })
+
+  it('says when the semantic encoder failed and offers lexical search', async () => {
+    const calls = mockApi(false, 'no model')
+    renderAt('/search?q=נבל', <Route path="/search" element={<SearchPage />} />)
+    expect(await screen.findByText(/failed to load on the server \(no model\)/)).toBeTruthy()
+    expect(screen.queryByText(/still loading/)).toBeNull()
+    expect(calls.some((c) => c.startsWith('/api/search'))).toBe(false)
+    fireEvent.click(screen.getByRole('button', { name: 'Search lexically' }))
+    expect(await screen.findByText('Psalms 14:1')).toBeTruthy()
   })
 
   it('does not check the encoder for lexical search', async () => {
@@ -158,5 +173,19 @@ describe('ComparePage', () => {
     expect(page.container.querySelectorAll('.sim-4').length).toBeGreaterThan(0)
     fireEvent.click(page.getByTitle('Swap A and B'))
     await waitFor(() => expect(page.getByTestId('loc').textContent).toBe('/compare?a=c%3A26%3A53&b=c%3A26%3A14'))
+  })
+
+  it('marks the word changes of the hovered pair', async () => {
+    Element.prototype.scrollIntoView = vi.fn() // not in jsdom
+    const calls = mockApi(true)
+    const page = renderAt('/compare?a=c:26:14&b=c:26:53&marks=changes', <Route path="/compare" element={<ComparePage />} />)
+    await page.findByText('0.912')
+    fireEvent.mouseEnter(page.container.querySelector('.align-row')!)
+    await waitFor(() => expect(page.container.querySelectorAll('.align-row .w-diff-substitution')).toHaveLength(1))
+    expect(calls.some((c) => c.startsWith('/api/diff?a=1&b=2'))).toBe(true)
+    expect(calls.some((c) => c.startsWith('/api/explain'))).toBe(false)
+    expect(page.getByText(/50% of the words keep their lemma/)).toBeTruthy()
+    fireEvent.click(page.getByRole('button', { name: 'Shared words' }))
+    await waitFor(() => expect(page.getByTestId('loc').textContent).toBe('/compare?a=c%3A26%3A14&b=c%3A26%3A53'))
   })
 })

@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
-import { getJson } from './client'
+import { getJson, getJsonWithTotal } from './client'
 import type {
   AffinityPair,
   AffinityResponse,
@@ -12,6 +12,7 @@ import type {
   ConcordanceResponse,
   DiscoveriesResponse,
   EntitiesResponse,
+  EvalResponse,
   Entity,
   EntityDetail,
   EntityKind,
@@ -37,6 +38,7 @@ import type {
   UnitParallelism,
   UnitSummary,
   UnitType,
+  VerseDiff,
   WordDetail,
   WordplayPair,
   WordplayResponse,
@@ -81,6 +83,15 @@ export const useExplain = (a: number | undefined, b: number | undefined) =>
     ...forever,
   })
 
+/** Word-level changes from verse a to verse b. */
+export const useVerseDiff = (a: number | undefined, b: number | undefined, enabled = true) =>
+  useQuery({
+    queryKey: ['diff', a, b],
+    queryFn: ({ signal }) => getJson<VerseDiff>('/diff', { a, b }, signal),
+    enabled: enabled && a !== undefined && b !== undefined,
+    ...forever,
+  })
+
 export const useCompare = (a: string | undefined, b: string | undefined) =>
   useQuery({
     queryKey: ['compare', a, b],
@@ -89,12 +100,12 @@ export const useCompare = (a: string | undefined, b: string | undefined) =>
     ...forever,
   })
 
-export const useSearch = (q: string, mode: Mode, k: number) =>
+export const useSearch = (q: string, mode: Mode, k: number, enabled = true) =>
   useQuery({
     queryKey: ['search', q, mode, k],
     queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k }, signal),
     // the API rejects queries without Hebrew letters (e.g. an English reference)
-    enabled: hasHebrew(q),
+    enabled: enabled && hasHebrew(q),
     ...forever,
   })
 
@@ -152,10 +163,11 @@ export const useLemma = (lemma: string, book: number | undefined, limit: number,
     ...forever,
   })
 
-export const usePhrasesOf = (verseId: number | undefined) =>
+/** Phrase partners of a verse: the strongest `limit`, and how many there are in all. */
+export const usePhrasesOf = (verseId: number | undefined, limit = 50) =>
   useQuery({
-    queryKey: ['phrases-of', verseId],
-    queryFn: ({ signal }) => getJson<PhrasePair[]>(`/phrases/${verseId}`, {}, signal),
+    queryKey: ['phrases-of', verseId, limit],
+    queryFn: ({ signal }) => getJsonWithTotal<PhrasePair>(`/phrases/${verseId}`, { limit }, signal),
     enabled: verseId !== undefined,
     ...forever,
   })
@@ -421,14 +433,28 @@ export const useSeams = (book: number | undefined) =>
 
 const ENCODER_POLL_MS = 2000
 
-/** Whether the server's query encoder has loaded (polled until it has; undefined while unknown). */
-export const useEncoderReady = (enabled: boolean) => {
+export interface EncoderStatus {
+  /** undefined while unknown */
+  ready?: boolean
+  /** why the encoder failed to load (polling stops) */
+  error?: string
+}
+
+/** Whether the server's query encoder has loaded (polled while it is still loading). */
+export const useEncoderStatus = (enabled: boolean): EncoderStatus => {
   const q = useQuery({
     queryKey: ['meta', 'encoder'],
     queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal),
     enabled,
-    refetchInterval: (query) => (query.state.data?.runtime.encoder_ready ? false : ENCODER_POLL_MS),
+    refetchInterval: (query) => {
+      const rt = query.state.data?.runtime
+      return rt?.encoder_ready || rt?.encoder_error ? false : ENCODER_POLL_MS
+    },
     staleTime: 0,
   })
-  return q.data?.runtime.encoder_ready
+  const rt = q.data?.runtime
+  return { ready: rt?.encoder_ready, error: rt?.encoder_error ?? undefined }
 }
+
+export const useEval = () =>
+  useQuery({ queryKey: ['eval'], queryFn: ({ signal }) => getJson<EvalResponse>('/eval', {}, signal), ...forever })

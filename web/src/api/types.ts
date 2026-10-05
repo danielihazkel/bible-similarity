@@ -389,7 +389,7 @@ export interface BookStyle {
 
 export interface Meta {
   build: Record<string, unknown>
-  runtime: Record<string, unknown> & { encoder_ready?: boolean; startup_s?: number }
+  runtime: Record<string, unknown> & { encoder_ready?: boolean; encoder_error?: string | null; startup_s?: number }
 }
 
 export interface SequenceSummary {
@@ -623,4 +623,40 @@ export interface SeamsResponse {
   threshold: number | null
   curve: CurvePoint[]
   seams: Seam[]
+}
+
+export interface VerseDiff {
+  a: number
+  b: number
+  a_marks: Record<string, DiffOp>
+  b_marks: Record<string, DiffOp>
+  counts: Record<string, number>
+  shared: number
+  loose: boolean
+}
+
+/** recall@k, mrr@10, ndcg@10 (fractions) and `queries` (count). */
+export type MetricSet = Record<string, number>
+
+export interface EvalSplit {
+  evaluated_at?: string
+  config_hash?: string
+  gold?: Record<string, { queries: number; pairs: number }>
+  /** unit type -> system -> metrics */
+  results: Record<string, Record<string, MetricSet>>
+}
+
+export interface OpenBibleEval {
+  evaluated_at?: string
+  split?: string
+  gold?: Record<string, number>
+  /** mode -> the system evaluated and its metrics on each gold set */
+  results: Record<string, { system: string; openbible: MetricSet; sefaria: MetricSet }>
+}
+
+export interface EvalResponse {
+  splits: Record<string, EvalSplit>
+  openbible: OpenBibleEval | null
+  /** unit type -> mode -> the system served for it */
+  final: Record<string, Record<string, string>>
 }

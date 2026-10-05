@@ -23,3 +23,13 @@ export function ErrorBox({ error }: { error: unknown }) {
     </p>
   )
 }
+
+/** A one-line note that an optional panel (names, phrases, …) could not be loaded. */
+export function PanelError({ what, error }: { what: string; error: unknown }) {
+  const detail = error instanceof ApiError ? `${error.status}: ${error.detail}` : 'the API could not be reached'
+  return (
+    <p className="status error small" role="alert">
+      Could not load {what} ({detail}).
+    </p>
+  )
+}

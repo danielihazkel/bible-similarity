@@ -26,7 +26,8 @@ export function AboutPage() {
       </ul>
       <p>
         Hebrew versification and Jewish canon order throughout. Try <Link to="/unit/v:15291">Psalms 14:1</Link> or{' '}
-        <Link to="/compare?a=c:8:22&b=c:26:18">II Samuel 22 ↔ Psalms 18</Link>.
+        <Link to="/compare?a=c:8:22&b=c:26:18">II Samuel 22 ↔ Psalms 18</Link>. How well each system finds known
+        cross-references: <Link to="/eval">Evaluation</Link>.
       </p>
       <h2>Sources and licenses</h2>
       <ul>

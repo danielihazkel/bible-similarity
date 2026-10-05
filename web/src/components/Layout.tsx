@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { TextModeToggle } from './Controls'
+import { ErrorBoundary } from './ErrorBoundary'
 import { Loading } from './Status'
 
 interface NavItem {
@@ -41,6 +42,7 @@ const NAV: NavEntry[] = [
     items: [
       { to: '/map', label: 'Map', hint: 'Units by meaning, book affinity' },
       { to: '/style', label: 'Style', hint: 'Stylometry and style shifts' },
+      { to: '/eval', label: 'Evaluation', hint: 'How well known cross-references are found' },
     ],
   },
   { to: '/about', label: 'About' },
@@ -90,9 +92,11 @@ export function Layout() {
         <TextModeToggle />
       </header>
       <main className="main">
-        <Suspense fallback={<Loading />}>
-          <Outlet />
-        </Suspense>
+        <ErrorBoundary key={pathname}>
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <footer className="footer">
         <p>

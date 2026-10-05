@@ -19,7 +19,7 @@ import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
-import { ErrorBox, Loading } from '../components/Status'
+import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { nameLink, unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
 import { highlightFor, type Highlight } from '../lib/highlight'
@@ -100,6 +100,12 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />
           Verse halves (te'amim)
         </label>
+        {halvesOn && halves.isPending && (
+          <span className="muted small" role="status">
+            Loading verse halves…
+          </span>
+        )}
+        {halvesOn && halves.error && <PanelError what="the verse halves" error={halves.error} />}
         {halvesOn && halves.data && halves.data.n_scored > 0 && (
           <span className="muted small">
             ∥ marks verses whose halves are parallel like poetry
@@ -139,6 +145,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         )}
       </section>
+      {names.error && <PanelError what="the names in this unit" error={names.error} />}
       {names.data && names.data.length > 0 && (
         <p className="unit-names" aria-label="People and places">
           <span className="muted small">Names: </span>
@@ -221,27 +228,35 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         )}
       </section>
 
-      {isVerse && phrases.data && phrases.data.length > 0 && (
+      {isVerse && phrases.error && <PanelError what="shared phrases" error={phrases.error} />}
+      {isVerse && phrases.data && phrases.data.total > 0 && (
         <section className="results" aria-label="Shared phrases">
           <h2>
-            Shared phrases <span className="muted small">({phrases.data.length})</span>
+            Shared phrases <span className="muted small">({phrases.data.total})</span>
           </h2>
-          <p className="muted small">Verses that share an aligned run of lemmas with this one (rare words weigh more).</p>
+          <p className="muted small">
+            Verses that share an aligned run of lemmas with this one (rare words weigh more)
+            {phrases.data.total > phrases.data.items.length && `; the strongest ${phrases.data.items.length} are shown`}.
+          </p>
           <ol className="disc-list">
-            {phrases.data.map((p) => (
+            {phrases.data.items.map((p) => (
               <PhraseCard key={p.b.unit_id} p={p} />
             ))}
           </ol>
         </section>
       )}
 
+      {wordplay.error && <PanelError what="wordplay" error={wordplay.error} />}
       {wordplay.data && wordplay.data.total > 0 && (
         <section className="results" aria-label="Wordplay">
           <h2>
             Wordplay <span className="muted small">({wordplay.data.total})</span>
           </h2>
           <p className="muted small">
-            Sound-alike words close together, rarest first. <Link to="/wordplay">All wordplay</Link>
+            Sound-alike words close together, rarest first.{' '}
+            <Link to={`/wordplay?unit=${encodeURIComponent(unit.unit_id)}`}>
+              {wordplay.data.total > wordplay.data.items.length ? `All ${wordplay.data.total} here` : 'In the wordplay list'}
+            </Link>
           </p>
           <ol className="disc-list">
             {wordplay.data.items.map((p) => (
@@ -251,6 +266,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </section>
       )}
 
+      {sequences.error && <PanelError what="parallel sequences" error={sequences.error} />}
       {sequences.data && sequences.data.total > 0 && (
         <section className="results" aria-label="Parallel sequences">
           <h2>
@@ -258,7 +274,9 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </h2>
           <p className="muted small">
             Passages that follow this one verse by verse in the same order (q ≤ {SEQUENCE_MAX_Q}).{' '}
-            <Link to="/sequences">All sequences</Link>
+            <Link to={`/sequences?unit=${encodeURIComponent(unit.unit_id)}&q=${SEQUENCE_MAX_Q}`}>
+              {sequences.data.total > sequences.data.items.length ? `All ${sequences.data.total} here` : 'In the sequences list'}
+            </Link>
           </p>
           <ol className="disc-list">
             {sequences.data.items.map((s) => (

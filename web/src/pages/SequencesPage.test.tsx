@@ -74,7 +74,17 @@ function renderAt(path: string, calls: string[]) {
         limit: 50,
         items: [SEQ],
       }
-      const body = p === '/api/books' ? [] : p === '/api/sequences' ? list : p === '/api/sequences/4' ? DETAIL : null
+      const unit = { unit: { unit_id: 'c:8:22', label_en: 'II Samuel 22', label_he: 'שמואל ב כב' } }
+      const body =
+        p === '/api/books'
+          ? []
+          : p === '/api/sequences'
+            ? list
+            : p === '/api/sequences/4'
+              ? DETAIL
+              : p.startsWith('/api/unit/')
+                ? unit
+                : null
       return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
     }),
   )
@@ -103,6 +113,17 @@ describe('SequencesPage', () => {
     fireEvent.click(screen.getByLabelText('Different books only'))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/sequences?cross=1'))
     await waitFor(() => expect(calls.some((c) => c.includes('cross_book=true'))).toBe(true))
+  })
+})
+
+describe('SequencesPage unit filter', () => {
+  it('limits the list to one unit and can clear the filter', async () => {
+    const calls: string[] = []
+    renderAt('/sequences?unit=c%3A8%3A22&q=0.2', calls)
+    expect(await screen.findByText('II Samuel 22', { selector: '.unit-filter a' })).toBeTruthy()
+    expect(calls.some((c) => c.startsWith('/api/sequences?') && c.includes('unit=c%3A8%3A22') && c.includes('max_q=0.2'))).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/sequences?q=0.2'))
   })
 })
 

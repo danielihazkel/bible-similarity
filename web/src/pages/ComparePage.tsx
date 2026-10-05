@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useCompare, useExplain } from '../api/hooks'
-import type { CompareResponse, Pair, UnitSummary, Verse } from '../api/types'
+import { useCompare, useExplain, useVerseDiff } from '../api/hooks'
+import type { CompareResponse, Pair, UnitSummary, Verse, VerseDiff } from '../api/types'
+import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { LemmaChips } from '../components/LemmaChips'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitPicker } from '../components/UnitPicker'
 import { similarityBand, unitTypeLabel } from '../lib/format'
-import { highlightFor } from '../lib/highlight'
+import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 
 /** The hovered verse pair, always as (verse in A, verse in B). */
 type Active = { a: number; b: number; from: 'a' | 'b' }
+/** What the active pair's words are marked by: shared lemmas, or the word-level changes A → B. */
+type Marks = 'shared' | 'changes'
 
 export function ComparePage() {
   const [params, update] = useQueryParams()
@@ -47,17 +50,26 @@ export function ComparePage() {
       ) : cmp.error ? (
         <ErrorBox error={cmp.error} />
       ) : (
-        <Alignment key={`${a}|${b}`} data={cmp.data} />
+        <Alignment
+          key={`${a}|${b}`}
+          data={cmp.data}
+          marks={params.get('marks') === 'changes' ? 'changes' : 'shared'}
+          onMarks={(m) => update({ marks: m === 'changes' ? m : null }, false)}
+        />
       )}
     </div>
   )
 }
 
-function Alignment({ data }: { data: CompareResponse }) {
+function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Marks; onMarks: (m: Marks) => void }) {
   const [active, setActive] = useState<Active>()
   const [focusLemma, setFocusLemma] = useState<string>()
-  const explain = useExplain(active?.a, active?.b)
+  const explain = useExplain(marks === 'shared' ? active?.a : undefined, active?.b)
   const ex = explain.data && active && explain.data.a === active.a && explain.data.b === active.b ? explain.data : undefined
+  const diff = useVerseDiff(active?.a, active?.b, marks === 'changes')
+  const df = diff.data && active && diff.data.a === active.a && diff.data.b === active.b ? diff.data : undefined
+  const highlight = (side: 'a' | 'b'): Highlight | undefined =>
+    marks === 'changes' ? diffHighlight(side === 'a' ? df?.a_marks : df?.b_marks) : highlightFor(ex, side, focusLemma)
 
   const bestOfB = new Map(data.b_to_a.map((p) => [p.src, p.tgt]))
   const bestOfA = new Map(data.a_to_b.map((p) => [p.src, p.tgt]))
@@ -88,8 +100,7 @@ function Alignment({ data }: { data: CompareResponse }) {
           mutual={(p) => bestOfB.get(p.tgt) === p.src}
           verse={verse}
           active={active}
-          ex={ex}
-          focusLemma={focusLemma}
+          highlight={highlight}
           onHover={(p) => setActive(p && { a: p.src, b: p.tgt, from: 'a' })}
         />
         <Column
@@ -100,8 +111,7 @@ function Alignment({ data }: { data: CompareResponse }) {
           mutual={(p) => bestOfA.get(p.tgt) === p.src}
           verse={verse}
           active={active}
-          ex={ex}
-          focusLemma={focusLemma}
+          highlight={highlight}
           onHover={(p) => setActive(p && { a: p.tgt, b: p.src, from: 'b' })}
         />
       </div>
@@ -111,7 +121,18 @@ function Alignment({ data }: { data: CompareResponse }) {
             {verse(active.a).ref} ↔ {verse(active.b).ref} · cosine{' '}
             {(pairOf(active.from, active.from === 'a' ? active.a : active.b)?.cosine ?? 0).toFixed(3)}
           </span>
-          <LemmaChips explain={ex} loading={explain.isFetching} focus={focusLemma} onFocus={setFocusLemma} />
+          <span className="segmented" role="group" aria-label="Mark words by">
+            {(['shared', 'changes'] as const).map((m) => (
+              <button key={m} type="button" className={marks === m ? 'on' : ''} aria-pressed={marks === m} onClick={() => onMarks(m)}>
+                {m === 'shared' ? 'Shared words' : 'Changes A → B'}
+              </button>
+            ))}
+          </span>
+          {marks === 'shared' ? (
+            <LemmaChips explain={ex} loading={explain.isFetching} focus={focusLemma} onFocus={setFocusLemma} />
+          ) : (
+            <ChangesNote diff={df} loading={diff.isFetching} error={diff.error} />
+          )}
         </div>
       )}
     </>
@@ -126,12 +147,11 @@ interface ColumnProps {
   mutual: (p: Pair) => boolean
   verse: (id: number) => Verse
   active?: Active
-  ex?: ReturnType<typeof useExplain>['data']
-  focusLemma?: string
+  highlight: (side: 'a' | 'b') => Highlight | undefined
   onHover: (p: Pair | undefined) => void
 }
 
-function Column({ side, unit, other, pairs, mutual, verse, active, ex, focusLemma, onHover }: ColumnProps) {
+function Column({ side, unit, other, pairs, mutual, verse, active, highlight, onHover }: ColumnProps) {
   const listRef = useRef<HTMLOListElement>(null)
   const mine = active ? (side === 'a' ? active.a : active.b) : undefined
   const isPartner = active !== undefined && active.from !== side
@@ -174,11 +194,28 @@ function Column({ side, unit, other, pairs, mutual, verse, active, ex, focusLemm
                 </span>
                 <span className="cos">{p.cosine.toFixed(2)}</span>
               </div>
-              <HebrewText verse={v} highlight={on ? highlightFor(ex, side, focusLemma) : undefined} />
+              <HebrewText verse={v} highlight={on ? highlight(side) : undefined} />
             </li>
           )
         })}
       </ol>
     </section>
+  )
+}
+
+function ChangesNote({ diff, loading, error }: { diff?: VerseDiff; loading: boolean; error: unknown }) {
+  if (error) return <span className="status error small">Could not load the changes.</span>
+  if (!diff) return loading ? <span className="muted small">Aligning words…</span> : null
+  if (diff.loose)
+    return (
+      <span className="muted small">
+        Too different to mark word by word ({Math.round(diff.shared * 100)}% of the words keep their lemma).
+      </span>
+    )
+  return (
+    <>
+      <span className="muted small">{Math.round(diff.shared * 100)}% of the words keep their lemma; A is read as the earlier passage.</span>
+      <DiffLegend />
+    </>
   )
 }

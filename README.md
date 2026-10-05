@@ -1,14 +1,17 @@
 # bible-similarity
 
-Find, for every **verse, chapter, parasha and Masoretic pericope** of the Hebrew Bible, the top-k most similar units. Three similarity modes are available:
+Find, for every **verse, chapter, parasha and Masoretic pericope** of the Hebrew Bible, the top-k most similar units. Four similarity modes are available:
 
 - **lexical**: shared wording (BM25 / TF-IDF over OSHB lemmas, with repeated formulas down-weighted)
 - **semantic**: shared meaning (BEREL 3.0 fine-tuned with SimCSE and Sefaria cross-links)
 - **fused**: both combined (weighted reciprocal rank fusion)
+- **structural**: shared grammatical shape (morphology n-grams; shown, not fused)
 
-The results are precomputed into SQLite and browsed in a local FastAPI + React viewer. The viewer supports shared-word highlighting, side-by-side unit comparison and free-text Hebrew search.
+On top of retrieval, the pipeline looks for patterns in the text: shared phrases, passages that run parallel verse by verse and how they differ word by word, inclusio / chiasm / Leitworte, parallel verse halves from the te'amim, wordplay, people and places, a corpus map, stylometry and style seams.
 
-Status: complete (milestones M0–M13). On the held-out test books, fused retrieval reaches nDCG@10 **0.136** at verse level (lexical 0.118, semantic 0.118), 0.157 for chapters and 0.068 for pericopes; see [docs/RESULTS.md](docs/RESULTS.md).
+Everything is precomputed into SQLite and browsed in a local FastAPI + React viewer: shared-word highlighting, side-by-side comparison with word-level changes, free-text Hebrew search, a concordance, list pages for every analysis and an evaluation page.
+
+Status: milestones M0–M28 and hardening rounds H1–H3 are done (see [docs/TASKS.md](docs/TASKS.md)). On the held-out test books, fused retrieval reaches nDCG@10 **0.136** at verse level (lexical 0.118, semantic 0.118), 0.157 for chapters and 0.068 for pericopes; see [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Docs
 - [Architecture](docs/ARCHITECTURE.md): system overview, pipeline stages, repo layout, stack
@@ -28,11 +31,11 @@ uv run bsim serve            # API + viewer on http://localhost:8000
 
 `bsim all` took 38 minutes on the GTX 1080 Ti from an empty clone, with BEREL 3.0 and BGE-M3 already in the Hugging Face cache (they are fetched on first use, about 3 GB). It runs these stages, each also available as its own command (`uv run bsim --help`):
 
-`download` → `build-corpus` → `build-links` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `build-db`
+`download` → `build-corpus` → `build-links` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `parallelism` → `wordplay` → `entities` → `seams` → `structure` → `map` → `stylometry` → `build-db`
 
 Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 
-Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend.
+Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend; `npm run e2e` runs the Playwright smoke and accessibility tests against a running `bsim serve`.
 
 ## Data & licenses
 - Hebrew text and morphology: [OSHB morphhb](https://github.com/openscriptures/morphhb) (WLC: public domain; morphology: CC BY 4.0)

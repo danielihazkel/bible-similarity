@@ -277,7 +277,8 @@ M0 → M1 → M2 → M3 ─┐
 ## H2 — Serving and viewer hardening, part 2
 - [x] `/search` query-embedding LRU; SQLite page cache, mmap, `query_only` per connection
 - [x] `/phrases/{verse}` `limit`; limit / offset edge tests for the newer list endpoints
-- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)- [x] Viewer: lazy page chunks (entry bundle 358 → 235 kB); Search shows the real encoder status from `/api/meta` (polled until ready)
+- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)
+- [x] Viewer: lazy page chunks (entry bundle 358 → 235 kB); Search shows the real encoder status from `/api/meta` (polled until ready)
 - [x] Viewer: "Export page (CSV)" on the list pages (UTF-8 + BOM)
 - [x] Tests: Books / Search / Compare pages, CSV, navigation (vitest)
 - [x] End-to-end: `npm run e2e` — Playwright in the installed Edge against `bsim serve` + the real DB: 16 pages load with no console errors at desktop and phone width, both navigation modes, no sideways scroll at 390 px, axe (WCAG 2 A/AA) with no serious violations in light and dark themes
@@ -285,3 +286,12 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Every page verified in a real browser for the first time.
 
+## H3 — Serving and viewer hardening, part 3
+- [x] Pooled read-only SQLite connections (`serve.sqlite_pool`), so the page cache outlives a request
+- [x] One query instead of one per row: `verse_links` (phrases, affinity examples), `/changes` examples; `/sequences/{id}` cached (`serve.sequence_cache`)
+- [x] Encoder state: semantic `/search` answers 503 + `Retry-After` at once while the encoder loads; `/meta` `encoder_error`; Search waits for the encoder and says when it failed
+- [x] Parameter checks: `/units/verse` needs `book`; `offset` for `/seams` and `/phrases/{verse}` (`X-Total-Count`); `min_pairs` / `min_tokens` / `min_verses` >= 1; `/affinity/{a}/{b}` 404 for unknown books; 422 messages without config key names
+- [x] Viewer: error boundary around every page (a stale lazy chunk reloads once); Unit-page panels show their errors and the real phrase count
+- [x] Viewer: Compare marks word changes A → B (`/api/diff`); Sequences / Wordplay honour `unit=` (linked from the Unit page); Evaluation page (`/api/eval`)
+- [x] README / DESIGN §10–11 brought up to date
+- [x] Tests: pool, fail-fast encoder, parameter checks, paging, caches, `/eval` (pytest); error boundary, panel errors, encoder failure, Compare changes, unit filter, Evaluation page (vitest)

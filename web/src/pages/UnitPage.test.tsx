@@ -102,13 +102,16 @@ const HALVES: UnitParallelism = {
   ],
 }
 
-function mockApi() {
+const EMPTY_PAGE = { total: 0, offset: 0, limit: 5, items: [] }
+
+function mockApi(failing: string[] = []) {
   const calls: string[] = []
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
       calls.push(url)
       const u = new URL(url, 'http://x')
+      if (failing.includes(u.pathname)) return new Response(JSON.stringify({ detail: 'boom' }), { status: 500 })
       const body = u.pathname.startsWith('/api/unit/')
         ? DETAIL
         : u.pathname.startsWith('/api/similar/')
@@ -121,7 +124,9 @@ function mockApi() {
                 ? PHRASES
                 : u.pathname.startsWith('/api/parallelism/')
                   ? HALVES
-                  : null
+                  : u.pathname === '/api/wordplay' || u.pathname === '/api/sequences'
+                    ? EMPTY_PAGE
+                    : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -175,6 +180,15 @@ describe('UnitPage', () => {
     expect(section.textContent).toContain('4 lemmas')
     expect(section.querySelectorAll('.w-shared')).toHaveLength(4)
     expect(container.querySelector('h2')).toBeTruthy()
+  })
+
+  it('says when an optional panel fails instead of hiding it', async () => {
+    mockApi(['/api/phrases/0', '/api/wordplay'])
+    renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    expect(await screen.findByText('Could not load shared phrases (500: boom).')).toBeTruthy()
+    expect(await screen.findByText('Could not load wordplay (500: boom).')).toBeTruthy()
+    expect(screen.queryByText(/Could not load parallel sequences/)).toBeNull()
   })
 
   it('marks Sefaria-linked hits and can hide them', async () => {

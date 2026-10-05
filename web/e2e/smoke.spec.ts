@@ -18,6 +18,9 @@ const PAGES: [string, RegExp][] = [
   ['/map', /Map/],
   ['/style?book=26', /Style/],
   ['/unit/c%3A0%3A1?halves=1', /Genesis 1/],
+  ['/browse/0?tab=verses', /Genesis/],
+  ['/lemma/430', /Concordance|אלה/],
+  ['/eval', /Evaluation/],
   ['/about', /About/],
 ]
 

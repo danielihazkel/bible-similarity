@@ -385,6 +385,12 @@ h2 {
 .status.error {
   color: #b3261e;
 }
+.status.small {
+  padding: 0.25rem 0;
+}
+.unit-filter {
+  margin: 0.5rem 0;
+}
 
 /* ---------- Controls ---------- */
 
@@ -1670,3 +1676,24 @@ svg[tabindex]:focus-visible {
 }
 .seam-feature.up { color: var(--known); }
 .seam-feature.down { color: var(--sem); }
+
+/* Evaluation */
+.eval-table {
+  margin-bottom: 1.25rem;
+}
+.eval-table caption {
+  text-align: start;
+  font-weight: 600;
+  padding: 0.25rem 0;
+}
+.eval-table th[scope='row'] {
+  font-weight: normal;
+}
+.eval-final {
+  display: inline-block;
+  margin-inline-start: 0.5rem;
+  padding: 0 0.4rem;
+  border-radius: 0.6rem;
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+}

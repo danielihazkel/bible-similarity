@@ -3,6 +3,7 @@ import type { WordplayPair } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { UnitFilter } from '../components/UnitFilter'
 import { WordplayCard } from '../components/WordplayCard'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
@@ -20,9 +21,10 @@ export function WordplayPage() {
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const rawKind = params.get('kind')
   const kind = KINDS.some((k) => k.value === rawKind) ? (rawKind as WordplayPair['kind']) : undefined
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useWordplay({ book, kind, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const res = useWordplay({ book, kind, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -34,7 +36,7 @@ export function WordplayPage() {
         vowels — as in Isaiah 5:7, מִשְׁפָּט / מִשְׂפָּח and צְדָקָה / צְעָקָה. Rare words first: that is what makes the echo
         audible.
       </p>
-      {res.data && res.data.expected_by_chance !== null && !book && !kind && (
+      {res.data && res.data.expected_by_chance !== null && !book && !kind && !unit && (
         <p className="muted small">
           {res.data.total.toLocaleString()} pairs; shuffling the word order within each chapter yields about{' '}
           {Math.round(res.data.expected_by_chance).toLocaleString()}, so roughly{' '}
@@ -42,6 +44,7 @@ export function WordplayPage() {
           read the list as candidates, not proofs.
         </p>
       )}
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <label className="control">
           <span>Book</span>
