@@ -134,6 +134,20 @@ CREATE TABLE diff_changes (
     b_form TEXT
 );
 
+-- Verse halves from the te'amim and their parallelism (`bsim parallelism`, DESIGN.md §16.9).
+-- cola = JSON inclusive display-token spans; features and prob NULL for a one-colon verse.
+CREATE TABLE parallelism (
+    verse_id INTEGER PRIMARY KEY,
+    n_cola INTEGER NOT NULL,
+    cola TEXT NOT NULL,
+    pauses TEXT NOT NULL,           -- JSON accent names of the pauses between cola
+    cos REAL,
+    shared REAL,
+    shape REAL,
+    balance REAL,
+    prob REAL                       -- probability the halves are parallel like poetry
+);
+
 -- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
 CREATE TABLE structure (
     unit_id TEXT PRIMARY KEY,

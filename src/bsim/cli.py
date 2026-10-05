@@ -281,6 +281,18 @@ def diffs(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def parallelism(config: ConfigOpt = None) -> None:
+    """Split verses at their main accent pauses and score how parallel the halves are."""
+    from bsim.analysis.parallelism import run_parallelism
+
+    try:
+        run_parallelism(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""
     from bsim.analysis.structure import run_structure

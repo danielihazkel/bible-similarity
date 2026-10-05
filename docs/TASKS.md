@@ -234,3 +234,12 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ יהוה → אלהים, אל → על, דוד → דויד, אנכי → אני, ממלכות → מלכות and the Chronicler's name forms rise to the top unprompted.
 
+## M24 — Te'amim verse halves and poetic parallelism (roadmap A9)
+- [x] `text/accents.py`: cola from etnahta (+ oleh-ve-yored in Psalms / Proverbs / Job, Job's prose frame excepted)
+- [x] `analysis/parallelism.py` + `bsim parallelism` (pipeline stage, ~50 s on GPU): cola embeddings, cos / shared / shape / balance, logistic regression on poetic-accent vs narrative / law books; held-out-book AUC and known-poem ranks in the meta
+- [x] `parallelism` table + `meta.parallelism`; `/parallelism/{unit}`, `/parallelism` (ranked units + book shares)
+- [x] Viewer: verse-halves toggle on unit pages (‖ pauses, ∥ parallel badge); Poetry page
+- [x] Tests: accent pauses, features, model checks (pytest); endpoints; unit page halves and Poetry page (vitest)
+
+✔ Held-out AUC 0.85–0.90; Deut 33, Deut 32, Gen 49, 2 Sam 22 and Ex 15 are the top five poems among 435 narrative / law chapters; Hannah's song (1 Sam 2:1–10) and Habakkuk 3 surface unprompted.
+

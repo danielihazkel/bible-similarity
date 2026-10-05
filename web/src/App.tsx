@@ -9,6 +9,7 @@ import { ConcordancePage } from './pages/ConcordancePage'
 import { DiscoveriesPage } from './pages/DiscoveriesPage'
 import { MapPage } from './pages/MapPage'
 import { PhrasesPage } from './pages/PhrasesPage'
+import { PoetryPage } from './pages/PoetryPage'
 import { SequencePage } from './pages/SequencePage'
 import { SequencesPage } from './pages/SequencesPage'
 import { StructurePage } from './pages/StructurePage'
@@ -31,6 +32,7 @@ export function App() {
           <Route path="sequences" element={<SequencesPage />} />
           <Route path="sequences/:seqId" element={<SequencePage />} />
           <Route path="changes" element={<ChangesPage />} />
+          <Route path="poetry" element={<PoetryPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />

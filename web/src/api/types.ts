@@ -473,3 +473,53 @@ export interface SequenceDetail {
   rows: LadderRow[]
   verses: Record<string, Verse>
 }
+
+export interface VerseHalves {
+  verse_id: number
+  n_cola: number
+  cola: [number, number][]
+  pauses: string[]
+  cos: number | null
+  shared: number | null
+  shape: number | null
+  balance: number | null
+  prob: number | null
+}
+
+export interface UnitParallelism {
+  unit: UnitSummary
+  parallel_at: number
+  mean_prob: number | null
+  share_parallel: number | null
+  n_scored: number
+  verses: VerseHalves[]
+}
+
+export interface ParallelUnit {
+  unit: UnitSummary
+  mean_prob: number
+  share_parallel: number
+  n_scored: number
+}
+
+export interface ParallelBook {
+  book_id: number
+  poetic_accents: boolean
+  mean_prob: number | null
+  share_parallel: number | null
+  n_scored: number
+}
+
+export interface ParallelismResponse {
+  unit_type: UnitType
+  book: number | null
+  exclude_poetic: boolean
+  parallel_at: number
+  coefficients: Record<string, number>
+  held_out_auc: Record<string, number>
+  books: ParallelBook[]
+  total: number
+  offset: number
+  limit: number
+  items: ParallelUnit[]
+}

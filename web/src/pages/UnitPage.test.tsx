@@ -3,7 +3,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ExplainResponse, SimilarResponse, UnitDetail, UnitSummary, PhrasePair, Verse, WordDetail } from '../api/types'
+import type {
+  ExplainResponse,
+  SimilarResponse,
+  UnitDetail,
+  UnitParallelism,
+  UnitSummary,
+  PhrasePair,
+  Verse,
+  WordDetail,
+} from '../api/types'
 import { UnitPage } from './UnitPage'
 
 const unit = (id: number, label: string): UnitSummary => ({
@@ -82,6 +91,17 @@ const PHRASES: PhrasePair[] = [
   },
 ]
 
+const HALVES: UnitParallelism = {
+  unit: unit(0, 'Test 1:1'),
+  parallel_at: 0.5,
+  mean_prob: 0.8,
+  share_parallel: 1,
+  n_scored: 1,
+  verses: [
+    { verse_id: 0, n_cola: 2, cola: [[0, 0], [1, 2]], pauses: ['etnahta'], cos: 0.7, shared: 0, shape: 0.5, balance: 0.5, prob: 0.8 },
+  ],
+}
+
 function mockApi() {
   const calls: string[] = []
   vi.stubGlobal(
@@ -99,7 +119,9 @@ function mockApi() {
               ? WORDS
               : u.pathname === '/api/phrases/0'
                 ? PHRASES
-                : null
+                : u.pathname.startsWith('/api/parallelism/')
+                  ? HALVES
+                  : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -175,6 +197,18 @@ describe('UnitPage', () => {
     expect(panel.querySelector('a')?.getAttribute('href')).toBe('/lemma/559')
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByLabelText('Word analysis')).toBeNull()
+  })
+
+  it('splits the verse at its accent pause and marks parallel halves', async () => {
+    const calls = mockApi()
+    const { container } = renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    expect(container.querySelector('.colon-break')).toBeNull()
+    fireEvent.click(screen.getByLabelText("Verse halves (te'amim)"))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?halves=1'))
+    await waitFor(() => expect(container.querySelectorAll('.source .colon-break')).toHaveLength(1))
+    expect(container.querySelector('.source .parallel-badge')?.textContent).toBe('∥')
+    expect(calls.some((c) => c.startsWith('/api/parallelism/'))).toBe(true)
   })
 
   it('keeps mode in the URL', async () => {

@@ -485,3 +485,27 @@ def test_sequence_ladder_marks(client):
     rows = client.get("/api/sequences/1").json()["rows"]
     assert rows[0]["b_marks"] == {"0": "form"} and rows[0]["loose"] is False
     assert rows[1]["b_marks"] == {} and rows[1]["loose"] is True
+
+
+def test_unit_parallelism(client):
+    body = client.get("/api/parallelism/c:0:1").json()
+    assert [v["n_cola"] for v in body["verses"]] == [2, 1, 1]
+    assert body["verses"][0]["cola"] == [[0, 1], [2, 3]]
+    assert body["verses"][0]["pauses"] == ["etnahta"]
+    assert (body["n_scored"], body["mean_prob"], body["share_parallel"]) == (1, 0.9, 1.0)
+    assert body["verses"][1]["prob"] is None
+    assert client.get("/api/parallelism/c:9:9").status_code == 404
+
+
+def test_parallelism_ranking(client):
+    body = client.get("/api/parallelism?min_verses=1").json()
+    assert [(i["unit"]["unit_id"], i["mean_prob"]) for i in body["items"]] == [
+        ("c:0:1", 0.9),
+        ("c:0:2", 0.2),
+    ]
+    assert body["items"][1]["share_parallel"] == 0.0
+    assert body["books"][0]["book_id"] == 0 and body["books"][0]["mean_prob"] == pytest.approx(0.55)
+    assert body["coefficients"] == {"cos": 1.0}
+    assert client.get("/api/parallelism").json()["total"] == 0  # min_chapter_verses = 6
+    assert client.get("/api/parallelism?min_verses=1&book=1").json()["items"] == []
+    assert client.get("/api/parallelism?unit_type=verse").status_code == 422

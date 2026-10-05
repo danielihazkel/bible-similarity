@@ -209,6 +209,46 @@ def write_inputs(cfg, tmp_path):
             "pairs",
         ],
     ).to_parquet(art / "sequences" / "verse.parquet")
+    # verse halves: v0 and v3 split in two (v0 strongly parallel), the rest one colon
+    (art / "parallelism").mkdir(parents=True, exist_ok=True)
+    par = pd.DataFrame(
+        {
+            "verse_id": range(n),
+            "n_cola": [2, 1, 1, 2, 1, 1],
+            "cola": [
+                json.dumps(c)
+                for c in (
+                    [[0, 1], [2, 3]],
+                    [[0, 2]],
+                    [[0, 1]],
+                    [[0, 0], [1, 1]],
+                    [[0, 1]],
+                    [[0, 1]],
+                )
+            ],
+            "pauses": [json.dumps(p) for p in (["etnahta"], [], [], ["etnahta"], [], [])],
+        }
+    )
+    for col, vals in (
+        ("cos", (0.8, 0.3)),
+        ("shared", (0, 1)),
+        ("shape", (0.5, 0.2)),
+        ("balance", (1.0, 1.0)),
+        ("prob", (0.9, 0.2)),
+    ):
+        par[col] = [vals[0], None, None, vals[1], None, None]
+    par.to_parquet(art / "parallelism" / "verses.parquet")
+    (art / "parallelism" / "parallelism.meta.json").write_text(
+        json.dumps(
+            {
+                "coefficients": {"cos": 1.0},
+                "held_out_auc": {},
+                "known_poems": {},
+                "book_means": {"Gen": 0.55},
+            }
+        ),
+        encoding="utf-8",
+    )
     emb_dir = art / "embeddings"
     emb_dir.mkdir(parents=True, exist_ok=True)
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)

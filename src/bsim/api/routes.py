@@ -46,6 +46,9 @@ from bsim.api.models import (
     Meta,
     Mode,
     Pair,
+    ParallelBook,
+    ParallelismResponse,
+    ParallelUnit,
     PhraseInfo,
     PhrasePair,
     PhrasesResponse,
@@ -69,8 +72,10 @@ from bsim.api.models import (
     StylometryResponse,
     StyloPoint,
     UnitDetail,
+    UnitParallelism,
     UnitSummary,
     VerseDiff,
+    VerseHalves,
     WordDetail,
     WordRef,
 )
@@ -668,6 +673,89 @@ def changes(
                 ],
             )
             for g in groups
+        ],
+    }
+
+
+def _poetic_book_ids(state: ServeState) -> list[int]:
+    from bsim.data.canon import BY_OSIS
+
+    return [BY_OSIS[o].book_id for o in state.cfg["parallelism"]["train_positive"]]
+
+
+@router.get("/parallelism/{unit_id}", response_model=UnitParallelism)
+def unit_parallelism(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
+    """The cola of a unit's verses and how parallel each verse's halves are (DESIGN.md §16.9)."""
+    u = _unit_or_404(conn, unit_id)
+    rows = queries.parallelism_verses(conn, u["start_verse_id"], u["end_verse_id"])
+    at = state.cfg["parallelism"]["parallel_at"]
+    probs = [r["prob"] for r in rows if r["prob"] is not None]
+    return {
+        "unit": u,
+        "parallel_at": at,
+        "mean_prob": float(np.mean(probs)) if probs else None,
+        "share_parallel": float(np.mean([p >= at for p in probs])) if probs else None,
+        "n_scored": len(probs),
+        "verses": [
+            VerseHalves(**{**r, "cola": json.loads(r["cola"]), "pauses": json.loads(r["pauses"])})
+            for r in rows
+        ],
+    }
+
+
+@router.get("/parallelism", response_model=ParallelismResponse)
+def parallelism_ranking(
+    state: State,
+    conn: Conn,
+    unit_type: str = "chapter",
+    book: int | None = None,
+    exclude_poetic: bool = False,
+    min_verses: int | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Units ranked by how parallel their verse halves are, plus per-book means;
+    `exclude_poetic` hides Psalms / Proverbs / Job (poetry hidden in prose and prophecy)."""
+    types = [t for t in state.cfg["units"]["types"] if t != "verse"]
+    if unit_type not in types:
+        raise _unprocessable(f"unknown unit type {unit_type!r}; choose from {types}")
+    _page(state, limit, offset)
+    pc = state.cfg["parallelism"]
+    poetic = _poetic_book_ids(state)
+    total, rows = queries.parallelism_units(
+        conn,
+        unit_type,
+        book,
+        poetic if exclude_poetic else [],
+        pc["parallel_at"],
+        pc["min_chapter_verses"] if min_verses is None else min_verses,
+        limit,
+        offset,
+    )
+    units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
+    meta = state.meta.get("parallelism", {})
+    return {
+        "unit_type": unit_type,
+        "book": book,
+        "exclude_poetic": exclude_poetic,
+        "parallel_at": pc["parallel_at"],
+        "coefficients": meta.get("coefficients", {}),
+        "held_out_auc": meta.get("held_out_auc", {}),
+        "books": [
+            ParallelBook(**b, poetic_accents=b["book_id"] in poetic)
+            for b in queries.parallelism_books(conn, pc["parallel_at"])
+        ],
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            ParallelUnit(
+                unit=UnitSummary(**units_[r["unit_id"]]),
+                mean_prob=r["mean_prob"],
+                share_parallel=r["share_parallel"],
+                n_scored=r["n_scored"],
+            )
+            for r in rows
         ],
     }
 

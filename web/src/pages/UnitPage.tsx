@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { useExplain, usePhrasesOf, useSequences, useSimilar, useUnit } from '../api/hooks'
-import type { Leitwort, UnitDetail, UnitSummary, Verse } from '../api/types'
+import { useExplain, usePhrasesOf, useSequences, useSimilar, useUnit, useUnitParallelism } from '../api/hooks'
+import type { Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
@@ -56,6 +56,10 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
   const phrases = usePhrasesOf(isVerse ? unit.start_verse_id : undefined)
+  const halvesOn = params.get('halves') === '1'
+  const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
+  const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
+  const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
   const sequences = useSequences({ unit: unit.unit_id, maxQ: SEQUENCE_MAX_Q, limit: SEQUENCES_SHOWN, offset: 0 })
 
   const onHover = (tgt: number, on: boolean) => {
@@ -78,6 +82,18 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <span className="type-tag">{unitTypeLabel(unit.unit_type)}</span>
       </h1>
 
+      <div className="toolbar halves-bar">
+        <label className="check" title="Split each verse at its main accent pauses (etnahta; oleh-ve-yored in Psalms, Proverbs, Job)">
+          <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />
+          Verse halves (te'amim)
+        </label>
+        {halvesOn && halves.data && halves.data.n_scored > 0 && (
+          <span className="muted small">
+            ∥ marks verses whose halves are parallel like poetry
+            {!isVerse && halves.data.share_parallel !== null && ` · ${Math.round(halves.data.share_parallel * 100)}% of this ${unitTypeLabel(unit.unit_type).toLowerCase()}`}
+          </span>
+        )}
+      </div>
       <section className={`source ${isVerse ? 'single' : ''}`} aria-label="Source text">
         {isVerse ? (
           <p className="source-text">
@@ -86,7 +102,9 @@ function UnitView({ detail }: { detail: UnitDetail }) {
               highlight={highlightFor(explain.data, 'a', focusLemma)}
               onWordClick={pick(verses[0])}
               selected={selectedIn(verses[0])}
+              breaks={breaksOf(verses[0])}
             />
+            {halvesOn && <ParallelBadge h={halvesOf.get(verses[0].verse_id)} at={halves.data?.parallel_at} />}
           </p>
         ) : (
           <ol className="verse-list">
@@ -95,7 +113,14 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                 <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
                   {v.verse}
                 </Link>
-                <HebrewText verse={v} highlight={leitwortMarks(v)} onWordClick={pick(v)} selected={selectedIn(v)} />
+                <HebrewText
+                  verse={v}
+                  highlight={leitwortMarks(v)}
+                  onWordClick={pick(v)}
+                  selected={selectedIn(v)}
+                  breaks={breaksOf(v)}
+                />
+                {halvesOn && <ParallelBadge h={halvesOf.get(v.verse_id)} at={halves.data?.parallel_at} />}
               </li>
             ))}
           </ol>
@@ -201,6 +226,23 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </section>
       )}
     </div>
+  )
+}
+
+/** Display indexes ending a colon (every colon but the last). */
+function colonBreaks(h: VerseHalves | undefined): Set<number> | undefined {
+  return h && h.n_cola > 1 ? new Set(h.cola.slice(0, -1).map(([, end]) => end)) : undefined
+}
+
+function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {
+  if (!h || h.prob === null || at === undefined || h.prob < at) return null
+  const tip =
+    `Parallel halves: p = ${h.prob.toFixed(2)} · meaning ${h.cos?.toFixed(2)} · shared lemmas ${h.shared}` +
+    ` · grammar ${h.shape?.toFixed(2)} · balance ${h.balance?.toFixed(2)}`
+  return (
+    <span className="parallel-badge" title={tip}>
+      ∥
+    </span>
   )
 }
 

@@ -10,10 +10,12 @@ interface Props {
   /** Makes every token a button reporting its display index (word analysis). */
   onWordClick?: (displayIdx: number) => void
   selected?: number
+  /** Display indexes after which a verse member (colon) ends: shown as ‖. */
+  breaks?: Set<number>
 }
 
 /** A verse's display tokens, right to left, with the text mode and lemma highlights applied. */
-export function HebrewText({ verse, highlight, className, onWordClick, selected }: Props) {
+export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks }: Props) {
   const { mode } = useTextMode()
   const tokens = verse.display_tokens
   return (
@@ -45,7 +47,13 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected 
             ) : (
               <span className={cls || undefined}>{displayForm(t, mode)}</span>
             )}
-            {sep}
+            {breaks?.has(i) ? (
+              <span className="colon-break" aria-label="pause">
+                {' ‖ '}
+              </span>
+            ) : (
+              sep
+            )}
           </span>
         )
       })}

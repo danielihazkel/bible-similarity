@@ -133,6 +133,12 @@ def stage_diffs(cfg: dict[str, Any], log: Log) -> None:
     run_diffs(cfg, log=log)
 
 
+def stage_parallelism(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.parallelism import run_parallelism
+
+    run_parallelism(cfg, log=log)
+
+
 def stage_structure(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.structure import run_structure
 
@@ -174,6 +180,7 @@ STAGES: dict[str, str] = {
     "phrases": "stage_phrases",
     "sequences": "stage_sequences",
     "diffs": "stage_diffs",
+    "parallelism": "stage_parallelism",
     "structure": "stage_structure",
     "map": "stage_map",
     "stylometry": "stage_stylometry",

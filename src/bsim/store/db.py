@@ -17,6 +17,7 @@ Derived columns:
 - `sequences`: `bsim sequences` chains (`artifacts/sequences/verse.parquet`); each aligned pair
   gains a gold flag (`gold_verse_pairs`, either direction) and `n_gold` counts them.
 - `diff_changes` + `meta.diffs`: `bsim diffs` word-level changes (`artifacts/diffs/`).
+- `parallelism` + `meta.parallelism`: `bsim parallelism` cola and scores.
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
@@ -158,6 +159,17 @@ TABLE_COLUMNS = {
         "b_key",
         "a_form",
         "b_form",
+    ],
+    "parallelism": [
+        "verse_id",
+        "n_cola",
+        "cola",
+        "pauses",
+        "cos",
+        "shared",
+        "shape",
+        "balance",
+        "prob",
     ],
     "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
@@ -489,6 +501,11 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         raise RuntimeError(f"{diff_dir / 'changes.parquet'} missing; run `bsim diffs` first")
     out["diff_changes"] = pd.read_parquet(diff_dir / "changes.parquet")
     out["diffs_meta"] = _read_json(diff_dir / "diffs.meta.json")
+    par_dir = resolve_path(cfg, "artifacts") / "parallelism"
+    if not (par_dir / "verses.parquet").exists():
+        raise RuntimeError(f"{par_dir / 'verses.parquet'} missing; run `bsim parallelism` first")
+    out["parallelism"] = pd.read_parquet(par_dir / "verses.parquet")
+    out["parallelism_meta"] = _read_json(par_dir / "parallelism.meta.json")
     path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
@@ -632,6 +649,7 @@ def _write_db(
                 same_chapter=lambda d: d.same_chapter.astype(int)
             ),
             "diff_changes": inputs["diff_changes"],
+            "parallelism": inputs["parallelism"],
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
@@ -681,6 +699,10 @@ def _write_db(
         sm = inputs["stylo_meta"]
         dm = inputs["diffs_meta"]
         meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops")}
+        pm = inputs["parallelism_meta"]
+        meta["parallelism"] = {
+            k: pm.get(k) for k in ("coefficients", "held_out_auc", "known_poems", "book_means")
+        } | {"parallel_at": cfg["parallelism"]["parallel_at"]}
         meta["stylometry"] = {
             k: sm.get(k) for k in ("book_order", "axes", "book_words", "features")
         }

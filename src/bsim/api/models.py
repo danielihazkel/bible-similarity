@@ -190,6 +190,58 @@ class VerseDiff(BaseModel):
     loose: bool  # below `diffs.min_shared`: no marks (not a close parallel)
 
 
+class VerseHalves(BaseModel):
+    """A verse's cola (te'amim pauses) and how parallel they are (DESIGN.md §16.9)."""
+
+    verse_id: int
+    n_cola: int
+    cola: list[tuple[int, int]]  # inclusive display-token spans
+    pauses: list[str]  # accent of each pause between cola (etnahta, oleh-ve-yored)
+    cos: float | None = None
+    shared: float | None = None
+    shape: float | None = None
+    balance: float | None = None
+    prob: float | None = None  # probability the halves are parallel like poetry
+
+
+class UnitParallelism(BaseModel):
+    unit: UnitSummary
+    parallel_at: float
+    mean_prob: float | None
+    share_parallel: float | None
+    n_scored: int
+    verses: list[VerseHalves]
+
+
+class ParallelUnit(BaseModel):
+    unit: UnitSummary
+    mean_prob: float
+    share_parallel: float
+    n_scored: int
+
+
+class ParallelBook(BaseModel):
+    book_id: int
+    poetic_accents: bool  # Psalms, Proverbs, Job: the model's positive training books
+    mean_prob: float | None
+    share_parallel: float | None
+    n_scored: int
+
+
+class ParallelismResponse(BaseModel):
+    unit_type: str
+    book: int | None
+    exclude_poetic: bool
+    parallel_at: float
+    coefficients: dict[str, float]
+    held_out_auc: dict[str, float]
+    books: list[ParallelBook]
+    total: int
+    offset: int
+    limit: int
+    items: list[ParallelUnit]
+
+
 class SequenceSummary(BaseModel):
     """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
 

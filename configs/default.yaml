@@ -166,6 +166,15 @@ diffs:                        # `bsim diffs`: word-level changes inside parallel
   mismatch: 1
   gap: 1
 
+parallelism:                  # `bsim parallelism`: verse halves from the te'amim (DESIGN.md §16.9)
+  encoder: null               # encoders.systems entry for the cola; null = the final semantic system's base
+  C: 1.0                      # logistic regression (standardized cos / shared / shape / balance)
+  train_positive: [Ps, Prov, Job]            # poetic accent system
+  train_negative: [Gen, Exod, Lev, Num, Deut, Josh, Judg, 1Sam, 2Sam, 1Kgs, 2Kgs, 1Chr, 2Chr, Ezra, Neh, Esth, Ruth]
+  known_poems: ["Gen 49", "Exod 15", "Num 23", "Num 24", "Deut 32", "Deut 33", "Judg 5", "1Sam 2", "2Sam 1", "2Sam 22"]
+  min_chapter_verses: 6       # chapters ranked in the known-poem check / the API ranking
+  parallel_at: 0.5            # a verse counts as parallel at this probability
+
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
   unit_types: [chapter, pericope, parasha]
   max_verses: 200             # larger units are not scored (and /structure refuses them)

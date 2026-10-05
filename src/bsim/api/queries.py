@@ -351,6 +351,63 @@ def change_totals(
     return dict(cur.fetchall())
 
 
+PARALLEL_COLS = "verse_id, n_cola, cola, pauses, cos, shared, shape, balance, prob"
+
+
+def parallelism_verses(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        f"SELECT {PARALLEL_COLS} FROM parallelism WHERE verse_id BETWEEN ? AND ? ORDER BY verse_id",
+        (first, last),
+    )
+    return _dicts(cur)
+
+
+def parallelism_units(
+    conn: sqlite3.Connection,
+    unit_type: str,
+    book_id: int | None,
+    skip_books: list[int],
+    parallel_at: float,
+    min_verses: int,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Units ranked by the mean parallelism probability of their scored verses."""
+    where, args = "u.unit_type = ?", [unit_type]
+    if book_id is not None:
+        where += " AND u.book_id = ?"
+        args.append(book_id)
+    if skip_books:
+        where += f" AND u.book_id NOT IN ({_marks(len(skip_books))})"
+        args += skip_books
+    inner = (
+        "SELECT u.unit_id, AVG(p.prob) AS mean_prob, COUNT(p.prob) AS n_scored,"
+        " AVG(CASE WHEN p.prob IS NULL THEN NULL WHEN p.prob >= ? THEN 1.0 ELSE 0.0 END)"
+        " AS share_parallel, MIN(u.start_verse_id) AS start"
+        " FROM units u JOIN parallelism p"
+        " ON p.verse_id BETWEEN u.start_verse_id AND u.end_verse_id"
+        f" WHERE {where} GROUP BY u.unit_id HAVING COUNT(p.prob) >= ?"
+    )
+    iargs = [parallel_at, *args, min_verses]
+    total = conn.execute(f"SELECT COUNT(*) FROM ({inner})", iargs).fetchone()[0]
+    cur = conn.execute(
+        f"{inner} ORDER BY mean_prob DESC, start LIMIT ? OFFSET ?", [*iargs, limit, offset]
+    )
+    return total, _dicts(cur)
+
+
+def parallelism_books(conn: sqlite3.Connection, parallel_at: float) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT v.book_id, AVG(p.prob) AS mean_prob, COUNT(p.prob) AS n_scored,"
+        " AVG(CASE WHEN p.prob IS NULL THEN NULL WHEN p.prob >= ? THEN 1.0 ELSE 0.0 END)"
+        " AS share_parallel"
+        " FROM parallelism p JOIN verses v ON v.verse_id = p.verse_id"
+        " GROUP BY v.book_id ORDER BY v.book_id",
+        (parallel_at,),
+    )
+    return _dicts(cur)
+
+
 def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
     cur = conn.execute(f"SELECT {SEQUENCE_COLS}, pairs FROM sequences WHERE seq_id = ?", (seq_id,))
     rows = _dicts(cur)

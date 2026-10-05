@@ -16,6 +16,7 @@ import type {
   Meta,
   MapResponse,
   Mode,
+  ParallelismResponse,
   PhrasePair,
   PhrasesResponse,
   ResolveResponse,
@@ -28,6 +29,7 @@ import type {
   StructureSort,
   StylometryResponse,
   UnitDetail,
+  UnitParallelism,
   UnitSummary,
   UnitType,
   WordDetail,
@@ -304,6 +306,41 @@ export const useChanges = (q: ChangesQuery) =>
       getJson<ChangesResponse>(
         '/changes',
         { op: q.op, a_book: q.aBook, b_book: q.bBook, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useUnitParallelism = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['parallelism', unitId],
+    queryFn: ({ signal }) => getJson<UnitParallelism>(`/parallelism/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
+
+export interface ParallelismQuery {
+  unitType: UnitType
+  book?: number
+  excludePoetic: boolean
+  limit: number
+  offset: number
+}
+
+export const useParallelism = (q: ParallelismQuery) =>
+  useQuery({
+    queryKey: ['parallelism-ranking', q],
+    queryFn: ({ signal }) =>
+      getJson<ParallelismResponse>(
+        '/parallelism',
+        {
+          unit_type: q.unitType,
+          book: q.book,
+          exclude_poetic: q.excludePoetic ? 'true' : undefined,
+          limit: q.limit,
+          offset: q.offset,
+        },
         signal,
       ),
     placeholderData: keepPreviousData,
