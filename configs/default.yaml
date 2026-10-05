@@ -178,6 +178,32 @@ rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encod
   w_ce: 0.25                  # weight of the cross-encoder rank vs the fused rank; null = alone (dev grid)
   w_ce_grid: [0.25, 0.5, 1.0, 2.0, 4.0, null]
 
+context:                      # `bsim embed-context`: verses encoded with their neighbours (DESIGN.md §16.21, dev experiment)
+  encoder: berel_sup          # an encoders.systems entry; writes {encoder}_ctx and {encoder}_late
+  window: 1                   # verses on each side
+  scope: chapter              # chapter | book: neighbours never cross it
+  max_seq_length: 256         # window tokens
+  batch_size: 32
+
+maxsim:                       # `bsim maxsim`: ColBERT-style token late interaction over the fused lists (DESIGN.md §16.21)
+  encoders: [berel_sup, berel_mean]   # token vectors scored for the experiments
+  encoder: berel_sup          # the one blended into {system}
+  depth: 50                   # fused candidates scored per verse
+  symmetric: true             # mean of MaxSim(a -> b) and MaxSim(b -> a)
+  batch_size: 32              # source verses per GPU batch
+  rrf_k: 60
+  w: 0.5                      # weight of the MaxSim rank vs the fused rank; null = MaxSim alone
+  system: fused_maxsim        # artifacts/topk/verse/{system}.parquet
+
+retrieval_experiments:        # `bsim retrieval-exp`: contextual / MaxSim vs fused on dev (DESIGN.md §16.21)
+  context_systems: [berel_sup_ctx_csls, berel_sup_late_csls]   # `bsim topk` lists of the context embeddings
+  w_grid: [0.25, 0.5, 1.0]    # weight of a context list as a third RRF list
+  maxsim_grid: [0.25, 0.5, 1.0, 2.0, null]
+  metric: ndcg@10
+  folds: 2                    # cross-fitting: weights chosen on one half of the queries, scored on the other
+  bootstrap_reps: 10000
+  seed: 13
+
 phrases:                      # `bsim phrases`: shared phrases by local alignment (DESIGN.md §16)
   candidate_rank: 50          # align pairs within the final lexical verse top-k
   mismatch: 1.5               # Smith-Waterman penalties; a match scores idf x formula weight

@@ -354,6 +354,14 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Dan 3 ↔ 6, Dan 2 ↔ 7, Lev 8 ↔ 9, purity procedures; classic type-scenes not recovered (documented).
 
+## M37 — Retrieval experiments (roadmap A9)
+- [x] `embed/context.py` + `bsim embed-context`: ±1-verse window and late-chunked BEREL-sup embeddings (`berel_sup_ctx`, `berel_sup_late`), CSLS top-k
+- [x] `retrieve/maxsim.py` + `bsim maxsim`: symmetric token MaxSim over the fused top-50 (BEREL-sup, BEREL), `fused_maxsim`
+- [x] `eval/experiments.py` + `bsim retrieval-exp`: dev families vs fused, paired bootstrap (`eval/metrics.py`), 2-fold cross-fitting, OpenBible check; `artifacts/eval/retrieval_experiments.{json,md}`
+- [x] Tests: windows, centre tokens, pooling, MaxSim vs brute force, n-way RRF, bootstrap, cross-fitting (pytest)
+
+✔ Not adopted: best cross-fitted gain +0.0032 nDCG@10 (late chunking, CI [−0.0050, +0.0114]); MaxSim lowers the fused list; final systems unchanged (§16.21, D53).
+
 ## H4 — Serving and viewer hardening, part 4
 - [x] List totals cached per DB file and query (`api.queries.count`); book-column indexes tried and rejected (slower counts)
 - [x] `/api/export/{list}.csv`: every row under the list's filters (15 lists, `serve.export_max_rows`); "Export all (CSV)" in the viewer, CSV for Concordance and Structure

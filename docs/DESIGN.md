@@ -389,6 +389,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D53 | Retrieval experiments | Contextual (±1 verse, window and late-chunked) BEREL-sup embeddings and training-free MaxSim over BEREL / BEREL-sup tokens, tested against `fused` on dev with a paired bootstrap, 2-fold cross-fitting and OpenBible as an untouched second gold; none clears CI > 0, so the final systems are unchanged (§16.21) |
 | D51 | Action sequences | Verb-lemma Smith–Waterman between pericopes against a verb-order shuffle; textual parallels flagged; classic type-scenes reported as not recovered (§16.20) |
 | D47 | Sequence orders | Reverse and mixed chains next to forward ones, found in that order with overlap dedup and scored against their own kind's shuffle chains; forward ids kept; none survive, reported as such (§16.7) |
 | D48 | Network | Fused unit top-10 as a weighted graph (adjacent units dropped): PageRank, Louvain communities at resolution 3, server-side spring layout per community; networkx as a declared dependency (§16.17) |
@@ -544,3 +545,28 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 - Result (2026-10-05, 142 s): 36 alignments with q ≤ 0.05, 29 of them textual parallels (II Sam 22 ↔ Ps 18, Ex 29 ↔ Lev 8, II Kgs 18–19 ↔ Isa 36–37, I Kgs 22 ↔ II Chr 18). The other 7: Dan 7:1–14 ↔ 7:15–28 (vision and its interpretation), Dan 2:31–45 ↔ 7:1–14 (the two four-kingdom visions), Dan 3 ↔ Dan 6 (accused, thrown in, rescued), Lev 8 ↔ 9 (ordination and first sacrifices), Lev 15 ↔ Num 19 and within Lev 15 (purification procedures), Ps 40 ↔ 70 (a textual parallel the sequence chains miss).
 - Negative result: the classic literary type-scenes are not recovered. At chapter level Gen 24 ↔ Gen 29 (the well) scores 5.4 with verbs and nouns against random chapter pairs at a median 2.0 / 95th percentile 4.0, Gen 18 ↔ Judg 13 1.9; with verbs only all stay within the random range. They vary their verbs (ירד / דלה / שאב) more than their order constrains them.
 - Served: `typescenes`, `/typescenes?book&max_q&hide_textual&unit`; viewer: Parallels → Action sequences.
+
+### 16.21 Contextual embeddings and late interaction (`bsim embed-context`, `bsim maxsim`, `bsim retrieval-exp`) — not adopted
+- **Contextual embeddings** (`embed/context.py`): every verse is encoded with BEREL-sup together with one verse on each side, never across a chapter boundary (window tokens max 124, none truncated at 256). One forward pass gives two systems: `berel_sup_ctx` (mean of every window token) and `berel_sup_late` (mean of the centre verse's tokens only, read in context: "late chunking"). Both get CSLS top-k lists like the other encoders.
+- **MaxSim** (`retrieve/maxsim.py`): ColBERT-style late interaction without training. Each verse's own token vectors (special tokens dropped, L2-normalized; 334k tokens) score its fused top-50 candidates by the mean best cosine per token, averaged over both directions. 1.16M pairs take about 40 s per encoder on the 1080 Ti, for BEREL-sup and plain BEREL. The scores reorder the fused list, blended with the fused rank by RRF like the cross-encoder.
+- **Protocol** (`eval/experiments.py`), dev only, nDCG@10 with ±2 neighbours dropped. Each family's members (the context list alone, in place of the semantic list, or as a third RRF list at w 0.25 / 0.5 / 1; MaxSim at w 0.25–2 or alone) are compared with `fused` (Sefaria 0.1895, 884 queries; OpenBible 0.1460, 2,541 queries) by a paired bootstrap over queries:
+  - *selected*: the member best on Sefaria dev, scored on the same queries, as in M18
+  - *cross-fitted*: chosen on one half of the queries, scored on the other half
+  - *OpenBible*: the selected member on the second gold, which no choice looks at
+
+  Adopted only if the cross-fitted CI excludes 0 and the OpenBible gain is not negative. The harness reproduces M18's cross-encoder figure (+0.0042, CI [−0.0008, +0.0093]).
+- **Results (2026-10-05)** — nDCG@10 gain over fused (95 % CI):
+
+  | family | best member | selected | cross-fitted | OpenBible |
+  |---|---|---|---|---|
+  | context window (`berel_sup_ctx_csls`) | third list w 0.25 | +0.0031 [−0.0026, +0.0086] | +0.0031 [−0.0026, +0.0086] | +0.0005 [−0.0021, +0.0033] |
+  | late chunking (`berel_sup_late_csls`) | in place of semantic | +0.0047 [−0.0057, +0.0153] | +0.0032 [−0.0050, +0.0114] | −0.0005 [−0.0055, +0.0045] |
+  | MaxSim, BEREL-sup | w 0.25 | −0.0001 [−0.0033, +0.0033] | −0.0001 [−0.0033, +0.0033] | −0.0016 [−0.0036, +0.0004] |
+  | MaxSim, BEREL | w 0.25 | −0.0029 [−0.0069, +0.0012] | −0.0029 [−0.0069, +0.0012] | −0.0001 [−0.0024, +0.0022] |
+  | cross-encoder (M18) | w 0.25 | +0.0042 [−0.0008, +0.0093] | +0.0027 [−0.0038, +0.0091] | +0.0018 [−0.0010, +0.0047] |
+
+- **Reading:**
+  - Context on its own is much worse than the verse (window alone 0.106, late alone 0.148, vs `berel_sup_csls` 0.150): the gold links are verse-to-verse, and the neighbours blur the verse.
+  - Late chunking is as good as the plain verse embedding and could replace it, but it adds nothing measurable.
+  - MaxSim alone (0.163) is below the fused list, and every blend lowers it: word-to-word matching repeats what BM25 over lemmas already captures.
+  - No family clears the bar, so `final_systems` stay unchanged and the DB / UI are unaffected. `fused_maxsim` and the context lists remain evaluated systems in the dev report. The stages are manual (not in `bsim all`); the test split is not run again.

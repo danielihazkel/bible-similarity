@@ -60,3 +60,38 @@ def evaluate_system(
     out: dict[str, float] = {name: (v / n if n else 0.0) for name, v in totals.items()}
     out["queries"] = n
     return out
+
+
+def per_query(
+    ranked: Mapping[Id, Sequence[Id]], gold: Mapping[Id, set[Id]], metric: str
+) -> dict[Id, float]:
+    """One metric (`ndcg@10`, `recall@50`, `mrr@10`) per gold query."""
+    name, k = metric.split("@")
+    fn = {"ndcg": ndcg_at, "recall": recall_at, "mrr": mrr_at}[name]
+    return {q: fn(ranked.get(q, []), g, int(k)) for q, g in gold.items() if g}
+
+
+def paired_bootstrap(
+    diff: Sequence[float], reps: int, seed: int, level: float = 0.95
+) -> dict[str, float]:
+    """Mean of per-query differences (system - baseline) with a percentile bootstrap CI over
+    queries, and how many queries got better / worse."""
+    import numpy as np
+
+    d = np.asarray(diff, dtype=np.float64)
+    if not len(d):
+        return {"mean": 0.0, "lo": 0.0, "hi": 0.0, "better": 0, "worse": 0, "queries": 0}
+    rng = np.random.default_rng(seed)
+    means = np.empty(reps)
+    for i in range(0, reps, 1000):  # chunks bound the index matrix
+        n = min(1000, reps - i)
+        means[i : i + n] = d[rng.integers(0, len(d), size=(n, len(d)))].mean(1)
+    tail = (1 - level) / 2
+    return {
+        "mean": float(d.mean()),
+        "lo": float(np.quantile(means, tail)),
+        "hi": float(np.quantile(means, 1 - tail)),
+        "better": int((d > 1e-12).sum()),
+        "worse": int((d < -1e-12).sum()),
+        "queries": len(d),
+    }

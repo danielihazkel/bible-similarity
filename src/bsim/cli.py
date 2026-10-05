@@ -244,6 +244,42 @@ def rerank(
         raise typer.Exit(code=1) from e
 
 
+@app.command("embed-context")
+def embed_context(config: ConfigOpt = None) -> None:
+    """Embed every verse with its neighbours (window and late-chunked systems; dev experiment)."""
+    from bsim.embed.context import run_embed_context
+
+    try:
+        run_embed_context(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def maxsim(config: ConfigOpt = None) -> None:
+    """Score the fused verse lists by token late interaction (MaxSim)."""
+    from bsim.retrieve.maxsim import run_maxsim
+
+    try:
+        run_maxsim(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("retrieval-exp")
+def retrieval_exp(config: ConfigOpt = None) -> None:
+    """Compare contextual and MaxSim lists with the fused lists on dev (bootstrap CIs)."""
+    from bsim.eval.experiments import run_retrieval_experiments
+
+    try:
+        run_retrieval_experiments(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def phrases(config: ConfigOpt = None) -> None:
     """Find shared phrases between verses (local alignment of lemma streams)."""

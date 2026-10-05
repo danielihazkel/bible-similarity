@@ -115,6 +115,7 @@ bible-similarity/
 │   │   └── build.py                # `bsim lexical` orchestration + lexical_report.md
 │   ├── embed/
 │   │   ├── encoders.py             # BEREL mean-pool, BGE-M3, fine-tuned ST models
+│   │   ├── context.py              # verses encoded with their neighbours (§16.21)
 │   │   └── csls.py                 # hubness correction
 │   ├── train/
 │   │   ├── simcse.py
@@ -125,6 +126,7 @@ bible-similarity/
 │   │   ├── topk.py                 # chunked GPU matmul + topk
 │   │   ├── units.py                # mean-pool & best-match-average aggregation
 │   │   ├── fusion.py               # weighted RRF
+│   │   ├── maxsim.py               # token late interaction over the fused lists (§16.21)
 │   │   └── filters.py              # self / neighbour / chapter / book exclusion
 │   ├── analysis/
 │   │   ├── phrases.py              # `bsim phrases`: Smith-Waterman shared phrases (§16.1)
@@ -143,7 +145,8 @@ bible-similarity/
 │   │   ├── network.py              # `bsim network`: echo graph, PageRank, communities (§16.17)
 │   │   └── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
 │   ├── eval/
-│   │   ├── metrics.py              # recall@k, MRR, nDCG
+│   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
+│   │   ├── experiments.py          # `bsim retrieval-exp`: dev comparisons with CIs (§16.21)
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
@@ -188,6 +191,7 @@ bible-similarity/
 | 10 | `bsim fuse [--tune]` | final lexical + semantic topk | `artifacts/topk/*/fused.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
 | 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
 | — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
+| — | `bsim embed-context`, `bsim maxsim`, `bsim retrieval-exp` | verses, encoders, fused verse topk, dev golds | `artifacts/embeddings/berel_sup_{ctx,late}.npy`, `maxsim/{encoder}.parquet`, `topk/verse/fused_maxsim.parquet`, `eval/retrieval_experiments.{json,md}` (§16.21; manual, not final systems) |
 | 11a | `bsim eval-openbible` | verses, splits, final verse topk; OpenBible file (downloaded once) | `openbible_links.parquet`, `artifacts/eval/openbible.{json,md}` (§16.13) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
