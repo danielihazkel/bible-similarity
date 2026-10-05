@@ -416,8 +416,9 @@ Phase 1 (M39a): data, tagging, retrieval experiment
 - [x] Tests: Strong keys, references, morpheme counting, matching and fallback, relations, readers, domain tokens; download, CLI, pipeline order
 
 Phase 2 (M39b): analyses
-- [ ] Antithetic / synonymous parallelism from SDBH antonym / synonym pairs across verse halves
-- [ ] People and places typed from Strong's parts of speech, compared with the context-cue heuristics
+- [x] Antithetic / synonymous parallelism from SDBH antonym / synonym pairs and shared domains across the members of parallel verses (`relation`, `relation_pairs`); Prov 10–15 check (69.1 % vs 6.8 %, p 4e-77) and a shuffle null in the meta
+- [x] People and places typed from Strong's parts of speech first (2,253 of 2,548 names), context cues for the rest; agreement where both decide 94.8 %
+- [x] Tests: line typing (antonyms first, synonyms, domains of different lemmas), the typing check, Strong's name kinds and agreement
 
 Phase 3 (M39c): API and viewer
 - [ ] Domains of each word in the word panel; domain names in English and (top two levels) Hebrew
@@ -425,4 +426,5 @@ Phase 3 (M39c): API and viewer
 - [ ] SDBH / HebrewLexicon credits in the footer and About
 
 ✔ Phase 1: every word carries its attested sense and domains; domains help the lemma list but not the fused one, so the final systems are unchanged.
+✔ Phase 2: antithetic parallelism is recovered where D49 failed; names are typed by the lexicon, confirming the cue heuristic.
 

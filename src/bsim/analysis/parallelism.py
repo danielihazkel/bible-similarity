@@ -35,11 +35,20 @@ Finer structure (DESIGN.md §16.18):
   itinerary or an offering table, stay out); Dunning's G² over the member pairs, p from χ²(1) when
   over-represented, Benjamini–Hochberg q.
 
+Typing (DESIGN.md §16.22, with `bsim lexicon`): each pair of parallel members is `antithetic`
+when a lemma of one half and a different lemma of the other are SDBH antonyms (צדיק / רשע,
+חכם / כסיל), else `synonymous` when they are SDBH synonyms or two different lemmas share a
+semantic domain; a verse takes its strongest pair's type. The check that the negation cue of
+D49 failed: the antithetic share of Prov 10–15 (`typing_check`) against the other parallel
+lines (one-sided Fisher), and the overall antithetic share against `typing_null_reps` shuffles
+that pair each first half with another line's second half.
+
 Writes `artifacts/parallelism/verses.parquet`: `verse_id, n_cola, cola` (JSON inclusive display
 token spans), `pauses` (JSON accent names), `cos, shared, shape, balance, prob` (NULL for one
 colon), `clauses` (JSON spans), `next_prob`; `word_pairs.parquet` (`a_lemma, b_lemma, n,
 expected, g2, p, q, reverse`, the count of the pair in the other order, and `examples`, JSON
-verse ids); plus `parallelism.meta.json`.
+verse ids); `relation` (antithetic | synonymous | NULL) and `relation_pairs` (JSON
+`[a, b, kind]`, kind antonym | synonym | domain) on parallel verses; plus `parallelism.meta.json`.
 """
 
 from __future__ import annotations
@@ -58,6 +67,7 @@ import pandas as pd
 from bsim.analysis.stats import bh_q
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS, BY_OSIS
+from bsim.data.lexicon import strong_key
 from bsim.lexical.morph import word_token
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
 from bsim.text.accents import clauses, cola, pauses, poetic
@@ -154,6 +164,104 @@ def word_pairs(
     )
     df["q"] = bh_q(df.p.to_numpy()) if len(df) else []
     return df.sort_values(["q", "g2"], ascending=[True, False], ignore_index=True)
+
+
+Relations = tuple[set[tuple[str, str]], set[tuple[str, str]]]  # antonym, synonym (Strong keys)
+
+
+def load_relations(proc: Path, words: pd.DataFrame) -> tuple[Relations, dict] | None:
+    """SDBH antonym / synonym pairs, and (verse_id, display_idx) -> {(strong, domain)} of the
+    content words; None without `bsim lexicon`."""
+    rel_path, sense_path = proc / "lexicon_relations.parquet", proc / "word_senses.parquet"
+    if not (rel_path.exists() and sense_path.exists()):
+        return None
+    rel = pd.read_parquet(rel_path)
+    pairs = {k: set(zip(g.a, g.b, strict=True)) for k, g in rel.groupby("kind")}
+    senses = pd.read_parquet(sense_path, columns=["verse_id", "idx", "strong", "domains"])
+    w = words.dropna(subset=["display_idx"])
+    content = {
+        (v, i): (int(d), {strong_key(c) for c in cl})
+        for v, i, d, cl in zip(w.verse_id, w.idx, w.display_idx, w.content_lemmas, strict=True)
+    }
+    domains: dict[tuple[int, int], set[tuple[str, str]]] = {}
+    for v, i, s, ds in zip(senses.verse_id, senses.idx, senses.strong, senses.domains, strict=True):
+        hit = content.get((v, i))
+        if hit is not None and s in hit[1]:
+            domains.setdefault((v, hit[0]), set()).update((s, d) for d in ds)
+    return (pairs.get("antonym", set()), pairs.get("synonym", set())), domains
+
+
+def span_domains(vid: int, span: tuple[int, int], domains: dict) -> set[tuple[str, str]]:
+    s, e = span
+    return {x for t in range(s, e + 1) for x in domains.get((vid, t), ())}
+
+
+def line_relation(
+    a: set[str], b: set[str], a_dom: set, b_dom: set, rel: Relations
+) -> tuple[str | None, list[tuple[str, str, str]]]:
+    """The type of two parallel members and the word pairs that make it (Strong keys)."""
+    ant, syn = rel
+    ka, kb = {strong_key(x) for x in a}, {strong_key(x) for x in b}
+    found = sorted((x, y, "antonym") for x in ka for y in kb if x != y and (x, y) in ant)
+    if found:
+        return "antithetic", found
+    found = sorted((x, y, "synonym") for x in ka for y in kb if x != y and (x, y) in syn)
+    found += sorted(
+        {
+            (x, y, "domain")
+            for x, d in a_dom
+            for y, e in b_dom
+            if d == e and x != y and x not in kb and y not in ka and (x, y) not in syn
+        }
+    )
+    return ("synonymous", found) if found else (None, [])
+
+
+def typing_check(
+    lines: list[tuple[int, str | None]],
+    members: list[tuple[set, set, set, set]],
+    rel: Relations,
+    in_check: Callable[[int], bool],
+    reps: int,
+    seed: int,
+) -> dict[str, Any]:
+    """Antithetic share of the checked chapters vs the other parallel lines (one-sided Fisher),
+    and overall vs second halves shuffled between lines."""
+    from scipy.stats import fisher_exact
+
+    anti = np.array([r == "antithetic" for _, r in lines], dtype=bool)
+    inside = np.array([in_check(v) for v, _ in lines], dtype=bool)
+    a, b = int(anti[inside].sum()), int(inside.sum())
+    c, d = int(anti[~inside].sum()), int((~inside).sum())
+    p = float(fisher_exact([[a, b - a], [c, d - c]], alternative="greater")[1]) if b and d else 1.0
+    rng = np.random.default_rng(seed)
+    observed = [line_relation(*m, rel)[0] == "antithetic" for m in members]
+    null = []
+    for _ in range(reps):
+        perm = rng.permutation(len(members))
+        null.append(
+            np.mean(
+                [
+                    line_relation(m[0], members[j][1], m[2], members[j][3], rel)[0] == "antithetic"
+                    for m, j in zip(members, perm, strict=True)
+                ]
+            )
+        )
+    share = float(np.mean(observed)) if observed else 0.0
+    return {
+        "lines": len(lines),
+        "antithetic": int(anti.sum()),
+        "synonymous": int(sum(r == "synonymous" for _, r in lines)),
+        "antithetic_share": round(float(anti.mean()), 4) if len(lines) else 0.0,
+        "member_pairs": len(members),
+        "pair_antithetic_share": round(share, 4),
+        "null_share": round(float(np.mean(null)), 4) if null else None,
+        "null_p": float((1 + sum(x >= share for x in null)) / (1 + reps)) if null else None,
+        "check_share": round(a / b, 4) if b else None,
+        "check_lines": b,
+        "rest_share": round(c / d, 4) if d else None,
+        "check_p": p,
+    }
 
 
 def token_bags(words: pd.DataFrame) -> tuple[dict, dict]:
@@ -266,7 +374,7 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
     )
     words = pd.read_parquet(
         proc / "words.parquet",
-        columns=["verse_id", "display_idx", "lemma", "content_lemmas", "morph"],
+        columns=["verse_id", "idx", "display_idx", "lemma", "content_lemmas", "morph"],
     )
     t0 = time.perf_counter()
     spans, names, finer = segment(verses)
@@ -340,6 +448,54 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
                     vid,
                 )
             )
+    # synonymous / antithetic lines from the SDBH lexicon
+    relation: dict[int, str | None] = {}
+    relation_pairs: dict[int, list] = {}
+    typing = None
+    lex = load_relations(proc, words)
+    if lex is None:
+        log("  no lexicon (`bsim lexicon`): parallel lines are not typed")
+    else:
+        rel, domains = lex
+        rank = {"antithetic": 2, "synonymous": 1, None: 0}
+        lines, typed = [], []
+        for vid, prob in zip(df.verse_id, df.prob, strict=True):
+            if prob < at:
+                continue
+            best, found = None, []
+            for k in range(len(spans[vid]) - 1):
+                sa, sb = spans[vid][k], spans[vid][k + 1]
+                m = (
+                    bag(vid, sa, lemmas, shapes)[0],
+                    bag(vid, sb, lemmas, shapes)[0],
+                    span_domains(vid, sa, domains),
+                    span_domains(vid, sb, domains),
+                )
+                typed.append(m)
+                r, pairs = line_relation(*m, rel)
+                if rank[r] > rank[best]:
+                    best, found = r, pairs
+                elif r == best:
+                    found += pairs
+            relation[vid], relation_pairs[vid] = best, found[: pc["typing_max_pairs"]]
+            lines.append((vid, best))
+        book_of = dict(zip(verses.verse_id, verses.book_id, strict=True))
+        chap_of = dict(zip(verses.verse_id, verses.chapter, strict=True))
+        check = {BY_OSIS[o].book_id: rng for o, rng in pc["typing_check"].items()}
+
+        def in_check(vid: int) -> bool:
+            r = check.get(book_of[vid])
+            return r is not None and r[0] <= chap_of[vid] <= r[1]
+
+        typing = typing_check(lines, typed, rel, in_check, pc["typing_null_reps"], pc["seed"])
+        log(
+            f"typed {typing['lines']} parallel verses: {typing['antithetic']} antithetic, "
+            f"{typing['synonymous']} synonymous; antithetic member pairs "
+            f"{typing['pair_antithetic_share']:.1%} vs {typing['null_share']:.1%} shuffled; "
+            f"{pc['typing_check']}: {typing['check_share']:.1%} of verses vs "
+            f"{typing['rest_share']:.1%} elsewhere (p {typing['check_p']:.2g})"
+        )
+
     chapter_of = dict(zip(verses.verse_id, chapter_key.tolist(), strict=True))
     pairs_df = word_pairs(members, skip, pc["pair_min_count"], chapter_of, pc["pair_min_chapters"])
     poems = known_poem_ranks(df, neg, list(pc["known_poems"]), pc["min_chapter_verses"])
@@ -350,6 +506,11 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
         pauses=[json.dumps(n) for n in names],
         clauses=[json.dumps([list(x) for x in s]) for s in finer],
         next_prob=[next_prob.get(v) for v in verses.verse_id],
+        relation=[relation.get(v) for v in verses.verse_id],
+        relation_pairs=[
+            json.dumps([list(p) for p in relation_pairs[v]]) if v in relation_pairs else None
+            for v in verses.verse_id
+        ],
     )
     out_df = out_df.merge(df[["verse_id", *FEATURES, "prob"]], on="verse_id", how="left")
     out = resolve_path(cfg, "artifacts") / "parallelism"
@@ -371,6 +532,7 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
         "parallel_members": len(members),
         "word_pairs": int(len(pairs_df)),
         "word_pairs_q_below_0.05": int((pairs_df.q <= 0.05).sum()) if len(pairs_df) else 0,
+        "typing": typing,
         "book_means": {
             o: round(float(g.prob.mean()), 4) for o, g in df.groupby("osis", sort=False)
         },

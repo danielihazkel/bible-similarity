@@ -124,3 +124,36 @@ def test_word_pairs_finds_the_answering_pair_and_respects_chapters():
     assert all("x" not in p and "y" not in p for p in pairs)
     top = df.iloc[0]
     assert top.n == 6 and top.q < 0.05 and top.reverse == 0
+
+
+def test_line_relation_types_antonyms_before_synonyms_and_domains():
+    from bsim.analysis.parallelism import line_relation
+
+    rel = ({("6662", "7563"), ("7563", "6662")}, {("776", "8398"), ("8398", "776")})
+    # צדיק // רשע: antithetic, whatever else the halves share
+    kind, pairs = line_relation({"6662"}, {"7563a", "776"}, set(), set(), rel)
+    assert kind == "antithetic" and pairs == [("6662", "7563", "antonym")]
+    # ארץ // תבל: SDBH synonyms
+    assert line_relation({"776"}, {"8398"}, set(), set(), rel) == (
+        "synonymous",
+        [("776", "8398", "synonym")],
+    )
+    # two different lemmas in one domain; a repeated lemma does not count
+    kind, pairs = line_relation(
+        {"1", "2"}, {"3", "2"}, {("1", "D"), ("2", "E")}, {("3", "D"), ("2", "E")}, rel
+    )
+    assert kind == "synonymous" and pairs == [("1", "3", "domain")]
+    assert line_relation({"1"}, {"2"}, set(), set(), rel) == (None, [])
+
+
+def test_typing_check_compares_the_checked_chapters_and_a_shuffle():
+    from bsim.analysis.parallelism import typing_check
+
+    rel = ({("10", "20")}, set())
+    anti, plain = ({"10"}, {"20"}, set(), set()), ({"30"}, {"40"}, set(), set())
+    members = [anti] * 5 + [plain] * 15
+    lines = [(v, "antithetic" if v < 5 else None) for v in range(20)]
+    out = typing_check(lines, members, rel, lambda v: v < 6, reps=20, seed=1)
+    assert out["check_lines"] == 6 and out["check_share"] == pytest.approx(5 / 6, abs=1e-4)
+    assert out["rest_share"] == 0 and out["check_p"] < 0.01
+    assert out["pair_antithetic_share"] == 0.25 and out["null_share"] < 0.25

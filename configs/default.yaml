@@ -259,6 +259,10 @@ parallelism:                  # `bsim parallelism`: verse halves from the te'ami
   parallel_at: 0.5            # a verse counts as parallel at this probability
   pair_min_count: 3           # word pairs across parallel members: shortest count listed
   pair_min_chapters: 3        # ... and the fewest chapters it must occur in (keeps list formulas out)
+  typing_check: {Prov: [10, 15]}   # chapters expected most antithetic (the check D49's negation cue failed)
+  typing_null_reps: 50        # second halves shuffled between parallel lines: the antithetic share by chance
+  typing_max_pairs: 6         # word pairs kept per verse to show why it was typed
+  seed: 13
 
 wordplay:                     # `bsim wordplay`: sound-alike words close together (DESIGN.md §16.10)
   min_letters: 3              # skeleton length (consonants without ו / י vowel letters)

@@ -11,13 +11,19 @@ the name's occurrences); `person` (tribes and peoples included: "sons of Ammon")
 one score is `dominance` times the other and above `min_cue`, `mixed` when both are, `unclear`
 without cues (mostly rare names in lists). Divine names (`skip_lemmas`) are left out.
 
+With `bsim lexicon` (DESIGN.md §16.22) Strong's part of speech decides first: `n-pr-m` / `n-pr-f`
+make a person, `n-pr-loc` a place; a name Strong's gives both readings (Gilead, Ephraim), or none,
+keeps the cue reading (`kind_source`: lexicon | cues). The cue reading is kept as `kind_cues`, and
+the meta reports how often the two agree where both decide.
+
 Who appears with whom: two names co-occur when they share a verse. For every pair seen in at least
 `min_together` verses, Dunning's G² against independence (verse counts) measures how much more
 often they meet than their frequencies predict; each name keeps its `partners` strongest links.
 
 Writes `artifacts/entities/`: `entities.parquet` (`lemma, he, kind, n_mentions, n_verses,
-first_vid, last_vid, place, person`), `mentions.parquet` (`lemma, verse_id, n`) and
-`links.parquet` (`a, b, n_verses, expected, g2`, both directions), plus `entities.meta.json`.
+first_vid, last_vid, place, person, kind_cues, kind_source`), `mentions.parquet` (`lemma,
+verse_id, n`) and `links.parquet` (`a, b, n_verses, expected, g2`, both directions), plus
+`entities.meta.json`.
 """
 
 from __future__ import annotations
@@ -35,6 +41,7 @@ from typing import Any
 import pandas as pd
 
 from bsim.config import config_hash, resolve_path
+from bsim.data.lexicon import strong_key
 
 Log = Callable[[str], None]
 
@@ -78,6 +85,30 @@ def classify(place: float, person: float, dominance: float, min_cue: float) -> s
     if place >= dominance * person:
         return "place"
     return "mixed"
+
+
+def lexicon_kinds(proc: Path) -> dict[str, str] | None:
+    """Strong key -> person / place / both from Strong's parts of speech; None without
+    `bsim lexicon`."""
+    path = proc / "lexicon_lemmas.parquet"
+    if not path.exists():
+        return None
+    lm = pd.read_parquet(path).dropna(subset=["name_kind"])
+    return dict(zip(lm.strong, lm.name_kind, strict=True))
+
+
+def agreement(lex: list[str | None], cues: list[str]) -> dict[str, Any]:
+    """Where Strong's and the cues both decide person / place: how often they agree."""
+    both = [(a, b) for a, b in zip(lex, cues, strict=True) if a in KINDS and b in KINDS]
+    table = Counter(f"{a}/{b}" for a, b in both)
+    return {
+        "decided_by_both": len(both),
+        "agree": round(sum(a == b for a, b in both) / len(both), 4) if both else None,
+        "lexicon/cues": dict(sorted(table.items())),
+    }
+
+
+KINDS = ("person", "place")
 
 
 def g2(k: int, n_a: int, n_b: int, n: int) -> float:
@@ -141,6 +172,17 @@ def run_entities(cfg: dict[str, Any], log: Log = print) -> Path:
         classify(pl, pe, ec["dominance"], ec["min_cue"])
         for pl, pe in zip(g.place, g.person, strict=True)
     ]
+    g["kind_cues"] = g["kind"]
+    g["kind_source"] = "cues"
+    lex = lexicon_kinds(proc)
+    lex_kind: list[str | None] = [None] * len(g)
+    if lex is None:
+        log("  no lexicon (`bsim lexicon`): names typed from context cues only")
+    else:
+        lex_kind = [lex.get(strong_key(lemma)) for lemma in g.index]
+        decided = [k in KINDS for k in lex_kind]
+        g.loc[decided, "kind"] = [k for k in lex_kind if k in KINDS]
+        g.loc[decided, "kind_source"] = "lexicon"
     he = dict(zip(*lemma_display_forms(words)[["lemma", "he_lemma"]].T.values, strict=True))
     g["he"] = g.index.map(he)
     ents = g.reset_index()[
@@ -154,6 +196,8 @@ def run_entities(cfg: dict[str, Any], log: Log = print) -> Path:
             "last_vid",
             "place",
             "person",
+            "kind_cues",
+            "kind_source",
         ]
     ].round({"place": 4, "person": 4})
 
@@ -174,6 +218,8 @@ def run_entities(cfg: dict[str, Any], log: Log = print) -> Path:
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "names": int(len(ents)),
         "kinds": dict(Counter(ents.kind)),
+        "kind_sources": dict(Counter(ents.kind_source)),
+        "lexicon_vs_cues": agreement(lex_kind, g["kind_cues"].tolist()),
         "mentions": int(ents.n_mentions.sum()),
         "pairs": int(len(pairs)),
         "links_kept": int(len(kept)),

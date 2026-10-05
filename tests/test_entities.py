@@ -43,3 +43,23 @@ def test_g2_and_links():
         ("b", "a"),
         ("c", "a"),
     ]
+
+
+def test_lexicon_kinds_and_agreement(tmp_path):
+    from bsim.analysis.entities import agreement, lexicon_kinds
+
+    assert lexicon_kinds(tmp_path) is None
+    pd.DataFrame(
+        {
+            "strong": ["4872", "4714", "1568", "1"],
+            "pos": ["", "", "", ""],
+            "name_kind": ["person", "place", "both", None],
+        }
+    ).to_parquet(tmp_path / "lexicon_lemmas.parquet")
+    assert lexicon_kinds(tmp_path) == {"4872": "person", "4714": "place", "1568": "both"}
+    out = agreement(
+        ["person", "place", "both", None, "place"],
+        ["person", "person", "place", "place", "unclear"],
+    )
+    assert out["decided_by_both"] == 2 and out["agree"] == 0.5
+    assert out["lexicon/cues"] == {"person/person": 1, "place/person": 1}
