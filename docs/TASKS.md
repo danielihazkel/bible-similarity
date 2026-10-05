@@ -274,3 +274,8 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ 6,318 dev pairs, only 3 % shared with Sefaria; fused > lexical > semantic > structural on both, and the Sefaria-trained encoder drops no more than BM25.
 
+## H2 — Serving and viewer hardening, part 2
+- [x] `/search` query-embedding LRU; SQLite page cache, mmap, `query_only` per connection
+- [x] `/phrases/{verse}` `limit`; limit / offset edge tests for the newer list endpoints
+- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)
+

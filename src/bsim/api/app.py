@@ -12,9 +12,10 @@ missing DB or embedding file:
   file).
 
 `/structure/{unit}` responses are kept in a bounded in-memory LRU (`serve.structure_cache`); they
-are deterministic for a given DB. Responses of at least `serve.gzip_min_bytes` are gzipped, and
-GET `/api` responses carry `Cache-Control: max-age=serve.api_max_age` (hashed viewer assets are
-cached as immutable).
+are deterministic for a given DB. Query embeddings of `/search` are cached the same way
+(`serve.search.query_cache`). Connections use a `serve.sqlite_cache_mb` page cache and mmap.
+Responses of at least `serve.gzip_min_bytes` are gzipped, and GET `/api` responses carry
+`Cache-Control: max-age=serve.api_max_age` (hashed viewer assets are cached as immutable).
 
 The production viewer build (`paths.web_dist`) is served at `/` when present; any non-`/api` path
 without a file falls back to its `index.html` (client-side routes).
@@ -93,6 +94,7 @@ class ServeState:
     surface: SurfaceIndex
     runtime: dict[str, Any] = field(default_factory=dict)
     structure_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _lemma_total: int | None = None
 
     def lemma_total(self, conn: sqlite3.Connection) -> int:
@@ -103,7 +105,12 @@ class ServeState:
 
     def connect(self) -> sqlite3.Connection:
         # FastAPI may close a sync dependency on another thread than it opened it on.
-        return connect_readonly(self.db_path, check_same_thread=False)
+        conn = connect_readonly(self.db_path, check_same_thread=False)
+        mb = self.cfg["serve"]["sqlite_cache_mb"]
+        conn.execute(f"PRAGMA cache_size = -{mb * 1024}")
+        conn.execute(f"PRAGMA mmap_size = {mb * 4 << 20}")
+        conn.execute("PRAGMA query_only = 1")
+        return conn
 
 
 def _encoder_loader(cfg: dict[str, Any], base: str, device: str) -> Callable[[], Encoder]:
@@ -202,6 +209,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         surface,
         runtime,
         structure_cache=LruCache(serve["structure_cache"]),
+        query_cache=LruCache(serve["search"]["query_cache"]),
     )
 
 

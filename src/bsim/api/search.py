@@ -206,7 +206,12 @@ def search(state: Any, query: str, mode: str, k: int) -> tuple[str, list[str], p
     if mode in ("lexical", "fused"):
         lists["lexical"] = top(state.surface.scores(terms), depth, positive_only=True)
     if mode in ("semantic", "fused"):
-        q = state.encoder([normalized])[0]
+        cache = getattr(state, "query_cache", None)
+        q = cache.get(normalized) if cache is not None else None
+        if q is None:
+            q = state.encoder([normalized])[0]
+            if cache is not None:
+                cache.put(normalized, q)
         scores = semantic_scores(state.emb, q, state.hubness, cfg["retrieval"]["csls_neighbors"])
         lists["semantic"] = top(scores, depth)
     if mode == "fused":

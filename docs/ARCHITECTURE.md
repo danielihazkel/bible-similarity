@@ -146,7 +146,8 @@ bible-similarity/
 │   │   └── db.py                   # build results.sqlite
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
-│       ├── routes.py               # /api endpoints
+│       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
+│       │                           #   poetics, corpus (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
