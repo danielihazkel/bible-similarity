@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 
 import pandas as pd
 
@@ -8,6 +9,8 @@ from bsim.analysis.diffs import (
     find_changes,
     key_letters,
     make_word,
+    profiles,
+    rewrites,
     shared_ratio,
     word_key,
 )
@@ -91,3 +94,37 @@ def test_shared_ratio_and_make_word():
     assert shared_ratio([], 0, 3) == 0.0
     word = make_word(4, ["1732"], "1732", "דָּוִ֑יד")
     assert (word.idx, word.key, word.form, word.text) == (4, "1732", "דויד", "דויד")
+
+
+def test_rewrites_find_a_consistent_substitution():
+    # book 0 -> book 1: YHWH becomes Elohim in 4 of 5 parallel verses, other words stay
+    words, seqs = {}, []
+    for k in range(5):
+        a, b = 10 * k, 10 * k + 5
+        words[a] = [w("1", "א", 0), w("3068", "יהוה", 1), w("2", "ב", 2), w("4", "ד", 3)]
+        last = w("430", "אלהימ", 1) if k < 4 else w("3068", "יהוה", 1)
+        words[b] = [w("1", "א", 0), last, w("2", "ב", 2), w("4", "דו", 3)]
+        seqs.append((k, a, b, json.dumps([[a, b, 1.0]])))
+    seqs = pd.DataFrame(
+        [(k, 0, 1, False, 0.01, p) for k, a, b, p in seqs],
+        columns=["seq_id", "a_book", "b_book", "same_chapter", "q", "pairs"],
+    )
+    cfg = {
+        "diffs": {
+            "max_q": 0.05,
+            "same_chapter": False,
+            "min_shared": 0.3,
+            "match": 2,
+            "mismatch": 1,
+            "gap": 1,
+        }
+    }
+    sides = Counter()
+    df, *_ = find_changes(seqs, words, cfg, sides)
+    assert sides[("pairs", 0, 1, "")] == 5 and sides[("a", 0, 1, "3068")] == 5
+    rw = rewrites(df, sides, min_count=2)
+    top = rw.iloc[0]
+    assert (top.op, top.a_key, top.b_key, top.n, top.base) == ("substitution", "3068", "430", 4, 5)
+    assert top.rate == 0.8 and top.p < 0.05 and top.q >= top.p
+    prof = profiles(df, sides, Counter({(0, 1): 5})).iloc[0]
+    assert prof.verse_pairs == 5 and prof.substitution == 4 and prof.a_words == 20

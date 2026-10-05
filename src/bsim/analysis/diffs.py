@@ -182,9 +182,15 @@ def verse_words(words: pd.DataFrame) -> dict[int, list[Word]]:
 
 
 def find_changes(
-    sequences: pd.DataFrame, words: dict[int, list[Word]], cfg: dict[str, Any]
+    sequences: pd.DataFrame,
+    words: dict[int, list[Word]],
+    cfg: dict[str, Any],
+    sides: Counter | None = None,
 ) -> tuple[pd.DataFrame, Counter, int, int]:
-    """(change rows, op totals incl. `same`, diffed verse pairs, loose pairs left out)."""
+    """(change rows, op totals incl. `same`, diffed verse pairs, loose pairs left out).
+    `sides`, when given, counts the words of the diffed pairs by `(side, a_book, b_book, key)`
+    (`side` "a" or "b"; key "" = all words; side "pairs": the diffed verse pairs), the base of
+    the rewrite rates."""
     d = cfg["diffs"]
     keep = sequences.q <= d["max_q"]
     if not d["same_chapter"]:
@@ -198,6 +204,12 @@ def find_changes(
                 n_loose += 1
                 continue
             n_pairs += 1
+            if sides is not None:
+                ab = (int(s.a_book), int(s.b_book))
+                sides[("pairs", *ab, "")] += 1
+                for side, ws in (("a", wa), ("b", wb)):
+                    sides[(side, *ab, "")] += len(ws)
+                    sides.update((side, *ab, w.key) for w in ws)
             for o in ops:
                 totals[o.op] += 1
                 if o.op == "same":
@@ -223,6 +235,97 @@ def find_changes(
     return df, totals, n_pairs, n_loose
 
 
+REWRITE_OPS = ("substitution", "omitted", "added")
+
+
+def rewrites(changes: pd.DataFrame, sides: Counter, min_count: int) -> pd.DataFrame:
+    """Changes that one book makes consistently against another (DESIGN.md §16.16).
+
+    For each book pair (a_book, b_book) and change (`substitution` a_key -> b_key, `omitted`
+    a_key, `added` b_key) seen at least `min_count` times: `n`, the `base` = words with that key
+    on the side it starts from (A for substitution / omitted, B for added), `rate` = n / base,
+    and Dunning's G² of the 2 x 2 table (word has the key or not) x (undergoes this change or
+    not) over that side's words; `p` from χ²(1) when the change is over-represented, else 1;
+    `q` = Benjamini–Hochberg over all rows.
+    """
+    from scipy.stats import chi2
+
+    from bsim.analysis.stats import bh_q
+
+    cols = ["a_book", "b_book", "op", "a_key", "b_key", "n", "base", "rate", "g2", "p", "q"]
+    rows = []
+    df = changes[changes.op.isin(REWRITE_OPS)]
+    for (ab, bb, op), g in df.groupby(["a_book", "b_book", "op"], sort=True):
+        side, own = ("b", "b_key") if op == "added" else ("a", "a_key")
+        total = sides[(side, ab, bb, "")]
+        target = g.b_key if op == "substitution" else None
+        op_total = Counter(target) if target is not None else None
+        keys = ["a_key", "b_key"] if op == "substitution" else [own]
+        for k, n in g.groupby(keys, dropna=False).size().items():
+            if n < min_count:
+                continue
+            key = k[0] if isinstance(k, tuple) else k
+            base = sides[(side, ab, bb, key)]
+            # column total: all words of that side undergoing this change
+            col = op_total[k[1]] if op_total is not None else len(g)
+            g2 = _g2(n, base, col, total)
+            expected = base * col / total if total else 0.0
+            rows.append(
+                (
+                    int(ab),
+                    int(bb),
+                    op,
+                    k[0] if op != "added" else None,
+                    k[1] if op == "substitution" else (k if op == "added" else None),
+                    int(n),
+                    int(base),
+                    round(n / base, 4) if base else None,
+                    round(g2, 3),
+                    float(chi2.sf(g2, 1)) if n > expected else 1.0,
+                )
+            )
+    out = pd.DataFrame(rows, columns=cols[:-1])
+    out["q"] = bh_q(out.p.to_numpy()) if len(out) else []
+    return out.sort_values(["q", "g2"], ascending=[True, False], ignore_index=True)[cols]
+
+
+def _g2(n11: int, row: int, col: int, total: int) -> float:
+    """Dunning's G² of a 2 x 2 table given its top-left cell and margins."""
+    cells = [n11, row - n11, col - n11, total - row - col + n11]
+    exp = [row * col, row * (total - col), (total - row) * col, (total - row) * (total - col)]
+    g2 = 0.0
+    for o, e in zip(cells, exp, strict=True):
+        if o > 0 and e > 0:
+            g2 += o * np.log(o * total / e)
+    return float(max(0.0, 2 * g2))
+
+
+def profiles(changes: pd.DataFrame, sides: Counter, pairs: Counter) -> pd.DataFrame:
+    """Per book pair: verse pairs and words diffed, each op's count, and the direction of the
+    spelling changes (`to_plene`: B adds a ו / י vowel letter, `to_defective`: B drops one)."""
+    rows = []
+    longer = changes.b_form.str.len() - changes.a_form.str.len()
+    spelling = changes.assign(longer=longer)[changes.op == "spelling"]
+    by_pair = changes.groupby(["a_book", "b_book"])
+    for (ab, bb), n_pairs in sorted(pairs.items()):
+        g = by_pair.get_group((ab, bb)) if (ab, bb) in by_pair.groups else changes.iloc[:0]
+        ops = Counter(g.op[~((g.op == "moved") & g.a_idx.isna())])  # a moved word counts once
+        sp = spelling[(spelling.a_book == ab) & (spelling.b_book == bb)]
+        rows.append(
+            {
+                "a_book": ab,
+                "b_book": bb,
+                "verse_pairs": n_pairs,
+                "a_words": sides[("a", ab, bb, "")],
+                "b_words": sides[("b", ab, bb, "")],
+                **{op: int(ops[op]) for op in OPS if op != "same"},
+                "to_plene": int((sp.longer > 0).sum()),
+                "to_defective": int((sp.longer < 0).sum()),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def run_diffs(cfg: dict[str, Any], log: Log = print) -> Path:
     proc = resolve_path(cfg, "data_processed")
     seq_path = resolve_path(cfg, "artifacts") / "sequences" / "verse.parquet"
@@ -232,16 +335,25 @@ def run_diffs(cfg: dict[str, Any], log: Log = print) -> Path:
     words = pd.read_parquet(
         proc / "words.parquet", columns=["verse_id", "idx", "surface", "lemma", "content_lemmas"]
     )
-    df, totals, n_pairs, n_loose = find_changes(pd.read_parquet(seq_path), verse_words(words), cfg)
+    sides: Counter = Counter()
+    df, totals, n_pairs, n_loose = find_changes(
+        pd.read_parquet(seq_path), verse_words(words), cfg, sides
+    )
+    pairs = Counter({(ab, bb): n for (side, ab, bb, _), n in sides.items() if side == "pairs"})
     out = resolve_path(cfg, "artifacts") / "diffs"
     out.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out / "changes.parquet")
+    rw = rewrites(df, sides, cfg["diffs"]["rewrite_min_count"])
+    rw.to_parquet(out / "rewrites.parquet")
+    profiles(df, sides, pairs).to_parquet(out / "profiles.parquet")
     meta = {
         "config_hash": config_hash(cfg, "diffs", "sequences"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "verse_pairs": n_pairs,
         "loose_pairs": n_loose,
         "ops": {op: totals[op] for op in OPS},
+        "rewrites": int(len(rw)),
+        "rewrites_q_below_0.05": int((rw.q <= 0.05).sum()),
         "seconds": round(time.perf_counter() - t0, 1),
     }
     (out / "diffs.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")

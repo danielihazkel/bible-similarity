@@ -15,6 +15,9 @@ from bsim.analysis import structure as st
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
+    Acrostic,
+    AcrosticLine,
+    AcrosticsResponse,
     Echo,
     Leitwort,
     ParallelBook,
@@ -276,15 +279,63 @@ def structure_ranking(
     total, rows = queries.structure_page(conn, unit_type, by, min_verses, limit, offset)
     units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
     items = [
-        StructureRank(unit=UnitSummary(**units_[r["unit_id"]]), **{k: r[k] for k in st.SCORE_COLS})
+        StructureRank(
+            unit=UnitSummary(**units_[r["unit_id"]]),
+            **{k: r[k] for k in (*st.SCORE_COLS, *st.Q_COLS)},
+        )
         for r in rows
     ]
     return {
         "unit_type": unit_type,
         "by": by,
         "min_verses": min_verses,
+        "leitwort_numbers": state.meta.get("leitwort_numbers"),
         "total": total,
         "offset": offset,
         "limit": limit,
         "items": items,
     }
+
+
+def _acrostic(r: dict[str, Any], unit: dict[str, Any]) -> Acrostic:
+    return Acrostic(
+        unit=UnitSummary(**unit),
+        **{k: r[k] for k in Acrostic.model_fields if k not in ("unit", "chain")},
+        chain=[
+            AcrosticLine(verse_id=v, display_idx=i, letter=c) for v, i, c in json.loads(r["chain"])
+        ],
+    )
+
+
+@router.get("/acrostics", response_model=AcrosticsResponse)
+def acrostics(
+    state: State,
+    conn: Conn,
+    max_q: float | None = 0.05,
+    book: int | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Chapters whose lines run through the alphabet, most significant first (DESIGN.md §16.15)."""
+    check_page(state, limit, offset)
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    total, rows = queries.acrostics_page(conn, max_q, book, limit, offset)
+    units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
+    return {
+        "max_q": max_q,
+        "book": book,
+        "known_recall": (state.meta.get("acrostics") or {}).get("known_recall"),
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [_acrostic(r, units_[r["unit_id"]]) for r in rows],
+    }
+
+
+@router.get("/acrostics/{unit_id}", response_model=Acrostic | None)
+def unit_acrostic(unit_id: str, conn: Conn) -> Acrostic | None:
+    """A chapter's best alphabetic chain (null for units without one)."""
+    u = unit_or_404(conn, unit_id)
+    r = queries.acrostic(conn, unit_id)
+    return None if r is None else _acrostic(r, u)

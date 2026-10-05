@@ -227,7 +227,63 @@ CREATE TABLE structure (
     lexical_inclusio_pct REAL,
     lexical_chiasm REAL,
     lexical_chiasm_pct REAL,
-    lexical_chiasm_z REAL
+    lexical_chiasm_z REAL,
+    semantic_inclusio_q REAL,       -- Benjamini-Hochberg q within the unit type (DESIGN.md §16.14)
+    semantic_chiasm_q REAL,
+    lexical_inclusio_q REAL,
+    lexical_chiasm_q REAL
+) WITHOUT ROWID;
+
+-- Alphabetic acrostics (`bsim acrostics`, DESIGN.md §16.15): each chapter's best chain.
+CREATE TABLE acrostics (
+    unit_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    granularity TEXT NOT NULL,      -- verse | colon (line unit)
+    order_name TEXT NOT NULL,       -- standard | pe-ayin
+    score REAL NOT NULL,            -- letters - penalty x skipped letters
+    n_letters INTEGER NOT NULL,
+    missing INTEGER NOT NULL,       -- letters skipped inside the chain
+    first_letter TEXT NOT NULL,
+    last_letter TEXT NOT NULL,
+    start_vid INTEGER NOT NULL,
+    end_vid INTEGER NOT NULL,
+    n_lines INTEGER NOT NULL,
+    p REAL NOT NULL,
+    q REAL NOT NULL,
+    chain TEXT NOT NULL             -- JSON [verse_id, display_idx, letter] per line
+) WITHOUT ROWID;
+
+-- Changes one book makes consistently against another (`bsim diffs`, DESIGN.md §16.16).
+CREATE TABLE rewrites (
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    op TEXT NOT NULL,               -- substitution | omitted | added
+    a_key TEXT,
+    b_key TEXT,
+    n INTEGER NOT NULL,
+    base INTEGER NOT NULL,          -- words with the key on the side the change starts from
+    rate REAL,
+    g2 REAL NOT NULL,
+    p REAL NOT NULL,
+    q REAL NOT NULL
+);
+
+-- Per book pair of parallel passages: how much and how they differ.
+CREATE TABLE rewrite_profiles (
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    verse_pairs INTEGER NOT NULL,
+    a_words INTEGER NOT NULL,
+    b_words INTEGER NOT NULL,
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,
+    added INTEGER NOT NULL,
+    moved INTEGER NOT NULL,
+    to_plene INTEGER NOT NULL,
+    to_defective INTEGER NOT NULL,
+    PRIMARY KEY (a_book, b_book)
 ) WITHOUT ROWID;
 
 -- Corpus map (`bsim map`, DESIGN.md §16.4).

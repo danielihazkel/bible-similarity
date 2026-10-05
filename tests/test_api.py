@@ -675,3 +675,34 @@ def test_eval(client, built):
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "metrics.json").write_text(json.dumps({"splits": {"dev": {"results": {}}}}))
     assert client.get("/api/eval").json()["splits"] == {"dev": {"results": {}}}
+
+
+def test_acrostics(client):
+    body = client.get("/api/acrostics?max_q=1").json()
+    # the one-verse chapter c:1:1 has no chain (a chain needs two lines)
+    assert body["total"] == 2 and len(body["items"]) == 2
+    item = body["items"][0]
+    assert item["unit"]["unit_type"] == "chapter" and 0 < item["p"] <= 1 and item["q"] >= item["p"]
+    assert item["chain"] and {"verse_id", "display_idx", "letter"} <= set(item["chain"][0])
+    assert client.get("/api/acrostics").json()["total"] == 0  # nothing significant in 6 verses
+    one = client.get("/api/acrostics/c:0:1").json()
+    assert one["unit"]["unit_id"] == "c:0:1"
+    assert client.get("/api/acrostics/v:0").json() is None
+    assert client.get("/api/acrostics/nope").status_code == 404
+    assert client.get("/api/acrostics?max_q=2").status_code == 422
+
+
+def test_rewrites(client):
+    profiles = client.get("/api/rewrite-profiles").json()
+    assert profiles and profiles[0]["verse_pairs"] >= 1 and profiles[0]["a_words"] > 0
+    body = client.get("/api/rewrites?max_q=1").json()
+    assert body["total"] == len(body["items"])
+    for r in body["items"]:
+        assert r["op"] in ("substitution", "omitted", "added") and r["n"] >= 2
+    assert client.get("/api/rewrites?op=spelling").status_code == 422
+
+
+def test_structure_ranking_has_q_and_leitwort_numbers(client):
+    body = client.get("/api/structure?min_verses=1").json()
+    assert "leitwort_numbers" in body and body["leitwort_numbers"]["leitworte"] >= 0
+    assert all("semantic_inclusio_q" in r for r in body["items"])

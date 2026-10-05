@@ -18,6 +18,9 @@ from bsim.api.models import (
     ChangeGroup,
     ChangesResponse,
     LadderRow,
+    Rewrite,
+    RewriteProfile,
+    RewritesResponse,
     SequenceDetail,
     SequencesResponse,
     SequenceSummary,
@@ -258,3 +261,44 @@ def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -
         "rows": rows,
         "verses": queries.verses_by_id(conn, vids),
     }
+
+
+@router.get("/rewrites", response_model=RewritesResponse)
+def rewrites(
+    state: State,
+    conn: Conn,
+    a_book: int | None = None,
+    b_book: int | None = None,
+    op: str | None = None,
+    max_q: float | None = 0.05,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Changes one book makes consistently against another (DESIGN.md §16.16)."""
+    check_page(state, limit, offset)
+    if op is not None and op not in df_.REWRITE_OPS:
+        raise unprocessable(f"op must be one of {list(df_.REWRITE_OPS)}")
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    total, rows = queries.rewrites_page(conn, a_book, b_book, op, max_q, limit, offset)
+    keys = {k for r in rows for k in (r["a_key"], r["b_key"]) if k and not k.startswith("~")}
+    gloss = queries.gloss(conn, (p for k in keys for p in k.split("+")))
+    return {
+        "a_book": a_book,
+        "b_book": b_book,
+        "op": op,
+        "max_q": max_q,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            Rewrite(**r, a_he=_key_he(r["a_key"], gloss), b_he=_key_he(r["b_key"], gloss))
+            for r in rows
+        ],
+    }
+
+
+@router.get("/rewrite-profiles", response_model=list[RewriteProfile])
+def rewrite_profiles(conn: Conn) -> list[RewriteProfile]:
+    """Per book pair of parallel passages: how many verses were diffed and how they differ."""
+    return [RewriteProfile(**r) for r in queries.rewrite_profiles(conn)]

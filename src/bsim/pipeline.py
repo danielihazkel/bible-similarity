@@ -146,6 +146,12 @@ def stage_parallelism(cfg: dict[str, Any], log: Log) -> None:
     run_parallelism(cfg, log=log)
 
 
+def stage_acrostics(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.acrostic import run_acrostics
+
+    run_acrostics(cfg, log=log)
+
+
 def stage_wordplay(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.wordplay import run_wordplay
 
@@ -207,6 +213,7 @@ STAGES: dict[str, str] = {
     "sequences": "stage_sequences",
     "diffs": "stage_diffs",
     "parallelism": "stage_parallelism",
+    "acrostics": "stage_acrostics",
     "wordplay": "stage_wordplay",
     "entities": "stage_entities",
     "seams": "stage_seams",

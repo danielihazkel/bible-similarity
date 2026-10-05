@@ -16,12 +16,15 @@ Derived columns:
 - `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
 - `sequences`: `bsim sequences` chains (`artifacts/sequences/verse.parquet`); each aligned pair
   gains a gold flag (`gold_verse_pairs`, either direction) and `n_gold` counts them.
-- `diff_changes` + `meta.diffs`: `bsim diffs` word-level changes (`artifacts/diffs/`).
+- `diff_changes`, `rewrites`, `rewrite_profiles` + `meta.diffs`: `bsim diffs` word-level
+  changes and their per-book-pair summary (`artifacts/diffs/`).
+- `acrostics` + `meta.acrostics`: `bsim acrostics` (`artifacts/acrostics/units.parquet`).
 - `parallelism` + `meta.parallelism`: `bsim parallelism` cola and scores.
 - `wordplay`: `bsim wordplay` sound-alike pairs plus the book.
 - `entities`, `entity_mentions`, `entity_links` + `meta.entities`: `bsim entities`.
 - `seam_curve`, `seams` + `meta.seams`: `bsim seams`.
-- `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
+- `structure` + `meta.leitwort_numbers`: `bsim structure` scores and q-values
+  (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 
@@ -45,7 +48,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.structure import SCORE_COLS
+from bsim.analysis.structure import Q_COLS, SCORE_COLS
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS
 from bsim.lexical.formulas import formula_weights, frequent_ngrams
@@ -207,7 +210,40 @@ TABLE_COLUMNS = {
     "entity_links": ["a", "b", "n_verses", "expected", "g2"],
     "seam_curve": ["book_id", "verse_id", "shift"],
     "seams": ["book_id", "verse_id", "shift", "threshold", "rank", "features"],
-    "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
+    "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS, *Q_COLS],
+    "acrostics": [
+        "unit_id",
+        "book_id",
+        "granularity",
+        "order_name",
+        "score",
+        "n_letters",
+        "missing",
+        "first_letter",
+        "last_letter",
+        "start_vid",
+        "end_vid",
+        "n_lines",
+        "p",
+        "q",
+        "chain",
+    ],
+    "rewrites": ["a_book", "b_book", "op", "a_key", "b_key", "n", "base", "rate", "g2", "p", "q"],
+    "rewrite_profiles": [
+        "a_book",
+        "b_book",
+        "verse_pairs",
+        "a_words",
+        "b_words",
+        "spelling",
+        "form",
+        "substitution",
+        "omitted",
+        "added",
+        "moved",
+        "to_plene",
+        "to_defective",
+    ],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
     "map_clusters": ["unit_type", "cluster", "size", "lemmas"],
     "book_affinity": ["a_book", "b_book", "n_pairs", "expected", "lift"],
@@ -536,6 +572,15 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if not (diff_dir / "changes.parquet").exists():
         raise RuntimeError(f"{diff_dir / 'changes.parquet'} missing; run `bsim diffs` first")
     out["diff_changes"] = pd.read_parquet(diff_dir / "changes.parquet")
+    for name in ("rewrites", "profiles"):
+        if not (diff_dir / f"{name}.parquet").exists():
+            raise RuntimeError(f"{diff_dir / name}.parquet missing; run `bsim diffs` first")
+        out[f"diff_{name}"] = pd.read_parquet(diff_dir / f"{name}.parquet")
+    path = resolve_path(cfg, "artifacts") / "acrostics" / "units.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim acrostics` first")
+    out["acrostics"] = pd.read_parquet(path)
+    out["acrostics_meta"] = _read_json(path.with_name("acrostics.meta.json"))
     out["diffs_meta"] = _read_json(diff_dir / "diffs.meta.json")
     par_dir = resolve_path(cfg, "artifacts") / "parallelism"
     if not (par_dir / "verses.parquet").exists():
@@ -565,6 +610,7 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
     out["structure"] = pd.read_parquet(path)
+    out["structure_meta"] = _read_json(path.with_name("units.meta.json"))
     map_dir = resolve_path(cfg, "artifacts") / "map"
     for name in ("points", "clusters", "book_affinity", "book_examples"):
         path = map_dir / f"{name}.parquet"
@@ -704,6 +750,9 @@ def _write_db(
                 same_chapter=lambda d: d.same_chapter.astype(int)
             ),
             "diff_changes": inputs["diff_changes"],
+            "rewrites": inputs["diff_rewrites"],
+            "rewrite_profiles": inputs["diff_profiles"],
+            "acrostics": inputs["acrostics"],
             "parallelism": inputs["parallelism"],
             "seam_curve": inputs["seam_curve"],
             "seams": inputs["seam_seams"],
@@ -761,7 +810,10 @@ def _write_db(
         meta["book_order"] = inputs["map_meta"].get("book_order", [b.book_id for b in BOOKS])
         sm = inputs["stylo_meta"]
         dm = inputs["diffs_meta"]
-        meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops")}
+        meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops", "rewrites")}
+        am = inputs["acrostics_meta"]
+        meta["acrostics"] = {k: am.get(k) for k in ("known_q", "known_recall", "report_q")}
+        meta["leitwort_numbers"] = inputs["structure_meta"].get("leitwort_numbers")
         meta["seams"] = {
             "thresholds": inputs["seams_meta"].get("thresholds", {}),
             "block_words": cfg["seams"]["block_words"],

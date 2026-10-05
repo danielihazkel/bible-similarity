@@ -706,3 +706,62 @@ def stylo_features(conn: sqlite3.Connection, book: int) -> list[dict[str, Any]]:
         (book,),
     )
     return _dicts(cur)
+
+
+def acrostics_page(
+    conn: sqlite3.Connection, max_q: float | None, book_id: int | None, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    """Chapters by their best alphabetic chain: lowest q, then highest score."""
+    where, args = "1 = 1", []
+    if max_q is not None:
+        where += " AND q <= ?"
+        args.append(max_q)
+    if book_id is not None:
+        where += " AND book_id = ?"
+        args.append(book_id)
+    total = conn.execute(f"SELECT COUNT(*) FROM acrostics WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM acrostics WHERE {where} ORDER BY q, score DESC, unit_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def acrostic(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any] | None:
+    rows = _dicts(conn.execute("SELECT * FROM acrostics WHERE unit_id = ?", (unit_id,)))
+    return rows[0] if rows else None
+
+
+def rewrites_page(
+    conn: sqlite3.Connection,
+    a_book: int | None,
+    b_book: int | None,
+    op: str | None,
+    max_q: float | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Systematic changes between book pairs, strongest (lowest q, highest G²) first."""
+    where, args = "1 = 1", []
+    for col, cmp, val in (
+        ("a_book", "=", a_book),
+        ("b_book", "=", b_book),
+        ("op", "=", op),
+        ("q", "<=", max_q),
+    ):
+        if val is not None:
+            where += f" AND {col} {cmp} ?"
+            args.append(val)
+    total = conn.execute(f"SELECT COUNT(*) FROM rewrites WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM rewrites WHERE {where} ORDER BY q, g2 DESC, a_book, b_book, a_key, b_key"
+        " LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def rewrite_profiles(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    return _dicts(
+        conn.execute("SELECT * FROM rewrite_profiles ORDER BY verse_pairs DESC, a_book, b_book")
+    )

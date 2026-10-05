@@ -197,6 +197,7 @@ diffs:                        # `bsim diffs`: word-level changes inside parallel
   max_q: 0.05                 # sequences aligned word by word
   same_chapter: false         # include repeats inside one chapter (lists: Num 7, Num 29)
   min_shared: 0.3             # diff a verse pair only if this share of the shorter verse keeps its lemma
+  rewrite_min_count: 2        # a book pair's change listed as a rewrite when seen this often
   match: 2                    # Needleman-Wunsch scores over word lemma keys
   mismatch: 1
   gap: 1
@@ -219,6 +220,18 @@ wordplay:                     # `bsim wordplay`: sound-alike words close togethe
   same_vowels: true           # the two words must share their vowel pattern
   null_reps: 20               # chapter-internal word-order shuffles for q-values
   seed: 13
+
+acrostics:                    # `bsim acrostics`: alphabetic acrostics, whole or broken (DESIGN.md §16.15)
+  unit_type: chapter
+  granularities: [verse, colon]   # line units: verse starts, colon starts (te'amim pauses)
+  max_line_gap: 8             # lines between successive letters (Ps 119: 8 verses per letter)
+  missing_penalty: 1.0        # score cost of a skipped letter
+  null_reps: 9999             # line-order shuffles per chapter (p resolution 1e-4)
+  null_screen: 199            # shuffles first; all null_reps only if fewer than screen_hits reach the score
+  screen_hits: 10
+  report_q: 0.05              # reported as significant at this BH q
+  seed: 13
+  known: ["Ps 9", "Ps 25", "Ps 34", "Ps 37", "Ps 111", "Ps 112", "Ps 119", "Ps 145", "Prov 31", "Lam 1", "Lam 2", "Lam 3", "Lam 4", "Nah 1"]
 
 entities:                     # `bsim entities`: people and places, who appears with whom (DESIGN.md §16.11)
   skip_lemmas: ["3068", "3069", "3050"]   # divine names (OSHB tags them Np)
@@ -244,6 +257,7 @@ structure:                    # `bsim structure` + /structure: inclusio, chiasm,
   leitwort_min_count: 3
   leitwort_top: 12
   leitwort_skip_pos: [C, R, T, P]   # conjunctions, prepositions, particles, pronouns
+  leitwort_moduli: [6, 7, 8, 9, 10, 11, 12, 13]   # multiples-of-m check (7 and 10 + controls)
 
 map:                          # `bsim map`: layout, clusters, book affinity (DESIGN.md §16.4)
   clusters: {chapter: 20, pericope: 30, parasha: 8}   # KMeans k per unit type (also the types mapped)

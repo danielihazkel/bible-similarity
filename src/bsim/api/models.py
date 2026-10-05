@@ -564,12 +564,18 @@ class StructureRank(BaseModel):
     lexical_chiasm: float | None
     lexical_chiasm_pct: float | None
     lexical_chiasm_z: float | None
+    semantic_inclusio_q: float | None = None  # Benjamini-Hochberg over the unit type
+    semantic_chiasm_q: float | None = None
+    lexical_inclusio_q: float | None = None
+    lexical_chiasm_q: float | None = None
 
 
 class StructureRankingResponse(BaseModel):
     unit_type: str
     by: str
     min_verses: int
+    # multiples-of-m check of Leitwort counts (`structure.leitwort_numbers`), m -> stats
+    leitwort_numbers: dict[str, Any] | None = None
     total: int
     offset: int
     limit: int
@@ -675,3 +681,81 @@ class EvalResponse(BaseModel):
     splits: dict[str, Any]  # artifacts/eval/metrics.json `splits` (empty before `bsim eval`)
     openbible: dict[str, Any] | None  # artifacts/eval/openbible.json
     final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it
+
+
+class AcrosticLine(BaseModel):
+    verse_id: int
+    display_idx: int
+    letter: str
+
+
+class Acrostic(BaseModel):
+    """A chapter's best alphabetic chain (DESIGN.md §16.15)."""
+
+    unit: UnitSummary
+    granularity: str  # verse | colon
+    order_name: str  # standard | pe-ayin
+    score: float
+    n_letters: int
+    missing: int
+    first_letter: str
+    last_letter: str
+    n_lines: int
+    p: float
+    q: float
+    chain: list[AcrosticLine]
+
+
+class AcrosticsResponse(BaseModel):
+    max_q: float | None
+    book: int | None
+    known_recall: float | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Acrostic]
+
+
+class Rewrite(BaseModel):
+    """A change one book makes consistently against another (DESIGN.md §16.16)."""
+
+    a_book: int
+    b_book: int
+    op: str  # substitution | omitted | added
+    a_key: str | None
+    b_key: str | None
+    a_he: str | None
+    b_he: str | None
+    n: int
+    base: int
+    rate: float | None
+    g2: float
+    p: float
+    q: float
+
+
+class RewriteProfile(BaseModel):
+    a_book: int
+    b_book: int
+    verse_pairs: int
+    a_words: int
+    b_words: int
+    spelling: int
+    form: int
+    substitution: int
+    omitted: int
+    added: int
+    moved: int
+    to_plene: int
+    to_defective: int
+
+
+class RewritesResponse(BaseModel):
+    a_book: int | None
+    b_book: int | None
+    op: str | None
+    max_q: float | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Rewrite]

@@ -293,6 +293,18 @@ def parallelism(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def acrostics(config: ConfigOpt = None) -> None:
+    """Find alphabetic acrostics, whole or broken, in every chapter."""
+    from bsim.analysis.acrostic import run_acrostics
+
+    try:
+        run_acrostics(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def wordplay(config: ConfigOpt = None) -> None:
     """Find sound-alike words close together (paronomasia)."""
     from bsim.analysis.wordplay import run_wordplay
