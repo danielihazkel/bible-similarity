@@ -202,6 +202,8 @@ class VerseHalves(BaseModel):
     shape: float | None = None
     balance: float | None = None
     prob: float | None = None  # probability the halves are parallel like poetry
+    clauses: list[tuple[int, int]] = []  # spans between accent pauses of level 1-2
+    next_prob: float | None = None  # bicolon with the next verse (two one-colon verses)
 
 
 class UnitParallelism(BaseModel):
@@ -807,3 +809,107 @@ class UnitNetwork(BaseModel):
     rank: int  # 1 = highest PageRank of its unit type
     of: int
     community_size: int
+
+
+class VerseLabel(BaseModel):
+    verse_id: int
+    label_en: str
+    label_he: str
+
+
+class WordPair(BaseModel):
+    """Two lemmas that answer each other across the members of parallel lines (§16.18)."""
+
+    a: LemmaForm  # in the first member
+    b: LemmaForm
+    n: int
+    expected: float
+    g2: float
+    q: float
+    reverse: int  # the pair in the other order
+    examples: list[VerseLabel]
+
+
+class WordPairsResponse(BaseModel):
+    max_q: float | None
+    lemma: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[WordPair]
+
+
+class Alliteration(BaseModel):
+    """A colon whose content words share an initial sound (DESIGN.md §16.19)."""
+
+    verse: Verse
+    label: str
+    colon: int
+    sound: str
+    count: int
+    n_words: int
+    words: list[int]  # display indexes of the alliterating words
+    p: float
+    q: float
+
+
+class AlliterationResponse(BaseModel):
+    book: int | None
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Alliteration]
+
+
+class Rhyme(BaseModel):
+    """Consecutive cola whose last words end alike."""
+
+    start_vid: int
+    end_vid: int
+    label: str
+    n_cola: int
+    ending: str
+    members: list[tuple[int, int]]  # (verse_id, display_idx) of each colon's last word
+    verses: list[Verse]
+    p: float
+    q: float
+
+
+class RhymesResponse(BaseModel):
+    book: int | None
+    max_q: float | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Rhyme]
+
+
+class AlignedVerb(BaseModel):
+    a_vid: int
+    b_vid: int
+    lemma: str
+    he_lemma: str
+
+
+class TypeScene(BaseModel):
+    """Two passages whose actions follow the same order (DESIGN.md §16.20)."""
+
+    a: UnitSummary
+    b: UnitSummary
+    score: float
+    n_matches: int
+    aligned: list[AlignedVerb]
+    parallel_text: bool
+    q: float
+
+
+class TypeScenesResponse(BaseModel):
+    book: int | None
+    max_q: float | None
+    hide_textual: bool
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[TypeScene]

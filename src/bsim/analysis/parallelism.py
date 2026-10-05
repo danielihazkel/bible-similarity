@@ -21,9 +21,25 @@ Checks (meta): the leave-one-poetic-book-out AUC, and where the poems embedded i
 (`known_poems`: Gen 49, Ex 15, Deut 32, ...) rank among the chapters of the narrative / law books
 (they are negatives in training, so this is conservative).
 
+Finer structure (DESIGN.md §16.18):
+
+- `clauses`: the spans between the pauses of accent level 1–2 (`text.accents.clauses`);
+- `next_prob`: a bicolon may span two verses. For two consecutive one-colon verses of a chapter,
+  the same four features are measured between the verses and scored with the same model;
+  `next_prob` sits on the first verse (NULL elsewhere);
+- word pairs: the content lemmas that recur across the two members of parallel lines (verse
+  halves with `prob ≥ parallel_at`, verse pairs with `next_prob ≥ parallel_at`) more than their
+  frequencies predict — the fixed word pairs of Hebrew poetry (ארץ // תבל, יעקב // ישראל).
+  Ordered pairs (x in the first member, y in the second, x ≠ y, function words skipped) seen at
+  least `pair_min_count` times in at least `pair_min_chapters` chapters (one list's formulas, an
+  itinerary or an offering table, stay out); Dunning's G² over the member pairs, p from χ²(1) when
+  over-represented, Benjamini–Hochberg q.
+
 Writes `artifacts/parallelism/verses.parquet`: `verse_id, n_cola, cola` (JSON inclusive display
 token spans), `pauses` (JSON accent names), `cos, shared, shape, balance, prob` (NULL for one
-colon), plus `parallelism.meta.json`.
+colon), `clauses` (JSON spans), `next_prob`; `word_pairs.parquet` (`a_lemma, b_lemma, n,
+expected, g2, p, q, reverse`, the count of the pair in the other order, and `examples`, JSON
+verse ids); plus `parallelism.meta.json`.
 """
 
 from __future__ import annotations
@@ -39,11 +55,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.stats import bh_q
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.lexical.morph import word_token
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
-from bsim.text.accents import cola, pauses, poetic
+from bsim.text.accents import clauses, cola, pauses, poetic
 from bsim.text.normalize import consonantal
 
 Log = Callable[[str], None]
@@ -51,10 +68,12 @@ Log = Callable[[str], None]
 FEATURES = ("cos", "shared", "shape", "balance")
 
 
-def segment(verses: pd.DataFrame) -> tuple[list[list[tuple[int, int]]], list[list[str]]]:
-    """Per verse: colon spans and the names of the pauses between them."""
+def segment(
+    verses: pd.DataFrame,
+) -> tuple[list[list[tuple[int, int]]], list[list[str]], list[list[tuple[int, int]]]]:
+    """Per verse: colon spans, the names of the pauses between them, and clause spans."""
     osis = {b.book_id: b.osis for b in BOOKS}
-    spans, names = [], []
+    spans, names, finer = [], [], []
     for toks, book, chapter, verse in zip(
         verses.display_tokens, verses.book_id, verses.chapter, verses.verse, strict=True
     ):
@@ -62,7 +81,79 @@ def segment(verses: pd.DataFrame) -> tuple[list[list[tuple[int, int]]], list[lis
         p = poetic(osis[book], chapter, verse)
         spans.append(cola(toks, p))
         names.append([n for _, n in pauses(toks, p)])
-    return spans, names
+        finer.append(clauses(toks, p))
+    return spans, names, finer
+
+
+def bag(vid: int, span: tuple[int, int], lemmas: dict, shapes: dict) -> tuple[set, Counter]:
+    s, e = span
+    return (
+        {x for t in range(s, e + 1) for x in lemmas.get((vid, t), [])},
+        Counter(x for t in range(s, e + 1) for x in shapes.get((vid, t), [])),
+    )
+
+
+def word_pairs(
+    members: list[tuple[set[str], set[str], int]],
+    skip: set[str],
+    min_count: int,
+    chapter_of: dict[int, int] | None = None,
+    min_chapters: int = 1,
+) -> pd.DataFrame:
+    """Over-represented ordered lemma pairs across the two members of parallel lines
+    (`members`: first member's lemmas, second's, verse id); a pair must occur in at least
+    `min_chapters` chapters (`chapter_of`: verse id -> chapter key), which keeps the formulas of
+    one list (an itinerary, an offering table) out."""
+    from scipy.stats import chi2
+
+    n_first: Counter[str] = Counter()
+    n_second: Counter[str] = Counter()
+    pair: Counter[tuple[str, str]] = Counter()
+    chapters: dict[tuple[str, str], set[int]] = {}
+    examples: dict[tuple[str, str], list[int]] = {}
+    for a, b, vid in members:
+        a, b = a - skip, b - skip
+        n_first.update(a)
+        n_second.update(b)
+        for x in a:
+            for y in b:
+                if x != y:
+                    pair[(x, y)] += 1
+                    if chapter_of is not None:
+                        chapters.setdefault((x, y), set()).add(chapter_of[vid])
+                    ex = examples.setdefault((x, y), [])
+                    if len(ex) < 5:
+                        ex.append(vid)
+    total = len(members)
+    rows = []
+    for (x, y), n in pair.items():
+        if n < min_count or (chapter_of is not None and len(chapters[(x, y)]) < min_chapters):
+            continue
+        r, c = n_first[x], n_second[y]
+        expected = r * c / total
+        cells = [n, r - n, c - n, total - r - c + n]
+        exp = [r * c, r * (total - c), (total - r) * c, (total - r) * (total - c)]
+        g2 = 2 * sum(
+            o * np.log(o * total / e) for o, e in zip(cells, exp, strict=True) if o > 0 and e > 0
+        )
+        p = float(chi2.sf(g2, 1)) if n > expected else 1.0
+        rows.append(
+            (
+                x,
+                y,
+                n,
+                round(expected, 3),
+                round(float(g2), 3),
+                p,
+                pair.get((y, x), 0),
+                json.dumps(examples[(x, y)]),
+            )
+        )
+    df = pd.DataFrame(
+        rows, columns=["a_lemma", "b_lemma", "n", "expected", "g2", "p", "reverse", "examples"]
+    )
+    df["q"] = bh_q(df.p.to_numpy()) if len(df) else []
+    return df.sort_values(["q", "g2"], ascending=[True, False], ignore_index=True)
 
 
 def token_bags(words: pd.DataFrame) -> tuple[dict, dict]:
@@ -110,6 +201,17 @@ def verse_features(
         for k in range(len(spans) - 1)
     ]
     return {f: float(np.mean([p[f] for p in pairs])) for f in FEATURES}
+
+
+def lemma_pos(words: pd.DataFrame) -> dict[str, str]:
+    """Each content lemma's most common part of speech (OSHB letter)."""
+    from bsim.store.db import lemma_parts_pos  # store.db imports the analysis modules
+
+    pos: dict[str, Counter[str]] = {}
+    for lemma, morph in zip(words.lemma, words.morph, strict=True):
+        for lem, p in lemma_parts_pos(lemma, morph).items():
+            pos.setdefault(lem, Counter())[p] += 1
+    return {lem: c.most_common(1)[0][0] for lem, c in pos.items()}
 
 
 def fit_model(x: np.ndarray, y: np.ndarray, c: float) -> Any:
@@ -163,15 +265,26 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
         columns=["verse_id", "book_id", "chapter", "verse", "display_tokens"],
     )
     words = pd.read_parquet(
-        proc / "words.parquet", columns=["verse_id", "display_idx", "content_lemmas", "morph"]
+        proc / "words.parquet",
+        columns=["verse_id", "display_idx", "lemma", "content_lemmas", "morph"],
     )
     t0 = time.perf_counter()
-    spans, names = segment(verses)
+    spans, names, finer = segment(verses)
     multi = [vid for vid, s in enumerate(spans) if len(s) >= 2]
     log(f"cola: {Counter(len(s) for s in spans)}; {len(multi)} verses with 2+ cola")
+    chapter_key = verses.book_id.to_numpy() * 1000 + verses.chapter.to_numpy()
+    cross = [
+        vid
+        for vid in range(len(spans) - 1)
+        if len(spans[vid]) == 1
+        and len(spans[vid + 1]) == 1
+        and chapter_key[vid] == chapter_key[vid + 1]
+    ]
+    single = sorted({v for vid in cross for v in (vid, vid + 1)})
+    log(f"{len(cross)} pairs of consecutive one-colon verses")
 
     texts, first = [], {}
-    for vid in multi:
+    for vid in multi + single:
         toks = list(verses.display_tokens.iloc[vid])
         first[vid] = len(texts)
         texts += [consonantal(" ".join(toks[s : e + 1])) for s, e in spans[vid]]
@@ -197,17 +310,52 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
     model = fit_model(train[list(FEATURES)].to_numpy(), train.y.to_numpy(), pc["C"])
     df["prob"] = model.predict_proba(df[list(FEATURES)].to_numpy())[:, 1]
     aucs = held_out_auc(train, pos, pc["C"])
+
+    # bicola across two verses: the same features between consecutive one-colon verses
+    nxt = []
+    for vid in cross:
+        a = bag(vid, spans[vid][0], lemmas, shapes)
+        b = bag(vid + 1, spans[vid + 1][0], lemmas, shapes)
+        f = pair_features(a[0], b[0], a[1], b[1], float(emb[first[vid]] @ emb[first[vid + 1]]))
+        nxt.append([f[k] for k in FEATURES])
+    next_prob = dict(
+        zip(cross, model.predict_proba(np.array(nxt))[:, 1] if nxt else [], strict=True)
+    )
+
+    # fixed word pairs across the members of parallel lines
+    at = pc["parallel_at"]
+    skip_pos = set(cfg["structure"]["leitwort_skip_pos"])
+    skip = {lem for lem, p in lemma_pos(words).items() if p in skip_pos}
+    members = []
+    for vid, prob in zip(df.verse_id, df.prob, strict=True):
+        if prob >= at:
+            b = [bag(vid, sp, lemmas, shapes)[0] for sp in spans[vid]]
+            members += [(b[k], b[k + 1], vid) for k in range(len(b) - 1)]
+    for vid, prob in next_prob.items():
+        if prob >= at:
+            members.append(
+                (
+                    bag(vid, spans[vid][0], lemmas, shapes)[0],
+                    bag(vid + 1, spans[vid + 1][0], lemmas, shapes)[0],
+                    vid,
+                )
+            )
+    chapter_of = dict(zip(verses.verse_id, chapter_key.tolist(), strict=True))
+    pairs_df = word_pairs(members, skip, pc["pair_min_count"], chapter_of, pc["pair_min_chapters"])
     poems = known_poem_ranks(df, neg, list(pc["known_poems"]), pc["min_chapter_verses"])
 
     out_df = verses[["verse_id"]].assign(
         n_cola=[len(s) for s in spans],
         cola=[json.dumps([list(x) for x in s]) for s in spans],
         pauses=[json.dumps(n) for n in names],
+        clauses=[json.dumps([list(x) for x in s]) for s in finer],
+        next_prob=[next_prob.get(v) for v in verses.verse_id],
     )
     out_df = out_df.merge(df[["verse_id", *FEATURES, "prob"]], on="verse_id", how="left")
     out = resolve_path(cfg, "artifacts") / "parallelism"
     out.mkdir(parents=True, exist_ok=True)
     out_df.to_parquet(out / "verses.parquet")
+    pairs_df.to_parquet(out / "word_pairs.parquet")
     lr = model[-1]
     meta = {
         "config_hash": config_hash(cfg, "parallelism", "final_systems"),
@@ -218,6 +366,11 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
         "coefficients": dict(zip(FEATURES, (round(float(c), 4) for c in lr.coef_[0]), strict=True)),
         "held_out_auc": aucs,
         "known_poems": poems,
+        "cross_pairs": len(cross),
+        "cross_parallel": int(sum(p >= at for p in next_prob.values())),
+        "parallel_members": len(members),
+        "word_pairs": int(len(pairs_df)),
+        "word_pairs_q_below_0.05": int((pairs_df.q <= 0.05).sum()) if len(pairs_df) else 0,
         "book_means": {
             o: round(float(g.prob.mean()), 4) for o, g in df.groupby("osis", sort=False)
         },

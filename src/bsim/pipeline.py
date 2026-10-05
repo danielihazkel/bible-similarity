@@ -152,6 +152,18 @@ def stage_acrostics(cfg: dict[str, Any], log: Log) -> None:
     run_acrostics(cfg, log=log)
 
 
+def stage_typescenes(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.typescenes import run_typescenes
+
+    run_typescenes(cfg, log=log)
+
+
+def stage_sound(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.sound import run_sound
+
+    run_sound(cfg, log=log)
+
+
 def stage_wordplay(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.wordplay import run_wordplay
 
@@ -218,9 +230,11 @@ STAGES: dict[str, str] = {
     "phrases": "stage_phrases",
     "sequences": "stage_sequences",
     "diffs": "stage_diffs",
+    "typescenes": "stage_typescenes",
     "parallelism": "stage_parallelism",
     "acrostics": "stage_acrostics",
     "wordplay": "stage_wordplay",
+    "sound": "stage_sound",
     "entities": "stage_entities",
     "seams": "stage_seams",
     "structure": "stage_structure",

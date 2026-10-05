@@ -18,11 +18,16 @@ from bsim.api.models import (
     Acrostic,
     AcrosticLine,
     AcrosticsResponse,
+    Alliteration,
+    AlliterationResponse,
     Echo,
     Leitwort,
+    LemmaForm,
     ParallelBook,
     ParallelismResponse,
     ParallelUnit,
+    Rhyme,
+    RhymesResponse,
     StructureBasis,
     StructureRank,
     StructureRankingResponse,
@@ -31,6 +36,9 @@ from bsim.api.models import (
     UnitParallelism,
     UnitSummary,
     VerseHalves,
+    VerseLabel,
+    WordPair,
+    WordPairsResponse,
     WordplayPair,
     WordplayResponse,
 )
@@ -67,7 +75,14 @@ def unit_parallelism(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         "share_parallel": float(np.mean([p >= at for p in probs])) if probs else None,
         "n_scored": len(probs),
         "verses": [
-            VerseHalves(**{**r, "cola": json.loads(r["cola"]), "pauses": json.loads(r["pauses"])})
+            VerseHalves(
+                **{
+                    **r,
+                    "cola": json.loads(r["cola"]),
+                    "pauses": json.loads(r["pauses"]),
+                    "clauses": json.loads(r["clauses"]),
+                }
+            )
             for r in rows
         ],
     }
@@ -339,3 +354,124 @@ def unit_acrostic(unit_id: str, conn: Conn) -> Acrostic | None:
     u = unit_or_404(conn, unit_id)
     r = queries.acrostic(conn, unit_id)
     return None if r is None else _acrostic(r, u)
+
+
+@router.get("/word-pairs", response_model=WordPairsResponse)
+def word_pairs(
+    state: State,
+    conn: Conn,
+    max_q: float | None = 0.05,
+    lemma: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Lemma pairs that answer each other across parallel lines (DESIGN.md §16.18)."""
+    check_page(state, limit, offset)
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    total, rows = queries.word_pairs_page(conn, max_q, lemma, limit, offset)
+    gloss = queries.gloss(conn, (x for r in rows for x in (r["a_lemma"], r["b_lemma"])))
+    examples = {r["a_lemma"] + "|" + r["b_lemma"]: json.loads(r["examples"]) for r in rows}
+    labels = queries.verse_labels(conn, (v for ex in examples.values() for v in ex))
+    form = lambda lem: LemmaForm(lemma=lem, he_lemma=gloss.get(lem, lem))  # noqa: E731
+    return {
+        "max_q": max_q,
+        "lemma": lemma,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            WordPair(
+                a=form(r["a_lemma"]),
+                b=form(r["b_lemma"]),
+                **{k: r[k] for k in ("n", "expected", "g2", "q", "reverse")},
+                examples=[
+                    VerseLabel(verse_id=v, label_en=labels[v][0], label_he=labels[v][1])
+                    for v in examples[r["a_lemma"] + "|" + r["b_lemma"]]
+                ],
+            )
+            for r in rows
+        ],
+    }
+
+
+@router.get("/alliteration", response_model=AlliterationResponse)
+def alliteration(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    unit: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Cola ranked by how unlikely their shared initial sounds are (candidates: none survive
+    the multiple-testing correction; DESIGN.md §16.19)."""
+    check_page(state, limit, offset)
+    span = None
+    if unit is not None:
+        u = unit_or_404(conn, unit)
+        span = (u["start_verse_id"], u["end_verse_id"])
+    total, rows = queries.alliteration_page(conn, book, span, limit, offset)
+    vids = [r["verse_id"] for r in rows]
+    verses = queries.verses_by_id(conn, vids)
+    labels = queries.verse_labels(conn, vids)
+    return {
+        "book": book,
+        "unit": unit,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            Alliteration(
+                verse=verses[r["verse_id"]],
+                label=labels[r["verse_id"]][0],
+                words=json.loads(r["words"]),
+                **{k: r[k] for k in ("colon", "sound", "count", "n_words", "p", "q")},
+            )
+            for r in rows
+        ],
+    }
+
+
+@router.get("/rhymes", response_model=RhymesResponse)
+def rhymes(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    max_q: float | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Runs of consecutive cola ending alike, most significant first."""
+    check_page(state, limit, offset)
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    total, rows = queries.rhymes_page(conn, book, max_q, limit, offset)
+    vids = sorted({v for r in rows for v in range(r["start_vid"], r["end_vid"] + 1)})
+    verses = queries.verses_by_id(conn, vids)
+    labels = queries.verse_labels(conn, [v for r in rows for v in (r["start_vid"], r["end_vid"])])
+
+    def label(a: int, b: int) -> str:
+        return labels[a][0] if a == b else f"{labels[a][0]} – {labels[b][0]}"
+
+    return {
+        "book": book,
+        "max_q": max_q,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            Rhyme(
+                start_vid=r["start_vid"],
+                end_vid=r["end_vid"],
+                label=label(r["start_vid"], r["end_vid"]),
+                n_cola=r["n_cola"],
+                ending=r["ending"],
+                members=[tuple(m) for m in json.loads(r["members"])],
+                verses=[verses[v] for v in range(r["start_vid"], r["end_vid"] + 1)],
+                p=r["p"],
+                q=r["q"],
+            )
+            for r in rows
+        ],
+    }

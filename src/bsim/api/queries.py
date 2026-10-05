@@ -367,7 +367,9 @@ def change_totals(
     return dict(cur.fetchall())
 
 
-PARALLEL_COLS = "verse_id, n_cola, cola, pauses, cos, shared, shape, balance, prob"
+PARALLEL_COLS = (
+    "verse_id, n_cola, cola, pauses, cos, shared, shape, balance, prob, clauses, next_prob"
+)
 
 
 def parallelism_verses(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
@@ -831,3 +833,94 @@ def network_node(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any] | Non
         "SELECT COUNT(*) FROM network_nodes WHERE unit_type = ?", (n["unit_type"],)
     ).fetchone()[0]
     return n
+
+
+def word_pairs_page(
+    conn: sqlite3.Connection, max_q: float | None, lemma: str | None, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    """Fixed word pairs of parallel lines, most significant first; `lemma`: pairs with it."""
+    where, args = "1 = 1", []
+    if max_q is not None:
+        where += " AND q <= ?"
+        args.append(max_q)
+    if lemma is not None:
+        where += " AND (a_lemma = ? OR b_lemma = ?)"
+        args += [lemma, lemma]
+    total = conn.execute(f"SELECT COUNT(*) FROM word_pairs WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM word_pairs WHERE {where} ORDER BY q, g2 DESC, a_lemma, b_lemma"
+        " LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def alliteration_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    unit_span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Cola by their alliteration p (lowest first)."""
+    where, args = "1 = 1", []
+    if book_id is not None:
+        where += " AND book_id = ?"
+        args.append(book_id)
+    if unit_span is not None:
+        where += " AND verse_id BETWEEN ? AND ?"
+        args += list(unit_span)
+    total = conn.execute(f"SELECT COUNT(*) FROM alliteration WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM alliteration WHERE {where} ORDER BY p, verse_id, colon LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def rhymes_page(
+    conn: sqlite3.Connection, book_id: int | None, max_q: float | None, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    where, args = "1 = 1", []
+    if book_id is not None:
+        where += " AND book_id = ?"
+        args.append(book_id)
+    if max_q is not None:
+        where += " AND q <= ?"
+        args.append(max_q)
+    total = conn.execute(f"SELECT COUNT(*) FROM rhymes WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM rhymes WHERE {where} ORDER BY q, n_cola DESC, start_vid LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def typescenes_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    max_q: float | None,
+    hide_textual: bool,
+    unit_id: str | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    where, args = "1 = 1", []
+    if book_id is not None:
+        where += " AND (a_book = ? OR b_book = ?)"
+        args += [book_id, book_id]
+    if max_q is not None:
+        where += " AND q <= ?"
+        args.append(max_q)
+    if hide_textual:
+        where += " AND parallel_text = 0"
+    if unit_id is not None:
+        where += " AND (a_unit = ? OR b_unit = ?)"
+        args += [unit_id, unit_id]
+    total = conn.execute(f"SELECT COUNT(*) FROM typescenes WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT * FROM typescenes WHERE {where} ORDER BY q, score DESC, a_unit, b_unit"
+        " LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)

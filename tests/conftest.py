@@ -10,8 +10,10 @@ from bsim.analysis.acrostic import run_acrostics
 from bsim.analysis.corpus_map import run_map
 from bsim.analysis.diffs import run_diffs
 from bsim.analysis.network import run_network
+from bsim.analysis.sound import run_sound
 from bsim.analysis.structure import run_structure
 from bsim.analysis.stylometry import run_stylometry
+from bsim.analysis.typescenes import run_typescenes
 from bsim.config import load_config
 from bsim.retrieve.fusion import final_systems
 from bsim.store.db import run_build_db
@@ -77,6 +79,14 @@ def fixture_cfg(tmp_path, semantic="sm"):
     cfg["structure"] = {**cfg["structure"], "unit_types": ["chapter"], "leitwort_min_count": 2}
     cfg["map"] = {**cfg["map"], "clusters": {"chapter": 2}}
     cfg["network"] = {**cfg["network"], "unit_types": ["chapter"]}
+    cfg["typescenes"] = {
+        **cfg["typescenes"],
+        "unit_type": "chapter",
+        "min_matches": 1,
+        "min_shared_idf": 0.0,
+        "max_df": 1.0,
+        "null_reps": 2,
+    }
     cfg["stylometry"] = {**cfg["stylometry"], "min_words": 1}
     cfg["acrostics"] = {**cfg["acrostics"], "null_reps": 99, "null_screen": 19, "known": ["Gen 1"]}
     return cfg
@@ -253,6 +263,10 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    pd.DataFrame(
+        [("430", "3068", 4, 0.5, 9.1, 0.002, 0.004, 1, json.dumps([0, 1]))],
+        columns=["a_lemma", "b_lemma", "n", "expected", "g2", "p", "q", "reverse", "examples"],
+    ).to_parquet(art / "parallelism" / "word_pairs.parquet")
     # sound-alike pairs (made up): inside v0, and across v4 -> v5 is impossible (other chapter)
     (art / "wordplay").mkdir(parents=True, exist_ok=True)
     pd.DataFrame(
@@ -333,8 +347,10 @@ def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
     run_diffs(cfg, log=lambda _: None)
+    run_typescenes(cfg, log=lambda _: None)
     run_structure(cfg, log=lambda _: None)
     run_acrostics(cfg, log=lambda _: None)
+    run_sound(cfg, log=lambda _: None)
     run_map(cfg, log=lambda _: None)
     run_network(cfg, log=lambda _: None)
     run_stylometry(cfg, log=lambda _: None)

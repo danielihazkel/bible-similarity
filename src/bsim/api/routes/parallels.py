@@ -15,6 +15,7 @@ from bsim.analysis import sequences as sq
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
+    AlignedVerb,
     ChangeExample,
     ChangeGroup,
     ChangesResponse,
@@ -25,6 +26,9 @@ from bsim.api.models import (
     SequenceDetail,
     SequencesResponse,
     SequenceSummary,
+    TypeScene,
+    TypeScenesResponse,
+    UnitSummary,
     VerseDiff,
 )
 from bsim.api.routes._common import (
@@ -312,3 +316,51 @@ def rewrites(
 def rewrite_profiles(conn: Conn) -> list[RewriteProfile]:
     """Per book pair of parallel passages: how many verses were diffed and how they differ."""
     return [RewriteProfile(**r) for r in queries.rewrite_profiles(conn)]
+
+
+@router.get("/typescenes", response_model=TypeScenesResponse)
+def typescenes(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    max_q: float | None = 0.05,
+    hide_textual: bool = True,
+    unit: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Pericopes whose verbs align in order (DESIGN.md §16.20); `hide_textual` drops pairs that
+    are the same text told twice."""
+    check_page(state, limit, offset)
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    if unit is not None:
+        unit_or_404(conn, unit)
+    total, rows = queries.typescenes_page(conn, book, max_q, hide_textual, unit, limit, offset)
+    units_ = queries.units_by_id(conn, [u for r in rows for u in (r["a_unit"], r["b_unit"])])
+    aligned = {id(r): json.loads(r["aligned"]) for r in rows}
+    gloss = queries.gloss(conn, (lem for al in aligned.values() for *_, lem in al))
+    return {
+        "book": book,
+        "max_q": max_q,
+        "hide_textual": hide_textual,
+        "unit": unit,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            TypeScene(
+                a=UnitSummary(**units_[r["a_unit"]]),
+                b=UnitSummary(**units_[r["b_unit"]]),
+                score=r["score"],
+                n_matches=r["n_matches"],
+                aligned=[
+                    AlignedVerb(a_vid=a, b_vid=b, lemma=lem, he_lemma=gloss.get(lem, lem))
+                    for a, b, lem in aligned[id(r)]
+                ],
+                parallel_text=bool(r["parallel_text"]),
+                q=r["q"],
+            )
+            for r in rows
+        ],
+    }

@@ -731,3 +731,36 @@ def test_network(client):
     assert client.get("/api/unit-network/v:0").json() is None
     assert client.get("/api/network/verse").status_code == 422
     assert client.get("/api/network/chapter/99").status_code == 404
+
+
+def test_word_pairs_and_clauses(client):
+    body = client.get("/api/word-pairs").json()
+    assert body["total"] == 1
+    w = body["items"][0]
+    assert (w["a"]["lemma"], w["b"]["lemma"], w["n"]) == ("430", "3068", 4)
+    assert [e["verse_id"] for e in w["examples"]] == [0, 1]
+    assert client.get("/api/word-pairs?lemma=999").json()["total"] == 0
+    assert client.get("/api/word-pairs?max_q=5").status_code == 422
+    halves = client.get("/api/parallelism/c:0:1").json()["verses"]
+    # fixture artifacts predate clauses: the cola stand in for them
+    assert halves[0]["clauses"] == halves[0]["cola"] and halves[0]["next_prob"] is None
+
+
+def test_alliteration_and_rhymes(client):
+    body = client.get("/api/alliteration").json()
+    assert body["total"] == len(body["items"])
+    for a in body["items"]:
+        assert a["count"] >= 3 and a["verse"]["verse_id"] == int(a["verse"]["verse_id"])
+    assert client.get("/api/alliteration?unit=nope").status_code == 404
+    rh = client.get("/api/rhymes").json()
+    assert rh["total"] == len(rh["items"])
+    assert client.get("/api/rhymes?max_q=3").status_code == 422
+
+
+def test_typescenes_endpoint(client):
+    body = client.get("/api/typescenes?max_q=1&hide_textual=false").json()
+    assert body["total"] == len(body["items"])
+    for t in body["items"]:
+        assert t["n_matches"] == len(t["aligned"]) and t["a"]["unit_type"] == "chapter"
+    assert client.get("/api/typescenes?unit=nope").status_code == 404
+    assert client.get("/api/typescenes?max_q=2").status_code == 422

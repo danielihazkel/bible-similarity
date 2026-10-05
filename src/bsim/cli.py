@@ -317,6 +317,30 @@ def network(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def typescenes(config: ConfigOpt = None) -> None:
+    """Align the verb sequences of pericopes: the same actions in the same order."""
+    from bsim.analysis.typescenes import run_typescenes
+
+    try:
+        run_typescenes(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def sound(config: ConfigOpt = None) -> None:
+    """Find alliteration within cola and rhyme across consecutive cola."""
+    from bsim.analysis.sound import run_sound
+
+    try:
+        run_sound(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def wordplay(config: ConfigOpt = None) -> None:
     """Find sound-alike words close together (paronomasia)."""
     from bsim.analysis.wordplay import run_wordplay

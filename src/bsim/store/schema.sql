@@ -146,7 +146,22 @@ CREATE TABLE parallelism (
     shared REAL,
     shape REAL,
     balance REAL,
-    prob REAL                       -- probability the halves are parallel like poetry
+    prob REAL,                      -- probability the halves are parallel like poetry
+    clauses TEXT NOT NULL,          -- JSON spans between accent pauses of level 1-2 (§16.18)
+    next_prob REAL                  -- bicolon with the next verse (two one-colon verses)
+);
+
+-- Fixed word pairs across the members of parallel lines (`bsim parallelism`, §16.18).
+CREATE TABLE word_pairs (
+    a_lemma TEXT NOT NULL,          -- in the first member
+    b_lemma TEXT NOT NULL,          -- in the second
+    n INTEGER NOT NULL,
+    expected REAL NOT NULL,
+    g2 REAL NOT NULL,
+    p REAL NOT NULL,
+    q REAL NOT NULL,
+    reverse INTEGER NOT NULL,       -- the pair in the other order
+    examples TEXT NOT NULL          -- JSON verse ids
 );
 
 -- Sound-alike words close together (`bsim wordplay`, DESIGN.md §16.10); *_idx = words.idx.
@@ -162,6 +177,44 @@ CREATE TABLE wordplay (
     kind TEXT NOT NULL,             -- substitution | metathesis | extension
     gap INTEGER NOT NULL,           -- words apart
     score REAL NOT NULL,
+    q REAL NOT NULL,
+    book_id INTEGER NOT NULL
+);
+
+-- Recurring action sequences between pericopes (`bsim typescenes`, DESIGN.md §16.20).
+CREATE TABLE typescenes (
+    a_unit TEXT NOT NULL,
+    b_unit TEXT NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    score REAL NOT NULL,
+    n_matches INTEGER NOT NULL,
+    aligned TEXT NOT NULL,          -- JSON [a_vid, b_vid, lemma] per matched verb
+    parallel_text INTEGER NOT NULL, -- a significant parallel sequence joins the two
+    q REAL NOT NULL
+);
+
+-- Alliteration per colon (`bsim sound`, DESIGN.md §16.19); words = JSON display indexes.
+CREATE TABLE alliteration (
+    verse_id INTEGER NOT NULL,
+    colon INTEGER NOT NULL,
+    sound TEXT NOT NULL,
+    count INTEGER NOT NULL,
+    n_words INTEGER NOT NULL,
+    words TEXT NOT NULL,
+    p REAL NOT NULL,
+    q REAL NOT NULL,
+    book_id INTEGER NOT NULL
+);
+
+-- Runs of cola ending alike (`bsim sound`); members = JSON [verse_id, display_idx] of each end.
+CREATE TABLE rhymes (
+    start_vid INTEGER NOT NULL,
+    end_vid INTEGER NOT NULL,
+    n_cola INTEGER NOT NULL,
+    ending TEXT NOT NULL,
+    members TEXT NOT NULL,
+    p REAL NOT NULL,
     q REAL NOT NULL,
     book_id INTEGER NOT NULL
 );

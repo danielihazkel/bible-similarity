@@ -11,8 +11,9 @@ from bsim.analysis.parallelism import (
     known_poem_ranks,
     pair_features,
     verse_features,
+    word_pairs,
 )
-from bsim.text.accents import ETNAHTA, MERKHA, OLE, cola, pauses, poetic
+from bsim.text.accents import ETNAHTA, MERKHA, OLE, clauses, cola, pauses, poetic, token_levels
 
 GEN_1_1 = ["בְּרֵאשִׁ֖ית", "בָּרָ֣א", "אֱלֹהִ֑ים", "אֵ֥ת", "הַשָּׁמַ֖יִם", "וְאֵ֥ת", "הָאָֽרֶץ׃"]
 PS_1_1 = [
@@ -97,3 +98,29 @@ def test_model_checks():
     ranks = known_poem_ranks(df, ["Gen", "Exod", "Lev", "Num"], ["Gen 2", "Ruth 1"], 5)
     assert ranks["chapters"] == 12 and set(ranks["ranks"]) == {"Gen 2"}
     assert 1 <= ranks["ranks"]["Gen 2"] <= 12
+
+
+def test_accent_levels_and_clauses():
+    # Gen 1:1: tipeha (2) on בראשית, etnahta (1) on אלהים, tipeha on השמים; silluq ends
+    assert token_levels(GEN_1_1, False) == [2, 0, 1, 0, 2, 0, 0]
+    assert clauses(GEN_1_1, False) == [(0, 0), (1, 2), (3, 4), (5, 6)]
+    assert clauses(GEN_1_1, False, max_level=1) == cola(GEN_1_1, False)
+    # Ps 1:1 (poetic system): revia / tsinnor (2), oleh-ve-yored and etnahta (1)
+    lv = token_levels(PS_1_1, True)
+    assert lv[1] == 2 and lv[5] == 2 and lv[11] == 1 and lv[-1] == 0
+    assert len(clauses(PS_1_1, True)) == 6
+    assert clauses([], False) == []
+
+
+def test_word_pairs_finds_the_answering_pair_and_respects_chapters():
+    members = [({"1", "x"}, {"2", "y"}, v) for v in range(6)] + [
+        ({"3"}, {"4"}, 10 + v) for v in range(6)
+    ]
+    chapters = {v: v for v in range(6)} | {10 + v: 99 for v in range(6)}
+    df = word_pairs(members, skip={"x", "y"}, min_count=3, chapter_of=chapters, min_chapters=3)
+    pairs = set(zip(df.a_lemma, df.b_lemma, strict=True))
+    # 1 // 2 in six chapters; 3 // 4 only in one chapter (a list formula); x, y skipped
+    assert ("1", "2") in pairs and ("3", "4") not in pairs
+    assert all("x" not in p and "y" not in p for p in pairs)
+    top = df.iloc[0]
+    assert top.n == 6 and top.q < 0.05 and top.reverse == 0

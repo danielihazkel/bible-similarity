@@ -212,6 +212,8 @@ parallelism:                  # `bsim parallelism`: verse halves from the te'ami
   known_poems: ["Gen 49", "Exod 15", "Num 23", "Num 24", "Deut 32", "Deut 33", "Judg 5", "1Sam 2", "2Sam 1", "2Sam 22"]
   min_chapter_verses: 6       # chapters ranked in the known-poem check / the API ranking
   parallel_at: 0.5            # a verse counts as parallel at this probability
+  pair_min_count: 3           # word pairs across parallel members: shortest count listed
+  pair_min_chapters: 3        # ... and the fewest chapters it must occur in (keeps list formulas out)
 
 wordplay:                     # `bsim wordplay`: sound-alike words close together (DESIGN.md §16.10)
   min_letters: 3              # skeleton length (consonants without ו / י vowel letters)
@@ -234,6 +236,24 @@ acrostics:                    # `bsim acrostics`: alphabetic acrostics, whole or
   report_q: 0.05              # reported as significant at this BH q
   seed: 13
   known: ["Ps 9", "Ps 25", "Ps 34", "Ps 37", "Ps 111", "Ps 112", "Ps 119", "Ps 145", "Prov 31", "Lam 1", "Lam 2", "Lam 3", "Lam 4", "Nah 1"]
+
+typescenes:                   # `bsim typescenes`: recurring plot skeletons (DESIGN.md §16.20)
+  unit_type: pericope
+  max_verses: 80              # longer pericopes are not aligned
+  max_df: 0.15                # verbs in more than this share of pericopes are left out
+  min_shared_idf: 8.0         # candidate pair: shared verbs' idf at least this
+  max_partners: 15            # strongest candidate partners kept per pericope
+  mismatch: 1.0               # Smith-Waterman over verb lemmas; a match scores its idf
+  gap: 0.5
+  min_matches: 4              # aligned verbs
+  null_reps: 5                # verb-order shuffles inside pericopes for q-values
+  seed: 13
+
+sound:                        # `bsim sound`: alliteration and rhyme (DESIGN.md §16.19)
+  min_words: 3                # cola with fewer content words are not scored for alliteration
+  shape_smoothing: 50         # pseudo-count pulling a word shape's sound rates towards the overall ones
+  min_count: 3                # words sharing an initial sound
+  min_run: 3                  # consecutive cola ending alike
 
 entities:                     # `bsim entities`: people and places, who appears with whom (DESIGN.md §16.11)
   skip_lemmas: ["3068", "3069", "3050"]   # divine names (OSHB tags them Np)

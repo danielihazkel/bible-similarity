@@ -19,8 +19,11 @@ Derived columns:
 - `diff_changes`, `rewrites`, `rewrite_profiles` + `meta.diffs`: `bsim diffs` word-level
   changes and their per-book-pair summary (`artifacts/diffs/`).
 - `acrostics` + `meta.acrostics`: `bsim acrostics` (`artifacts/acrostics/units.parquet`).
-- `parallelism` + `meta.parallelism`: `bsim parallelism` cola and scores.
+- `parallelism`, `word_pairs` + `meta.parallelism`: `bsim parallelism` cola, clauses, scores
+  and the fixed word pairs.
 - `wordplay`: `bsim wordplay` sound-alike pairs plus the book.
+- `alliteration`, `rhymes` + `meta.sound`: `bsim sound` (`artifacts/sound/`).
+- `typescenes`: `bsim typescenes` (`artifacts/typescenes/pairs.parquet`).
 - `entities`, `entity_mentions`, `entity_links` + `meta.entities`: `bsim entities`.
 - `seam_curve`, `seams` + `meta.seams`: `bsim seams`.
 - `structure` + `meta.leitwort_numbers`: `bsim structure` scores and q-values
@@ -75,6 +78,8 @@ INDEXES = (
     "CREATE INDEX diff_changes_by_op ON diff_changes (op, a_key, b_key)",
     "CREATE INDEX diff_changes_by_books ON diff_changes (a_book, b_book, op)",
     "CREATE INDEX wordplay_by_score ON wordplay (score DESC)",
+    "CREATE INDEX alliteration_by_p ON alliteration (p, verse_id)",
+    "CREATE INDEX alliteration_by_verse ON alliteration (verse_id)",
     "CREATE INDEX wordplay_by_vid ON wordplay (a_vid, b_vid)",
     "CREATE INDEX entity_mentions_by_verse ON entity_mentions (verse_id)",
     "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
@@ -183,7 +188,33 @@ TABLE_COLUMNS = {
         "shape",
         "balance",
         "prob",
+        "clauses",
+        "next_prob",
     ],
+    "typescenes": [
+        "a_unit",
+        "b_unit",
+        "a_book",
+        "b_book",
+        "score",
+        "n_matches",
+        "aligned",
+        "parallel_text",
+        "q",
+    ],
+    "alliteration": [
+        "verse_id",
+        "colon",
+        "sound",
+        "count",
+        "n_words",
+        "words",
+        "p",
+        "q",
+        "book_id",
+    ],
+    "rhymes": ["start_vid", "end_vid", "n_cola", "ending", "members", "p", "q", "book_id"],
+    "word_pairs": ["a_lemma", "b_lemma", "n", "expected", "g2", "p", "q", "reverse", "examples"],
     "wordplay": [
         "a_vid",
         "a_idx",
@@ -602,8 +633,26 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     par_dir = resolve_path(cfg, "artifacts") / "parallelism"
     if not (par_dir / "verses.parquet").exists():
         raise RuntimeError(f"{par_dir / 'verses.parquet'} missing; run `bsim parallelism` first")
-    out["parallelism"] = pd.read_parquet(par_dir / "verses.parquet")
+    par = pd.read_parquet(par_dir / "verses.parquet")
+    if "clauses" not in par:  # artifacts from before the clause segmentation
+        par = par.assign(clauses=par.cola, next_prob=None)
+    out["parallelism"] = par
+    wp = par_dir / "word_pairs.parquet"
+    out["word_pairs"] = (
+        pd.read_parquet(wp) if wp.exists() else pd.DataFrame(columns=TABLE_COLUMNS["word_pairs"])
+    )
     out["parallelism_meta"] = _read_json(par_dir / "parallelism.meta.json")
+    path = resolve_path(cfg, "artifacts") / "typescenes" / "pairs.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim typescenes` first")
+    out["typescenes"] = pd.read_parquet(path)
+    sound_dir = resolve_path(cfg, "artifacts") / "sound"
+    for name in ("alliteration", "rhymes"):
+        path = sound_dir / f"{name}.parquet"
+        if not path.exists():
+            raise RuntimeError(f"{path} missing; run `bsim sound` first")
+        out[name] = pd.read_parquet(path)
+    out["sound_meta"] = _read_json(sound_dir / "sound.meta.json")
     path = resolve_path(cfg, "artifacts") / "wordplay" / "pairs.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim wordplay` first")
@@ -782,6 +831,16 @@ def _write_db(
             "rewrite_profiles": inputs["diff_profiles"],
             "acrostics": inputs["acrostics"],
             "parallelism": inputs["parallelism"],
+            "word_pairs": inputs["word_pairs"],
+            "typescenes": inputs["typescenes"].assign(
+                parallel_text=lambda d: d.parallel_text.astype(int)
+            ),
+            "alliteration": inputs["alliteration"].assign(
+                book_id=lambda d: d.verse_id.map(verses.set_index("verse_id").book_id)
+            ),
+            "rhymes": inputs["rhymes"].assign(
+                book_id=lambda d: d.start_vid.map(verses.set_index("verse_id").book_id)
+            ),
             "seam_curve": inputs["seam_curve"],
             "seams": inputs["seam_seams"],
             "entities": inputs["entity_entities"],
@@ -848,11 +907,23 @@ def _write_db(
         }
         em = inputs["entities_meta"]
         meta["entities"] = {k: em.get(k) for k in ("names", "kinds", "pairs")}
+        meta["sound"] = {
+            k: inputs["sound_meta"].get(k)
+            for k in ("cola", "alliterations", "rhymes", "rhymes_q_below_0.05", "top_endings")
+        }
         wm = inputs["wordplay_meta"]
         meta["wordplay"] = {k: wm.get(k) for k in ("pairs", "null_pairs_per_rep", "kinds")}
         pm = inputs["parallelism_meta"]
         meta["parallelism"] = {
-            k: pm.get(k) for k in ("coefficients", "held_out_auc", "known_poems", "book_means")
+            k: pm.get(k)
+            for k in (
+                "coefficients",
+                "held_out_auc",
+                "known_poems",
+                "book_means",
+                "cross_pairs",
+                "cross_parallel",
+            )
         } | {"parallel_at": cfg["parallelism"]["parallel_at"]}
         meta["stylometry"] = {
             k: sm.get(k) for k in ("book_order", "axes", "book_words", "features")
