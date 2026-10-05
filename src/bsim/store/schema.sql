@@ -165,6 +165,54 @@ CREATE TABLE wordplay (
     book_id INTEGER NOT NULL
 );
 
+-- People and places (`bsim entities`, DESIGN.md §16.11): name lemmas, kind from context cues.
+CREATE TABLE entities (
+    lemma TEXT PRIMARY KEY,
+    he TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- person | place | mixed | unclear
+    n_mentions INTEGER NOT NULL,
+    n_verses INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    place REAL NOT NULL,            -- context cue scores
+    person REAL NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE entity_mentions (
+    lemma TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    n INTEGER NOT NULL,
+    PRIMARY KEY (lemma, verse_id)
+) WITHOUT ROWID;
+
+-- Names sharing verses more often than chance (G²), each name's strongest links, both directions.
+CREATE TABLE entity_links (
+    a TEXT NOT NULL,
+    b TEXT NOT NULL,
+    n_verses INTEGER NOT NULL,
+    expected REAL NOT NULL,
+    g2 REAL NOT NULL,
+    PRIMARY KEY (a, b)
+) WITHOUT ROWID;
+
+-- Where a book's style changes (`bsim seams`, DESIGN.md §16.12): the shift curve at every verse
+-- boundary (verse_id = first verse after it) and its significant peaks.
+CREATE TABLE seam_curve (
+    book_id INTEGER NOT NULL,
+    verse_id INTEGER PRIMARY KEY,
+    shift REAL NOT NULL
+);
+
+CREATE TABLE seams (
+    book_id INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    shift REAL NOT NULL,
+    threshold REAL NOT NULL,        -- the book's 95th percentile of shuffled maxima
+    rank INTEGER NOT NULL,          -- 1 = the book's strongest seam
+    features TEXT NOT NULL,         -- JSON [[name, label, z after - before], ...]
+    PRIMARY KEY (book_id, rank)
+);
+
 -- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
 CREATE TABLE structure (
     unit_id TEXT PRIMARY KEY,

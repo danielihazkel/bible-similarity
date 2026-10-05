@@ -6,6 +6,7 @@ import {
   useSequences,
   useSimilar,
   useUnit,
+  useUnitEntities,
   useUnitParallelism,
   useWordplay,
 } from '../api/hooks'
@@ -19,7 +20,7 @@ import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading } from '../components/Status'
-import { unitLink } from '../lib/links'
+import { nameLink, unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
 import { highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
@@ -70,6 +71,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
+  const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
   const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 })
   const sequences = useSequences({ unit: unit.unit_id, maxQ: SEQUENCE_MAX_Q, limit: SEQUENCES_SHOWN, offset: 0 })
 
@@ -137,6 +139,19 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         )}
       </section>
+      {names.data && names.data.length > 0 && (
+        <p className="unit-names" aria-label="People and places">
+          <span className="muted small">Names: </span>
+          {names.data.map((e) => (
+            <Link key={e.lemma} to={nameLink(e.lemma)} className={`name-chip kind-${e.kind}`} title={`${e.n_here} here, ${e.n_mentions} in all`}>
+              <span dir="rtl" lang="he" className="he">
+                {e.he}
+              </span>
+              <span className="muted small">{e.n_here}</span>
+            </Link>
+          ))}
+        </p>
+      )}
       {word ? (
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (

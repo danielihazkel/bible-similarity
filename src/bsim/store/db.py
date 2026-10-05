@@ -19,6 +19,8 @@ Derived columns:
 - `diff_changes` + `meta.diffs`: `bsim diffs` word-level changes (`artifacts/diffs/`).
 - `parallelism` + `meta.parallelism`: `bsim parallelism` cola and scores.
 - `wordplay`: `bsim wordplay` sound-alike pairs plus the book.
+- `entities`, `entity_mentions`, `entity_links` + `meta.entities`: `bsim entities`.
+- `seam_curve`, `seams` + `meta.seams`: `bsim seams`.
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
@@ -70,6 +72,7 @@ INDEXES = (
     "CREATE INDEX diff_changes_by_books ON diff_changes (a_book, b_book, op)",
     "CREATE INDEX wordplay_by_score ON wordplay (score DESC)",
     "CREATE INDEX wordplay_by_vid ON wordplay (a_vid, b_vid)",
+    "CREATE INDEX entity_mentions_by_verse ON entity_mentions (verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -189,6 +192,21 @@ TABLE_COLUMNS = {
         "q",
         "book_id",
     ],
+    "entities": [
+        "lemma",
+        "he",
+        "kind",
+        "n_mentions",
+        "n_verses",
+        "first_vid",
+        "last_vid",
+        "place",
+        "person",
+    ],
+    "entity_mentions": ["lemma", "verse_id", "n"],
+    "entity_links": ["a", "b", "n_verses", "expected", "g2"],
+    "seam_curve": ["book_id", "verse_id", "shift"],
+    "seams": ["book_id", "verse_id", "shift", "threshold", "rank", "features"],
     "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
     "map_clusters": ["unit_type", "cluster", "size", "lemmas"],
@@ -529,6 +547,20 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         raise RuntimeError(f"{path} missing; run `bsim wordplay` first")
     out["wordplay"] = pd.read_parquet(path)
     out["wordplay_meta"] = _read_json(path.with_name("wordplay.meta.json"))
+    ent_dir = resolve_path(cfg, "artifacts") / "entities"
+    for name in ("entities", "mentions", "links"):
+        path = ent_dir / f"{name}.parquet"
+        if not path.exists():
+            raise RuntimeError(f"{path} missing; run `bsim entities` first")
+        out[f"entity_{name}"] = pd.read_parquet(path)
+    out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
+    seam_dir = resolve_path(cfg, "artifacts") / "seams"
+    for name in ("curve", "seams"):
+        path = seam_dir / f"{name}.parquet"
+        if not path.exists():
+            raise RuntimeError(f"{path} missing; run `bsim seams` first")
+        out[f"seam_{name}"] = pd.read_parquet(path)
+    out["seams_meta"] = _read_json(seam_dir / "seams.meta.json")
     path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
@@ -673,6 +705,11 @@ def _write_db(
             ),
             "diff_changes": inputs["diff_changes"],
             "parallelism": inputs["parallelism"],
+            "seam_curve": inputs["seam_curve"],
+            "seams": inputs["seam_seams"],
+            "entities": inputs["entity_entities"],
+            "entity_mentions": inputs["entity_mentions"],
+            "entity_links": inputs["entity_links"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
             ),
@@ -725,6 +762,12 @@ def _write_db(
         sm = inputs["stylo_meta"]
         dm = inputs["diffs_meta"]
         meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops")}
+        meta["seams"] = {
+            "thresholds": inputs["seams_meta"].get("thresholds", {}),
+            "block_words": cfg["seams"]["block_words"],
+        }
+        em = inputs["entities_meta"]
+        meta["entities"] = {k: em.get(k) for k in ("names", "kinds", "pairs")}
         wm = inputs["wordplay_meta"]
         meta["wordplay"] = {k: wm.get(k) for k in ("pairs", "null_pairs_per_rep", "kinds")}
         pm = inputs["parallelism_meta"]

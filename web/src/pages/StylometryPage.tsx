@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useBooks, useBookStyle, useStylometry } from '../api/hooks'
 import type { Book, StyloFeature, StyloPoint } from '../api/types'
 import { BookHeatmap } from '../components/BookHeatmap'
+import { SeamsPanel } from '../components/SeamsPanel'
 import { Scatter } from '../components/Scatter'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
@@ -86,6 +87,8 @@ export function StylometryPage() {
           {book !== undefined && <BookProfile book={book} name={name} />}
         </div>
       </div>
+
+      <SeamsPanel book={book} name={name} />
 
       <h2>Stylistic distance between books</h2>
       <p className="muted small">

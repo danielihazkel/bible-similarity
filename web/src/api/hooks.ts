@@ -11,6 +11,10 @@ import type {
   DiffOp,
   ConcordanceResponse,
   DiscoveriesResponse,
+  EntitiesResponse,
+  Entity,
+  EntityDetail,
+  EntityKind,
   Exclude,
   ExplainResponse,
   Meta,
@@ -20,6 +24,7 @@ import type {
   PhrasePair,
   PhrasesResponse,
   ResolveResponse,
+  SeamsResponse,
   SearchResponse,
   SequenceDetail,
   SequencesResponse,
@@ -367,5 +372,49 @@ export const useWordplay = (q: WordplayQuery) =>
         signal,
       ),
     placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export interface EntitiesQuery {
+  kind?: EntityKind
+  book?: number
+  q?: string
+  limit: number
+  offset: number
+}
+
+export const useEntities = (q: EntitiesQuery) =>
+  useQuery({
+    queryKey: ['entities', q],
+    queryFn: ({ signal }) =>
+      getJson<EntitiesResponse>(
+        '/entities',
+        { kind: q.kind, book: q.book, q: q.q, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useEntity = (lemma: string | undefined) =>
+  useQuery({
+    queryKey: ['entity', lemma],
+    queryFn: ({ signal }) => getJson<EntityDetail>(`/entities/${encodeURIComponent(lemma!)}`, {}, signal),
+    enabled: !!lemma,
+    ...forever,
+  })
+
+export const useUnitEntities = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-entities', unitId],
+    queryFn: ({ signal }) => getJson<Entity[]>(`/unit-entities/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
+
+export const useSeams = (book: number | undefined) =>
+  useQuery({
+    queryKey: ['seams', book],
+    queryFn: ({ signal }) => getJson<SeamsResponse>('/seams', { book, limit: book === undefined ? 25 : 50 }, signal),
     ...forever,
   })

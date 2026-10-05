@@ -8,6 +8,7 @@ import { ComparePage } from './pages/ComparePage'
 import { ConcordancePage } from './pages/ConcordancePage'
 import { DiscoveriesPage } from './pages/DiscoveriesPage'
 import { MapPage } from './pages/MapPage'
+import { NamesPage } from './pages/NamesPage'
 import { PhrasesPage } from './pages/PhrasesPage'
 import { PoetryPage } from './pages/PoetryPage'
 import { SequencePage } from './pages/SequencePage'
@@ -35,6 +36,7 @@ export function App() {
           <Route path="changes" element={<ChangesPage />} />
           <Route path="poetry" element={<PoetryPage />} />
           <Route path="wordplay" element={<WordplayPage />} />
+          <Route path="names" element={<NamesPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />

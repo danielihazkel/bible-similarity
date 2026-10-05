@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Book, BookStyle, StylometryResponse } from '../api/types'
+import type { Book, BookStyle, SeamsResponse, StylometryResponse } from '../api/types'
 import { SearchPage } from './SearchPage'
 import { StylometryPage } from './StylometryPage'
 
@@ -33,12 +33,46 @@ function Location() {
   return <output data-testid="loc">{l.pathname + l.search}</output>
 }
 
+const SEAM = {
+  book_id: 1,
+  verse_id: 12,
+  label: 'Psalms 3:1',
+  shift: 0.9,
+  threshold: 0.5,
+  rank: 1,
+  features: [{ feature: 'aramaic', label: 'ארמית', z: 4.2 }],
+}
+const SEAMS_BOOK: SeamsResponse = {
+  book: 1,
+  block_words: 600,
+  threshold: 0.5,
+  curve: [
+    { verse_id: 10, chapter: 2, verse: 11, shift: 0.3 },
+    { verse_id: 11, chapter: 2, verse: 12, shift: 0.5 },
+    { verse_id: 12, chapter: 3, verse: 1, shift: 0.9 },
+  ],
+  seams: [SEAM],
+}
+const SEAMS_TOP: SeamsResponse = { book: null, block_words: 600, threshold: null, curve: [], seams: [SEAM] }
+
 function renderAt(path: string) {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
       const p = new URL(url, 'http://x').pathname
-      const body = p === '/api/books' ? BOOKS : p === '/api/stylometry' ? ST : p === '/api/stylometry/book/1' ? STYLE : null
+      const u = new URL(url, 'http://x')
+      const body =
+        p === '/api/books'
+          ? BOOKS
+          : p === '/api/stylometry'
+            ? ST
+            : p === '/api/stylometry/book/1'
+              ? STYLE
+              : p === '/api/seams'
+                ? u.searchParams.get('book') === '1'
+                  ? SEAMS_BOOK
+                  : SEAMS_TOP
+                : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -71,6 +105,15 @@ describe('StylometryPage', () => {
     const profile = await screen.findByLabelText('Book style profile')
     expect(profile.textContent).toContain('עתיד מוארך')
     expect(profile.textContent).toContain('Genesis (1.20)')
+    // the seams of the chosen book: the shift curve with its peak, and the changing features
+    await waitFor(() => expect(container.querySelector('.shift-chart .chart-peak')).toBeTruthy())
+    expect(container.querySelector('.seam-list')?.textContent).toContain('ארמית')
+  })
+
+  it('lists the corpus seams with their books when no book is chosen', async () => {
+    const { container } = renderAt('/style')
+    await waitFor(() => expect(container.querySelector('.seam-list')?.textContent).toContain('Psalms 3:1 · Psalms'))
+    expect(container.querySelector('.shift-chart')).toBeNull()
   })
 })
 

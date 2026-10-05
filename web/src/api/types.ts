@@ -552,3 +552,75 @@ export interface WordplayResponse {
   limit: number
   items: WordplayPair[]
 }
+
+export type EntityKind = 'person' | 'place' | 'mixed' | 'unclear'
+
+export interface Entity {
+  lemma: string
+  he: string
+  kind: EntityKind
+  n_mentions: number
+  n_verses: number
+  n_here: number | null
+  first_vid: number
+  last_vid: number
+}
+
+export interface EntitiesResponse {
+  kind: string | null
+  book: number | null
+  q: string | null
+  total: number
+  offset: number
+  limit: number
+  items: Entity[]
+}
+
+export interface EntityPartner {
+  lemma: string
+  he: string
+  kind: EntityKind
+  n_verses: number
+  expected: number
+  g2: number
+}
+
+export interface EntityDetail {
+  entity: Entity
+  first_label: string
+  last_label: string
+  by_book: BookCount[]
+  partners: EntityPartner[]
+  links: { a: string; b: string; n_verses: number; g2: number }[]
+}
+
+export interface SeamFeature {
+  feature: string
+  label: string
+  z: number
+}
+
+export interface Seam {
+  book_id: number
+  verse_id: number
+  label: string
+  shift: number
+  threshold: number
+  rank: number
+  features: SeamFeature[]
+}
+
+export interface CurvePoint {
+  verse_id: number
+  chapter: number
+  verse: number
+  shift: number
+}
+
+export interface SeamsResponse {
+  book: number | null
+  block_words: number
+  threshold: number | null
+  curve: CurvePoint[]
+  seams: Seam[]
+}

@@ -185,6 +185,19 @@ wordplay:                     # `bsim wordplay`: sound-alike words close togethe
   null_reps: 20               # chapter-internal word-order shuffles for q-values
   seed: 13
 
+entities:                     # `bsim entities`: people and places, who appears with whom (DESIGN.md §16.11)
+  skip_lemmas: ["3068", "3069", "3050"]   # divine names (OSHB tags them Np)
+  dominance: 1.5              # person / place when one cue score is this many times the other
+  min_cue: 0.05               # below this for both: unclear
+  min_together: 2             # verses two names must share to be linked
+  partners: 25                # strongest links kept per name (G²)
+
+seams:                        # `bsim seams`: where a book's style changes (DESIGN.md §16.12)
+  block_words: 600            # words compared on each side of a verse boundary
+  null_reps: 50               # verse-order shuffles per book (threshold: 95th pct of the maxima)
+  top_features: 6             # features listed per seam
+  seed: 13
+
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
   unit_types: [chapter, pericope, parasha]
   max_verses: 200             # larger units are not scored (and /structure refuses them)

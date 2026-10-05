@@ -1397,3 +1397,149 @@ svg[tabindex]:focus-visible {
   font-size: 1.15rem;
   font-weight: 600;
 }
+
+/* ---------- People and places (§16.11) ---------- */
+
+.names-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+.name-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.name-list.stale {
+  opacity: 0.55;
+}
+.name-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-inline-start-width: 3px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.15rem 0.5rem;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+.name-chip.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.kind-person { border-inline-start-color: var(--lex); }
+.kind-place { border-inline-start-color: var(--known); }
+.kind-mixed { border-inline-start-color: var(--sem); }
+.type-tag.kind-person { background: var(--lex); color: #fff; }
+.type-tag.kind-place { background: var(--known); color: #fff; }
+.unit-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: baseline;
+}
+.entity-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  position: sticky;
+  top: 1rem;
+}
+.book-strip {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(39, 1fr);
+  gap: 1px;
+  height: 3.5rem;
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+}
+.book-strip li {
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.strip-bar {
+  width: 100%;
+  background: var(--accent);
+  min-height: 2px;
+}
+.strip-axis {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.1rem 0 0.6rem;
+}
+.ego {
+  width: 100%;
+  max-width: 340px;
+  display: block;
+  margin: 0 auto;
+}
+.ego-spoke { stroke: var(--accent); stroke-opacity: 0.55; }
+.ego-side { stroke: var(--border); stroke-width: 1; }
+.ego-node { cursor: pointer; }
+.ego-node circle, .ego-centre { fill: var(--muted); }
+.ego-node.kind-person circle, .ego-centre.kind-person { fill: var(--lex); }
+.ego-node.kind-place circle, .ego-centre.kind-place { fill: var(--known); }
+.ego-node text, .ego-centre-label {
+  font-family: var(--font-he);
+  font-size: 13px;
+  fill: var(--text);
+}
+.ego-centre-label { font-weight: 700; font-size: 15px; }
+.partner-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  columns: 2;
+}
+@media (max-width: 720px) {
+  .names-grid { grid-template-columns: 1fr; }
+  .entity-panel { position: static; }
+  .partner-list { columns: 1; }
+}
+
+/* ---------- Style seams (§16.12) ---------- */
+
+.shift-chart {
+  width: 100%;
+  max-width: 760px;
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0.5rem 0;
+}
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+.chart-threshold { stroke: var(--muted); stroke-dasharray: 4 3; }
+.chart-grid { stroke: var(--border); }
+.chart-peak { fill: var(--sem); }
+.seam-list {
+  padding-inline-start: 1.2rem;
+  margin: 0.5rem 0 1.5rem;
+}
+.seam-list li { margin: 0.25rem 0; }
+.seam-features {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-inline-start: 0.5rem;
+}
+.seam-feature {
+  font-size: 0.8rem;
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  background: var(--surface-2);
+}
+.seam-feature.up { color: var(--known); }
+.seam-feature.down { color: var(--sem); }

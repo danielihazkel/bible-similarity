@@ -274,6 +274,52 @@ def write_inputs(cfg, tmp_path):
     (art / "wordplay" / "wordplay.meta.json").write_text(
         json.dumps({"pairs": 2, "null_pairs_per_rep": 1.5, "kinds": {}}), encoding="utf-8"
     )
+    # names: v0 and v1 mention 430 (as a stand-in name) with 3068; v5 mentions 7225 alone
+    ent_dir = art / "entities"
+    ent_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            ("430", "אלהים", "person", 2, 2, 0, 1, 0.0, 0.5),
+            ("559", "אמר", "place", 2, 2, 0, 1, 0.6, 0.0),
+            ("7225", "ראשית", "unclear", 1, 1, 5, 5, 0.0, 0.0),
+        ],
+        columns=[
+            "lemma",
+            "he",
+            "kind",
+            "n_mentions",
+            "n_verses",
+            "first_vid",
+            "last_vid",
+            "place",
+            "person",
+        ],
+    ).to_parquet(ent_dir / "entities.parquet")
+    pd.DataFrame(
+        [("430", 0, 1), ("430", 1, 1), ("559", 0, 1), ("559", 1, 1), ("7225", 5, 1)],
+        columns=["lemma", "verse_id", "n"],
+    ).to_parquet(ent_dir / "mentions.parquet")
+    pd.DataFrame(
+        [("430", "559", 2, 0.67, 5.2), ("559", "430", 2, 0.67, 5.2)],
+        columns=["a", "b", "n_verses", "expected", "g2"],
+    ).to_parquet(ent_dir / "links.parquet")
+    (ent_dir / "entities.meta.json").write_text(json.dumps({"names": 3}), encoding="utf-8")
+    # style shifts: a curve over book 0 and one seam before v3 (chapter 2)
+    seam_dir = art / "seams"
+    seam_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {"book_id": 0, "verse_id": [1, 2, 3, 4], "shift": [0.2, 0.3, 0.9, 0.4]}
+    ).to_parquet(seam_dir / "curve.parquet")
+    feats = json.dumps(
+        [["aramaic", "ארמית", -9.7], ["lemma:430", "אלהים", 2.0]], ensure_ascii=False
+    )
+    pd.DataFrame(
+        [(0, 3, 0.9, 0.6, 1, feats)],
+        columns=["book_id", "verse_id", "shift", "threshold", "rank", "features"],
+    ).to_parquet(seam_dir / "seams.parquet")
+    (seam_dir / "seams.meta.json").write_text(
+        json.dumps({"thresholds": {"0": 0.6}}), encoding="utf-8"
+    )
     emb_dir = art / "embeddings"
     emb_dir.mkdir(parents=True, exist_ok=True)
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)

@@ -531,3 +531,44 @@ def test_wordplay(client):
     assert ids("book=1") == []
     assert client.get("/api/wordplay?kind=pun").status_code == 422
     assert client.get("/api/wordplay?unit=nope").status_code == 404
+
+
+def test_entities(client):
+    body = client.get("/api/entities").json()
+    assert body["total"] == 3 and [e["lemma"] for e in body["items"]] == ["430", "559", "7225"]
+    ids = lambda q: [e["lemma"] for e in client.get(f"/api/entities?{q}").json()["items"]]  # noqa: E731
+    assert ids("kind=place") == ["559"]
+    assert ids("book=1") == ["7225"]
+    assert client.get("/api/entities?book=1").json()["items"][0]["n_here"] == 1
+    assert ids("q=אֱלֹהִים") == ["430"]  # pointed query, consonantal match
+    assert client.get("/api/entities?kind=god").status_code == 422
+
+
+def test_entity_detail_and_unit(client):
+    d = client.get("/api/entities/430").json()
+    assert (d["entity"]["he"], d["first_label"], d["last_label"]) == ("אלהים", "v:0", "v:1")
+    assert d["by_book"] == [{"book_id": 0, "n_verses": 2}]
+    assert [(p["lemma"], p["n_verses"]) for p in d["partners"]] == [("559", 2)]
+    assert d["links"] == []  # one partner: no links among partners
+    assert client.get("/api/entities/9999").status_code == 404
+    cast = client.get("/api/unit-entities/c:0:1").json()
+    assert [(e["lemma"], e["n_here"]) for e in cast] == [("430", 2), ("559", 2)]
+    assert client.get("/api/unit-entities/c:1:1").json()[0]["lemma"] == "7225"
+
+
+def test_seams(client):
+    body = client.get("/api/seams?book=0").json()
+    assert (body["threshold"], body["block_words"]) == (0.6, 600)
+    assert [(c["verse_id"], c["chapter"]) for c in body["curve"]] == [
+        (1, 1),
+        (2, 1),
+        (3, 2),
+        (4, 2),
+    ]
+    [seam] = body["seams"]
+    assert (seam["verse_id"], seam["label"], seam["rank"]) == (3, "v:3", 1)
+    assert seam["features"][0] == {"feature": "aramaic", "label": "ארמית", "z": -9.7}
+    top = client.get("/api/seams").json()
+    assert top["curve"] == [] and top["threshold"] is None and len(top["seams"]) == 1
+    assert client.get("/api/seams?book=1").json()["seams"] == []
+    assert client.get("/api/seams?limit=0").status_code == 422

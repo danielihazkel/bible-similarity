@@ -273,6 +273,90 @@ class WordplayResponse(BaseModel):
     items: list[WordplayPair]
 
 
+EntityKind = Literal["person", "place", "mixed", "unclear"]
+
+
+class Entity(BaseModel):
+    """A name (OSHB proper-noun lemma) with its kind guessed from context (DESIGN.md §16.11)."""
+
+    lemma: str
+    he: str
+    kind: EntityKind
+    n_mentions: int
+    n_verses: int
+    n_here: int | None = None  # mentions in the requested book / unit
+    first_vid: int
+    last_vid: int
+
+
+class EntitiesResponse(BaseModel):
+    kind: str | None
+    book: int | None
+    q: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Entity]
+
+
+class EntityPartner(BaseModel):
+    lemma: str
+    he: str
+    kind: EntityKind
+    n_verses: int  # verses shared
+    expected: float  # by chance
+    g2: float
+
+
+class EntityLink(BaseModel):
+    a: str
+    b: str
+    n_verses: int
+    g2: float
+
+
+class EntityDetail(BaseModel):
+    entity: Entity
+    first_label: str
+    last_label: str
+    by_book: list[BookCount]
+    partners: list[EntityPartner]
+    links: list[EntityLink]  # links among the partners (for the network drawing)
+
+
+class SeamFeature(BaseModel):
+    feature: str
+    label: str  # Hebrew label of the lemma or morphology feature
+    z: float  # change at the seam in corpus SDs (after minus before)
+
+
+class Seam(BaseModel):
+    """A point where a book's style changes (DESIGN.md §16.12)."""
+
+    book_id: int
+    verse_id: int  # first verse after the seam
+    label: str
+    shift: float
+    threshold: float
+    rank: int
+    features: list[SeamFeature]
+
+
+class CurvePoint(BaseModel):
+    verse_id: int
+    chapter: int
+    verse: int
+    shift: float
+
+
+class SeamsResponse(BaseModel):
+    book: int | None
+    block_words: int
+    threshold: float | None
+    curve: list[CurvePoint]  # empty without a book
+    seams: list[Seam]
+
+
 class SequenceSummary(BaseModel):
     """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
 

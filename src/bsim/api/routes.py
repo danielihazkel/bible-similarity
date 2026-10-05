@@ -30,9 +30,15 @@ from bsim.api.models import (
     CompareResponse,
     ConcordanceHit,
     ConcordanceResponse,
+    CurvePoint,
     DiscoveriesResponse,
     Discovery,
     Echo,
+    EntitiesResponse,
+    Entity,
+    EntityDetail,
+    EntityLink,
+    EntityPartner,
     ExplainResponse,
     GoldLink,
     Hit,
@@ -53,6 +59,9 @@ from bsim.api.models import (
     PhrasePair,
     PhrasesResponse,
     ResolveResponse,
+    Seam,
+    SeamFeature,
+    SeamsResponse,
     SearchHit,
     SearchMode,
     SearchResponse,
@@ -806,6 +815,101 @@ def wordplay(
                 a_label=labels[r["a_vid"]][0],
                 b_label=labels[r["b_vid"]][0],
                 verses=[verses[v] for v in dict.fromkeys((r["a_vid"], r["b_vid"]))],
+            )
+            for r in rows
+        ],
+    }
+
+
+ENTITY_KINDS = ("person", "place", "mixed", "unclear")
+
+
+@router.get("/entities", response_model=EntitiesResponse)
+def entities(
+    state: State,
+    conn: Conn,
+    kind: str | None = None,
+    book: int | None = None,
+    q: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Names (people, places), most mentioned first; `q`: Hebrew letters of the name."""
+    _page(state, limit, offset)
+    if kind is not None and kind not in ENTITY_KINDS:
+        raise _unprocessable(f"kind must be one of {list(ENTITY_KINDS)}")
+    text = consonantal(q) if q else None
+    total, rows = queries.entities_page(conn, kind, book, text, limit, offset)
+    return {
+        "kind": kind,
+        "book": book,
+        "q": q,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [Entity(**r) for r in rows],
+    }
+
+
+@router.get("/entities/{lemma}", response_model=EntityDetail)
+def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
+    """One name: its mentions per book and the names it appears with (G² over verses)."""
+    e = queries.entity(conn, lemma)
+    if e is None:
+        raise HTTPException(status_code=404, detail=f"unknown name {lemma!r}")
+    if not 1 <= partners <= 50:
+        raise _unprocessable("partners must be between 1 and 50")
+    ps = queries.entity_partners(conn, lemma, partners)
+    labels = queries.verse_labels(conn, [e["first_vid"], e["last_vid"]])
+    return {
+        "entity": Entity(**e),
+        "first_label": labels[e["first_vid"]][0],
+        "last_label": labels[e["last_vid"]][0],
+        "by_book": [
+            BookCount(book_id=b["book_id"], n_verses=b["n"])
+            for b in queries.entity_books(conn, lemma)
+        ],
+        "partners": [EntityPartner(**p) for p in ps],
+        "links": [
+            EntityLink(**x) for x in queries.entity_links_among(conn, [p["lemma"] for p in ps])
+        ],
+    }
+
+
+@router.get("/unit-entities/{unit_id}", response_model=list[Entity])
+def unit_entities(unit_id: str, conn: Conn, limit: int = 30) -> list[Entity]:
+    """The names in a unit, most mentioned there first."""
+    u = _unit_or_404(conn, unit_id)
+    if not 1 <= limit <= 100:
+        raise _unprocessable("limit must be between 1 and 100")
+    rows = queries.unit_entities(conn, u["start_verse_id"], u["end_verse_id"], limit)
+    return [Entity(**r) for r in rows]
+
+
+@router.get("/seams", response_model=SeamsResponse)
+def seams(state: State, conn: Conn, book: int | None = None, limit: int = 30) -> dict[str, Any]:
+    """Where style changes (DESIGN.md §16.12): a book's shift curve and seams, or without a
+    book the strongest seams of the corpus."""
+    if not 1 <= limit <= state.cfg["serve"]["max_page"]:
+        raise _unprocessable(f"limit must be between 1 and {state.cfg['serve']['max_page']}")
+    meta = state.meta.get("seams", {})
+    rows = queries.seams_of(conn, book, limit)
+    labels = queries.verse_labels(conn, [r["verse_id"] for r in rows])
+    return {
+        "book": book,
+        "block_words": meta.get("block_words", state.cfg["seams"]["block_words"]),
+        "threshold": meta.get("thresholds", {}).get(str(book)) if book is not None else None,
+        "curve": [CurvePoint(**c) for c in queries.seam_curve(conn, book)]
+        if book is not None
+        else [],
+        "seams": [
+            Seam(
+                **{k: r[k] for k in ("book_id", "verse_id", "shift", "threshold", "rank")},
+                label=labels[r["verse_id"]][0],
+                features=[
+                    SeamFeature(feature=f, label=lab, z=z)
+                    for f, lab, z in json.loads(r["features"])
+                ],
             )
             for r in rows
         ],

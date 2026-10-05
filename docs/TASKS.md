@@ -251,3 +251,19 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Shibboleth / sibboleth, mevusah / mevukhah, gopher / kopher, shetsef / qetsef and naneḥim / naneqim lead; requiring the same vowels turned 10k pairs with no excess over chance into 400 with ~120 excess.
 
+## M26 — People and places (roadmap A11)
+- [x] `analysis/entities.py` + `bsim entities` (pipeline stage, ~5 s): name lemmas, person / place from context cues, verse co-occurrence links by G²
+- [x] `entities`, `entity_mentions`, `entity_links` + `meta.entities`; `/entities`, `/entities/{lemma}`, `/unit-entities/{unit}`
+- [x] Viewer: Names page (chips, book strip, ego network, partner list); name chips on unit pages
+- [x] Tests: cues, classification, G² and links (pytest); endpoints; Names page (vitest)
+
+✔ 909 people and 333 places told apart without a lexicon; David's, Moses' and Abraham's strongest partners are the expected ones.
+
+## M27 — Where the style changes (roadmap A12)
+- [x] `analysis/seams.py` + `bsim seams` (pipeline stage, ~25 s): per-verse stylometry counts, Delta curve at every verse boundary (600 words each side), per-book shuffled-maxima threshold, peaks with their changing features
+- [x] `seam_curve`, `seams` + `meta.seams`; `/seams` (a book's curve and seams, or the corpus' strongest)
+- [x] Viewer: Style page shift chart and seam list
+- [x] Tests: curve, peaks, features (pytest); endpoint; Style page seams (vitest)
+
+✔ Daniel's and Ezra's language switches, Proverbs 22:17, Isaiah 36 / 40, Zechariah 9, Job's frame and Elihu, Ezekiel 40 found without being told where to look.
+

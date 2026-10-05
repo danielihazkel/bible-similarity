@@ -145,6 +145,18 @@ def stage_wordplay(cfg: dict[str, Any], log: Log) -> None:
     run_wordplay(cfg, log=log)
 
 
+def stage_entities(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.entities import run_entities
+
+    run_entities(cfg, log=log)
+
+
+def stage_seams(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.seams import run_seams
+
+    run_seams(cfg, log=log)
+
+
 def stage_structure(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.structure import run_structure
 
@@ -188,6 +200,8 @@ STAGES: dict[str, str] = {
     "diffs": "stage_diffs",
     "parallelism": "stage_parallelism",
     "wordplay": "stage_wordplay",
+    "entities": "stage_entities",
+    "seams": "stage_seams",
     "structure": "stage_structure",
     "map": "stage_map",
     "stylometry": "stage_stylometry",

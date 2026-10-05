@@ -305,6 +305,30 @@ def wordplay(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def entities(config: ConfigOpt = None) -> None:
+    """Classify names as people or places and link the ones that appear together."""
+    from bsim.analysis.entities import run_entities
+
+    try:
+        run_entities(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def seams(config: ConfigOpt = None) -> None:
+    """Find where the style of each book changes (stylometric seams)."""
+    from bsim.analysis.seams import run_seams
+
+    try:
+        run_seams(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""
     from bsim.analysis.structure import run_structure
