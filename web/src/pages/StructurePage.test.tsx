@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { StructureRankingResponse, StructureResponse, UnitDetail, UnitSummary, Verse } from '../api/types'
+import type { Acrostic, StructureRankingResponse, StructureResponse, UnitDetail, UnitSummary, Verse } from '../api/types'
 import { StructurePage } from './StructurePage'
 import { UnitPage } from './UnitPage'
 
@@ -53,6 +53,12 @@ const RANKING: StructureRankingResponse = {
   unit_type: 'chapter',
   by: 'semantic_chiasm',
   min_verses: 8,
+  leitwort_numbers: {
+    leitworte: 9241,
+    lemma_counts: 21805,
+    '7': { multiples: 776, expected: 669.5, share: 0.084, p: 5e-6 },
+    '10': { multiples: 309, expected: 219.6, share: 0.033, p: 1e-10 },
+  },
   total: 1,
   offset: 0,
   limit: 50,
@@ -69,7 +75,26 @@ const RANKING: StructureRankingResponse = {
       lexical_chiasm: 0.4,
       lexical_chiasm_pct: 0.5,
       lexical_chiasm_z: 0.1,
+      semantic_chiasm_q: 0.3,
     },
+  ],
+}
+const ACROSTIC: Acrostic = {
+  unit: CHAPTER,
+  granularity: 'verse',
+  order_name: 'standard',
+  score: 3,
+  n_letters: 3,
+  missing: 0,
+  first_letter: 'א',
+  last_letter: 'ג',
+  n_lines: 3,
+  p: 0.0001,
+  q: 0.0008,
+  chain: [
+    { verse_id: 10, display_idx: 0, letter: 'א' },
+    { verse_id: 11, display_idx: 0, letter: 'ב' },
+    { verse_id: 12, display_idx: 0, letter: 'ג' },
   ],
 }
 
@@ -91,7 +116,9 @@ beforeEach(() => {
               ? STRUCTURE
               : p === '/api/structure'
                 ? RANKING
-                : null
+                : p === '/api/acrostics/c:26:8'
+                  ? ACROSTIC
+                  : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
   )
@@ -134,12 +161,26 @@ describe('structure panel', () => {
   })
 })
 
+describe('acrostic bar', () => {
+  it('names a significant acrostic and marks its letters on request', async () => {
+    const { container } = renderAt('/unit/c:26:8')
+    expect(await screen.findByText(/3 letters in alphabetical order, א–ג/)).toBeTruthy()
+    expect(container.querySelectorAll('.source .w-acrostic')).toHaveLength(0)
+    fireEvent.click(screen.getByLabelText('Mark the letters'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/c:26:8?acrostic=1'))
+    await waitFor(() => expect(container.querySelectorAll('.source .w-acrostic')).toHaveLength(3))
+  })
+})
+
 describe('StructurePage', () => {
   it('ranks units and links to their structure view', async () => {
     renderAt('/structure')
     const link = await screen.findByRole('link', { name: 'Psalms 8' })
     expect(link.getAttribute('href')).toBe('/unit/c%3A26%3A8?structure=1')
     expect(calls).toContain('/api/structure?unit_type=chapter&by=semantic_chiasm&min_verses=8&limit=50&offset=0')
+    expect(screen.getByText('q = 0.30')).toBeTruthy()
+    expect(screen.getByText(/776 occur a multiple of 7\s+times against 669.5 expected/)).toBeTruthy()
+    expect(screen.getByText(/so nothing singles out 7/)).toBeTruthy()
     fireEvent.change(screen.getByLabelText('Sort by'), { target: { value: 'lexical_inclusio' } })
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/structure?by=lexical_inclusio'))
   })

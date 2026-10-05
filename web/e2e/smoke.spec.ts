@@ -21,6 +21,9 @@ const PAGES: [string, RegExp][] = [
   ['/browse/0?tab=verses', /Genesis/],
   ['/lemma/430', /Concordance|אלה/],
   ['/eval', /Evaluation/],
+  ['/acrostics', /Acrostics/],
+  ['/changes?view=rewrites&pair=8-37', /How parallels differ/],
+  ['/unit/c%3A26%3A145?acrostic=1', /Psalms 145/],
   ['/about', /About/],
 ]
 

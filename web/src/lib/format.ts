@@ -43,3 +43,6 @@ export function unitTypeLabel(type: string): string {
 
 /** q as a short label: the expected share of chance chains at least this strong. */
 export const qLabel = (q: number) => (q < 0.001 ? 'q < 0.001' : `q = ${q < 0.01 ? q.toFixed(3) : q.toFixed(2)}`)
+
+/** Line unit of an acrostic. */
+export const granularityLabel = (g: 'verse' | 'colon') => (g === 'verse' ? 'verse by verse' : 'half-verse by half-verse')

@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { BooksPage } from './pages/BooksPage'
 
 // pages load on first visit (the landing page ships with the app)
+const AcrosticsPage = lazy(() => import('./pages/AcrosticsPage').then((m) => ({ default: m.AcrosticsPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 const BookPage = lazy(() => import('./pages/BookPage').then((m) => ({ default: m.BookPage })))
 const ChangesPage = lazy(() => import('./pages/ChangesPage').then((m) => ({ default: m.ChangesPage })))
@@ -42,6 +43,7 @@ export function App() {
           <Route path="wordplay" element={<WordplayPage />} />
           <Route path="names" element={<NamesPage />} />
           <Route path="structure" element={<StructurePage />} />
+          <Route path="acrostics" element={<AcrosticsPage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />
           <Route path="search" element={<SearchPage />} />

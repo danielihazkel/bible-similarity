@@ -295,3 +295,27 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Viewer: Compare marks word changes A → B (`/api/diff`); Sequences / Wordplay honour `unit=` (linked from the Unit page); Evaluation page (`/api/eval`)
 - [x] README / DESIGN §10–11 brought up to date
 - [x] Tests: pool, fail-fast encoder, parameter checks, paging, caches, `/eval` (pytest); error boundary, panel errors, encoder failure, Compare changes, unit filter, Evaluation page (vitest)
+
+## M29 — Significance across many tests (roadmap A8)
+- [x] `analysis/stats.py`: Monte Carlo p, percentile → p, Benjamini–Hochberg q
+- [x] `bsim structure`: inclusio / chiasm q per unit type (`structure.*_q`); `/structure` ranking shows q
+- [x] Leitworte in sevens: multiples of m vs a count-matched baseline, m = 6…13 as controls (`meta.leitwort_numbers`, note on the Structure page)
+- [x] Tests: BH / p helpers, q columns, the sevens check (pytest); Structure page q and note (vitest)
+
+✔ 284 / 300 inclusio frames survive BH, no chiasm does; 7 shows the smallest excess of all divisors 6–13.
+
+## M30 — Acrostics (roadmap A1)
+- [x] `analysis/acrostic.py` + `bsim acrostics` (pipeline stage after parallelism): verse and colon first letters, best alphabetic chain per chapter (both פ/ע orders), line-shuffle null with an adaptive number of shuffles, BH q
+- [x] `acrostics` table, `/acrostics`, `/acrostics/{unit}`; Acrostics page; acrostic bar with letter marks on chapters
+- [x] Validation against the known acrostics (`acrostics.known`)
+- [x] Tests: chain DP (vectorised = traceback), blocks / gaps / skipped letters, significance, lines from cola (pytest); page and bar (vitest)
+
+✔ 13 significant chapters, all known acrostics (13 / 14; Nahum 1 missed), nothing else.
+
+## M31 — Systematic rewrites (roadmap A3)
+- [x] `bsim diffs` also writes `rewrites.parquet` (recurring substitutions / omissions / additions per book pair, G², BH q) and `profiles.parquet` (change counts, spelling direction)
+- [x] `rewrites`, `rewrite_profiles` tables, `/rewrites`, `/rewrite-profiles`; Changes page "Systematic rewrites" view
+- [x] Tests: rewrite statistics and profile on a constructed book pair (pytest); rewrites view (vitest)
+
+✔ II Sam → I Chr יהוה → אלהים tops 151 significant rewrites; Chronicles spells fuller than Samuel–Kings.
+

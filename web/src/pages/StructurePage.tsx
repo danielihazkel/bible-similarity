@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
 import { useStructureRanking } from '../api/hooks'
-import type { StructureRank, StructureSort, UnitType } from '../api/types'
+import type { LeitwortNumbers, StructureRank, StructureSort, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
-import { unitTypeLabel } from '../lib/format'
+import { qLabel, unitTypeLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
@@ -74,9 +74,10 @@ export function StructurePage() {
         </label>
       </div>
       <p className="muted small">
-        Percentiles are per unit; with thousands of units about 5 % reach the 95th by chance, so read the top of the list as
-        candidates.
+        Percentiles are per unit; with thousands of units about 5 % reach the 95th by chance. The q column corrects for
+        that (Benjamini–Hochberg over all units of the type): only units with q ≤ 0.05 stand out from chance.
       </p>
+      {res.data?.leitwort_numbers && <SevenNote n={res.data.leitwort_numbers} />}
 
       {res.isPending ? (
         <Loading />
@@ -98,6 +99,7 @@ export function StructurePage() {
                       {c.label}
                     </th>
                   ))}
+                  <th title="Benjamini–Hochberg q of the sorted score">q</th>
                 </tr>
               </thead>
               <tbody>
@@ -119,6 +121,7 @@ export function StructurePage() {
                         </td>
                       )
                     })}
+                    <QCell q={r[`${by}_q` as keyof StructureRank] as number | null | undefined} />
                   </tr>
                 ))}
               </tbody>
@@ -128,5 +131,33 @@ export function StructurePage() {
         </>
       )}
     </div>
+  )
+}
+
+function QCell({ q }: { q: number | null | undefined }) {
+  if (q === null || q === undefined) return <td className="muted">—</td>
+  return <td className={`small ${q <= 0.05 ? 'q-strong' : 'muted'}`}>{qLabel(q)}</td>
+}
+
+/** Do Leitworte occur 7 (or 10) times more often than chance? The count-matched check, with controls. */
+function SevenNote({ n }: { n: LeitwortNumbers }) {
+  type Stat = { multiples: number; expected: number }
+  const ratio = (m: string) => {
+    const s = n[m] as Stat | undefined
+    return s && s.expected > 0 ? s.multiples / s.expected : undefined
+  }
+  const moduli = Object.keys(n).filter((k) => /^\d+$/.test(k))
+  const r7 = ratio('7')
+  if (r7 === undefined) return null
+  const others = moduli.filter((m) => m !== '7').map(ratio).filter((r): r is number => r !== undefined)
+  const below = others.filter((r) => r < r7).length
+  return (
+    <p className="muted small seven-note">
+      Sevens: of {n.leitworte.toLocaleString()} chapter Leitworte, {(n['7'] as Stat).multiples} occur a multiple of 7
+      times against {(n['7'] as Stat).expected} expected from words with similar counts ({r7.toFixed(2)}×). Other
+      divisors ({moduli.filter((m) => m !== '7').join(', ')}) show{' '}
+      {others.length ? `${Math.min(...others).toFixed(2)}–${Math.max(...others).toFixed(2)}×` : 'no data'}
+      {below === 0 ? ', so nothing singles out 7.' : `; ${below} of them less than 7.`}
+    </p>
   )
 }

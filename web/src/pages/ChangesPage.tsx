@@ -8,11 +8,44 @@ import { ErrorBox, Loading } from '../components/Status'
 import { DIFF_LABELS, DIFF_OPS } from '../lib/diff'
 import { sequenceLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { RewritesView } from './RewritesView'
 
 const PAGE_SIZE = 50
 
 /** How parallel passages differ across the corpus: word changes grouped and counted. */
 export function ChangesPage() {
+  const [params, update] = useQueryParams()
+  const view = params.get('view') === 'rewrites' ? 'rewrites' : 'words'
+
+  return (
+    <div className="page changes-page">
+      <h1>How parallels differ</h1>
+      <p className="lede">
+        Every verse pair of a strong parallel sequence aligned word by word, the earlier passage (in canon order) on the
+        left. Counted across the corpus, the changes show habits of the later text: Chronicles writes דויד for דוד, על for
+        אל, אני for אנכי, and often אלהים where Samuel–Kings has יהוה.
+      </p>
+      <div className="toolbar">
+        <Segmented
+          label="View"
+          value={view}
+          onChange={(v) => update({ view: v === 'words' ? null : v, page: null })}
+          options={[
+            { value: 'words', label: 'All changes by word' },
+            { value: 'rewrites', label: 'Systematic rewrites' },
+          ]}
+        />
+      </div>
+      {view === 'rewrites' ? (
+        <RewritesView />
+      ) : (
+        <ChangesByWord />
+      )}
+    </div>
+  )
+}
+
+function ChangesByWord() {
   const [params, update] = useQueryParams()
   const raw = params.get('op') as DiffOp | null
   const op: DiffOp = raw && DIFF_OPS.includes(raw) ? raw : 'substitution'
@@ -44,13 +77,7 @@ export function ChangesPage() {
   )
 
   return (
-    <div className="page changes-page">
-      <h1>How parallels differ</h1>
-      <p className="lede">
-        Every verse pair of a strong parallel sequence aligned word by word, the earlier passage (in canon order) on the
-        left. Counted across the corpus, the changes show habits of the later text: Chronicles writes דויד for דוד, על for
-        אל, אני for אנכי, and often אלהים where Samuel–Kings has יהוה.
-      </p>
+    <>
       <div className="toolbar">
         <Segmented
           label="Kind of change"
@@ -115,7 +142,7 @@ export function ChangesPage() {
           <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
         </>
       )}
-    </div>
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import type { DiffOp, ExplainResponse, WordRef } from '../api/types'
 
-export type Mark = 'shared' | 'formula' | 'focus' | `diff-${DiffOp}`
+export type Mark = 'shared' | 'formula' | 'focus' | 'acrostic' | `diff-${DiffOp}`
 export type Highlight = Map<number, Mark>
 
 /** Display-token highlights of a word-level diff (`a_marks` / `b_marks`). */

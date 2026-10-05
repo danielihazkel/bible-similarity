@@ -2,6 +2,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
 import { getJson, getJsonWithTotal } from './client'
 import type {
+  Acrostic,
+  AcrosticsResponse,
   AffinityPair,
   AffinityResponse,
   Book,
@@ -25,6 +27,9 @@ import type {
   PhrasePair,
   PhrasesResponse,
   ResolveResponse,
+  RewriteOp,
+  RewriteProfile,
+  RewritesResponse,
   SeamsResponse,
   SearchResponse,
   SequenceDetail,
@@ -458,3 +463,61 @@ export const useEncoderStatus = (enabled: boolean): EncoderStatus => {
 
 export const useEval = () =>
   useQuery({ queryKey: ['eval'], queryFn: ({ signal }) => getJson<EvalResponse>('/eval', {}, signal), ...forever })
+
+export interface AcrosticsQuery {
+  maxQ?: number
+  book?: number
+  limit: number
+  offset: number
+}
+
+export const useAcrostics = (q: AcrosticsQuery) =>
+  useQuery({
+    queryKey: ['acrostics', q],
+    queryFn: ({ signal }) =>
+      getJson<AcrosticsResponse>(
+        '/acrostics',
+        // the API's default is q <= 0.05: 'all' is sent as max_q=1
+        { max_q: q.maxQ ?? 1, book: q.book, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useUnitAcrostic = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['acrostic', unitId],
+    queryFn: ({ signal }) => getJson<Acrostic | null>(`/acrostics/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
+
+export interface RewritesQuery {
+  aBook?: number
+  bBook?: number
+  op?: RewriteOp
+  maxQ?: number
+  limit: number
+  offset: number
+}
+
+export const useRewrites = (q: RewritesQuery) =>
+  useQuery({
+    queryKey: ['rewrites', q],
+    queryFn: ({ signal }) =>
+      getJson<RewritesResponse>(
+        '/rewrites',
+        { a_book: q.aBook, b_book: q.bBook, op: q.op, max_q: q.maxQ ?? 1, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useRewriteProfiles = () =>
+  useQuery({
+    queryKey: ['rewrite-profiles'],
+    queryFn: ({ signal }) => getJson<RewriteProfile[]>('/rewrite-profiles', {}, signal),
+    ...forever,
+  })

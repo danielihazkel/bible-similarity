@@ -32,6 +32,7 @@ const NAV: NavEntry[] = [
     label: 'Patterns',
     items: [
       { to: '/structure', label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
+      { to: '/acrostics', label: 'Acrostics', hint: 'Lines through the alphabet' },
       { to: '/poetry', label: 'Poetry', hint: 'Parallel verse halves' },
       { to: '/wordplay', label: 'Wordplay', hint: 'Sound-alike words' },
       { to: '/names', label: 'Names', hint: 'People and places' },

@@ -285,12 +285,24 @@ export interface StructureRank {
   lexical_chiasm: number | null
   lexical_chiasm_pct: number | null
   lexical_chiasm_z: number | null
+  semantic_inclusio_q?: number | null
+  semantic_chiasm_q?: number | null
+  lexical_inclusio_q?: number | null
+  lexical_chiasm_q?: number | null
+}
+
+/** Multiples-of-m check of Leitwort counts: m -> observed vs count-matched expectation. */
+export interface LeitwortNumbers {
+  leitworte: number
+  lemma_counts: number
+  [m: string]: number | { multiples: number; expected: number; share: number | null; p: number }
 }
 
 export interface StructureRankingResponse {
   unit_type: UnitType
   by: StructureSort
   min_verses: number
+  leitwort_numbers?: LeitwortNumbers | null
   total: number
   offset: number
   limit: number
@@ -659,4 +671,80 @@ export interface EvalResponse {
   openbible: OpenBibleEval | null
   /** unit type -> mode -> the system served for it */
   final: Record<string, Record<string, string>>
+}
+
+export interface AcrosticLine {
+  verse_id: number
+  display_idx: number
+  letter: string
+}
+
+export interface Acrostic {
+  unit: UnitSummary
+  granularity: 'verse' | 'colon'
+  order_name: 'standard' | 'pe-ayin'
+  score: number
+  n_letters: number
+  missing: number
+  first_letter: string
+  last_letter: string
+  n_lines: number
+  p: number
+  q: number
+  chain: AcrosticLine[]
+}
+
+export interface AcrosticsResponse {
+  max_q: number | null
+  book: number | null
+  known_recall: number | null
+  total: number
+  offset: number
+  limit: number
+  items: Acrostic[]
+}
+
+export type RewriteOp = 'substitution' | 'omitted' | 'added'
+
+export interface Rewrite {
+  a_book: number
+  b_book: number
+  op: RewriteOp
+  a_key: string | null
+  b_key: string | null
+  a_he: string | null
+  b_he: string | null
+  n: number
+  base: number
+  rate: number | null
+  g2: number
+  p: number
+  q: number
+}
+
+export interface RewriteProfile {
+  a_book: number
+  b_book: number
+  verse_pairs: number
+  a_words: number
+  b_words: number
+  spelling: number
+  form: number
+  substitution: number
+  omitted: number
+  added: number
+  moved: number
+  to_plene: number
+  to_defective: number
+}
+
+export interface RewritesResponse {
+  a_book: number | null
+  b_book: number | null
+  op: RewriteOp | null
+  max_q: number | null
+  total: number
+  offset: number
+  limit: number
+  items: Rewrite[]
 }

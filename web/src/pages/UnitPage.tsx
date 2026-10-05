@@ -6,11 +6,12 @@ import {
   useSequences,
   useSimilar,
   useUnit,
+  useUnitAcrostic,
   useUnitEntities,
   useUnitParallelism,
   useWordplay,
 } from '../api/hooks'
-import type { Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
+import type { Acrostic, Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
@@ -21,7 +22,7 @@ import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { nameLink, unitLink } from '../lib/links'
-import { MODE_HINTS, unitTypeLabel } from '../lib/format'
+import { granularityLabel, MODE_HINTS, qLabel, unitTypeLabel } from '../lib/format'
 import { highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
@@ -29,6 +30,7 @@ import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParam
 const SEQUENCE_MAX_Q = 0.2
 const SEQUENCES_SHOWN = 5
 const WORDPLAY_SHOWN = 5
+const ACROSTIC_MAX_Q = 0.05
 
 export function UnitPage() {
   const unitId = useParams().unitId!
@@ -61,8 +63,16 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   // Structure (larger units): open from the URL (`?structure=1`), Leitwort highlight in the text.
   const structureOpen = params.get('structure') === '1'
   const [leitwort, setLeitwort] = useState<Leitwort>()
-  const leitwortMarks = (v: Verse): Highlight | undefined =>
-    leitwort ? new Map((leitwort.occurrences[v.verse_id] ?? []).map((i) => [i, 'focus'])) : undefined
+  // Acrostic (chapters): shown when significant; `?acrostic=1` marks the words carrying the letters.
+  const acrosticQuery = useUnitAcrostic(unit.unit_type === 'chapter' ? unit.unit_id : undefined)
+  const acrostic = acrosticQuery.data && acrosticQuery.data.q <= ACROSTIC_MAX_Q ? acrosticQuery.data : undefined
+  const acrosticOn = !!acrostic && params.get('acrostic') === '1'
+  const leitwortMarks = (v: Verse): Highlight | undefined => {
+    const marks: Highlight = new Map()
+    if (acrosticOn) for (const l of acrostic.chain) if (l.verse_id === v.verse_id) marks.set(l.display_idx, 'acrostic')
+    if (leitwort) for (const i of leitwort.occurrences[v.verse_id] ?? []) marks.set(i, 'focus')
+    return marks.size ? marks : undefined
+  }
   const isVerse = unit.unit_type === 'verse'
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
@@ -113,6 +123,13 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </span>
         )}
       </div>
+      {acrostic && (
+        <AcrosticBar
+          a={acrostic}
+          on={acrosticOn}
+          onToggle={(on) => update({ acrostic: on ? '1' : null }, false)}
+        />
+      )}
       <section className={`source ${isVerse ? 'single' : ''}`} aria-label="Source text">
         {isVerse ? (
           <p className="source-text">
@@ -285,6 +302,23 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         </section>
       )}
+    </div>
+  )
+}
+
+function AcrosticBar({ a, on, onToggle }: { a: Acrostic; on: boolean; onToggle: (on: boolean) => void }) {
+  return (
+    <div className="toolbar acrostic-bar" role="note">
+      <span>
+        <b>Acrostic</b>: {a.n_letters} letters in alphabetical order, {a.first_letter}–{a.last_letter}
+        {a.missing > 0 && ` (${a.missing} skipped)`}, {granularityLabel(a.granularity)}
+        {a.order_name === 'pe-ayin' && ', פ before ע'} · <span className="q-strong">{qLabel(a.q)}</span>
+      </span>
+      <label className="check">
+        <input type="checkbox" checked={on} onChange={(e) => onToggle(e.target.checked)} />
+        Mark the letters
+      </label>
+      <Link to="/acrostics">All acrostics</Link>
     </div>
   )
 }
