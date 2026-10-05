@@ -1,23 +1,26 @@
+import { lazy } from 'react'
 import { BrowserRouter, Link, Route, Routes } from 'react-router'
 import { Layout } from './components/Layout'
-import { AboutPage } from './pages/AboutPage'
-import { BookPage } from './pages/BookPage'
 import { BooksPage } from './pages/BooksPage'
-import { ChangesPage } from './pages/ChangesPage'
-import { ComparePage } from './pages/ComparePage'
-import { ConcordancePage } from './pages/ConcordancePage'
-import { DiscoveriesPage } from './pages/DiscoveriesPage'
-import { MapPage } from './pages/MapPage'
-import { NamesPage } from './pages/NamesPage'
-import { PhrasesPage } from './pages/PhrasesPage'
-import { PoetryPage } from './pages/PoetryPage'
-import { SequencePage } from './pages/SequencePage'
-import { SequencesPage } from './pages/SequencesPage'
-import { StructurePage } from './pages/StructurePage'
-import { StylometryPage } from './pages/StylometryPage'
-import { SearchPage } from './pages/SearchPage'
-import { UnitPage } from './pages/UnitPage'
-import { WordplayPage } from './pages/WordplayPage'
+
+// pages load on first visit (the landing page ships with the app)
+const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
+const BookPage = lazy(() => import('./pages/BookPage').then((m) => ({ default: m.BookPage })))
+const ChangesPage = lazy(() => import('./pages/ChangesPage').then((m) => ({ default: m.ChangesPage })))
+const ComparePage = lazy(() => import('./pages/ComparePage').then((m) => ({ default: m.ComparePage })))
+const ConcordancePage = lazy(() => import('./pages/ConcordancePage').then((m) => ({ default: m.ConcordancePage })))
+const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
+const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
+const NamesPage = lazy(() => import('./pages/NamesPage').then((m) => ({ default: m.NamesPage })))
+const PhrasesPage = lazy(() => import('./pages/PhrasesPage').then((m) => ({ default: m.PhrasesPage })))
+const PoetryPage = lazy(() => import('./pages/PoetryPage').then((m) => ({ default: m.PoetryPage })))
+const SequencePage = lazy(() => import('./pages/SequencePage').then((m) => ({ default: m.SequencePage })))
+const SequencesPage = lazy(() => import('./pages/SequencesPage').then((m) => ({ default: m.SequencesPage })))
+const StructurePage = lazy(() => import('./pages/StructurePage').then((m) => ({ default: m.StructurePage })))
+const StylometryPage = lazy(() => import('./pages/StylometryPage').then((m) => ({ default: m.StylometryPage })))
+const SearchPage = lazy(() => import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })))
+const UnitPage = lazy(() => import('./pages/UnitPage').then((m) => ({ default: m.UnitPage })))
+const WordplayPage = lazy(() => import('./pages/WordplayPage').then((m) => ({ default: m.WordplayPage })))
 
 export function App() {
   return (

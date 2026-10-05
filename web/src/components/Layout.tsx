@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { TextModeToggle } from './Controls'
+import { Loading } from './Status'
 
 interface NavItem {
   to: string
@@ -89,7 +90,9 @@ export function Layout() {
         <TextModeToggle />
       </header>
       <main className="main">
-        <Outlet />
+        <Suspense fallback={<Loading />}>
+          <Outlet />
+        </Suspense>
       </main>
       <footer className="footer">
         <p>

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useResolve, useSearch } from '../api/hooks'
+import { useEncoderReady, useResolve, useSearch } from '../api/hooks'
 import { KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
@@ -18,7 +18,8 @@ export function SearchPage() {
   const k = parseK(params.get('k'))
   const search = useSearch(q, mode, k)
   const resolved = useResolve(q).data?.unit
-  const slow = useSlow(search.isFetching && mode !== 'lexical')
+  const needsEncoder = mode !== 'lexical'
+  const encoderReady = useEncoderReady(needsEncoder)
 
   return (
     <div className="page search-page">
@@ -33,6 +34,13 @@ export function SearchPage() {
         {MODE_HINTS[mode]}. Pointed or unpointed input; lexical matching strips prefixes (ו ה ב כ ל מ ש).
       </p>
 
+      {needsEncoder && encoderReady === false && (
+        <p className="status" role="status">
+          The semantic encoder is still loading on the server; {mode} search will answer as soon as it is ready
+          (lexical search works now).
+        </p>
+      )}
+
       {resolved && (
         <p className="goto">
           Reference: <Link to={unitLink(resolved.unit_id)}>{resolved.label_en}</Link>{' '}
@@ -46,9 +54,7 @@ export function SearchPage() {
       {!q ? null : !hasHebrew(q) ? (
         !resolved && <p className="status">Not a reference; free-text search needs Hebrew letters.</p>
       ) : search.isPending ? (
-        <Loading
-          label={slow ? 'Searching… the semantic encoder may still be loading after startup (about 30 s).' : 'Searching…'}
-        />
+        <Loading label={needsEncoder && encoderReady === false ? 'Waiting for the semantic encoder…' : 'Searching…'} />
       ) : search.error ? (
         <ErrorBox error={search.error} />
       ) : (
@@ -140,16 +146,3 @@ function SearchForm({ initial, onSubmit }: { initial: string; onSubmit: (text: s
   )
 }
 
-/** True once `busy` has lasted more than 1.5 s. */
-function useSlow(busy: boolean) {
-  const [slow, setSlow] = useState(false)
-  useEffect(() => {
-    if (!busy) return
-    const t = window.setTimeout(() => setSlow(true), 1500)
-    return () => {
-      window.clearTimeout(t)
-      setSlow(false)
-    }
-  }, [busy])
-  return busy && slow
-}

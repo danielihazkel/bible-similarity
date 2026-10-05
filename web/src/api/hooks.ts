@@ -418,3 +418,17 @@ export const useSeams = (book: number | undefined) =>
     queryFn: ({ signal }) => getJson<SeamsResponse>('/seams', { book, limit: book === undefined ? 25 : 50 }, signal),
     ...forever,
   })
+
+const ENCODER_POLL_MS = 2000
+
+/** Whether the server's query encoder has loaded (polled until it has; undefined while unknown). */
+export const useEncoderReady = (enabled: boolean) => {
+  const q = useQuery({
+    queryKey: ['meta', 'encoder'],
+    queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal),
+    enabled,
+    refetchInterval: (query) => (query.state.data?.runtime.encoder_ready ? false : ENCODER_POLL_MS),
+    staleTime: 0,
+  })
+  return q.data?.runtime.encoder_ready
+}

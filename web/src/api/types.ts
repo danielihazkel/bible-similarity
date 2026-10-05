@@ -389,7 +389,7 @@ export interface BookStyle {
 
 export interface Meta {
   build: Record<string, unknown>
-  runtime: Record<string, unknown>
+  runtime: Record<string, unknown> & { encoder_ready?: boolean; startup_s?: number }
 }
 
 export interface SequenceSummary {
