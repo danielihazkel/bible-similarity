@@ -100,6 +100,7 @@ class ServeState:
     sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _lemma_total: int | None = None
+    _verse_books: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
 
     def lemma_total(self, conn: sqlite3.Connection) -> int:
@@ -116,6 +117,18 @@ class ServeState:
         conn.execute(f"PRAGMA mmap_size = {mb * 4 << 20}")
         conn.execute("PRAGMA query_only = 1")
         return conn
+
+    @property
+    def verse_books(self) -> np.ndarray:
+        """book_id of every verse (by verse id), read once."""
+        if self._verse_books is None:
+            conn = self.connect()
+            try:
+                rows = conn.execute("SELECT book_id FROM verses ORDER BY verse_id").fetchall()
+            finally:
+                conn.close()
+            self._verse_books = np.array([b for (b,) in rows], dtype=np.int64)
+        return self._verse_books
 
     def acquire(self) -> sqlite3.Connection:
         """An idle pooled connection, or a new one."""

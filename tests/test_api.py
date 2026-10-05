@@ -32,6 +32,9 @@ def test_units(client):
         f"v:{i}" for i in range(5)
     ]
     assert client.get("/api/units/verse").status_code == 422  # all 23k verses: per book only
+    by_chapter = client.get("/api/units/verse?book=0&chapter=2").json()
+    assert [u["unit_id"] for u in by_chapter] == ["v:3", "v:4"]
+    assert client.get("/api/units/verse?chapter=2").status_code == 422
     assert [u["unit_id"] for u in client.get("/api/units/chapter?book=0").json()] == [
         "c:0:1",
         "c:0:2",
@@ -764,3 +767,49 @@ def test_typescenes_endpoint(client):
         assert t["n_matches"] == len(t["aligned"]) and t["a"]["unit_type"] == "chapter"
     assert client.get("/api/typescenes?unit=nope").status_code == 404
     assert client.get("/api/typescenes?max_q=2").status_code == 422
+
+
+def test_export_csv(client):
+    r = client.get("/api/export/discoveries.csv?unit_type=verse&mode=fused")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/csv")
+    assert r.headers["content-disposition"] == 'attachment; filename="discoveries.csv"'
+    lines = r.content.decode("utf-8-sig").strip().splitlines()
+    total = client.get("/api/discoveries?unit_type=verse&mode=fused").json()["total"]
+    assert len(lines) == total + 1
+    header = lines[0].split(",")
+    assert "a" in header and "score" in header and "a_verse" not in header  # units as labels
+    # path-style parameters come from the query; missing ones are 422
+    assert client.get("/api/export/concordance.csv?lemma=430").status_code == 200
+    assert client.get("/api/export/concordance.csv").status_code == 422
+    assert client.get("/api/export/discoveries.csv?book=abc").status_code == 422
+    assert client.get("/api/export/nope.csv").status_code == 404
+    for name in ("phrases", "sequences", "wordplay", "names", "acrostics", "structure", "poetry"):
+        assert client.get(f"/api/export/{name}.csv").status_code == 200, name
+
+
+def test_flatten_labels_nested_values():
+    from bsim.api.routes.export import flatten
+
+    row = flatten(
+        {
+            "a": {"unit_id": "v:1", "label_en": "Gen 1:1"},
+            "lemmas": [{"lemma": "1", "he_lemma": "אב"}, {"lemma": "2", "he_lemma": "אם"}],
+            "verse": {"text_display": "x"},
+            "counts": {"same": 3},
+            "q": 0.01,
+        }
+    )
+    assert row == {"a": "Gen 1:1", "lemmas": "אב; אם", "counts.same": 3, "q": 0.01}
+
+
+def test_search_book_filter_and_depth(client):
+    all_hits = client.get("/api/search?q=ראשית&mode=lexical&k=50").json()["hits"]
+    in_book1 = client.get("/api/search?q=ראשית&mode=lexical&book=1").json()
+    assert in_book1["book"] == 1
+    assert [h["verse"]["verse_id"] for h in in_book1["hits"]] == [5]  # book 1 = v5 only
+    assert {h["verse"]["book_id"] for h in all_hits} == {0, 1}
+    sem = client.get("/api/search?q=דגן&mode=semantic&book=1").json()["hits"]
+    assert [h["verse"]["verse_id"] for h in sem] == [5]
+    assert client.get("/api/search?q=ראשית&k=200").status_code == 200
+    assert client.get("/api/search?q=ראשית&k=201").status_code == 422
+    assert client.get("/api/search?q=ראשית&book=99").status_code == 404

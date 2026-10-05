@@ -210,15 +210,21 @@ class EncoderLoading(EncoderUnavailable):
     """The encoder has not finished loading yet (temporary)."""
 
 
-def search(state: Any, query: str, mode: str, k: int) -> tuple[str, list[str], pd.DataFrame]:
-    """(normalized query, lexical tokens, ranked frame `tgt, rank, score` [+ breakdown])."""
+def search(
+    state: Any, query: str, mode: str, k: int, book_mask: np.ndarray | None = None
+) -> tuple[str, list[str], pd.DataFrame]:
+    """(normalized query, lexical tokens, ranked frame `tgt, rank, score` [+ breakdown]);
+    `book_mask`: only these verses compete (a book filter applied before ranking)."""
     cfg = state.cfg
-    depth = cfg["retrieval"]["k"]
+    depth = max(k, cfg["retrieval"]["k"])
     normalized = consonantal(query)
     tokens, terms = state.surface.query_terms(normalized)
     lists: dict[str, pd.DataFrame] = {}
     if mode in ("lexical", "fused"):
-        lists["lexical"] = top(state.surface.scores(terms), depth, positive_only=True)
+        lex = state.surface.scores(terms)
+        if book_mask is not None:
+            lex = np.where(book_mask, lex, 0.0).astype(np.float32)
+        lists["lexical"] = top(lex, depth, positive_only=True)
     if mode in ("semantic", "fused"):
         cache = getattr(state, "query_cache", None)
         q = cache.get(normalized) if cache is not None else None
@@ -227,7 +233,12 @@ def search(state: Any, query: str, mode: str, k: int) -> tuple[str, list[str], p
             if cache is not None:
                 cache.put(normalized, q)
         scores = semantic_scores(state.emb, q, state.hubness, cfg["retrieval"]["csls_neighbors"])
-        lists["semantic"] = top(scores, depth)
+        if book_mask is not None:
+            ids = np.flatnonzero(book_mask)
+            sub = top(scores[ids], depth)
+            lists["semantic"] = sub.assign(tgt=ids[sub.tgt.to_numpy()])
+        else:
+            lists["semantic"] = top(scores, depth)
     if mode == "fused":
         f = cfg["fusion"]
         df = rrf(lists["lexical"], lists["semantic"], f["w_lex"], f["w_sem"], f["rrf_k"], depth)

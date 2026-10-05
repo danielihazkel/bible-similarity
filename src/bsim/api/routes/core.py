@@ -71,12 +71,15 @@ def books(conn: Conn) -> list[dict[str, Any]]:
 
 @router.get("/units/{unit_type}", response_model=list[UnitSummary])
 def units(
-    unit_type: str, state: State, conn: Conn, book: int | None = None
+    unit_type: str, state: State, conn: Conn, book: int | None = None, chapter: int | None = None
 ) -> list[dict[str, Any]]:
+    """Units of a type per book (verses: per book, or per chapter with `chapter`)."""
     check_unit_type(unit_type, state.cfg["units"]["types"])
     if unit_type == "verse" and book is None:
         raise unprocessable("verse units are listed per book: pass `book`")
-    return queries.units_of_type(conn, unit_type, book)
+    if chapter is not None and book is None:
+        raise unprocessable("`chapter` needs `book`")
+    return queries.units_of_type(conn, unit_type, book, chapter)
 
 
 @router.get("/unit/{unit_id}", response_model=UnitDetail)
@@ -278,16 +281,30 @@ def compare(a: str, b: str, state: State, conn: Conn) -> dict[str, Any]:
 
 @router.get("/search", response_model=SearchResponse)
 def search(
-    q: str, state: State, conn: Conn, mode: SearchMode = "fused", k: int | None = None
+    q: str,
+    state: State,
+    conn: Conn,
+    mode: SearchMode = "fused",
+    k: int | None = None,
+    book: int | None = None,
 ) -> dict[str, Any]:
-    k = check_k(state, k)
+    """Free-text Hebrew search; `k` up to `serve.search.max_k`; `book`: only its verses."""
+    k = state.cfg["serve"]["default_k"] if k is None else k
+    max_k = state.cfg["serve"]["search"]["max_k"]
+    if not 1 <= k <= max_k:
+        raise unprocessable(f"k must be between 1 and {max_k}")
+    mask = None
+    if book is not None:
+        mask = state.verse_books == book
+        if not mask.any():
+            raise HTTPException(status_code=404, detail=f"unknown book {book}")
     max_chars = state.cfg["serve"]["search"]["max_query_chars"]
     if len(q) > max_chars:
         raise unprocessable(f"query longer than {max_chars} characters")
     if not consonantal(q):
         raise unprocessable("the query has no Hebrew letters")
     try:
-        normalized, tokens, df = run_search(state, q, mode, k)
+        normalized, tokens, df = run_search(state, q, mode, k, mask)
     except EncoderLoading as e:
         retry = str(state.cfg["serve"]["encoder_retry_s"])
         raise HTTPException(status_code=503, detail=str(e), headers={"Retry-After": retry}) from e
@@ -318,6 +335,7 @@ def search(
         "tokens": tokens,
         "mode": mode,
         "k": k,
+        "book": book,
         "hits": hits,
     }
 

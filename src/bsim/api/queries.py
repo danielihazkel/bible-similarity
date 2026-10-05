@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections import defaultdict
+import threading
+from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from typing import Any
 
@@ -20,6 +21,28 @@ VERSE_COLS = "verse_id, book_id, chapter, verse, ref, text_display, display_toke
 def _dicts(cur: sqlite3.Cursor) -> list[dict[str, Any]]:
     names = [d[0] for d in cur.description]
     return [dict(zip(names, r, strict=True)) for r in cur.fetchall()]
+
+
+_COUNTS: OrderedDict[tuple, int] = OrderedDict()
+_COUNTS_MAX = 2048
+_COUNTS_LOCK = threading.Lock()
+
+
+def count(conn: sqlite3.Connection, sql: str, args: Iterable[Any] = ()) -> int:
+    """`SELECT COUNT(*) ...` of a list page, cached: the served DB is read-only, so a count only
+    depends on the DB file, the query and its arguments (list totals repeat on every page)."""
+    db = conn.execute("PRAGMA database_list").fetchone()[2]
+    key = (db, sql, tuple(args))
+    with _COUNTS_LOCK:
+        if key in _COUNTS:
+            _COUNTS.move_to_end(key)
+            return _COUNTS[key]
+    n = conn.execute(sql, list(key[2])).fetchone()[0]
+    with _COUNTS_LOCK:
+        _COUNTS[key] = n
+        while len(_COUNTS) > _COUNTS_MAX:
+            _COUNTS.popitem(last=False)
+    return n
 
 
 def _marks(n: int) -> str:
@@ -39,12 +62,18 @@ def n_verses(conn: sqlite3.Connection) -> int:
 
 
 def units_of_type(
-    conn: sqlite3.Connection, unit_type: str, book_id: int | None = None
+    conn: sqlite3.Connection, unit_type: str, book_id: int | None = None, chapter: int | None = None
 ) -> list[dict[str, Any]]:
+    """Units of a type, optionally of one book, and of one chapter (by their first verse)."""
     sql, args = f"SELECT {UNIT_COLS} FROM units WHERE unit_type = ?", [unit_type]
     if book_id is not None:
         sql += " AND book_id = ?"
         args.append(book_id)
+    if chapter is not None:
+        sql += (
+            " AND start_verse_id IN (SELECT verse_id FROM verses WHERE book_id = ? AND chapter = ?)"
+        )
+        args += [book_id, chapter]
     return _dicts(conn.execute(sql + " ORDER BY start_verse_id", args))
 
 
@@ -180,7 +209,7 @@ def discoveries(
         args += [book_id, book_id]
     if cross_book:
         where += " AND a_book != b_book"
-    total = conn.execute(f"SELECT COUNT(*) FROM discoveries WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM discoveries WHERE {where}", args)
     cur = conn.execute(
         "SELECT a_id, b_id, score, tie, rank_ab, rank_ba FROM discoveries"
         f" WHERE {where} ORDER BY score DESC, tie DESC, a_id, b_id LIMIT ? OFFSET ?",
@@ -267,7 +296,7 @@ def sequences_page(
     if span is not None:
         where += " AND ((a_start <= ? AND a_end >= ?) OR (b_start <= ? AND b_end >= ?))"
         args += [span[1], span[0], span[1], span[0]]
-    total = conn.execute(f"SELECT COUNT(*) FROM sequences WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM sequences WHERE {where}", args)
     cur = conn.execute(
         f"SELECT {SEQUENCE_COLS} FROM sequences WHERE {where}"
         " ORDER BY score DESC, seq_id LIMIT ? OFFSET ?",
@@ -308,10 +337,11 @@ def change_groups(
     form changes), most frequent first; the non-grouping pair of columns is None."""
     where, args = _change_filter(op, a_book, b_book)
     ca, cb = _group_cols(op)
-    total = conn.execute(
+    total = count(
+        conn,
         f"SELECT COUNT(*) FROM (SELECT 1 FROM diff_changes WHERE {where} GROUP BY {ca}, {cb})",
         args,
-    ).fetchone()[0]
+    )
     other = "NULL AS a_key, NULL AS b_key" if op in FORM_OPS else "NULL AS a_form, NULL AS b_form"
     cur = conn.execute(
         f"SELECT {ca}, {cb}, {other}, COUNT(*) AS count, COUNT(DISTINCT seq_id) AS n_sequences"
@@ -407,7 +437,7 @@ def parallelism_units(
         f" WHERE {where} GROUP BY u.unit_id HAVING COUNT(p.prob) >= ?"
     )
     iargs = [parallel_at, *args, min_verses]
-    total = conn.execute(f"SELECT COUNT(*) FROM ({inner})", iargs).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM ({inner})", iargs)
     cur = conn.execute(
         f"{inner} ORDER BY mean_prob DESC, start LIMIT ? OFFSET ?", [*iargs, limit, offset]
     )
@@ -451,7 +481,7 @@ def wordplay_page(
     if span is not None:
         where += " AND w.b_vid >= ? AND w.a_vid <= ?"
         args += [span[0], span[1]]
-    total = conn.execute(f"SELECT COUNT(*) FROM wordplay w WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM wordplay w WHERE {where}", args)
     cur = conn.execute(
         f"SELECT {WORDPLAY_COLS} FROM wordplay w"
         " LEFT JOIN words wa ON wa.verse_id = w.a_vid AND wa.idx = w.a_idx"
@@ -492,7 +522,7 @@ def entities_page(
             f" WHERE {where} AND v.book_id = ? GROUP BY e.lemma"
         )
         bargs = [*args, book_id]
-    total = conn.execute(f"SELECT COUNT(*) FROM ({base})", bargs).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM ({base})", bargs)
     cur = conn.execute(
         f"SELECT {ENTITY_COLS}, n_here FROM ({base}) ORDER BY n_here DESC, lemma LIMIT ? OFFSET ?",
         [*bargs, limit, offset],
@@ -602,7 +632,7 @@ def phrases_page(
         args += [book_id, book_id]
     if cross_book:
         where += " AND a_book != b_book"
-    total = conn.execute(f"SELECT COUNT(*) FROM phrases WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM phrases WHERE {where}", args)
     cur = conn.execute(
         f"SELECT {PHRASE_COLS} FROM phrases WHERE {where}"
         " ORDER BY score DESC, a, b LIMIT ? OFFSET ?",
@@ -646,7 +676,7 @@ def structure_page(
     score = by + "_pct"
     where = f"unit_type = ? AND n_verses >= ? AND {score} IS NOT NULL"
     args: list[Any] = [unit_type, min_verses]
-    total = conn.execute(f"SELECT COUNT(*) FROM structure WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM structure WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM structure WHERE {where} ORDER BY {STRUCTURE_SORT[by]}, unit_id"
         " LIMIT ? OFFSET ?",
@@ -725,7 +755,7 @@ def acrostics_page(
     if book_id is not None:
         where += " AND book_id = ?"
         args.append(book_id)
-    total = conn.execute(f"SELECT COUNT(*) FROM acrostics WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM acrostics WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM acrostics WHERE {where} ORDER BY q, score DESC, unit_id LIMIT ? OFFSET ?",
         [*args, limit, offset],
@@ -758,7 +788,7 @@ def rewrites_page(
         if val is not None:
             where += f" AND {col} {cmp} ?"
             args.append(val)
-    total = conn.execute(f"SELECT COUNT(*) FROM rewrites WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM rewrites WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM rewrites WHERE {where} ORDER BY q, g2 DESC, a_book, b_book, a_key, b_key"
         " LIMIT ? OFFSET ?",
@@ -846,7 +876,7 @@ def word_pairs_page(
     if lemma is not None:
         where += " AND (a_lemma = ? OR b_lemma = ?)"
         args += [lemma, lemma]
-    total = conn.execute(f"SELECT COUNT(*) FROM word_pairs WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM word_pairs WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM word_pairs WHERE {where} ORDER BY q, g2 DESC, a_lemma, b_lemma"
         " LIMIT ? OFFSET ?",
@@ -870,7 +900,7 @@ def alliteration_page(
     if unit_span is not None:
         where += " AND verse_id BETWEEN ? AND ?"
         args += list(unit_span)
-    total = conn.execute(f"SELECT COUNT(*) FROM alliteration WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM alliteration WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM alliteration WHERE {where} ORDER BY p, verse_id, colon LIMIT ? OFFSET ?",
         [*args, limit, offset],
@@ -888,7 +918,7 @@ def rhymes_page(
     if max_q is not None:
         where += " AND q <= ?"
         args.append(max_q)
-    total = conn.execute(f"SELECT COUNT(*) FROM rhymes WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM rhymes WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM rhymes WHERE {where} ORDER BY q, n_cola DESC, start_vid LIMIT ? OFFSET ?",
         [*args, limit, offset],
@@ -917,7 +947,7 @@ def typescenes_page(
     if unit_id is not None:
         where += " AND (a_unit = ? OR b_unit = ?)"
         args += [unit_id, unit_id]
-    total = conn.execute(f"SELECT COUNT(*) FROM typescenes WHERE {where}", args).fetchone()[0]
+    total = count(conn, f"SELECT COUNT(*) FROM typescenes WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM typescenes WHERE {where} ORDER BY q, score DESC, a_unit, b_unit"
         " LIMIT ? OFFSET ?",

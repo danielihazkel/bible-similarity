@@ -463,6 +463,7 @@ class SearchHit(Breakdown):
 
 
 class SearchResponse(BaseModel):
+    book: int | None = None
     query: str
     normalized: str
     tokens: list[str]  # lexical tokens after prefix stripping (bigrams not listed)

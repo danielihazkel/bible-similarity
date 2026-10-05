@@ -324,6 +324,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   default_k: 10
   preview_chars: 200          # /similar: first-verse preview of chapter / pericope / parasha hits
   max_page: 200               # largest `limit` of paginated endpoints (/discoveries)
+  export_max_rows: 20000      # /export/{list}.csv: rows written at most
   cache_dir: api              # under paths.artifacts: CSLS hubness + surface BM25 caches for /search
   max_compare_verses: 300     # /compare refuses units longer than this (each side)
   structure_cache: 256        # /structure/{unit}: responses kept in memory (LRU; deterministic)
@@ -337,4 +338,5 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     min_root_letters: 2       # greedy prefix stripping keeps at least this many letters
     bigrams: true             # surface BM25 also indexes adjacent-token bigrams
     max_query_chars: 500
+    max_k: 200                # /search returns at most this many verses (ranked past retrieval.k)
     query_cache: 256          # query embeddings kept in memory (LRU) for repeated searches

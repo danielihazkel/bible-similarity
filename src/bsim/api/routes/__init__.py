@@ -3,8 +3,8 @@ ids -> 404."""
 
 from fastapi import APIRouter
 
-from bsim.api.routes import core, corpus, parallels, phrases, poetics
+from bsim.api.routes import core, corpus, export, parallels, phrases, poetics
 
 router = APIRouter(prefix="/api")
-for _module in (core, phrases, parallels, poetics, corpus):
+for _module in (core, phrases, parallels, poetics, corpus, export):
     router.include_router(_module.router)
