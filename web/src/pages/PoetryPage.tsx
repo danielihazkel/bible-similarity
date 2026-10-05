@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useParallelism } from '../api/hooks'
 import type { ParallelBook, UnitType } from '../api/types'
+import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -80,6 +81,18 @@ export function PoetryPage() {
           <p className="muted small">
             {res.data.total.toLocaleString()} {unitTypeLabel(unitType).toLowerCase()}s, most parallel first · page {page} of{' '}
             {pages}
+            {' · '}
+            <ExportCsv
+              filename={`parallel-halves-${unitType}-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((r) => ({
+                  unit: r.unit.label_en,
+                  share_parallel: r.share_parallel,
+                  mean_prob: r.mean_prob,
+                  verses: r.n_scored,
+                }))
+              }
+            />
           </p>
           <div className="table-wrap">
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useChanges } from '../api/hooks'
 import type { ChangeGroup, DiffOp } from '../api/types'
+import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -77,6 +78,20 @@ export function ChangesPage() {
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} distinct changes · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`changes-${op}-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((g) => ({
+                  kind: op,
+                  earlier: g.a_he,
+                  later: g.b_he,
+                  times: g.count,
+                  sequences: g.n_sequences,
+                  example: g.examples[0] ? `${g.examples[0].a_label} -> ${g.examples[0].b_label}` : '',
+                }))
+              }
+            />
           </p>
           <div className="table-wrap">
             <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>

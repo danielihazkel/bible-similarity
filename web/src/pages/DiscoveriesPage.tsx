@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useDiscoveries } from '../api/hooks'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
+import { ExportCsv } from '../components/ExportCsv'
 import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
 import { Pager } from '../components/Pager'
@@ -76,6 +77,19 @@ export function DiscoveriesPage() {
         <>
           <p className="muted small">
             {disc.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`discoveries-${unitType}-${mode}-p${page}.csv`}
+              rows={() =>
+                disc.data.items.map((d) => ({
+                  a: d.a.label_en,
+                  b: d.b.label_en,
+                  score: d.score,
+                  rank_a_to_b: d.rank_ab,
+                  rank_b_to_a: d.rank_ba,
+                }))
+              }
+            />
           </p>
           <ol className={`disc-list ${disc.isPlaceholderData ? 'stale' : ''}`} start={disc.data.offset + 1}>
             {disc.data.items.map((d) => (

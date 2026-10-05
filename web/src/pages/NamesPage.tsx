@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useBooks, useEntities, useEntity } from '../api/hooks'
 import type { Book, EntityDetail, EntityKind } from '../api/types'
+import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -86,6 +87,18 @@ export function NamesPage() {
             <>
               <p className="muted small">
                 {res.data.total.toLocaleString()} names{book !== undefined ? ' in this book' : ''} · page {page} of {pages}
+                {' · '}
+                <ExportCsv
+                  filename={`names-p${page}.csv`}
+                  rows={() =>
+                    res.data.items.map((e) => ({
+                      name: e.he,
+                      kind: e.kind,
+                      mentions: e.n_here ?? e.n_mentions,
+                      verses: e.n_verses,
+                    }))
+                  }
+                />
               </p>
               <ul className={`name-list ${res.isPlaceholderData ? 'stale' : ''}`}>
                 {res.data.items.map((e) => (

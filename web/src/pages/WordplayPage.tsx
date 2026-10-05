@@ -1,5 +1,6 @@
 import { useBooks, useWordplay } from '../api/hooks'
 import type { WordplayPair } from '../api/types'
+import { ExportCsv } from '../components/ExportCsv'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { WordplayCard } from '../components/WordplayCard'
@@ -76,6 +77,20 @@ export function WordplayPage() {
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`wordplay-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((p) => ({
+                  verse: p.a_label,
+                  word_a: p.a_form,
+                  word_b: p.b_form,
+                  kind: p.kind,
+                  words_apart: p.gap,
+                  score: p.score,
+                }))
+              }
+            />
           </p>
           <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
             {res.data.items.map((p) => (

@@ -1,5 +1,6 @@
 import { useBooks, usePhrases } from '../api/hooks'
 import { Pager } from '../components/Pager'
+import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { ErrorBox, Loading } from '../components/Status'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -81,6 +82,20 @@ export function PhrasesPage() {
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} pairs · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`phrases-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((p) => ({
+                  a: p.a.label_en,
+                  b: p.b.label_en,
+                  score: p.score,
+                  lemmas: p.n_tokens,
+                  spread: p.spread,
+                  sefaria_link: p.link?.level ?? '',
+                }))
+              }
+            />
           </p>
           <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
             {res.data.items.map((p) => (

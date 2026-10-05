@@ -1,5 +1,6 @@
 import { useBooks, useSequences } from '../api/hooks'
 import { Pager } from '../components/Pager'
+import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { ErrorBox, Loading } from '../components/Status'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -89,6 +90,21 @@ export function SequencesPage() {
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} sequences · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`sequences-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((s) => ({
+                  id: s.seq_id,
+                  a: s.a_label,
+                  b: s.b_label,
+                  verse_pairs: s.n_pairs,
+                  score: s.score,
+                  q: s.q,
+                  sefaria_links: s.n_gold,
+                }))
+              }
+            />
           </p>
           <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
             {res.data.items.map((s) => (
