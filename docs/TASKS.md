@@ -354,3 +354,13 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Dan 3 ↔ 6, Dan 2 ↔ 7, Lev 8 ↔ 9, purity procedures; classic type-scenes not recovered (documented).
 
+## H4 — Serving and viewer hardening, part 4
+- [x] List totals cached per DB file and query (`api.queries.count`); book-column indexes tried and rejected (slower counts)
+- [x] `/api/export/{list}.csv`: every row under the list's filters (15 lists, `serve.export_max_rows`); "Export all (CSV)" in the viewer, CSV for Concordance and Structure
+- [x] Search: `book` filter and `k` up to 200 (`serve.search.max_k`); `/units/verse?chapter=` and a chapter step in the verse picker
+- [x] Pager: page box, `aria-current`, past-the-end recovery on every list
+- [x] Accessibility: page titles, focus / scroll reset, skip link, roving tabindex for words, keyboard Names graph and Structure heatmap, reduced motion, cosine as text on the ladder, focus-highlight and new-control contrast
+- [x] Usability: j / k between hits, copy link, word changes on verse hits (`marks=changes`)
+- [x] Canvas: scatter points drawn once per change with the hover ring on an overlay and a bucket grid for hover; DPR-aware Structure heatmap
+- [x] Tests: export, search filters, units per chapter (pytest); pager, empty list, export link, word roving, layout, unit changes / j (vitest); e2e and axe on the new pages
+

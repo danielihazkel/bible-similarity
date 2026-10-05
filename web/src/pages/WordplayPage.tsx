@@ -1,7 +1,7 @@
-import { useBooks, useWordplay } from '../api/hooks'
+import { useBooks, useWordplay, wordplayParams } from '../api/hooks'
 import type { WordplayPair } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { WordplayCard } from '../components/WordplayCard'
@@ -69,7 +69,8 @@ function PairsView() {
   const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useWordplay({ book, kind, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { book, kind, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useWordplay(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -119,13 +120,14 @@ function PairsView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No wordplay matches these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No wordplay matches these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} pairs · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'wordplay', params: wordplayParams(query) }}
               filename={`wordplay-p${page}.csv`}
               rows={() =>
                 res.data.items.map((p) => ({

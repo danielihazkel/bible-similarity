@@ -1833,3 +1833,94 @@ svg[tabindex]:focus-visible {
   margin: 0.35rem 0 0;
   line-height: 1.9;
 }
+.pager-jump {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.pager-jump input {
+  width: 4.5em;
+  color: var(--text); /* the label around it is muted */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* Skip link: off screen until focused */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0.5rem;
+  z-index: 100;
+  padding: 0.4rem 0.8rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--focus);
+  border-radius: var(--radius);
+}
+.skip-link:focus {
+  left: 0.5rem;
+}
+.main:focus {
+  outline: none;
+}
+.rung-cos {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ego-node:focus-visible circle {
+  stroke: var(--text);
+  stroke-width: 3;
+}
+.heatmap canvas:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.scatter-stack {
+  position: relative;
+  max-width: 720px;
+}
+.scatter .scatter-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  pointer-events: none;
+  color: var(--text);
+  background: transparent;
+  border-color: transparent;
+}
+
+.copy-link {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+}
+.copy-link:hover {
+  background: var(--accent-soft);
+}
+kbd {
+  font-family: var(--font-ui);
+  font-size: 0.8em;
+  padding: 0 0.3em;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-2);
+}

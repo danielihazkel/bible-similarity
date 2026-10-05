@@ -126,16 +126,22 @@ function cssColor(name: string, fallback: [number, number, number]): [number, nu
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-/** Canvas heatmap; mirror pairs outlined (the chiasm diagonal). */
+/** Canvas heatmap; mirror pairs outlined (the chiasm diagonal). Drawn at the screen's pixel
+ * density; the mouse or, once focused, the arrow keys read out a cell. */
 function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const [hover, setHover] = useState<string>()
+  const [cursor, setCursor] = useState<[number, number]>()
   const n = basis.matrix.length
   const size = 360
   const cell = size / n
   useEffect(() => {
-    const ctx = ref.current?.getContext('2d')
-    if (!ctx) return
+    const canvas = ref.current
+    const ctx = canvas?.getContext('2d')
+    if (!canvas || !ctx) return
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = Math.round(size * dpr)
+    canvas.height = Math.round(size * dpr)
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     const off = basis.matrix.flatMap((row, i) => row.filter((_, j) => j !== i))
     const lo = Math.min(...off)
     const hi = Math.max(...off)
@@ -148,7 +154,8 @@ function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] })
         ctx.fillStyle = `rgb(${a.map((c, k) => Math.round(c + (b[k] - c) * t)).join(',')})`
         ctx.fillRect(j * cell, i * cell, Math.ceil(cell), Math.ceil(cell))
       }
-    ctx.strokeStyle = `rgb(${cssColor('--text', [42, 34, 24]).join(',')})`
+    const ink = `rgb(${cssColor('--text', [42, 34, 24]).join(',')})`
+    ctx.strokeStyle = ink
     ctx.lineWidth = 1
     for (let i = 0; i < Math.floor(n / 2); i++) {
       const j = n - 1 - i
@@ -156,24 +163,47 @@ function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] })
       ctx.strokeRect(j * cell + 0.5, i * cell + 0.5, cell - 1, cell - 1)
       ctx.strokeRect(i * cell + 0.5, j * cell + 0.5, cell - 1, cell - 1)
     }
-  }, [basis, n, cell])
+    if (cursor) {
+      ctx.lineWidth = 2
+      ctx.strokeRect(cursor[1] * cell + 1, cursor[0] * cell + 1, cell - 2, cell - 2)
+    }
+  }, [basis, n, cell, cursor])
+  const keys: Record<string, [number, number]> = {
+    ArrowUp: [-1, 0],
+    ArrowDown: [1, 0],
+    ArrowLeft: [0, -1],
+    ArrowRight: [0, 1],
+  }
+  const clamp = (v: number) => Math.min(n - 1, Math.max(0, v))
   return (
     <figure className="heatmap">
       <canvas
         ref={ref}
-        width={size}
-        height={size}
+        style={{ width: size, height: size }}
+        tabIndex={0}
         role="img"
-        aria-label="Verse-by-verse similarity heatmap"
+        aria-label="Verse-by-verse similarity heatmap; arrow keys move between cells"
+        onFocus={() => setCursor((c) => c ?? [0, n - 1])}
+        onBlur={() => setCursor(undefined)}
+        onKeyDown={(e) => {
+          const d = keys[e.key]
+          if (!d) return
+          e.preventDefault()
+          setCursor(([i, j] = [0, 0]) => [clamp(i + d[0]), clamp(j + d[1])])
+        }}
         onMouseMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect()
           const j = Math.floor(((e.clientX - r.left) / r.width) * n)
           const i = Math.floor(((e.clientY - r.top) / r.height) * n)
-          if (i >= 0 && j >= 0 && i < n && j < n) setHover(`${labels[i]} ↔ ${labels[j]}: ${basis.matrix[i][j].toFixed(2)}`)
+          if (i >= 0 && j >= 0 && i < n && j < n) setCursor([i, j])
         }}
-        onMouseLeave={() => setHover(undefined)}
+        onMouseLeave={() => setCursor(undefined)}
       />
-      <figcaption className="muted small">{hover ?? 'Darker = more similar · outlined cells = mirror pairs'}</figcaption>
+      <figcaption className="muted small" aria-live="polite">
+        {cursor
+          ? `${labels[cursor[0]]} ↔ ${labels[cursor[1]]}: ${basis.matrix[cursor[0]][cursor[1]].toFixed(2)}`
+          : 'Darker = more similar · outlined cells = mirror pairs'}
+      </figcaption>
     </figure>
   )
 }

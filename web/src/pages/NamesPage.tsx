@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { useBooks, useEntities, useEntity } from '../api/hooks'
+import { useBooks, useEntities, useEntity, entitiesParams } from '../api/hooks'
 import type { Book, EntityDetail, EntityKind } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { lemmaLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -25,7 +25,8 @@ export function NamesPage() {
   const page = parsePage(params.get('page'))
   const [draft, setDraft] = useState(q)
   const books = useBooks()
-  const res = useEntities({ kind, book, q: q || undefined, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { kind, book, q: q || undefined, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useEntities(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -82,13 +83,14 @@ export function NamesPage() {
           ) : res.error ? (
             <ErrorBox error={res.error} />
           ) : res.data.items.length === 0 ? (
-            <p className="status">No names match.</p>
+            <EmptyList total={res.data.total} limit={res.data.limit}>No names match.</EmptyList>
           ) : (
             <>
               <p className="muted small">
                 {res.data.total.toLocaleString()} names{book !== undefined ? ' in this book' : ''} · page {page} of {pages}
                 {' · '}
                 <ExportCsv
+                  all={{ list: 'names', params: entitiesParams(query) }}
                   filename={`names-p${page}.csv`}
                   rows={() =>
                     res.data.items.map((e) => ({
@@ -200,7 +202,7 @@ function EgoNetwork({ data, onPick }: { data: EntityDetail; onPick: (lemma: stri
     }),
   )
   return (
-    <svg className="ego" viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`Names appearing with ${data.entity.he}`}>
+    <svg className="ego" viewBox={`0 0 ${size} ${size}`} role="group" aria-label={`Names appearing with ${data.entity.he}`}>
       {data.links.map((l) => {
         const a = pos.get(l.a)
         const b = pos.get(l.b)
@@ -213,7 +215,20 @@ function EgoNetwork({ data, onPick }: { data: EntityDetail; onPick: (lemma: stri
       {ps.map((p) => {
         const q = pos.get(p.lemma)!
         return (
-          <g key={p.lemma} className={`ego-node kind-${p.kind}`} onClick={() => onPick(p.lemma)}>
+          <g
+            key={p.lemma}
+            className={`ego-node kind-${p.kind}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`${p.he}: show this name`}
+            onClick={() => onPick(p.lemma)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onPick(p.lemma)
+              }
+            }}
+          >
             <circle cx={q.x} cy={q.y} r={5} />
             <text x={q.x} y={q.y - 9} textAnchor="middle" direction="rtl">
               {p.he}

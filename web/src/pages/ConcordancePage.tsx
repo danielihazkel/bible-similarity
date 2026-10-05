@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router'
 import { useBooks, useLemma } from '../api/hooks'
+import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -67,6 +68,13 @@ export function ConcordancePage() {
         Verses{book !== undefined && names.get(book) ? ` in ${names.get(book)!.name}` : ''}{' '}
         <span className="muted small">({c.total.toLocaleString()})</span>
       </h2>
+      <p className="muted small">
+        <ExportCsv
+          filename={`concordance-${lemma}-p${page}.csv`}
+          rows={() => c.items.map((h) => ({ verse: h.label_en, reference: h.label_he, text: h.verse.text_display }))}
+          all={{ list: 'concordance', params: { lemma, book } }}
+        />
+      </p>
       <ol className={`hits ${conc.isPlaceholderData ? 'stale' : ''}`}>
         {c.items.map((h) => (
           <li key={h.verse.verse_id} className="hit">

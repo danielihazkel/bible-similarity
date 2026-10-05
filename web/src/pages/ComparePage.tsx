@@ -160,7 +160,10 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
   // Bring the partner of the hovered verse into view inside this column.
   useEffect(() => {
     if (!isPartner || mine === undefined) return
-    listRef.current?.querySelector(`[data-vid="${mine}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    listRef.current
+      ?.querySelector(`[data-vid="${mine}"]`)
+      ?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' })
   }, [isPartner, mine])
 
   return (

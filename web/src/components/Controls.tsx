@@ -43,12 +43,20 @@ export function ModeToggle({ value, onChange, modes = MODES }: { value: Mode; on
   )
 }
 
-export function KSelect({ value, onChange }: { value: number; onChange: (k: number) => void }) {
+export function KSelect({
+  value,
+  onChange,
+  options = K_OPTIONS,
+}: {
+  value: number
+  onChange: (k: number) => void
+  options?: readonly number[]
+}) {
   return (
     <label className="control">
       <span>Top</span>
       <select value={value} onChange={(e) => onChange(Number(e.target.value))}>
-        {K_OPTIONS.map((k) => (
+        {options.map((k) => (
           <option key={k} value={k}>
             {k}
           </option>

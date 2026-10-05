@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
-import { useWordPairs } from '../api/hooks'
+import { useWordPairs, wordPairsParams } from '../api/hooks'
 import { ExportCsv } from '../components/ExportCsv'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel } from '../lib/format'
 import { lemmaLink, unitLink } from '../lib/links'
@@ -14,7 +14,8 @@ export function WordPairsView() {
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
   const all = params.get('pq') === 'all'
-  const res = useWordPairs({ maxQ: all ? undefined : 0.05, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { maxQ: all ? undefined : 0.05, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useWordPairs(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const he = (s: string) => (
     <span className="he" dir="rtl" lang="he">
@@ -40,13 +41,14 @@ export function WordPairsView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No word pairs.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No word pairs.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} pairs · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'word-pairs', params: wordPairsParams(query) }}
               filename={`word-pairs-p${page}.csv`}
               rows={() =>
                 res.data.items.map((w) => ({ first: w.a.he_lemma, second: w.b.he_lemma, times: w.n, expected: w.expected, reverse: w.reverse, q: w.q }))

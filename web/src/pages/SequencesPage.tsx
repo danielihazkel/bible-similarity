@@ -1,6 +1,6 @@
-import { useBooks, useSequences } from '../api/hooks'
+import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { ErrorBox, Loading } from '../components/Status'
@@ -35,7 +35,7 @@ export function SequencesPage() {
   const order = ORDERS.find((o) => o.value === orderRaw)?.value ?? 'forward'
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useSequences({
+  const query = {
     book,
     crossBook,
     hideSameChapter,
@@ -44,7 +44,8 @@ export function SequencesPage() {
     maxQ: qChoice === 'all' ? undefined : Number(qChoice),
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
-  })
+  }
+  const res = useSequences(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -109,16 +110,17 @@ export function SequencesPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">
+        <EmptyList total={res.data.total} limit={res.data.limit}>
           No sequences match these filters.
           {order !== 'forward' && qChoice !== 'all' && ' Mirrored and reordered chains never beat the shuffled-order baseline: choose “All chains”.'}
-        </p>
+        </EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} sequences · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'sequences', params: sequencesParams(query) }}
               filename={`sequences-p${page}.csv`}
               rows={() =>
                 res.data.items.map((s) => ({

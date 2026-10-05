@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
-import { useBooks, useRewriteProfiles, useRewrites } from '../api/hooks'
+import { useBooks, useRewriteProfiles, useRewrites, rewritesParams } from '../api/hooks'
 import type { Rewrite, RewriteOp, RewriteProfile } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel } from '../lib/format'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -33,14 +33,15 @@ export function RewritesView() {
   const op = OPS.some((o) => o.value === rawOp) ? rawOp! : undefined
   const all = params.get('rq') === 'all'
   const page = parsePage(params.get('page'))
-  const res = useRewrites({
+  const query = {
     aBook: profile?.a_book,
     bBook: profile?.b_book,
     op,
     maxQ: all ? undefined : 0.05,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
-  })
+  }
+  const res = useRewrites(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -87,13 +88,14 @@ export function RewritesView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No systematic changes for these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No systematic changes for these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} changes · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'rewrites', params: rewritesParams(query) }}
               filename={`rewrites-p${page}.csv`}
               rows={() =>
                 res.data.items.map((r) => ({

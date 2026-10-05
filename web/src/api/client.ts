@@ -9,7 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-type Params = Record<string, string | number | undefined>
+export type Params = Record<string, string | number | undefined>
 
 export async function getJson<T>(path: string, params: Params = {}, signal?: AbortSignal): Promise<T> {
   return (await fetchJson<T>(path, params, signal)).body
@@ -42,4 +42,11 @@ async function fetchJson<T>(path: string, params: Params, signal?: AbortSignal):
     throw new ApiError(res.status, detail)
   }
   return { body: (await res.json()) as T, headers: res.headers }
+}
+
+/** URL of an API path with query parameters (undefined values left out). */
+export function apiUrl(path: string, params: Params = {}): string {
+  const qs = new URLSearchParams()
+  for (const [k, v] of Object.entries(params)) if (v !== undefined) qs.set(k, String(v))
+  return `/api${path}${qs.size ? `?${qs}` : ''}`
 }

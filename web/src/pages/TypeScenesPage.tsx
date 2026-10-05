@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { useBooks, useTypeScenes } from '../api/hooks'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
@@ -67,7 +67,7 @@ export function TypeScenesPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No aligned passages for these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No aligned passages for these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">

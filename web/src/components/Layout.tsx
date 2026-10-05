@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { TextModeToggle } from './Controls'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -53,8 +53,13 @@ const NAV: NavEntry[] = [
 
 const isGroup = (e: NavEntry): e is NavGroup => 'items' in e
 
+const SITE = 'Tanakh Similarity'
+
 export function Layout() {
   const { pathname } = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
+  usePageTitle(mainRef)
+  useNavigationFocus(mainRef, pathname)
   const [mobileOpen, setMobileOpen] = useState(false)
   // a new page closes the mobile menu
   const [seenPath, setSeenPath] = useState(pathname)
@@ -65,6 +70,9 @@ export function Layout() {
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
       <header className="topbar">
         <Link to="/" className="brand">
           <span className="brand-mark" dir="rtl" lang="he">
@@ -92,9 +100,10 @@ export function Layout() {
             ),
           )}
         </nav>
+        <CopyLink />
         <TextModeToggle />
       </header>
-      <main className="main">
+      <main className="main" id="main" tabIndex={-1} ref={mainRef}>
         <ErrorBoundary key={pathname}>
           <Suspense fallback={<Loading />}>
             <Outlet />
@@ -175,5 +184,61 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
         ))}
       </ul>
     </div>
+  )
+}
+
+/** `document.title` follows the page's heading (pages fill it in once their data loads). */
+function usePageTitle(main: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = main.current
+    if (!el) return
+    const update = () => {
+      const h1 = el.querySelector('h1')?.textContent?.trim()
+      const title = h1 ? `${h1} · ${SITE}` : SITE
+      if (document.title !== title) document.title = title
+    }
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(el, { childList: true, subtree: true, characterData: true })
+    return () => observer.disconnect()
+  }, [main])
+}
+
+/** A new page (not a new filter on the same page) starts at the top with focus on the content,
+ * so keyboard and screen-reader users are not left on the old link. */
+function useNavigationFocus(main: RefObject<HTMLElement | null>, pathname: string) {
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+      return
+    }
+    window.scrollTo(0, 0)
+    main.current?.focus({ preventScroll: true })
+  }, [main, pathname])
+}
+
+/** Copies the current page's address (every view's state is in its URL). */
+function CopyLink() {
+  const [done, setDone] = useState(false)
+  useEffect(() => {
+    if (!done) return
+    const t = window.setTimeout(() => setDone(false), 1500)
+    return () => window.clearTimeout(t)
+  }, [done])
+  return (
+    <button
+      type="button"
+      className="copy-link"
+      title="Copy a link to this view"
+      onClick={() => {
+        navigator.clipboard
+          ?.writeText(window.location.href)
+          .then(() => setDone(true))
+          .catch(() => setDone(false))
+      }}
+    >
+      <span aria-live="polite">{done ? 'Copied' : 'Copy link'}</span>
+    </button>
   )
 }

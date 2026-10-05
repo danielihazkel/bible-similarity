@@ -8,12 +8,13 @@ import {
   useUnit,
   useUnitAcrostic,
   useUnitNetwork,
+  useVerseDiff,
   useUnitEntities,
   useUnitParallelism,
   useWordplay,
 } from '../api/hooks'
 import type { Acrostic, Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
-import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
+import { ExcludeFilters, KSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
 import { PhraseCard } from '../components/PhraseCard'
@@ -24,7 +25,7 @@ import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { nameLink, unitLink } from '../lib/links'
 import { granularityLabel, MODE_HINTS, qLabel, unitTypeLabel } from '../lib/format'
-import { highlightFor, type Highlight } from '../lib/highlight'
+import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
 // Parallel sequences touching this unit: only reasonably strong chains, a few at most.
@@ -76,7 +77,11 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   }
   const isVerse = unit.unit_type === 'verse'
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
-  const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
+  const marks = isVerse && params.get('marks') === 'changes' ? 'changes' : 'shared'
+  const explain = useExplain(isVerse && marks === 'shared' ? unit.start_verse_id : undefined, activeTgt)
+  const diff = useVerseDiff(unit.start_verse_id, activeTgt, isVerse && marks === 'changes')
+  const diffData = diff.data && diff.data.b === activeTgt ? diff.data : undefined
+  useHitKeys(similar.data?.hits.map((h) => h.unit.start_verse_id) ?? [], activeTgt, isVerse ? setPinned : undefined)
   const phrases = usePhrasesOf(isVerse ? unit.start_verse_id : undefined)
   const halvesOn = params.get('halves') === '1'
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
@@ -151,7 +156,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <p className="source-text">
             <HebrewText
               verse={verses[0]}
-              highlight={highlightFor(explain.data, 'a', focusLemma)}
+              highlight={marks === 'changes' ? diffHighlight(diffData?.a_marks) : highlightFor(explain.data, 'a', focusLemma)}
               onWordClick={pick(verses[0])}
               selected={selectedIn(verses[0])}
               breaks={breaksOf(verses[0])}
@@ -239,7 +244,24 @@ function UnitView({ detail }: { detail: UnitDetail }) {
             <ModeToggle value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
             <KSelect value={k} onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })} />
             <ExcludeFilters type={unit.unit_type} value={exclude} onChange={(v) => update({ exclude: v.join(',') })} />
+            {isVerse && (
+              <Segmented
+                label="Mark words by"
+                value={marks}
+                onChange={(m) => update({ marks: m === 'changes' ? m : null }, false)}
+                options={[
+                  { value: 'shared', label: 'Shared words' },
+                  { value: 'changes', label: 'Changes' },
+                ]}
+              />
+            )}
           </div>
+          {similar.data && similar.data.hits.length > 1 && (
+            <p className="muted small">
+              Keys: <kbd>j</kbd> / <kbd>k</kbd> next / previous hit
+              {isVerse ? ' (its words marked)' : ''}.
+            </p>
+          )}
           <p className="muted small">{MODE_HINTS[mode]}</p>
         </div>
         {similar.isPending ? (
@@ -266,6 +288,8 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                   onHover={(on) => onHover(tgt, on)}
                   onTogglePin={() => setPinned(pinned === tgt ? undefined : tgt)}
                   onFocusLemma={setFocusLemma}
+                  marks={marks}
+                  diff={activeTgt === tgt ? diffData : undefined}
                 />
               )
             })}
@@ -416,4 +440,40 @@ function Crumbs({ detail, search }: { detail: UnitDetail; search: string }) {
       </span>
     </nav>
   )
+}
+
+/**
+ * j / k move to the next / previous similar unit: the card scrolls into view and takes focus,
+ * and for verse units it is pinned so its words stay marked. Ignored while typing in a field.
+ */
+function useHitKeys(targets: number[], active: number | undefined, pin?: (t: number) => void) {
+  const state = useRef({ targets, active, pin })
+  useEffect(() => {
+    state.current = { targets, active, pin }
+  })
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'j' && e.key !== 'k') return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName))) return
+      const { targets, active, pin } = state.current
+      if (!targets.length) return
+      const cards = document.querySelectorAll<HTMLElement>('ol.hits > li')
+      const focused = [...cards].findIndex((c) => c.contains(document.activeElement))
+      const at = active !== undefined ? targets.indexOf(active) : focused
+      const next = Math.min(targets.length - 1, Math.max(0, at < 0 ? 0 : at + (e.key === 'j' ? 1 : -1)))
+      e.preventDefault()
+      pin?.(targets[next])
+      const card = cards[next]
+      if (card) {
+        card.tabIndex = -1
+        card.focus({ preventScroll: true })
+        const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+        card.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' })
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
 }

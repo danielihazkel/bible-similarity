@@ -134,7 +134,9 @@ function mockApi(failing: string[] = []) {
               ? WORDS
               : u.pathname === '/api/phrases/0'
                 ? PHRASES
-                : u.pathname.startsWith('/api/parallelism/')
+                : u.pathname === '/api/diff'
+                  ? { a: 0, b: 5, a_marks: { '2': 'omitted' }, b_marks: { '2': 'added' }, counts: {}, shared: 0.6, loose: false }
+                  : u.pathname.startsWith('/api/parallelism/')
                   ? HALVES
                   : u.pathname === '/api/wordplay' || u.pathname === '/api/sequences'
                     ? EMPTY_PAGE
@@ -239,6 +241,18 @@ describe('UnitPage', () => {
     expect(container.querySelector('.source .clause-break')).toBeNull()
     fireEvent.click(screen.getByLabelText('Finer clauses'))
     await waitFor(() => expect(container.querySelectorAll('.source .clause-break')).toHaveLength(1))
+  })
+
+  it('marks word changes instead of shared words, and j pins the next hit', async () => {
+    Element.prototype.scrollIntoView = vi.fn() // not in jsdom
+    const calls = mockApi()
+    const { container } = renderAt('/unit/v:0?marks=changes')
+    await screen.findByText('Test 1:6')
+    fireEvent.keyDown(document.body, { key: 'j' })
+    await waitFor(() => expect(container.querySelectorAll('.hits .hit-text .w-diff-added')).toHaveLength(1))
+    expect(container.querySelectorAll('.source .w-diff-omitted').length).toBeGreaterThan(0)
+    expect(calls.some((c) => c.startsWith('/api/diff?a=0&b=5'))).toBe(true)
+    expect(calls.some((c) => c.startsWith('/api/explain'))).toBe(false)
   })
 
   it('keeps mode in the URL', async () => {

@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
-import { useAcrostics, useBooks } from '../api/hooks'
+import { useAcrostics, useBooks, acrosticsParams } from '../api/hooks'
 import { AcrosticChain } from '../components/AcrosticChain'
 import { ExportCsv } from '../components/ExportCsv'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { granularityLabel, qLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
@@ -25,12 +25,13 @@ export function AcrosticsPage() {
   const qChoice = Q_OPTIONS.some((o) => o.value === qRaw) ? qRaw : '0.05'
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useAcrostics({
+  const query = {
     maxQ: qChoice === 'all' ? undefined : Number(qChoice),
     book,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
-  })
+  }
+  const res = useAcrostics(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   const bookName = (id: number) => books.data?.find((b) => b.book_id === id)?.name ?? ''
@@ -78,13 +79,14 @@ export function AcrosticsPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No chapters match these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No chapters match these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} chapters · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'acrostics', params: acrosticsParams(query) }}
               filename={`acrostics-p${page}.csv`}
               rows={() =>
                 res.data.items.map((a) => ({

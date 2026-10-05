@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useEncoderStatus, useResolve, useSearch } from '../api/hooks'
+import { useBooks, useEncoderStatus, useResolve, useSearch } from '../api/hooks'
 import { KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
@@ -9,19 +9,22 @@ import { ErrorBox, Loading } from '../components/Status'
 import { MODE_HINTS } from '../lib/format'
 import { hasHebrew } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
-import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_MODES, useQueryParams } from '../lib/urlState'
+import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_K_OPTIONS, SEARCH_MODES, useQueryParams } from '../lib/urlState'
 
 export function SearchPage() {
   const [params, update] = useQueryParams()
   const q = params.get('q') ?? ''
   const mode = parseMode(params.get('mode'), SEARCH_MODES)
-  const k = parseK(params.get('k'))
+  const k = parseK(params.get('k'), SEARCH_K_OPTIONS)
+  const bookParam = params.get('book')
+  const book = bookParam === null || bookParam === '' || !Number.isInteger(Number(bookParam)) ? undefined : Number(bookParam)
+  const books = useBooks()
   const resolved = useResolve(q).data?.unit
   const needsEncoder = mode !== 'lexical'
   const encoder = useEncoderStatus(needsEncoder)
   const encoderLoading = needsEncoder && !encoder.ready && !encoder.error
   // the server answers semantic / fused queries only once the encoder has loaded
-  const search = useSearch(q, mode, k, !needsEncoder || encoder.ready === true)
+  const search = useSearch(q, mode, k, !needsEncoder || encoder.ready === true, book)
 
   return (
     <div className="page search-page">
@@ -30,7 +33,22 @@ export function SearchPage() {
       <SearchForm key={q} initial={q} onSubmit={(text) => update({ q: text.trim() || null }, false)} />
       <div className="toolbar">
         <ModeToggle modes={SEARCH_MODES} value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
-        <KSelect value={k} onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })} />
+        <KSelect
+          value={k}
+          options={SEARCH_K_OPTIONS}
+          onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })}
+        />
+        <label className="control">
+          <span>Book</span>
+          <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null })}>
+            <option value="">All books</option>
+            {books.data?.map((b) => (
+              <option key={b.book_id} value={b.book_id}>
+                {b.name} · {b.he_name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <p className="muted small">
         {MODE_HINTS[mode]}. Pointed or unpointed input; lexical matching strips prefixes (ו ה ב כ ל מ ש).

@@ -1,5 +1,5 @@
-import { useBooks, usePhrases } from '../api/hooks'
-import { Pager } from '../components/Pager'
+import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
+import { EmptyList, Pager } from '../components/Pager'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { ErrorBox, Loading } from '../components/Status'
@@ -22,14 +22,15 @@ export function PhrasesPage() {
   const minTokens = MIN_TOKENS.includes(minRaw) ? minRaw : 3
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = usePhrases({
+  const query = {
     book,
     crossBook,
     minTokens,
     maxSpread: recurring ? undefined : MAX_SPREAD,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
-  })
+  }
+  const res = usePhrases(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -77,13 +78,14 @@ export function PhrasesPage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No shared phrases match these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No shared phrases match these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} pairs · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'phrases', params: phrasesParams(query) }}
               filename={`phrases-p${page}.csv`}
               rows={() =>
                 res.data.items.map((p) => ({

@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
-import { useBooks, useParallelism } from '../api/hooks'
+import { useBooks, useParallelism, parallelismParams } from '../api/hooks'
 import type { ParallelBook, UnitType } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitTypeLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
@@ -46,7 +46,8 @@ function UnitsView() {
   const excludePoetic = params.get('all') !== '1'
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useParallelism({ unitType, book, excludePoetic, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { unitType, book, excludePoetic, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useParallelism(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   const name = new Map(books.data?.map((b) => [b.book_id, b.name]) ?? [])
@@ -97,7 +98,7 @@ function UnitsView() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No units match these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No units match these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
@@ -105,6 +106,7 @@ function UnitsView() {
             {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'poetry', params: parallelismParams(query) }}
               filename={`parallel-halves-${unitType}-p${page}.csv`}
               rows={() =>
                 res.data.items.map((r) => ({

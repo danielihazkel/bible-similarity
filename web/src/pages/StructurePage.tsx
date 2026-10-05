@@ -1,8 +1,9 @@
 import { Link } from 'react-router'
-import { useStructureRanking } from '../api/hooks'
+import { structureParams, useStructureRanking } from '../api/hooks'
 import type { LeitwortNumbers, StructureRank, StructureSort, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
-import { Pager } from '../components/Pager'
+import { ExportCsv } from '../components/ExportCsv'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel, unitTypeLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
@@ -34,7 +35,8 @@ export function StructurePage() {
   const minRaw = Number(params.get('min'))
   const minVerses = MIN_VERSES.includes(minRaw) ? minRaw : 8
   const page = parsePage(params.get('page'))
-  const res = useStructureRanking({ unitType, by, minVerses, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { unitType, by, minVerses, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useStructureRanking(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -84,9 +86,24 @@ export function StructurePage() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No scored units.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No scored units.</EmptyList>
       ) : (
         <>
+          <p className="muted small">
+            {res.data.total.toLocaleString()} units · page {page} of {pages}
+            {' · '}
+            <ExportCsv
+              filename={`structure-${unitType}-p${page}.csv`}
+              rows={() =>
+                res.data.items.map((r) => ({
+                  unit: r.unit.label_en,
+                  verses: r.unit.n_verses,
+                  ...Object.fromEntries(COLS.map((c) => [c.label, r[c.key] as number | null])),
+                }))
+              }
+              all={{ list: 'structure', params: structureParams(query) }}
+            />
+          </p>
           <div className="table-wrap">
             <table className={`rank-table ${res.isPlaceholderData ? 'stale' : ''}`}>
               <thead>

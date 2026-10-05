@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useAlliteration, useRhymes } from '../api/hooks'
 import type { Highlight } from '../lib/highlight'
 import { HebrewText } from '../components/HebrewText'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel } from '../lib/format'
 import { unitLink } from '../lib/links'
@@ -34,7 +34,7 @@ export function AlliterationView({ book }: { book?: number }) {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">Nothing here.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>Nothing here.</EmptyList>
       ) : (
         <>
           <p className="muted small">
@@ -100,7 +100,7 @@ export function RhymeView({ book }: { book?: number }) {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No rhymes for these filters.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No rhymes for these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">

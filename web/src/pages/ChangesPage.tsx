@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
-import { useBooks, useChanges } from '../api/hooks'
+import { useBooks, useChanges, changesParams } from '../api/hooks'
 import type { ChangeGroup, DiffOp } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { DIFF_LABELS, DIFF_OPS } from '../lib/diff'
 import { sequenceLink } from '../lib/links'
@@ -57,7 +57,8 @@ function ChangesByWord() {
   const bBook = num('b')
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const res = useChanges({ op, aBook, bBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { op, aBook, bBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const res = useChanges(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   const totals = res.data?.totals
@@ -100,13 +101,14 @@ function ChangesByWord() {
       ) : res.error ? (
         <ErrorBox error={res.error} />
       ) : res.data.items.length === 0 ? (
-        <p className="status">No changes of this kind for these books.</p>
+        <EmptyList total={res.data.total} limit={res.data.limit}>No changes of this kind for these books.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {res.data.total.toLocaleString()} distinct changes · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'changes', params: changesParams(query) }}
               filename={`changes-${op}-p${page}.csv`}
               rows={() =>
                 res.data.items.map((g) => ({

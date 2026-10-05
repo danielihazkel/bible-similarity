@@ -7,6 +7,8 @@ export const MODES: Mode[] = ['lexical', 'semantic', 'fused', 'structural']
 /** Free-text search has no morphology, so no structural mode. */
 export const SEARCH_MODES: Mode[] = ['lexical', 'semantic', 'fused']
 export const K_OPTIONS = [10, 20, 50] as const
+/** Search ranks past the stored lists (API: up to `serve.search.max_k`). */
+export const SEARCH_K_OPTIONS = [10, 20, 50, 100, 200] as const
 export const EXCLUDES: Exclude[] = ['neighbors', 'chapter', 'book', 'known']
 
 export const DEFAULT_MODE: Mode = 'fused'
@@ -16,9 +18,9 @@ export function parseMode(v: string | null, modes: Mode[] = MODES): Mode {
   return modes.includes(v as Mode) ? (v as Mode) : DEFAULT_MODE
 }
 
-export function parseK(v: string | null): number {
+export function parseK(v: string | null, options: readonly number[] = K_OPTIONS): number {
   const k = Number(v)
-  return (K_OPTIONS as readonly number[]).includes(k) ? k : DEFAULT_K
+  return options.includes(k) ? k : DEFAULT_K
 }
 
 /** 1-based page from a `page` parameter (anything invalid → 1). */

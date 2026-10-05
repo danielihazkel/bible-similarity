@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
-import { getJson, getJsonWithTotal } from './client'
+import { getJson, getJsonWithTotal, type Params } from './client'
 import type {
   Acrostic,
   AcrosticsResponse,
@@ -63,10 +63,10 @@ const forever = { staleTime: Infinity, gcTime: 30 * 60_000 }
 export const useBooks = () =>
   useQuery({ queryKey: ['books'], queryFn: ({ signal }) => getJson<Book[]>('/books', {}, signal), ...forever })
 
-export const useUnits = (type: UnitType, book: number | undefined) =>
+export const useUnits = (type: UnitType, book: number | undefined, chapter?: number) =>
   useQuery({
-    queryKey: ['units', type, book],
-    queryFn: ({ signal }) => getJson<UnitSummary[]>(`/units/${type}`, { book }, signal),
+    queryKey: ['units', type, book, chapter],
+    queryFn: ({ signal }) => getJson<UnitSummary[]>(`/units/${type}`, { book, chapter }, signal),
     enabled: book !== undefined,
     ...forever,
   })
@@ -113,10 +113,10 @@ export const useCompare = (a: string | undefined, b: string | undefined) =>
     ...forever,
   })
 
-export const useSearch = (q: string, mode: Mode, k: number, enabled = true) =>
+export const useSearch = (q: string, mode: Mode, k: number, enabled = true, book?: number) =>
   useQuery({
-    queryKey: ['search', q, mode, k],
-    queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k }, signal),
+    queryKey: ['search', q, mode, k, book],
+    queryFn: ({ signal }) => getJson<SearchResponse>('/search', { q, mode, k, book }, signal),
     // the API rejects queries without Hebrew letters (e.g. an English reference)
     enabled: enabled && hasHebrew(q),
     ...forever,
@@ -131,20 +131,23 @@ export interface DiscoveriesQuery {
   offset: number
 }
 
+/** API parameters of `useDiscoveries` (also used by the page's full CSV export). */
+export const discoveriesParams = (q: DiscoveriesQuery): Params => ({
+  unit_type: q.unitType,
+  mode: q.mode,
+  book: q.book,
+  cross_book: q.crossBook ? 'true' : undefined,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useDiscoveries = (q: DiscoveriesQuery) =>
   useQuery({
     queryKey: ['discoveries', q],
     queryFn: ({ signal }) =>
       getJson<DiscoveriesResponse>(
         '/discoveries',
-        {
-          unit_type: q.unitType,
-          mode: q.mode,
-          book: q.book,
-          cross_book: q.crossBook ? 'true' : undefined,
-          limit: q.limit,
-          offset: q.offset,
-        },
+        discoveriesParams(q),
         signal,
       ),
     placeholderData: keepPreviousData,
@@ -194,20 +197,23 @@ export interface PhrasesQuery {
   offset: number
 }
 
+/** API parameters of `usePhrases` (also used by the page's full CSV export). */
+export const phrasesParams = (q: PhrasesQuery): Params => ({
+  book: q.book,
+  cross_book: q.crossBook ? 'true' : undefined,
+  min_tokens: q.minTokens,
+  max_spread: q.maxSpread,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const usePhrases = (q: PhrasesQuery) =>
   useQuery({
     queryKey: ['phrases', q],
     queryFn: ({ signal }) =>
       getJson<PhrasesResponse>(
         '/phrases',
-        {
-          book: q.book,
-          cross_book: q.crossBook ? 'true' : undefined,
-          min_tokens: q.minTokens,
-          max_spread: q.maxSpread,
-          limit: q.limit,
-          offset: q.offset,
-        },
+        phrasesParams(q),
         signal,
       ),
     placeholderData: keepPreviousData,
@@ -230,14 +236,23 @@ export interface StructureQuery {
   offset: number
 }
 
+/** API parameters of `useStructureRanking` (also used by the page's full CSV export). */
+export const structureParams = (q: StructureQuery): Params => ({
+  unit_type: q.unitType,
+  by: q.by,
+  min_verses: q.minVerses,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useStructureRanking = (q: StructureQuery) =>
   useQuery({
     queryKey: ['structure-ranking', q],
     queryFn: ({ signal }) =>
       getJson<StructureRankingResponse>(
-        '/structure',
-        { unit_type: q.unitType, by: q.by, min_verses: q.minVerses, limit: q.limit, offset: q.offset },
-        signal,
+  '/structure',
+  structureParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -294,22 +309,25 @@ export interface SequencesQuery {
   offset: number
 }
 
+/** API parameters of `useSequences` (also used by the page's full CSV export). */
+export const sequencesParams = (q: SequencesQuery): Params => ({
+  book: q.book,
+  cross_book: q.crossBook ? 'true' : undefined,
+  hide_same_chapter: q.hideSameChapter ? 'true' : undefined,
+  max_q: q.maxQ,
+  unit: q.unit,
+  direction: q.direction,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useSequences = (q: SequencesQuery, enabled = true) =>
   useQuery({
     queryKey: ['sequences', q],
     queryFn: ({ signal }) =>
       getJson<SequencesResponse>(
         '/sequences',
-        {
-          book: q.book,
-          cross_book: q.crossBook ? 'true' : undefined,
-          hide_same_chapter: q.hideSameChapter ? 'true' : undefined,
-          max_q: q.maxQ,
-          unit: q.unit,
-          direction: q.direction,
-          limit: q.limit,
-          offset: q.offset,
-        },
+        sequencesParams(q),
         signal,
       ),
     enabled,
@@ -333,14 +351,23 @@ export interface ChangesQuery {
   offset: number
 }
 
+/** API parameters of `useChanges` (also used by the page's full CSV export). */
+export const changesParams = (q: ChangesQuery): Params => ({
+  op: q.op,
+  a_book: q.aBook,
+  b_book: q.bBook,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useChanges = (q: ChangesQuery) =>
   useQuery({
     queryKey: ['changes', q],
     queryFn: ({ signal }) =>
       getJson<ChangesResponse>(
-        '/changes',
-        { op: q.op, a_book: q.aBook, b_book: q.bBook, limit: q.limit, offset: q.offset },
-        signal,
+  '/changes',
+  changesParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -362,19 +389,22 @@ export interface ParallelismQuery {
   offset: number
 }
 
+/** API parameters of `useParallelism` (also used by the page's full CSV export). */
+export const parallelismParams = (q: ParallelismQuery): Params => ({
+  unit_type: q.unitType,
+  book: q.book,
+  exclude_poetic: q.excludePoetic ? 'true' : undefined,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useParallelism = (q: ParallelismQuery) =>
   useQuery({
     queryKey: ['parallelism-ranking', q],
     queryFn: ({ signal }) =>
       getJson<ParallelismResponse>(
         '/parallelism',
-        {
-          unit_type: q.unitType,
-          book: q.book,
-          exclude_poetic: q.excludePoetic ? 'true' : undefined,
-          limit: q.limit,
-          offset: q.offset,
-        },
+        parallelismParams(q),
         signal,
       ),
     placeholderData: keepPreviousData,
@@ -389,14 +419,23 @@ export interface WordplayQuery {
   offset: number
 }
 
+/** API parameters of `useWordplay` (also used by the page's full CSV export). */
+export const wordplayParams = (q: WordplayQuery): Params => ({
+  book: q.book,
+  kind: q.kind,
+  unit: q.unit,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useWordplay = (q: WordplayQuery) =>
   useQuery({
     queryKey: ['wordplay', q],
     queryFn: ({ signal }) =>
       getJson<WordplayResponse>(
-        '/wordplay',
-        { book: q.book, kind: q.kind, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
+  '/wordplay',
+  wordplayParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -410,14 +449,23 @@ export interface EntitiesQuery {
   offset: number
 }
 
+/** API parameters of `useEntities` (also used by the page's full CSV export). */
+export const entitiesParams = (q: EntitiesQuery): Params => ({
+  kind: q.kind,
+  book: q.book,
+  q: q.q,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useEntities = (q: EntitiesQuery) =>
   useQuery({
     queryKey: ['entities', q],
     queryFn: ({ signal }) =>
       getJson<EntitiesResponse>(
-        '/entities',
-        { kind: q.kind, book: q.book, q: q.q, limit: q.limit, offset: q.offset },
-        signal,
+  '/entities',
+  entitiesParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -481,15 +529,23 @@ export interface AcrosticsQuery {
   offset: number
 }
 
+/** API parameters of `useAcrostics` (also used by the page's full CSV export). */
+export const acrosticsParams = (q: AcrosticsQuery): Params => ({
+  max_q: q.maxQ ?? 1,
+  book: q.book,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useAcrostics = (q: AcrosticsQuery) =>
   useQuery({
     queryKey: ['acrostics', q],
     queryFn: ({ signal }) =>
       getJson<AcrosticsResponse>(
-        '/acrostics',
-        // the API's default is q <= 0.05: 'all' is sent as max_q=1
-        { max_q: q.maxQ ?? 1, book: q.book, limit: q.limit, offset: q.offset },
-        signal,
+  '/acrostics',
+  // the API's default is q <= 0.05: 'all' is sent as max_q=1
+  acrosticsParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -512,14 +568,24 @@ export interface RewritesQuery {
   offset: number
 }
 
+/** API parameters of `useRewrites` (also used by the page's full CSV export). */
+export const rewritesParams = (q: RewritesQuery): Params => ({
+  a_book: q.aBook,
+  b_book: q.bBook,
+  op: q.op,
+  max_q: q.maxQ ?? 1,
+  limit: q.limit,
+  offset: q.offset,
+})
+
 export const useRewrites = (q: RewritesQuery) =>
   useQuery({
     queryKey: ['rewrites', q],
     queryFn: ({ signal }) =>
       getJson<RewritesResponse>(
-        '/rewrites',
-        { a_book: q.aBook, b_book: q.bBook, op: q.op, max_q: q.maxQ ?? 1, limit: q.limit, offset: q.offset },
-        signal,
+  '/rewrites',
+  rewritesParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,
@@ -555,14 +621,29 @@ export const useUnitNetwork = (unitId: string | undefined) =>
     ...forever,
   })
 
-export const useWordPairs = (q: { maxQ?: number; lemma?: string; limit: number; offset: number }) =>
+export interface WordPairsQuery {
+  maxQ?: number
+  lemma?: string
+  limit: number
+  offset: number
+}
+
+/** API parameters of `useWordPairs` (also used by the page's full CSV export). */
+export const wordPairsParams = (q: WordPairsQuery): Params => ({
+  max_q: q.maxQ ?? 1,
+  lemma: q.lemma,
+  limit: q.limit,
+  offset: q.offset,
+})
+
+export const useWordPairs = (q: WordPairsQuery) =>
   useQuery({
     queryKey: ['word-pairs', q],
     queryFn: ({ signal }) =>
       getJson<WordPairsResponse>(
-        '/word-pairs',
-        { max_q: q.maxQ ?? 1, lemma: q.lemma, limit: q.limit, offset: q.offset },
-        signal,
+  '/word-pairs',
+  wordPairsParams(q),
+  signal,
       ),
     placeholderData: keepPreviousData,
     ...forever,

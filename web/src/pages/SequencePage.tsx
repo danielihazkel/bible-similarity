@@ -85,6 +85,7 @@ function Rung({ row, a, b, marks }: { row: LadderRow; a?: Verse; b?: Verse; mark
             {row.gold ? '★' : row.loose ? '≈' : ''}
           </span>
         )}
+        {pair && row.cosine !== null && <span className="rung-cos">{row.cosine.toFixed(2)}</span>}
       </div>
       <Side verse={b} highlight={marks ? diffHighlight(row.b_marks) : undefined} />
     </li>

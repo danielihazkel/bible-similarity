@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { getJson } from '../api/client'
 import { useBooks, useUnit, useUnits } from '../api/hooks'
-import type { ResolveResponse, UnitType } from '../api/types'
+import type { ResolveResponse, UnitSummary, UnitType } from '../api/types'
 import { unitTypeLabel } from '../lib/format'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha', 'verse']
@@ -29,7 +29,11 @@ export function UnitPicker({ label, value, onChange }: Props) {
   const books = booksQuery.data ?? []
   const torah = books.filter((b) => b.section === 'Torah').map((b) => b.book_id)
   const visibleBooks = type === 'parasha' ? books.filter((b) => torah.includes(b.book_id)) : books
-  const unitsQuery = useUnits(type, book)
+  // verses: a chapter at a time (a whole book's verses make a select of thousands of options)
+  const nChapters = books.find((b) => b.book_id === book)?.n_chapters ?? 0
+  const [chapterChoice, setChapter] = useState<number>()
+  const chapter = type === 'verse' ? (chapterChoice ?? currentChapter(current) ?? 1) : undefined
+  const unitsQuery = useUnits(type, book, chapter)
   const units = unitsQuery.data ?? []
 
   const queryClient = useQueryClient()
@@ -78,6 +82,15 @@ export function UnitPicker({ label, value, onChange }: Props) {
           </option>
         ))}
       </select>
+      {type === 'verse' && book !== undefined && nChapters > 0 && (
+        <select aria-label={`${label} chapter`} value={chapter} onChange={(e) => setChapter(Number(e.target.value))}>
+          {Array.from({ length: nChapters }, (_, i) => i + 1).map((c) => (
+            <option key={c} value={c}>
+              Chapter {c}
+            </option>
+          ))}
+        </select>
+      )}
       <select
         aria-label={`${label} unit`}
         value={units.some((u) => u.unit_id === value) ? value : ''}
@@ -112,4 +125,11 @@ export function UnitPicker({ label, value, onChange }: Props) {
       )}
     </fieldset>
   )
+}
+
+/** The chapter of a verse unit, from its label ("Genesis 1:1" -> 1). */
+function currentChapter(u: UnitSummary | undefined): number | undefined {
+  if (u?.unit_type !== 'verse') return undefined
+  const m = /(\d+):\d+$/.exec(u.label_en)
+  return m ? Number(m[1]) : undefined
 }

@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
-import { useBooks, useDiscoveries } from '../api/hooks'
+import { useBooks, useDiscoveries, discoveriesParams } from '../api/hooks'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
-import { Pager } from '../components/Pager'
+import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { formatScore, MODE_HINTS, unitTypeLabel } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
@@ -29,7 +29,8 @@ export function DiscoveriesPage() {
   const crossBook = params.get('cross') === '1'
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const disc = useDiscoveries({ unitType, mode, book, crossBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const query = { unitType, mode, book, crossBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const disc = useDiscoveries(query)
   const pages = disc.data ? Math.max(1, Math.ceil(disc.data.total / PAGE_SIZE)) : 1
   // Any filter change returns to the first page.
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
@@ -72,13 +73,14 @@ export function DiscoveriesPage() {
       ) : disc.error ? (
         <ErrorBox error={disc.error} />
       ) : disc.data.items.length === 0 ? (
-        <p className="status">No unlinked pairs match these filters.</p>
+        <EmptyList total={disc.data.total} limit={disc.data.limit}>No unlinked pairs match these filters.</EmptyList>
       ) : (
         <>
           <p className="muted small">
             {disc.data.total.toLocaleString()} pairs · page {page} of {pages}
             {' · '}
             <ExportCsv
+              all={{ list: 'discoveries', params: discoveriesParams(query) }}
               filename={`discoveries-${unitType}-${mode}-p${page}.csv`}
               rows={() =>
                 disc.data.items.map((d) => ({

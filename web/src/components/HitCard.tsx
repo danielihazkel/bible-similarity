@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
-import type { ExplainResponse, Hit, Mode, UnitSummary } from '../api/types'
-import { highlightFor } from '../lib/highlight'
+import type { ExplainResponse, Hit, Mode, UnitSummary, VerseDiff } from '../api/types'
+import { diffHighlight, highlightFor } from '../lib/highlight'
+import { DiffLegend } from './DiffLegend'
 import { compareLink, unitLink } from '../lib/links'
 import { HebrewPlain, HebrewText } from './HebrewText'
 import { LemmaChips } from './LemmaChips'
@@ -20,12 +21,21 @@ interface Props {
   onHover?: (on: boolean) => void
   onTogglePin?: () => void
   onFocusLemma?: (lemma: string | undefined) => void
+  /** Mark the word-level changes from the source verse (`diff`) instead of the shared words. */
+  marks?: 'shared' | 'changes'
+  diff?: VerseDiff
 }
 
 export function HitCard(p: Props) {
   const { hit, mode, source } = p
   const isVerse = hit.verse !== null
   const explain = p.active ? p.explain : undefined
+  const changes = p.marks === 'changes'
+  const highlight = changes
+    ? p.active
+      ? diffHighlight(p.diff?.b_marks)
+      : undefined
+    : highlightFor(explain, 'b', p.focusLemma)
   return (
     <li
       className={`hit ${p.active ? 'active' : ''} ${p.pinned ? 'pinned' : ''}`}
@@ -54,9 +64,9 @@ export function HitCard(p: Props) {
               className="linkish"
               aria-pressed={p.pinned}
               onClick={p.onTogglePin}
-              title="Keep the shared words highlighted"
+              title={changes ? 'Keep the word changes marked' : 'Keep the shared words highlighted'}
             >
-              {p.pinned ? 'Unpin' : 'Shared words'}
+              {p.pinned ? 'Unpin' : changes ? 'Changes' : 'Shared words'}
             </button>
           )}
           <Link className="linkish" to={compareLink(source.unit_id, hit.unit.unit_id)} title="Side-by-side comparison">
@@ -66,7 +76,7 @@ export function HitCard(p: Props) {
       </div>
       {hit.verse ? (
         <p className="hit-text">
-          <HebrewText verse={hit.verse} highlight={highlightFor(explain, 'b', p.focusLemma)} />
+          <HebrewText verse={hit.verse} highlight={highlight} />
         </p>
       ) : (
         hit.preview && (
@@ -76,7 +86,16 @@ export function HitCard(p: Props) {
           </p>
         )
       )}
-      {p.active && isVerse && (
+      {p.active && isVerse && changes && (
+        <div className="small">
+          {p.diff?.loose ? (
+            <span className="muted">Too different to mark word by word.</span>
+          ) : (
+            p.diff && <DiffLegend />
+          )}
+        </div>
+      )}
+      {p.active && isVerse && !changes && (
         <LemmaChips explain={explain} loading={p.explainLoading} focus={p.focusLemma} onFocus={p.onFocusLemma} />
       )}
     </li>
