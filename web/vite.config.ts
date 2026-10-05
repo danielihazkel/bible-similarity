@@ -10,5 +10,6 @@ export default defineConfig({
     proxy: { '/api': 'http://127.0.0.1:8000' },
   },
   build: { outDir: 'dist' },
-  test: { environment: 'node' },  // component tests opt in with `// @vitest-environment jsdom`
+  // component tests opt in with `// @vitest-environment jsdom`; e2e/ is Playwright's (`npm run e2e`)
+  test: { environment: 'node', exclude: ['e2e/**', 'node_modules/**'] },
 })

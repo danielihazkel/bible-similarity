@@ -153,6 +153,7 @@ bible-similarity/
 │       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
+│   ├── e2e/                        # Playwright smoke + axe checks against `bsim serve` (`npm run e2e`, local Edge)
 │   └── src/
 │       ├── api/                    # types mirroring api/models.py, fetch client, TanStack Query hooks
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)

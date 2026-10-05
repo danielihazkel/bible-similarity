@@ -277,5 +277,11 @@ M0 → M1 → M2 → M3 ─┐
 ## H2 — Serving and viewer hardening, part 2
 - [x] `/search` query-embedding LRU; SQLite page cache, mmap, `query_only` per connection
 - [x] `/phrases/{verse}` `limit`; limit / offset edge tests for the newer list endpoints
-- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)
+- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)- [x] Viewer: lazy page chunks (entry bundle 358 → 235 kB); Search shows the real encoder status from `/api/meta` (polled until ready)
+- [x] Viewer: "Export page (CSV)" on the list pages (UTF-8 + BOM)
+- [x] Tests: Books / Search / Compare pages, CSV, navigation (vitest)
+- [x] End-to-end: `npm run e2e` — Playwright in the installed Edge against `bsim serve` + the real DB: 16 pages load with no console errors at desktop and phone width, both navigation modes, no sideways scroll at 390 px, axe (WCAG 2 A/AA) with no serious violations in light and dark themes
+- [x] Accessibility fixes found by axe: links in running text underlined; contrast of the "known" green, the person tag, selected name chips and the pager buttons
+
+✔ Every page verified in a real browser for the first time.
 
