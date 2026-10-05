@@ -257,6 +257,18 @@ def phrases(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def sequences(config: ConfigOpt = None) -> None:
+    """Find passages that run parallel verse by verse in the same order."""
+    from bsim.analysis.sequences import run_sequences
+
+    try:
+        run_sequences(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""
     from bsim.analysis.structure import run_structure

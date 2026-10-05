@@ -8,6 +8,8 @@ import { ConcordancePage } from './pages/ConcordancePage'
 import { DiscoveriesPage } from './pages/DiscoveriesPage'
 import { MapPage } from './pages/MapPage'
 import { PhrasesPage } from './pages/PhrasesPage'
+import { SequencePage } from './pages/SequencePage'
+import { SequencesPage } from './pages/SequencesPage'
 import { StructurePage } from './pages/StructurePage'
 import { StylometryPage } from './pages/StylometryPage'
 import { SearchPage } from './pages/SearchPage'
@@ -25,6 +27,8 @@ export function App() {
           <Route path="discoveries" element={<DiscoveriesPage />} />
           <Route path="lemma/:lemma" element={<ConcordancePage />} />
           <Route path="phrases" element={<PhrasesPage />} />
+          <Route path="sequences" element={<SequencesPage />} />
+          <Route path="sequences/:seqId" element={<SequencePage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />

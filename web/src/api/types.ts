@@ -391,3 +391,49 @@ export interface Meta {
   build: Record<string, unknown>
   runtime: Record<string, unknown>
 }
+
+export interface SequenceSummary {
+  seq_id: number
+  a_start: number
+  a_end: number
+  b_start: number
+  b_end: number
+  a_label: string
+  b_label: string
+  a_label_he: string
+  b_label_he: string
+  a_book: number
+  b_book: number
+  same_chapter: boolean
+  n_pairs: number
+  score: number
+  q: number
+  n_gold: number
+}
+
+export interface SequencesResponse {
+  book: number | null
+  cross_book: boolean
+  hide_same_chapter: boolean
+  max_q: number | null
+  min_pairs: number
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: SequenceSummary[]
+}
+
+export interface LadderRow {
+  a: number | null
+  b: number | null
+  weight: number | null
+  cosine: number | null
+  gold: boolean
+}
+
+export interface SequenceDetail {
+  sequence: SequenceSummary
+  rows: LadderRow[]
+  verses: Record<string, Verse>
+}

@@ -142,6 +142,56 @@ class PhrasesResponse(BaseModel):
     items: list[PhrasePair]
 
 
+class SequenceSummary(BaseModel):
+    """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
+
+    seq_id: int
+    a_start: int
+    a_end: int
+    b_start: int
+    b_end: int
+    a_label: str  # "Genesis 24:2–16"
+    b_label: str
+    a_label_he: str
+    b_label_he: str
+    a_book: int
+    b_book: int
+    same_chapter: bool
+    n_pairs: int  # aligned verse pairs
+    score: float  # chain score (pair weights minus gap costs)
+    q: float  # expected share of chance chains at least this strong
+    n_gold: int  # aligned pairs that are Sefaria links
+
+
+class SequencesResponse(BaseModel):
+    book: int | None
+    cross_book: bool
+    hide_same_chapter: bool
+    max_q: float | None
+    min_pairs: int
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[SequenceSummary]
+
+
+class LadderRow(BaseModel):
+    """One row of the side-by-side view: an aligned pair, or a verse skipped on one side."""
+
+    a: int | None
+    b: int | None
+    weight: float | None = None  # candidate weight (1 = rank 1 in the fused list)
+    cosine: float | None = None  # semantic cosine of the pair
+    gold: bool = False
+
+
+class SequenceDetail(BaseModel):
+    sequence: SequenceSummary
+    rows: list[LadderRow]
+    verses: dict[int, Verse]
+
+
 class WordRef(BaseModel):
     idx: int  # words.idx (OSHB word order)
     display_idx: int | None  # index into the verse's display_tokens; None when unaligned

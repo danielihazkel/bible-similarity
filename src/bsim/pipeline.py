@@ -121,6 +121,12 @@ def stage_phrases(cfg: dict[str, Any], log: Log) -> None:
     run_phrases(cfg, log=log)
 
 
+def stage_sequences(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.sequences import run_sequences
+
+    run_sequences(cfg, log=log)
+
+
 def stage_structure(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.structure import run_structure
 
@@ -160,6 +166,7 @@ STAGES: dict[str, str] = {
     "fuse": "stage_fuse",
     "evaluate": "stage_evaluate",
     "phrases": "stage_phrases",
+    "sequences": "stage_sequences",
     "structure": "stage_structure",
     "map": "stage_map",
     "stylometry": "stage_stylometry",

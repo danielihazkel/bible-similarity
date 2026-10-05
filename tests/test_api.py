@@ -423,3 +423,29 @@ def test_stylometry(client):
     assert book["n_words"] == 10 and book["over"] and book["under"]
     assert book["closest"][0]["a"] == 0
     assert client.get("/api/stylometry/book/99").status_code == 404
+
+
+def test_sequences(client):
+    body = client.get("/api/sequences").json()
+    assert body["total"] == 2 and [s["seq_id"] for s in body["items"]] == [1, 2]
+    first = body["items"][0]
+    assert (first["a_label"], first["b_label"]) == ("v:0–1", "v:3–4")
+    assert first["n_gold"] == 1  # (1, 4) lies inside the passage-level link v1-v2 <-> v3-v4
+    ids = lambda q: [s["seq_id"] for s in client.get(f"/api/sequences?{q}").json()["items"]]  # noqa: E731
+    assert ids("cross_book=true") == [2]
+    assert ids("max_q=0.05") == [1]
+    assert ids("unit=c:1:1") == [2]
+    assert ids("unit=c:0:1") == [1, 2]
+    assert ids("book=1") == [2]
+    assert client.get("/api/sequences?unit=nope").status_code == 404
+    assert client.get("/api/sequences?max_q=2").status_code == 422
+    assert client.get("/api/sequences?limit=0").status_code == 422
+
+
+def test_sequence_detail(client):
+    d = client.get("/api/sequences/1").json()
+    assert d["sequence"]["n_pairs"] == 2
+    assert [(r["a"], r["b"], r["gold"]) for r in d["rows"]] == [(0, 3, False), (1, 4, True)]
+    assert d["rows"][1]["cosine"] == pytest.approx(0.8 * 0.0 + 0.6 * 0.0)  # v1 . v4
+    assert sorted(d["verses"]) == ["0", "1", "3", "4"]
+    assert client.get("/api/sequences/99").status_code == 404

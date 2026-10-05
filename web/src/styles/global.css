@@ -1239,3 +1239,64 @@ svg[tabindex]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ---------- Parallel sequences ---------- */
+
+.q-strong {
+  color: var(--known);
+  font-weight: 600;
+}
+.ladder {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.rung {
+  display: grid;
+  grid-template-columns: 1fr 2.2rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.8rem;
+}
+.rung.skip {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.75;
+}
+.rung-mid {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.35rem;
+}
+.rung-mid .sim-swatch {
+  width: 1.8rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  line-height: 1.1rem;
+  text-align: center;
+  color: var(--text);
+}
+.rung-side .hit-text {
+  font-size: 1.15rem;
+  margin: 0.15rem 0 0;
+}
+@media (max-width: 720px) {
+  .rung {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .rung-side.empty {
+    display: none;
+  }
+  .rung-mid {
+    justify-content: flex-start;
+    padding: 0;
+  }
+}

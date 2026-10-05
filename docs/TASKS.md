@@ -218,3 +218,11 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Real DB: warm startup 1.8 s → 0.13 s (surface index cached); `/structure/c:0:1` 201 ms → 28 ms on repeat; responses gzipped.
 
+## M22 — Parallel sequences (roadmap A7)
+- [x] `analysis/sequences.py` + `bsim sequences` (pipeline stage after phrases, ~33 s): same-order chains over the fused verse top-20, within-chapter shuffle null, q-values
+- [x] `sequences` table with per-pair gold flags and `n_gold`; `/sequences` (book, cross-book, same-chapter, q, unit filters; paginated) and `/sequences/{id}` (ladder rows with skipped verses, cosine, gold)
+- [x] Viewer: Sequences page, side-by-side ladder page, "Runs parallel to" panel on unit pages
+- [x] Tests: candidates, chaining rules, shuffle, q-values (pytest); store + endpoints; Sequences / ladder pages (vitest)
+
+✔ Isaiah 36–38 ↔ II Kings 18–20, Ezra 2 ↔ Nehemiah 7, II Sam 22 ↔ Ps 18 and the Tabernacle command / execution chains lead; Genesis 24's retold journey is found (q 0.016).
+

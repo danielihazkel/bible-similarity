@@ -229,6 +229,51 @@ def lemma_page(
 
 
 PHRASE_COLS = "a, b, score, n_tokens, a_words, b_words, spread"
+SEQUENCE_COLS = (
+    "seq_id, a_start, a_end, b_start, b_end, a_book, b_book, same_chapter, n_pairs, score, q,"
+    " n_gold"
+)
+
+
+def sequences_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    cross_book: bool,
+    hide_same_chapter: bool,
+    max_q: float | None,
+    min_pairs: int,
+    span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Chains, strongest first; `span` = (first, last) verse id: chains touching it."""
+    where, args = "n_pairs >= ?", [min_pairs]
+    if max_q is not None:
+        where += " AND q <= ?"
+        args.append(max_q)
+    if book_id is not None:
+        where += " AND (a_book = ? OR b_book = ?)"
+        args += [book_id, book_id]
+    if cross_book:
+        where += " AND a_book != b_book"
+    if hide_same_chapter:
+        where += " AND same_chapter = 0"
+    if span is not None:
+        where += " AND ((a_start <= ? AND a_end >= ?) OR (b_start <= ? AND b_end >= ?))"
+        args += [span[1], span[0], span[1], span[0]]
+    total = conn.execute(f"SELECT COUNT(*) FROM sequences WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT {SEQUENCE_COLS} FROM sequences WHERE {where}"
+        " ORDER BY score DESC, seq_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
+    cur = conn.execute(f"SELECT {SEQUENCE_COLS}, pairs FROM sequences WHERE seq_id = ?", (seq_id,))
+    rows = _dicts(cur)
+    return rows[0] if rows else None
 
 
 def phrases_of(conn: sqlite3.Connection, verse_id: int) -> list[dict[str, Any]]:

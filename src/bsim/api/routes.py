@@ -32,6 +32,7 @@ from bsim.api.models import (
     ExplainResponse,
     GoldLink,
     Hit,
+    LadderRow,
     Leitwort,
     LemmaForm,
     LemmaStat,
@@ -48,6 +49,9 @@ from bsim.api.models import (
     SearchHit,
     SearchMode,
     SearchResponse,
+    SequenceDetail,
+    SequencesResponse,
+    SequenceSummary,
     SharedLemma,
     SimilarResponse,
     StructureBasis,
@@ -548,6 +552,97 @@ def phrases(
         "offset": offset,
         "limit": limit,
         "items": _phrase_pairs(conn, rows),
+    }
+
+
+def _sequence_summaries(
+    conn: sqlite3.Connection, rows: list[dict[str, Any]]
+) -> list[SequenceSummary]:
+    ends = [v for r in rows for v in (r["a_start"], r["a_end"], r["b_start"], r["b_end"])]
+    labels = queries.verse_labels(conn, ends)
+
+    def span(first: int, last: int, lang: int) -> str:
+        a, b = labels[first][lang], labels[last][lang]
+        if first == last:
+            return a
+        # "Genesis 24:2" + "Genesis 24:16" -> "Genesis 24:2–16"
+        common = 0
+        while common < min(len(a), len(b)) and a[common] == b[common]:
+            common += 1
+        cut = max(a.rfind(" ", 0, common), a.rfind(":", 0, common)) + 1
+        return f"{a}–{b[cut:]}" if cut > 0 else f"{a} – {b}"
+
+    return [
+        SequenceSummary(
+            **{k: r[k] for k in r if k != "pairs"},
+            a_label=span(r["a_start"], r["a_end"], 0),
+            b_label=span(r["b_start"], r["b_end"], 0),
+            a_label_he=span(r["a_start"], r["a_end"], 1),
+            b_label_he=span(r["b_start"], r["b_end"], 1),
+        )
+        for r in rows
+    ]
+
+
+@router.get("/sequences", response_model=SequencesResponse)
+def sequences(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    cross_book: bool = False,
+    hide_same_chapter: bool = False,
+    max_q: float | None = None,
+    min_pairs: int = 1,  # stored chains already have `sequences.min_pairs`
+    unit: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Passages that run parallel in the same verse order, strongest first (DESIGN.md §16.7);
+    `unit`: only chains touching that unit's verses."""
+    _page(state, limit, offset)
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise _unprocessable("max_q must be between 0 and 1")
+    span = None
+    if unit is not None:
+        u = _unit_or_404(conn, unit)
+        span = (u["start_verse_id"], u["end_verse_id"])
+    total, rows = queries.sequences_page(
+        conn, book, cross_book, hide_same_chapter, max_q, min_pairs, span, limit, offset
+    )
+    return {
+        "book": book,
+        "cross_book": cross_book,
+        "hide_same_chapter": hide_same_chapter,
+        "max_q": max_q,
+        "min_pairs": min_pairs,
+        "unit": unit,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": _sequence_summaries(conn, rows),
+    }
+
+
+@router.get("/sequences/{seq_id}", response_model=SequenceDetail)
+def sequence_detail(seq_id: int, state: State, conn: Conn) -> dict[str, Any]:
+    """One chain side by side: aligned pairs, plus the verses skipped on either side."""
+    r = queries.sequence(conn, seq_id)
+    if r is None:
+        raise HTTPException(status_code=404, detail=f"unknown sequence {seq_id}")
+    pairs = [(int(a), int(b), float(w), bool(g)) for a, b, w, g in json.loads(r["pairs"])]
+    rows: list[LadderRow] = []
+    for k, (a, b, w, gold) in enumerate(pairs):
+        if k:
+            pa, pb = pairs[k - 1][:2]
+            rows += [LadderRow(a=x, b=None) for x in range(pa + 1, a)]
+            rows += [LadderRow(a=None, b=y) for y in range(pb + 1, b)]
+        cos = float(np.dot(state.emb[a], state.emb[b]))
+        rows.append(LadderRow(a=a, b=b, weight=w, cosine=round(cos, 4), gold=gold))
+    vids = list(range(r["a_start"], r["a_end"] + 1)) + list(range(r["b_start"], r["b_end"] + 1))
+    return {
+        "sequence": _sequence_summaries(conn, [r])[0],
+        "rows": rows,
+        "verses": queries.verses_by_id(conn, vids),
     }
 
 

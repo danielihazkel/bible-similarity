@@ -4,3 +4,5 @@ export const lemmaLink = (lemma: string) => `/lemma/${encodeURIComponent(lemma)}
 
 export const compareLink = (a: string, b: string) =>
   `/compare?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`
+
+export const sequenceLink = (id: number) => `/sequences/${id}`

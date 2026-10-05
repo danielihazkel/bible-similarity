@@ -18,6 +18,8 @@ import type {
   PhrasesResponse,
   ResolveResponse,
   SearchResponse,
+  SequenceDetail,
+  SequencesResponse,
   SimilarResponse,
   StructureRankingResponse,
   StructureResponse,
@@ -244,3 +246,43 @@ export const useBookStyle = (book: number | undefined) =>
 
 export const useMeta = () =>
   useQuery({ queryKey: ['meta'], queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal) })
+
+export interface SequencesQuery {
+  book?: number
+  crossBook?: boolean
+  hideSameChapter?: boolean
+  maxQ?: number
+  unit?: string
+  limit: number
+  offset: number
+}
+
+export const useSequences = (q: SequencesQuery, enabled = true) =>
+  useQuery({
+    queryKey: ['sequences', q],
+    queryFn: ({ signal }) =>
+      getJson<SequencesResponse>(
+        '/sequences',
+        {
+          book: q.book,
+          cross_book: q.crossBook ? 'true' : undefined,
+          hide_same_chapter: q.hideSameChapter ? 'true' : undefined,
+          max_q: q.maxQ,
+          unit: q.unit,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
+    enabled,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useSequence = (id: number | undefined) =>
+  useQuery({
+    queryKey: ['sequence', id],
+    queryFn: ({ signal }) => getJson<SequenceDetail>(`/sequences/${id}`, {}, signal),
+    enabled: id !== undefined,
+    ...forever,
+  })

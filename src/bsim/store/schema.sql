@@ -99,6 +99,24 @@ CREATE TABLE phrases (
     PRIMARY KEY (a, b)
 ) WITHOUT ROWID;
 
+-- Same-order parallel passages (`bsim sequences`, DESIGN.md §16.7); pairs = JSON [[a, b, w, gold], ...];
+-- n_gold = aligned pairs that are a Sefaria gold link (verse- or passage-level, either direction).
+CREATE TABLE sequences (
+    seq_id INTEGER PRIMARY KEY,     -- 1 = strongest chain
+    a_start INTEGER NOT NULL,
+    a_end INTEGER NOT NULL,
+    b_start INTEGER NOT NULL,
+    b_end INTEGER NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    same_chapter INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,
+    score REAL NOT NULL,
+    q REAL NOT NULL,                -- expected share of chance chains at least this strong
+    pairs TEXT NOT NULL,
+    n_gold INTEGER NOT NULL
+);
+
 -- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
 CREATE TABLE structure (
     unit_id TEXT PRIMARY KEY,

@@ -40,3 +40,6 @@ export function similarityBand(cosine: number): number {
 export function unitTypeLabel(type: string): string {
   return { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }[type] ?? type
 }
+
+/** q as a short label: the expected share of chance chains at least this strong. */
+export const qLabel = (q: number) => (q < 0.001 ? 'q < 0.001' : `q = ${q < 0.01 ? q.toFixed(3) : q.toFixed(2)}`)

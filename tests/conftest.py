@@ -187,6 +187,27 @@ def write_inputs(cfg, tmp_path):
         [(a, b, sc, n, json.dumps(wa), json.dumps(wb), s) for a, b, sc, n, wa, wb, s in PHRASES],
         columns=["a", "b", "score", "n_tokens", "a_words", "b_words", "spread"],
     ).to_parquet(art / "phrases" / "verse.parquet")
+    (art / "sequences").mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (1, 0, 1, 3, 4, 0, 0, False, 2, 1.9, 0.01, json.dumps([[0, 3, 1.0], [1, 4, 0.9]])),
+            (2, 1, 2, 5, 5, 0, 1, False, 2, 1.2, 0.30, json.dumps([[1, 5, 0.6], [2, 5, 0.6]])),
+        ],
+        columns=[
+            "seq_id",
+            "a_start",
+            "a_end",
+            "b_start",
+            "b_end",
+            "a_book",
+            "b_book",
+            "same_chapter",
+            "n_pairs",
+            "score",
+            "q",
+            "pairs",
+        ],
+    ).to_parquet(art / "sequences" / "verse.parquet")
     emb_dir = art / "embeddings"
     emb_dir.mkdir(parents=True, exist_ok=True)
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)

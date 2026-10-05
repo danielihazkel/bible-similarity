@@ -14,6 +14,8 @@ Derived columns:
   `unit`: only a passage-level link covers them (its ranges expanded to verse pairs).
 - `discoveries`: the strong pairs Sefaria does not link (`discoveries()`).
 - `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
+- `sequences`: `bsim sequences` chains (`artifacts/sequences/verse.parquet`); each aligned pair
+  gains a gold flag (`gold_verse_pairs`, either direction) and `n_gold` counts them.
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
@@ -59,6 +61,8 @@ INDEXES = (
     "CREATE INDEX discoveries_by_score ON discoveries (unit_type, mode, score DESC, tie DESC)",
     "CREATE INDEX phrases_by_b ON phrases (b)",
     "CREATE INDEX phrases_by_score ON phrases (score DESC)",
+    "CREATE INDEX sequences_by_a ON sequences (a_start, a_end)",
+    "CREATE INDEX sequences_by_b ON sequences (b_start, b_end)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -123,6 +127,21 @@ TABLE_COLUMNS = {
         "b_book",
     ],
     "phrases": ["a", "b", "score", "n_tokens", "a_words", "b_words", "spread", "a_book", "b_book"],
+    "sequences": [
+        "seq_id",
+        "a_start",
+        "a_end",
+        "b_start",
+        "b_end",
+        "a_book",
+        "b_book",
+        "same_chapter",
+        "n_pairs",
+        "score",
+        "q",
+        "pairs",
+        "n_gold",
+    ],
     "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
     "map_clusters": ["unit_type", "cluster", "size", "lemmas"],
@@ -262,6 +281,18 @@ def gold_verse_pairs(links: pd.DataFrame) -> pd.DataFrame:
         .agg(direct=("direct", "any"), types=("types", _join_types))
         .reset_index()
     )
+
+
+def sequence_gold(sequences: pd.DataFrame, gold: pd.DataFrame) -> pd.DataFrame:
+    """`pairs` JSON `[[a, b, w], ...]` -> `[[a, b, w, is_gold], ...]` plus `n_gold`, the aligned
+    pairs that are gold links (either direction)."""
+    linked = set(zip(gold.src.tolist(), gold.tgt.tolist(), strict=True))
+    pairs, counts = [], []
+    for p in sequences.pairs:
+        rows = [[a, b, w, int((a, b) in linked or (b, a) in linked)] for a, b, w in json.loads(p)]
+        pairs.append(json.dumps(rows))
+        counts.append(sum(r[3] for r in rows))
+    return sequences.assign(pairs=pairs, n_gold=counts)
 
 
 def unit_links(
@@ -432,6 +463,10 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim phrases` first")
     out["phrases"] = pd.read_parquet(path)
+    path = resolve_path(cfg, "artifacts") / "sequences" / "verse.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim sequences` first")
+    out["sequences"] = pd.read_parquet(path)
     path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
@@ -554,6 +589,7 @@ def _write_db(
             in_formula=formula_flags(words, len(verses), cfg["lexical"]["formulas"]).astype(int),
         )
         gloss = lemma_display_forms(inputs["words"])
+        gold = gold_verse_pairs(inputs["links"])
         tables = {
             "books": books,
             "verses": verses,
@@ -570,6 +606,9 @@ def _write_db(
             "stylo_points": inputs["stylo_points"],
             "stylo_delta": inputs["stylo_book_delta"],
             "stylo_features": inputs["stylo_book_features"],
+            "sequences": sequence_gold(inputs["sequences"], gold).assign(
+                same_chapter=lambda d: d.same_chapter.astype(int)
+            ),
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
@@ -583,7 +622,7 @@ def _write_db(
 
         log("gold links")
         units, members = inputs["units"], inputs["unit_members"]
-        pairs = gold_verse_pairs(inputs["links"])
+        pairs = gold
         links = {
             unit_type: unit_links(pairs, units, members, unit_type)
             for unit_type in cfg["units"]["types"]

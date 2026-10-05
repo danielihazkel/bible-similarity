@@ -150,6 +150,14 @@ phrases:                      # `bsim phrases`: shared phrases by local alignmen
   min_tokens: 3               # matched lemma tokens
   min_score: 14
 
+sequences:                    # `bsim sequences`: same-order parallel passages (DESIGN.md §16.7)
+  candidate_rank: 20          # verse pairs within either verse's fused top-N; weight (N+1-rank)/N
+  max_step: 3                 # a chain advances 1..max_step verses on each side
+  gap: 0.25                   # cost per skipped verse (either side)
+  min_pairs: 4                # shortest chain kept
+  null_reps: 20               # chapter-internal verse shuffles for q-values
+  seed: 13
+
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
   unit_types: [chapter, pericope, parasha]
   max_verses: 200             # larger units are not scored (and /structure refuses them)

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { useExplain, usePhrasesOf, useSimilar, useUnit } from '../api/hooks'
+import { useExplain, usePhrasesOf, useSequences, useSimilar, useUnit } from '../api/hooks'
 import type { Leitwort, UnitDetail, UnitSummary, Verse } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
 import { PhraseCard } from '../components/PhraseCard'
+import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading } from '../components/Status'
@@ -13,6 +14,10 @@ import { unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
 import { highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
+
+// Parallel sequences touching this unit: only reasonably strong chains, a few at most.
+const SEQUENCE_MAX_Q = 0.2
+const SEQUENCES_SHOWN = 5
 
 export function UnitPage() {
   const unitId = useParams().unitId!
@@ -51,6 +56,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const activeTgt = isVerse ? (pinned ?? hovered) : undefined
   const explain = useExplain(isVerse ? unit.start_verse_id : undefined, activeTgt)
   const phrases = usePhrasesOf(isVerse ? unit.start_verse_id : undefined)
+  const sequences = useSequences({ unit: unit.unit_id, maxQ: SEQUENCE_MAX_Q, limit: SEQUENCES_SHOWN, offset: 0 })
 
   const onHover = (tgt: number, on: boolean) => {
     window.clearTimeout(hoverTimer.current)
@@ -173,6 +179,23 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <ol className="disc-list">
             {phrases.data.map((p) => (
               <PhraseCard key={p.b.unit_id} p={p} />
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {sequences.data && sequences.data.total > 0 && (
+        <section className="results" aria-label="Parallel sequences">
+          <h2>
+            Runs parallel to <span className="muted small">({sequences.data.total})</span>
+          </h2>
+          <p className="muted small">
+            Passages that follow this one verse by verse in the same order (q ≤ {SEQUENCE_MAX_Q}).{' '}
+            <Link to="/sequences">All sequences</Link>
+          </p>
+          <ol className="disc-list">
+            {sequences.data.items.map((s) => (
+              <SequenceCard key={s.seq_id} s={s} />
             ))}
           </ol>
         </section>
