@@ -431,3 +431,11 @@ Phase 3 (M39c): API and viewer
 ✔ Phase 2: antithetic parallelism is recovered where D49 failed; names are typed by the lexicon, confirming the cue heuristic.
 ✔ Phase 3: domains, themes and antithetic lines are browsable in both languages; 72 / 72 fixture and 76 / 76 real-data e2e.
 
+## M40: Senses and uses across the canon (§16.23, D57; roadmap A3)
+- [x] `bsim senses` (`analysis/senses.py`): 611 frequent lemmas over six corpus groups; SDBH meanings and k-means clusters of pretrained-BEREL word vectors (subwords mapped to OSHB words by character offsets); MI against a shuffled-group null, BH q; Hebrew collocates and nearest examples per cluster; clusters vs SDBH NMI 0.20 (shuffled 0.03)
+- [x] Results: senses shift for 296 of 384 lemmas, uses for 539 of 611; גאל, פקד, עדות, קנה lead; תורה and נפש split into readable uses
+- [x] DB `lemma_shifts`, `lemma_senses` (+ `meta.senses`, empty without the stage); API `/shifts`, `/lemma/{lemma}/senses`
+- [x] Viewer: Overview → Shifts; *Senses across the canon* on the concordance (share per group, domains, collocates, highlighted examples); English and Hebrew (group names in the catalogs)
+- [x] Tests: spans and subword mapping, MI and the shuffle test, collocates, the run on the fixture (pytest); the API on the fixture DB; Shifts page and senses panel (vitest); e2e: new pages, axe
+
+✔ A word's senses and uses can be compared across the canon; the dictionary and the contextual reading agree well above chance; 76 / 76 fixture and 80 / 80 real-data e2e.

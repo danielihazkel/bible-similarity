@@ -935,6 +935,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shifts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Shifts
+         * @description Lemmas ranked by how much their dictionary senses (`by=sense`) or contextual uses
+         *     (`by=use`) depend on the corpus group (MI above its shuffled mean), at q ≤ `max_q`.
+         */
+        get: operations["shifts_api_shifts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lemma/{lemma}/senses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lemma Senses
+         * @description One lemma's SDBH meanings and contextual-use clusters by corpus group, with Hebrew
+         *     collocates and example occurrences; empty when the lemma was not compared.
+         */
+        get: operations["lemma_senses_api_lemma__lemma__senses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1583,6 +1625,76 @@ export interface components {
             /** He Lemma */
             he_lemma: string;
         };
+        /** LemmaSense */
+        LemmaSense: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "use" | "sdbh";
+            /** Sense */
+            sense: string;
+            /** N */
+            n: number;
+            /** Groups */
+            groups: {
+                [key: string]: number;
+            };
+            /** Collocates */
+            collocates: components["schemas"]["LemmaForm"][];
+            /** Examples */
+            examples: components["schemas"]["SenseExample"][];
+            /** Domains */
+            domains: string[];
+        };
+        /** LemmaSensesResponse */
+        LemmaSensesResponse: {
+            /** Lemma */
+            lemma: string;
+            /** He Lemma */
+            he_lemma: string;
+            /** Group Order */
+            group_order: string[];
+            shift: components["schemas"]["LemmaShift"] | null;
+            /** Uses */
+            uses: components["schemas"]["LemmaSense"][];
+            /** Senses */
+            senses: components["schemas"]["LemmaSense"][];
+        };
+        /**
+         * LemmaShift
+         * @description How much a lemma's senses and uses depend on the corpus group (DESIGN.md §16.23).
+         */
+        LemmaShift: {
+            /** Lemma */
+            lemma: string;
+            /** He Lemma */
+            he_lemma: string;
+            /** N */
+            n: number;
+            /** Groups */
+            groups: {
+                [key: string]: number;
+            };
+            /** K */
+            k: number;
+            /** Silhouette */
+            silhouette: number;
+            /** Use Excess */
+            use_excess: number;
+            /** Use Q */
+            use_q: number;
+            /** N Senses */
+            n_senses: number;
+            /** Sense Excess */
+            sense_excess: number | null;
+            /** Sense Q */
+            sense_q: number | null;
+            /** Nmi */
+            nmi: number | null;
+            /** Nmi Null */
+            nmi_null: number | null;
+        };
         /** LemmaStat */
         LemmaStat: {
             /** Lemma */
@@ -2046,6 +2158,16 @@ export interface components {
             /** Hits */
             hits: components["schemas"]["SearchHit"][];
         };
+        /** SenseExample */
+        SenseExample: {
+            verse: components["schemas"]["Verse"];
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Display Idx */
+            display_idx: number | null;
+        };
         /** SequenceDetail */
         SequenceDetail: {
             sequence: components["schemas"]["SequenceSummary"];
@@ -2136,6 +2258,30 @@ export interface components {
             a_words: components["schemas"]["WordRef"][];
             /** B Words */
             b_words: components["schemas"]["WordRef"][];
+        };
+        /** ShiftsResponse */
+        ShiftsResponse: {
+            /**
+             * By
+             * @enum {string}
+             */
+            by: "sense" | "use";
+            /** Max Q */
+            max_q: number | null;
+            /** Group Order */
+            group_order: string[];
+            /** Nmi Mean */
+            nmi_mean: number | null;
+            /** Nmi Null Mean */
+            nmi_null_mean: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["LemmaShift"][];
         };
         /** SimilarResponse */
         SimilarResponse: {
@@ -4117,6 +4263,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnitDomains"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shifts_api_shifts_get: {
+        parameters: {
+            query?: {
+                by?: string;
+                max_q?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lemma_senses_api_lemma__lemma__senses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lemma: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LemmaSensesResponse"];
                 };
             };
             /** @description Validation Error */

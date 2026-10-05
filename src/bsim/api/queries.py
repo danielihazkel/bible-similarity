@@ -330,6 +330,45 @@ def unit_domain_weights(
     return [(r[0], r[1]) for r in cur.fetchall()]
 
 
+SHIFT_COLS = (
+    "lemma, n, groups, k, silhouette, use_excess, use_q, n_senses, sense_excess, sense_q, nmi,"
+    " nmi_null"
+)
+
+
+def shifts_page(
+    conn: sqlite3.Connection, by: str, max_q: float | None, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    """Lemmas by `{by}_excess` (sense | use), strongest first, at `{by}_q` ≤ `max_q`."""
+    where, args = f"{by}_excess IS NOT NULL", []
+    if max_q is not None:
+        where += f" AND {by}_q <= ?"
+        args.append(max_q)
+    total = count(conn, f"SELECT COUNT(*) FROM lemma_shifts WHERE {where}", args)
+    cur = conn.execute(
+        f"SELECT {SHIFT_COLS} FROM lemma_shifts WHERE {where}"
+        f" ORDER BY {by}_excess DESC, lemma LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def lemma_shift(conn: sqlite3.Connection, lemma: str) -> dict[str, Any] | None:
+    rows = _dicts(conn.execute(f"SELECT {SHIFT_COLS} FROM lemma_shifts WHERE lemma = ?", (lemma,)))
+    return rows[0] if rows else None
+
+
+def lemma_senses(conn: sqlite3.Connection, lemma: str) -> list[dict[str, Any]]:
+    """A lemma's clusters (by number) then SDBH meanings (most frequent first)."""
+    cur = conn.execute(
+        "SELECT kind, sense, n, groups, collocates, examples, domains FROM lemma_senses"
+        " WHERE lemma = ? ORDER BY kind DESC, CASE kind WHEN 'use' THEN CAST(sense AS INTEGER)"
+        " ELSE -n END, sense",
+        (lemma,),
+    )
+    return _dicts(cur)
+
+
 PHRASE_COLS = "a, b, score, n_tokens, a_words, b_words, spread"
 SEQUENCE_COLS = (
     "seq_id, a_start, a_end, b_start, b_end, direction, a_book, b_book, same_chapter, n_pairs,"

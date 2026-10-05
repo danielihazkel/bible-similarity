@@ -876,3 +876,24 @@ def test_words_domains_and_typed_halves(client):
     assert client.get("/api/parallelism?sort=nope").status_code == 422
     kinds = {e["lemma"]: e["kind_source"] for e in client.get("/api/entities").json()["items"]}
     assert kinds["430"] == "lexicon" and kinds["559"] == "cues"
+
+
+def test_shifts_and_lemma_senses(client):
+    s = client.get("/api/shifts").json()
+    assert s["by"] == "sense" and s["total"] == 1 and s["group_order"] == ["torah"]
+    item = s["items"][0]
+    assert (item["lemma"], item["he_lemma"]) == ("7225", "ראשית")
+    assert item["groups"] == {"torah": 5}
+    assert client.get("/api/shifts?by=use&max_q=0.005").json()["total"] == 0
+    assert client.get("/api/shifts?by=nope").status_code == 422
+    assert client.get("/api/shifts?max_q=2").status_code == 422
+    d = client.get("/api/lemma/7225/senses").json()
+    assert d["shift"]["k"] == 2 and [u["sense"] for u in d["uses"]] == ["0", "1"]
+    use0 = d["uses"][0]
+    assert use0["collocates"] == [{"lemma": "430", "he_lemma": "אלהים"}]
+    examples = [(e["verse"]["verse_id"], e["display_idx"]) for e in use0["examples"]]
+    assert examples == [(0, 0), (2, 0)]
+    (meaning,) = d["senses"]
+    assert meaning["kind"] == "sdbh" and meaning["domains"] == ["002001001"]
+    none = client.get("/api/lemma/559/senses").json()
+    assert none["shift"] is None and none["uses"] == [] and none["senses"] == []

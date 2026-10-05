@@ -80,6 +80,18 @@ def lexicon(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def senses(config: ConfigOpt = None) -> None:
+    """Compare each frequent lemma's SDBH senses and contextual uses across corpus groups."""
+    from bsim.analysis.senses import run_senses
+
+    try:
+        run_senses(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def lexical(config: ConfigOpt = None) -> None:
     """Build the lemma BM25 index and detect formulas."""
     from bsim.lexical.build import run_lexical

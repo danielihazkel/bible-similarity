@@ -21,6 +21,7 @@ COMMANDS = [
     "embed-context",
     "maxsim",
     "retrieval-exp",
+    "senses",
     "build-db",
     "serve",
     "fixture-serve",

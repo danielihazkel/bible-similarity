@@ -6,6 +6,7 @@ import { ovEn } from './pages/overview'
 import { parEn } from './pages/parallels'
 import { patEn } from './pages/patterns'
 import { domEn } from './pages/domains'
+import { senEn } from './pages/senses'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -72,6 +73,7 @@ export const en = {
     map: { label: 'Map', hint: 'Units by meaning, book affinity' },
     network: { label: 'Network', hint: 'Echo communities, most echoed passages' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
+    shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
     eval: { label: 'Evaluation', hint: 'How well known cross-references are found' },
   } satisfies Record<string, string | { label: string; hint: string }>,
 
@@ -364,6 +366,7 @@ export const en = {
   par: parEn,
   pat: patEn,
   dom: domEn,
+  sen: senEn,
   ov: ovEn,
 }
 

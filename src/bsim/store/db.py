@@ -31,6 +31,7 @@ Derived columns:
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `network_nodes`, `network_edges`, `network_communities`: `bsim network`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
+- `lemma_shifts`, `lemma_senses` + `meta.senses`: `bsim senses` (empty without it).
 - `domains`, `domain_verses`, `words.domains` + `meta.lexicon`: `bsim lexicon` word senses
   (`domain_tables`); empty without it. `parallelism.relation*` and `entities.kind_source` come
   from the analyses run with the lexicon.
@@ -251,6 +252,26 @@ TABLE_COLUMNS = {
         "kind_source",
     ],
     "domains": ["code", "level", "parent", "label_en", "n_verses", "weight"],
+    "lemma_shifts": [
+        "lemma",
+        "n",
+        "groups",
+        "k",
+        "silhouette",
+        "use_mi",
+        "use_excess",
+        "use_p",
+        "use_q",
+        "sense_n",
+        "n_senses",
+        "sense_mi",
+        "sense_excess",
+        "sense_p",
+        "sense_q",
+        "nmi",
+        "nmi_null",
+    ],
+    "lemma_senses": ["lemma", "kind", "sense", "n", "groups", "collocates", "examples", "domains"],
     "domain_verses": ["code", "verse_id", "weight"],
     "entity_mentions": ["lemma", "verse_id", "n"],
     "entity_links": ["a", "b", "n_verses", "expected", "g2"],
@@ -736,6 +757,13 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         out[name] = pd.read_parquet(path) if path.exists() else None
     meta_path = proc / "lexicon_meta.json"
     out["lexicon_meta"] = _read_json(meta_path)
+    sense_dir = resolve_path(cfg, "artifacts") / "senses"
+    for name, table in (("lemmas", "lemma_shifts"), ("senses", "lemma_senses")):
+        path = sense_dir / f"{name}.parquet"
+        out[table] = (
+            pd.read_parquet(path) if path.exists() else pd.DataFrame(columns=TABLE_COLUMNS[table])
+        )
+    out["senses_meta"] = _read_json(sense_dir / "senses.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -924,6 +952,8 @@ def _write_db(
             "entity_links": inputs["entity_links"],
             "domains": domains,
             "domain_verses": domain_verses,
+            "lemma_shifts": inputs["lemma_shifts"],
+            "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
             ),
@@ -986,6 +1016,11 @@ def _write_db(
         em = inputs["entities_meta"]
         meta["entities"] = {
             k: em.get(k) for k in ("names", "kinds", "pairs", "kind_sources", "lexicon_vs_cues")
+        }
+        snm = inputs["senses_meta"]
+        meta["senses"] = {
+            k: snm.get(k)
+            for k in ("groups", "encoder", "lemmas", "nmi_mean", "nmi_null_mean", "nmi_lemmas")
         }
         lm = inputs["lexicon_meta"]
         meta["lexicon"] = {

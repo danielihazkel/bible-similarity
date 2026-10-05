@@ -50,6 +50,7 @@ const NAV: NavEntry[] = [
       { to: '/map', key: 'map' },
       { to: '/network', key: 'network' },
       { to: '/style', key: 'style' },
+      { to: '/shifts', key: 'shifts' },
       { to: '/eval', key: 'eval' },
     ],
   },

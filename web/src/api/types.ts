@@ -978,3 +978,61 @@ export interface TypeScenesResponse {
   limit: number
   items: TypeScene[]
 }
+
+/** How much a lemma's senses and uses depend on the corpus group (DESIGN.md §16.23). */
+export interface LemmaShift {
+  lemma: string
+  he_lemma: string
+  n: number
+  groups: Record<string, number>
+  k: number
+  silhouette: number
+  /** MI(group; use) in bits minus its shuffled mean */
+  use_excess: number
+  use_q: number
+  n_senses: number
+  /** null: fewer than two SDBH meanings to compare */
+  sense_excess: number | null
+  sense_q: number | null
+  nmi: number | null
+  nmi_null: number | null
+}
+
+export interface SenseExample {
+  verse: Verse
+  label_en: string
+  label_he: string
+  display_idx: number | null
+}
+
+export interface LemmaSense {
+  /** `use`: a contextual-use cluster; `sdbh`: a dictionary meaning */
+  kind: 'use' | 'sdbh'
+  sense: string
+  n: number
+  groups: Record<string, number>
+  collocates: LemmaForm[]
+  examples: SenseExample[]
+  domains: string[]
+}
+
+export interface LemmaSensesResponse {
+  lemma: string
+  he_lemma: string
+  group_order: string[]
+  shift: LemmaShift | null
+  uses: LemmaSense[]
+  senses: LemmaSense[]
+}
+
+export interface ShiftsResponse {
+  by: 'sense' | 'use'
+  max_q: number | null
+  group_order: string[]
+  nmi_mean: number | null
+  nmi_null_mean: number | null
+  total: number
+  offset: number
+  limit: number
+  items: LemmaShift[]
+}

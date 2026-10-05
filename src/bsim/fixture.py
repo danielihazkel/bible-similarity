@@ -361,6 +361,47 @@ def write_inputs(cfg, tmp_path):
         columns=["a", "b", "n_verses", "expected", "g2"],
     ).to_parquet(ent_dir / "links.parquet")
     (ent_dir / "entities.meta.json").write_text(json.dumps({"names": 3}), encoding="utf-8")
+    # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
+    sense_dir = art / "senses"
+    sense_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            {
+                "lemma": "7225",
+                "n": 5,
+                "groups": json.dumps({"torah": 5}),
+                "k": 2,
+                "silhouette": 0.6,
+                "use_mi": 0.3,
+                "use_excess": 0.2,
+                "use_p": 0.01,
+                "use_q": 0.01,
+                "sense_n": 5,
+                "n_senses": 2,
+                "sense_mi": 0.2,
+                "sense_excess": 0.1,
+                "sense_p": 0.04,
+                "sense_q": 0.04,
+                "nmi": 0.5,
+                "nmi_null": 0.05,
+            }
+        ]
+    ).to_parquet(sense_dir / "lemmas.parquet")
+    pd.DataFrame(
+        [
+            ("7225", "use", "0", 2, json.dumps({"torah": 2}), json.dumps(["430"]),
+             json.dumps([[0, 0], [2, 0]]), json.dumps([])),
+            ("7225", "use", "1", 3, json.dumps({"torah": 3}), json.dumps(["3068"]),
+             json.dumps([[3, 0], [4, 0], [5, 0]]), json.dumps([])),
+            ("7225", "sdbh", "m1", 5, json.dumps({"torah": 5}), json.dumps([]),
+             json.dumps([[0, 0]]), json.dumps(["002001001"])),
+        ],
+        columns=["lemma", "kind", "sense", "n", "groups", "collocates", "examples", "domains"],
+    ).to_parquet(sense_dir / "senses.parquet")
+    (sense_dir / "senses.meta.json").write_text(
+        json.dumps({"groups": {"torah": ["Gen", "Exod"]}, "nmi_mean": 0.5, "nmi_null_mean": 0.05}),
+        encoding="utf-8",
+    )
     # style shifts: a curve over book 0 and one seam before v3 (chapter 2)
     seam_dir = art / "seams"
     seam_dir.mkdir(parents=True, exist_ok=True)

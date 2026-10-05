@@ -3,6 +3,7 @@ import { useBooks, useLemma } from '../api/hooks'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { Pager } from '../components/Pager'
+import { SensesPanel } from '../components/SensesPanel'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -67,6 +68,8 @@ export function ConcordancePage() {
           })}
         </ul>
       </section>
+
+      <SensesPanel lemma={lemma} />
 
       <h2>
         {book !== undefined && names.get(book)

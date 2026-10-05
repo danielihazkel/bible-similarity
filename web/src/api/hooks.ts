@@ -17,6 +17,8 @@ import type {
   DiscoveriesResponse,
   DomainInfo,
   DomainResponse,
+  LemmaSensesResponse,
+  ShiftsResponse,
   EntitiesResponse,
   EvalResponse,
   Entity,
@@ -197,6 +199,24 @@ export const useDomain = (code: string, book: number | undefined, limit: number,
     queryFn: ({ signal }) =>
       getJson<DomainResponse>(`/domain/${encodeURIComponent(code)}`, { book, limit, offset }, signal),
     placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Lemmas ranked by how much their senses (`sense`) or uses (`use`) differ across the canon. */
+export const useShifts = (by: 'sense' | 'use', maxQ: number | null, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['shifts', by, maxQ, limit, offset],
+    queryFn: ({ signal }) =>
+      getJson<ShiftsResponse>('/shifts', { by, max_q: maxQ ?? undefined, limit, offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** One lemma's dictionary senses and contextual uses by corpus group. */
+export const useLemmaSenses = (lemma: string) =>
+  useQuery({
+    queryKey: ['lemma-senses', lemma],
+    queryFn: ({ signal }) => getJson<LemmaSensesResponse>(`/lemma/${encodeURIComponent(lemma)}/senses`, {}, signal),
     ...forever,
   })
 

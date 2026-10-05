@@ -314,6 +314,29 @@ entities:                     # `bsim entities`: people and places, who appears 
   min_together: 2             # verses two names must share to be linked
   partners: 25                # strongest links kept per name (G²)
 
+senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
+  encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)
+  max_seq_length: 128
+  batch_size: 64
+  groups:                     # corpus groups compared (every book in exactly one)
+    torah: [Gen, Exod, Lev, Num, Deut]
+    former_prophets: [Josh, Judg, 1Sam, 2Sam, 1Kgs, 2Kgs]
+    latter_prophets: [Isa, Jer, Ezek, Hos, Joel, Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal]
+    poetry: [Ps, Prov, Job]
+    scrolls: [Song, Ruth, Lam, Eccl, Esth]
+    late: [Dan, Ezra, Neh, 1Chr, 2Chr]
+  min_count: 50               # occurrences of a lemma (as a word's only content lemma, names left out)
+  min_per_group: 10           # ... in each of at least
+  min_groups: 2               # ... this many groups
+  max_k: 4                    # contextual-use clusters per lemma: k in 2..max_k by silhouette
+  silhouette_sample: 1000
+  min_sense_count: 5          # SDBH meanings compared need this many tagged occurrences (at least two meanings)
+  null_reps: 200              # group labels shuffled over the occurrences
+  collocates: 6               # Hebrew collocates describing a cluster
+  collocate_min_verses: 3
+  examples: 3                 # occurrences shown per cluster / meaning
+  seed: 13
+
 seams:                        # `bsim seams`: where a book's style changes (DESIGN.md §16.12)
   block_words: 600            # words compared on each side of a verse boundary
   null_reps: 50               # verse-order shuffles per book (threshold: 95th pct of the maxima)

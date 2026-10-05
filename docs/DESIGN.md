@@ -260,6 +260,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/discoveries?unit_type=verse&mode=semantic&book=&cross_book=&limit=50&offset=0` | strongest pairs without a Sefaria link (§9 `discoveries`), paginated (`limit` ≤ `serve.max_page`), with `total` |
 | `GET /api/resolve?q=` | the verse / chapter a reference names (`Gen 1:1`, `1Sam 3`, `בראשית א א`, `תהלים קי"ט קה`), or `unit: null` (`api/resolve.py`: English titles, OSIS ids, Hebrew names and their unambiguous prefixes; Arabic or canonically written Hebrew numerals) |
 | `GET /api/words/{verse_id}` | every OSHB word: surface, raw lemma, morph code + Hebrew description per morpheme (`text/morph.py`), content lemmas with verse counts, SDBH domain codes (§16.22) |
+| `GET /api/shifts?by=&max_q=&limit=&offset=`, `/api/lemma/{lemma}/senses` | lemmas by how much their senses / uses differ across corpus groups; one lemma's senses and uses by group (§16.23) |
 | `GET /api/domains`, `/api/domain/{code}?book=&limit=&offset=`, `/api/unit-domains/{unit_id}` | semantic domains: the tree with counts; a domain concordance (path, subdomains, verses per book, verses with the words in it); a unit's themes (§16.22) |
 | `GET /api/lemma/{lemma}?book=&limit=&offset=` | concordance: occurrences, verses per book, a page of verses with the lemma's display tokens |
 | `GET /api/meta` | build info; runtime incl. `encoder_ready` / `encoder_error` |
@@ -393,6 +394,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D57 | Senses across the canon | Two readings compared by corpus group, kept apart: SDBH meanings (sense change) and k-means clusters of pretrained-BEREL word vectors (use change, genre included), each with MI against a shuffled-group null and BH q; clusters described by Hebrew collocates only, never glosses; clusters validated against SDBH by NMI (§16.23) |
 | D56 | Lexicon and domains | Revises D27's "no lexicon": SDBH (CC BY-SA) word senses and semantic domains, tagged per word occurrence from SDBH's own references, and Strong's name types. Glosses and definitions are never stored or shown (D5): the viewer shows domain names, the top two levels also in Hebrew. Domains as a retrieval signal were tested against `fused` on dev and not adopted (§16.22); `bm25_domain` / `tfidf_domain` are shown as their own `domain` mode, not fused (as structural, D32) |
 | D55 | CI and API types | GitHub Actions runs every check that needs no data, model or GPU; the pytest fixture DB moves into the package (`bsim.fixture`) so `bsim fixture-serve` can serve it to Playwright and `bsim openapi` can build the schema. The viewer keeps its hand-written, narrower types and gains a generated drift check instead of being replaced by the generated ones; response models share `ApiModel`, which marks defaulted fields required in the schema since every response includes them. First run: drift found (`SearchResponse.book`, `SequencesResponse.direction`, fields typed optional that are always sent) and three contrast / link-style issues on Compare and Style fixed (§13) |
 | D54 | Interface language | Optional Hebrew interface (EN / עב, English default, fully RTL) from typed catalogs in `web/src/i18n` with no i18n dependency. This is the interface's language, not a translation: the "Hebrew only, no translations" rule is about scripture, which is Hebrew in both. CSV exports, server error details and statistics stay English (§11.1) |
@@ -613,3 +615,27 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 
   Domain names are SDBH's English labels; the two top levels (22 names) are also in the Hebrew catalog (`i18n/pages/domains.ts`), deeper ones stay English inside `<bdi>` in the Hebrew interface.
 - **People and places** (`bsim entities`, §16.11): Strong's part of speech now decides first (`kind_source: lexicon` for 2,253 of 2,548 names); the context cues decide the rest (names Strong's gives both readings, or none). Where both decide (1,108 names) they agree 94.8 % of the time (person/place 35, place/person 23 disagreements), which validates the cue heuristic. `unclear` names drop to 156.
+
+### 16.23 Senses and uses across the canon (`bsim senses`, `analysis/senses.py`, `/shifts`, `/lemma/{lemma}/senses`)
+- **Question:** does a word mean or do something different in different parts of the canon (roadmap A3)?
+- **Words compared:** 611 content lemmas with ≥ 50 occurrences as a word's only content lemma, ≥ 10 in each of ≥ 2 of six groups: Torah, Former Prophets, Latter Prophets, Psalms / Proverbs / Job, the Scrolls (Song, Ruth, Lamentations, Ecclesiastes, Esther), the late books (Daniel, Ezra–Nehemiah, Chronicles). Names are left out (OSHB `Np` and Strong's name types). 215,928 occurrences.
+- **Two readings of each occurrence:**
+  - *Dictionary sense*: the SDBH meaning tagged on it by `bsim lexicon` (occurrences with exactly one matched meaning; meanings with ≥ 5 of them; 384 lemmas have ≥ 2).
+  - *Use in context*: its vector from pretrained BEREL (`berel_mean`, last layer, mean of the word's subword tokens, mapped by character offsets on `text_model`), clustered per lemma by k-means, k ∈ 2..4 by silhouette. A cluster is described only in Hebrew: the content lemmas of its verses most over-represented against the lemma's other clusters (G², particles and pronouns left out) and its occurrences nearest the centre.
+- **Statistic:** MI(group; sense) in bits, i.e. the generalized Jensen–Shannon divergence of the groups' distributions. The null shuffles group labels over occurrences (200 times); p is empirical, q is Benjamini–Hochberg over lemmas, and the ranking uses the excess over the null mean (MI is inflated in small samples). With 200 shuffles the smallest q is 0.008.
+- **Results (2026-10-05):**
+  - Dictionary senses depend on the group for 296 of 384 lemmas (q ≤ 0.05). The strongest are textbook cases:
+    - גאל: the blood avenger (Numbers, Joshua), redeeming property (Leviticus, Ruth), God the redeemer (Isaiah, Psalms);
+    - פקד: muster (Numbers), punish (prophets), appoint (Kings);
+    - עדות / עדת: the ark of the testimony (Torah), "your testimonies" (Psalms);
+    - קנה: menorah branches (Exodus), measuring reed (Ezekiel).
+  - Contextual uses depend on the group for 539 of 611 lemmas. This reading also carries genre and register, so it means "used differently", not necessarily "means something else". Its ranking is still informative:
+    - תורה splits without supervision into the written "book of the Torah" (Torah, Former Prophets, late books), poetic "instruction" (Psalms, prophets) and ritual "torah of the burnt offering / leprosy";
+    - נפש separates the legal "that person shall be cut off" (Torah) from the poetic "my soul" (Psalms).
+  - **Check:** the clusters recover the SDBH meanings with NMI 0.20 on average against 0.03 for shuffled clusters (384 lemmas). Unsupervised contextual vectors do find dictionary senses, partially.
+- **Served:** `lemma_shifts` and `lemma_senses` (+ `meta.senses`); `/shifts?by=sense|use&max_q=`; `/lemma/{lemma}/senses`. Viewer: Overview → Shifts, and *Senses across the canon* on every concordance page (share of each sense per group, domains, Hebrew collocates, highlighted examples).
+- **Limits:**
+  - BEREL's last layer and verse-only context.
+  - SDBH tags 90 % of the text and some of its meanings are fine-grained.
+  - Group sizes differ by an order of magnitude.
+  - No diachronic claim: the groups mix date and genre.

@@ -1,0 +1,88 @@
+// Interface strings of a lemma's senses and uses across the canon (DESIGN.md §16.23): the Shifts
+// page and the senses panel of the concordance. English first, Hebrew typed against it.
+
+import { numEn, numHe } from '../fmt'
+
+/** Corpus groups of `senses.groups` (configs/default.yaml); an unknown key is shown as is. */
+const GROUPS_EN = {
+  torah: 'Torah',
+  former_prophets: 'Former Prophets',
+  latter_prophets: 'Latter Prophets',
+  poetry: 'Psalms, Proverbs, Job',
+  scrolls: 'Scrolls',
+  late: 'Late books',
+}
+
+export const senEn = {
+  groups: GROUPS_EN as Record<string, string>,
+  groupsTitle: 'Late books: Daniel, Ezra, Nehemiah, Chronicles. Scrolls: Song, Ruth, Lamentations, Ecclesiastes, Esther.',
+  title: 'Shifts',
+  lede: "Words whose senses or uses differ across the canon. Each frequent word is compared over six groups of books in two ways: its dictionary senses (the SDBH meaning tagged on each occurrence) and its uses in context (its BEREL vectors in their verses, clustered). The score is how much knowing the group tells about the sense (mutual information, minus what shuffled groups give); q corrects for testing hundreds of words.",
+  caveat: 'Uses in context also carry genre and style: a shift there means "used differently", a shift in dictionary senses means "means something else".',
+  by: 'Compare',
+  bys: { sense: 'Dictionary senses', use: 'Uses in context' } as Record<'sense' | 'use', string>,
+  includeAll: 'Include q > 0.05',
+  check: (nmi: string, nul: string) => `Check: the contextual clusters match the dictionary senses with NMI ${nmi} on average (shuffled clusters: ${nul}).`,
+  ranked: (n: number) => `${numEn(n)} words, the most shifted first`,
+  word: 'Word',
+  occurrences: 'Occurrences',
+  shift: 'Shift',
+  shiftTitle: 'Bits of mutual information between group and sense above the shuffled mean',
+  q: 'q',
+  senses: 'Senses',
+  uses: 'Uses',
+  empty: 'No words match.',
+  // concordance panel
+  panel: 'Senses across the canon',
+  panelLede: 'Each row is one sense; the cells give its share of the word in each group of books.',
+  notCompared: 'Too rare to compare across the canon (or a name).',
+  dictionary: 'Dictionary senses (SDBH)',
+  inContext: 'Uses in context (clusters of its BEREL vectors)',
+  use: (i: number) => `Use ${i + 1}`,
+  meaning: (i: number) => `Meaning ${i + 1}`,
+  withWords: 'with',
+  examples: 'Examples',
+  stats: (sense: string, use: string) => `Shift of the senses: ${sense}; of the uses: ${use}.`,
+  bits: (x: number, q: number) => `${x.toFixed(2)} bits (q ${q < 0.001 ? '< 0.001' : q.toFixed(3)})`,
+  untested: 'not tested',
+}
+
+export const senHe: typeof senEn = {
+  groups: {
+    torah: 'תורה',
+    former_prophets: 'נביאים ראשונים',
+    latter_prophets: 'נביאים אחרונים',
+    poetry: 'תהלים, משלי, איוב',
+    scrolls: 'מגילות',
+    late: 'ספרים מאוחרים',
+  },
+  groupsTitle: 'ספרים מאוחרים: דניאל, עזרא, נחמיה, דברי הימים. מגילות: שיר השירים, רות, איכה, קהלת, אסתר.',
+  title: 'תזוזות',
+  lede: 'מילים שמובניהן או שימושיהן משתנים לאורך התנ״ך. כל מילה שכיחה מושווה בין שש קבוצות ספרים בשתי דרכים: מובניה המילוניים (המובן לפי SDBH המסומן בכל היקרות) ושימושיה בהקשר (וקטורי BEREL שלה בפסוקיה, מקובצים). הציון הוא כמה הקבוצה מלמדת על המובן (מידע הדדי, פחות מה שנותנות קבוצות מעורבבות); q מתקן לבדיקת מאות מילים.',
+  caveat: 'שימושים בהקשר נושאים גם סוגה וסגנון: תזוזה שם פירושה ״שימוש אחר״, תזוזה במובנים המילוניים פירושה ״משמעות אחרת״.',
+  by: 'השוואה',
+  bys: { sense: 'מובנים מילוניים', use: 'שימושים בהקשר' },
+  includeAll: 'כולל q > 0.05',
+  check: (nmi: string, nul: string) => `בדיקה: האשכולות ההקשריים תואמים את המובנים המילוניים ב־NMI ממוצע ${nmi} (אשכולות מעורבבים: ${nul}).`,
+  ranked: (n: number) => `${numHe(n)} מילים, המשתנות ביותר תחילה`,
+  word: 'מילה',
+  occurrences: 'היקרויות',
+  shift: 'תזוזה',
+  shiftTitle: 'ביטים של מידע הדדי בין הקבוצה למובן מעל הממוצע המעורבב',
+  q: 'q',
+  senses: 'מובנים',
+  uses: 'שימושים',
+  empty: 'אין מילים מתאימות.',
+  panel: 'מובנים לאורך התנ״ך',
+  panelLede: 'כל שורה היא מובן אחד; התאים נותנים את חלקו מהמילה בכל קבוצת ספרים.',
+  notCompared: 'נדירה מכדי להשוות לאורך התנ״ך (או שם).',
+  dictionary: 'מובנים מילוניים (SDBH)',
+  inContext: 'שימושים בהקשר (אשכולות של וקטורי BEREL שלה)',
+  use: (i: number) => `שימוש ${numHe(i + 1)}`,
+  meaning: (i: number) => `מובן ${numHe(i + 1)}`,
+  withWords: 'עם',
+  examples: 'דוגמאות',
+  stats: (sense: string, use: string) => `תזוזת המובנים: ${sense}; תזוזת השימושים: ${use}.`,
+  bits: (x: number, q: number) => `${x.toFixed(2)} ביט (q ${q < 0.001 ? '< 0.001' : q.toFixed(3)})`,
+  untested: 'לא נבדק',
+}

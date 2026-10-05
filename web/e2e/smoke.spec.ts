@@ -35,6 +35,8 @@ const PAGES: [string, RegExp][] = [
   ['/domains/001001', /Beings/],
   ['/unit/c%3A0%3A1?mode=domain', /Genesis 1/],
   ['/poetry?sort=antithetic', /Parallel halves/],
+  ['/shifts', /Shifts/],
+  ['/lemma/1350a', /גאל/],
   ['/about', /About/],
 ]
 
@@ -95,7 +97,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

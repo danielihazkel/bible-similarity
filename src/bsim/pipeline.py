@@ -182,6 +182,12 @@ def stage_entities(cfg: dict[str, Any], log: Log) -> None:
     run_entities(cfg, log=log)
 
 
+def stage_senses(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.senses import run_senses
+
+    run_senses(cfg, log=log)
+
+
 def stage_seams(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.seams import run_seams
 
@@ -243,6 +249,7 @@ STAGES: dict[str, str] = {
     "wordplay": "stage_wordplay",
     "sound": "stage_sound",
     "entities": "stage_entities",
+    "senses": "stage_senses",
     "seams": "stage_seams",
     "structure": "stage_structure",
     "map": "stage_map",

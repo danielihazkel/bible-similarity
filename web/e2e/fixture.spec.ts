@@ -36,6 +36,8 @@ const PAGES = [
   '/map',
   '/network',
   '/style',
+  '/shifts',
+  '/shifts?by=use&q=all',
   '/eval',
   '/about',
 ]

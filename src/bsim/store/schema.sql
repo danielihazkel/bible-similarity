@@ -470,6 +470,39 @@ CREATE TABLE domain_verses (
     PRIMARY KEY (code, verse_id)
 ) WITHOUT ROWID;
 
+-- A frequent lemma's senses and uses across corpus groups (`bsim senses`, §16.23).
+CREATE TABLE lemma_shifts (
+    lemma TEXT PRIMARY KEY,
+    n INTEGER NOT NULL,             -- occurrences compared
+    groups TEXT NOT NULL,           -- JSON group -> occurrences
+    k INTEGER NOT NULL,             -- contextual-use clusters
+    silhouette REAL NOT NULL,
+    use_mi REAL NOT NULL,           -- MI(group; use) in bits
+    use_excess REAL NOT NULL,       -- ... minus its shuffled mean
+    use_p REAL NOT NULL,
+    use_q REAL NOT NULL,
+    sense_n INTEGER NOT NULL,       -- occurrences with one SDBH meaning (of the compared ones)
+    n_senses INTEGER NOT NULL,
+    sense_mi REAL,                  -- NULL: fewer than two meanings to compare
+    sense_excess REAL,
+    sense_p REAL,
+    sense_q REAL,
+    nmi REAL,                       -- contextual clusters vs SDBH meanings
+    nmi_null REAL
+) WITHOUT ROWID;
+
+CREATE TABLE lemma_senses (
+    lemma TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- use (contextual cluster) | sdbh (dictionary meaning)
+    sense TEXT NOT NULL,            -- cluster number or SDBH meaning id
+    n INTEGER NOT NULL,
+    groups TEXT NOT NULL,           -- JSON group -> occurrences
+    collocates TEXT NOT NULL,       -- JSON lemmas over-represented in the cluster's verses
+    examples TEXT NOT NULL,         -- JSON [verse_id, word idx]
+    domains TEXT NOT NULL,          -- JSON SDBH domain codes of the meaning
+    PRIMARY KEY (lemma, kind, sense)
+) WITHOUT ROWID;
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

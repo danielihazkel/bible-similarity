@@ -13,6 +13,7 @@ import { ovHe } from './pages/overview'
 import { parHe } from './pages/parallels'
 import { patHe } from './pages/patterns'
 import { domHe } from './pages/domains'
+import { senHe } from './pages/senses'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -79,6 +80,7 @@ export const he: Messages = {
     map: { label: 'מפה', hint: 'יחידות לפי משמעות, קרבה בין ספרים' },
     network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
+    shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
     eval: { label: 'הערכה', hint: 'עד כמה נמצאות הפניות ידועות' },
   },
 
@@ -366,5 +368,6 @@ export const he: Messages = {
   par: parHe,
   pat: patHe,
   dom: domHe,
+  sen: senHe,
   ov: ovHe,
 }
