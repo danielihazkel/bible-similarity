@@ -18,6 +18,7 @@ Derived columns:
   gains a gold flag (`gold_verse_pairs`, either direction) and `n_gold` counts them.
 - `diff_changes` + `meta.diffs`: `bsim diffs` word-level changes (`artifacts/diffs/`).
 - `parallelism` + `meta.parallelism`: `bsim parallelism` cola and scores.
+- `wordplay`: `bsim wordplay` sound-alike pairs plus the book.
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
@@ -67,6 +68,8 @@ INDEXES = (
     "CREATE INDEX sequences_by_b ON sequences (b_start, b_end)",
     "CREATE INDEX diff_changes_by_op ON diff_changes (op, a_key, b_key)",
     "CREATE INDEX diff_changes_by_books ON diff_changes (a_book, b_book, op)",
+    "CREATE INDEX wordplay_by_score ON wordplay (score DESC)",
+    "CREATE INDEX wordplay_by_vid ON wordplay (a_vid, b_vid)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -170,6 +173,21 @@ TABLE_COLUMNS = {
         "shape",
         "balance",
         "prob",
+    ],
+    "wordplay": [
+        "a_vid",
+        "a_idx",
+        "b_vid",
+        "b_idx",
+        "a_lemma",
+        "b_lemma",
+        "a_form",
+        "b_form",
+        "kind",
+        "gap",
+        "score",
+        "q",
+        "book_id",
     ],
     "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
@@ -506,6 +524,11 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         raise RuntimeError(f"{par_dir / 'verses.parquet'} missing; run `bsim parallelism` first")
     out["parallelism"] = pd.read_parquet(par_dir / "verses.parquet")
     out["parallelism_meta"] = _read_json(par_dir / "parallelism.meta.json")
+    path = resolve_path(cfg, "artifacts") / "wordplay" / "pairs.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim wordplay` first")
+    out["wordplay"] = pd.read_parquet(path)
+    out["wordplay_meta"] = _read_json(path.with_name("wordplay.meta.json"))
     path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
@@ -650,6 +673,9 @@ def _write_db(
             ),
             "diff_changes": inputs["diff_changes"],
             "parallelism": inputs["parallelism"],
+            "wordplay": inputs["wordplay"].assign(
+                book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
+            ),
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
@@ -699,6 +725,8 @@ def _write_db(
         sm = inputs["stylo_meta"]
         dm = inputs["diffs_meta"]
         meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops")}
+        wm = inputs["wordplay_meta"]
+        meta["wordplay"] = {k: wm.get(k) for k in ("pairs", "null_pairs_per_rep", "kinds")}
         pm = inputs["parallelism_meta"]
         meta["parallelism"] = {
             k: pm.get(k) for k in ("coefficients", "held_out_auc", "known_poems", "book_means")

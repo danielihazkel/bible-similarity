@@ -77,6 +77,8 @@ from bsim.api.models import (
     VerseDiff,
     VerseHalves,
     WordDetail,
+    WordplayPair,
+    WordplayResponse,
     WordRef,
 )
 from bsim.api.resolve import resolve as resolve_ref
@@ -754,6 +756,56 @@ def parallelism_ranking(
                 mean_prob=r["mean_prob"],
                 share_parallel=r["share_parallel"],
                 n_scored=r["n_scored"],
+            )
+            for r in rows
+        ],
+    }
+
+
+WORDPLAY_KINDS = ("substitution", "metathesis", "extension")
+
+
+@router.get("/wordplay", response_model=WordplayResponse)
+def wordplay(
+    state: State,
+    conn: Conn,
+    book: int | None = None,
+    kind: str | None = None,
+    unit: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Sound-alike words close together, strongest first (DESIGN.md §16.10); `unit`: pairs
+    touching that unit's verses."""
+    _page(state, limit, offset)
+    if kind is not None and kind not in WORDPLAY_KINDS:
+        raise _unprocessable(f"kind must be one of {list(WORDPLAY_KINDS)}")
+    span = None
+    if unit is not None:
+        u = _unit_or_404(conn, unit)
+        span = (u["start_verse_id"], u["end_verse_id"])
+    total, rows = queries.wordplay_page(conn, book, kind, span, limit, offset)
+    vids = [v for r in rows for v in (r["a_vid"], r["b_vid"])]
+    verses = queries.verses_by_id(conn, vids)
+    labels = queries.verse_labels(conn, vids)
+    gloss = queries.gloss(conn, (lem for r in rows for lem in (r["a_lemma"], r["b_lemma"])))
+    return {
+        "book": book,
+        "kind": kind,
+        "unit": unit,
+        "total": total,
+        "expected_by_chance": state.meta.get("wordplay", {}).get("null_pairs_per_rep"),
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            WordplayPair(
+                **{k: r[k] for k in ("a_vid", "b_vid", "a_display", "b_display", "a_form")},
+                **{k: r[k] for k in ("b_form", "kind", "gap", "score", "q")},
+                a_he=gloss.get(r["a_lemma"], r["a_form"]),
+                b_he=gloss.get(r["b_lemma"], r["b_form"]),
+                a_label=labels[r["a_vid"]][0],
+                b_label=labels[r["b_vid"]][0],
+                verses=[verses[v] for v in dict.fromkeys((r["a_vid"], r["b_vid"]))],
             )
             for r in rows
         ],

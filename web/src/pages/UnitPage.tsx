@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { useExplain, usePhrasesOf, useSequences, useSimilar, useUnit, useUnitParallelism } from '../api/hooks'
+import {
+  useExplain,
+  usePhrasesOf,
+  useSequences,
+  useSimilar,
+  useUnit,
+  useUnitParallelism,
+  useWordplay,
+} from '../api/hooks'
 import type { Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
@@ -9,6 +17,7 @@ import { PhraseCard } from '../components/PhraseCard'
 import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
+import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading } from '../components/Status'
 import { unitLink } from '../lib/links'
 import { MODE_HINTS, unitTypeLabel } from '../lib/format'
@@ -18,6 +27,7 @@ import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParam
 // Parallel sequences touching this unit: only reasonably strong chains, a few at most.
 const SEQUENCE_MAX_Q = 0.2
 const SEQUENCES_SHOWN = 5
+const WORDPLAY_SHOWN = 5
 
 export function UnitPage() {
   const unitId = useParams().unitId!
@@ -60,6 +70,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
+  const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 })
   const sequences = useSequences({ unit: unit.unit_id, maxQ: SEQUENCE_MAX_Q, limit: SEQUENCES_SHOWN, offset: 0 })
 
   const onHover = (tgt: number, on: boolean) => {
@@ -204,6 +215,22 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <ol className="disc-list">
             {phrases.data.map((p) => (
               <PhraseCard key={p.b.unit_id} p={p} />
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {wordplay.data && wordplay.data.total > 0 && (
+        <section className="results" aria-label="Wordplay">
+          <h2>
+            Wordplay <span className="muted small">({wordplay.data.total})</span>
+          </h2>
+          <p className="muted small">
+            Sound-alike words close together, rarest first. <Link to="/wordplay">All wordplay</Link>
+          </p>
+          <ol className="disc-list">
+            {wordplay.data.items.map((p) => (
+              <WordplayCard key={`${p.a_vid}:${p.a_display}|${p.b_vid}:${p.b_display}`} p={p} />
             ))}
           </ol>
         </section>

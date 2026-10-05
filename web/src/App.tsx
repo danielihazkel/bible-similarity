@@ -16,6 +16,7 @@ import { StructurePage } from './pages/StructurePage'
 import { StylometryPage } from './pages/StylometryPage'
 import { SearchPage } from './pages/SearchPage'
 import { UnitPage } from './pages/UnitPage'
+import { WordplayPage } from './pages/WordplayPage'
 
 export function App() {
   return (
@@ -33,6 +34,7 @@ export function App() {
           <Route path="sequences/:seqId" element={<SequencePage />} />
           <Route path="changes" element={<ChangesPage />} />
           <Route path="poetry" element={<PoetryPage />} />
+          <Route path="wordplay" element={<WordplayPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />

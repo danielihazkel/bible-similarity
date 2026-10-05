@@ -408,6 +408,42 @@ def parallelism_books(conn: sqlite3.Connection, parallel_at: float) -> list[dict
     return _dicts(cur)
 
 
+WORDPLAY_COLS = (
+    "w.a_vid, w.a_idx, w.b_vid, w.b_idx, w.a_lemma, w.b_lemma, w.a_form, w.b_form, w.kind,"
+    " w.gap, w.score, w.q, wa.display_idx AS a_display, wb.display_idx AS b_display"
+)
+
+
+def wordplay_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    kind: str | None,
+    span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Sound-alike pairs, strongest first; `span` = (first, last) verse id the pair touches."""
+    where, args = "1 = 1", []
+    if book_id is not None:
+        where += " AND w.book_id = ?"
+        args.append(book_id)
+    if kind is not None:
+        where += " AND w.kind = ?"
+        args.append(kind)
+    if span is not None:
+        where += " AND w.b_vid >= ? AND w.a_vid <= ?"
+        args += [span[0], span[1]]
+    total = conn.execute(f"SELECT COUNT(*) FROM wordplay w WHERE {where}", args).fetchone()[0]
+    cur = conn.execute(
+        f"SELECT {WORDPLAY_COLS} FROM wordplay w"
+        " LEFT JOIN words wa ON wa.verse_id = w.a_vid AND wa.idx = w.a_idx"
+        " LEFT JOIN words wb ON wb.verse_id = w.b_vid AND wb.idx = w.b_idx"
+        f" WHERE {where} ORDER BY w.score DESC, w.a_vid, w.a_idx LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
 def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
     cur = conn.execute(f"SELECT {SEQUENCE_COLS}, pairs FROM sequences WHERE seq_id = ?", (seq_id,))
     rows = _dicts(cur)

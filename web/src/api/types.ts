@@ -523,3 +523,32 @@ export interface ParallelismResponse {
   limit: number
   items: ParallelUnit[]
 }
+
+export interface WordplayPair {
+  a_vid: number
+  b_vid: number
+  a_display: number | null
+  b_display: number | null
+  a_form: string
+  b_form: string
+  a_he: string
+  b_he: string
+  kind: 'substitution' | 'metathesis' | 'extension'
+  gap: number
+  score: number
+  q: number
+  a_label: string
+  b_label: string
+  verses: Verse[]
+}
+
+export interface WordplayResponse {
+  book: number | null
+  kind: string | null
+  unit: string | null
+  total: number
+  expected_by_chance: number | null
+  offset: number
+  limit: number
+  items: WordplayPair[]
+}

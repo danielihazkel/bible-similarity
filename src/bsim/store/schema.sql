@@ -148,6 +148,23 @@ CREATE TABLE parallelism (
     prob REAL                       -- probability the halves are parallel like poetry
 );
 
+-- Sound-alike words close together (`bsim wordplay`, DESIGN.md §16.10); *_idx = words.idx.
+CREATE TABLE wordplay (
+    a_vid INTEGER NOT NULL,
+    a_idx INTEGER NOT NULL,
+    b_vid INTEGER NOT NULL,
+    b_idx INTEGER NOT NULL,
+    a_lemma TEXT NOT NULL,
+    b_lemma TEXT NOT NULL,
+    a_form TEXT NOT NULL,           -- heard form: consonants without prefixes
+    b_form TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- substitution | metathesis | extension
+    gap INTEGER NOT NULL,           -- words apart
+    score REAL NOT NULL,
+    q REAL NOT NULL,
+    book_id INTEGER NOT NULL
+);
+
 -- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
 CREATE TABLE structure (
     unit_id TEXT PRIMARY KEY,

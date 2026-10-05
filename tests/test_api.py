@@ -509,3 +509,25 @@ def test_parallelism_ranking(client):
     assert client.get("/api/parallelism").json()["total"] == 0  # min_chapter_verses = 6
     assert client.get("/api/parallelism?min_verses=1&book=1").json()["items"] == []
     assert client.get("/api/parallelism?unit_type=verse").status_code == 422
+
+
+def test_wordplay(client):
+    body = client.get("/api/wordplay").json()
+    assert (body["total"], body["expected_by_chance"]) == (2, 1.5)
+    first, second = body["items"]
+    assert (first["a_he"], first["b_he"], first["a_display"], first["b_display"]) == (
+        "אלהים",
+        "יהוה",
+        1,
+        3,
+    )
+    assert [v["verse_id"] for v in first["verses"]] == [0]  # one verse
+    assert [v["verse_id"] for v in second["verses"]] == [3, 4]  # crosses a verse boundary
+    assert (second["a_label"], second["b_label"]) == ("v:3", "v:4")
+    ids = lambda q: [i["a_vid"] for i in client.get(f"/api/wordplay?{q}").json()["items"]]  # noqa: E731
+    assert ids("kind=extension") == [3]
+    assert ids("unit=c:0:2") == [3]
+    assert ids("unit=v:4") == [3]
+    assert ids("book=1") == []
+    assert client.get("/api/wordplay?kind=pun").status_code == 422
+    assert client.get("/api/wordplay?unit=nope").status_code == 404

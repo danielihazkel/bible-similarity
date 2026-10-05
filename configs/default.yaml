@@ -175,6 +175,16 @@ parallelism:                  # `bsim parallelism`: verse halves from the te'ami
   min_chapter_verses: 6       # chapters ranked in the known-poem check / the API ranking
   parallel_at: 0.5            # a verse counts as parallel at this probability
 
+wordplay:                     # `bsim wordplay`: sound-alike words close together (DESIGN.md §16.10)
+  min_letters: 3              # skeleton length (consonants without ו / י vowel letters)
+  window: 8                   # words apart (verse boundaries crossed, chapters not)
+  distance: 0.15              # score cost per word between the two
+  skip_pos: [C, R, T, P]      # conjunctions, prepositions, particles, pronouns
+  skip_proper: true           # proper nouns and gentilics (name lists are built alike)
+  same_vowels: true           # the two words must share their vowel pattern
+  null_reps: 20               # chapter-internal word-order shuffles for q-values
+  seed: 13
+
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
   unit_types: [chapter, pericope, parasha]
   max_verses: 200             # larger units are not scored (and /structure refuses them)

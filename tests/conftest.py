@@ -249,6 +249,31 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # sound-alike pairs (made up): inside v0, and across v4 -> v5 is impossible (other chapter)
+    (art / "wordplay").mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (0, 1, 0, 3, "430", "3068", "אלהים", "יהוה", "substitution", 2, 6.0, 0.2),
+            (3, 0, 4, 0, "7225", "7225", "ראשית", "ראשית", "extension", 1, 3.0, 0.6),
+        ],
+        columns=[
+            "a_vid",
+            "a_idx",
+            "b_vid",
+            "b_idx",
+            "a_lemma",
+            "b_lemma",
+            "a_form",
+            "b_form",
+            "kind",
+            "gap",
+            "score",
+            "q",
+        ],
+    ).to_parquet(art / "wordplay" / "pairs.parquet")
+    (art / "wordplay" / "wordplay.meta.json").write_text(
+        json.dumps({"pairs": 2, "null_pairs_per_rep": 1.5, "kinds": {}}), encoding="utf-8"
+    )
     emb_dir = art / "embeddings"
     emb_dir.mkdir(parents=True, exist_ok=True)
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)

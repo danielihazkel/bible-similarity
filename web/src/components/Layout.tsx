@@ -21,6 +21,7 @@ export function Layout() {
           <NavLink to="/sequences">Sequences</NavLink>
           <NavLink to="/changes">Changes</NavLink>
           <NavLink to="/poetry">Poetry</NavLink>
+          <NavLink to="/wordplay">Wordplay</NavLink>
           <NavLink to="/structure">Structure</NavLink>
           <NavLink to="/map">Map</NavLink>
           <NavLink to="/style">Style</NavLink>

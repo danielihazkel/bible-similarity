@@ -242,6 +242,37 @@ class ParallelismResponse(BaseModel):
     items: list[ParallelUnit]
 
 
+class WordplayPair(BaseModel):
+    """Two sound-alike words close together (DESIGN.md §16.10)."""
+
+    a_vid: int
+    b_vid: int
+    a_display: int | None  # display token of each word (highlight); None when unaligned
+    b_display: int | None
+    a_form: str
+    b_form: str
+    a_he: str  # lemma display forms
+    b_he: str
+    kind: Literal["substitution", "metathesis", "extension"]
+    gap: int
+    score: float
+    q: float
+    a_label: str
+    b_label: str
+    verses: list[Verse]  # one verse, or two when the pair crosses a verse boundary
+
+
+class WordplayResponse(BaseModel):
+    book: int | None
+    kind: str | None
+    unit: str | None
+    total: int
+    expected_by_chance: float | None  # pairs per shuffled text (whole corpus)
+    offset: int
+    limit: int
+    items: list[WordplayPair]
+
+
 class SequenceSummary(BaseModel):
     """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
 

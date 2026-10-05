@@ -1390,3 +1390,10 @@ svg[tabindex]:focus-visible {
 .book-bars .poetic .bar-fill {
   background: var(--known);
 }
+
+/* ---------- Wordplay (§16.10) ---------- */
+
+.pun {
+  font-size: 1.15rem;
+  font-weight: 600;
+}

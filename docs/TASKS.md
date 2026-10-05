@@ -243,3 +243,11 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Held-out AUC 0.85–0.90; Deut 33, Deut 32, Gen 49, 2 Sam 22 and Ex 15 are the top five poems among 435 narrative / law chapters; Hannah's song (1 Sam 2:1–10) and Habakkuk 3 surface unprompted.
 
+## M25 — Wordplay (roadmap A10)
+- [x] `analysis/wordplay.py` + `bsim wordplay` (pipeline stage, ~18 s): heard forms (prefix-stripped skeleton + vowel pattern), one-edit sound-alike pairs within 8 words, rarity score, within-chapter shuffle baseline
+- [x] `wordplay` table + `meta.wordplay`; `/wordplay` (book, kind, unit filters; paginated)
+- [x] Viewer: Wordplay page (both words highlighted, chance baseline), unit-page panel
+- [x] Tests: skeleton / relation / vowels / heard forms, neighbour index, window and chapter rules (pytest); endpoint; Wordplay page (vitest)
+
+✔ Shibboleth / sibboleth, mevusah / mevukhah, gopher / kopher, shetsef / qetsef and naneḥim / naneqim lead; requiring the same vowels turned 10k pairs with no excess over chance into 400 with ~120 excess.
+

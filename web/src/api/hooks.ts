@@ -33,6 +33,8 @@ import type {
   UnitSummary,
   UnitType,
   WordDetail,
+  WordplayPair,
+  WordplayResponse,
 } from './types'
 
 // The DB is read-only while the server runs: everything except search is immutable.
@@ -341,6 +343,27 @@ export const useParallelism = (q: ParallelismQuery) =>
           limit: q.limit,
           offset: q.offset,
         },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export interface WordplayQuery {
+  book?: number
+  kind?: WordplayPair['kind']
+  unit?: string
+  limit: number
+  offset: number
+}
+
+export const useWordplay = (q: WordplayQuery) =>
+  useQuery({
+    queryKey: ['wordplay', q],
+    queryFn: ({ signal }) =>
+      getJson<WordplayResponse>(
+        '/wordplay',
+        { book: q.book, kind: q.kind, unit: q.unit, limit: q.limit, offset: q.offset },
         signal,
       ),
     placeholderData: keepPreviousData,
