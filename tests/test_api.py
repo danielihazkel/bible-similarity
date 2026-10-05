@@ -572,3 +572,38 @@ def test_seams(client):
     assert top["curve"] == [] and top["threshold"] is None and len(top["seams"]) == 1
     assert client.get("/api/seams?book=1").json()["seams"] == []
     assert client.get("/api/seams?limit=0").status_code == 422
+
+
+def test_query_embedding_cache(built):
+    cfg, _ = built
+    calls = []
+
+    def counting(texts):
+        calls.append(texts)
+        return fake_encoder(texts)
+
+    client = TestClient(create_app(cfg, encoder=counting, log=lambda _: None))
+    for _ in range(3):
+        assert client.get("/api/search?q=דגן&mode=semantic").status_code == 200
+    assert len(calls) == 1  # encoded once, then served from the LRU
+    client.get("/api/search?q=חכמה&mode=fused")
+    assert len(calls) == 2
+
+
+def test_list_limits_and_offsets(client):
+    assert len(client.get("/api/phrases/5?limit=1").json()) == 1
+    assert client.get("/api/phrases/5?limit=0").status_code == 422
+    for path in ("sequences?", "wordplay?", "entities?", "changes?op=omitted&"):
+        body = client.get(f"/api/{path}offset=100").json()
+        assert body["items"] == [] and body["total"] > 0, path
+        assert client.get(f"/api/{path}limit=0").status_code == 422, path
+        assert client.get(f"/api/{path}offset=-1").status_code == 422, path
+
+
+def test_connection_settings(client):
+    conn = client.app.state.serve.connect()
+    try:
+        assert conn.execute("PRAGMA query_only").fetchone()[0] == 1
+        assert conn.execute("PRAGMA cache_size").fetchone()[0] < 0  # KiB budget
+    finally:
+        conn.close()
