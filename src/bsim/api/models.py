@@ -4,13 +4,20 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 Mode = Literal["lexical", "semantic", "fused", "structural"]
 SearchMode = Literal["lexical", "semantic", "fused"]  # no morphology for free text
 
 
-class Book(BaseModel):
+class ApiModel(BaseModel):
+    """Base of every response model: a field with a default is still always present in the
+    response, so the OpenAPI schema (the viewer's generated types) marks it required."""
+
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
+
+class Book(ApiModel):
     book_id: int
     name: str
     he_name: str
@@ -19,7 +26,7 @@ class Book(BaseModel):
     n_chapters: int
 
 
-class UnitSummary(BaseModel):
+class UnitSummary(ApiModel):
     unit_id: str
     unit_type: str
     label_en: str
@@ -31,7 +38,7 @@ class UnitSummary(BaseModel):
     marker: str | None = None
 
 
-class Verse(BaseModel):
+class Verse(ApiModel):
     verse_id: int
     book_id: int
     chapter: int
@@ -43,7 +50,7 @@ class Verse(BaseModel):
     ketiv_note: str | None = None
 
 
-class UnitDetail(BaseModel):
+class UnitDetail(ApiModel):
     unit: UnitSummary
     verses: list[Verse]
     parents: list[UnitSummary]  # the units of the other types that contain its first verse
@@ -51,7 +58,7 @@ class UnitDetail(BaseModel):
     next_id: str | None
 
 
-class Breakdown(BaseModel):
+class Breakdown(ApiModel):
     """`lex_*` / `sem_*` are set on fused results only (a list missing the target: None)."""
 
     score: float
@@ -61,7 +68,7 @@ class Breakdown(BaseModel):
     sem_rank: int | None = None
 
 
-class GoldLink(BaseModel):
+class GoldLink(ApiModel):
     """A Sefaria link between the two units: `verse` = a direct verse-to-verse link, `unit` =
     only a passage-level link covers them."""
 
@@ -69,7 +76,7 @@ class GoldLink(BaseModel):
     types: list[str]  # connection types (quotation, related, ...); empty when untyped
 
 
-class PhraseInfo(BaseModel):
+class PhraseInfo(ApiModel):
     score: float  # local-alignment score (idf-weighted matched lemmas minus penalties)
     n_tokens: int  # matched lemma tokens
 
@@ -83,7 +90,7 @@ class Hit(Breakdown):
     phrase: PhraseInfo | None = None  # verse hits sharing an aligned phrase with the source
 
 
-class SimilarResponse(BaseModel):
+class SimilarResponse(ApiModel):
     unit: UnitSummary
     mode: Mode
     k: int
@@ -91,7 +98,7 @@ class SimilarResponse(BaseModel):
     hits: list[Hit]
 
 
-class Discovery(BaseModel):
+class Discovery(ApiModel):
     """An unordered strong pair without a Sefaria link (`a` = the earlier unit)."""
 
     score: float
@@ -106,7 +113,7 @@ class Discovery(BaseModel):
     b_preview: str | None = None
 
 
-class DiscoveriesResponse(BaseModel):
+class DiscoveriesResponse(ApiModel):
     unit_type: str
     mode: Mode
     book: int | None
@@ -117,7 +124,7 @@ class DiscoveriesResponse(BaseModel):
     items: list[Discovery]
 
 
-class PhrasePair(BaseModel):
+class PhrasePair(ApiModel):
     """A shared phrase: `a_display` / `b_display` = the display tokens of the matched words."""
 
     score: float
@@ -132,7 +139,7 @@ class PhrasePair(BaseModel):
     link: GoldLink | None = None
 
 
-class PhrasesResponse(BaseModel):
+class PhrasesResponse(ApiModel):
     book: int | None
     cross_book: bool
     min_tokens: int
@@ -146,7 +153,7 @@ class PhrasesResponse(BaseModel):
 DiffOp = Literal["spelling", "form", "substitution", "omitted", "added", "moved"]
 
 
-class ChangeExample(BaseModel):
+class ChangeExample(ApiModel):
     seq_id: int
     a: int
     b: int
@@ -156,7 +163,7 @@ class ChangeExample(BaseModel):
     b_label_he: str
 
 
-class ChangeGroup(BaseModel):
+class ChangeGroup(ApiModel):
     """One kind of change between parallel verses, e.g. יהוה → אלהים."""
 
     a_key: str | None  # word key in the earlier passage (None: added; spelling / form groups)
@@ -170,7 +177,7 @@ class ChangeGroup(BaseModel):
     examples: list[ChangeExample]
 
 
-class ChangesResponse(BaseModel):
+class ChangesResponse(ApiModel):
     op: DiffOp
     a_book: int | None
     b_book: int | None
@@ -181,7 +188,7 @@ class ChangesResponse(BaseModel):
     items: list[ChangeGroup]
 
 
-class VerseDiff(BaseModel):
+class VerseDiff(ApiModel):
     """Word-level changes from verse a to verse b: display token index -> op."""
 
     a: int
@@ -193,7 +200,7 @@ class VerseDiff(BaseModel):
     loose: bool  # below `diffs.min_shared`: no marks (not a close parallel)
 
 
-class VerseHalves(BaseModel):
+class VerseHalves(ApiModel):
     """A verse's cola (te'amim pauses) and how parallel they are (DESIGN.md §16.9)."""
 
     verse_id: int
@@ -209,7 +216,7 @@ class VerseHalves(BaseModel):
     next_prob: float | None = None  # bicolon with the next verse (two one-colon verses)
 
 
-class UnitParallelism(BaseModel):
+class UnitParallelism(ApiModel):
     unit: UnitSummary
     parallel_at: float
     mean_prob: float | None
@@ -218,14 +225,14 @@ class UnitParallelism(BaseModel):
     verses: list[VerseHalves]
 
 
-class ParallelUnit(BaseModel):
+class ParallelUnit(ApiModel):
     unit: UnitSummary
     mean_prob: float
     share_parallel: float
     n_scored: int
 
 
-class ParallelBook(BaseModel):
+class ParallelBook(ApiModel):
     book_id: int
     poetic_accents: bool  # Psalms, Proverbs, Job: the model's positive training books
     mean_prob: float | None
@@ -233,7 +240,7 @@ class ParallelBook(BaseModel):
     n_scored: int
 
 
-class ParallelismResponse(BaseModel):
+class ParallelismResponse(ApiModel):
     unit_type: str
     book: int | None
     exclude_poetic: bool
@@ -247,7 +254,7 @@ class ParallelismResponse(BaseModel):
     items: list[ParallelUnit]
 
 
-class WordplayPair(BaseModel):
+class WordplayPair(ApiModel):
     """Two sound-alike words close together (DESIGN.md §16.10)."""
 
     a_vid: int
@@ -269,7 +276,7 @@ class WordplayPair(BaseModel):
     verses: list[Verse]  # one verse, or two when the pair crosses a verse boundary
 
 
-class WordplayResponse(BaseModel):
+class WordplayResponse(ApiModel):
     book: int | None
     kind: str | None
     unit: str | None
@@ -283,7 +290,7 @@ class WordplayResponse(BaseModel):
 EntityKind = Literal["person", "place", "mixed", "unclear"]
 
 
-class Entity(BaseModel):
+class Entity(ApiModel):
     """A name (OSHB proper-noun lemma) with its kind guessed from context (DESIGN.md §16.11)."""
 
     lemma: str
@@ -296,7 +303,7 @@ class Entity(BaseModel):
     last_vid: int
 
 
-class EntitiesResponse(BaseModel):
+class EntitiesResponse(ApiModel):
     kind: str | None
     book: int | None
     q: str | None
@@ -306,7 +313,7 @@ class EntitiesResponse(BaseModel):
     items: list[Entity]
 
 
-class EntityPartner(BaseModel):
+class EntityPartner(ApiModel):
     lemma: str
     he: str
     kind: EntityKind
@@ -315,14 +322,14 @@ class EntityPartner(BaseModel):
     g2: float
 
 
-class EntityLink(BaseModel):
+class EntityLink(ApiModel):
     a: str
     b: str
     n_verses: int
     g2: float
 
 
-class EntityDetail(BaseModel):
+class EntityDetail(ApiModel):
     entity: Entity
     first_label: str
     last_label: str
@@ -333,13 +340,13 @@ class EntityDetail(BaseModel):
     links: list[EntityLink]  # links among the partners (for the network drawing)
 
 
-class SeamFeature(BaseModel):
+class SeamFeature(ApiModel):
     feature: str
     label: str  # Hebrew label of the lemma or morphology feature
     z: float  # change at the seam in corpus SDs (after minus before)
 
 
-class Seam(BaseModel):
+class Seam(ApiModel):
     """A point where a book's style changes (DESIGN.md §16.12)."""
 
     book_id: int
@@ -352,14 +359,14 @@ class Seam(BaseModel):
     features: list[SeamFeature]
 
 
-class CurvePoint(BaseModel):
+class CurvePoint(ApiModel):
     verse_id: int
     chapter: int
     verse: int
     shift: float
 
 
-class SeamsResponse(BaseModel):
+class SeamsResponse(ApiModel):
     book: int | None
     block_words: int
     threshold: float | None
@@ -367,7 +374,7 @@ class SeamsResponse(BaseModel):
     seams: list[Seam]
 
 
-class SequenceSummary(BaseModel):
+class SequenceSummary(ApiModel):
     """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
 
     seq_id: int
@@ -389,7 +396,7 @@ class SequenceSummary(BaseModel):
     n_gold: int  # aligned pairs that are Sefaria links
 
 
-class SequencesResponse(BaseModel):
+class SequencesResponse(ApiModel):
     book: int | None
     cross_book: bool
     hide_same_chapter: bool
@@ -403,7 +410,7 @@ class SequencesResponse(BaseModel):
     items: list[SequenceSummary]
 
 
-class LadderRow(BaseModel):
+class LadderRow(ApiModel):
     """One row of the side-by-side view: an aligned pair, or a verse skipped on one side."""
 
     a: int | None
@@ -416,19 +423,19 @@ class LadderRow(BaseModel):
     loose: bool = False  # aligned, but too different to diff word by word
 
 
-class SequenceDetail(BaseModel):
+class SequenceDetail(ApiModel):
     sequence: SequenceSummary
     rows: list[LadderRow]
     verses: dict[int, Verse]
 
 
-class WordRef(BaseModel):
+class WordRef(ApiModel):
     idx: int  # words.idx (OSHB word order)
     display_idx: int | None  # index into the verse's display_tokens; None when unaligned
     in_formula: bool
 
 
-class SharedLemma(BaseModel):
+class SharedLemma(ApiModel):
     lemma: str
     he_lemma: str
     formula: bool  # every occurrence in both verses lies inside a formula
@@ -436,25 +443,25 @@ class SharedLemma(BaseModel):
     b_words: list[WordRef]
 
 
-class ExplainResponse(BaseModel):
+class ExplainResponse(ApiModel):
     a: int
     b: int
     shared: list[SharedLemma]
 
 
-class LemmaForm(BaseModel):
+class LemmaForm(ApiModel):
     lemma: str
     he_lemma: str
 
 
-class Pair(BaseModel):
+class Pair(ApiModel):
     src: int  # verse_id in the "from" unit
     tgt: int  # its best-matching verse_id in the other unit
     cosine: float
     shared: list[LemmaForm]
 
 
-class CompareResponse(BaseModel):
+class CompareResponse(ApiModel):
     a: UnitSummary
     b: UnitSummary
     bma: float  # ½(mean best cosine A→B + mean best cosine B→A)
@@ -470,7 +477,7 @@ class SearchHit(Breakdown):
     label_he: str
 
 
-class SearchResponse(BaseModel):
+class SearchResponse(ApiModel):
     book: int | None = None
     query: str
     normalized: str
@@ -480,18 +487,18 @@ class SearchResponse(BaseModel):
     hits: list[SearchHit]
 
 
-class ResolveResponse(BaseModel):
+class ResolveResponse(ApiModel):
     query: str
     unit: UnitSummary | None  # the verse or chapter the query names; None if it is not a reference
 
 
-class LemmaStat(BaseModel):
+class LemmaStat(ApiModel):
     lemma: str
     he_lemma: str
     n_verses: int  # verses containing it
 
 
-class WordDetail(BaseModel):
+class WordDetail(ApiModel):
     idx: int
     display_idx: int | None
     surface: str  # OSHB (WLC) form, morphemes separated by `/`
@@ -502,19 +509,19 @@ class WordDetail(BaseModel):
     lemmas: list[LemmaStat]  # its content lemmas
 
 
-class BookCount(BaseModel):
+class BookCount(ApiModel):
     book_id: int
     n_verses: int
 
 
-class ConcordanceHit(BaseModel):
+class ConcordanceHit(ApiModel):
     verse: Verse
     label_en: str
     label_he: str
     display_idxs: list[int]  # display tokens carrying the lemma
 
 
-class ConcordanceResponse(BaseModel):
+class ConcordanceResponse(ApiModel):
     lemma: str
     he_lemma: str
     n_words: int
@@ -527,27 +534,27 @@ class ConcordanceResponse(BaseModel):
     items: list[ConcordanceHit]
 
 
-class StructureScore(BaseModel):
+class StructureScore(ApiModel):
     value: float  # similarity (inclusio) or mean mirror-pair similarity (chiasm)
     pct: float  # percentile against the unit's own null, 0..1
     z: float | None = None  # chiasm: distance from the null mean in null SDs
     pair: tuple[int, int] | None = None  # inclusio: verse_ids of the frame pair that scored
 
 
-class Echo(BaseModel):
+class Echo(ApiModel):
     a: int  # verse_id
     b: int
     sim: float
 
 
-class StructureBasis(BaseModel):
+class StructureBasis(ApiModel):
     matrix: list[list[float]]  # verse x verse similarity, rounded to 3 decimals
     inclusio: StructureScore | None
     chiasm: StructureScore | None
     echoes: list[Echo]  # strongest non-adjacent pairs
 
 
-class Leitwort(BaseModel):
+class Leitwort(ApiModel):
     lemma: str
     he_lemma: str
     count: int
@@ -557,7 +564,7 @@ class Leitwort(BaseModel):
     occurrences: dict[int, list[int]]  # verse_id -> display token indices
 
 
-class StructureResponse(BaseModel):
+class StructureResponse(ApiModel):
     unit: UnitSummary
     verse_ids: list[int]
     semantic: StructureBasis
@@ -565,7 +572,7 @@ class StructureResponse(BaseModel):
     leitworte: list[Leitwort]
 
 
-class StructureRank(BaseModel):
+class StructureRank(ApiModel):
     unit: UnitSummary
     semantic_inclusio: float | None
     semantic_inclusio_pct: float | None
@@ -583,7 +590,7 @@ class StructureRank(BaseModel):
     lexical_chiasm_q: float | None = None
 
 
-class StructureRankingResponse(BaseModel):
+class StructureRankingResponse(ApiModel):
     unit_type: str
     by: str
     min_verses: int
@@ -595,7 +602,7 @@ class StructureRankingResponse(BaseModel):
     items: list[StructureRank]
 
 
-class MapPoint(BaseModel):
+class MapPoint(ApiModel):
     unit_id: str
     label_en: str
     label_he: str
@@ -606,19 +613,19 @@ class MapPoint(BaseModel):
     cluster: int
 
 
-class MapCluster(BaseModel):
+class MapCluster(ApiModel):
     cluster: int
     size: int
     lemmas: list[LemmaForm]  # label lemmas, strongest first
 
 
-class MapResponse(BaseModel):
+class MapResponse(ApiModel):
     unit_type: str
     points: list[MapPoint]
     clusters: list[MapCluster]
 
 
-class AffinityCell(BaseModel):
+class AffinityCell(ApiModel):
     a: int  # book_id, a < b
     b: int
     n_pairs: int
@@ -626,12 +633,12 @@ class AffinityCell(BaseModel):
     lift: float  # observed / expected pairs
 
 
-class AffinityResponse(BaseModel):
+class AffinityResponse(ApiModel):
     order: list[int]  # book_ids, related books adjacent
     cells: list[AffinityCell]
 
 
-class AffinityPair(BaseModel):
+class AffinityPair(ApiModel):
     score: float
     a: UnitSummary
     b: UnitSummary
@@ -640,7 +647,7 @@ class AffinityPair(BaseModel):
     link: GoldLink | None = None
 
 
-class StyloPoint(BaseModel):
+class StyloPoint(ApiModel):
     unit_id: str
     label_en: str
     label_he: str
@@ -650,34 +657,34 @@ class StyloPoint(BaseModel):
     y: float
 
 
-class StyloAxis(BaseModel):
+class StyloAxis(ApiModel):
     pc: int
     variance: float  # share of the z-score variance
     positive: list[str]  # Hebrew labels of the heaviest positive loadings
     negative: list[str]
 
 
-class StyloDelta(BaseModel):
+class StyloDelta(ApiModel):
     a: int
     b: int
     delta: float
 
 
-class StylometryResponse(BaseModel):
+class StylometryResponse(ApiModel):
     points: list[StyloPoint]
     axes: list[StyloAxis]
     order: list[int]  # books, stylistically similar ones adjacent
     delta: list[StyloDelta]
 
 
-class StyloFeature(BaseModel):
+class StyloFeature(ApiModel):
     feature: str
     label: str
     rate: float  # per word
     z: float  # against the other books
 
 
-class BookStyle(BaseModel):
+class BookStyle(ApiModel):
     book_id: int
     n_words: int
     over: list[StyloFeature]
@@ -685,24 +692,24 @@ class BookStyle(BaseModel):
     closest: list[StyloDelta]  # the stylistically nearest books
 
 
-class Meta(BaseModel):
+class Meta(ApiModel):
     build: dict[str, Any]  # the DB `meta` table
     runtime: dict[str, Any]
 
 
-class EvalResponse(BaseModel):
+class EvalResponse(ApiModel):
     splits: dict[str, Any]  # artifacts/eval/metrics.json `splits` (empty before `bsim eval`)
     openbible: dict[str, Any] | None  # artifacts/eval/openbible.json
     final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it
 
 
-class AcrosticLine(BaseModel):
+class AcrosticLine(ApiModel):
     verse_id: int
     display_idx: int
     letter: str
 
 
-class Acrostic(BaseModel):
+class Acrostic(ApiModel):
     """A chapter's best alphabetic chain (DESIGN.md §16.15)."""
 
     unit: UnitSummary
@@ -719,7 +726,7 @@ class Acrostic(BaseModel):
     chain: list[AcrosticLine]
 
 
-class AcrosticsResponse(BaseModel):
+class AcrosticsResponse(ApiModel):
     max_q: float | None
     book: int | None
     known_recall: float | None
@@ -729,7 +736,7 @@ class AcrosticsResponse(BaseModel):
     items: list[Acrostic]
 
 
-class Rewrite(BaseModel):
+class Rewrite(ApiModel):
     """A change one book makes consistently against another (DESIGN.md §16.16)."""
 
     a_book: int
@@ -747,7 +754,7 @@ class Rewrite(BaseModel):
     q: float
 
 
-class RewriteProfile(BaseModel):
+class RewriteProfile(ApiModel):
     a_book: int
     b_book: int
     verse_pairs: int
@@ -763,7 +770,7 @@ class RewriteProfile(BaseModel):
     to_defective: int
 
 
-class RewritesResponse(BaseModel):
+class RewritesResponse(ApiModel):
     a_book: int | None
     b_book: int | None
     op: str | None
@@ -774,7 +781,7 @@ class RewritesResponse(BaseModel):
     items: list[Rewrite]
 
 
-class NetworkNode(BaseModel):
+class NetworkNode(ApiModel):
     unit: UnitSummary
     pagerank: float
     strength: float
@@ -785,33 +792,33 @@ class NetworkNode(BaseModel):
     y: float
 
 
-class NetworkEdge(BaseModel):
+class NetworkEdge(ApiModel):
     a: str
     b: str
     weight: float
 
 
-class NetworkCommunity(BaseModel):
+class NetworkCommunity(ApiModel):
     community: int
     size: int
     lemmas: list[LemmaForm]
     books: list[BookCount]  # units per book, most first
 
 
-class NetworkResponse(BaseModel):
+class NetworkResponse(ApiModel):
     unit_type: str
     communities: list[NetworkCommunity]
     central: list[NetworkNode]  # highest PageRank
 
 
-class CommunityResponse(BaseModel):
+class CommunityResponse(ApiModel):
     unit_type: str
     community: NetworkCommunity
     nodes: list[NetworkNode]
     edges: list[NetworkEdge]
 
 
-class UnitNetwork(BaseModel):
+class UnitNetwork(ApiModel):
     """Where a unit sits in the network: its metrics and its centrality rank."""
 
     node: NetworkNode
@@ -820,13 +827,13 @@ class UnitNetwork(BaseModel):
     community_size: int
 
 
-class VerseLabel(BaseModel):
+class VerseLabel(ApiModel):
     verse_id: int
     label_en: str
     label_he: str
 
 
-class WordPair(BaseModel):
+class WordPair(ApiModel):
     """Two lemmas that answer each other across the members of parallel lines (§16.18)."""
 
     a: LemmaForm  # in the first member
@@ -839,7 +846,7 @@ class WordPair(BaseModel):
     examples: list[VerseLabel]
 
 
-class WordPairsResponse(BaseModel):
+class WordPairsResponse(ApiModel):
     max_q: float | None
     lemma: str | None
     total: int
@@ -848,7 +855,7 @@ class WordPairsResponse(BaseModel):
     items: list[WordPair]
 
 
-class Alliteration(BaseModel):
+class Alliteration(ApiModel):
     """A colon whose content words share an initial sound (DESIGN.md §16.19)."""
 
     verse: Verse
@@ -863,7 +870,7 @@ class Alliteration(BaseModel):
     q: float
 
 
-class AlliterationResponse(BaseModel):
+class AlliterationResponse(ApiModel):
     book: int | None
     unit: str | None
     total: int
@@ -872,7 +879,7 @@ class AlliterationResponse(BaseModel):
     items: list[Alliteration]
 
 
-class Rhyme(BaseModel):
+class Rhyme(ApiModel):
     """Consecutive cola whose last words end alike."""
 
     start_vid: int
@@ -887,7 +894,7 @@ class Rhyme(BaseModel):
     q: float
 
 
-class RhymesResponse(BaseModel):
+class RhymesResponse(ApiModel):
     book: int | None
     max_q: float | None
     total: int
@@ -896,14 +903,14 @@ class RhymesResponse(BaseModel):
     items: list[Rhyme]
 
 
-class AlignedVerb(BaseModel):
+class AlignedVerb(ApiModel):
     a_vid: int
     b_vid: int
     lemma: str
     he_lemma: str
 
 
-class TypeScene(BaseModel):
+class TypeScene(ApiModel):
     """Two passages whose actions follow the same order (DESIGN.md §16.20)."""
 
     a: UnitSummary
@@ -915,7 +922,7 @@ class TypeScene(BaseModel):
     q: float
 
 
-class TypeScenesResponse(BaseModel):
+class TypeScenesResponse(ApiModel):
     book: int | None
     max_q: float | None
     hide_textual: bool

@@ -91,6 +91,7 @@ bible-similarity/
 ├── src/bsim/
 │   ├── cli.py                      # Typer app: one command per pipeline stage
 │   ├── config.py                   # load + hash config
+│   ├── fixture.py                  # tiny synthetic results DB (pytest, `bsim fixture-serve`, `bsim openapi`)
 │   ├── pipeline.py                 # `bsim all`: stage order, system lists from config
 │   ├── data/
 │   │   ├── download.py             # fetch sources, write manifest (url, sha256, date)
@@ -161,16 +162,19 @@ bible-similarity/
 │       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
-│   ├── e2e/                        # Playwright smoke + axe checks against `bsim serve` (`npm run e2e`, local Edge)
+│   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),
+│   │                               #   fixture.spec.ts against `bsim fixture-serve` (`npm run e2e:fixture`, CI)
+│   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   └── src/
-│       ├── api/                    # types mirroring api/models.py, fetch client, TanStack Query hooks
+│       ├── api/                    # types mirroring api/models.py (+ generated schema and drift check), fetch client, TanStack Query hooks
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
 │       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, structure, acrostics, map, network, style, lemma, eval, about
 │       └── styles/global.css
-├── tests/                          # pytest
+├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
+├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e
 ├── data/          (gitignored)     # raw/ interim/ processed/
 ├── models/        (gitignored)     # fine-tuned checkpoints
 └── artifacts/     (gitignored)     # embeddings/ topk/ eval/ results.sqlite
@@ -210,6 +214,7 @@ bible-similarity/
 | 11e | `bsim stylometry` | verses, words, units | `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `.meta.json` (§16.6) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
+| — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, seams, structure, map, network, stylometry, build-db |
 
 Top-k Parquet schema (all systems, all unit types):

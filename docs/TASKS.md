@@ -394,3 +394,15 @@ Phase 2 (M38b): analysis pages
 ✔ Phase 1: the core flow (browse → unit → compare / search / concordance) reads fully in Hebrew and RTL; English is unchanged.
 ✔ Phase 2: every page reads in Hebrew; 68 / 68 e2e (desktop and phone) including the Hebrew run and its accessibility check.
 
+## H5: CI and generated API types (§13, D55)
+- [x] `bsim.fixture`: the pytest fixture DB moved from `tests/conftest.py` into the package, plus a stub query encoder
+- [x] `bsim fixture-serve` (API + viewer over the fixture DB, no data, model or GPU) and `bsim openapi` (the API schema)
+- [x] `ApiModel` base for the response models: fields with defaults are required in the schema (they are always sent)
+- [x] `npm run gen:api` / `check:api`: `src/api/schema.gen.ts` (openapi-typescript) and `drift.gen.ts`, a `tsc` check of every hand-written type against the schema of the same name
+- [x] Drift fixed: `SearchResponse.book`, `SequencesResponse.direction`, and always-sent fields typed optional (`SequenceSummary.direction`, `StructureRank.*_q`, `VerseHalves.clauses` / `next_prob`, `leitwort_numbers`)
+- [x] `e2e/fixture.spec.ts` (`npm run e2e:fixture`): 28 pages load without errors, overflow or error boxes in English and Hebrew, axe in both, desktop and phone
+- [x] Accessibility fixes found by it: underlined links in Compare headings and the seam list, `--sem-ink` for small `--sem` text, a themed unit-picker "Go" button (dark-mode contrast); Compare and Style added to the real-data axe pass
+- [x] `.github/workflows/ci.yml`: ruff, pytest, oxlint + tsc, vitest, `check:api`, build, fixture e2e in Chromium
+- [x] Tests: `openapi` / `fixture-serve` in the CLI tests
+
+✔ The full check runs without the 1.1 GB of artifacts; the fixture e2e suite passes 64 / 64 locally.

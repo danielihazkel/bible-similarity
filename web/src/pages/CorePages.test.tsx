@@ -38,6 +38,7 @@ const unit = (id: string, label: string, first: number, last: number): UnitSumma
   marker: null,
 })
 const SEARCH: SearchResponse = {
+  book: null,
   query: 'נבל',
   normalized: 'נבל',
   tokens: ['נבל'],

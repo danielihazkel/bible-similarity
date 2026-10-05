@@ -19,3 +19,7 @@ web/dist/
 Thumbs.db
 .vscode/
 .idea/
+
+# Playwright
+web/playwright-report/
+web/test-results/

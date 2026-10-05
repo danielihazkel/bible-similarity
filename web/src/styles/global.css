@@ -25,6 +25,7 @@
 
   --lex: #3f7cac;
   --sem: #a8577e;
+  --sem-ink: #944d6f;  /* --sem as small text: ≥ 4.5:1 on --surface-2 */
   --known: #33682f;  /* ≥ 4.5:1 on --known-soft and white */
   --known-soft: #e3efdc;
 
@@ -67,6 +68,7 @@
     --diff-spell: #b5aa98;
     --lex: #6aa6d6;
     --sem: #d589ad;
+    --sem-ink: #d589ad;
     --known: #8fbf8a;
     --known-soft: #22331f;
     --sim-0: #2d2a24;
@@ -101,7 +103,9 @@ a:hover {
 }
 /* links inside running text must not rely on colour alone (WCAG 1.4.1) */
 p a:not(.hit-ref):not(.name-chip),
-.footer a {
+.footer a,
+.seam-list a,
+.compare-page .column > h2 a {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
@@ -1168,6 +1172,13 @@ button.chip {
   display: flex;
   gap: 0.3rem;
 }
+.picker-ref button {
+  /* themed, not the browser's ButtonFace (too little contrast in dark mode) */
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.7rem;
+}
 .picker-ref input {
   width: 11rem;
 }
@@ -1694,7 +1705,7 @@ svg[tabindex]:focus-visible {
   background: var(--surface-2);
 }
 .seam-feature.up { color: var(--known); }
-.seam-feature.down { color: var(--sem); }
+.seam-feature.down { color: var(--sem-ink); }
 
 /* Evaluation */
 .eval-table {

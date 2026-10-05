@@ -492,6 +492,46 @@ def serve(
     uvicorn.run(api, host=host or cfg["serve"]["host"], port=port or cfg["serve"]["port"])
 
 
+def _fixture_app(workdir: Path):
+    """The API over the tiny synthetic DB of `bsim.fixture`, built in `workdir`, with the
+    viewer build of the default config and a stub query encoder (no model, no GPU)."""
+    from bsim.api.app import create_app
+    from bsim.fixture import build_fixture_db, fixture_encoder
+
+    cfg, _ = build_fixture_db(workdir)
+    cfg["paths"]["web_dist"] = load_config()["paths"]["web_dist"]
+    return create_app(cfg, encoder=fixture_encoder, log=lambda _: None)
+
+
+@app.command("fixture-serve")
+def fixture_serve(
+    port: Annotated[int, typer.Option(help="Port")] = 8778,
+) -> None:
+    """Serve the viewer over a tiny synthetic DB (CI end-to-end tests; no data or model)."""
+    import tempfile
+
+    import uvicorn
+
+    with tempfile.TemporaryDirectory(prefix="bsim-fixture-", ignore_cleanup_errors=True) as tmp:
+        uvicorn.run(_fixture_app(Path(tmp)), host="127.0.0.1", port=port)
+
+
+@app.command()
+def openapi(
+    out: Annotated[Path, typer.Option(help="Where to write the schema")] = Path(
+        "web/src/api/openapi.json"
+    ),
+) -> None:
+    """Write the API's OpenAPI schema (input of the viewer's generated types)."""
+    import json
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="bsim-openapi-", ignore_cleanup_errors=True) as tmp:
+        schema = _fixture_app(Path(tmp)).openapi()
+    out.write_text(json.dumps(schema, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    typer.echo(f"wrote {out}")
+
+
 @app.command("all")
 def run_all(
     start: Annotated[

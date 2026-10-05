@@ -76,7 +76,10 @@ const RANKING: StructureRankingResponse = {
       lexical_chiasm: 0.4,
       lexical_chiasm_pct: 0.5,
       lexical_chiasm_z: 0.1,
+      semantic_inclusio_q: 0.2,
       semantic_chiasm_q: 0.3,
+      lexical_inclusio_q: null,
+      lexical_chiasm_q: 0.6,
     },
   ],
 }

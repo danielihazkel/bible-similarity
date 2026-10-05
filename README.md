@@ -35,7 +35,7 @@ uv run bsim serve            # API + viewer on http://localhost:8000
 
 Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 
-Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend; `npm run e2e` runs the Playwright smoke and accessibility tests against a running `bsim serve`.
+Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http://localhost:5173, proxies `/api`). `npm run lint` and `npm test` check the frontend; `npm run e2e` runs the Playwright smoke and accessibility tests against `bsim serve` (the real DB), and `npm run e2e:fixture` the same kind of checks against `bsim fixture-serve`, a tiny synthetic DB that needs no data or model (what CI runs). After changing an API response model, run `npm run gen:api` (in `web/`) to regenerate the API schema types; `tsc` then reports any hand-written type in `src/api/types.ts` that no longer matches.
 
 ## Data & licenses
 - Hebrew text and morphology: [OSHB morphhb](https://github.com/openscriptures/morphhb) (WLC: public domain; morphology: CC BY 4.0)

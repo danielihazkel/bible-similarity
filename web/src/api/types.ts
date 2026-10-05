@@ -180,6 +180,7 @@ export interface SearchHit extends Breakdown {
 }
 
 export interface SearchResponse {
+  book: number | null
   query: string
   normalized: string
   tokens: string[]
@@ -287,14 +288,14 @@ export interface StructureRank {
   lexical_chiasm: number | null
   lexical_chiasm_pct: number | null
   lexical_chiasm_z: number | null
-  semantic_inclusio_q?: number | null
-  semantic_chiasm_q?: number | null
-  lexical_inclusio_q?: number | null
-  lexical_chiasm_q?: number | null
+  semantic_inclusio_q: number | null
+  semantic_chiasm_q: number | null
+  lexical_inclusio_q: number | null
+  lexical_chiasm_q: number | null
 }
 
 /** Multiples-of-m check of Leitwort counts: m -> observed vs count-matched expectation. */
-export interface LeitwortNumbers {
+export type LeitwortNumbers = {
   leitworte: number
   lemma_counts: number
   [m: string]: number | { multiples: number; expected: number; share: number | null; p: number }
@@ -304,7 +305,7 @@ export interface StructureRankingResponse {
   unit_type: UnitType
   by: StructureSort
   min_verses: number
-  leitwort_numbers?: LeitwortNumbers | null
+  leitwort_numbers: LeitwortNumbers | null
   total: number
   offset: number
   limit: number
@@ -413,7 +414,7 @@ export interface SequenceSummary {
   b_start: number
   b_end: number
   /** order of the b side: same, mirrored, or the same scene reordered */
-  direction?: SequenceDirection
+  direction: SequenceDirection
   a_label: string
   b_label: string
   a_label_he: string
@@ -436,6 +437,7 @@ export interface SequencesResponse {
   max_q: number | null
   min_pairs: number
   unit: string | null
+  direction: SequenceDirection | null
   total: number
   offset: number
   limit: number
@@ -505,9 +507,9 @@ export interface VerseHalves {
   balance: number | null
   prob: number | null
   /** spans between accent pauses of level 1-2 */
-  clauses?: [number, number][]
+  clauses: [number, number][]
   /** bicolon with the next verse (two one-colon verses) */
-  next_prob?: number | null
+  next_prob: number | null
 }
 
 export interface UnitParallelism {
@@ -675,7 +677,7 @@ export interface EvalSplit {
   results: Record<string, Record<string, MetricSet>>
 }
 
-export interface OpenBibleEval {
+export type OpenBibleEval = {
   evaluated_at?: string
   split?: string
   gold?: Record<string, number>

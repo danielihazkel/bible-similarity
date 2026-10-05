@@ -1,3 +1,5 @@
+import json
+
 import yaml
 from typer.testing import CliRunner
 
@@ -21,6 +23,8 @@ COMMANDS = [
     "retrieval-exp",
     "build-db",
     "serve",
+    "fixture-serve",
+    "openapi",
     "all",
 ]
 
@@ -48,3 +52,14 @@ def test_embed_unknown_system_exits_nonzero():
     result = runner.invoke(app, ["embed", "--model", "nope"])
     assert result.exit_code == 1
     assert "unknown encoder system" in result.output
+
+
+def test_openapi_writes_the_viewer_schema(tmp_path):
+    out = tmp_path / "openapi.json"
+    result = runner.invoke(app, ["openapi", "--out", str(out)])
+    assert result.exit_code == 0, result.output
+    schema = json.loads(out.read_text(encoding="utf-8"))
+    assert "/api/books" in schema["paths"] and "/api/similar/{unit_id}" in schema["paths"]
+    # a field with a default is always in the response, so the generated type requires it
+    unit = schema["components"]["schemas"]["UnitSummary"]
+    assert "marker" in unit["required"]
