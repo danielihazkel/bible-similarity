@@ -1,4 +1,5 @@
-import { Component, type ReactNode } from 'react'
+import { Component, type ContextType, type ReactNode } from 'react'
+import { LocaleContext } from '../context/localeContext'
 import { isChunkLoadError } from '../lib/chunk'
 
 const RELOADED_KEY = 'bsim:chunk-reload'
@@ -32,6 +33,8 @@ interface State {
  * button. Render it with `key={pathname}` so navigating elsewhere clears the error.
  */
 export class ErrorBoundary extends Component<Props, State> {
+  static contextType = LocaleContext
+  declare context: ContextType<typeof LocaleContext>
   state: State = {}
 
   static getDerivedStateFromError(error: unknown): State {
@@ -48,15 +51,14 @@ export class ErrorBoundary extends Component<Props, State> {
     const { error } = this.state
     if (error === undefined) return this.props.children
     const stale = isChunkLoadError(error)
+    const { m } = this.context
     return (
       <div className="status error" role="alert">
         <p>
-          {stale
-            ? 'This page could not be loaded: the viewer has been updated since this tab was opened.'
-            : `Something went wrong while showing this page${error instanceof Error ? `: ${error.message}` : ''}.`}
+          {stale ? m.status.staleChunk : m.status.crashed(error instanceof Error ? error.message : undefined)}
         </p>
         <button type="button" onClick={this.reload}>
-          Reload
+          {m.status.reload}
         </button>
       </div>
     )

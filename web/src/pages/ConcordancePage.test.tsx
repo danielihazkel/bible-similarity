@@ -32,6 +32,7 @@ const conc = (book: string | null): ConcordanceResponse => ({
         chapter: 1,
         verse: 1,
         ref: 'Genesis 1:1',
+        ref_he: 'הפניה',
         text_display: 'בְּרֵאשִׁית בָּרָא',
         display_tokens: ['בְּרֵאשִׁית', 'בָּרָא'],
         ketiv_note: null,

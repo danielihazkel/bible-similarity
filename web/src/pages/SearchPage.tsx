@@ -6,12 +6,15 @@ import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
 import { ScoreBreakdown } from '../components/ScoreBreakdown'
 import { ErrorBox, Loading } from '../components/Status'
-import { MODE_HINTS } from '../lib/format'
+import { UnitName } from '../components/UnitName'
+import { useLocale, useT } from '../context/localeContext'
 import { hasHebrew } from '../lib/hebrew'
+import { bookOption, unitLabel } from '../lib/names'
 import { unitLink } from '../lib/links'
 import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_K_OPTIONS, SEARCH_MODES, useQueryParams } from '../lib/urlState'
 
 export function SearchPage() {
+  const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const q = params.get('q') ?? ''
   const mode = parseMode(params.get('mode'), SEARCH_MODES)
@@ -28,7 +31,7 @@ export function SearchPage() {
 
   return (
     <div className="page search-page">
-      <h1>Search</h1>
+      <h1>{m.search.title}</h1>
       {/* key: the draft restarts from the URL query on back / forward navigation */}
       <SearchForm key={q} initial={q} onSubmit={(text) => update({ q: text.trim() || null }, false)} />
       <div className="toolbar">
@@ -39,62 +42,65 @@ export function SearchPage() {
           onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })}
         />
         <label className="control">
-          <span>Book</span>
+          <span>{m.search.book}</span>
           <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null })}>
-            <option value="">All books</option>
+            <option value="">{m.search.allBooks}</option>
             {books.data?.map((b) => (
               <option key={b.book_id} value={b.book_id}>
-                {b.name} · {b.he_name}
+                {bookOption(b, locale)}
               </option>
             ))}
           </select>
         </label>
       </div>
       <p className="muted small">
-        {MODE_HINTS[mode]}. Pointed or unpointed input; lexical matching strips prefixes (ו ה ב כ ל מ ש).
+        {m.modes.hints[mode]}. {m.search.hint}
       </p>
 
       {needsEncoder && encoder.error ? (
         <p className="status error" role="alert">
-          The semantic encoder failed to load on the server ({encoder.error}); only lexical search is available.{' '}
+          {m.search.encoderFailed(encoder.error)}{' '}
           <button type="button" className="linkish" onClick={() => update({ mode: 'lexical' })}>
-            Search lexically
+            {m.search.searchLexically}
           </button>
         </p>
       ) : (
         needsEncoder &&
         encoder.ready === false && (
           <p className="status" role="status">
-            The semantic encoder is still loading on the server; {mode} search will answer as soon as it is ready
-            (lexical search works now).
+            {m.search.encoderLoading(m.modes.names[mode].toLowerCase())}
           </p>
         )
       )}
 
       {resolved && (
         <p className="goto">
-          Reference: <Link to={unitLink(resolved.unit_id)}>{resolved.label_en}</Link>{' '}
-          <span className="he-label" dir="rtl" lang="he">
-            {resolved.label_he}
-          </span>{' '}
-          →
+          {m.search.reference} <Link to={unitLink(resolved.unit_id)}>{unitLabel(resolved, locale)}</Link>{' '}
+          {locale === 'en' && (
+            <>
+              <span className="he-label" dir="rtl" lang="he">
+                {resolved.label_he}
+              </span>{' '}
+            </>
+          )}
+          {m.locale === 'he' ? '←' : '→'}
         </p>
       )}
 
       {!q ? null : !hasHebrew(q) ? (
-        !resolved && <p className="status">Not a reference; free-text search needs Hebrew letters.</p>
+        !resolved && <p className="status">{m.search.notRef}</p>
       ) : needsEncoder && encoder.error ? null : search.isPending ? (
-        <Loading label={encoderLoading ? 'Waiting for the semantic encoder…' : 'Searching…'} />
+        <Loading label={encoderLoading ? m.search.waiting : m.search.searching} />
       ) : search.error ? (
         <ErrorBox error={search.error} />
       ) : (
         <>
           <p className="muted small">
-            Normalized: <span className="he" dir="rtl" lang="he">{search.data.normalized}</span>
+            {m.search.normalized} <span className="he" dir="rtl" lang="he">{search.data.normalized}</span>
             {mode !== 'semantic' && search.data.tokens.length > 0 && (
               <>
                 {' '}
-                · lexical terms:{' '}
+                · {m.search.terms}{' '}
                 <span className="he" dir="rtl" lang="he">
                   {search.data.tokens.join(' · ')}
                 </span>
@@ -102,7 +108,7 @@ export function SearchPage() {
             )}
           </p>
           {search.data.hits.length === 0 ? (
-            <p className="status">No matches.</p>
+            <p className="status">{m.search.noMatches}</p>
           ) : (
             <ol className="hits">
               {search.data.hits.map((h) => (
@@ -110,10 +116,7 @@ export function SearchPage() {
                   <div className="hit-head">
                     <span className="hit-rank">{h.rank}</span>
                     <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
-                      {h.label_en}
-                      <span className="he-label" dir="rtl" lang="he">
-                        {h.label_he}
-                      </span>
+                      <UnitName en={h.label_en} he={h.label_he} />
                     </Link>
                     <ScoreBreakdown hit={h} mode={search.data.mode} />
                   </div>
@@ -131,6 +134,7 @@ export function SearchPage() {
 }
 
 function SearchForm({ initial, onSubmit }: { initial: string; onSubmit: (text: string) => void }) {
+  const m = useT()
   const [draft, setDraft] = useState(initial)
   const [keypad, setKeypad] = useState(false)
   const input = useRef<HTMLInputElement>(null)
@@ -152,15 +156,15 @@ function SearchForm({ initial, onSubmit }: { initial: string; onSubmit: (text: s
           type="search"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="חיפוש בתנ״ך… או הפניה: בראשית א א / Gen 1:1"
-          aria-label="Hebrew search text or reference"
+          placeholder={m.search.placeholder}
+          aria-label={m.search.inputLabel}
           autoFocus
         />
         <button type="submit" className="primary">
-          Search
+          {m.search.submit}
         </button>
         <button type="button" className="linkish" aria-expanded={keypad} onClick={() => setKeypad(!keypad)}>
-          {keypad ? 'Hide keyboard' : 'Hebrew keyboard'}
+          {keypad ? m.search.hideKeyboard : m.search.showKeyboard}
         </button>
       </form>
       {keypad && (

@@ -32,6 +32,7 @@ const verse = (id: number, ref: string) => ({
   chapter: 1,
   verse: id,
   ref,
+  ref_he: 'הפניה',
   text_display: 'וַיְדַבֵּר',
   display_tokens: ['וַיְדַבֵּר'],
   ketiv_note: null,

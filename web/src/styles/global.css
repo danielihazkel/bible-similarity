@@ -140,8 +140,12 @@ h2 {
   font-family: var(--font-he);
   color: var(--muted);
   font-weight: 400;
-  margin-left: 0.5em; /* physical: the chrome is LTR, the label itself is dir=rtl */
+  margin-left: 0.5em; /* physical: the label itself is dir=rtl, so its inline start is the right */
   unicode-bidi: isolate;
+}
+:root[dir='rtl'] .he-label {
+  margin-left: 0;
+  margin-right: 0.5em;
 }
 .he-label.big {
   font-size: 1.15em;
@@ -458,6 +462,9 @@ button.linkish:hover {
   background: var(--accent-soft);
   color: var(--text);
   font-weight: 600;
+}
+.lang-seg button {
+  padding: 0.15rem 0.5rem;
 }
 .he-seg button {
   font-family: var(--font-he);
@@ -1262,6 +1269,11 @@ button.chip {
   direction: ltr;
   text-align: left;
 }
+/* the Hebrew interface reads the meta line (verse, partner, cosine) right to left too */
+:root[dir='rtl'] .align-meta {
+  direction: rtl;
+  text-align: right;
+}
 .align-meta .verse-num {
   min-width: 0;
   font-weight: 600;
@@ -1327,7 +1339,7 @@ button.chip {
 }
 .meta-table th,
 .meta-table td {
-  text-align: left;
+  text-align: start;
   vertical-align: top;
   padding: 0.3rem 0.5rem;
   border-bottom: 1px solid var(--border);
@@ -1849,7 +1861,7 @@ svg[tabindex]:focus-visible {
 /* Skip link: off screen until focused */
 .skip-link {
   position: absolute;
-  left: -999px;
+  inset-inline-start: -999px;
   top: 0.5rem;
   z-index: 100;
   padding: 0.4rem 0.8rem;
@@ -1859,7 +1871,7 @@ svg[tabindex]:focus-visible {
   border-radius: var(--radius);
 }
 .skip-link:focus {
-  left: 0.5rem;
+  inset-inline-start: 0.5rem;
 }
 .main:focus {
   outline: none;

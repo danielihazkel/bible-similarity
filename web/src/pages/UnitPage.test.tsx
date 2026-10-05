@@ -13,6 +13,8 @@ import type {
   Verse,
   WordDetail,
 } from '../api/types'
+import { LocaleProvider } from '../context/Locale'
+import type { Locale } from '../i18n'
 import { UnitPage } from './UnitPage'
 
 const unit = (id: number, label: string): UnitSummary => ({
@@ -32,6 +34,7 @@ const verse = (id: number, tokens: string[]): Verse => ({
   chapter: 1,
   verse: id + 1,
   ref: `Test 1:${id + 1}`,
+  ref_he: 'הפניה',
   text_display: tokens.join(' '),
   display_tokens: tokens,
   ketiv_note: null,
@@ -152,17 +155,19 @@ function Location() {
   return <output data-testid="loc">{l.pathname + l.search}</output>
 }
 
-function renderAt(path: string) {
+function renderAt(path: string, locale: Locale = 'en') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/unit/:unitId" element={<UnitPage />} />
-        </Routes>
-        <Location />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <LocaleProvider initial={locale}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/unit/:unitId" element={<UnitPage />} />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </LocaleProvider>,
   )
 }
 
@@ -185,6 +190,19 @@ describe('UnitPage', () => {
     expect(screen.getByLabelText('Shared lemmas').textContent).toContain('אמר')
   })
 
+  it('speaks Hebrew in the Hebrew interface', async () => {
+    mockApi()
+    const { container } = renderAt('/unit/v:0', 'he')
+    const hit = (await screen.findByText('he Test 1:6')).closest('li')!
+    expect(screen.queryByText('Test 1:6')).toBeNull()
+    expect(screen.getByRole('heading', { name: 'פסוקים דומים' })).toBeTruthy()
+    expect(hit.querySelector('.phrase-tag')?.textContent).toBe('צירוף · 4')
+    expect(container.querySelector('.type-tag')?.textContent).toBe('פסוק')
+    expect(screen.getByRole('radio', { name: 'משולב' }).getAttribute('aria-checked')).toBe('true')
+    fireEvent.mouseEnter(hit)
+    expect((await screen.findByLabelText('ערכים משותפים')).textContent).toContain('אמר')
+  })
+
   it('shows the phrase badge and the shared-phrases section', async () => {
     mockApi()
     const { container } = renderAt('/unit/v:0')
@@ -200,8 +218,12 @@ describe('UnitPage', () => {
     mockApi(['/api/phrases/0', '/api/wordplay'])
     renderAt('/unit/v:0')
     await screen.findByText('Test 1:6')
-    expect(await screen.findByText('Could not load shared phrases (500: boom).')).toBeTruthy()
-    expect(await screen.findByText('Could not load wordplay (500: boom).')).toBeTruthy()
+    // the server's detail is its own (bidi-isolated) element: match the alert's whole text
+    await waitFor(() =>
+      expect(screen.getAllByRole('alert').map((a) => a.textContent)).toEqual(
+        expect.arrayContaining(['Could not load shared phrases (500: boom).', 'Could not load wordplay (500: boom).']),
+      ),
+    )
     expect(screen.queryByText(/Could not load parallel sequences/)).toBeNull()
   })
 

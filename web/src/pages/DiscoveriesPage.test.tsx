@@ -23,6 +23,7 @@ const verse = (id: number, text: string): Verse => ({
   chapter: 1,
   verse: 1,
   ref: `B${id} 1:1`,
+  ref_he: 'הפניה',
   text_display: text,
   display_tokens: text.split(' '),
   ketiv_note: null,

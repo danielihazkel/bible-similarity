@@ -4,6 +4,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import type { ReactNode } from 'react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { LocaleProvider } from '../context/Locale'
+import type { Locale } from '../i18n'
 import type { Book, CompareResponse, SearchResponse, UnitSummary, Verse } from '../api/types'
 import { BooksPage } from './BooksPage'
 import { ComparePage } from './ComparePage'
@@ -19,6 +21,7 @@ const verse = (id: number, tokens: string[]): Verse => ({
   chapter: 14,
   verse: id,
   ref: `Ps ${id}`,
+  ref_he: 'הפניה',
   text_display: tokens.join(' '),
   display_tokens: tokens,
   ketiv_note: null,
@@ -99,15 +102,17 @@ function mockApi(encoderReady: boolean, encoderError: string | null = null) {
   return calls
 }
 
-function renderAt(path: string, routes: ReactNode) {
+function renderAt(path: string, routes: ReactNode, locale: Locale = 'en') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>{routes}</Routes>
-        <Location />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <LocaleProvider initial={locale}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>{routes}</Routes>
+          <Location />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </LocaleProvider>,
   )
 }
 
@@ -123,6 +128,27 @@ describe('BooksPage', () => {
     expect(await screen.findByRole('heading', { name: /Torah/ })).toBeTruthy()
     expect(screen.getByRole('heading', { name: /Writings/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Psalms/ }).getAttribute('href')).toBe('/browse/26')
+  })
+})
+
+describe('Hebrew interface', () => {
+  it('names the sections and books in Hebrew only', async () => {
+    mockApi(true)
+    renderAt('/', <Route path="/" element={<BooksPage />} />, 'he')
+    expect(await screen.findByRole('heading', { name: 'תורה' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'עיון' })).toBeTruthy()
+    expect(screen.queryByText('Genesis')).toBeNull()
+    expect(screen.getByRole('link', { name: /תהלים/ }).textContent).toContain('150 פרקים')
+  })
+
+  it('labels search hits and controls in Hebrew', async () => {
+    mockApi(true)
+    renderAt('/search?q=נבל&mode=lexical', <Route path="/search" element={<SearchPage />} />, 'he')
+    const hit = await screen.findByRole('link', { name: 'תהלים יד א' })
+    expect(hit.getAttribute('href')).toBe('/unit/v%3A1')
+    expect(screen.getByRole('radiogroup', { name: 'סוג דמיון' })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: 'מילולי' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('option', { name: 'תהלים' })).toBeTruthy()
   })
 })
 

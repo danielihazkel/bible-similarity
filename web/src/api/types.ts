@@ -32,6 +32,8 @@ export interface Verse {
   chapter: number
   verse: number
   ref: string
+  /** Hebrew reference, e.g. "בראשית א:א" */
+  ref_he: string
   text_display: string
   display_tokens: string[]
   ketiv_note: string | null

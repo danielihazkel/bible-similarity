@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tanakh Similarity</title>
+    <script>
+      // the interface language before the first paint (context/Locale.tsx owns the key)
+      try {
+        if (localStorage.getItem('bsim.locale') === 'he') {
+          document.documentElement.lang = 'he'
+          document.documentElement.dir = 'rtl'
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

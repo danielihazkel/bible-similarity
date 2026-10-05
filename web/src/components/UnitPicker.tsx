@@ -2,8 +2,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { getJson } from '../api/client'
 import { useBooks, useUnit, useUnits } from '../api/hooks'
-import type { ResolveResponse, UnitSummary, UnitType } from '../api/types'
-import { unitTypeLabel } from '../lib/format'
+import type { ResolveResponse, UnitDetail, UnitType } from '../api/types'
+import { useLocale } from '../context/localeContext'
+import { bookOption, unitLabel } from '../lib/names'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha', 'verse']
 
@@ -19,7 +20,9 @@ interface Props {
  * unit until the user changes them (render with `key={value}` to reset on a new value).
  */
 export function UnitPicker({ label, value, onChange }: Props) {
-  const current = useUnit(value).data?.unit
+  const { m, locale } = useLocale()
+  const currentDetail = useUnit(value).data
+  const current = currentDetail?.unit
   const [typeChoice, setType] = useState<UnitType>()
   const [bookChoice, setBook] = useState<number>()
   const type = typeChoice ?? current?.unit_type ?? 'chapter'
@@ -32,7 +35,7 @@ export function UnitPicker({ label, value, onChange }: Props) {
   // verses: a chapter at a time (a whole book's verses make a select of thousands of options)
   const nChapters = books.find((b) => b.book_id === book)?.n_chapters ?? 0
   const [chapterChoice, setChapter] = useState<number>()
-  const chapter = type === 'verse' ? (chapterChoice ?? currentChapter(current) ?? 1) : undefined
+  const chapter = type === 'verse' ? (chapterChoice ?? currentChapter(currentDetail) ?? 1) : undefined
   const unitsQuery = useUnits(type, book, chapter)
   const units = unitsQuery.data ?? []
 
@@ -43,7 +46,7 @@ export function UnitPicker({ label, value, onChange }: Props) {
     e.preventDefault()
     const q = ref.trim()
     if (!q) return
-    setRefStatus('Looking up…')
+    setRefStatus(m.picker.lookingUp)
     try {
       const r = await queryClient.fetchQuery({
         queryKey: ['resolve', q],
@@ -53,70 +56,70 @@ export function UnitPicker({ label, value, onChange }: Props) {
       if (r.unit) {
         setRefStatus(undefined)
         onChange(r.unit.unit_id)
-      } else setRefStatus(`Not a reference: ${q}`)
+      } else setRefStatus(m.picker.notRef(q))
     } catch {
-      setRefStatus('Could not reach the API')
+      setRefStatus(m.picker.unreachable)
     }
   }
-  const error = booksQuery.isError ? 'Could not load books' : unitsQuery.isError ? 'Could not load units' : undefined
+  const error = booksQuery.isError ? m.picker.booksFailed : unitsQuery.isError ? m.picker.unitsFailed : undefined
 
   return (
     <fieldset className="picker">
       <legend>{label}</legend>
-      <select aria-label={`${label} unit type`} value={type} onChange={(e) => setType(e.target.value as UnitType)}>
+      <select aria-label={m.picker.unitType(label)} value={type} onChange={(e) => setType(e.target.value as UnitType)}>
         {TYPES.map((t) => (
           <option key={t} value={t}>
-            {unitTypeLabel(t)}
+            {m.units.type(t)}
           </option>
         ))}
       </select>
       <select
-        aria-label={`${label} book`}
+        aria-label={m.picker.book(label)}
         value={book ?? ''}
         onChange={(e) => setBook(e.target.value === '' ? undefined : Number(e.target.value))}
       >
-        <option value="">Book…</option>
+        <option value="">{m.picker.bookPlaceholder}</option>
         {visibleBooks.map((b) => (
           <option key={b.book_id} value={b.book_id}>
-            {b.name} · {b.he_name}
+            {bookOption(b, locale)}
           </option>
         ))}
       </select>
       {type === 'verse' && book !== undefined && nChapters > 0 && (
-        <select aria-label={`${label} chapter`} value={chapter} onChange={(e) => setChapter(Number(e.target.value))}>
+        <select aria-label={m.picker.chapter(label)} value={chapter} onChange={(e) => setChapter(Number(e.target.value))}>
           {Array.from({ length: nChapters }, (_, i) => i + 1).map((c) => (
             <option key={c} value={c}>
-              Chapter {c}
+              {m.units.chapterN(c)}
             </option>
           ))}
         </select>
       )}
       <select
-        aria-label={`${label} unit`}
+        aria-label={m.picker.unit(label)}
         value={units.some((u) => u.unit_id === value) ? value : ''}
         disabled={!units.length}
         aria-busy={unitsQuery.isFetching}
         onChange={(e) => e.target.value && onChange(e.target.value)}
       >
-        <option value="">{unitsQuery.isFetching ? 'Loading…' : `${unitTypeLabel(type)}…`}</option>
+        <option value="">{unitsQuery.isFetching ? m.status.loading : `${m.units.type(type)}…`}</option>
         {units.map((u) => (
           <option key={u.unit_id} value={u.unit_id}>
-            {u.label_en}
+            {unitLabel(u, locale)}
           </option>
         ))}
       </select>
       <form className="picker-ref" onSubmit={goTo} role="search">
         <input
           type="text"
-          aria-label={`${label} reference`}
-          placeholder="Gen 1:1 · בראשית א"
+          aria-label={m.picker.reference(label)}
+          placeholder={m.picker.refPlaceholder}
           value={ref}
           onChange={(e) => {
             setRef(e.target.value)
             setRefStatus(undefined)
           }}
         />
-        <button type="submit">Go</button>
+        <button type="submit">{m.picker.go}</button>
       </form>
       {(error ?? refStatus) && (
         <p className={`picker-status${error ? ' error' : ''}`} role={error ? 'alert' : 'status'}>
@@ -127,9 +130,7 @@ export function UnitPicker({ label, value, onChange }: Props) {
   )
 }
 
-/** The chapter of a verse unit, from its label ("Genesis 1:1" -> 1). */
-function currentChapter(u: UnitSummary | undefined): number | undefined {
-  if (u?.unit_type !== 'verse') return undefined
-  const m = /(\d+):\d+$/.exec(u.label_en)
-  return m ? Number(m[1]) : undefined
+/** The chapter of a verse unit (from its verse, not its label: labels differ per language). */
+function currentChapter(d: UnitDetail | undefined): number | undefined {
+  return d?.unit.unit_type === 'verse' ? d.verses[0]?.chapter : undefined
 }

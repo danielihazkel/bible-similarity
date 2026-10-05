@@ -15,6 +15,7 @@ const verse = (id: number, tokens: string[]): Verse => ({
   chapter: 24,
   verse: id,
   ref: `Isa 24:${id}`,
+  ref_he: 'הפניה',
   text_display: tokens.join(' '),
   display_tokens: tokens,
   ketiv_note: null,

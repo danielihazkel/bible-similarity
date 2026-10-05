@@ -4,6 +4,9 @@ import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { UnitName } from '../components/UnitName'
+import { useLocale } from '../context/localeContext'
+import { bookName } from '../lib/names'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -12,6 +15,7 @@ const PAGE_SIZE = 50
 
 /** Every verse containing one content lemma, with its distribution over the books. */
 export function ConcordancePage() {
+  const { m, locale } = useLocale()
   const lemma = useParams().lemma!
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -32,14 +36,14 @@ export function ConcordancePage() {
         <span className="he-label big" dir="rtl" lang="he">
           {c.he_lemma}
         </span>{' '}
-        <span className="type-tag">Strong's {c.lemma}</span>
+        <span className="type-tag">{m.lemmas.strongsTag(c.lemma)}</span>
       </h1>
       <p className="lede">
-        {c.n_words.toLocaleString()} occurrences in {c.n_verses.toLocaleString()} verses, {c.by_book.length} books.
+        {m.concordance.occurrences(c.n_words, c.n_verses, c.by_book.length)}
       </p>
 
-      <section aria-label="By book">
-        <h2>By book</h2>
+      <section aria-label={m.concordance.byBook}>
+        <h2>{m.concordance.byBook}</h2>
         <ul className="book-bars">
           {c.by_book.map((b) => {
             const on = book === b.book_id
@@ -50,9 +54,9 @@ export function ConcordancePage() {
                   className={on ? 'on' : undefined}
                   aria-pressed={on}
                   onClick={() => update({ book: on ? null : String(b.book_id), page: null })}
-                  title={on ? 'Show all books' : 'Only this book'}
+                  title={on ? m.concordance.allBooks : m.concordance.onlyBook}
                 >
-                  <span className="bar-label">{names.get(b.book_id)?.name ?? b.book_id}</span>
+                  <span className="bar-label">{names.has(b.book_id) ? bookName(names.get(b.book_id)!, locale) : b.book_id}</span>
                   <span className="bar-track">
                     <span className="bar-fill" style={{ width: `${(b.n_verses / most) * 100}%` }} />
                   </span>
@@ -65,8 +69,10 @@ export function ConcordancePage() {
       </section>
 
       <h2>
-        Verses{book !== undefined && names.get(book) ? ` in ${names.get(book)!.name}` : ''}{' '}
-        <span className="muted small">({c.total.toLocaleString()})</span>
+        {book !== undefined && names.get(book)
+          ? m.concordance.versesIn(bookName(names.get(book)!, locale))
+          : m.concordance.verses}{' '}
+        <span className="muted small">({m.num(c.total)})</span>
       </h2>
       <p className="muted small">
         <ExportCsv
@@ -80,10 +86,7 @@ export function ConcordancePage() {
           <li key={h.verse.verse_id} className="hit">
             <div className="hit-head">
               <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
-                {h.label_en}
-                <span className="he-label" dir="rtl" lang="he">
-                  {h.label_he}
-                </span>
+                <UnitName en={h.label_en} he={h.label_he} />
               </Link>
             </div>
             <p className="hit-text">

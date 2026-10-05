@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { BrowserRouter, Link, Route, Routes } from 'react-router'
 import { Layout } from './components/Layout'
+import { useT } from './context/localeContext'
 import { BooksPage } from './pages/BooksPage'
 
 // pages load on first visit (the landing page ships with the app)
@@ -25,6 +26,15 @@ const SearchPage = lazy(() => import('./pages/SearchPage').then((m) => ({ defaul
 const TypeScenesPage = lazy(() => import('./pages/TypeScenesPage').then((m) => ({ default: m.TypeScenesPage })))
 const UnitPage = lazy(() => import('./pages/UnitPage').then((m) => ({ default: m.UnitPage })))
 const WordplayPage = lazy(() => import('./pages/WordplayPage').then((m) => ({ default: m.WordplayPage })))
+
+function NotFound() {
+  const m = useT()
+  return (
+    <p className="status">
+      {m.site.notFound} <Link to="/">{m.site.backToBooks}</Link>.
+    </p>
+  )
+}
 
 export function App() {
   return (
@@ -53,14 +63,7 @@ export function App() {
           <Route path="search" element={<SearchPage />} />
           <Route path="eval" element={<EvalPage />} />
           <Route path="about" element={<AboutPage />} />
-          <Route
-            path="*"
-            element={
-              <p className="status">
-                Page not found. <Link to="/">Back to the books</Link>.
-              </p>
-            }
-          />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

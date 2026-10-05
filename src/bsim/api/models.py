@@ -37,6 +37,7 @@ class Verse(BaseModel):
     chapter: int
     verse: int
     ref: str
+    ref_he: str
     text_display: str
     display_tokens: list[str]
     ketiv_note: str | None = None

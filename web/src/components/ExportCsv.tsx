@@ -1,4 +1,5 @@
 import { apiUrl, type Params } from '../api/client'
+import { useT } from '../context/localeContext'
 import { type CsvRow, downloadCsv } from '../lib/csv'
 
 /**
@@ -14,17 +15,18 @@ export function ExportCsv({
   rows: () => CsvRow[]
   all?: { list: string; params: Params }
 }) {
+  const m = useT()
   const { limit: _limit, offset: _offset, ...filters } = all?.params ?? {}
   return (
     <>
       <button type="button" className="linkish export-csv" onClick={() => downloadCsv(filename, rows())}>
-        Export page (CSV)
+        {m.csv.page}
       </button>
       {all && (
         <>
           {' · '}
           <a className="export-csv" href={apiUrl(`/export/${all.list}.csv`, filters)} download>
-            Export all (CSV)
+            {m.csv.all}
           </a>
         </>
       )}

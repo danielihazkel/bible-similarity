@@ -1,3 +1,4 @@
+import { useT } from '../context/localeContext'
 import { KEYPAD_LETTERS } from '../lib/hebrew'
 
 interface Props {
@@ -7,17 +8,18 @@ interface Props {
 
 /** On-screen Hebrew letters for machines without a Hebrew keyboard layout. */
 export function HebrewKeypad({ onKey, onBackspace }: Props) {
+  const m = useT()
   return (
-    <div className="keypad" dir="rtl" lang="he" aria-label="Hebrew keyboard">
+    <div className="keypad" dir="rtl" lang="he" aria-label={m.keypad.label}>
       {KEYPAD_LETTERS.map((l) => (
         <button key={l} type="button" onClick={() => onKey(l)}>
           {l}
         </button>
       ))}
-      <button type="button" className="wide" onClick={() => onKey(' ')} aria-label="Space">
+      <button type="button" className="wide" onClick={() => onKey(' ')} aria-label={m.keypad.space}>
         ␣
       </button>
-      <button type="button" className="wide" onClick={onBackspace} aria-label="Backspace">
+      <button type="button" className="wide" onClick={onBackspace} aria-label={m.keypad.backspace}>
         ⌫
       </button>
     </div>

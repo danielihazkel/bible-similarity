@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
+import { LocaleProvider } from '../context/Locale'
 import { TextModeProvider } from '../context/TextMode'
 import { Layout } from './Layout'
 
@@ -24,7 +25,10 @@ function renderAt(path: string) {
   )
 }
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  localStorage.clear()
+})
 
 describe('Layout navigation', () => {
   it('groups pages into menus that open, navigate and close', async () => {
@@ -60,5 +64,52 @@ describe('Layout navigation', () => {
     expect(toggle.getAttribute('aria-expanded')).toBe('true')
     expect(container.querySelector('#main-nav')?.className).toContain('open')
     expect(screen.getByRole('button', { name: /Overview/ }).className).toContain('active')
+  })
+})
+
+describe('Interface language', () => {
+  function renderLocalized(path: string) {
+    return render(
+      <LocaleProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="*" element={<h1>שלום</h1>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </LocaleProvider>,
+    )
+  }
+
+  it('is English and left to right by default', () => {
+    renderLocalized('/')
+    expect(screen.getByRole('link', { name: 'Browse' })).toBeTruthy()
+    expect(document.documentElement.dir).toBe('ltr')
+    expect(document.documentElement.lang).toBe('en')
+  })
+
+  it('switches to Hebrew, right to left, and remembers the choice', async () => {
+    renderLocalized('/')
+    fireEvent.click(screen.getByRole('radio', { name: 'עב' }))
+    expect(screen.getByRole('link', { name: 'עיון' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /מקבילות/ })).toBeTruthy()
+    expect(document.documentElement.dir).toBe('rtl')
+    expect(document.documentElement.lang).toBe('he')
+    expect(localStorage.getItem('bsim.locale')).toBe('he')
+    await waitFor(() => expect(document.title).toBe('שלום · מקבילות בתנ״ך'))
+    cleanup()
+    // a new visit starts in Hebrew
+    renderLocalized('/')
+    expect(screen.getByRole('link', { name: 'עיון' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('radio', { name: 'EN' }))
+    expect(document.documentElement.dir).toBe('ltr')
+    expect(localStorage.getItem('bsim.locale')).toBe('en')
+  })
+
+  it('ignores an unknown stored language', () => {
+    localStorage.setItem('bsim.locale', 'fr')
+    renderLocalized('/')
+    expect(screen.getByRole('link', { name: 'Browse' })).toBeTruthy()
   })
 })

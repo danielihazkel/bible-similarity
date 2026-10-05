@@ -2,10 +2,11 @@
 
 export type TextMode = 'teamim' | 'niqqud' | 'consonants'
 
-export const TEXT_MODES: { value: TextMode; label: string; title: string }[] = [
-  { value: 'teamim', label: 'טְעָמִ֑ים', title: 'Vowels and cantillation marks' },
-  { value: 'niqqud', label: 'נִקּוּד', title: 'Vowels only' },
-  { value: 'consonants', label: 'אותיות', title: 'Consonants only' },
+// Hebrew labels in both interface languages; their titles are in the catalogs (modes.textModes).
+export const TEXT_MODES: { value: TextMode; label: string }[] = [
+  { value: 'teamim', label: 'טְעָמִ֑ים' },
+  { value: 'niqqud', label: 'נִקּוּד' },
+  { value: 'consonants', label: 'אותיות' },
 ]
 
 const MAQAF = '\u05BE'
@@ -36,3 +37,26 @@ export const hasHebrew = (s: string) => /[\u05D0-\u05EA]/.test(s)
 
 /** Hebrew letters for the on-screen keypad (finals after their base letters). */
 export const KEYPAD_LETTERS = 'אבגדהוזחטיכךלמםנןסעפףצץקרשת'.split('')
+
+const ONES = 'אבגדהוזחט'
+const TENS = 'יכלמנסעפצ'
+const HUNDREDS = 'קרשת'
+
+/** Gematria without geresh marks (15 -> טו, 16 -> טז), as `canon.hebrew_numeral` on the server. */
+export function hebrewNumeral(n: number): string {
+  if (!Number.isInteger(n) || n < 1 || n >= 1000) return String(n)
+  let out = ''
+  let h = Math.floor(n / 100)
+  const rest = n % 100
+  while (h > 4) {
+    out += 'ת'
+    h -= 4
+  }
+  if (h) out += HUNDREDS[h - 1]
+  if (rest === 15 || rest === 16) return out + (rest === 15 ? 'טו' : 'טז')
+  const t = Math.floor(rest / 10)
+  const o = rest % 10
+  if (t) out += TENS[t - 1]
+  if (o) out += ONES[o - 1]
+  return out
+}

@@ -1,6 +1,7 @@
 import type { Exclude, Mode, UnitType } from '../api/types'
+import { useLocale, useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
-import { MODE_HINTS, MODE_LABELS } from '../lib/format'
+import { LOCALES } from '../i18n'
 import { TEXT_MODES } from '../lib/hebrew'
 import { allowedExcludes, K_OPTIONS, MODES } from '../lib/urlState'
 
@@ -33,12 +34,13 @@ export function Segmented<T extends string | number>({ label, value, options, on
 }
 
 export function ModeToggle({ value, onChange, modes = MODES }: { value: Mode; onChange: (m: Mode) => void; modes?: Mode[] }) {
+  const m = useT()
   return (
     <Segmented
-      label="Similarity mode"
+      label={m.modes.label}
       value={value}
       onChange={onChange}
-      options={modes.map((m) => ({ value: m, label: MODE_LABELS[m], title: MODE_HINTS[m] }))}
+      options={modes.map((v) => ({ value: v, label: m.modes.names[v], title: m.modes.hints[v] }))}
     />
   )
 }
@@ -52,9 +54,10 @@ export function KSelect({
   onChange: (k: number) => void
   options?: readonly number[]
 }) {
+  const m = useT()
   return (
     <label className="control">
-      <span>Top</span>
+      <span>{m.modes.top}</span>
       <select value={value} onChange={(e) => onChange(Number(e.target.value))}>
         {options.map((k) => (
           <option key={k} value={k}>
@@ -66,13 +69,6 @@ export function KSelect({
   )
 }
 
-const EXCLUDE_LABELS: Record<Exclude, string> = {
-  neighbors: 'Hide neighbours ±2',
-  chapter: 'Hide same chapter',
-  book: 'Hide same book',
-  known: 'Hide Sefaria-linked',
-}
-
 export function ExcludeFilters({
   type,
   value,
@@ -82,6 +78,7 @@ export function ExcludeFilters({
   value: Exclude[]
   onChange: (v: Exclude[]) => void
 }) {
+  const m = useT()
   const allowed = allowedExcludes(type)
   return (
     <div className="filters">
@@ -92,7 +89,7 @@ export function ExcludeFilters({
             checked={value.includes(e)}
             onChange={(ev) => onChange(ev.target.checked ? [...value, e] : value.filter((x) => x !== e))}
           />
-          {EXCLUDE_LABELS[e]}
+          {m.modes.exclude[e]}
         </label>
       ))}
     </div>
@@ -100,6 +97,22 @@ export function ExcludeFilters({
 }
 
 export function TextModeToggle() {
+  const m = useT()
   const { mode, setMode } = useTextMode()
-  return <Segmented label="Text display" className="he-seg" value={mode} onChange={setMode} options={TEXT_MODES} />
+  return (
+    <Segmented
+      label={m.site.textDisplay}
+      className="he-seg"
+      value={mode}
+      onChange={setMode}
+      options={TEXT_MODES.map((t) => ({ ...t, title: m.modes.textModes[t.value] }))}
+    />
+  )
+}
+
+/** English / Hebrew interface (the scripture is Hebrew either way). */
+export function LocaleToggle() {
+  const m = useT()
+  const { locale, setLocale } = useLocale()
+  return <Segmented label={m.site.language} className="lang-seg" value={locale} onChange={setLocale} options={LOCALES} />
 }

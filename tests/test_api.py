@@ -47,6 +47,7 @@ def test_unit_detail(client):
     assert d["unit"]["n_verses"] == 3
     assert [v["verse_id"] for v in d["verses"]] == [0, 1, 2]
     assert d["verses"][0]["display_tokens"] == TEXTS[0].split()
+    assert d["verses"][0]["ref_he"] == "בראשית א:א"  # the Hebrew interface's reference
     assert d["prev_id"] is None and d["next_id"] == "c:0:2"
     assert [p["unit_id"] for p in d["parents"]] == ["v:0"]
     v = client.get("/api/unit/v:3").json()

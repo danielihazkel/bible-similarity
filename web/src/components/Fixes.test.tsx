@@ -69,7 +69,7 @@ describe('ExportCsv', () => {
 
 describe('HebrewText', () => {
   it('is one tab stop per verse; arrow keys move between words', () => {
-    const v: Verse = { verse_id: 0, book_id: 0, chapter: 1, verse: 1, ref: 'x', text_display: '', display_tokens: ['א', 'ב', 'ג'], ketiv_note: null }
+    const v: Verse = { verse_id: 0, book_id: 0, chapter: 1, verse: 1, ref: 'x', ref_he: 'הפניה', text_display: '', display_tokens: ['א', 'ב', 'ג'], ketiv_note: null }
     render(
       <TextModeProvider>
         <HebrewText verse={v} onWordClick={() => {}} />

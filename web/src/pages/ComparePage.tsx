@@ -7,7 +7,9 @@ import { HebrewText } from '../components/HebrewText'
 import { LemmaChips } from '../components/LemmaChips'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitPicker } from '../components/UnitPicker'
-import { similarityBand, unitTypeLabel } from '../lib/format'
+import { useLocale, useT } from '../context/localeContext'
+import { similarityBand } from '../lib/format'
+import { unitLabel, verseRef } from '../lib/names'
 import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
@@ -18,6 +20,7 @@ type Active = { a: number; b: number; from: 'a' | 'b' }
 type Marks = 'shared' | 'changes'
 
 export function ComparePage() {
+  const m = useT()
   const [params, update] = useQueryParams()
   const a = params.get('a') ?? undefined
   const b = params.get('b') ?? undefined
@@ -25,17 +28,14 @@ export function ComparePage() {
 
   return (
     <div className="page compare-page">
-      <h1>Compare</h1>
-      <p className="lede">
-        Every verse is paired with its most similar verse in the other unit (cosine of the semantic embeddings).
-        Hover a verse to see its partner and their shared words.
-      </p>
+      <h1>{m.compare.title}</h1>
+      <p className="lede">{m.compare.lede}</p>
       <div className="pickers">
         <UnitPicker key={`a:${a}`} label="A" value={a} onChange={(id) => update({ a: id }, false)} />
         <button
           type="button"
           className="swap"
-          title="Swap A and B"
+          title={m.compare.swap}
           disabled={!a && !b}
           onClick={() => update({ a: b ?? null, b: a ?? null }, false)}
         >
@@ -44,7 +44,7 @@ export function ComparePage() {
         <UnitPicker key={`b:${b}`} label="B" value={b} onChange={(id) => update({ b: id }, false)} />
       </div>
       {!a || !b ? (
-        <p className="status">Choose two units, or use “Compare” on any result.</p>
+        <p className="status">{m.compare.choose}</p>
       ) : cmp.isPending ? (
         <Loading />
       ) : cmp.error ? (
@@ -62,6 +62,7 @@ export function ComparePage() {
 }
 
 function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Marks; onMarks: (m: Marks) => void }) {
+  const { m, locale } = useLocale()
   const [active, setActive] = useState<Active>()
   const [focusLemma, setFocusLemma] = useState<string>()
   const explain = useExplain(marks === 'shared' ? active?.a : undefined, active?.b)
@@ -83,12 +84,12 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
         <span>
           BMA <strong>{data.bma.toFixed(3)}</strong>
         </span>
-        <span className="muted small">½ (mean best cosine A→B + mean best cosine B→A)</span>
+        <span className="muted small">{m.compare.bmaHint}</span>
         <span className="legend" aria-hidden>
           {[0, 1, 2, 3, 4].map((i) => (
             <span key={i} className={`sim-swatch sim-${i}`} />
           ))}
-          <span className="muted small">low → high</span>
+          <span className="muted small">{m.compare.lowHigh}</span>
         </span>
       </div>
       <div className="columns">
@@ -118,13 +119,13 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
       {active && (
         <div className="pair-panel" aria-live="polite">
           <span className="small">
-            {verse(active.a).ref} ↔ {verse(active.b).ref} · cosine{' '}
+            {verseRef(verse(active.a), locale)} ↔ {verseRef(verse(active.b), locale)} · {m.compare.cosine}{' '}
             {(pairOf(active.from, active.from === 'a' ? active.a : active.b)?.cosine ?? 0).toFixed(3)}
           </span>
-          <span className="segmented" role="group" aria-label="Mark words by">
-            {(['shared', 'changes'] as const).map((m) => (
-              <button key={m} type="button" className={marks === m ? 'on' : ''} aria-pressed={marks === m} onClick={() => onMarks(m)}>
-                {m === 'shared' ? 'Shared words' : 'Changes A → B'}
+          <span className="segmented" role="group" aria-label={m.hit.markBy}>
+            {(['shared', 'changes'] as const).map((k) => (
+              <button key={k} type="button" className={marks === k ? 'on' : ''} aria-pressed={marks === k} onClick={() => onMarks(k)}>
+                {k === 'shared' ? m.hit.sharedWords : m.compare.changes}
               </button>
             ))}
           </span>
@@ -152,6 +153,7 @@ interface ColumnProps {
 }
 
 function Column({ side, unit, other, pairs, mutual, verse, active, highlight, onHover }: ColumnProps) {
+  const { m, locale } = useLocale()
   const listRef = useRef<HTMLOListElement>(null)
   const mine = active ? (side === 'a' ? active.a : active.b) : undefined
   const isPartner = active !== undefined && active.from !== side
@@ -167,14 +169,19 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
   }, [isPartner, mine])
 
   return (
-    <section className="column" aria-label={`Unit ${side.toUpperCase()}`}>
+    <section className="column" aria-label={m.compare.unitSide(side.toUpperCase())}>
       <h2>
         <span className="side-tag">{side.toUpperCase()}</span>
-        <Link to={unitLink(unit.unit_id)}>{unit.label_en}</Link>{' '}
-        <span className="he-label" dir="rtl" lang="he">
-          {unit.label_he}
-        </span>
-        <span className="type-tag">{unitTypeLabel(unit.unit_type)}</span>
+        <Link to={unitLink(unit.unit_id)}>{unitLabel(unit, locale)}</Link>
+        {locale === 'en' && (
+          <>
+            {' '}
+            <span className="he-label" dir="rtl" lang="he">
+              {unit.label_he}
+            </span>
+          </>
+        )}
+        <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h2>
       <ol className="align-list" ref={listRef} onMouseLeave={() => onHover(undefined)}>
         {pairs.map((p) => {
@@ -191,9 +198,9 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
               tabIndex={0}
             >
               <div className="align-meta">
-                <span className="verse-num">{sameChapter ? v.verse : `${v.chapter}:${v.verse}`}</span>
-                <span className="partner-ref" title={`Best match in ${other.label_en}`}>
-                  {mutual(p) ? '⇄' : '→'} {t.ref.replace(/^.* (?=\d+:\d+$)/, '')}
+                <span className="verse-num">{sameChapter ? v.verse : m.cv(v.chapter, v.verse)}</span>
+                <span className="partner-ref" title={m.compare.bestIn(unitLabel(other, locale))}>
+                  {mutual(p) ? '⇄' : locale === 'he' ? '←' : '→'} {m.cv(t.chapter, t.verse)}
                 </span>
                 <span className="cos">{p.cosine.toFixed(2)}</span>
               </div>
@@ -207,17 +214,13 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
 }
 
 function ChangesNote({ diff, loading, error }: { diff?: VerseDiff; loading: boolean; error: unknown }) {
-  if (error) return <span className="status error small">Could not load the changes.</span>
-  if (!diff) return loading ? <span className="muted small">Aligning words…</span> : null
-  if (diff.loose)
-    return (
-      <span className="muted small">
-        Too different to mark word by word ({Math.round(diff.shared * 100)}% of the words keep their lemma).
-      </span>
-    )
+  const m = useT()
+  if (error) return <span className="status error small">{m.diff.loadFailed}</span>
+  if (!diff) return loading ? <span className="muted small">{m.diff.aligning}</span> : null
+  if (diff.loose) return <span className="muted small">{m.diff.tooDifferentShare(diff.shared)}</span>
   return (
     <>
-      <span className="muted small">{Math.round(diff.shared * 100)}% of the words keep their lemma; A is read as the earlier passage.</span>
+      <span className="muted small">{m.diff.keepShare(diff.shared)}</span>
       <DiffLegend />
     </>
   )

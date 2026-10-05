@@ -6,6 +6,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ApiError } from './api/client'
 import { App } from './App'
+import { LocaleProvider } from './context/Locale'
 import { TextModeProvider } from './context/TextMode'
 
 const queryClient = new QueryClient({
@@ -21,9 +22,11 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <TextModeProvider>
-        <App />
-      </TextModeProvider>
+      <LocaleProvider>
+        <TextModeProvider>
+          <App />
+        </TextModeProvider>
+      </LocaleProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

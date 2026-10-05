@@ -9,6 +9,7 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
 from typing import Any
 
+from bsim.data.canon import BOOKS, hebrew_numeral
 from bsim.store.db import MODES
 
 UNIT_COLS = (
@@ -89,8 +90,17 @@ def unit(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any] | None:
     return units_by_id(conn, [unit_id]).get(unit_id)
 
 
+def ref_he(book_id: int, chapter: int, verse: int) -> str:
+    """Hebrew reference of a verse, e.g. "בראשית א:א" (the stored `ref` is English)."""
+    return f"{BOOKS[book_id].he} {hebrew_numeral(chapter)}:{hebrew_numeral(verse)}"
+
+
 def _verse(row: dict[str, Any]) -> dict[str, Any]:
-    return {**row, "display_tokens": json.loads(row["display_tokens"])}
+    return {
+        **row,
+        "ref_he": ref_he(row["book_id"], row["chapter"], row["verse"]),
+        "display_tokens": json.loads(row["display_tokens"]),
+    }
 
 
 def verse_range(conn: sqlite3.Connection, start: int, end: int) -> list[dict[str, Any]]:

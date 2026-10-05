@@ -3,28 +3,31 @@ import type { PhrasePair, UnitSummary, Verse } from '../api/types'
 import type { Highlight } from '../lib/highlight'
 import { compareLink, unitLink } from '../lib/links'
 import { HebrewText } from './HebrewText'
+import { useT } from '../context/localeContext'
 import { LinkBadge } from './LinkBadge'
+import { UnitName } from './UnitName'
 
 const marks = (idxs: number[]): Highlight => new Map(idxs.map((i) => [i, 'shared']))
 
 /** Two verses sharing an aligned phrase, the matched words highlighted on both sides. */
 export function PhraseCard({ p }: { p: PhrasePair }) {
+  const m = useT()
   return (
     <li className="disc">
       <div className="hit-head">
-        <span className="score" title="Alignment score: idf-weighted matched lemmas minus gap and mismatch penalties">
+        <span className="score" title={m.cards.phraseScore}>
           {p.score.toFixed(1)}
         </span>
-        <span className="phrase-tag">{p.n_tokens} lemmas</span>
+        <span className="phrase-tag">{m.cards.lemmas(p.n_tokens)}</span>
         {p.spread > 2 && (
-          <span className="muted small" title="Verses sharing exactly this lemma sequence">
-            recurs in {p.spread} verses
+          <span className="muted small" title={m.cards.recursTitle}>
+            {m.cards.recurs(p.spread)}
           </span>
         )}
         <LinkBadge link={p.link} />
         <span className="hit-actions">
-          <Link className="linkish" to={compareLink(p.a.unit_id, p.b.unit_id)} title="Side-by-side comparison">
-            Compare
+          <Link className="linkish" to={compareLink(p.a.unit_id, p.b.unit_id)} title={m.hit.compareTitle}>
+            {m.hit.compare}
           </Link>
         </span>
       </div>
@@ -40,10 +43,7 @@ function Side({ unit, verse, display }: { unit: UnitSummary; verse: Verse; displ
   return (
     <div className="disc-side">
       <Link className="hit-ref" to={unitLink(unit.unit_id)}>
-        {unit.label_en}
-        <span className="he-label" dir="rtl" lang="he">
-          {unit.label_he}
-        </span>
+        <UnitName en={unit.label_en} he={unit.label_he} />
       </Link>
       <p className="hit-text">
         <HebrewText verse={verse} highlight={marks(display)} />

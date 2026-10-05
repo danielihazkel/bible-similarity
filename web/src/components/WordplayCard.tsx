@@ -2,16 +2,12 @@ import { Link } from 'react-router'
 import type { WordplayPair } from '../api/types'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
+import { useT } from '../context/localeContext'
 import { HebrewText } from './HebrewText'
-
-const KIND_LABELS: Record<WordplayPair['kind'], string> = {
-  substitution: 'one letter changed',
-  metathesis: 'letters swapped',
-  extension: 'one letter added',
-}
 
 /** Two sound-alike words, both highlighted in their verse(s). */
 export function WordplayCard({ p }: { p: WordplayPair }) {
+  const m = useT()
   const marks = (vid: number): Highlight => {
     const m: Highlight = new Map()
     if (p.a_vid === vid && p.a_display !== null) m.set(p.a_display, 'focus')
@@ -24,14 +20,14 @@ export function WordplayCard({ p }: { p: WordplayPair }) {
         <span className="pun he" dir="rtl" lang="he">
           {p.a_form} ~ {p.b_form}
         </span>
-        <span className="phrase-tag">{KIND_LABELS[p.kind]}</span>
+        <span className="phrase-tag">{m.cards.wordplayKinds[p.kind]}</span>
         <span className="muted small">
           <span dir="rtl" lang="he">
             {p.a_he} / {p.b_he}
           </span>{' '}
-          · {p.gap === 1 ? 'adjacent' : `${p.gap} words apart`}
+          · {p.gap === 1 ? m.cards.adjacent : m.cards.apart(p.gap)}
         </span>
-        <span className="score" title="Mean rarity (idf) of the two words, minus distance">
+        <span className="score" title={m.cards.wordplayScore}>
           {p.score.toFixed(1)}
         </span>
       </div>

@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from 'react'
 import type { Verse } from '../api/types'
+import { useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
 import { displayForm, endsWithMaqaf } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
@@ -19,6 +20,7 @@ interface Props {
 
 /** A verse's display tokens, right to left, with the text mode and lemma highlights applied. */
 export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks, minorBreaks }: Props) {
+  const m = useT()
   const { mode } = useTextMode()
   const tokens = verse.display_tokens
   // roving tabindex: the verse is one tab stop (the selected word, else the first); arrow keys move
@@ -63,7 +65,7 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
               <span className={cls || undefined}>{displayForm(t, mode)}</span>
             )}
             {breaks?.has(i) ? (
-              <span className="colon-break" aria-label="pause">
+              <span className="colon-break" aria-label={m.word.pause}>
                 {' ‖ '}
               </span>
             ) : minorBreaks?.has(i) ? (
@@ -77,7 +79,7 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
         )
       })}
       {verse.ketiv_note && (
-        <span className="ketiv" title="Ketiv (written form)">
+        <span className="ketiv" title={m.word.ketiv}>
           {' '}
           [כתיב: {verse.ketiv_note}]
         </span>

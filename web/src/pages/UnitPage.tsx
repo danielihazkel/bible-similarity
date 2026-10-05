@@ -23,8 +23,10 @@ import { StructurePanel } from '../components/StructurePanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { UnitName } from '../components/UnitName'
+import { useLocale, useT } from '../context/localeContext'
 import { nameLink, unitLink } from '../lib/links'
-import { granularityLabel, MODE_HINTS, qLabel, unitTypeLabel } from '../lib/format'
+import { unitLabel, verseRef } from '../lib/names'
 import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
@@ -44,6 +46,7 @@ export function UnitPage() {
 }
 
 function UnitView({ detail }: { detail: UnitDetail }) {
+  const { m, locale } = useLocale()
   const { unit, verses } = detail
   const [params, update] = useQueryParams()
   const { search } = useLocation()
@@ -113,34 +116,31 @@ function UnitView({ detail }: { detail: UnitDetail }) {
     <div className="page unit-page">
       <Crumbs detail={detail} search={search} />
       <h1>
-        {unit.label_en}{' '}
-        <span className="he-label big" dir="rtl" lang="he">
-          {unit.label_he}
-        </span>
-        <span className="type-tag">{unitTypeLabel(unit.unit_type)}</span>
+        <UnitName en={unit.label_en} he={unit.label_he} big spaced />
+        <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h1>
 
       <div className="toolbar halves-bar">
-        <label className="check" title="Split each verse at its main accent pauses (etnahta; oleh-ve-yored in Psalms, Proverbs, Job)">
+        <label className="check" title={m.unit.halvesTitle}>
           <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />
-          Verse halves (te'amim)
+          {m.unit.halves}
         </label>
         {halvesOn && (
-          <label className="check" title="Also split at the weaker pauses (zaqef, segolta, tipeha; revia and tsinnor in poetry)">
+          <label className="check" title={m.unit.clausesTitle}>
             <input type="checkbox" checked={clausesOn} onChange={(e) => update({ clauses: e.target.checked ? '1' : null }, false)} />
-            Finer clauses
+            {m.unit.clauses}
           </label>
         )}
         {halvesOn && halves.isPending && (
           <span className="muted small" role="status">
-            Loading verse halves…
+            {m.unit.loadingHalves}
           </span>
         )}
-        {halvesOn && halves.error && <PanelError what="the verse halves" error={halves.error} />}
+        {halvesOn && halves.error && <PanelError what={m.unit.theHalves} error={halves.error} />}
         {halvesOn && halves.data && halves.data.n_scored > 0 && (
           <span className="muted small">
-            ∥ marks verses whose halves are parallel like poetry
-            {!isVerse && halves.data.share_parallel !== null && ` · ${Math.round(halves.data.share_parallel * 100)}% of this ${unitTypeLabel(unit.unit_type).toLowerCase()}`}
+            {m.unit.parallelHalves}
+            {!isVerse && halves.data.share_parallel !== null && m.unit.shareOf(halves.data.share_parallel, unit.unit_type)}
           </span>
         )}
       </div>
@@ -151,7 +151,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           onToggle={(on) => update({ acrostic: on ? '1' : null }, false)}
         />
       )}
-      <section className={`source ${isVerse ? 'single' : ''}`} aria-label="Source text">
+      <section className={`source ${isVerse ? 'single' : ''}`} aria-label={m.unit.source}>
         {isVerse ? (
           <p className="source-text">
             <HebrewText
@@ -168,7 +168,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           <ol className="verse-list">
             {verses.map((v) => (
               <li key={v.verse_id}>
-                <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={`${v.ref}: similar verses`}>
+                <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={m.units.similarVerses(verseRef(v, locale))}>
                   {v.verse}
                 </Link>
                 <HebrewText
@@ -185,12 +185,12 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         )}
       </section>
-      {names.error && <PanelError what="the names in this unit" error={names.error} />}
+      {names.error && <PanelError what={m.unit.theNames} error={names.error} />}
       {names.data && names.data.length > 0 && (
-        <p className="unit-names" aria-label="People and places">
-          <span className="muted small">Names: </span>
+        <p className="unit-names" aria-label={m.unit.namesLabel}>
+          <span className="muted small">{m.unit.names}</span>
           {names.data.map((e) => (
-            <Link key={e.lemma} to={nameLink(e.lemma)} className={`name-chip kind-${e.kind}`} title={`${e.n_here} here, ${e.n_mentions} in all`}>
+            <Link key={e.lemma} to={nameLink(e.lemma)} className={`name-chip kind-${e.kind}`} title={m.unit.nameTitle(e.n_here, e.n_mentions)}>
               <span dir="rtl" lang="he" className="he">
                 {e.he}
               </span>
@@ -201,18 +201,22 @@ function UnitView({ detail }: { detail: UnitDetail }) {
       )}
       {network.data && (
         <p className="muted small unit-network">
-          Echo network: {ordinal(network.data.rank)} most echoed of {network.data.of}{' '}
-          {unitTypeLabel(unit.unit_type).toLowerCase()}s · {network.data.node.partners} echoes,{' '}
-          {Math.round(network.data.node.cross_book * 100)}% to other books ·{' '}
+          {m.unit.network(
+            network.data.rank,
+            network.data.of,
+            unit.unit_type,
+            network.data.node.partners,
+            network.data.node.cross_book,
+          )}
           <Link to={`/network?type=${unit.unit_type}&unit=${encodeURIComponent(unit.unit_id)}`}>
-            its community of {network.data.community_size}
+            {m.unit.community(network.data.community_size)}
           </Link>
         </p>
       )}
       {word ? (
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (
-        <p className="muted small hint">Click a word for its morphology and concordance.</p>
+        <p className="muted small hint">{m.word.clickHint}</p>
       )}
 
       {!isVerse && (
@@ -225,7 +229,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
             if (!open) setLeitwort(undefined)
           }}
         >
-          <summary>Structure: inclusio, chiasm, Leitworte</summary>
+          <summary>{m.unit.structure}</summary>
           {structureOpen && (
             <StructurePanel
               unitId={unit.unit_id}
@@ -237,39 +241,39 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </details>
       )}
 
-      <section className="results" aria-label="Similar units">
+      <section className="results" aria-label={m.unit.similar}>
         <div className="results-head">
-          <h2>Similar {unit.unit_type === 'parasha' ? 'parashot' : `${unit.unit_type}s`}</h2>
+          <h2>{m.unit.similarOf(unit.unit_type)}</h2>
           <div className="toolbar">
             <ModeToggle value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
             <KSelect value={k} onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })} />
             <ExcludeFilters type={unit.unit_type} value={exclude} onChange={(v) => update({ exclude: v.join(',') })} />
             {isVerse && (
               <Segmented
-                label="Mark words by"
+                label={m.hit.markBy}
                 value={marks}
-                onChange={(m) => update({ marks: m === 'changes' ? m : null }, false)}
+                onChange={(v) => update({ marks: v === 'changes' ? v : null }, false)}
                 options={[
-                  { value: 'shared', label: 'Shared words' },
-                  { value: 'changes', label: 'Changes' },
+                  { value: 'shared', label: m.hit.sharedWords },
+                  { value: 'changes', label: m.hit.changes },
                 ]}
               />
             )}
           </div>
           {similar.data && similar.data.hits.length > 1 && (
             <p className="muted small">
-              Keys: <kbd>j</kbd> / <kbd>k</kbd> next / previous hit
-              {isVerse ? ' (its words marked)' : ''}.
+              {m.unit.keys} <kbd>j</kbd> / <kbd>k</kbd> {m.unit.keysNext}
+              {isVerse ? m.unit.keysMarked : ''}.
             </p>
           )}
-          <p className="muted small">{MODE_HINTS[mode]}</p>
+          <p className="muted small">{m.modes.hints[mode]}</p>
         </div>
         {similar.isPending ? (
           <Loading />
         ) : similar.error ? (
           <ErrorBox error={similar.error} />
         ) : similar.data.hits.length === 0 ? (
-          <p className="status">No results left after the filters.</p>
+          <p className="status">{m.unit.noResults}</p>
         ) : (
           <ol className={`hits ${similar.isPlaceholderData ? 'stale' : ''}`}>
             {similar.data.hits.map((hit) => {
@@ -297,15 +301,15 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         )}
       </section>
 
-      {isVerse && phrases.error && <PanelError what="shared phrases" error={phrases.error} />}
+      {isVerse && phrases.error && <PanelError what={m.unit.theSharedPhrases} error={phrases.error} />}
       {isVerse && phrases.data && phrases.data.total > 0 && (
-        <section className="results" aria-label="Shared phrases">
+        <section className="results" aria-label={m.unit.sharedPhrases}>
           <h2>
-            Shared phrases <span className="muted small">({phrases.data.total})</span>
+            {m.unit.sharedPhrases} <span className="muted small">({phrases.data.total})</span>
           </h2>
           <p className="muted small">
-            Verses that share an aligned run of lemmas with this one (rare words weigh more)
-            {phrases.data.total > phrases.data.items.length && `; the strongest ${phrases.data.items.length} are shown`}.
+            {m.unit.phrasesLede}
+            {phrases.data.total > phrases.data.items.length && m.unit.strongestShown(phrases.data.items.length)}.
           </p>
           <ol className="disc-list">
             {phrases.data.items.map((p) => (
@@ -315,16 +319,16 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </section>
       )}
 
-      {wordplay.error && <PanelError what="wordplay" error={wordplay.error} />}
+      {wordplay.error && <PanelError what={m.unit.theWordplay} error={wordplay.error} />}
       {wordplay.data && wordplay.data.total > 0 && (
-        <section className="results" aria-label="Wordplay">
+        <section className="results" aria-label={m.unit.wordplay}>
           <h2>
-            Wordplay <span className="muted small">({wordplay.data.total})</span>
+            {m.unit.wordplay} <span className="muted small">({wordplay.data.total})</span>
           </h2>
           <p className="muted small">
-            Sound-alike words close together, rarest first.{' '}
+            {m.unit.wordplayLede}{' '}
             <Link to={`/wordplay?unit=${encodeURIComponent(unit.unit_id)}`}>
-              {wordplay.data.total > wordplay.data.items.length ? `All ${wordplay.data.total} here` : 'In the wordplay list'}
+              {wordplay.data.total > wordplay.data.items.length ? m.unit.allHere(wordplay.data.total) : m.unit.inWordplay}
             </Link>
           </p>
           <ol className="disc-list">
@@ -335,16 +339,16 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </section>
       )}
 
-      {sequences.error && <PanelError what="parallel sequences" error={sequences.error} />}
+      {sequences.error && <PanelError what={m.unit.theSequences} error={sequences.error} />}
       {sequences.data && sequences.data.total > 0 && (
-        <section className="results" aria-label="Parallel sequences">
+        <section className="results" aria-label={m.unit.runsLabel}>
           <h2>
-            Runs parallel to <span className="muted small">({sequences.data.total})</span>
+            {m.unit.runs} <span className="muted small">({sequences.data.total})</span>
           </h2>
           <p className="muted small">
-            Passages that follow this one verse by verse in the same order (q ≤ {SEQUENCE_MAX_Q}).{' '}
+            {m.unit.runsLede(SEQUENCE_MAX_Q)}{' '}
             <Link to={`/sequences?unit=${encodeURIComponent(unit.unit_id)}&q=${SEQUENCE_MAX_Q}`}>
-              {sequences.data.total > sequences.data.items.length ? `All ${sequences.data.total} here` : 'In the sequences list'}
+              {sequences.data.total > sequences.data.items.length ? m.unit.allHere(sequences.data.total) : m.unit.inSequences}
             </Link>
           </p>
           <ol className="disc-list">
@@ -359,25 +363,22 @@ function UnitView({ detail }: { detail: UnitDetail }) {
 }
 
 function AcrosticBar({ a, on, onToggle }: { a: Acrostic; on: boolean; onToggle: (on: boolean) => void }) {
+  const m = useT()
   return (
     <div className="toolbar acrostic-bar" role="note">
       <span>
-        <b>Acrostic</b>: {a.n_letters} letters in alphabetical order, {a.first_letter}–{a.last_letter}
-        {a.missing > 0 && ` (${a.missing} skipped)`}, {granularityLabel(a.granularity)}
-        {a.order_name === 'pe-ayin' && ', פ before ע'} · <span className="q-strong">{qLabel(a.q)}</span>
+        <b>{m.unit.acrostic}</b>
+        {m.unit.acrosticLetters(a.n_letters, a.first_letter, a.last_letter)}
+        {a.missing > 0 && m.unit.skipped(a.missing)}, {m.granularity[a.granularity]}
+        {a.order_name === 'pe-ayin' && m.unit.peAyin} · <span className="q-strong">{m.q(a.q)}</span>
       </span>
       <label className="check">
         <input type="checkbox" checked={on} onChange={(e) => onToggle(e.target.checked)} />
-        Mark the letters
+        {m.unit.markLetters}
       </label>
-      <Link to="/acrostics">All acrostics</Link>
+      <Link to="/acrostics">{m.unit.allAcrostics}</Link>
     </div>
   )
-}
-
-const ordinal = (n: number) => {
-  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'
-  return `${n}${s}`
 }
 
 /** Display indexes ending a colon (every colon but the last). */
@@ -393,16 +394,21 @@ function clauseBreaks(h: VerseHalves | undefined): Set<number> | undefined {
 }
 
 function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {
+  const m = useT()
   if (h && at !== undefined && h.next_prob != null && h.next_prob >= at)
     return (
-      <span className="parallel-badge" title={`Parallel with the next verse (one bicolon over two verses): p = ${h.next_prob.toFixed(2)}`}>
+      <span className="parallel-badge" title={m.unit.nextVerseTitle(h.next_prob.toFixed(2))}>
         ∥↓
       </span>
     )
   if (!h || h.prob === null || at === undefined || h.prob < at) return null
-  const tip =
-    `Parallel halves: p = ${h.prob.toFixed(2)} · meaning ${h.cos?.toFixed(2)} · shared lemmas ${h.shared}` +
-    ` · grammar ${h.shape?.toFixed(2)} · balance ${h.balance?.toFixed(2)}`
+  const tip = m.unit.halvesTip(
+    h.prob.toFixed(2),
+    String(h.cos?.toFixed(2)),
+    h.shared,
+    String(h.shape?.toFixed(2)),
+    String(h.balance?.toFixed(2)),
+  )
   return (
     <span className="parallel-badge" title={tip}>
       ∥
@@ -411,11 +417,12 @@ function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {
 }
 
 function Crumbs({ detail, search }: { detail: UnitDetail; search: string }) {
+  const { m, locale } = useLocale()
   const { unit, parents, prev_id, next_id } = detail
-  const label = (u: UnitSummary) => `${unitTypeLabel(u.unit_type)} ${u.label_en}`
+  const label = (u: UnitSummary) => `${m.units.type(u.unit_type)} ${unitLabel(u, locale)}`
   return (
-    <nav className="crumbs" aria-label="Context">
-      <Link to={`/browse/${unit.book_id}`}>Book</Link>
+    <nav className="crumbs" aria-label={m.units.context}>
+      <Link to={`/browse/${unit.book_id}`}>{m.units.book}</Link>
       {parents.map((p) => (
         <span key={p.unit_id}>
           {' · '}
@@ -425,17 +432,17 @@ function Crumbs({ detail, search }: { detail: UnitDetail; search: string }) {
       <span className="prevnext">
         {prev_id ? (
           <Link to={unitLink(prev_id, search)} rel="prev">
-            ← Previous
+            {m.unit.previous}
           </Link>
         ) : (
-          <span className="muted">← Previous</span>
+          <span className="muted">{m.unit.previous}</span>
         )}
         {next_id ? (
           <Link to={unitLink(next_id, search)} rel="next">
-            Next →
+            {m.unit.next}
           </Link>
         ) : (
-          <span className="muted">Next →</span>
+          <span className="muted">{m.unit.next}</span>
         )}
       </span>
     </nav>

@@ -1,64 +1,73 @@
 import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
-import { TextModeToggle } from './Controls'
+import { useT } from '../context/localeContext'
+import type { Messages } from '../i18n'
+import { LocaleToggle, TextModeToggle } from './Controls'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Loading } from './Status'
 
+type GroupKey = 'parallels' | 'patterns' | 'overview'
+type NavKey = Exclude<keyof Messages['nav'], GroupKey>
+
 interface NavItem {
   to: string
-  label: string
-  hint?: string
+  key: NavKey
 }
 interface NavGroup {
-  label: string
+  key: GroupKey
   items: NavItem[]
 }
 type NavEntry = NavItem | NavGroup
 
 const NAV: NavEntry[] = [
-  { to: '/', label: 'Browse' },
-  { to: '/search', label: 'Search' },
-  { to: '/compare', label: 'Compare' },
+  { to: '/', key: 'browse' },
+  { to: '/search', key: 'search' },
+  { to: '/compare', key: 'compare' },
   {
-    label: 'Parallels',
+    key: 'parallels',
     items: [
-      { to: '/discoveries', label: 'Discoveries', hint: 'Strong pairs Sefaria does not link' },
-      { to: '/phrases', label: 'Phrases', hint: 'Shared runs of words' },
-      { to: '/sequences', label: 'Sequences', hint: 'Passages parallel verse by verse' },
-      { to: '/changes', label: 'Changes', hint: 'How parallel passages differ' },
-      { to: '/typescenes', label: 'Action sequences', hint: 'The same actions in the same order' },
+      { to: '/discoveries', key: 'discoveries' },
+      { to: '/phrases', key: 'phrases' },
+      { to: '/sequences', key: 'sequences' },
+      { to: '/changes', key: 'changes' },
+      { to: '/typescenes', key: 'typescenes' },
     ],
   },
   {
-    label: 'Patterns',
+    key: 'patterns',
     items: [
-      { to: '/structure', label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
-      { to: '/acrostics', label: 'Acrostics', hint: 'Lines through the alphabet' },
-      { to: '/poetry', label: 'Poetry', hint: 'Parallel verse halves' },
-      { to: '/wordplay', label: 'Wordplay', hint: 'Sound-alike words' },
-      { to: '/names', label: 'Names', hint: 'People and places' },
+      { to: '/structure', key: 'structure' },
+      { to: '/acrostics', key: 'acrostics' },
+      { to: '/poetry', key: 'poetry' },
+      { to: '/wordplay', key: 'wordplay' },
+      { to: '/names', key: 'names' },
     ],
   },
   {
-    label: 'Overview',
+    key: 'overview',
     items: [
-      { to: '/map', label: 'Map', hint: 'Units by meaning, book affinity' },
-      { to: '/network', label: 'Network', hint: 'Echo communities, most echoed passages' },
-      { to: '/style', label: 'Style', hint: 'Stylometry and style shifts' },
-      { to: '/eval', label: 'Evaluation', hint: 'How well known cross-references are found' },
+      { to: '/map', key: 'map' },
+      { to: '/network', key: 'network' },
+      { to: '/style', key: 'style' },
+      { to: '/eval', key: 'eval' },
     ],
   },
-  { to: '/about', label: 'About' },
+  { to: '/about', key: 'about' },
 ]
 
 const isGroup = (e: NavEntry): e is NavGroup => 'items' in e
 
-const SITE = 'Tanakh Similarity'
+/** A nav entry's label and hint (top-level links have no hint). */
+function navText(m: Messages, key: NavKey): { label: string; hint?: string } {
+  const v = m.nav[key]
+  return typeof v === 'string' ? { label: v } : v
+}
 
 export function Layout() {
+  const m = useT()
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
-  usePageTitle(mainRef)
+  usePageTitle(mainRef, m.site.name)
   useNavigationFocus(mainRef, pathname)
   const [mobileOpen, setMobileOpen] = useState(false)
   // a new page closes the mobile menu
@@ -71,14 +80,14 @@ export function Layout() {
   return (
     <div className="app">
       <a className="skip-link" href="#main">
-        Skip to content
+        {m.site.skip}
       </a>
       <header className="topbar">
         <Link to="/" className="brand">
           <span className="brand-mark" dir="rtl" lang="he">
             מקבילות
           </span>
-          <span className="brand-name">Tanakh Similarity</span>
+          {m.locale === 'en' && <span className="brand-name">{m.site.name}</span>}
         </Link>
         <button
           type="button"
@@ -87,21 +96,22 @@ export function Layout() {
           aria-controls="main-nav"
           onClick={() => setMobileOpen((o) => !o)}
         >
-          <span aria-hidden="true">{mobileOpen ? '✕' : '☰'}</span> Menu
+          <span aria-hidden="true">{mobileOpen ? '✕' : '☰'}</span> {m.site.menu}
         </button>
-        <nav id="main-nav" className={`nav ${mobileOpen ? 'open' : ''}`} aria-label="Main">
+        <nav id="main-nav" className={`nav ${mobileOpen ? 'open' : ''}`} aria-label={m.site.mainNav}>
           {NAV.map((e) =>
             isGroup(e) ? (
-              <NavMenu key={e.label} group={e} pathname={pathname} />
+              <NavMenu key={e.key} group={e} pathname={pathname} />
             ) : (
               <NavLink key={e.to} to={e.to} end={e.to === '/'}>
-                {e.label}
+                {navText(m, e.key).label}
               </NavLink>
             ),
           )}
         </nav>
         <CopyLink />
         <TextModeToggle />
+        <LocaleToggle />
       </header>
       <main className="main" id="main" tabIndex={-1} ref={mainRef}>
         <ErrorBoundary key={pathname}>
@@ -112,16 +122,15 @@ export function Layout() {
       </main>
       <footer className="footer">
         <p>
-          Display text: Sefaria, <i>Miqra according to the Masorah</i> (
+          {m.site.footer.display} <i>{m.site.footer.mam}</i> (
           <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">
             CC-BY-SA
           </a>
-          ). Lemmas and morphology:{' '}
+          ). {m.site.footer.lemmas}{' '}
           <a href="https://github.com/openscriptures/morphhb" target="_blank" rel="noreferrer">
             OSHB
           </a>{' '}
-          (WLC public domain, morphology CC BY 4.0). Cross-references: Sefaria; OpenBible.info (CC-BY) for evaluation.
-          For personal and research use.
+          {m.site.footer.wlc}
         </p>
       </footer>
     </div>
@@ -131,6 +140,8 @@ export function Layout() {
 /** A dropdown of related pages: opens on click, closes on Escape, outside click or navigation. On
  * narrow screens (inside the open mobile menu) the group is shown as a plain labelled list. */
 function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
+  const m = useT()
+  const label = m.nav[group.key]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -160,7 +171,7 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
     }
   }, [open])
 
-  const id = `menu-${group.label.toLowerCase()}`
+  const id = `menu-${group.key}`
   return (
     <div className={`nav-group ${open ? 'open' : ''}`} ref={ref}>
       <button
@@ -171,37 +182,40 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
       >
-        {group.label} <span aria-hidden="true">▾</span>
+        {label} <span aria-hidden="true">▾</span>
       </button>
-      <ul id={id} className="nav-menu" aria-label={group.label}>
-        {group.items.map((i) => (
-          <li key={i.to}>
-            <NavLink to={i.to}>
-              <span className="nav-item-label">{i.label}</span>
-              {i.hint && <span className="nav-item-hint">{i.hint}</span>}
-            </NavLink>
-          </li>
-        ))}
+      <ul id={id} className="nav-menu" aria-label={label}>
+        {group.items.map((i) => {
+          const { label, hint } = navText(m, i.key)
+          return (
+            <li key={i.to}>
+              <NavLink to={i.to}>
+                <span className="nav-item-label">{label}</span>
+                {hint && <span className="nav-item-hint">{hint}</span>}
+              </NavLink>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
 }
 
 /** `document.title` follows the page's heading (pages fill it in once their data loads). */
-function usePageTitle(main: RefObject<HTMLElement | null>) {
+function usePageTitle(main: RefObject<HTMLElement | null>, site: string) {
   useEffect(() => {
     const el = main.current
     if (!el) return
     const update = () => {
       const h1 = el.querySelector('h1')?.textContent?.trim()
-      const title = h1 ? `${h1} · ${SITE}` : SITE
+      const title = h1 ? `${h1} · ${site}` : site
       if (document.title !== title) document.title = title
     }
     update()
     const observer = new MutationObserver(update)
     observer.observe(el, { childList: true, subtree: true, characterData: true })
     return () => observer.disconnect()
-  }, [main])
+  }, [main, site])
 }
 
 /** A new page (not a new filter on the same page) starts at the top with focus on the content,
@@ -220,6 +234,7 @@ function useNavigationFocus(main: RefObject<HTMLElement | null>, pathname: strin
 
 /** Copies the current page's address (every view's state is in its URL). */
 function CopyLink() {
+  const m = useT()
   const [done, setDone] = useState(false)
   useEffect(() => {
     if (!done) return
@@ -230,7 +245,7 @@ function CopyLink() {
     <button
       type="button"
       className="copy-link"
-      title="Copy a link to this view"
+      title={m.site.copyLinkTitle}
       onClick={() => {
         navigator.clipboard
           ?.writeText(window.location.href)
@@ -238,7 +253,7 @@ function CopyLink() {
           .catch(() => setDone(false))
       }}
     >
-      <span aria-live="polite">{done ? 'Copied' : 'Copy link'}</span>
+      <span aria-live="polite">{done ? m.site.copied : m.site.copyLink}</span>
     </button>
   )
 }

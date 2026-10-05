@@ -13,6 +13,7 @@ const verse = (id: number, chapter: number, n: number): Verse => ({
   chapter,
   verse: n,
   ref: `Genesis ${chapter}:${n}`,
+  ref_he: 'הפניה',
   text_display: '',
   display_tokens: [],
   ketiv_note: null,

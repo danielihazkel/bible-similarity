@@ -372,3 +372,22 @@ M0 → M1 → M2 → M3 ─┐
 - [x] Canvas: scatter points drawn once per change with the hover ring on an overlay and a bucket grid for hover; DPR-aware Structure heatmap
 - [x] Tests: export, search filters, units per chapter (pytest); pager, empty list, export link, word roving, layout, unit changes / j (vitest); e2e and axe on the new pages
 
+## M38 — Hebrew interface (§11, D54)
+Phase 1 (M38a): infrastructure, chrome and core flow
+- [x] `web/src/i18n/` catalogs (`en.ts` source, `he.ts` typed against it), `LocaleProvider` / `useT()`, `bsim.locale` in localStorage, `<html lang dir>` set before first paint
+- [x] EN / עב toggle in the header; Hebrew is fully RTL (physical CSS properties made logical or RTL-aware)
+- [x] Layout, nav, footer, page titles; shared components (pager, status, error boundary, hit / phrase / sequence / wordplay cards, score bars, unit picker, unit filter, CSV export, keypad, lemma chips, word panel, link badge, diff legend)
+- [x] Pages: Browse, Book, Unit, Search, Compare, Concordance, 404
+- [x] `Verse.ref_he` from the API; unit labels and book names per language (`UnitName`, `lib/names.ts`); `hebrewNumeral` for chapter:verse
+- [x] Text no longer parsed from English labels (unit picker chapter, compare partner reference); CSS classes and menu ids no longer derived from display text
+- [x] Tests: `ref_he` (pytest); catalog parity, Hebrew plurals and numerals, language toggle and persistence, Browse / Search / Unit in Hebrew (vitest)
+
+Phase 2 (M38b): analysis pages
+- [ ] Map, Network, Names, Stylometry, Discoveries, Phrases, Sequences / Sequence, Changes (+ rewrites, word pairs, sound), Action sequences, Poetry, Wordplay, Structure, Acrostics, Evaluation; StructurePanel, SeamsPanel
+- [ ] Hebrew labels from the API where only English ones exist (`*_label_he`: seams, names first / last, change examples, wordplay, alliteration, rhyme, stylometry points)
+- [ ] Charts in Hebrew (book names, `label_he`) with left-to-right axes; About as `AboutEn` / `AboutHe`
+- [ ] Remove the English-only label tables left in `lib/format.ts` and `lib/diff.ts`
+- [ ] Tests: the new label fields (pytest); analysis pages in Hebrew (vitest); e2e: switch to Hebrew, reload, RTL and Hebrew nav
+
+✔ Phase 1: the core flow (browse → unit → compare / search / concordance) reads fully in Hebrew and RTL; English is unchanged.
+
