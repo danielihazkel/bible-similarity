@@ -15,6 +15,12 @@
   --hl-shared-text: #3a2a00;
   --hl-formula: #ece6da;
   --hl-focus: #f2a33a;
+  --diff-sub: #f4c7c1;
+  --diff-add: #c9e8cb;
+  --diff-omit: #f6d9b8;
+  --diff-move: #cbdcf5;
+  --diff-form: #8a5fb0;
+  --diff-spell: #8a8172;
 
   --lex: #3f7cac;
   --sem: #a8577e;
@@ -51,6 +57,12 @@
     --hl-shared-text: #fff3cf;
     --hl-formula: #3a352c;
     --hl-focus: #a8641a;
+    --diff-sub: #6a2a24;
+    --diff-add: #244d2a;
+    --diff-omit: #5c3d17;
+    --diff-move: #233f68;
+    --diff-form: #c9a2ec;
+    --diff-spell: #b5aa98;
     --lex: #6aa6d6;
     --sem: #d589ad;
     --known: #8fbf8a;
@@ -956,7 +968,8 @@ button.chip {
   gap: 0.5rem;
   transition: opacity 0.15s;
 }
-.disc-list.stale {
+.disc-list.stale,
+.change-table.stale {
   opacity: 0.55;
 }
 .disc {
@@ -1299,4 +1312,44 @@ svg[tabindex]:focus-visible {
     justify-content: flex-start;
     padding: 0;
   }
+}
+
+/* word-level diff marks (parallel sequences, §16.8) */
+.w-diff-substitution { background: var(--diff-sub); }
+.w-diff-added { background: var(--diff-add); }
+.w-diff-omitted { background: var(--diff-omit); text-decoration: line-through; text-decoration-thickness: 1px; }
+.w-diff-moved { background: var(--diff-move); }
+.w-diff-form { text-decoration: underline wavy var(--diff-form); text-underline-offset: 4px; }
+.w-diff-spelling { text-decoration: underline dotted var(--diff-spell); text-underline-offset: 4px; }
+.diff-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.diff-legend .w {
+  padding: 0 0.3rem;
+}
+.change-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.change-table th,
+.change-table td {
+  text-align: start;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.change-table .he {
+  font-size: 1.2rem;
+}
+.change-table .num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.change-examples a + a::before {
+  content: ' · ';
+  color: var(--muted);
 }

@@ -117,6 +117,23 @@ CREATE TABLE sequences (
     n_gold INTEGER NOT NULL
 );
 
+-- Word-level changes inside parallel sequences (`bsim diffs`, DESIGN.md §16.8); A = earlier verse.
+-- op: spelling | form | substitution | omitted | added | moved; *_idx = words.idx (NULL: no word).
+CREATE TABLE diff_changes (
+    seq_id INTEGER NOT NULL,
+    a INTEGER NOT NULL,
+    b INTEGER NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    op TEXT NOT NULL,
+    a_idx INTEGER,
+    b_idx INTEGER,
+    a_key TEXT,
+    b_key TEXT,
+    a_form TEXT,                    -- consonantal surface as written
+    b_form TEXT
+);
+
 -- Inner-unit structure scores (`bsim structure`, DESIGN.md §16.2); NULL = unit too small.
 CREATE TABLE structure (
     unit_id TEXT PRIMARY KEY,

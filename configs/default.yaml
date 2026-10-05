@@ -158,6 +158,14 @@ sequences:                    # `bsim sequences`: same-order parallel passages (
   null_reps: 20               # chapter-internal verse shuffles for q-values
   seed: 13
 
+diffs:                        # `bsim diffs`: word-level changes inside parallel sequences (DESIGN.md §16.8)
+  max_q: 0.05                 # sequences aligned word by word
+  same_chapter: false         # include repeats inside one chapter (lists: Num 7, Num 29)
+  min_shared: 0.3             # diff a verse pair only if this share of the shorter verse keeps its lemma
+  match: 2                    # Needleman-Wunsch scores over word lemma keys
+  mismatch: 1
+  gap: 1
+
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
   unit_types: [chapter, pericope, parasha]
   max_verses: 200             # larger units are not scored (and /structure refuses them)

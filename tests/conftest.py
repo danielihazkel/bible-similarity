@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 from bsim.analysis.corpus_map import run_map
+from bsim.analysis.diffs import run_diffs
 from bsim.analysis.structure import run_structure
 from bsim.analysis.stylometry import run_stylometry
 from bsim.config import load_config
@@ -216,6 +217,7 @@ def write_inputs(cfg, tmp_path):
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
+    run_diffs(cfg, log=lambda _: None)
     run_structure(cfg, log=lambda _: None)
     run_map(cfg, log=lambda _: None)
     run_stylometry(cfg, log=lambda _: None)

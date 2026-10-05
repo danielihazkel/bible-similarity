@@ -269,6 +269,18 @@ def sequences(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def diffs(config: ConfigOpt = None) -> None:
+    """Align parallel sequences word by word and record what changed."""
+    from bsim.analysis.diffs import run_diffs
+
+    try:
+        run_diffs(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""
     from bsim.analysis.structure import run_structure

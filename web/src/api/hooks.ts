@@ -6,7 +6,9 @@ import type {
   AffinityResponse,
   Book,
   BookStyle,
+  ChangesResponse,
   CompareResponse,
+  DiffOp,
   ConcordanceResponse,
   DiscoveriesResponse,
   Exclude,
@@ -284,5 +286,26 @@ export const useSequence = (id: number | undefined) =>
     queryKey: ['sequence', id],
     queryFn: ({ signal }) => getJson<SequenceDetail>(`/sequences/${id}`, {}, signal),
     enabled: id !== undefined,
+    ...forever,
+  })
+
+export interface ChangesQuery {
+  op: DiffOp
+  aBook?: number
+  bBook?: number
+  limit: number
+  offset: number
+}
+
+export const useChanges = (q: ChangesQuery) =>
+  useQuery({
+    queryKey: ['changes', q],
+    queryFn: ({ signal }) =>
+      getJson<ChangesResponse>(
+        '/changes',
+        { op: q.op, a_book: q.aBook, b_book: q.bBook, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })

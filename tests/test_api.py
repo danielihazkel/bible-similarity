@@ -449,3 +449,39 @@ def test_sequence_detail(client):
     assert d["rows"][1]["cosine"] == pytest.approx(0.8 * 0.0 + 0.6 * 0.0)  # v1 . v4
     assert sorted(d["verses"]) == ["0", "1", "3", "4"]
     assert client.get("/api/sequences/99").status_code == 404
+
+
+def test_verse_diff(client):
+    d = client.get("/api/diff?a=0&b=3").json()
+    # v0 בראשית אלהים ויאמר יהוה -> v3 ראשית: the shared lemma keeps its place, 3 words dropped
+    assert d["counts"] == {"form": 1, "omitted": 3}
+    assert (d["shared"], d["loose"]) == (1.0, False)
+    assert d["a_marks"] == {"0": "form", "1": "omitted", "2": "omitted", "3": "omitted"}
+    assert d["b_marks"] == {"0": "form"}
+    # v1 אלהים ויאמר יהוה -> v4 ראשית share no lemma: too loose to mark
+    loose = client.get("/api/diff?a=1&b=4").json()
+    assert (loose["shared"], loose["loose"], loose["a_marks"]) == (0.0, True, {})
+    assert client.get("/api/diff?a=0&b=99").status_code == 404
+
+
+def test_changes(client):
+    # only sequence 1 (q 0.01) is diffed, and only its (0 -> 3) pair: (1 -> 4) is too loose
+    body = client.get("/api/changes?op=omitted").json()
+    assert body["totals"] == {"form": 1, "omitted": 3}
+    assert body["total"] == 3 and [g["count"] for g in body["items"]] == [1, 1, 1]
+    g = next(g for g in body["items"] if g["a_key"] == "430")
+    assert (g["a_he"], g["b_key"], g["b_he"]) == ("אלהים", None, None)
+    assert g["examples"] == [{"seq_id": 1, "a": 0, "b": 3, "a_label": "v:0", "b_label": "v:3"}]
+    # form changes are grouped by written form
+    [f] = client.get("/api/changes?op=form").json()["items"]
+    assert (f["a_he"], f["b_he"], f["a_key"]) == ("בראשית", "ראשית", None)
+    assert f["examples"][0]["a"] == 0
+    assert client.get("/api/changes").json()["items"] == []  # no substitutions
+    assert client.get("/api/changes?op=omitted&a_book=1").json()["items"] == []
+    assert client.get("/api/changes?op=same").status_code == 422
+
+
+def test_sequence_ladder_marks(client):
+    rows = client.get("/api/sequences/1").json()["rows"]
+    assert rows[0]["b_marks"] == {"0": "form"} and rows[0]["loose"] is False
+    assert rows[1]["b_marks"] == {} and rows[1]["loose"] is True

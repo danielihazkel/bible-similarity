@@ -39,9 +39,9 @@ const verse = (id: number, ref: string) => ({
 const DETAIL: SequenceDetail = {
   sequence: SEQ,
   rows: [
-    { a: 10, b: 20, weight: 1, cosine: 0.93, gold: true },
-    { a: 11, b: null, weight: null, cosine: null, gold: false },
-    { a: 12, b: 21, weight: 0.5, cosine: 0.6, gold: false },
+    { a: 10, b: 20, weight: 1, cosine: 0.93, gold: true, a_marks: {}, b_marks: {}, loose: false },
+    { a: 11, b: null, weight: null, cosine: null, gold: false, a_marks: {}, b_marks: {}, loose: false },
+    { a: 12, b: 21, weight: 0.5, cosine: 0.6, gold: false, a_marks: { '0': 'substitution' }, b_marks: { '0': 'added' }, loose: false },
   ],
   verses: { '10': verse(10, 'II Sam 22:1'), '11': verse(11, 'II Sam 22:2'), '12': verse(12, 'II Sam 22:3'), '20': verse(20, 'Ps 18:1'), '21': verse(21, 'Ps 18:2') },
 }
@@ -114,6 +114,10 @@ describe('SequencePage', () => {
     expect(container.querySelectorAll('.rung.skip')).toHaveLength(1)
     expect(container.querySelector('.rung .sim-swatch')?.textContent).toBe('★')
     expect(screen.getByText(/1 verse\(s\) only on the left, 0 only on the right/)).toBeTruthy()
+    expect(container.querySelectorAll('.ladder .w-diff-substitution')).toHaveLength(1)
+    expect(container.querySelectorAll('.ladder .w-diff-added')).toHaveLength(1)
+    fireEvent.click(screen.getByLabelText('Mark word changes'))
+    expect(container.querySelectorAll('.ladder .w-diff-substitution')).toHaveLength(0)
   })
 })
 

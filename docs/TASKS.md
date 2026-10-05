@@ -226,3 +226,11 @@ M0 → M1 → M2 → M3 ─┐
 
 ✔ Isaiah 36–38 ↔ II Kings 18–20, Ezra 2 ↔ Nehemiah 7, II Sam 22 ↔ Ps 18 and the Tabernacle command / execution chains lead; Genesis 24's retold journey is found (q 0.016).
 
+## M23 — How parallels differ (roadmap A8)
+- [x] `analysis/diffs.py` + `bsim diffs` (pipeline stage after sequences, seconds): word-level Needleman-Wunsch over lemma keys for strong sequences; spelling / form / substitution / added / omitted / moved; loose pairs left out
+- [x] `diff_changes` table + `meta.diffs`; `/changes` (grouped, counted, examples; book filters), `/diff` (any two verses); ladder rows carry word marks
+- [x] Viewer: Changes page; change marks + legend in the side-by-side sequence view
+- [x] Tests: alignment labels, moved, loose filter (pytest); endpoints; Changes page and ladder marks (vitest)
+
+✔ יהוה → אלהים, אל → על, דוד → דויד, אנכי → אני, ממלכות → מלכות and the Chronicler's name forms rise to the top unprompted.
+

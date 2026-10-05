@@ -424,12 +424,48 @@ export interface SequencesResponse {
   items: SequenceSummary[]
 }
 
+export type DiffOp = 'spelling' | 'form' | 'substitution' | 'omitted' | 'added' | 'moved'
+
 export interface LadderRow {
   a: number | null
   b: number | null
   weight: number | null
   cosine: number | null
   gold: boolean
+  a_marks: Record<string, DiffOp>
+  b_marks: Record<string, DiffOp>
+  loose: boolean
+}
+
+export interface ChangeExample {
+  seq_id: number
+  a: number
+  b: number
+  a_label: string
+  b_label: string
+}
+
+export interface ChangeGroup {
+  a_key: string | null
+  b_key: string | null
+  a_form: string | null
+  b_form: string | null
+  a_he: string | null
+  b_he: string | null
+  count: number
+  n_sequences: number
+  examples: ChangeExample[]
+}
+
+export interface ChangesResponse {
+  op: DiffOp
+  a_book: number | null
+  b_book: number | null
+  totals: Partial<Record<DiffOp, number>>
+  total: number
+  offset: number
+  limit: number
+  items: ChangeGroup[]
 }
 
 export interface SequenceDetail {

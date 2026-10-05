@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { useSequence } from '../api/hooks'
 import type { LadderRow, Verse } from '../api/types'
+import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { ErrorBox, Loading } from '../components/Status'
 import { qLabel, similarityBand } from '../lib/format'
+import { diffHighlight, type Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 
 /** One parallel sequence as a ladder: aligned verse pairs side by side, skipped verses alone on their side. */
@@ -12,6 +15,7 @@ export function SequencePage() {
   const id = Number(seqId)
   const valid = Number.isInteger(id) && id > 0
   const res = useSequence(valid ? id : undefined)
+  const [showChanges, setShowChanges] = useState(true)
   if (!valid) return <p className="status">Not a sequence id.</p>
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
@@ -42,36 +46,46 @@ export function SequencePage() {
         {s.n_gold === 0 ? 'none linked in Sefaria' : `${s.n_gold} linked in Sefaria (★)`}
         {onlyA + onlyB > 0 && ` · ${onlyA} verse(s) only on the left, ${onlyB} only on the right`}
       </p>
+      <div className="toolbar">
+        <label className="check">
+          <input type="checkbox" checked={showChanges} onChange={(e) => setShowChanges(e.target.checked)} />
+          Mark word changes
+        </label>
+        {showChanges && <DiffLegend />}
+        {showChanges && <span className="muted small">≈ loosely parallel, not marked</span>}
+      </div>
       <ol className="ladder" aria-label="Aligned verses">
         {rows.map((r) => (
-          <Rung key={`${r.a}|${r.b}`} row={r} a={verse(r.a)} b={verse(r.b)} />
+          <Rung key={`${r.a}|${r.b}`} row={r} a={verse(r.a)} b={verse(r.b)} marks={showChanges} />
         ))}
       </ol>
     </div>
   )
 }
 
-function Rung({ row, a, b }: { row: LadderRow; a?: Verse; b?: Verse }) {
+function Rung({ row, a, b, marks }: { row: LadderRow; a?: Verse; b?: Verse; marks: boolean }) {
   const pair = row.a !== null && row.b !== null
   return (
     <li className={`rung ${pair ? '' : 'skip'}`}>
-      <Side verse={a} />
+      <Side verse={a} highlight={marks ? diffHighlight(row.a_marks) : undefined} />
       <div className="rung-mid">
         {pair && row.cosine !== null && (
           <span
             className={`sim-swatch sim-${similarityBand(row.cosine)}`}
-            title={`Cosine ${row.cosine.toFixed(2)}${row.gold ? ' · linked in Sefaria' : ''}`}
+            title={`Cosine ${row.cosine.toFixed(2)}${row.gold ? ' · linked in Sefaria' : ''}${
+              row.loose ? ' · loosely parallel: too different to mark word by word' : ''
+            }`}
           >
-            {row.gold ? '★' : ''}
+            {row.gold ? '★' : row.loose ? '≈' : ''}
           </span>
         )}
       </div>
-      <Side verse={b} />
+      <Side verse={b} highlight={marks ? diffHighlight(row.b_marks) : undefined} />
     </li>
   )
 }
 
-function Side({ verse }: { verse?: Verse }) {
+function Side({ verse, highlight }: { verse?: Verse; highlight?: Highlight }) {
   if (!verse) return <div className="rung-side empty" />
   return (
     <div className="rung-side">
@@ -79,7 +93,7 @@ function Side({ verse }: { verse?: Verse }) {
         {verse.ref}
       </Link>
       <p className="hit-text">
-        <HebrewText verse={verse} />
+        <HebrewText verse={verse} highlight={highlight} />
       </p>
     </div>
   )

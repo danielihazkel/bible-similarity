@@ -3,6 +3,7 @@ import { Layout } from './components/Layout'
 import { AboutPage } from './pages/AboutPage'
 import { BookPage } from './pages/BookPage'
 import { BooksPage } from './pages/BooksPage'
+import { ChangesPage } from './pages/ChangesPage'
 import { ComparePage } from './pages/ComparePage'
 import { ConcordancePage } from './pages/ConcordancePage'
 import { DiscoveriesPage } from './pages/DiscoveriesPage'
@@ -29,6 +30,7 @@ export function App() {
           <Route path="phrases" element={<PhrasesPage />} />
           <Route path="sequences" element={<SequencesPage />} />
           <Route path="sequences/:seqId" element={<SequencePage />} />
+          <Route path="changes" element={<ChangesPage />} />
           <Route path="structure" element={<StructurePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="style" element={<StylometryPage />} />

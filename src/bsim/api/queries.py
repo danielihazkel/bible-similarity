@@ -270,6 +270,87 @@ def sequences_page(
     return total, _dicts(cur)
 
 
+def _change_filter(op: str, a_book: int | None, b_book: int | None) -> tuple[str, list[Any]]:
+    # a moved word has a row on each side: count the A side only
+    where, args = "op = ?" + (" AND a_idx IS NOT NULL" if op == "moved" else ""), [op]
+    if a_book is not None:
+        where += " AND a_book = ?"
+        args.append(a_book)
+    if b_book is not None:
+        where += " AND b_book = ?"
+        args.append(b_book)
+    return where, args
+
+
+# spelling / form changes keep the lemma: they are grouped by the written forms instead
+FORM_OPS = ("spelling", "form")
+
+
+def _group_cols(op: str) -> tuple[str, str]:
+    return ("a_form", "b_form") if op in FORM_OPS else ("a_key", "b_key")
+
+
+def change_groups(
+    conn: sqlite3.Connection,
+    op: str,
+    a_book: int | None,
+    b_book: int | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """(number of groups, groups) of `diff_changes` by word key (by written form for spelling /
+    form changes), most frequent first; the non-grouping pair of columns is None."""
+    where, args = _change_filter(op, a_book, b_book)
+    ca, cb = _group_cols(op)
+    total = conn.execute(
+        f"SELECT COUNT(*) FROM (SELECT 1 FROM diff_changes WHERE {where} GROUP BY {ca}, {cb})",
+        args,
+    ).fetchone()[0]
+    other = "NULL AS a_key, NULL AS b_key" if op in FORM_OPS else "NULL AS a_form, NULL AS b_form"
+    cur = conn.execute(
+        f"SELECT {ca}, {cb}, {other}, COUNT(*) AS count, COUNT(DISTINCT seq_id) AS n_sequences"
+        f" FROM diff_changes WHERE {where} GROUP BY {ca}, {cb}"
+        f" ORDER BY count DESC, n_sequences DESC, {ca}, {cb} LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def change_examples(
+    conn: sqlite3.Connection,
+    op: str,
+    a_book: int | None,
+    b_book: int | None,
+    a_value: str | None,
+    b_value: str | None,
+    n: int,
+) -> list[dict[str, Any]]:
+    """Example verse pairs of one group (`a_value, b_value` = its grouping columns)."""
+    where, args = _change_filter(op, a_book, b_book)
+    ca, cb = _group_cols(op)
+    cur = conn.execute(
+        f"SELECT DISTINCT seq_id, a, b FROM diff_changes WHERE {where}"
+        f" AND {ca} IS ? AND {cb} IS ? ORDER BY seq_id, a LIMIT ?",
+        [*args, a_value, b_value, n],
+    )
+    return _dicts(cur)
+
+
+def change_totals(
+    conn: sqlite3.Connection, a_book: int | None, b_book: int | None
+) -> dict[str, int]:
+    """Changes per op under the book filters (moved words counted once)."""
+    where, args = "(op != 'moved' OR a_idx IS NOT NULL)", []
+    if a_book is not None:
+        where += " AND a_book = ?"
+        args.append(a_book)
+    if b_book is not None:
+        where += " AND b_book = ?"
+        args.append(b_book)
+    cur = conn.execute(f"SELECT op, COUNT(*) FROM diff_changes WHERE {where} GROUP BY op", args)
+    return dict(cur.fetchall())
+
+
 def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
     cur = conn.execute(f"SELECT {SEQUENCE_COLS}, pairs FROM sequences WHERE seq_id = ?", (seq_id,))
     rows = _dicts(cur)

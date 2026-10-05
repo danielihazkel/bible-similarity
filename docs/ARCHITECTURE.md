@@ -128,6 +128,7 @@ bible-similarity/
 │   ├── analysis/
 │   │   ├── phrases.py              # `bsim phrases`: Smith-Waterman shared phrases (§16.1)
 │   │   ├── sequences.py            # `bsim sequences`: same-order parallel passages, q-values (§16.7)
+│   │   ├── diffs.py                # `bsim diffs`: word-level changes inside parallel sequences (§16.8)
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
 │   │   └── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
@@ -150,7 +151,7 @@ bible-similarity/
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
 │       ├── context/                # te'amim / niqqud / consonants preference
 │       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
-│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, structure, map, style, lemma, about
+│       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes, structure, map, style, lemma, about
 │       └── styles/global.css
 ├── tests/                          # pytest
 ├── data/          (gitignored)     # raw/ interim/ processed/
@@ -176,12 +177,13 @@ bible-similarity/
 | — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
+| 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
 | 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |
 | 11e | `bsim stylometry` | verses, words, units | `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `.meta.json` (§16.6) |
-| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + structure + map + stylometry | `artifacts/results.sqlite` |
+| 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + structure + map + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, sequences, structure, map, stylometry, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), phrases, sequences, diffs, structure, map, stylometry, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

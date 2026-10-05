@@ -1,7 +1,12 @@
-import type { ExplainResponse, WordRef } from '../api/types'
+import type { DiffOp, ExplainResponse, WordRef } from '../api/types'
 
-export type Mark = 'shared' | 'formula' | 'focus'
+export type Mark = 'shared' | 'formula' | 'focus' | `diff-${DiffOp}`
 export type Highlight = Map<number, Mark>
+
+/** Display-token highlights of a word-level diff (`a_marks` / `b_marks`). */
+export function diffHighlight(marks: Record<string, DiffOp> | undefined): Highlight {
+  return new Map(Object.entries(marks ?? {}).map(([i, op]) => [Number(i), `diff-${op}` as Mark]))
+}
 
 /**
  * Display-token highlights for one side of an `/explain` result. A token is `formula` when every

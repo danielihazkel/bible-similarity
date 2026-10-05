@@ -16,6 +16,7 @@ Derived columns:
 - `phrases`: `bsim phrases` output (`artifacts/phrases/verse.parquet`) plus both verses' books.
 - `sequences`: `bsim sequences` chains (`artifacts/sequences/verse.parquet`); each aligned pair
   gains a gold flag (`gold_verse_pairs`, either direction) and `n_gold` counts them.
+- `diff_changes` + `meta.diffs`: `bsim diffs` word-level changes (`artifacts/diffs/`).
 - `structure`: `bsim structure` scores (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
@@ -63,6 +64,8 @@ INDEXES = (
     "CREATE INDEX phrases_by_score ON phrases (score DESC)",
     "CREATE INDEX sequences_by_a ON sequences (a_start, a_end)",
     "CREATE INDEX sequences_by_b ON sequences (b_start, b_end)",
+    "CREATE INDEX diff_changes_by_op ON diff_changes (op, a_key, b_key)",
+    "CREATE INDEX diff_changes_by_books ON diff_changes (a_book, b_book, op)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -141,6 +144,20 @@ TABLE_COLUMNS = {
         "q",
         "pairs",
         "n_gold",
+    ],
+    "diff_changes": [
+        "seq_id",
+        "a",
+        "b",
+        "a_book",
+        "b_book",
+        "op",
+        "a_idx",
+        "b_idx",
+        "a_key",
+        "b_key",
+        "a_form",
+        "b_form",
     ],
     "structure": ["unit_id", "unit_type", "n_verses", *SCORE_COLS],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
@@ -467,6 +484,11 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim sequences` first")
     out["sequences"] = pd.read_parquet(path)
+    diff_dir = resolve_path(cfg, "artifacts") / "diffs"
+    if not (diff_dir / "changes.parquet").exists():
+        raise RuntimeError(f"{diff_dir / 'changes.parquet'} missing; run `bsim diffs` first")
+    out["diff_changes"] = pd.read_parquet(diff_dir / "changes.parquet")
+    out["diffs_meta"] = _read_json(diff_dir / "diffs.meta.json")
     path = resolve_path(cfg, "artifacts") / "structure" / "units.parquet"
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
@@ -609,6 +631,7 @@ def _write_db(
             "sequences": sequence_gold(inputs["sequences"], gold).assign(
                 same_chapter=lambda d: d.same_chapter.astype(int)
             ),
+            "diff_changes": inputs["diff_changes"],
             "phrases": inputs["phrases"].assign(
                 a_book=lambda d: d.a.map(verses.set_index("verse_id").book_id),
                 b_book=lambda d: d.b.map(verses.set_index("verse_id").book_id),
@@ -656,6 +679,8 @@ def _write_db(
         meta = _meta(cfg, files, expected)
         meta["book_order"] = inputs["map_meta"].get("book_order", [b.book_id for b in BOOKS])
         sm = inputs["stylo_meta"]
+        dm = inputs["diffs_meta"]
+        meta["diffs"] = {k: dm.get(k) for k in ("verse_pairs", "loose_pairs", "ops")}
         meta["stylometry"] = {
             k: sm.get(k) for k in ("book_order", "axes", "book_words", "features")
         }

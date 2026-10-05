@@ -142,6 +142,54 @@ class PhrasesResponse(BaseModel):
     items: list[PhrasePair]
 
 
+DiffOp = Literal["spelling", "form", "substitution", "omitted", "added", "moved"]
+
+
+class ChangeExample(BaseModel):
+    seq_id: int
+    a: int
+    b: int
+    a_label: str
+    b_label: str
+
+
+class ChangeGroup(BaseModel):
+    """One kind of change between parallel verses, e.g. יהוה → אלהים."""
+
+    a_key: str | None  # word key in the earlier passage (None: added; spelling / form groups)
+    b_key: str | None  # in the later passage (None: omitted / moved; spelling / form groups)
+    a_form: str | None = None  # written forms: how spelling / form changes are grouped
+    b_form: str | None = None
+    a_he: str | None  # what to show: the lemma's display form, or the written form
+    b_he: str | None
+    count: int
+    n_sequences: int
+    examples: list[ChangeExample]
+
+
+class ChangesResponse(BaseModel):
+    op: DiffOp
+    a_book: int | None
+    b_book: int | None
+    totals: dict[str, int]  # changes per op under the book filters
+    total: int  # groups
+    offset: int
+    limit: int
+    items: list[ChangeGroup]
+
+
+class VerseDiff(BaseModel):
+    """Word-level changes from verse a to verse b: display token index -> op."""
+
+    a: int
+    b: int
+    a_marks: dict[int, DiffOp]
+    b_marks: dict[int, DiffOp]
+    counts: dict[str, int]  # ops incl. `same`
+    shared: float  # share of the shorter verse's words that keep their lemma
+    loose: bool  # below `diffs.min_shared`: no marks (not a close parallel)
+
+
 class SequenceSummary(BaseModel):
     """Two passages running parallel in the same verse order (DESIGN.md §16.7)."""
 
@@ -184,6 +232,9 @@ class LadderRow(BaseModel):
     weight: float | None = None  # candidate weight (1 = rank 1 in the fused list)
     cosine: float | None = None  # semantic cosine of the pair
     gold: bool = False
+    a_marks: dict[int, DiffOp] = {}  # word changes (display token index -> op), aligned pairs
+    b_marks: dict[int, DiffOp] = {}
+    loose: bool = False  # aligned, but too different to diff word by word
 
 
 class SequenceDetail(BaseModel):
