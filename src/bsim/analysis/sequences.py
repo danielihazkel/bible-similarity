@@ -75,11 +75,16 @@ def find_chains(
     max_step: int,
     gap: float,
     min_pairs: int,
+    direction: str = "forward",
 ) -> list[Chain]:
-    """Same-order chains of verse pairs, strongest first (see the module docstring)."""
+    """Chains of verse pairs, strongest first (see the module docstring). `direction`:
+    `forward` (both sides advance), `reverse` (a advances while b retreats: A B C … ↔ … C′ B′ A′)
+    or `mixed` (b may step either way: the same scene retold in another order)."""
     order = np.lexsort((b, a))
     A, B, W = a[order].tolist(), b[order].tolist(), w[order].astype(np.float64).tolist()
     book = book_id.tolist()
+    n_verses = len(book)
+    steps_b = {"forward": (1,), "reverse": (-1,), "mixed": (1, -1)}[direction]
     at = {(x, y): i for i, (x, y) in enumerate(zip(A, B, strict=True))}
     score = list(W)
     prev = [-1] * len(A)
@@ -88,14 +93,16 @@ def find_chains(
         for da in range(1, max_step + 1):
             if x - da < 0 or book[x - da] != book[x]:
                 break
-            for db in range(1, max_step + 1):
-                if y - db < 0 or book[y - db] != book[y]:
-                    break
-                j = at.get((x - da, y - db))
-                if j is not None:
-                    c = score[j] - gap * (da + db - 2)
-                    if c > best:
-                        best, bp = c, j
+            for sb in steps_b:
+                for db in range(1, max_step + 1):
+                    yb = y - sb * db
+                    if not 0 <= yb < n_verses or book[yb] != book[y]:
+                        break
+                    j = at.get((x - da, yb))
+                    if j is not None:
+                        c = score[j] - gap * (da + db - 2)
+                        if c > best:
+                            best, bp = c, j
         score[i] += best
         prev[i] = bp
 
@@ -115,14 +122,50 @@ def find_chains(
         if len(path) < min_pairs:
             continue
         ca, cb, cw = [A[j] for j in path], [B[j] for j in path], [W[j] for j in path]
-        if book[ca[0]] == book[cb[0]] and ca[-1] >= cb[0]:
-            continue  # the two spans overlap: a tandem repeat
+        if book[ca[0]] == book[cb[0]] and ca[-1] >= min(cb[0], cb[-1]):
+            continue  # the two spans overlap: a tandem repeat (or a crossing)
         s = cw[0] + sum(
-            cw[k] - gap * (ca[k] - ca[k - 1] + cb[k] - cb[k - 1] - 2) for k in range(1, len(path))
+            cw[k] - gap * (ca[k] - ca[k - 1] + abs(cb[k] - cb[k - 1]) - 2)
+            for k in range(1, len(path))
         )
         chains.append(Chain(ca, cb, cw, s))
     chains.sort(key=lambda c: (-c.score, c.a[0], c.b[0]))
     return chains
+
+
+DIRECTIONS = ("forward", "reverse", "mixed")
+
+
+def is_monotone(c: Chain) -> bool:
+    steps = np.sign(np.diff(c.b))
+    return bool(np.all(steps > 0) or np.all(steps < 0))
+
+
+def all_chains(
+    a: np.ndarray, b: np.ndarray, w: np.ndarray, book_id: np.ndarray, s: dict[str, Any]
+) -> list[tuple[str, Chain]]:
+    """Forward chains, then reverse ones, then mixed ones (`s["directions"]`), each kind found
+    over all pairs; a later kind's chain is dropped when `s["max_overlap"]` or more of its pairs
+    are in a chain already kept, and a mixed chain that is monotone (a forward or reverse chain
+    by another name) is dropped."""
+    kept: list[tuple[str, Chain]] = []
+    used: set[tuple[int, int]] = set()
+    for direction in s["directions"]:
+        found = find_chains(
+            a, b, w, book_id, s["max_step"], s["gap"], s["min_pairs"], direction=direction
+        )
+        if direction == "mixed":
+            found = [c for c in found if not is_monotone(c)]
+        new = []
+        for c in found:
+            pairs = list(zip(c.a, c.b, strict=True))
+            if kept and sum(p in used for p in pairs) >= s["max_overlap"] * len(pairs):
+                continue
+            new.append((direction, c))
+        for _, c in new:
+            used.update(zip(c.a, c.b, strict=True))
+        kept += new
+    return kept
 
 
 def shuffle_within(groups: np.ndarray, rng: np.random.Generator) -> np.ndarray:
@@ -151,16 +194,33 @@ def q_values(observed: np.ndarray, null: np.ndarray, reps: int) -> np.ndarray:
     return q[rank]
 
 
-def chain_frame(chains: list[Chain], q: np.ndarray, book_id: np.ndarray, chapter: np.ndarray):
+def chain_frame(
+    chains: list[tuple[str, Chain]], q: np.ndarray, book_id: np.ndarray, chapter: np.ndarray
+) -> pd.DataFrame:
+    """One row per chain; `seq_id` ranks forward chains first (ids stable when reverse / mixed
+    chains are added), then reverse, then mixed, each by score."""
+    rank = {d: i for i, d in enumerate(DIRECTIONS)}
+    order = sorted(
+        range(len(chains)),
+        key=lambda k: (
+            rank[chains[k][0]],
+            -chains[k][1].score,
+            chains[k][1].a[0],
+            chains[k][1].b[0],
+        ),
+    )
     rows = []
-    for k, (c, qk) in enumerate(zip(chains, q, strict=True), start=1):
+    for seq_id, k in enumerate(order, start=1):
+        direction, c = chains[k]
+        qk = q[k]
         rows.append(
             {
-                "seq_id": k,
+                "seq_id": seq_id,
                 "a_start": c.a[0],
                 "a_end": c.a[-1],
-                "b_start": c.b[0],
-                "b_end": c.b[-1],
+                "b_start": min(c.b),
+                "b_end": max(c.b),
+                "direction": direction,
                 "a_book": int(book_id[c.a[0]]),
                 "b_book": int(book_id[c.b[0]]),
                 "same_chapter": bool(
@@ -174,7 +234,8 @@ def chain_frame(chains: list[Chain], q: np.ndarray, book_id: np.ndarray, chapter
                 ),
             }
         )
-    cols = ["seq_id", "a_start", "a_end", "b_start", "b_end", "a_book", "b_book", "same_chapter"]
+    cols = ["seq_id", "a_start", "a_end", "b_start", "b_end", "direction", "a_book", "b_book"]
+    cols.append("same_chapter")
     return pd.DataFrame(rows, columns=[*cols, "n_pairs", "score", "q", "pairs"])
 
 
@@ -195,19 +256,23 @@ def run_sequences(cfg: dict[str, Any], log: Log = print) -> Path:
         cfg["retrieval"]["neighbor_window"],
     )
     a, b, w = pairs.a.to_numpy(), pairs.b.to_numpy(), pairs.w.to_numpy()
-    args = (book, s["max_step"], s["gap"], s["min_pairs"])
     log(f"chaining {len(pairs)} candidate pairs from {system} (top {s['candidate_rank']})")
-    chains = find_chains(a, b, w, *args)
+    chains = all_chains(a, b, w, book, s)
 
     rng = np.random.default_rng(s["seed"])
     groups = book.astype(np.int64) * 1000 + chapter
-    null = []
+    null: dict[str, list[float]] = {d: [] for d in s["directions"]}
     for r in range(s["null_reps"]):
         perm = shuffle_within(groups, rng)
         na, nb = perm[a], perm[b]
-        null += [c.score for c in find_chains(np.minimum(na, nb), np.maximum(na, nb), w, *args)]
-        log(f"  null {r + 1}/{s['null_reps']}: {len(null)} chance chains so far")
-    q = q_values(np.array([c.score for c in chains]), np.array(null), s["null_reps"])
+        for d, c in all_chains(np.minimum(na, nb), np.maximum(na, nb), w, book, s):
+            null[d].append(c.score)
+        log(f"  null {r + 1}/{s['null_reps']}: {sum(map(len, null.values()))} chance chains so far")
+    q = np.zeros(len(chains))
+    for d in s["directions"]:
+        idx = [k for k, (dk, _) in enumerate(chains) if dk == d]
+        scores = np.array([chains[k][1].score for k in idx])
+        q[idx] = q_values(scores, np.array(null[d]), s["null_reps"])
     df = chain_frame(chains, q, book, chapter)
 
     out = resolve_path(cfg, "artifacts") / "sequences"
@@ -219,8 +284,17 @@ def run_sequences(cfg: dict[str, Any], log: Log = print) -> Path:
         "system": system,
         "candidates": int(len(pairs)),
         "chains": int(len(df)),
-        "null_chains_per_rep": round(len(null) / max(1, s["null_reps"]), 1),
+        "null_chains_per_rep": {
+            d: round(len(v) / max(1, s["null_reps"]), 1) for d, v in null.items()
+        },
         "q_below_0.05": int((df.q < 0.05).sum()),
+        "by_direction": {
+            d: {
+                "chains": int((df.direction == d).sum()),
+                "q_below_0.05": int(((df.direction == d) & (df.q < 0.05)).sum()),
+            }
+            for d in s["directions"]
+        },
         "seconds": round(time.perf_counter() - t0, 1),
     }
     (out / "verse.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")

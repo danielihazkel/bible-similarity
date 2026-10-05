@@ -232,8 +232,8 @@ def lemma_page(
 
 PHRASE_COLS = "a, b, score, n_tokens, a_words, b_words, spread"
 SEQUENCE_COLS = (
-    "seq_id, a_start, a_end, b_start, b_end, a_book, b_book, same_chapter, n_pairs, score, q,"
-    " n_gold"
+    "seq_id, a_start, a_end, b_start, b_end, direction, a_book, b_book, same_chapter, n_pairs,"
+    " score, q, n_gold"
 )
 
 
@@ -247,9 +247,13 @@ def sequences_page(
     span: tuple[int, int] | None,
     limit: int,
     offset: int,
+    direction: str | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
     """Chains, strongest first; `span` = (first, last) verse id: chains touching it."""
     where, args = "n_pairs >= ?", [min_pairs]
+    if direction is not None:
+        where += " AND direction = ?"
+        args.append(direction)
     if max_q is not None:
         where += " AND q <= ?"
         args.append(max_q)
@@ -765,3 +769,65 @@ def rewrite_profiles(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     return _dicts(
         conn.execute("SELECT * FROM rewrite_profiles ORDER BY verse_pairs DESC, a_book, b_book")
     )
+
+
+def network_communities(conn: sqlite3.Connection, unit_type: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT * FROM network_communities WHERE unit_type = ? ORDER BY community", (unit_type,)
+    )
+    return _dicts(cur)
+
+
+def network_community(
+    conn: sqlite3.Connection, unit_type: str, community: int
+) -> dict[str, Any] | None:
+    rows = _dicts(
+        conn.execute(
+            "SELECT * FROM network_communities WHERE unit_type = ? AND community = ?",
+            (unit_type, community),
+        )
+    )
+    return rows[0] if rows else None
+
+
+def network_nodes(
+    conn: sqlite3.Connection, unit_type: str, community: int | None = None, top: int | None = None
+) -> list[dict[str, Any]]:
+    sql, args = "SELECT * FROM network_nodes WHERE unit_type = ?", [unit_type]
+    if community is not None:
+        sql += " AND community = ?"
+        args.append(community)
+    sql += " ORDER BY pagerank DESC, unit_id"
+    if top is not None:
+        sql += " LIMIT ?"
+        args.append(top)
+    return _dicts(conn.execute(sql, args))
+
+
+def network_edges_among(
+    conn: sqlite3.Connection, unit_type: str, ids: list[str]
+) -> list[dict[str, Any]]:
+    if not ids:
+        return []
+    marks = _marks(len(ids))
+    cur = conn.execute(
+        f"SELECT a, b, weight FROM network_edges WHERE unit_type = ? AND a IN ({marks})"
+        f" AND b IN ({marks}) ORDER BY a, b",
+        [unit_type, *ids, *ids],
+    )
+    return _dicts(cur)
+
+
+def network_node(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any] | None:
+    rows = _dicts(conn.execute("SELECT * FROM network_nodes WHERE unit_id = ?", (unit_id,)))
+    if not rows:
+        return None
+    n = rows[0]
+    n["rank"] = conn.execute(
+        "SELECT COUNT(*) + 1 FROM network_nodes WHERE unit_type = ? AND pagerank > ?",
+        (n["unit_type"], n["pagerank"]),
+    ).fetchone()[0]
+    n["of"] = conn.execute(
+        "SELECT COUNT(*) FROM network_nodes WHERE unit_type = ?", (n["unit_type"],)
+    ).fetchone()[0]
+    return n

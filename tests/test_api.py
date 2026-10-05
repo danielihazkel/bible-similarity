@@ -706,3 +706,28 @@ def test_structure_ranking_has_q_and_leitwort_numbers(client):
     body = client.get("/api/structure?min_verses=1").json()
     assert "leitwort_numbers" in body and body["leitwort_numbers"]["leitworte"] >= 0
     assert all("semantic_inclusio_q" in r for r in body["items"])
+
+
+def test_sequence_directions(client):
+    # fixture chains predate reverse / mixed ones: build-db marks them forward
+    items = client.get("/api/sequences").json()["items"]
+    assert items and all(s["direction"] == "forward" for s in items)
+    assert client.get("/api/sequences?direction=forward").json()["total"] == len(items)
+    assert client.get("/api/sequences?direction=reverse").json()["total"] == 0
+    assert client.get("/api/sequences?direction=sideways").status_code == 422
+
+
+def test_network(client):
+    body = client.get("/api/network/chapter").json()
+    assert body["communities"] and body["central"]
+    assert sum(c["size"] for c in body["communities"]) == 3  # the fixture's chapters
+    k = body["communities"][0]["community"]
+    one = client.get(f"/api/network/chapter/{k}").json()
+    assert len(one["nodes"]) == body["communities"][0]["size"]
+    ids = {n["unit"]["unit_id"] for n in one["nodes"]}
+    assert all(e["a"] in ids and e["b"] in ids for e in one["edges"])
+    u = client.get("/api/unit-network/c:0:1").json()
+    assert 1 <= u["rank"] <= u["of"] == 3
+    assert client.get("/api/unit-network/v:0").json() is None
+    assert client.get("/api/network/verse").status_code == 422
+    assert client.get("/api/network/chapter/99").status_code == 404

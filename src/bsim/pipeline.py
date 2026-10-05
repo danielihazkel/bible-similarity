@@ -182,6 +182,12 @@ def stage_map(cfg: dict[str, Any], log: Log) -> None:
     run_map(cfg, log=log)
 
 
+def stage_network(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.network import run_network
+
+    run_network(cfg, log=log)
+
+
 def stage_stylometry(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.stylometry import run_stylometry
 
@@ -219,6 +225,7 @@ STAGES: dict[str, str] = {
     "seams": "stage_seams",
     "structure": "stage_structure",
     "map": "stage_map",
+    "network": "stage_network",
     "stylometry": "stage_stylometry",
     "build-db": "stage_build_db",
 }

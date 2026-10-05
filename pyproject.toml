@@ -21,6 +21,7 @@ dependencies = [
     "uvicorn[standard]>=0.30",
     "datasets>=5.0.1",
     "accelerate>=1.15.0",
+    "networkx>=3.3",
 ]
 
 [dependency-groups]

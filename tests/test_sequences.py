@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from bsim.analysis.sequences import (
+    all_chains,
     candidate_pairs,
     chain_frame,
     find_chains,
@@ -15,11 +16,11 @@ from bsim.analysis.sequences import (
 BOOK = np.array([0] * 20 + [1] * 20)
 
 
-def chains(pairs, w=None, book=BOOK, max_step=3, gap=0.25, min_pairs=3):
+def chains(pairs, w=None, book=BOOK, max_step=3, gap=0.25, min_pairs=3, direction="forward"):
     a = np.array([p[0] for p in pairs])
     b = np.array([p[1] for p in pairs])
     w = np.ones(len(pairs)) if w is None else np.array(w, dtype=float)
-    return find_chains(a, b, w, book, max_step, gap, min_pairs)
+    return find_chains(a, b, w, book, max_step, gap, min_pairs, direction=direction)
 
 
 def test_candidate_pairs_unordered_best_rank_no_neighbours():
@@ -88,8 +89,45 @@ def test_q_values():
 def test_chain_frame():
     c = chains([(2, 22), (3, 23), (4, 24)])
     chapter = np.array([1] * 40)
-    df = chain_frame(c, np.array([0.01]), BOOK, chapter)
+    df = chain_frame([("forward", c[0])], np.array([0.01]), BOOK, chapter)
     row = df.iloc[0]
     assert (row.seq_id, row.a_start, row.a_end, row.b_start, row.b_end) == (1, 2, 4, 22, 24)
+    assert row.direction == "forward"
     assert (row.a_book, row.b_book, bool(row.same_chapter)) == (0, 1, False)
     assert json.loads(row.pairs) == [[2, 22, 1.0], [3, 23, 1.0], [4, 24, 1.0]]
+
+
+def test_reverse_chains_mirror_and_spans_are_min_max():
+    pairs = [(2, 26), (3, 25), (4, 24), (5, 23)]
+    assert chains(pairs) == []  # no same-order chain
+    (c,) = chains(pairs, direction="reverse")
+    assert c.a == [2, 3, 4, 5] and c.b == [26, 25, 24, 23]
+    row = chain_frame([("reverse", c)], np.array([0.5]), BOOK, np.ones(40, int)).iloc[0]
+    assert (row.b_start, row.b_end, row.direction) == (23, 26, "reverse")
+
+
+def test_reverse_chain_nested_in_one_passage_is_kept():
+    # A B C ... C' B' A' inside one chapter: a chiasm, not an overlapping tandem repeat
+    (c,) = chains([(1, 9), (2, 8), (3, 7)], direction="reverse")
+    assert c.a == [1, 2, 3] and c.b == [9, 8, 7]
+    assert chains([(1, 3), (2, 2), (3, 1)], direction="reverse") == []  # crossing spans
+
+
+def test_all_chains_order_dedup_and_monotone_mixed_dropped():
+    s = {
+        "directions": ["forward", "reverse", "mixed"],
+        "max_step": 3,
+        "gap": 0.25,
+        "min_pairs": 3,
+        "max_overlap": 0.5,
+    }
+    fwd = [(1, 21), (2, 22), (3, 23)]
+    mixed = [(10, 32), (11, 30), (12, 33), (13, 31)]  # b goes back and forth
+    pairs = fwd + mixed
+    a, b = np.array([p[0] for p in pairs]), np.array([p[1] for p in pairs])
+    got = all_chains(a, b, np.ones(len(pairs)), BOOK, s)
+    kinds = [(d, c.a) for d, c in got]
+    assert ("forward", [1, 2, 3]) in kinds
+    assert ("mixed", [10, 11, 12, 13]) in kinds
+    # the forward chain is not repeated as a monotone "mixed" one
+    assert sum(c.a == [1, 2, 3] for _, c in got) == 1

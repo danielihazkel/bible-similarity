@@ -305,6 +305,18 @@ def acrostics(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def network(config: ConfigOpt = None) -> None:
+    """Build the network of echoes between chapters / pericopes: central passages, communities."""
+    from bsim.analysis.network import run_network
+
+    try:
+        run_network(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def wordplay(config: ConfigOpt = None) -> None:
     """Find sound-alike words close together (paronomasia)."""
     from bsim.analysis.wordplay import run_wordplay

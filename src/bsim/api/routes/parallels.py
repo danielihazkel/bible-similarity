@@ -11,6 +11,7 @@ import numpy as np
 from fastapi import APIRouter, HTTPException
 
 from bsim.analysis import diffs as df_
+from bsim.analysis import sequences as sq
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
@@ -189,12 +190,15 @@ def sequences(
     max_q: float | None = None,
     min_pairs: int = 1,  # stored chains already have `sequences.min_pairs`
     unit: str | None = None,
+    direction: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    """Passages that run parallel in the same verse order, strongest first (DESIGN.md §16.7);
-    `unit`: only chains touching that unit's verses."""
+    """Passages that run parallel verse by verse, strongest first (DESIGN.md §16.7);
+    `unit`: only chains touching that unit's verses; `direction`: forward | reverse | mixed."""
     check_page(state, limit, offset)
+    if direction is not None and direction not in sq.DIRECTIONS:
+        raise unprocessable(f"direction must be one of {list(sq.DIRECTIONS)}")
     check_min(min_pairs, "min_pairs")
     if max_q is not None and not 0 <= max_q <= 1:
         raise unprocessable("max_q must be between 0 and 1")
@@ -203,7 +207,7 @@ def sequences(
         u = unit_or_404(conn, unit)
         span = (u["start_verse_id"], u["end_verse_id"])
     total, rows = queries.sequences_page(
-        conn, book, cross_book, hide_same_chapter, max_q, min_pairs, span, limit, offset
+        conn, book, cross_book, hide_same_chapter, max_q, min_pairs, span, limit, offset, direction
     )
     return {
         "book": book,
@@ -212,6 +216,7 @@ def sequences(
         "max_q": max_q,
         "min_pairs": min_pairs,
         "unit": unit,
+        "direction": direction,
         "total": total,
         "offset": offset,
         "limit": limit,
@@ -240,7 +245,12 @@ def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -
         if k:
             pa, pb = pairs[k - 1][:2]
             rows += [LadderRow(a=x, b=None) for x in range(pa + 1, a)]
-            rows += [LadderRow(a=None, b=y) for y in range(pb + 1, b)]
+            # the verses skipped on the b side, in reading order of the chain (none when the
+            # b side jumps back and forth)
+            if r["direction"] == "forward":
+                rows += [LadderRow(a=None, b=y) for y in range(pb + 1, b)]
+            elif r["direction"] == "reverse":
+                rows += [LadderRow(a=None, b=y) for y in range(pb - 1, b, -1)]
         cos = float(np.dot(state.emb[a], state.emb[b]))
         am, bm, _, shared = _verse_diff(state, conn, a, b)
         rows.append(

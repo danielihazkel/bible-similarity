@@ -15,6 +15,7 @@ from bsim.api.models import (
     AffinityResponse,
     BookCount,
     BookStyle,
+    CommunityResponse,
     CurvePoint,
     EntitiesResponse,
     Entity,
@@ -25,6 +26,10 @@ from bsim.api.models import (
     MapCluster,
     MapPoint,
     MapResponse,
+    NetworkCommunity,
+    NetworkEdge,
+    NetworkNode,
+    NetworkResponse,
     Seam,
     SeamFeature,
     SeamsResponse,
@@ -33,6 +38,7 @@ from bsim.api.models import (
     StyloFeature,
     StylometryResponse,
     StyloPoint,
+    UnitNetwork,
     UnitSummary,
 )
 from bsim.api.routes._common import (
@@ -257,3 +263,71 @@ def book_style(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
             for r in near
         ],
     }
+
+
+def _community(conn, row: dict[str, Any]) -> NetworkCommunity:
+    lemmas = json.loads(row["lemmas"])
+    gloss = queries.gloss(conn, lemmas)
+    return NetworkCommunity(
+        community=row["community"],
+        size=row["size"],
+        lemmas=[LemmaForm(lemma=lem, he_lemma=gloss.get(lem, lem)) for lem in lemmas],
+        books=[BookCount(book_id=b, n_verses=n) for b, n in json.loads(row["books"])],
+    )
+
+
+def _nodes(conn, rows: list[dict[str, Any]]) -> list[NetworkNode]:
+    units_ = queries.units_by_id(conn, [r["unit_id"] for r in rows])
+    return [
+        NetworkNode(
+            unit=UnitSummary(**units_[r["unit_id"]]),
+            **{k: r[k] for k in NetworkNode.model_fields if k != "unit"},
+        )
+        for r in rows
+    ]
+
+
+def _network_type(state, unit_type: str) -> str:
+    return check_unit_type(unit_type, list(state.cfg["network"]["unit_types"]))
+
+
+@router.get("/network/{unit_type}", response_model=NetworkResponse)
+def network(unit_type: str, state: State, conn: Conn, central: int = 20) -> dict[str, Any]:
+    """Communities of passages that echo each other, and the most central passages
+    (DESIGN.md §16.17)."""
+    _network_type(state, unit_type)
+    if not 1 <= central <= 100:
+        raise unprocessable("central must be between 1 and 100")
+    return {
+        "unit_type": unit_type,
+        "communities": [_community(conn, r) for r in queries.network_communities(conn, unit_type)],
+        "central": _nodes(conn, queries.network_nodes(conn, unit_type, top=central)),
+    }
+
+
+@router.get("/network/{unit_type}/{community}", response_model=CommunityResponse)
+def network_community(unit_type: str, community: int, state: State, conn: Conn) -> dict[str, Any]:
+    """One community: its passages (with their layout) and the echoes among them."""
+    _network_type(state, unit_type)
+    row = queries.network_community(conn, unit_type, community)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"unknown community {community}")
+    rows = queries.network_nodes(conn, unit_type, community)
+    edges = queries.network_edges_among(conn, unit_type, [r["unit_id"] for r in rows])
+    return {
+        "unit_type": unit_type,
+        "community": _community(conn, row),
+        "nodes": _nodes(conn, rows),
+        "edges": [NetworkEdge(**e) for e in edges],
+    }
+
+
+@router.get("/unit-network/{unit_id}", response_model=UnitNetwork | None)
+def unit_network(unit_id: str, conn: Conn) -> UnitNetwork | None:
+    """A unit's place in the network (null for unit types without one)."""
+    unit_or_404(conn, unit_id)
+    n = queries.network_node(conn, unit_id)
+    if n is None:
+        return None
+    size = queries.network_community(conn, n["unit_type"], n["community"])["size"]
+    return UnitNetwork(node=_nodes(conn, [n])[0], rank=n["rank"], of=n["of"], community_size=size)

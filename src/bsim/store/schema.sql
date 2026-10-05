@@ -107,6 +107,7 @@ CREATE TABLE sequences (
     a_end INTEGER NOT NULL,
     b_start INTEGER NOT NULL,
     b_end INTEGER NOT NULL,
+    direction TEXT NOT NULL,        -- forward | reverse | mixed (order of the b side)
     a_book INTEGER NOT NULL,
     b_book INTEGER NOT NULL,
     same_chapter INTEGER NOT NULL,
@@ -284,6 +285,35 @@ CREATE TABLE rewrite_profiles (
     to_plene INTEGER NOT NULL,
     to_defective INTEGER NOT NULL,
     PRIMARY KEY (a_book, b_book)
+) WITHOUT ROWID;
+
+-- Network of echoes (`bsim network`, DESIGN.md §16.17).
+CREATE TABLE network_nodes (
+    unit_id TEXT PRIMARY KEY,
+    unit_type TEXT NOT NULL,
+    pagerank REAL NOT NULL,
+    strength REAL NOT NULL,         -- sum of edge weights
+    partners INTEGER NOT NULL,
+    cross_book REAL NOT NULL,       -- share of the strength reaching other books
+    community INTEGER NOT NULL,
+    x REAL NOT NULL,                -- spring layout inside the community, 0..1
+    y REAL NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE network_edges (
+    unit_type TEXT NOT NULL,
+    a TEXT NOT NULL,
+    b TEXT NOT NULL,
+    weight REAL NOT NULL
+);
+
+CREATE TABLE network_communities (
+    unit_type TEXT NOT NULL,
+    community INTEGER NOT NULL,     -- 0 = largest
+    size INTEGER NOT NULL,
+    lemmas TEXT NOT NULL,           -- JSON label lemmas (G²)
+    books TEXT NOT NULL,            -- JSON [[book_id, units], ...], most first
+    PRIMARY KEY (unit_type, community)
 ) WITHOUT ROWID;
 
 -- Corpus map (`bsim map`, DESIGN.md §16.4).

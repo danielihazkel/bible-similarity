@@ -190,6 +190,8 @@ sequences:                    # `bsim sequences`: same-order parallel passages (
   max_step: 3                 # a chain advances 1..max_step verses on each side
   gap: 0.25                   # cost per skipped verse (either side)
   min_pairs: 4                # shortest chain kept
+  directions: [forward, reverse, mixed]   # same order; mirrored (A B C ~ C' B' A'); same scene reordered
+  max_overlap: 0.5            # a reverse / mixed chain sharing this share of pairs with a kept chain is dropped
   null_reps: 20               # chapter-internal verse shuffles for q-values
   seed: 13
 
@@ -265,6 +267,15 @@ map:                          # `bsim map`: layout, clusters, book affinity (DES
   label_lemmas: 5             # cluster label: top G² lemmas
   affinity_rank: 10           # cross-book verse pairs within the fused top-N
   examples: 10                # strongest verse pairs kept per book pair
+
+network:                      # `bsim network`: echoes between passages, central passages, communities (DESIGN.md §16.17)
+  unit_types: [chapter, pericope]
+  edge_rank: 10               # edge when either unit has the other in its fused top-N; weight (N+1-rank)/N
+  skip_adjacent: true         # no edges between consecutive units of one book
+  damping: 0.85               # PageRank
+  resolution: 3.0             # Louvain (higher: smaller communities; 1 gives genre-sized ones)
+  label_lemmas: 5             # community label: top G² lemmas
+  seed: 13
 
 stylometry:                   # `bsim stylometry`: style profiles (DESIGN.md §16.6)
   mfw: 100                    # most frequent content lemmas used as features

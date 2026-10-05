@@ -365,6 +365,7 @@ class SequenceSummary(BaseModel):
     a_end: int
     b_start: int
     b_end: int
+    direction: str = "forward"  # forward | reverse (mirrored order) | mixed (reordered)
     a_label: str  # "Genesis 24:2–16"
     b_label: str
     a_label_he: str
@@ -385,6 +386,7 @@ class SequencesResponse(BaseModel):
     max_q: float | None
     min_pairs: int
     unit: str | None
+    direction: str | None = None
     total: int
     offset: int
     limit: int
@@ -759,3 +761,49 @@ class RewritesResponse(BaseModel):
     offset: int
     limit: int
     items: list[Rewrite]
+
+
+class NetworkNode(BaseModel):
+    unit: UnitSummary
+    pagerank: float
+    strength: float
+    partners: int
+    cross_book: float
+    community: int
+    x: float
+    y: float
+
+
+class NetworkEdge(BaseModel):
+    a: str
+    b: str
+    weight: float
+
+
+class NetworkCommunity(BaseModel):
+    community: int
+    size: int
+    lemmas: list[LemmaForm]
+    books: list[BookCount]  # units per book, most first
+
+
+class NetworkResponse(BaseModel):
+    unit_type: str
+    communities: list[NetworkCommunity]
+    central: list[NetworkNode]  # highest PageRank
+
+
+class CommunityResponse(BaseModel):
+    unit_type: str
+    community: NetworkCommunity
+    nodes: list[NetworkNode]
+    edges: list[NetworkEdge]
+
+
+class UnitNetwork(BaseModel):
+    """Where a unit sits in the network: its metrics and its centrality rank."""
+
+    node: NetworkNode
+    rank: int  # 1 = highest PageRank of its unit type
+    of: int
+    community_size: int

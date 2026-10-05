@@ -26,6 +26,7 @@ Derived columns:
 - `structure` + `meta.leitwort_numbers`: `bsim structure` scores and q-values
   (`artifacts/structure/units.parquet`).
 - `map_points`, `map_clusters`, `book_affinity`, `book_examples` + `meta.book_order`: `bsim map`.
+- `network_nodes`, `network_edges`, `network_communities`: `bsim network`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 
 `similar()` is the `/api/similar` query: the stored top-k of one unit with query-time filters in
@@ -76,6 +77,8 @@ INDEXES = (
     "CREATE INDEX wordplay_by_score ON wordplay (score DESC)",
     "CREATE INDEX wordplay_by_vid ON wordplay (a_vid, b_vid)",
     "CREATE INDEX entity_mentions_by_verse ON entity_mentions (verse_id)",
+    "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
+    "CREATE INDEX network_edges_by_a ON network_edges (unit_type, a)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -146,6 +149,7 @@ TABLE_COLUMNS = {
         "a_end",
         "b_start",
         "b_end",
+        "direction",
         "a_book",
         "b_book",
         "same_chapter",
@@ -245,6 +249,19 @@ TABLE_COLUMNS = {
         "to_defective",
     ],
     "map_points": ["unit_id", "unit_type", "x", "y", "cluster"],
+    "network_nodes": [
+        "unit_id",
+        "unit_type",
+        "pagerank",
+        "strength",
+        "partners",
+        "cross_book",
+        "community",
+        "x",
+        "y",
+    ],
+    "network_edges": ["unit_type", "a", "b", "weight"],
+    "network_communities": ["unit_type", "community", "size", "lemmas", "books"],
     "map_clusters": ["unit_type", "cluster", "size", "lemmas"],
     "book_affinity": ["a_book", "b_book", "n_pairs", "expected", "lift"],
     "book_examples": ["a_book", "b_book", "rank", "a_vid", "b_vid", "score"],
@@ -611,6 +628,12 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         raise RuntimeError(f"{path} missing; run `bsim structure` first")
     out["structure"] = pd.read_parquet(path)
     out["structure_meta"] = _read_json(path.with_name("units.meta.json"))
+    net_dir = resolve_path(cfg, "artifacts") / "network"
+    for name in ("nodes", "edges", "communities"):
+        path = net_dir / f"{name}.parquet"
+        if not path.exists():
+            raise RuntimeError(f"{path} missing; run `bsim network` first")
+        out[f"network_{name}"] = pd.read_parquet(path)
     map_dir = resolve_path(cfg, "artifacts") / "map"
     for name in ("points", "clusters", "book_affinity", "book_examples"):
         path = map_dir / f"{name}.parquet"
@@ -740,6 +763,9 @@ def _write_db(
             "lemma_verses": lemma_verses(inputs["words"], inputs["verses"]),
             "structure": inputs["structure"],
             "map_points": inputs["map_points"],
+            "network_nodes": inputs["network_nodes"],
+            "network_edges": inputs["network_edges"],
+            "network_communities": inputs["network_communities"],
             "map_clusters": inputs["map_clusters"],
             "book_affinity": inputs["map_book_affinity"],
             "book_examples": inputs["map_book_examples"],
@@ -747,7 +773,9 @@ def _write_db(
             "stylo_delta": inputs["stylo_book_delta"],
             "stylo_features": inputs["stylo_book_features"],
             "sequences": sequence_gold(inputs["sequences"], gold).assign(
-                same_chapter=lambda d: d.same_chapter.astype(int)
+                same_chapter=lambda d: d.same_chapter.astype(int),
+                # artifacts from before reverse / mixed chains hold forward chains only
+                direction=lambda d: d.direction if "direction" in d else "forward",
             ),
             "diff_changes": inputs["diff_changes"],
             "rewrites": inputs["diff_rewrites"],
