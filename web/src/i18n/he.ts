@@ -16,6 +16,7 @@ import { domHe } from './pages/domains'
 import { senHe } from './pages/senses'
 import { datHe } from './pages/dating'
 import { labHe } from './pages/labels'
+import { synHe } from './pages/syntax'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -55,6 +56,7 @@ export const he: Messages = {
       lemmas: 'ערכים ומורפולוגיה:',
       wlc: '(WLC בנחלת הכלל, מורפולוגיה CC BY 4.0). הפניות: ספריא; OpenBible.info ‏(CC-BY) להערכה. לשימוש אישי ולמחקר.',
       lexicon: 'מובני מילים ותחומי משמעות: SDBH של חבר אגודות התנ״ך (CC BY-SA 4.0); סוגי שמות: OpenScriptures HebrewLexicon ‏(CC BY 4.0).',
+      syntax: 'פסוקיות, צירופים ודיבור: ETCBC, ‏BHSA ‏(CC BY-NC 4.0).',
     },
     notFound: 'הדף לא נמצא.',
     backToBooks: 'חזרה לספרים',
@@ -85,6 +87,7 @@ export const he: Messages = {
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
     language: { label: 'לשון', hint: 'פרופיל עברית מקראית מאוחרת לכל פרק' },
+    speech: { label: 'מי מדבר', hint: 'סיפור ודיבור ישיר, והדוברים' },
     eval: { label: 'הערכה', hint: 'עד כמה נמצאות הפניות ידועות' },
   },
 
@@ -375,5 +378,6 @@ export const he: Messages = {
   sen: senHe,
   dat: datHe,
   lab: labHe,
+  syn: synHe,
   ov: ovHe,
 }

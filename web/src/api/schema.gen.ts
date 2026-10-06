@@ -1038,6 +1038,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/syntax/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unit Syntax
+         * @description The unit's clauses with their phrases and speakers; for a verse, the verses built the same
+         *     way (`syntax.system`).
+         */
+        get: operations["unit_syntax_api_syntax__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/speech": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Speech
+         * @description Narration, speech and its speakers per book.
+         */
+        get: operations["speech_api_speech_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/speech/book/{book_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Speech Book
+         * @description A book's chapters and every speaker in it.
+         */
+        get: operations["speech_book_api_speech_book__book_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/labels": {
         parameters: {
             query?: never;
@@ -1341,6 +1402,41 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["ChangeGroup"][];
+        };
+        /** ClauseInfo */
+        ClauseInfo: {
+            /** Typ */
+            typ: string;
+            /** Kind */
+            kind: string;
+            /** Txt */
+            txt: string;
+            /** Rela */
+            rela: string;
+            /** Speech */
+            speech: boolean;
+            /** Speaker */
+            speaker: string | null;
+            /** Speaker He */
+            speaker_he: string | null;
+            /** Speaker Source */
+            speaker_source: ("explicit" | "carried" | "enclosing") | null;
+            /** Divine */
+            divine: boolean;
+            /** Segments */
+            segments: components["schemas"]["ClauseSegment"][];
+        };
+        /**
+         * ClauseSegment
+         * @description Consecutive words of a clause in one phrase (BHSA, DESIGN.md §16.26).
+         */
+        ClauseSegment: {
+            /** Function */
+            function: string;
+            /** Typ */
+            typ: string;
+            /** Text */
+            text: string;
         };
         /** CommunityResponse */
         CommunityResponse: {
@@ -2592,6 +2688,75 @@ export interface components {
             /** Hits */
             hits: components["schemas"]["Hit"][];
         };
+        /** SpeakerInfo */
+        SpeakerInfo: {
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            /** N Words */
+            n_words: number;
+            /** N Explicit */
+            n_explicit: number;
+            /** Divine */
+            divine: boolean;
+        };
+        /** SpeechBook */
+        SpeechBook: {
+            /** Narration */
+            narration: number;
+            /** Speech */
+            speech: number;
+            /** Discourse */
+            discourse: number;
+            /** Divine */
+            divine: number;
+            /** Attributed */
+            attributed: number;
+            /** N Words */
+            n_words: number;
+            /** Book Id */
+            book_id: number;
+            /** Speakers */
+            speakers: components["schemas"]["SpeakerInfo"][];
+        };
+        /** SpeechBookResponse */
+        SpeechBookResponse: {
+            /** Book Id */
+            book_id: number;
+            /** Chapters */
+            chapters: components["schemas"]["SpeechChapter"][];
+            /** Speakers */
+            speakers: components["schemas"]["SpeakerInfo"][];
+        };
+        /** SpeechChapter */
+        SpeechChapter: {
+            /** Narration */
+            narration: number;
+            /** Speech */
+            speech: number;
+            /** Discourse */
+            discourse: number;
+            /** Divine */
+            divine: number;
+            /** Attributed */
+            attributed: number;
+            /** N Words */
+            n_words: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Chapter */
+            chapter: number;
+        };
+        /** SpeechResponse */
+        SpeechResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["SpeechBook"][];
+        };
         /** StructureBasis */
         StructureBasis: {
             /** Matrix */
@@ -2759,6 +2924,14 @@ export interface components {
             /** Late Score */
             late_score: number;
         };
+        /** SyntaxNeighbor */
+        SyntaxNeighbor: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Score */
+            score: number;
+            /** Preview */
+            preview: string;
+        };
         /**
          * TypeScene
          * @description Two passages whose actions follow the same order (DESIGN.md §16.20).
@@ -2865,6 +3038,13 @@ export interface components {
             n_verses: number;
             /** Marker */
             marker: string | null;
+        };
+        /** UnitSyntax */
+        UnitSyntax: {
+            /** Verses */
+            verses: components["schemas"]["VerseSyntax"][];
+            /** Neighbors */
+            neighbors: components["schemas"]["SyntaxNeighbor"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -2978,6 +3158,17 @@ export interface components {
             label_en: string;
             /** Label He */
             label_he: string;
+        };
+        /** VerseSyntax */
+        VerseSyntax: {
+            /** Verse Id */
+            verse_id: number;
+            /** Ref */
+            ref: string;
+            /** Ref He */
+            ref_he: string;
+            /** Clauses */
+            clauses: components["schemas"]["ClauseInfo"][];
         };
         /** WordDetail */
         WordDetail: {
@@ -4726,6 +4917,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DatingChapter"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unit_syntax_api_syntax__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitSyntax"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    speech_api_speech_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpeechResponse"];
+                };
+            };
+        };
+    };
+    speech_book_api_speech_book__book_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpeechBookResponse"];
                 };
             };
             /** @description Validation Error */

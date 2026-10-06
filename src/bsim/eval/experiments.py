@@ -9,6 +9,12 @@ Families of candidate verse lists, each compared with the final fused list:
     lexical {system}   for every `retrieval_experiments.lexical_systems` top-k (`bsim lexical` +
                        `bsim topk`; SDBH domains, §16.22): the system alone, in place of the lexical
                        list (it + semantic, RRF), and as a third list at each weight of `w_grid`
+    structural         every `retrieval_experiments.structural_systems` list (BHSA clause shapes,
+                       §16.26) against the final *structural* list instead of fused: gain on both
+                       golds, the share of each verse's top-10 that has its text type (narration /
+                       speech / discourse, the clauses' majority), and the overlap with the
+                       structural list. Adopted as the structural system if its Sefaria gain CI
+                       excludes 0 and the OpenBible gain is not negative
     maxsim {encoder}   the fused top-`maxsim.depth` reordered by MaxSim (`bsim maxsim`), blended
                        with the fused rank at each weight of `maxsim_grid` (null = MaxSim alone)
     cross-encoder      the same blend with the M18 cross-encoder scores (`bsim rerank`), when its
@@ -228,12 +234,98 @@ def run_retrieval_experiments(cfg: dict[str, Any], log: Log = print) -> dict[str
         ),
         "evaluated_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
+    structural = structural_experiment(cfg, scorer, log)
+    if structural:
+        out["structural"] = structural
     (art / "eval").mkdir(parents=True, exist_ok=True)
     (art / "eval" / "retrieval_experiments.json").write_text(
         json.dumps(out, indent=2) + "\n", "utf-8"
     )
     (art / "eval" / "retrieval_experiments.md").write_text(report(out), "utf-8")
     log(f"\nwrote {art / 'eval' / 'retrieval_experiments.md'}")
+    return out
+
+
+def text_types(cfg: dict[str, Any]) -> np.ndarray | None:
+    """Per verse its clauses' majority text type (N / Q / D, '' without clauses), or None
+    without `bsim syntax`."""
+    path = resolve_path(cfg, "data_processed") / "syntax_clauses.parquet"
+    if not path.exists():
+        return None
+    c = pd.read_parquet(path, columns=["verse_id", "txt"])
+    c = c[c.txt.str.len() > 0].assign(t=lambda d: d.txt.str[-1])
+    c = c[c.t.isin(["N", "Q", "D"])]
+    major = c.groupby("verse_id").t.agg(lambda s: s.value_counts().index[0])
+    n = int(pd.read_parquet(resolve_path(cfg, "data_processed") / "verses.parquet").shape[0])
+    out = np.full(n, "", dtype=object)
+    out[major.index.to_numpy()] = major.to_numpy()
+    return out
+
+
+def type_agreement(df: pd.DataFrame, types: np.ndarray, k: int) -> float:
+    """Mean share of each verse's top-k with its own text type (verses with a type)."""
+    top = df[df["rank"] <= k]
+    s, t = types[top.src.to_numpy()], types[top.tgt.to_numpy()]
+    ok = s != ""
+    same = pd.Series((s == t)[ok]).groupby(top.src.to_numpy()[ok]).mean()
+    return float(same.mean()) if len(same) else 0.0
+
+
+def overlap_at(a: pd.DataFrame, b: pd.DataFrame, k: int) -> float:
+    """Mean |top-k(a) ∩ top-k(b)| / k over the sources of a."""
+    ta = a[a["rank"] <= k].groupby("src").tgt.apply(set)
+    tb = b[b["rank"] <= k].groupby("src").tgt.apply(set)
+    shared = [len(s & tb.get(q, set())) / k for q, s in ta.items()]
+    return float(np.mean(shared)) if shared else 0.0
+
+
+def structural_experiment(cfg: dict[str, Any], scorer: Scorer, log: Log) -> dict[str, Any]:
+    rx = cfg["retrieval_experiments"]
+    reps, seed, k = rx["bootstrap_reps"], rx["seed"], rx["agreement_k"]
+    art = resolve_path(cfg, "artifacts") / "topk" / "verse"
+    base_name = cfg["final_systems"]["structural"]
+    candidates = [s for s in rx["structural_systems"] if (art / f"{s}.parquet").exists()]
+    if not candidates or not (art / f"{base_name}.parquet").exists():
+        return {}
+    types = text_types(cfg)
+    base_df = read_topk(art / f"{base_name}.parquet")
+    base = scorer(base_df)
+
+    def describe(df: pd.DataFrame, s: dict[str, np.ndarray]) -> dict[str, float]:
+        out = {g: float(v.mean()) for g, v in s.items()}
+        if types is not None:
+            out["text_type_agreement"] = type_agreement(df, types, k)
+        return out
+
+    out: dict[str, Any] = {"baseline": base_name, base_name: describe(base_df, base), "members": {}}
+    log(f"\n### structural (vs {base_name})")
+    for name in candidates:
+        df = read_topk(art / f"{name}.parquet")
+        s = scorer(df)
+        entry: dict[str, Any] = {
+            **describe(df, s),
+            f"overlap@{k}": overlap_at(df, base_df, k),
+            "sefaria_gain": paired_bootstrap(s["sefaria"] - base["sefaria"], reps, seed),
+        }
+        if "openbible" in s:
+            entry["openbible_gain"] = paired_bootstrap(
+                s["openbible"] - base["openbible"], reps, seed
+            )
+        ob = entry.get("openbible_gain")
+        entry["adopt"] = bool(entry["sefaria_gain"]["lo"] > 0 and (ob is None or ob["mean"] >= 0))
+        out["members"][name] = entry
+        log(
+            f"  {name}: Sefaria {_gain(entry['sefaria_gain'])}"
+            + (f"; OpenBible {_gain(ob)}" if ob else "")
+            + (
+                f"; text type {entry['text_type_agreement']:.3f}"
+                f" ({base_name} {out[base_name]['text_type_agreement']:.3f})"
+                if types is not None
+                else ""
+            )
+            + f"; overlap@{k} {entry[f'overlap@{k}']:.3f}"
+            + f"; adopt: {'yes' if entry['adopt'] else 'no'}"
+        )
     return out
 
 
@@ -280,6 +372,33 @@ def report(out: dict[str, Any]) -> str:
             ],
         ),
     ]
+    st = out.get("structural")
+    if st:
+        base = st["baseline"]
+        lines += [
+            "",
+            f"## structural (against `{base}`, not fused)",
+            "",
+            f"`{base}`: "
+            + ", ".join(f"{key} {v:.4f}" for key, v in st[base].items())
+            + ". Text type: the share of a verse's top list with its text type (narration,"
+            " speech, discourse).",
+            "",
+            md_table(
+                ["system", "Sefaria gain", "OpenBible gain", "text type", "overlap", "adopt"],
+                [
+                    [
+                        name,
+                        _gain(m["sefaria_gain"]),
+                        _gain(m["openbible_gain"]) if "openbible_gain" in m else "",
+                        f"{m.get('text_type_agreement', float('nan')):.3f}",
+                        f"{next(v for key, v in m.items() if key.startswith('overlap@')):.3f}",
+                        "yes" if m["adopt"] else "no",
+                    ]
+                    for name, m in st["members"].items()
+                ],
+            ),
+        ]
     for fam, r in out["results"].items():
         lines += [
             "",

@@ -9,6 +9,7 @@ import { domEn } from './pages/domains'
 import { senEn } from './pages/senses'
 import { datEn } from './pages/dating'
 import { labEn } from './pages/labels'
+import { synEn } from './pages/syntax'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -48,6 +49,7 @@ export const en = {
       lemmas: 'Lemmas and morphology:',
       wlc: '(WLC public domain, morphology CC BY 4.0). Cross-references: Sefaria; OpenBible.info (CC-BY) for evaluation. For personal and research use.',
       lexicon: 'Word senses and semantic domains: UBS Dictionary of Biblical Hebrew, SDBH (CC BY-SA 4.0); name types: OpenScriptures HebrewLexicon (CC BY 4.0).',
+      syntax: 'Clauses, phrases and speech: ETCBC, BHSA (CC BY-NC 4.0).',
     },
     notFound: 'Page not found.',
     backToBooks: 'Back to the books',
@@ -78,6 +80,7 @@ export const en = {
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
     language: { label: 'Language', hint: 'Late Biblical Hebrew profile of each chapter' },
+    speech: { label: 'Who speaks', hint: 'Narration and direct speech, and the speakers' },
     eval: { label: 'Evaluation', hint: 'How well known cross-references are found' },
   } satisfies Record<string, string | { label: string; hint: string }>,
 
@@ -373,6 +376,7 @@ export const en = {
   sen: senEn,
   dat: datEn,
   lab: labEn,
+  syn: synEn,
   ov: ovEn,
 }
 

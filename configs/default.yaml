@@ -34,10 +34,29 @@ sources:
     commit: 21c9add13bc727d3a951361778e97e3ff7afd1ce   # master @ 2019-09-02
     raw_url: https://raw.githubusercontent.com/openscriptures/HebrewLexicon/{commit}/{file}
     files: [HebrewStrong.xml]
+  bhsa:                       # ETCBC BHSA (Text-Fabric), CC BY-NC 4.0: clauses, phrases and their functions (DESIGN.md §16.26)
+    repo: ETCBC/bhsa
+    commit: 4db00e2157915495e1a4d3d57e41223df24775da   # master @ 2026-01-18 (data version 2021)
+    raw_url: https://raw.githubusercontent.com/ETCBC/bhsa/{commit}/tf/2021/{file}
+    # node types and slots, the verse grid, word consonants and lexemes, clause and phrase
+    # features; no glosses (D5)
+    files: [otype.tf, oslots.tf, book.tf, chapter.tf, verse.tf, g_cons_utf8.tf, lex.tf, sp.tf,
+            typ.tf, kind.tf, domain.tf, txt.tf, function.tf, rela.tf, mother.tf, vt.tf, ps.tf,
+            gn.tf]
 
 lexicon:                      # `bsim lexicon`: SDBH senses and domains per word, Strong's name types (DESIGN.md §16.22)
   search_window: 2            # an SDBH word reference may sit this many morphemes off OSHB's count
   ambiguous: split            # untagged morpheme whose lemma has meanings in several domains: split (weights) | skip
+
+syntax:                       # `bsim syntax`: BHSA clauses and phrases on OSHB words (DESIGN.md §16.26)
+  infinitive_hop: [">MR["]    # an introduction through this infinitive (לאמר) is followed to the clause it depends on
+  speaker_lookback: 3         # clauses at its level looked back over for the subject of a subjectless introduction (ויאמר)
+  divine: ["3068", "430", "136"]   # speaker lemmas counted as God (יהוה, אלהים, אדני)
+  speaker_domains: ["001001", "003001004", "003001007"]   # SDBH senses that can speak: Beings, Names of Deities, Names of People
+  system: bm25_syntax         # clause-shape verse list behind "built the same way" (not a mode)
+  neighbors: 10               # of it, kept per verse in the DB
+  speech_speakers: 3          # /speech: speakers listed per book
+  pass_through: ["1121"]      # a subject head passed over for a later speaker in its phrase (בני ישראל -> ישראל)
 
 text:
   kq: qere                    # qere | ketiv — reading used for text_model
@@ -223,7 +242,9 @@ maxsim:                       # `bsim maxsim`: ColBERT-style token late interact
 
 retrieval_experiments:        # `bsim retrieval-exp`: contextual / MaxSim vs fused on dev (DESIGN.md §16.21)
   context_systems: [berel_sup_ctx_csls, berel_sup_late_csls]   # `bsim topk` lists of the context embeddings
-  lexical_systems: [bm25_domain, bm25_lemma_domain]   # lexical lists over SDBH domains (§16.22): alone, in place of lexical, third list
+  lexical_systems: [bm25_domain, bm25_lemma_domain, bm25_syntax]   # lexical lists over SDBH domains (§16.22) and BHSA clause shapes (§16.26): alone, in place of lexical, third list
+  structural_systems: [bm25_syntax, bm25_morph_syntax]   # against final_systems.structural (§16.26)
+  agreement_k: 10             # top list for the structural text-type agreement and overlap
   w_grid: [0.25, 0.5, 1.0]    # weight of a context list as a third RRF list
   maxsim_grid: [0.25, 0.5, 1.0, 2.0, null]
   metric: ndcg@10
@@ -403,7 +424,7 @@ stylometry:                   # `bsim stylometry`: style profiles (DESIGN.md §1
 
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
-  lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain]   # verse top-k before training (hard negatives) + the domain list
+  lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
   unit_systems: [tfidf, tfidf_morph, tfidf_domain, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
 

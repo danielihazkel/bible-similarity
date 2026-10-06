@@ -232,6 +232,46 @@ def write_inputs(cfg, tmp_path):
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):
         for mode, name in final_systems(cfg, unit_type).items():
             write_topk(art, unit_type, name, rows, fused=mode == "fused")
+    # BHSA syntax (`bsim syntax`): Genesis 1:1 narration, 1:2 speech by יהוה, Exodus by משה
+    pd.DataFrame(
+        [
+            (10, 0, [0, 1], "xQtX", "VC", "N", "N", "NA", None, None),
+            (11, 0, [2, 3], "WayX", "VC", "N", "N", "NA", None, None),
+            (12, 1, [0, 1, 2], "NmCl", "NC", "Q", "NQ", "NA", "3068", "explicit"),
+            (13, 3, [0, 1], "NmCl", "NC", "Q", "Q", "NA", None, None),
+            (14, 5, [0, 1], "NmCl", "NC", "Q", "NQ", "NA", "4872", "carried"),
+        ],
+        columns=[
+            "clause",
+            "verse_id",
+            "words",
+            "typ",
+            "kind",
+            "domain",
+            "txt",
+            "rela",
+            "speaker",
+            "speaker_source",
+        ],
+    ).assign(speech=lambda d: d.txt.str.endswith("Q")).to_parquet(proc / "syntax_clauses.parquet")
+    pd.DataFrame(
+        [
+            (20, 10, 0, [0], "PP", "Time"),
+            (21, 10, 0, [1], "NP", "Subj"),
+            (22, 11, 0, [2], "CP", "Conj"),
+            (23, 11, 0, [2], "VP", "Pred"),
+            (24, 11, 0, [3], "PrNP", "Subj"),
+            (25, 12, 1, [0], "NP", "Subj"),
+            (26, 12, 1, [1, 2], "VP", "Pred"),
+            (27, 13, 3, [0, 1], "NP", "PreC"),
+            (28, 14, 5, [0, 1], "NP", "PreC"),
+        ],
+        columns=["phrase", "clause", "verse_id", "words", "typ", "function"],
+    ).to_parquet(proc / "syntax_phrases.parquet")
+    (proc / "syntax_meta.json").write_text(
+        json.dumps({"clauses": 5, "speech_clauses": 3, "verses_aligned": 6}), "utf-8"
+    )
+    write_topk(art, "verse", cfg["syntax"]["system"], [("v:0", "v:1", 1), ("v:0", "v:3", 2)])
     (art / "phrases").mkdir(parents=True, exist_ok=True)
     pd.DataFrame(
         [(a, b, sc, n, json.dumps(wa), json.dumps(wb), s) for a, b, sc, n, wa, wb, s in PHRASES],

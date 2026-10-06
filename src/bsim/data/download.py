@@ -7,6 +7,7 @@ Layout under `paths.data_raw`:
     sefaria/links/linksN.csv           all Sefaria links (discovered by listing the bucket)
     lexicon/{file}                     SDBH (UBS, senses and domains) and OpenScriptures
                                        HebrewStrong.xml, each at a pinned commit (§16.22)
+    bhsa/{file}                        ETCBC BHSA Text-Fabric features at a pinned commit (§16.26)
 
 Idempotent: a file is skipped when it is already on disk and still matches its checksum
 (GCS md5 for Sefaria files, the recorded sha256 for files from GitHub).
@@ -34,7 +35,7 @@ from bsim.config import resolve_path
 from bsim.data.canon import BOOKS
 
 MANIFEST = "manifest.json"
-GROUPS = ("oshb", "text", "schemas", "links", "lexicon")
+GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax")
 _CHUNK = 1 << 20
 _TIMEOUT = 60
 
@@ -119,6 +120,12 @@ def plan_targets(
             for file in s["files"]:
                 url = s["raw_url"].format(commit=s["commit"], file=file)
                 targets.append(Target("lexicon", f"lexicon/{file}", url))
+
+    if "syntax" in groups:
+        s = src["bhsa"]
+        for file in s["files"]:
+            url = s["raw_url"].format(commit=s["commit"], file=file)
+            targets.append(Target("syntax", f"bhsa/{file}", url))
 
     sef = src["sefaria"]
     if "text" in groups:
@@ -272,6 +279,7 @@ def run_download(
     manifest["oshb_commit"] = cfg["sources"]["oshb"]["commit"]
     manifest["sdbh_commit"] = cfg["sources"]["sdbh"]["commit"]
     manifest["hebrew_lexicon_commit"] = cfg["sources"]["hebrew_lexicon"]["commit"]
+    manifest["bhsa_commit"] = cfg["sources"]["bhsa"]["commit"]
     manifest["sefaria_text_version"] = cfg["sources"]["sefaria"]["text_version"]
     manifest["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     save_manifest(raw_dir, manifest)

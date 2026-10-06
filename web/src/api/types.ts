@@ -1135,3 +1135,83 @@ export interface LabelsEval {
   min_pairs: number
   rows: LabelSeparation[]
 }
+
+// --- BHSA syntax: clauses, speakers, who speaks where (DESIGN.md §16.26) ---
+
+export interface ClauseSegment {
+  function: string
+  typ: string
+  text: string
+}
+
+export type SpeakerSource = 'explicit' | 'carried' | 'enclosing'
+
+export interface ClauseInfo {
+  typ: string
+  kind: string
+  /** text type with its embedding: N, NQ, ?NQQ … */
+  txt: string
+  rela: string
+  speech: boolean
+  speaker: string | null
+  speaker_he: string | null
+  speaker_source: SpeakerSource | null
+  divine: boolean
+  segments: ClauseSegment[]
+}
+
+export interface VerseSyntax {
+  verse_id: number
+  ref: string
+  ref_he: string
+  clauses: ClauseInfo[]
+}
+
+export interface SyntaxNeighbor {
+  unit: UnitSummary
+  score: number
+  preview: string
+}
+
+export interface UnitSyntax {
+  verses: VerseSyntax[]
+  neighbors: SyntaxNeighbor[]
+}
+
+export interface SpeakerInfo {
+  lemma: string
+  he: string
+  n_words: number
+  n_explicit: number
+  divine: boolean
+}
+
+export interface SpeechShares {
+  narration: number
+  speech: number
+  discourse: number
+  divine: number
+  attributed: number
+  n_words: number
+}
+
+export interface SpeechBook extends SpeechShares {
+  book_id: number
+  speakers: SpeakerInfo[]
+}
+
+export interface SpeechChapter extends SpeechShares {
+  unit_id: string
+  chapter: number
+}
+
+export interface SpeechResponse {
+  meta: Record<string, unknown>
+  books: SpeechBook[]
+}
+
+export interface SpeechBookResponse {
+  book_id: number
+  chapters: SpeechChapter[]
+  speakers: SpeakerInfo[]
+}

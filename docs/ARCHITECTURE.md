@@ -102,7 +102,8 @@ bible-similarity/
 │   │   ├── align.py                # OSHB word <-> MAM display word alignment
 │   │   ├── units.py                # chapters, parashiyot, pericopes
 │   │   ├── refs.py                 # Sefaria citation -> verse range
-│   │   └── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
+│   │   ├── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
+│   │   └── bhsa.py                 # `bsim syntax`: BHSA clauses / phrases on OSHB words, speakers (§16.26)
 │   ├── text/
 │   │   ├── accents.py              # te'amim: main pauses -> verse halves (cola) (§16.9)
 │   │   ├── normalize.py            # strip points, maqaf, finals, prefix stripping
@@ -113,6 +114,7 @@ bible-similarity/
 │   │   ├── tfidf.py                # unit-level TF-IDF cosine
 │   │   ├── formulas.py             # frequent-formula detection & down-weighting
 │   │   ├── morph.py                # word-shape tokens for the structural mode (§16.5)
+│   │   ├── syntax.py               # clause-shape tokens, `bm25_syntax` (§16.26)
 │   │   └── build.py                # `bsim lexical` orchestration + lexical_report.md
 │   ├── embed/
 │   │   ├── encoders.py             # BEREL mean-pool, BGE-M3, fine-tuned ST models
@@ -144,7 +146,8 @@ bible-similarity/
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
 │   │   ├── network.py              # `bsim network`: echo graph, PageRank, communities (§16.17)
-│   │   └── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
+│   │   ├── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
+│   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
 │   │   ├── experiments.py          # `bsim retrieval-exp`: dev comparisons with CIs (§16.21)
@@ -158,7 +161,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax, labels, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -190,6 +193,7 @@ bible-similarity/
 | 2 | `bsim build-corpus` | raw | `data/processed/verses.parquet`, `words.parquet`, `units.parquet`, `unit_members.parquet`, `corpus_report.md` |
 | 3 | `bsim build-links` | raw links, verses | `data/processed/links.parquet`, `splits.json`, `links_report.md` |
 | 3b | `bsim lexicon` | raw lexicon (SDBH, HebrewStrong.xml), words, verses | `data/processed/word_senses.parquet`, `lexicon_{senses,domains,relations,lemmas}.parquet`, `lexicon_meta.json` (§16.22) |
+| 3c | `bsim syntax` | raw BHSA Text-Fabric files, verses, words, word senses | `data/processed/syntax_{clauses,phrases}.parquet`, `syntax_meta.json` (§16.26) |
 | 4 | `bsim lexical` | verses, words, units | `artifacts/lexical/{bm25_lemma,bm25_surface}.{doc,query}.npz` + `.vocab.json`, `tfidf_{chapter,pericope,parasha}.npz` + `.ids.json`, `formulas.parquet`, `lexical_report.md` |
 | 5 | `bsim train-simcse` | verses | `models/berel-simcse/` |
 | 6 | `bsim train-sup` | verses, links (train/dev), lexical | `models/berel-sup/` |
@@ -221,7 +225,7 @@ bible-similarity/
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, seams, structure, map, network, stylometry, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, seams, structure, map, network, stylometry, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

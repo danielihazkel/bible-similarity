@@ -40,6 +40,12 @@ def stage_lexicon(cfg: dict[str, Any], log: Log) -> None:
     run_lexicon(cfg, log=log)
 
 
+def stage_syntax(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.data.bhsa import run_syntax
+
+    run_syntax(cfg, log=log)
+
+
 def stage_lexical(cfg: dict[str, Any], log: Log) -> None:
     from bsim.lexical.build import run_lexical
 
@@ -236,6 +242,7 @@ STAGES: dict[str, str] = {
     "build-corpus": "stage_build_corpus",
     "build-links": "stage_build_links",
     "lexicon": "stage_lexicon",
+    "syntax": "stage_syntax",
     "lexical": "stage_lexical",
     "lexical-topk": "stage_lexical_topk",
     "train-simcse": "stage_train_simcse",

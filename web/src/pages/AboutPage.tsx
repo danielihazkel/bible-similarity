@@ -43,6 +43,11 @@ function AboutEn() {
           (SDBH) © United Bible Societies, CC BY-SA 4.0. Its glosses and definitions are not used: the viewer shows
           domain names only. Person / place types: OpenScriptures HebrewLexicon (Strong's), CC BY 4.0.
         </li>
+        <li>
+          Clauses, phrases and their functions, direct speech (<Link to="/speech">Who speaks</Link>, clauses and
+          speakers on passages): Biblia Hebraica Stuttgartensia Amstelodamensis (BHSA), Eep Talstra Centre for Bible
+          and Computer (ETCBC), CC BY-NC 4.0. Its glosses are not used.
+        </li>
         <li>Models: BEREL 3.0 (Apache-2.0). Fonts: Noto Serif Hebrew / Ezra SIL (OFL).</li>
       </ul>
       <h2>Build</h2>
@@ -86,6 +91,11 @@ function AboutHe() {
           UBS Dictionary of Biblical Hebrew, על פי Semantic Dictionary of Biblical Hebrew ‏(SDBH) © חבר אגודות
           התנ״ך, ‏CC BY-SA 4.0. פירושי המילים וההגדרות שבו אינם בשימוש: מוצגים רק שמות התחומים. סוגי שמות (אדם / מקום):
           OpenScriptures HebrewLexicon ‏(סטרונג), ‏CC BY 4.0.
+        </li>
+        <li>
+          פסוקיות, צירופים ותפקידיהם, דיבור ישיר (<Link to="/speech">מי מדבר</Link>, פסוקיות ודוברים בקטעים): Biblia
+          Hebraica Stuttgartensia Amstelodamensis ‏(BHSA), ‏Eep Talstra Centre for Bible and Computer ‏(ETCBC), ‏CC BY-NC
+          4.0. פירושי המילים שבו אינם בשימוש.
         </li>
         <li>מודלים: BEREL 3.0 ‏(Apache-2.0). גופנים: Noto Serif Hebrew / Ezra SIL ‏(OFL).</li>
       </ul>

@@ -22,6 +22,7 @@ import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { DatingLine } from '../components/DatingLine'
 import { ThemesPanel } from '../components/ThemesPanel'
+import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -69,6 +70,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const selectedIn = (verse: Verse) => (word?.verse.verse_id === verse.verse_id ? word.idx : undefined)
   // Structure (larger units): open from the URL (`?structure=1`), Leitwort highlight in the text.
   const structureOpen = params.get('structure') === '1'
+  const syntaxOpen = params.get('syntax') === '1'
   const [leitwort, setLeitwort] = useState<Leitwort>()
   // Acrostic (chapters): shown when significant; `?acrostic=1` marks the words carrying the letters.
   const acrosticQuery = useUnitAcrostic(unit.unit_type === 'chapter' ? unit.unit_id : undefined)
@@ -244,6 +246,18 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           )}
         </details>
       )}
+
+      <details
+        className="structure syntax"
+        open={syntaxOpen}
+        onToggle={(e) => {
+          const open = (e.currentTarget as HTMLDetailsElement).open
+          if (open !== syntaxOpen) update({ syntax: open ? '1' : null })
+        }}
+      >
+        <summary>{m.syn.panel}</summary>
+        {syntaxOpen && <SyntaxPanel unitId={unit.unit_id} />}
+      </details>
 
       <section className="results" aria-label={m.unit.similar}>
         <div className="results-head">

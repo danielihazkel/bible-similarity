@@ -32,6 +32,9 @@ import type {
   LabelIn,
   LabelsEval,
   LabelsResponse,
+  SpeechBookResponse,
+  SpeechResponse,
+  UnitSyntax,
   Meta,
   MapResponse,
   NetworkResponse,
@@ -275,6 +278,26 @@ export function useSetLabel() {
     },
   })
 }
+
+/** A unit's BHSA clauses and speakers; for a verse, the verses built the same way (§16.26). */
+export const useUnitSyntax = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-syntax', unitId],
+    queryFn: ({ signal }) => getJson<UnitSyntax>(`/syntax/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: unitId !== undefined,
+    ...forever,
+  })
+
+export const useSpeech = () =>
+  useQuery({ queryKey: ['speech'], queryFn: ({ signal }) => getJson<SpeechResponse>('/speech', {}, signal), ...forever })
+
+export const useSpeechBook = (bookId: number | undefined) =>
+  useQuery({
+    queryKey: ['speech-book', bookId],
+    queryFn: ({ signal }) => getJson<SpeechBookResponse>(`/speech/book/${bookId}`, {}, signal),
+    enabled: bookId !== undefined,
+    ...forever,
+  })
 
 /** The semantic domains a unit uses more than the corpus. */
 export const useUnitDomains = (unitId: string | undefined) =>

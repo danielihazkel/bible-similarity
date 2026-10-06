@@ -460,6 +460,18 @@ def eval_openbible(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command()
+def syntax(config: ConfigOpt = None) -> None:
+    """Align the BHSA clauses and phrases to OSHB words; mark direct speech and its speakers."""
+    from bsim.data.bhsa import run_syntax
+
+    try:
+        run_syntax(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("eval-labels")
 def eval_labels(config: ConfigOpt = None) -> None:
     """Score the final verse systems on your own labels (labels.split only, DESIGN.md §16.25)."""

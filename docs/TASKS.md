@@ -457,3 +457,14 @@ Phase 3 (M39c): API and viewer
 - [x] Tests: store, separation, ranks, splits, the API (order, validation, read-only), the CLI run (pytest); the Labels page and the buttons (vitest); e2e: the page in both languages and axe, labelling a hit and clearing it on the fixture server
 
 ✔ Pairs the systems propose can be judged where they are shown, and the judgements score every mode, including on pairs neither gold set has; 81 / 81 fixture and 84 / 84 real-data e2e.
+
+## M43: Syntax — clauses, phrases and who speaks (§16.26, D60; roadmap A2)
+- [x] `bsim download --only syntax`: 18 BHSA Text-Fabric feature files (ETCBC, CC BY-NC 4.0) at a pinned commit, no glosses
+- [x] `bsim syntax` (`data/bhsa.py`): a Text-Fabric reader; BHSA words aligned to OSHB words by consonants (23,206 verses, 22,108 identical); 88,131 clauses and 253,203 phrases with types, functions and text types
+- [x] Speakers from the clause-atom link to the introducing clause: explicit subjects (beings by SDBH sense), carried subjects (third person, gender agreement), enclosing quotations; hand check 42 / 50 (explicit 29 / 31, carried 13 / 19)
+- [x] `bm25_syntax` (`lexical/syntax.py`) and `bm25_morph_syntax`; `bsim retrieval-exp` structural family (gain vs `bm25_morph`, text-type agreement, overlap): not adopted as fused or structural; top 10 per verse kept as *built the same way*
+- [x] DB `clauses`, `syntax_phrases`, `syntax_neighbors`, `speech_{chapters,books}`, `speakers` (+ `meta.syntax`); API `/syntax/{unit}`, `/speech`, `/speech/book/{id}`
+- [x] Viewer: Overview → Who speaks (stacked shares, speakers, chapters); *Clauses and speakers* on every passage with *built the same way* on verses; clause types and phrase functions named in English and Hebrew; BHSA credits in the footer and About
+- [x] Tests: Text-Fabric reading, alignment, a synthetic BHSA run (speech, explicit speaker, gender check), clause tokens, speech shares, segments, the API on the fixture DB (pytest); Speech page and clause panel (vitest); e2e: new pages in both languages, axe (a link style fixed)
+
+✔ Every clause of the Bible can be read with its structure and, in speech, its speaker; the speech map shows where God, Moses or the narrator speak, with the reliability of each attribution stated; clause shapes add a "built the same way" list but do not beat the existing modes; 91 / 91 fixture and 88 / 88 real-data e2e.

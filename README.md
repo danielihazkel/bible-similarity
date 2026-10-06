@@ -31,7 +31,7 @@ uv run bsim serve            # API + viewer on http://localhost:8000
 
 `bsim all` took 38 minutes on the GTX 1080 Ti from an empty clone, with BEREL 3.0 and BGE-M3 already in the Hugging Face cache (they are fetched on first use, about 3 GB). It runs these stages, each also available as its own command (`uv run bsim --help`):
 
-`download` → `build-corpus` → `build-links` → `lexicon` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `dating` → `seams` → `structure` → `map` → `network` → `stylometry` → `build-db`
+`download` → `build-corpus` → `build-links` → `lexicon` → `syntax` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `dating` → `seams` → `structure` → `map` → `network` → `stylometry` → `build-db`
 
 Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 
@@ -45,6 +45,7 @@ Viewer development: run `uv run bsim serve` and, in `web/`, `npm run dev` (http:
 - Parasha boundaries and cross-links: [Sefaria-Export](https://github.com/Sefaria/Sefaria-Export)
 - Word senses and semantic domains: [UBS Dictionary of Biblical Hebrew](https://github.com/ubsicap/ubs-open-license) (© United Bible Societies, adapted from the Semantic Dictionary of Biblical Hebrew; CC BY-SA 4.0)
 - Strong's parts of speech: [OpenScriptures HebrewLexicon](https://github.com/openscriptures/HebrewLexicon) (CC BY 4.0)
+- Clauses, phrases and their functions: [ETCBC BHSA](https://github.com/ETCBC/bhsa) (Eep Talstra Centre for Bible and Computer; CC BY-NC 4.0)
 - Models: [BEREL 3.0](https://huggingface.co/dicta-il/BEREL_3.0) (Apache-2.0), [BGE-M3](https://huggingface.co/BAAI/bge-m3) (MIT)
 
 The data is downloaded by `bsim download` and is not stored in this repository. For personal and research use.

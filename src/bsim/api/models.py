@@ -1152,3 +1152,80 @@ class LabelsEval(ApiModel):
     k: int
     min_pairs: int
     rows: list[LabelSeparation]
+
+
+class ClauseSegment(ApiModel):
+    """Consecutive words of a clause in one phrase (BHSA, DESIGN.md §16.26)."""
+
+    function: str  # Pred, Subj, Objc, ... ('' outside any phrase)
+    typ: str  # phrase type: VP, NP, PP, ...
+    text: str  # the OSHB words, pointed
+
+
+class ClauseInfo(ApiModel):
+    typ: str  # clause type: WayX, xQtX, NmCl, ...
+    kind: str  # VC | NC | WP
+    txt: str  # text type with its embedding (N, NQ, ?NQQ, ...)
+    rela: str  # relation to another clause ('NA' / '' none)
+    speech: bool  # direct speech (txt ends in Q)
+    speaker: str | None  # lemma
+    speaker_he: str | None
+    speaker_source: Literal["explicit", "carried", "enclosing"] | None
+    divine: bool
+    segments: list[ClauseSegment]
+
+
+class VerseSyntax(ApiModel):
+    verse_id: int
+    ref: str
+    ref_he: str
+    clauses: list[ClauseInfo]
+
+
+class SyntaxNeighbor(ApiModel):
+    unit: UnitSummary
+    score: float
+    preview: str
+
+
+class UnitSyntax(ApiModel):
+    verses: list[VerseSyntax]  # empty without `bsim syntax`
+    neighbors: list[SyntaxNeighbor]  # verse units: verses built the same way
+
+
+class SpeakerInfo(ApiModel):
+    lemma: str
+    he: str
+    n_words: int
+    n_explicit: int
+    divine: bool
+
+
+class SpeechShares(ApiModel):
+    narration: float
+    speech: float
+    discourse: float
+    divine: float
+    attributed: float
+    n_words: int
+
+
+class SpeechBook(SpeechShares):
+    book_id: int
+    speakers: list[SpeakerInfo]  # the most words first (top `speech_speakers`)
+
+
+class SpeechChapter(SpeechShares):
+    unit_id: str
+    chapter: int
+
+
+class SpeechResponse(ApiModel):
+    meta: dict[str, Any]  # `bsim syntax` counts: clauses, speech_clauses, speaker sources
+    books: list[SpeechBook]
+
+
+class SpeechBookResponse(ApiModel):
+    book_id: int
+    chapters: list[SpeechChapter]
+    speakers: list[SpeakerInfo]

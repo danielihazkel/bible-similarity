@@ -15,6 +15,7 @@ const LanguagePage = lazy(() => import('./pages/LanguagePage').then((m) => ({ de
 const ShiftsPage = lazy(() => import('./pages/ShiftsPage').then((m) => ({ default: m.ShiftsPage })))
 const DomainsPage = lazy(() => import('./pages/DomainsPage').then((m) => ({ default: m.DomainsPage })))
 const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
+const SpeechPage = lazy(() => import('./pages/SpeechPage').then((m) => ({ default: m.SpeechPage })))
 const LabelsPage = lazy(() => import('./pages/LabelsPage').then((m) => ({ default: m.LabelsPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
 const NetworkPage = lazy(() => import('./pages/NetworkPage').then((m) => ({ default: m.NetworkPage })))
@@ -69,6 +70,7 @@ export function App() {
           <Route path="style" element={<StylometryPage />} />
           <Route path="shifts" element={<ShiftsPage />} />
           <Route path="language" element={<LanguagePage />} />
+          <Route path="speech" element={<SpeechPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="eval" element={<EvalPage />} />
           <Route path="about" element={<AboutPage />} />

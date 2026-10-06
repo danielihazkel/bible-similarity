@@ -503,6 +503,68 @@ CREATE TABLE lemma_senses (
     PRIMARY KEY (lemma, kind, sense)
 ) WITHOUT ROWID;
 
+-- BHSA syntax (`bsim syntax`, §16.26): clauses and phrases over OSHB words (`words` = JSON idx).
+CREATE TABLE clauses (
+    clause INTEGER PRIMARY KEY,     -- BHSA node, in text order
+    verse_id INTEGER NOT NULL,
+    words TEXT NOT NULL,
+    typ TEXT NOT NULL,              -- clause type: WayX, xQtX, NmCl, InfC, ...
+    kind TEXT NOT NULL,             -- VC verbal | NC nominal | WP without predication
+    txt TEXT NOT NULL,              -- text type with its embedding: N, NQ, ?NQQ, ...
+    rela TEXT NOT NULL,             -- relation to another clause (NA: none)
+    speaker TEXT,                   -- quotation: speaker lemma
+    speaker_source TEXT             -- explicit | carried
+);
+
+CREATE TABLE syntax_phrases (
+    phrase INTEGER PRIMARY KEY,     -- BHSA node
+    clause INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    words TEXT NOT NULL,
+    typ TEXT NOT NULL,              -- VP, NP, PP, PrNP, ...
+    function TEXT NOT NULL          -- Pred, Subj, Objc, Cmpl, Adju, Time, Loca, Conj, ...
+);
+
+-- Verses built the same way: the clause-shape list (`syntax.system`), top `syntax.neighbors`.
+CREATE TABLE syntax_neighbors (
+    verse_id INTEGER NOT NULL,
+    rank INTEGER NOT NULL,
+    tgt INTEGER NOT NULL,
+    score REAL NOT NULL,
+    PRIMARY KEY (verse_id, rank)
+) WITHOUT ROWID;
+
+-- Narration and direct speech (analysis/speech.py): shares of words; `speakers` per book.
+CREATE TABLE speech_chapters (
+    unit_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    narration REAL NOT NULL,
+    speech REAL NOT NULL,
+    discourse REAL NOT NULL,
+    divine REAL NOT NULL,           -- speech by יהוה / אלהים / אדני
+    attributed REAL NOT NULL,       -- speech with a speaker found
+    n_words INTEGER NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE speech_books (
+    book_id INTEGER PRIMARY KEY,
+    narration REAL NOT NULL,
+    speech REAL NOT NULL,
+    discourse REAL NOT NULL,
+    divine REAL NOT NULL,
+    attributed REAL NOT NULL,
+    n_words INTEGER NOT NULL
+);
+
+CREATE TABLE speakers (
+    book_id INTEGER NOT NULL,
+    lemma TEXT NOT NULL,
+    n_words INTEGER NOT NULL,
+    n_explicit INTEGER NOT NULL,    -- words whose introduction names the speaker itself
+    PRIMARY KEY (book_id, lemma)
+) WITHOUT ROWID;
+
 -- Late Biblical Hebrew profile (`bsim dating`, §16.24): feature rates and the model's score.
 CREATE TABLE dating_chapters (
     unit_id TEXT PRIMARY KEY,       -- the chapter unit

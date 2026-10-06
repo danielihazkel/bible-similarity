@@ -2147,3 +2147,149 @@ tr.out-of-domain td {
   flex: 1 1 12rem;
   min-width: 0;
 }
+
+/* BHSA clauses and speakers (DESIGN.md §16.26) */
+.syntax-panel .syntax-ref {
+  font-size: 0.9rem;
+  margin: 0.8rem 0 0.2rem;
+}
+.clauses {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.clause {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-inline-start: 3px solid var(--border);
+  margin: 0.15rem 0;
+}
+.clause.speech {
+  border-inline-start-color: var(--lex);
+  background: var(--surface-2);
+}
+.clause.speech.divine {
+  border-inline-start-color: var(--sem);
+}
+.clause-type {
+  color: var(--muted);
+  min-width: 9rem;
+}
+.clause.speech .clause-type {
+  color: var(--text);  /* --muted on --surface-2 is below 4.5:1 */
+}
+.segments {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+}
+.seg {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+.seg .he {
+  font-size: 1.15rem;
+}
+.seg .fn {
+  font-size: 0.7rem;
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+.same-shape ol {
+  padding-inline-start: 1.4rem;
+}
+.same-shape li {
+  margin: 0.2rem 0;
+}
+
+/* Who speaks (DESIGN.md §16.26) */
+.speech-bars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.speech-bars button,
+.speech-bars .speech-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr minmax(0, 14rem);
+  gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0.15rem 0;
+  text-align: start;
+}
+.speech-bars button.on {
+  background: var(--accent-soft);
+}
+.speech-stack {
+  display: flex;
+  height: 0.8rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.speech-stack span {
+  display: block;
+  height: 100%;
+}
+.sp-narration {
+  background: var(--sim-1);
+}
+.sp-divine {
+  background: var(--sem);
+}
+.sp-other {
+  background: var(--lex);
+}
+.sp-unattributed {
+  background: var(--diff-move);
+}
+.sp-discourse {
+  background: var(--sim-3);
+}
+.speech-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  list-style: none;
+  padding: 0;
+}
+.speech-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.speech-legend .swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+.speakers-top {
+  color: var(--text);
+}
+.speaker-list {
+  columns: 16rem;
+  padding-inline-start: 1.2rem;
+}
+@media (max-width: 640px) {
+  .speech-bars button,
+  .speech-bars .speech-row {
+    grid-template-columns: 6rem 1fr;
+  }
+  .speech-bars .speakers-top {
+    grid-column: 1 / -1;
+  }
+}
+.speaker-list a,
+.clause .speaker a,
+.same-shape a {
+  text-decoration: underline;  /* links inside running text (axe link-in-text-block) */
+}

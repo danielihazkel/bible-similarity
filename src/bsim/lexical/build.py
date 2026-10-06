@@ -10,6 +10,10 @@ Writes to `paths.artifacts`/lexical:
                                                  `lexical.domain.expansion_weight` (experiment)
     tfidf_domain_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the same
     tfidf_morph_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the same
+    bm25_syntax.{doc,query}.npz + .vocab.json    BHSA clause shapes (§16.26; when `bsim syntax`
+                                                 has written syntax_clauses.parquet)
+    bm25_morph_syntax.{doc,query}.npz + .vocab.json   bm25_morph's tokens + the clause tokens
+                                                 (experiment, `retrieval_experiments`)
     tfidf_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF rows (L2-normalized)
     formulas.parquet                             closed lemma formulas
     lexical_meta.json, lexical_report.md
@@ -39,6 +43,7 @@ from bsim.lexical.formulas import (
     frequent_ngrams,
 )
 from bsim.lexical.morph import morph_streams, ngram_tokens
+from bsim.lexical.syntax import syntax_streams
 from bsim.lexical.tfidf import unit_tfidf
 from bsim.lexical.tokens import Stream, lemma_streams, surface_streams, with_bigrams
 from bsim.text.normalize import consonantal
@@ -192,6 +197,24 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
     else:
         log(f"  {proc / 'word_senses.parquet'} missing (`bsim lexicon`): no bm25_domain")
 
+    syntax_tokens: list[list[str]] | None = None
+    if (proc / "syntax_clauses.parquet").exists():
+        log("BM25 (clause shapes)")
+        syntax_tokens, syntax_weights = syntax_streams(
+            pd.read_parquet(proc / "syntax_clauses.parquet"),
+            pd.read_parquet(proc / "syntax_phrases.parquet", columns=["clause", "function"]),
+            n,
+        )
+        syntax_index = bm25.build_bm25(syntax_tokens, syntax_weights, k1, b)
+        morph_syntax_index = bm25.build_bm25(
+            [a + s for a, s in zip(morph_tokens, syntax_tokens, strict=True)],
+            [np.concatenate([a, s]) for a, s in zip(morph_weights, syntax_weights, strict=True)],
+            k1,
+            b,
+        )
+    else:
+        log(f"  {proc / 'syntax_clauses.parquet'} missing (`bsim syntax`): no bm25_syntax")
+
     out.mkdir(parents=True, exist_ok=True)
     bm25.save(lemma_index, out, "bm25_lemma")
     bm25.save(surface_index, out, "bm25_surface")
@@ -199,6 +222,9 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
     if domain_tokens is not None:
         bm25.save(domain_index, out, "bm25_domain")
         bm25.save(expanded_index, out, "bm25_lemma_domain")
+    if syntax_tokens is not None:
+        bm25.save(syntax_index, out, "bm25_syntax")
+        bm25.save(morph_syntax_index, out, "bm25_morph_syntax")
     formulas.to_parquet(out / "formulas.parquet", index=False)
 
     sizes = {
@@ -210,6 +236,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         "closed lemma formulas": len(formulas),
         "surface n-grams over threshold": len(surf_ngrams),
         **({"bm25_domain vocabulary": len(domain_index.vocab)} if domain_tokens else {}),
+        **({"bm25_syntax vocabulary": len(syntax_index.vocab)} if syntax_tokens else {}),
         "lemma tokens down-weighted": f"{np.mean(np.concatenate(lem_weights) < 1):.1%}",
     }
     for unit_type in [t for t in cfg["units"]["types"] if t != "verse"]:
@@ -241,6 +268,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
             "bm25_surface": len(surface_index.vocab),
             "bm25_morph": len(morph_index.vocab),
             **({"bm25_domain": len(domain_index.vocab)} if domain_tokens else {}),
+            **({"bm25_syntax": len(syntax_index.vocab)} if syntax_tokens else {}),
         },
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }

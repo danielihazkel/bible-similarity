@@ -53,6 +53,7 @@ const NAV: NavEntry[] = [
       { to: '/style', key: 'style' },
       { to: '/shifts', key: 'shifts' },
       { to: '/language', key: 'language' },
+      { to: '/speech', key: 'speech' },
       { to: '/eval', key: 'eval' },
     ],
   },
@@ -137,6 +138,7 @@ export function Layout() {
           {m.site.footer.wlc}
         </p>
         <p>{m.site.footer.lexicon}</p>
+        <p>{m.site.footer.syntax}</p>
       </footer>
     </div>
   )

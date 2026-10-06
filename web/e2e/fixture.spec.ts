@@ -41,6 +41,10 @@ const PAGES = [
   '/shifts?by=use&q=all',
   '/language',
   '/language?book=0',
+  '/speech',
+  '/speech?book=0',
+  '/unit/v%3A1?syntax=1',
+  '/unit/c%3A0%3A1?syntax=1',
   '/eval',
   '/about',
 ]

@@ -320,9 +320,7 @@ def word_domains(conn: sqlite3.Connection, verse_ids: Iterable[int]) -> list[dic
     return _dicts(cur)
 
 
-def unit_domain_weights(
-    conn: sqlite3.Connection, first: int, last: int
-) -> list[tuple[str, float]]:
+def unit_domain_weights(conn: sqlite3.Connection, first: int, last: int) -> list[tuple[str, float]]:
     cur = conn.execute(
         "SELECT code, SUM(weight) FROM domain_verses WHERE verse_id BETWEEN ? AND ? GROUP BY code",
         (first, last),
@@ -1098,3 +1096,59 @@ def typescenes_page(
         [*args, limit, offset],
     )
     return total, _dicts(cur)
+
+
+def clauses_of(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
+    """The BHSA clauses of a verse range, in text order, with the speaker's Hebrew form."""
+    cur = conn.execute(
+        "SELECT c.*, g.he_lemma AS speaker_he FROM clauses c"
+        " LEFT JOIN lemma_gloss g ON g.lemma = c.speaker"
+        " WHERE c.verse_id BETWEEN ? AND ? ORDER BY c.clause",
+        (first, last),
+    )
+    return _dicts(cur)
+
+
+def syntax_phrases_of(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT * FROM syntax_phrases WHERE verse_id BETWEEN ? AND ? ORDER BY phrase",
+        (first, last),
+    )
+    return _dicts(cur)
+
+
+def surfaces(conn: sqlite3.Connection, first: int, last: int) -> dict[tuple[int, int], str]:
+    cur = conn.execute(
+        "SELECT verse_id, idx, surface FROM words WHERE verse_id BETWEEN ? AND ?", (first, last)
+    )
+    return {(v, i): s for v, i, s in cur}
+
+
+def syntax_neighbors(conn: sqlite3.Connection, verse_id: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT tgt, score FROM syntax_neighbors WHERE verse_id = ? ORDER BY rank", (verse_id,)
+    )
+    return _dicts(cur)
+
+
+def speech_books(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    return _dicts(conn.execute("SELECT * FROM speech_books ORDER BY book_id"))
+
+
+def speech_chapters(conn: sqlite3.Connection, book_id: int) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT * FROM speech_chapters WHERE book_id = ? ORDER BY chapter", (book_id,)
+    )
+    return _dicts(cur)
+
+
+def speakers(conn: sqlite3.Connection, book_id: int | None = None) -> list[dict[str, Any]]:
+    """Speakers with their words, the most first (all books, or one)."""
+    where, args = ("WHERE s.book_id = ?", (book_id,)) if book_id is not None else ("", ())
+    cur = conn.execute(
+        "SELECT s.book_id, s.lemma, s.n_words, s.n_explicit, COALESCE(g.he_lemma, s.lemma) AS he"
+        f" FROM speakers s LEFT JOIN lemma_gloss g ON g.lemma = s.lemma {where}"
+        " ORDER BY s.book_id, s.n_words DESC, s.lemma",
+        args,
+    )
+    return _dicts(cur)

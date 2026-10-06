@@ -33,6 +33,9 @@ Derived columns:
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 - `lemma_shifts`, `lemma_senses` + `meta.senses`: `bsim senses` (empty without it).
 - `dating_chapters`, `dating_books` + `meta.dating`: `bsim dating` (empty without it).
+- `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
+  `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
+  the `syntax.system` verse list. All empty without `bsim syntax`.
 - `domains`, `domain_verses`, `words.domains` + `meta.lexicon`: `bsim lexicon` word senses
   (`domain_tables`); empty without it. `parallelism.relation*` and `entities.kind_source` come
   from the analyses run with the lexicon.
@@ -58,6 +61,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.dating import FEATURES as DATING_FEATURES
+from bsim.analysis.speech import speech_tables
 from bsim.analysis.structure import Q_COLS, SCORE_COLS
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS
@@ -71,6 +75,14 @@ from bsim.text.normalize import consonantal
 Log = Callable[[str], None]
 
 SCHEMA = Path(__file__).with_name("schema.sql")
+SYNTAX_TABLES = (
+    "clauses",
+    "syntax_phrases",
+    "syntax_neighbors",
+    "speech_chapters",
+    "speech_books",
+    "speakers",
+)
 MODES = ("lexical", "semantic", "fused", "structural", "domain")
 SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
@@ -91,6 +103,8 @@ INDEXES = (
     "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
     "CREATE INDEX network_edges_by_a ON network_edges (unit_type, a)",
     "CREATE INDEX domain_verses_by_verse ON domain_verses (verse_id, code)",
+    "CREATE INDEX clauses_by_verse ON clauses (verse_id)",
+    "CREATE INDEX syntax_phrases_by_verse ON syntax_phrases (verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -295,6 +309,40 @@ TABLE_COLUMNS = {
         *DATING_FEATURES,
     ],
     "lemma_senses": ["lemma", "kind", "sense", "n", "groups", "collocates", "examples", "domains"],
+    "clauses": [
+        "clause",
+        "verse_id",
+        "words",
+        "typ",
+        "kind",
+        "txt",
+        "rela",
+        "speaker",
+        "speaker_source",
+    ],
+    "syntax_phrases": ["phrase", "clause", "verse_id", "words", "typ", "function"],
+    "syntax_neighbors": ["verse_id", "rank", "tgt", "score"],
+    "speech_chapters": [
+        "unit_id",
+        "book_id",
+        "chapter",
+        "narration",
+        "speech",
+        "discourse",
+        "divine",
+        "attributed",
+        "n_words",
+    ],
+    "speech_books": [
+        "book_id",
+        "narration",
+        "speech",
+        "discourse",
+        "divine",
+        "attributed",
+        "n_words",
+    ],
+    "speakers": ["book_id", "lemma", "n_words", "n_explicit"],
     "domain_verses": ["code", "verse_id", "weight"],
     "entity_mentions": ["lemma", "verse_id", "n"],
     "entity_links": ["a", "b", "n_verses", "expected", "g2"],
@@ -705,6 +753,36 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8")) if path.exists() else {}
 
 
+def _syntax_inputs(cfg: dict[str, Any], proc: Path, verses: pd.DataFrame) -> dict[str, Any]:
+    """The `bsim syntax` tables and what is derived from them (empty frames without it)."""
+    empty = {t: pd.DataFrame(columns=TABLE_COLUMNS[t]) for t in SYNTAX_TABLES}
+    path = proc / "syntax_clauses.parquet"
+    if not path.exists():
+        return {**empty, "syntax_meta": {}}
+    sc = cfg["syntax"]
+    clauses = pd.read_parquet(path)
+    phrases = pd.read_parquet(proc / "syntax_phrases.parquet")
+    chapters, books, speakers = speech_tables(clauses, verses, sc["divine"])
+    topk = resolve_path(cfg, "artifacts") / "topk" / "verse" / f"{sc['system']}.parquet"
+    if topk.exists():
+        from bsim.retrieve.topk import read_topk
+
+        nb = read_topk(topk)
+        nb = nb[nb["rank"] <= sc["neighbors"]].rename(columns={"src": "verse_id"})
+    else:
+        nb = empty["syntax_neighbors"]
+    as_json = lambda col: [json.dumps([int(i) for i in w]) for w in col]  # noqa: E731
+    return {
+        "clauses": clauses.assign(words=as_json(clauses.words), rela=clauses.rela.fillna("")),
+        "syntax_phrases": phrases.assign(words=as_json(phrases.words)),
+        "syntax_neighbors": nb[TABLE_COLUMNS["syntax_neighbors"]],
+        "speech_chapters": chapters[TABLE_COLUMNS["speech_chapters"]],
+        "speech_books": books[TABLE_COLUMNS["speech_books"]],
+        "speakers": speakers[TABLE_COLUMNS["speakers"]],
+        "syntax_meta": _read_json(proc / "syntax_meta.json"),
+    }
+
+
 def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     proc = resolve_path(cfg, "data_processed")
     out = {}
@@ -793,6 +871,7 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         df = pd.read_parquet(path) if path.exists() else pd.DataFrame(columns=TABLE_COLUMNS[table])
         out[table] = df.assign(out_of_domain=df.out_of_domain.astype(int))
     out["dating_meta"] = _read_json(dating_dir / "dating.meta.json")
+    out.update(_syntax_inputs(cfg, proc, out["verses"]))
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -984,6 +1063,7 @@ def _write_db(
             "lemma_shifts": inputs["lemma_shifts"],
             "dating_chapters": inputs["dating_chapters"],
             "dating_books": inputs["dating_books"],
+            **{t: inputs[t] for t in SYNTAX_TABLES},
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1061,6 +1141,7 @@ def _write_db(
                 "synoptic",
             )
         }
+        meta["syntax"] = inputs["syntax_meta"]
         snm = inputs["senses_meta"]
         meta["senses"] = {
             k: snm.get(k)
