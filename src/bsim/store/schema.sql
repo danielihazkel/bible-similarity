@@ -565,6 +565,42 @@ CREATE TABLE speakers (
     PRIMARY KEY (book_id, lemma)
 ) WITHOUT ROWID;
 
+-- Which side of a parallel looks like the borrower (`bsim borrowing`, §16.27). A = earlier in
+-- the canon; a sign > 0 says B looks later. direction: a_to_b | b_to_a | unclear.
+CREATE TABLE borrowing_sequences (
+    seq_id INTEGER PRIMARY KEY,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    a_start INTEGER NOT NULL,
+    a_end INTEGER NOT NULL,
+    b_start INTEGER NOT NULL,
+    b_end INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,
+    language REAL NOT NULL,
+    spelling REAL,                  -- NULL: too few spelling changes
+    smoothing REAL,
+    expansion REAL,
+    n_spelling INTEGER NOT NULL,
+    n_substitution INTEGER NOT NULL,
+    known TEXT,                     -- the accepted direction, for the check pairs
+    votes INTEGER NOT NULL,         -- sum of the used signs' votes
+    n_votes INTEGER NOT NULL,
+    direction TEXT NOT NULL
+);
+
+CREATE TABLE borrowing_books (
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    sequences INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,
+    votes INTEGER NOT NULL,
+    a_to_b INTEGER NOT NULL,        -- sequences voted each way
+    b_to_a INTEGER NOT NULL,
+    known TEXT,
+    direction TEXT NOT NULL,
+    PRIMARY KEY (a_book, b_book)
+) WITHOUT ROWID;
+
 -- Late Biblical Hebrew profile (`bsim dating`, §16.24): feature rates and the model's score.
 CREATE TABLE dating_chapters (
     unit_id TEXT PRIMARY KEY,       -- the chapter unit

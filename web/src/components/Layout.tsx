@@ -31,6 +31,7 @@ const NAV: NavEntry[] = [
       { to: '/phrases', key: 'phrases' },
       { to: '/sequences', key: 'sequences' },
       { to: '/changes', key: 'changes' },
+      { to: '/borrowing', key: 'borrowing' },
       { to: '/typescenes', key: 'typescenes' },
     ],
   },

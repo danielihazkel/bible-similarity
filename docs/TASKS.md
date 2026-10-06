@@ -468,3 +468,13 @@ Phase 3 (M39c): API and viewer
 - [x] Tests: Text-Fabric reading, alignment, a synthetic BHSA run (speech, explicit speaker, gender check), clause tokens, speech shares, segments, the API on the fixture DB (pytest); Speech page and clause panel (vitest); e2e: new pages in both languages, axe (a link style fixed)
 
 ✔ Every clause of the Bible can be read with its structure and, in speech, its speaker; the speech map shows where God, Moses or the narrator speak, with the reliability of each attribution stated; clause shapes add a "built the same way" list but do not beat the existing modes; 91 / 91 fixture and 88 / 88 real-data e2e.
+
+## M44: Who borrowed — the direction of cross-book parallels (§16.27, D61; roadmap A7)
+- [x] `bsim borrowing` (`analysis/borrowing.py`): four signs fixed in advance (language features with literature signs, fuller spelling, rare → common substitutions, expansion) over the 43 word-aligned cross-book parallels
+- [x] Check on 35 parallels of accepted direction: language 30 / 35, spelling 29 / 31, smoothing 15 / 28, expansion 15 / 33; voting signs chosen by the check and validated leaving each book pair out (30 / 32 right, 3 undecided); the canon-order confound stated
+- [x] Results: Nehemiah 7 → Ezra 2, 2 Kgs 20 → Isa 38–39, Exod 29 → Lev 8, Lev 11 → Deut 14; 2 Sam 22 ↔ Ps 18 unclear; Ps 105 ↔ 1 Chr 16 and 2 Kgs 25 ↔ Jer 39 wrong
+- [x] DB `borrowing_sequences`, `borrowing_books` (+ `meta.borrowing`); API `/borrowing`, `/borrowing/sequence/{id}`, `/borrowing/between`
+- [x] Viewer: Parallels → Who borrowed (check, voting signs, book pairs with each parallel's signs); "Which borrowed?" on parallel sequences and Compare; English and Hebrew
+- [x] Tests: each sign, agreement, sign selection and the held-out check (pytest); the API on the fixture DB; the page and the line (vitest); e2e: new pages, axe
+
+✔ Every cross-book parallel carries a direction estimate with the evidence behind it, validated where the answer is known and honest about what that check cannot tell; 97 / 97 fixture and 90 / 90 real-data e2e.

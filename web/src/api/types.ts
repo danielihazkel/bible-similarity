@@ -1215,3 +1215,58 @@ export interface SpeechBookResponse {
   chapters: SpeechChapter[]
   speakers: SpeakerInfo[]
 }
+
+// --- who borrowed (DESIGN.md §16.27) ---
+
+export type BorrowDirection = 'a_to_b' | 'b_to_a' | 'unclear'
+
+export interface SignCheck {
+  agree: number
+  n: number
+  p: number | null
+  unclear: number | null
+}
+
+/** A cross-book parallel; A is the side earlier in the canon, a sign > 0 says B looks later. */
+export interface BorrowingSequence {
+  seq_id: number
+  a_book: number
+  b_book: number
+  a_first: number
+  b_first: number
+  a_label: string
+  b_label: string
+  a_label_he: string
+  b_label_he: string
+  n_pairs: number
+  language: number
+  spelling: number | null
+  smoothing: number | null
+  expansion: number | null
+  n_spelling: number
+  n_substitution: number
+  known: 'a_to_b' | 'b_to_a' | null
+  votes: number
+  n_votes: number
+  direction: BorrowDirection
+}
+
+export interface BorrowingBookPair {
+  a_book: number
+  b_book: number
+  sequences: number
+  n_pairs: number
+  votes: number
+  a_to_b: number
+  b_to_a: number
+  known: 'a_to_b' | 'b_to_a' | null
+  direction: BorrowDirection
+  items: BorrowingSequence[]
+}
+
+export interface BorrowingResponse {
+  checks: Record<string, SignCheck>
+  used_signs: string[]
+  held_out: SignCheck | null
+  books: BorrowingBookPair[]
+}

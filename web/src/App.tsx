@@ -15,6 +15,7 @@ const LanguagePage = lazy(() => import('./pages/LanguagePage').then((m) => ({ de
 const ShiftsPage = lazy(() => import('./pages/ShiftsPage').then((m) => ({ default: m.ShiftsPage })))
 const DomainsPage = lazy(() => import('./pages/DomainsPage').then((m) => ({ default: m.DomainsPage })))
 const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
+const BorrowingPage = lazy(() => import('./pages/BorrowingPage').then((m) => ({ default: m.BorrowingPage })))
 const SpeechPage = lazy(() => import('./pages/SpeechPage').then((m) => ({ default: m.SpeechPage })))
 const LabelsPage = lazy(() => import('./pages/LabelsPage').then((m) => ({ default: m.LabelsPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
@@ -57,6 +58,7 @@ export function App() {
           <Route path="sequences" element={<SequencesPage />} />
           <Route path="sequences/:seqId" element={<SequencePage />} />
           <Route path="changes" element={<ChangesPage />} />
+          <Route path="borrowing" element={<BorrowingPage />} />
           <Route path="typescenes" element={<TypeScenesPage />} />
           <Route path="poetry" element={<PoetryPage />} />
           <Route path="wordplay" element={<WordplayPage />} />

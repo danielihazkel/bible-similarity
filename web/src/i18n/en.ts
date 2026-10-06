@@ -10,6 +10,7 @@ import { senEn } from './pages/senses'
 import { datEn } from './pages/dating'
 import { labEn } from './pages/labels'
 import { synEn } from './pages/syntax'
+import { borEn } from './pages/borrowing'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -65,6 +66,7 @@ export const en = {
     overview: 'Overview',
     discoveries: { label: 'Discoveries', hint: 'Strong pairs Sefaria does not link' },
     labels: { label: 'Your labels', hint: 'Pairs you judged: a third gold set' },
+    borrowing: { label: 'Who borrowed', hint: 'Which side of a parallel looks later' },
     phrases: { label: 'Phrases', hint: 'Shared runs of words' },
     sequences: { label: 'Sequences', hint: 'Passages parallel verse by verse' },
     changes: { label: 'Changes', hint: 'How parallel passages differ' },
@@ -377,6 +379,7 @@ export const en = {
   dat: datEn,
   lab: labEn,
   syn: synEn,
+  bor: borEn,
   ov: ovEn,
 }
 

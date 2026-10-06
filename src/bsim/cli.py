@@ -461,6 +461,18 @@ def eval_openbible(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def borrowing(config: ConfigOpt = None) -> None:
+    """Estimate which side of each cross-book parallel is the borrower (checked on known pairs)."""
+    from bsim.analysis.borrowing import run_borrowing
+
+    try:
+        run_borrowing(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def syntax(config: ConfigOpt = None) -> None:
     """Align the BHSA clauses and phrases to OSHB words; mark direct speech and its speakers."""
     from bsim.data.bhsa import run_syntax

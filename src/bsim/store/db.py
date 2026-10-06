@@ -33,6 +33,7 @@ Derived columns:
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 - `lemma_shifts`, `lemma_senses` + `meta.senses`: `bsim senses` (empty without it).
 - `dating_chapters`, `dating_books` + `meta.dating`: `bsim dating` (empty without it).
+- `borrowing_sequences`, `borrowing_books` + `meta.borrowing`: `bsim borrowing` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -343,6 +344,37 @@ TABLE_COLUMNS = {
         "n_words",
     ],
     "speakers": ["book_id", "lemma", "n_words", "n_explicit"],
+    "borrowing_sequences": [
+        "seq_id",
+        "a_book",
+        "b_book",
+        "a_start",
+        "a_end",
+        "b_start",
+        "b_end",
+        "n_pairs",
+        "language",
+        "spelling",
+        "smoothing",
+        "expansion",
+        "n_spelling",
+        "n_substitution",
+        "known",
+        "votes",
+        "n_votes",
+        "direction",
+    ],
+    "borrowing_books": [
+        "a_book",
+        "b_book",
+        "sequences",
+        "n_pairs",
+        "votes",
+        "a_to_b",
+        "b_to_a",
+        "known",
+        "direction",
+    ],
     "domain_verses": ["code", "verse_id", "weight"],
     "entity_mentions": ["lemma", "verse_id", "n"],
     "entity_links": ["a", "b", "n_verses", "expected", "g2"],
@@ -872,6 +904,15 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         out[table] = df.assign(out_of_domain=df.out_of_domain.astype(int))
     out["dating_meta"] = _read_json(dating_dir / "dating.meta.json")
     out.update(_syntax_inputs(cfg, proc, out["verses"]))
+    bor_dir = resolve_path(cfg, "artifacts") / "borrowing"
+    for name, table in (("sequences", "borrowing_sequences"), ("books", "borrowing_books")):
+        path = bor_dir / f"{name}.parquet"
+        out[table] = (
+            pd.read_parquet(path)[TABLE_COLUMNS[table]]
+            if path.exists()
+            else pd.DataFrame(columns=TABLE_COLUMNS[table])
+        )
+    out["borrowing_meta"] = _read_json(bor_dir / "borrowing.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1064,6 +1105,8 @@ def _write_db(
             "dating_chapters": inputs["dating_chapters"],
             "dating_books": inputs["dating_books"],
             **{t: inputs[t] for t in SYNTAX_TABLES},
+            "borrowing_sequences": inputs["borrowing_sequences"],
+            "borrowing_books": inputs["borrowing_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1142,6 +1185,18 @@ def _write_db(
             )
         }
         meta["syntax"] = inputs["syntax_meta"]
+        bm = inputs["borrowing_meta"]
+        meta["borrowing"] = {
+            k: bm.get(k)
+            for k in (
+                "checks",
+                "used_signs",
+                "held_out",
+                "used_vote",
+                "known_sequences",
+                "sequences",
+            )
+        }
         snm = inputs["senses_meta"]
         meta["senses"] = {
             k: snm.get(k)

@@ -4,6 +4,7 @@ ids -> 404."""
 from fastapi import APIRouter
 
 from bsim.api.routes import (
+    borrowing,
     core,
     corpus,
     dating,
@@ -28,6 +29,7 @@ for _module in (
     senses,
     dating,
     syntax,
+    borrowing,
     labels,
     export,
 ):

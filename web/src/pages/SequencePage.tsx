@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { useSequence } from '../api/hooks'
 import type { LadderRow, Verse } from '../api/types'
+import { BorrowLineForSequence } from '../components/BorrowLine'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { ErrorBox, Loading } from '../components/Status'
@@ -54,6 +55,7 @@ export function SequencePage() {
         {s.n_gold === 0 ? m.par.sequence.noneLinked : m.par.sequence.linked(s.n_gold)}
         {onlyA + onlyB > 0 && m.par.sequence.onlySides(onlyA, onlyB)}
       </p>
+      <BorrowLineForSequence seqId={s.seq_id} />
       <div className="toolbar">
         <label className="check">
           <input type="checkbox" checked={showChanges} onChange={(e) => setShowChanges(e.target.checked)} />

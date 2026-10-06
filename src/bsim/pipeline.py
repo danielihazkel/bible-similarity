@@ -200,6 +200,12 @@ def stage_senses(cfg: dict[str, Any], log: Log) -> None:
     run_senses(cfg, log=log)
 
 
+def stage_borrowing(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.borrowing import run_borrowing
+
+    run_borrowing(cfg, log=log)
+
+
 def stage_seams(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.seams import run_seams
 
@@ -264,6 +270,7 @@ STAGES: dict[str, str] = {
     "entities": "stage_entities",
     "senses": "stage_senses",
     "dating": "stage_dating",
+    "borrowing": "stage_borrowing",
     "seams": "stage_seams",
     "structure": "stage_structure",
     "map": "stage_map",

@@ -364,6 +364,22 @@ senses:                       # `bsim senses`: a word's senses and uses across t
   examples: 3                 # occurrences shown per cluster / meaning
   seed: 13
 
+borrowing:                    # `bsim borrowing`: which side of a parallel looks like the borrower (DESIGN.md §16.27)
+  min_ops: 2                  # a diff-based sign needs this many changes of its kind in a sequence
+  select_p: 0.05              # a sign votes when it matches the known directions (sign test p below this)
+  # literature direction of each `dating` feature: +1 = a higher rate looks later
+  language_signs: {lbh_lexemes: 1, anokhi: -1, inf_abs: -1, et_suffix: -1, directional_he: -1, cohortative_wayyiqtol: 1, david_plene: 1}
+  known:                      # directions most scholars accept: the check (source -> borrower)
+    - {source: 1Sam, target: 1Chr}
+    - {source: 2Sam, target: 1Chr}
+    - {source: 1Kgs, target: 2Chr}
+    - {source: 2Kgs, target: 2Chr}
+    - {source: Gen, target: 1Chr}     # genealogies of 1 Chr 1
+    - {source: Josh, target: 1Chr}    # Levitical cities, 1 Chr 6
+    - {source: Ps, target: 1Chr}      # Ps 96 / 105 / 106 in 1 Chr 16
+    - {source: 2Kgs, target: Jer}     # 2 Kgs 24–25 in Jer 52
+    - {source: Exod, target: Deut}    # the Decalogue
+
 dating:                       # `bsim dating`: a Late Biblical Hebrew profile per chapter (DESIGN.md §16.24)
   early: [Gen, Exod, Lev, Num, Deut, Josh, Judg, 1Sam, 2Sam, 1Kgs, 2Kgs]   # Standard Biblical Hebrew (training)
   late: [1Chr, 2Chr, Ezra, Neh, Esth, Dan]   # undisputed Late Biblical Hebrew (training; Aramaic words left out)

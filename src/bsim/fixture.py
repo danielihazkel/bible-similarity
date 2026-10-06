@@ -298,6 +298,66 @@ def write_inputs(cfg, tmp_path):
             "pairs",
         ],
     ).to_parquet(art / "sequences" / "verse.parquet")
+    # which side borrowed (`bsim borrowing`): the cross-book sequence 2 (Genesis -> Exodus)
+    bor = art / "borrowing"
+    bor.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(2, 0, 1, 1, 2, 5, 5, 2, 0.8, 0.5, None, None, 2, 0, None, 2, 2, "a_to_b")],
+        columns=[
+            "seq_id",
+            "a_book",
+            "b_book",
+            "a_start",
+            "a_end",
+            "b_start",
+            "b_end",
+            "n_pairs",
+            "language",
+            "spelling",
+            "smoothing",
+            "expansion",
+            "n_spelling",
+            "n_substitution",
+            "known",
+            "votes",
+            "n_votes",
+            "direction",
+        ],
+    ).to_parquet(bor / "sequences.parquet")
+    pd.DataFrame(
+        [(0, 1, 1, 2, 2, 1, 0, None, "a_to_b")],
+        columns=[
+            "a_book",
+            "b_book",
+            "sequences",
+            "n_pairs",
+            "votes",
+            "a_to_b",
+            "b_to_a",
+            "known",
+            "direction",
+        ],
+    ).to_parquet(bor / "books.parquet")
+    check = {"agree": 30, "n": 35, "p": 2.2e-05}
+    (bor / "borrowing.meta.json").write_text(
+        json.dumps(
+            {
+                "sequences": 1,
+                "known_sequences": 0,
+                "checks": {
+                    "language": check,
+                    "spelling": {"agree": 29, "n": 31, "p": 1e-07},
+                    "smoothing": {"agree": 15, "n": 28, "p": 0.85},
+                    "expansion": {"agree": 15, "n": 33, "p": 0.73},
+                    "all_signs": {"agree": 21, "n": 24, "p": 0.0003},
+                },
+                "used_signs": ["language", "spelling"],
+                "held_out": {"agree": 30, "n": 32, "unclear": 3, "p": 1e-07},
+                "used_vote": {"agree": 32, "n": 33, "p": 1e-08},
+            }
+        ),
+        encoding="utf-8",
+    )
     # verse halves: v0 and v3 split in two (v0 strongly parallel), the rest one colon
     (art / "parallelism").mkdir(parents=True, exist_ok=True)
     par = pd.DataFrame(

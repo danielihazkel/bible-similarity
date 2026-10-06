@@ -190,3 +190,5 @@ The test split was run once, at M9; these systems are compared on dev only.
 Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 95 % CI [−0.0007, +0.0092]; the blend weight was chosen on the same queries. Not adopted (DESIGN §16.3, D31). The structural mode is shown in the viewer as its own mode, not fused (§16.5, D32). Semantic domains (§16.22, D56): `bm25_lemma_domain` beats `bm25_lemma` (+0.0045, CI [+0.0003, +0.0087]), but in place of the lexical list in the fusion the cross-fitted gain is −0.0021, CI [−0.0075, +0.0030]: not adopted.
 
 Syntax (§16.26, D60): `bm25_syntax` as a third list in the fusion +0.0005, CI [−0.0031, +0.0044]; `bm25_morph_syntax` against `bm25_morph` +0.0039, CI [−0.0007, +0.0086] (Sefaria), +0.0036, CI [+0.0015, +0.0058] (OpenBible): not adopted; clause-shape neighbours are shown as "built the same way" instead.
+
+Direction of borrowing (§16.27, D61), 35 parallels of accepted direction: language 30 / 35, spelling 29 / 31, smoothing 15 / 28, expansion 15 / 33; language + spelling chosen without each book pair, scored on it: 30 / 32 right, 3 undecided.

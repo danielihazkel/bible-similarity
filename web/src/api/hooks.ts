@@ -32,6 +32,8 @@ import type {
   LabelIn,
   LabelsEval,
   LabelsResponse,
+  BorrowingResponse,
+  BorrowingSequence,
   SpeechBookResponse,
   SpeechResponse,
   UnitSyntax,
@@ -251,6 +253,26 @@ export const useUnitDating = (unitId: string | undefined) =>
     queryKey: ['unit-dating', unitId],
     queryFn: ({ signal }) => getJson<DatingChapter | null>(`/unit-dating/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: unitId !== undefined,
+    ...forever,
+  })
+
+/** Which side of each cross-book parallel looks like the borrower (DESIGN.md §16.27). */
+export const useBorrowing = () =>
+  useQuery({ queryKey: ['borrowing'], queryFn: ({ signal }) => getJson<BorrowingResponse>('/borrowing', {}, signal), ...forever })
+
+export const useBorrowingSequence = (seqId: number | undefined) =>
+  useQuery({
+    queryKey: ['borrowing-sequence', seqId],
+    queryFn: ({ signal }) => getJson<BorrowingSequence | null>(`/borrowing/sequence/${seqId}`, {}, signal),
+    enabled: seqId !== undefined,
+    ...forever,
+  })
+
+export const useBorrowingBetween = (a: string | undefined, b: string | undefined) =>
+  useQuery({
+    queryKey: ['borrowing-between', a, b],
+    queryFn: ({ signal }) => getJson<BorrowingSequence[]>('/borrowing/between', { a, b }, signal),
+    enabled: a !== undefined && b !== undefined,
     ...forever,
   })
 

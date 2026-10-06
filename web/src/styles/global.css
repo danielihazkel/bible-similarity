@@ -2293,3 +2293,29 @@ tr.out-of-domain td {
 .same-shape a {
   text-decoration: underline;  /* links inside running text (axe link-in-text-block) */
 }
+
+/* Who borrowed (DESIGN.md §16.27) */
+.borrow-pair {
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0;
+}
+.borrow-pair summary {
+  cursor: pointer;
+}
+.known-tag {
+  margin-inline-start: 0.5rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  background: var(--known-soft);
+  color: var(--known);
+}
+.sign-checks {
+  padding-inline-start: 1.2rem;
+}
+ul.borrow-line {
+  list-style: none;
+  padding: 0;
+}
+.borrow-line a {
+  text-decoration: underline;
+}

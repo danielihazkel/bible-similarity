@@ -1099,6 +1099,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/borrowing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Borrowing
+         * @description Book pairs with their parallels, each with its signs and direction, and the check of the
+         *     signs on the directions scholars accept.
+         */
+        get: operations["borrowing_api_borrowing_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/borrowing/sequence/{seq_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Borrowing Sequence
+         * @description The direction estimate of one parallel sequence (None: not a scored cross-book one).
+         */
+        get: operations["borrowing_sequence_api_borrowing_sequence__seq_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/borrowing/between": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Borrowing Between
+         * @description Scored parallels with one side in unit `a` and the other in unit `b`.
+         */
+        get: operations["borrowing_between_api_borrowing_between_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/labels": {
         parameters: {
             query?: never;
@@ -1337,6 +1398,94 @@ export interface components {
             under: components["schemas"]["StyloFeature"][];
             /** Closest */
             closest: components["schemas"]["StyloDelta"][];
+        };
+        /** BorrowingBookPair */
+        BorrowingBookPair: {
+            /** A Book */
+            a_book: number;
+            /** B Book */
+            b_book: number;
+            /** Sequences */
+            sequences: number;
+            /** N Pairs */
+            n_pairs: number;
+            /** Votes */
+            votes: number;
+            /** A To B */
+            a_to_b: number;
+            /** B To A */
+            b_to_a: number;
+            /** Known */
+            known: ("a_to_b" | "b_to_a") | null;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "a_to_b" | "b_to_a" | "unclear";
+            /** Items */
+            items: components["schemas"]["BorrowingSequence"][];
+        };
+        /** BorrowingResponse */
+        BorrowingResponse: {
+            /** Checks */
+            checks: {
+                [key: string]: components["schemas"]["SignCheck"];
+            };
+            /** Used Signs */
+            used_signs: string[];
+            held_out: components["schemas"]["SignCheck"] | null;
+            /** Books */
+            books: components["schemas"]["BorrowingBookPair"][];
+        };
+        /**
+         * BorrowingSequence
+         * @description Which side of a cross-book parallel looks like the borrower (DESIGN.md §16.27). A is the
+         *     side earlier in the canon; a sign > 0 says B looks later.
+         */
+        BorrowingSequence: {
+            /** Seq Id */
+            seq_id: number;
+            /** A Book */
+            a_book: number;
+            /** B Book */
+            b_book: number;
+            /** A First */
+            a_first: number;
+            /** B First */
+            b_first: number;
+            /** A Label */
+            a_label: string;
+            /** B Label */
+            b_label: string;
+            /** A Label He */
+            a_label_he: string;
+            /** B Label He */
+            b_label_he: string;
+            /** N Pairs */
+            n_pairs: number;
+            /** Language */
+            language: number;
+            /** Spelling */
+            spelling: number | null;
+            /** Smoothing */
+            smoothing: number | null;
+            /** Expansion */
+            expansion: number | null;
+            /** N Spelling */
+            n_spelling: number;
+            /** N Substitution */
+            n_substitution: number;
+            /** Known */
+            known: ("a_to_b" | "b_to_a") | null;
+            /** Votes */
+            votes: number;
+            /** N Votes */
+            n_votes: number;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "a_to_b" | "b_to_a" | "unclear";
         };
         /** ChangeExample */
         ChangeExample: {
@@ -2672,6 +2821,17 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["LemmaShift"][];
+        };
+        /** SignCheck */
+        SignCheck: {
+            /** Agree */
+            agree: number;
+            /** N */
+            n: number;
+            /** P */
+            p: number | null;
+            /** Unclear */
+            unclear: number | null;
         };
         /** SimilarResponse */
         SimilarResponse: {
@@ -4999,6 +5159,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpeechBookResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrowing_api_borrowing_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BorrowingResponse"];
+                };
+            };
+        };
+    };
+    borrowing_sequence_api_borrowing_sequence__seq_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                seq_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BorrowingSequence"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrowing_between_api_borrowing_between_get: {
+        parameters: {
+            query: {
+                a: string;
+                b: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BorrowingSequence"][];
                 };
             };
             /** @description Validation Error */

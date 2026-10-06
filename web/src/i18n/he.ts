@@ -17,6 +17,7 @@ import { senHe } from './pages/senses'
 import { datHe } from './pages/dating'
 import { labHe } from './pages/labels'
 import { synHe } from './pages/syntax'
+import { borHe } from './pages/borrowing'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -72,6 +73,7 @@ export const he: Messages = {
     overview: 'מבט־על',
     discoveries: { label: 'תגליות', hint: 'זוגות חזקים שאין להם קישור בספריא' },
     labels: { label: 'הסימונים שלך', hint: 'זוגות ששפטת: מערך זהב שלישי' },
+    borrowing: { label: 'מי שאל ממי', hint: 'איזה צד של מקבילה נראה מאוחר' },
     phrases: { label: 'צירופים', hint: 'רצפי מילים משותפים' },
     sequences: { label: 'רצפים', hint: 'קטעים מקבילים פסוק אחר פסוק' },
     changes: { label: 'שינויים', hint: 'במה נבדלים קטעים מקבילים' },
@@ -379,5 +381,6 @@ export const he: Messages = {
   dat: datHe,
   lab: labHe,
   syn: synHe,
+  bor: borHe,
   ov: ovHe,
 }

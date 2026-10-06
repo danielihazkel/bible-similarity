@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { useCompare, useExplain, useVerseDiff } from '../api/hooks'
 import type { CompareResponse, Pair, UnitSummary, Verse, VerseDiff } from '../api/types'
+import { BorrowLineBetween } from '../components/BorrowLine'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { LemmaChips } from '../components/LemmaChips'
@@ -43,6 +44,7 @@ export function ComparePage() {
         </button>
         <UnitPicker key={`b:${b}`} label="B" value={b} onChange={(id) => update({ b: id }, false)} />
       </div>
+      {a && b && <BorrowLineBetween a={a} b={b} />}
       {!a || !b ? (
         <p className="status">{m.compare.choose}</p>
       ) : cmp.isPending ? (
