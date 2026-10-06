@@ -478,3 +478,7 @@ Phase 3 (M39c): API and viewer
 - [x] Tests: each sign, agreement, sign selection and the held-out check (pytest); the API on the fixture DB; the page and the line (vitest); e2e: new pages, axe
 
 ✔ Every cross-book parallel carries a direction estimate with the evidence behind it, validated where the answer is known and honest about what that check cannot tell; 97 / 97 fixture and 90 / 90 real-data e2e.
+
+## M43b: Clause shapes as a mode (D62)
+- [x] `final_systems.syntax: bm25_syntax`, `unit_syntax: tfidf_syntax` (unit TF-IDF over the clause tokens, `bsim units`); `syntax` in the DB modes, API and viewer ("Clauses" / "פסוקיות"); `store.max_size_mb` 4096 (DB 616 MB)
+- [x] Tests: six modes in the fixture DB (matches, discoveries); e2e: the mode on a unit page in both languages

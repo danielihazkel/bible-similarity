@@ -271,7 +271,6 @@ def write_inputs(cfg, tmp_path):
     (proc / "syntax_meta.json").write_text(
         json.dumps({"clauses": 5, "speech_clauses": 3, "verses_aligned": 6}), "utf-8"
     )
-    write_topk(art, "verse", cfg["syntax"]["system"], [("v:0", "v:1", 1), ("v:0", "v:3", 2)])
     (art / "phrases").mkdir(parents=True, exist_ok=True)
     pd.DataFrame(
         [(a, b, sc, n, json.dumps(wa), json.dumps(wb), s) for a, b, sc, n, wa, wb, s in PHRASES],

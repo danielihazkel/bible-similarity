@@ -15,6 +15,8 @@ For every unit of the Hebrew Bible (Tanakh), compute the **top-k most similar un
 |---|---|---|
 | `lexical` | shared wording | BM25 / TF-IDF over OSHB lemmas |
 | `structural` | shared grammatical shape | BM25 / TF-IDF over morphology n-grams (§16.5 of DESIGN) |
+| `domain` | shared semantic fields | BM25 / TF-IDF over SDBH domains (§16.22) |
+| `syntax` | built the same way | BM25 / TF-IDF over BHSA clause shapes (§16.26) |
 | `semantic` | shared meaning / theme / parallel | fine-tuned BEREL 3.0 sentence embeddings |
 | `fused` | both | weighted Reciprocal Rank Fusion of the two |
 

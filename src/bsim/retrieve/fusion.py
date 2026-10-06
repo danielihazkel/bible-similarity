@@ -49,6 +49,7 @@ def final_systems(cfg: dict[str, Any], unit_type: str) -> dict[str, str]:
         "fused": fs["fused"],
         "structural": fs["structural"] if verse else fs["unit_structural"],
         "domain": fs["domain"] if verse else fs["unit_domain"],
+        "syntax": fs["syntax"] if verse else fs["unit_syntax"],
     }
 
 

@@ -35,6 +35,7 @@ const PAGES: [string, RegExp][] = [
   ['/domains', /Semantic domains/],
   ['/domains/001001', /Beings/],
   ['/unit/c%3A0%3A1?mode=domain', /Genesis 1/],
+  ['/unit/c%3A0%3A1?mode=syntax', /Genesis 1/],
   ['/poetry?sort=antithetic', /Parallel halves/],
   ['/shifts', /Shifts/],
   ['/language?book=32', /Language/],

@@ -84,7 +84,7 @@ SYNTAX_TABLES = (
     "speech_books",
     "speakers",
 )
-MODES = ("lexical", "semantic", "fused", "structural", "domain")
+MODES = ("lexical", "semantic", "fused", "structural", "domain", "syntax")
 SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",

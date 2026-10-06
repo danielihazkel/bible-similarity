@@ -164,7 +164,7 @@ def test_syntax_api(client):
     (verse,) = v["verses"]
     assert [c["typ"] for c in verse["clauses"]] == ["xQtX", "WayX"]
     assert [s["function"] for s in verse["clauses"][1]["segments"]] == ["Pred", "Subj"]
-    assert [n["unit"]["unit_id"] for n in v["neighbors"]] == ["v:1", "v:3"]
+    assert [n["unit"]["unit_id"] for n in v["neighbors"]] == ["v:1", "v:3", "v:5", "v:2"]
     speech = client.get("/api/syntax/v:1").json()["verses"][0]["clauses"][0]
     assert speech["speech"] and speech["divine"] and speech["speaker_he"] == "יהוה"
     chapter = client.get("/api/syntax/c:0:1").json()

@@ -44,7 +44,7 @@ function AboutEn() {
           domain names only. Person / place types: OpenScriptures HebrewLexicon (Strong's), CC BY 4.0.
         </li>
         <li>
-          Clauses, phrases and their functions, direct speech (<Link to="/speech">Who speaks</Link>, clauses and
+          Clauses, phrases and their functions, direct speech (<Link to="/speech">Who speaks</Link>, the Clauses mode, clauses and
           speakers on passages): Biblia Hebraica Stuttgartensia Amstelodamensis (BHSA), Eep Talstra Centre for Bible
           and Computer (ETCBC), CC BY-NC 4.0. Its glosses are not used.
         </li>
@@ -93,7 +93,7 @@ function AboutHe() {
           OpenScriptures HebrewLexicon ‏(סטרונג), ‏CC BY 4.0.
         </li>
         <li>
-          פסוקיות, צירופים ותפקידיהם, דיבור ישיר (<Link to="/speech">מי מדבר</Link>, פסוקיות ודוברים בקטעים): Biblia
+          פסוקיות, צירופים ותפקידיהם, דיבור ישיר (<Link to="/speech">מי מדבר</Link>, סוג הדמיון ״פסוקיות״, פסוקיות ודוברים בקטעים): Biblia
           Hebraica Stuttgartensia Amstelodamensis ‏(BHSA), ‏Eep Talstra Centre for Bible and Computer ‏(ETCBC), ‏CC BY-NC
           4.0. פירושי המילים שבו אינם בשימוש.
         </li>

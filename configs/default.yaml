@@ -53,7 +53,7 @@ syntax:                       # `bsim syntax`: BHSA clauses and phrases on OSHB 
   speaker_lookback: 3         # clauses at its level looked back over for the subject of a subjectless introduction (ויאמר)
   divine: ["3068", "430", "136"]   # speaker lemmas counted as God (יהוה, אלהים, אדני)
   speaker_domains: ["001001", "003001004", "003001007"]   # SDBH senses that can speak: Beings, Names of Deities, Names of People
-  system: bm25_syntax         # clause-shape verse list behind "built the same way" (not a mode)
+  system: bm25_syntax         # clause-shape verse list behind "built the same way" (also the syntax mode)
   neighbors: 10               # of it, kept per verse in the DB
   speech_speakers: 3          # /speech: speakers listed per book
   pass_through: ["1121"]      # a subject head passed over for a later speaker in its phrase (בני ישראל -> ישראל)
@@ -203,6 +203,8 @@ final_systems:                # chosen on dev in M8/M9
   unit_structural: tfidf_morph # chapter / pericope / parasha
   domain: bm25_domain          # semantic domains (DESIGN.md §16.22): shown as its own mode, not fused
   unit_domain: tfidf_domain    # chapter / pericope / parasha
+  syntax: bm25_syntax          # BHSA clause shapes (DESIGN.md §16.26): its own mode, not fused
+  unit_syntax: tfidf_syntax    # chapter / pericope / parasha
 
 rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encoder over the fused verse lists (DESIGN.md §16.3)
   base: dicta-il/BEREL_3.0
@@ -442,7 +444,7 @@ pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.p
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
-  unit_systems: [tfidf, tfidf_morph, tfidf_domain, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
+  unit_systems: [tfidf, tfidf_morph, tfidf_domain, tfidf_syntax, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch

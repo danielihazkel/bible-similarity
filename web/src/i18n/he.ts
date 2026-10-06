@@ -137,13 +137,14 @@ export const he: Messages = {
 
   modes: {
     label: 'סוג דמיון',
-    names: { lexical: 'מילולי', semantic: 'סמנטי', fused: 'משולב', structural: 'מבני', domain: 'תחומים' },
+    names: { lexical: 'מילולי', semantic: 'סמנטי', fused: 'משולב', structural: 'מבני', domain: 'תחומים', syntax: 'פסוקיות' },
     hints: {
       lexical: 'ניסוח משותף: BM25 / TF-IDF על ערכי OSHB, נוסחאות במשקל מופחת',
       semantic: 'משמעות משותפת: שיכוני BEREL מכווננים (CSLS)',
       fused: 'שניהם יחד, במיזוג דירוגים הדדי משוקלל',
       structural: 'אותה תבנית דקדוקית, בכל מילים: BM25 / TF-IDF על n-גרמים של צורות (חלק דיבר, בניין וזמן, מצב)',
       domain: 'אותם תחומי משמעות, בכל מילים: BM25 / TF-IDF על התחום הסמנטי של כל מילה בהקשרה לפי SDBH',
+      syntax: 'בנוי באותה דרך, בכל מילים: BM25 / TF-IDF על הפסוקיות של BHSA — סוגיהן, תפקידי הצירופים בסדרם, סיפור או דיבור',
     },
     score: (mode: string) => `ציון ${mode}`,
     top: 'מובילים',

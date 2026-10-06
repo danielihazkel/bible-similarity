@@ -6,6 +6,8 @@ Find, for every **verse, chapter, parasha and Masoretic pericope** of the Hebrew
 - **semantic**: shared meaning (BEREL 3.0 fine-tuned with SimCSE and Sefaria cross-links)
 - **fused**: both combined (weighted reciprocal rank fusion)
 - **structural**: shared grammatical shape (morphology n-grams; shown, not fused)
+- **domains**: shared semantic fields (SDBH domains; shown, not fused)
+- **clauses**: built the same way (BHSA clause types and phrase functions; shown, not fused)
 
 On top of retrieval, the pipeline looks for patterns in the text: shared phrases, passages that run parallel verse by verse (in the same, mirrored or another order) and how they differ word by word and which changes are systematic, inclusio / chiasm / Leitworte, alphabetic acrostics, parallel verse halves and finer clauses from the te'amim, fixed word pairs of parallel lines, recurring action sequences, wordplay, alliteration and rhyme, people and places, semantic domains and a passage's themes, antithetic and synonymous parallelism, how a word's senses and uses differ across the canon, a Late Biblical Hebrew profile of every chapter, a corpus map, a network of echoes between passages, stylometry and style seams.
 

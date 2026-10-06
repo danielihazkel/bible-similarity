@@ -1,4 +1,4 @@
-"""Clause-shape tokens for the `bm25_syntax` verse system (DESIGN.md §16.26).
+"""Clause-shape tokens for the `syntax` mode: `bm25_syntax`, `tfidf_syntax` (DESIGN.md §16.26).
 
 Every BHSA clause of a verse (`bsim syntax`) gives, in order:
     C:{typ}                 its clause type (WayX, xQtX, NmCl, InfC, ...)

@@ -34,6 +34,8 @@ const PAGES = [
   '/domains',
   '/domains/002001',
   '/unit/c%3A0%3A1?mode=domain',
+  '/unit/v%3A0?mode=syntax',
+  '/discoveries?mode=syntax',
   '/poetry?sort=antithetic',
   '/structure',
   '/acrostics',

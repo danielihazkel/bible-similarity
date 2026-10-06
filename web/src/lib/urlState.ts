@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useSearchParams } from 'react-router'
 import type { Exclude, Mode, UnitType } from '../api/types'
 
-export const MODES: Mode[] = ['lexical', 'semantic', 'fused', 'structural', 'domain']
+export const MODES: Mode[] = ['lexical', 'semantic', 'fused', 'structural', 'domain', 'syntax']
 /** Free-text search has no morphology or word senses, so no structural or domain mode. */
 export const SEARCH_MODES: Mode[] = ['lexical', 'semantic', 'fused']
 export const K_OPTIONS = [10, 20, 50] as const

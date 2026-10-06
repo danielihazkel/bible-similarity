@@ -132,7 +132,7 @@ export const en = {
 
   modes: {
     label: 'Similarity mode',
-    names: { lexical: 'Lexical', semantic: 'Semantic', fused: 'Fused', structural: 'Structural', domain: 'Domains' } satisfies Record<Mode, string>,
+    names: { lexical: 'Lexical', semantic: 'Semantic', fused: 'Fused', structural: 'Structural', domain: 'Domains', syntax: 'Clauses' } satisfies Record<Mode, string>,
     hints: {
       lexical: 'Shared wording: BM25 / TF-IDF over OSHB lemmas, formulas down-weighted',
       semantic: 'Shared meaning: fine-tuned BEREL embeddings (CSLS)',
@@ -141,6 +141,8 @@ export const en = {
         'Same grammatical shape, any words: BM25 / TF-IDF over n-grams of word forms (part of speech, verb form, state)',
       domain:
         'Same semantic fields, any words: BM25 / TF-IDF over the SDBH domain of each word in context (Move, Weak, Waterbodies…)',
+      syntax:
+        'Built the same way, any words: BM25 / TF-IDF over the BHSA clauses — their types, the functions of their phrases in order, narration or speech',
     } satisfies Record<Mode, string>,
     score: (mode: string) => `${mode} score`,
     top: 'Top',

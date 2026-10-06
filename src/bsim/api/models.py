@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-Mode = Literal["lexical", "semantic", "fused", "structural", "domain"]
+Mode = Literal["lexical", "semantic", "fused", "structural", "domain", "syntax"]
 SearchMode = Literal["lexical", "semantic", "fused"]  # no morphology for free text
 
 

@@ -1742,7 +1742,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
             /** Book */
             book: number | null;
             /** Cross Book */
@@ -2691,7 +2691,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
             /** K */
             k: number;
             /** Hits */
@@ -2840,7 +2840,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "lexical" | "semantic" | "fused" | "structural" | "domain";
+            mode: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
             /** K */
             k: number;
             /** Exclude */
@@ -3554,7 +3554,7 @@ export interface operations {
     similar_api_similar__unit_id__get: {
         parameters: {
             query?: {
-                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain";
+                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
                 k?: number | null;
                 /** @description comma-separated: neighbors, chapter, book, known */
                 exclude?: string;
@@ -3591,7 +3591,7 @@ export interface operations {
         parameters: {
             query?: {
                 unit_type?: string;
-                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain";
+                mode?: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
                 book?: number | null;
                 cross_book?: boolean;
                 limit?: number;

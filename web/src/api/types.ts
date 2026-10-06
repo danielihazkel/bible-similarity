@@ -1,6 +1,6 @@
 // Mirrors the pydantic response models in src/bsim/api/models.py (DESIGN.md §10).
 
-export type Mode = 'lexical' | 'semantic' | 'fused' | 'structural' | 'domain'
+export type Mode = 'lexical' | 'semantic' | 'fused' | 'structural' | 'domain' | 'syntax'
 export type SearchMode = 'lexical' | 'semantic' | 'fused'
 export type UnitType = 'verse' | 'chapter' | 'pericope' | 'parasha'
 export type Exclude = 'neighbors' | 'chapter' | 'book' | 'known'

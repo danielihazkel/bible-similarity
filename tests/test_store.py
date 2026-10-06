@@ -26,8 +26,8 @@ def test_build_counts_and_meta(built):
     assert count("SELECT COUNT(*) FROM units") == 9
     assert count("SELECT COUNT(*) FROM unit_members") == 12
     assert count("SELECT COUNT(*) FROM books") == 39
-    assert count("SELECT COUNT(*) FROM matches") == 5 * 5 + 5 * 3  # 5 modes
-    assert count("SELECT COUNT(*) FROM discoveries") == 5
+    assert count("SELECT COUNT(*) FROM matches") == 6 * 5 + 6 * 3  # 6 modes
+    assert count("SELECT COUNT(*) FROM discoveries") == 6
     assert count("SELECT COUNT(*) FROM matches WHERE unit_type='chapter' AND mode='fused'") == 3
     # breakdown only on fused rows; NaN stored as NULL
     assert count("SELECT COUNT(*) FROM matches WHERE mode!='fused' AND lex_rank IS NOT NULL") == 0
@@ -170,7 +170,7 @@ def test_link_flags_and_discoveries(built):
     ).fetchall()
     assert found == [
         ("verse", m, "v:0", "v:3", 2, None, 0, 0)
-        for m in ("domain", "fused", "lexical", "semantic", "structural")
+        for m in ("domain", "fused", "lexical", "semantic", "structural", "syntax")
     ]
     hits = similar(conn, "verse", "semantic", "v:0", k=10, exclude=["known"])
     assert [h["tgt_id"] for h in hits] == ["v:1", "v:3", "v:2"]

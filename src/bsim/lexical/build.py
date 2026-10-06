@@ -14,6 +14,7 @@ Writes to `paths.artifacts`/lexical:
                                                  has written syntax_clauses.parquet)
     bm25_morph_syntax.{doc,query}.npz + .vocab.json   bm25_morph's tokens + the clause tokens
                                                  (experiment, `retrieval_experiments`)
+    tfidf_syntax_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF over the clause tokens
     tfidf_{chapter,pericope,parasha}.npz + .ids.json   unit TF-IDF rows (L2-normalized)
     formulas.parquet                             closed lemma formulas
     lexical_meta.json, lexical_report.md
@@ -252,6 +253,10 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
             xd = unit_tfidf(domain_tokens, domain_weights, members, ids)
             sp.save_npz(out / f"tfidf_domain_{unit_type}.npz", xd)
             (out / f"tfidf_domain_{unit_type}.ids.json").write_text(json.dumps(ids), "utf-8")
+        if syntax_tokens is not None:
+            xs = unit_tfidf(syntax_tokens, syntax_weights, members, ids)
+            sp.save_npz(out / f"tfidf_syntax_{unit_type}.npz", xs)
+            (out / f"tfidf_syntax_{unit_type}.ids.json").write_text(json.dumps(ids), "utf-8")
         sizes[f"{unit_type} units (TF-IDF)"] = len(ids)
 
     queries = cfg["eval"]["spot_checks"]

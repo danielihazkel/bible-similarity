@@ -207,7 +207,7 @@ def run_semantic_units(cfg: dict[str, Any], system: str, log: Log = print) -> No
 def run_units(cfg: dict[str, Any], system: str, log: Log = print) -> None:
     log(f"{system}: unit top-{cfg['retrieval']['k']} for {', '.join(unit_types(cfg))}")
     fs = cfg["final_systems"]
-    if system in (fs["unit_lexical"], fs["unit_structural"], fs["unit_domain"]):
+    if system in (fs["unit_lexical"], fs["unit_structural"], fs["unit_domain"], fs["unit_syntax"]):
         run_tfidf_units(cfg, log, system)
     else:
         run_semantic_units(cfg, system, log)
