@@ -446,7 +446,7 @@ pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.p
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch
-  max_size_mb: 600            # warn when results.sqlite is larger (402 MB with 4 modes + analyses)
+  max_size_mb: 4096           # warn when results.sqlite is larger (4 GB; 530 MB with 5 modes + analyses)
   bench_queries: 20           # timed /similar runs per spot-check verse and mode (target < 10 ms)
   discoveries:
     max_rank: 10              # unlinked pair kept when either unit ranks the other within this

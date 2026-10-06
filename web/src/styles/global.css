@@ -488,6 +488,13 @@ button.linkish:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  max-width: 100%;
+}
+/* a select is as wide as its longest option: never wider than the line (phones, wide fonts) */
+.control select {
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 .filters {
   display: flex;
