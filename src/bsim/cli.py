@@ -460,6 +460,18 @@ def eval_openbible(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("eval-labels")
+def eval_labels(config: ConfigOpt = None) -> None:
+    """Score the final verse systems on your own labels (labels.split only, DESIGN.md §16.25)."""
+    from bsim.eval.labels import run_eval_labels
+
+    try:
+        run_eval_labels(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""

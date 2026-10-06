@@ -2081,3 +2081,69 @@ tr.out-of-domain td {
     grid-column: 1 / -1;
   }
 }
+
+/* your labels of proposed pairs (DESIGN.md §16.25) */
+.label-buttons {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.label-buttons button {
+  border: 0;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.label-buttons button + button {
+  border-inline-start: 1px solid var(--border);
+}
+.label-buttons button.on,
+.label-tag {
+  color: var(--text);
+  font-weight: 600;
+}
+.label-buttons .label-real.on,
+.label-tag.real {
+  background: var(--known-soft);
+}
+.label-buttons .label-not.on,
+.label-tag.not {
+  background: var(--diff-sub);
+}
+.label-buttons .label-unsure.on,
+.label-tag.unsure {
+  background: var(--accent-soft);
+}
+.label-tag {
+  font-size: 0.78rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+}
+.label-buttons .error {
+  padding-inline: 0.5rem;
+}
+.labels-list {
+  list-style: none;
+  padding: 0;
+}
+.labels-list > li {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}
+.labels-list .label-pair {
+  flex: 1 1 16rem;
+}
+.labels-list input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}

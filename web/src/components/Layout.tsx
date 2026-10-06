@@ -27,6 +27,7 @@ const NAV: NavEntry[] = [
     key: 'parallels',
     items: [
       { to: '/discoveries', key: 'discoveries' },
+      { to: '/labels', key: 'labels' },
       { to: '/phrases', key: 'phrases' },
       { to: '/sequences', key: 'sequences' },
       { to: '/changes', key: 'changes' },

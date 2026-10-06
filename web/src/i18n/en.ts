@@ -8,6 +8,7 @@ import { patEn } from './pages/patterns'
 import { domEn } from './pages/domains'
 import { senEn } from './pages/senses'
 import { datEn } from './pages/dating'
+import { labEn } from './pages/labels'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -61,6 +62,7 @@ export const en = {
     patterns: 'Patterns',
     overview: 'Overview',
     discoveries: { label: 'Discoveries', hint: 'Strong pairs Sefaria does not link' },
+    labels: { label: 'Your labels', hint: 'Pairs you judged: a third gold set' },
     phrases: { label: 'Phrases', hint: 'Shared runs of words' },
     sequences: { label: 'Sequences', hint: 'Passages parallel verse by verse' },
     changes: { label: 'Changes', hint: 'How parallel passages differ' },
@@ -370,6 +372,7 @@ export const en = {
   dom: domEn,
   sen: senEn,
   dat: datEn,
+  lab: labEn,
   ov: ovEn,
 }
 

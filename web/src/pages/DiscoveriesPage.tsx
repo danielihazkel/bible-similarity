@@ -4,6 +4,7 @@ import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types
 import { ExportCsv } from '../components/ExportCsv'
 import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
+import { LabelButtons } from '../components/LabelButtons'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
@@ -100,7 +101,7 @@ export function DiscoveriesPage() {
           </p>
           <ol className={`disc-list ${disc.isPlaceholderData ? 'stale' : ''}`} start={disc.data.offset + 1}>
             {disc.data.items.map((d) => (
-              <DiscoveryCard key={`${d.a.unit_id}|${d.b.unit_id}`} d={d} />
+              <DiscoveryCard key={`${d.a.unit_id}|${d.b.unit_id}`} d={d} mode={mode} />
             ))}
           </ol>
           <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
@@ -110,7 +111,7 @@ export function DiscoveriesPage() {
   )
 }
 
-function DiscoveryCard({ d }: { d: Discovery }) {
+function DiscoveryCard({ d, mode }: { d: Discovery; mode: Mode }) {
   const { m, locale } = useLocale()
   const a = unitLabel(d.a, locale)
   const b = unitLabel(d.b, locale)
@@ -130,6 +131,7 @@ function DiscoveryCard({ d }: { d: Discovery }) {
           </span>
         )}
         <span className="hit-actions">
+          <LabelButtons a={d.a.unit_id} b={d.b.unit_id} mode={mode} score={d.score} />
           <Link className="linkish" to={compareLink(d.a.unit_id, d.b.unit_id)} title={m.hit.compareTitle}>
             {m.hit.compare}
           </Link>

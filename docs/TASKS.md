@@ -448,3 +448,12 @@ Phase 3 (M39c): API and viewer
 - [x] Tests: word flags, shrunk rates, held-out AUC, drivers, the sign test, a run without late books (pytest); the API on the fixture DB; the Language page in both languages (vitest); e2e: new pages, axe
 
 ✔ Every chapter has a language profile whose evidence can be read back; the method passes the synoptic test it was not trained on, and its blind spots (post-exilic prophets, poetry, single spellings) are shown, not hidden; 80 / 80 fixture and 82 / 82 real-data e2e (a contrast issue on the selected book fixed).
+
+## M42: Your labels, a third gold set (§16.25, D59; roadmap B4)
+- [x] `store/labels.py`: real / not / unsure (+ note, the proposing list) per undirected pair in `paths.labels`, apart from the read-only results DB
+- [x] API: `GET` / `PUT /labels`, `DELETE /labels/{a}/{b}` (`no-store`; 403 with `serve.labels_writable: false`), `GET /labels/eval` (per mode: found real / not within `labels.k`, precision, AUC)
+- [x] `bsim eval-labels` (`eval/labels.py`): dev-split real verse pairs as gold for the final systems, separation over the same split, overlap with Sefaria and OpenBible
+- [x] Viewer: label buttons on Discoveries and on similar-passage hits; Parallels → Your labels (counts, separation per mode, the pairs with notes, CSV); English and Hebrew
+- [x] Tests: store, separation, ranks, splits, the API (order, validation, read-only), the CLI run (pytest); the Labels page and the buttons (vitest); e2e: the page in both languages and axe, labelling a hit and clearing it on the fixture server
+
+✔ Pairs the systems propose can be judged where they are shown, and the judgements score every mode, including on pairs neither gold set has; 81 / 81 fixture and 84 / 84 real-data e2e.

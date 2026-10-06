@@ -9,6 +9,7 @@ from bsim.api.routes import (
     dating,
     domains,
     export,
+    labels,
     parallels,
     phrases,
     poetics,
@@ -16,5 +17,5 @@ from bsim.api.routes import (
 )
 
 router = APIRouter(prefix="/api")
-for _module in (core, phrases, parallels, poetics, corpus, domains, senses, dating, export):
+for _module in (core, phrases, parallels, poetics, corpus, domains, senses, dating, labels, export):
     router.include_router(_module.router)

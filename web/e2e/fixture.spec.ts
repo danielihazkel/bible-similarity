@@ -15,6 +15,7 @@ const PAGES = [
   '/search?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA',
   '/lemma/7225',
   '/discoveries',
+  '/labels',
   '/phrases',
   '/sequences',
   '/sequences/1',
@@ -75,6 +76,20 @@ test('a verse lists its similar verses and links to them', async ({ page }) => {
   const hits = page.locator('.hit')
   await expect(hits.first()).toBeVisible()
   expect(await hits.count()).toBeGreaterThan(0)
+})
+
+test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {
+  // it writes to the server's one labels file: run once, not on every device at the same time
+  test.skip(info.project.name !== 'desktop')
+  await page.goto('/unit/v%3A0')
+  const first = page.locator('.hit').first()
+  const real = first.getByRole('button', { name: 'Real' })
+  await real.click()
+  await expect(real).toHaveAttribute('aria-pressed', 'true')
+  await page.goto('/labels')
+  await expect(page.locator('.labels-list > li')).toHaveCount(1)
+  await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
+  await expect(page.locator('.labels-list > li')).toHaveCount(0)
 })
 
 test('the Hebrew interface is right to left and loads every page cleanly', async ({ page }) => {

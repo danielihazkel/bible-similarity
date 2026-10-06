@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
-import { getJson, getJsonWithTotal, type Params } from './client'
+import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
   Acrostic,
   AcrosticsResponse,
@@ -28,6 +28,10 @@ import type {
   EntityKind,
   Exclude,
   ExplainResponse,
+  Label,
+  LabelIn,
+  LabelsEval,
+  LabelsResponse,
   Meta,
   MapResponse,
   NetworkResponse,
@@ -246,6 +250,31 @@ export const useUnitDating = (unitId: string | undefined) =>
     enabled: unitId !== undefined,
     ...forever,
   })
+
+/** Your labelled pairs (DESIGN.md §16.25): they change while the viewer runs, unlike the DB. */
+export const useLabels = () =>
+  useQuery({ queryKey: ['labels'], queryFn: ({ signal }) => getJson<LabelsResponse>('/labels', {}, signal) })
+
+export const useLabelsEval = () =>
+  useQuery({ queryKey: ['labels-eval'], queryFn: ({ signal }) => getJson<LabelsEval>('/labels/eval', {}, signal) })
+
+/** The key of a pair in either order. */
+export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+
+/** Label a pair (`label` given) or clear its label (`label` null). */
+export function useSetLabel() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: (v: LabelIn | { a_id: string; b_id: string; label: null }) =>
+      v.label === null
+        ? sendJson<null>('DELETE', `/labels/${encodeURIComponent(v.a_id)}/${encodeURIComponent(v.b_id)}`)
+        : sendJson<Label>('PUT', '/labels', v),
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: ['labels'] })
+      void client.invalidateQueries({ queryKey: ['labels-eval'] })
+    },
+  })
+}
 
 /** The semantic domains a unit uses more than the corpus. */
 export const useUnitDomains = (unitId: string | undefined) =>

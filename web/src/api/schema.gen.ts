@@ -1038,6 +1038,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Labels
+         * @description Every labelled pair, most recent first.
+         */
+        get: operations["labels_api_labels_get"];
+        /**
+         * Put Label
+         * @description Label a pair (replacing an earlier label of it).
+         */
+        put: operations["put_label_api_labels_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels/{a_id}/{b_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Label
+         * @description Remove a pair's label.
+         */
+        delete: operations["delete_label_api_labels__a_id___b_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels/eval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Labels Eval
+         * @description How each mode's lists separate your real pairs from your not pairs (live, all labels).
+         */
+        get: operations["labels_eval_api_labels_eval_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1699,6 +1763,97 @@ export interface components {
             preview: string | null;
             link: components["schemas"]["GoldLink"] | null;
             phrase: components["schemas"]["PhraseInfo"] | null;
+        };
+        /**
+         * Label
+         * @description A labelled pair (DESIGN.md §16.25); `a` starts earlier in the canon.
+         */
+        Label: {
+            /** Unit Type */
+            unit_type: string;
+            a: components["schemas"]["UnitSummary"];
+            b: components["schemas"]["UnitSummary"];
+            /**
+             * Label
+             * @enum {string}
+             */
+            label: "real" | "not" | "unsure";
+            /** Note */
+            note: string;
+            /** Mode */
+            mode: string | null;
+            /** Score */
+            score: number | null;
+            /** Labeled At */
+            labeled_at: string;
+        };
+        /**
+         * LabelIn
+         * @description A judgement of a pair (PUT /labels), in either order.
+         */
+        LabelIn: {
+            /** A Id */
+            a_id: string;
+            /** B Id */
+            b_id: string;
+            /**
+             * Label
+             * @enum {string}
+             */
+            label: "real" | "not" | "unsure";
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Mode */
+            mode?: string | null;
+            /** Score */
+            score?: number | null;
+        };
+        /**
+         * LabelSeparation
+         * @description How one mode's lists separate your real pairs from your not pairs.
+         */
+        LabelSeparation: {
+            /** Unit Type */
+            unit_type: string;
+            /** Mode */
+            mode: string;
+            /** N Real */
+            n_real: number;
+            /** N Not */
+            n_not: number;
+            /** Found Real */
+            found_real: number;
+            /** Found Not */
+            found_not: number;
+            /** Recall */
+            recall: number | null;
+            /** Precision */
+            precision: number | null;
+            /** Auc */
+            auc: number | null;
+        };
+        /** LabelsEval */
+        LabelsEval: {
+            /** K */
+            k: number;
+            /** Min Pairs */
+            min_pairs: number;
+            /** Rows */
+            rows: components["schemas"]["LabelSeparation"][];
+        };
+        /** LabelsResponse */
+        LabelsResponse: {
+            /** Writable */
+            writable: boolean;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Items */
+            items: components["schemas"]["Label"][];
         };
         /**
          * LadderRow
@@ -4580,6 +4735,109 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    labels_api_labels_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelsResponse"];
+                };
+            };
+        };
+    };
+    put_label_api_labels_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Label"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_label_api_labels__a_id___b_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                a_id: string;
+                b_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    labels_eval_api_labels_eval_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelsEval"];
                 };
             };
         };

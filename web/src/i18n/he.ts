@@ -15,6 +15,7 @@ import { patHe } from './pages/patterns'
 import { domHe } from './pages/domains'
 import { senHe } from './pages/senses'
 import { datHe } from './pages/dating'
+import { labHe } from './pages/labels'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -68,6 +69,7 @@ export const he: Messages = {
     patterns: 'דפוסים',
     overview: 'מבט־על',
     discoveries: { label: 'תגליות', hint: 'זוגות חזקים שאין להם קישור בספריא' },
+    labels: { label: 'הסימונים שלך', hint: 'זוגות ששפטת: מערך זהב שלישי' },
     phrases: { label: 'צירופים', hint: 'רצפי מילים משותפים' },
     sequences: { label: 'רצפים', hint: 'קטעים מקבילים פסוק אחר פסוק' },
     changes: { label: 'שינויים', hint: 'במה נבדלים קטעים מקבילים' },
@@ -372,5 +374,6 @@ export const he: Messages = {
   dom: domHe,
   sen: senHe,
   dat: datHe,
+  lab: labHe,
   ov: ovHe,
 }

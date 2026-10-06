@@ -69,6 +69,7 @@ def fixture_cfg(tmp_path, semantic="sm"):
         "artifacts": str(art),
         "db": str(art / "results.sqlite"),
         "web_dist": str(tmp_path / "web_dist"),
+        "labels": str(tmp_path / "labels.sqlite"),
     }
     cfg["units"] = {**cfg["units"], "types": ["verse", "chapter"]}
     cfg["final_systems"] = {

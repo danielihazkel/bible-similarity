@@ -3,6 +3,7 @@ import type { ExplainResponse, Hit, Mode, UnitSummary, VerseDiff } from '../api/
 import { diffHighlight, highlightFor } from '../lib/highlight'
 import { useT } from '../context/localeContext'
 import { DiffLegend } from './DiffLegend'
+import { LabelButtons } from './LabelButtons'
 import { compareLink, unitLink } from '../lib/links'
 import { HebrewPlain, HebrewText } from './HebrewText'
 import { LemmaChips } from './LemmaChips'
@@ -58,6 +59,7 @@ export function HitCard(p: Props) {
         )}
         <ScoreBreakdown hit={hit} mode={mode} />
         <span className="hit-actions">
+          <LabelButtons a={source.unit_id} b={hit.unit.unit_id} mode={mode} score={hit.score} />
           {isVerse && (
             <button
               type="button"

@@ -15,6 +15,7 @@ const LanguagePage = lazy(() => import('./pages/LanguagePage').then((m) => ({ de
 const ShiftsPage = lazy(() => import('./pages/ShiftsPage').then((m) => ({ default: m.ShiftsPage })))
 const DomainsPage = lazy(() => import('./pages/DomainsPage').then((m) => ({ default: m.DomainsPage })))
 const DiscoveriesPage = lazy(() => import('./pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })))
+const LabelsPage = lazy(() => import('./pages/LabelsPage').then((m) => ({ default: m.LabelsPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
 const NetworkPage = lazy(() => import('./pages/NetworkPage').then((m) => ({ default: m.NetworkPage })))
 const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
@@ -49,6 +50,7 @@ export function App() {
           <Route path="unit/:unitId" element={<UnitPage />} />
           <Route path="compare" element={<ComparePage />} />
           <Route path="discoveries" element={<DiscoveriesPage />} />
+          <Route path="labels" element={<LabelsPage />} />
           <Route path="lemma/:lemma" element={<ConcordancePage />} />
           <Route path="phrases" element={<PhrasesPage />} />
           <Route path="sequences" element={<SequencesPage />} />

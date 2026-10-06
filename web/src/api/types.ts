@@ -1086,3 +1086,52 @@ export interface DatingResponse {
   synoptic_examples: SynopticExample[]
   books: DatingBook[]
 }
+
+// --- your labels (DESIGN.md §16.25) ---
+
+export type LabelValue = 'real' | 'not' | 'unsure'
+
+export interface LabelIn {
+  a_id: string
+  b_id: string
+  label: LabelValue
+  note: string
+  mode?: string | null
+  score?: number | null
+}
+
+export interface Label {
+  unit_type: string
+  /** starts earlier in the canon */
+  a: UnitSummary
+  b: UnitSummary
+  label: LabelValue
+  note: string
+  mode: string | null
+  score: number | null
+  labeled_at: string
+}
+
+export interface LabelsResponse {
+  writable: boolean
+  counts: Record<string, number>
+  items: Label[]
+}
+
+export interface LabelSeparation {
+  unit_type: string
+  mode: string
+  n_real: number
+  n_not: number
+  found_real: number
+  found_not: number
+  recall: number | null
+  precision: number | null
+  auc: number | null
+}
+
+export interface LabelsEval {
+  k: number
+  min_pairs: number
+  rows: LabelSeparation[]
+}

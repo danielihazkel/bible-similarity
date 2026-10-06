@@ -149,10 +149,12 @@ bible-similarity/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
 │   │   ├── experiments.py          # `bsim retrieval-exp`: dev comparisons with CIs (§16.21)
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
+│   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
 │   │   ├── schema.sql
-│   │   └── db.py                   # build results.sqlite
+│   │   ├── db.py                   # build results.sqlite
+│   │   └── labels.py               # your labels: a small writable SQLite file (paths.labels, §16.25)
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
@@ -199,6 +201,7 @@ bible-similarity/
 | — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
 | — | `bsim embed-context`, `bsim maxsim`, `bsim retrieval-exp` | verses, encoders, fused verse topk, dev golds | `artifacts/embeddings/berel_sup_{ctx,late}.npy`, `maxsim/{encoder}.parquet`, `topk/verse/fused_maxsim.parquet`, `eval/retrieval_experiments.{json,md}` (§16.21; manual, not final systems) |
 | 11a | `bsim eval-openbible` | verses, splits, final verse topk; OpenBible file (downloaded once) | `openbible_links.parquet`, `artifacts/eval/openbible.{json,md}` (§16.13) |
+| — | `bsim eval-labels` | `paths.labels` (written by the viewer), verses, splits, links, final verse topk | `artifacts/eval/labels.{json,md}` (§16.25; run by hand, not in `bsim all`) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |

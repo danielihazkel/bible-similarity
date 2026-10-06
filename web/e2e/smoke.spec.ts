@@ -7,6 +7,7 @@ const PAGES: [string, RegExp][] = [
   ['/search?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA&mode=lexical', /Search/],
   ['/compare?a=c%3A26%3A14&b=c%3A26%3A53', /Compare/],
   ['/discoveries', /Discoveries|Undiscovered/],
+  ['/labels', /Your labels/],
   ['/phrases', /Shared phrases/],
   ['/sequences', /Parallel sequences/],
   ['/sequences/4', /Samuel/],

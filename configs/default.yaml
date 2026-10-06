@@ -9,6 +9,7 @@ paths:
   models: models
   artifacts: artifacts
   db: artifacts/results.sqlite
+  labels: data/labels.sqlite  # your judgements of pairs, written by the viewer (DESIGN.md §16.25)
   web_dist: web/dist          # production viewer build (`npm run build` in web/), served by `bsim serve`
 
 sources:
@@ -132,6 +133,11 @@ eval:
   worst_misses: 20            # missed gold pairs listed per system in the report
   unit_gold_min_links: 2      # m
   spot_checks: ["Psalms 14:1", "Exodus 20:2", "II Samuel 22:2"]   # top-5 printed in reports
+
+labels:                       # your labels as a third gold set (`bsim eval-labels`, DESIGN.md §16.25)
+  k: 10                       # a mode "finds" a labelled pair when either unit ranks the other within this
+  min_pairs: 5                # AUC reported with at least this many real and not pairs
+  split: dev                  # `bsim eval-labels` scores the verse pairs of this split (Sefaria split rule)
 
 openbible:                    # `bsim eval-openbible`: second gold set, dev only (DESIGN.md §16.13)
   url: https://a.openbible.info/data/cross-references.zip   # CC-BY, openbible.info
@@ -414,6 +420,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     min_weight: 2             # content words a domain needs in the unit to be listed
   host: 127.0.0.1
   port: 8000
+  labels_writable: true       # PUT / DELETE /api/labels (false: the viewer shows labels read-only)
   device: cuda                # query encoder + hubness; falls back to cpu if unavailable
   cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server
   default_k: 10
