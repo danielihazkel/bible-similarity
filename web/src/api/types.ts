@@ -1036,3 +1036,53 @@ export interface ShiftsResponse {
   limit: number
   items: LemmaShift[]
 }
+
+/** A chapter's Late Biblical Hebrew profile (DESIGN.md §16.24). */
+export interface DatingChapter {
+  unit_id: string
+  book_id: number
+  chapter: number
+  n_words: number
+  /** training books (early / late) are scored by models that did not see them */
+  role: 'early' | 'late' | 'scored'
+  /** poetry: the model is calibrated on prose */
+  out_of_domain: boolean
+  /** 0 = like Genesis–Kings, 1 = like the late books; null: too short */
+  score: number | null
+  features: Record<string, number>
+  drivers: string[]
+}
+
+export interface DatingBook {
+  book_id: number
+  role: 'early' | 'late' | 'scored'
+  out_of_domain: boolean
+  n_chapters: number
+  score: number | null
+  low: number | null
+  high: number | null
+  features: Record<string, number>
+}
+
+export interface SynopticExample {
+  early_first: number
+  late_first: number
+  early_label: string
+  late_label: string
+  early_label_he: string
+  late_label_he: string
+  early_score: number
+  late_score: number
+}
+
+export interface DatingResponse {
+  features: string[]
+  coefficients: Record<string, number>
+  held_out_auc: number | null
+  held_out_auc_grammar: number | null
+  train_chapters: Record<string, number>
+  /** pairs, later, p, later_grammar, p_grammar */
+  synoptic: Record<string, number | null>
+  synoptic_examples: SynopticExample[]
+  books: DatingBook[]
+}

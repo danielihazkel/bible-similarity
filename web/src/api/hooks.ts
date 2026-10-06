@@ -16,6 +16,8 @@ import type {
   ConcordanceResponse,
   DiscoveriesResponse,
   DomainInfo,
+  DatingChapter,
+  DatingResponse,
   DomainResponse,
   LemmaSensesResponse,
   ShiftsResponse,
@@ -217,6 +219,31 @@ export const useLemmaSenses = (lemma: string) =>
   useQuery({
     queryKey: ['lemma-senses', lemma],
     queryFn: ({ signal }) => getJson<LemmaSensesResponse>(`/lemma/${encodeURIComponent(lemma)}/senses`, {}, signal),
+    ...forever,
+  })
+
+/** Every book's Late Biblical Hebrew profile and the model's checks (DESIGN.md §16.24). */
+export const useDating = () =>
+  useQuery({
+    queryKey: ['dating'],
+    queryFn: ({ signal }) => getJson<DatingResponse>('/dating', {}, signal),
+    ...forever,
+  })
+
+export const useDatingBook = (bookId: number | undefined) =>
+  useQuery({
+    queryKey: ['dating-book', bookId],
+    queryFn: ({ signal }) => getJson<DatingChapter[]>(`/dating/book/${bookId}`, {}, signal),
+    enabled: bookId !== undefined,
+    ...forever,
+  })
+
+/** The language profile of the chapter a unit starts in (null without it). */
+export const useUnitDating = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-dating', unitId],
+    queryFn: ({ signal }) => getJson<DatingChapter | null>(`/unit-dating/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: unitId !== undefined,
     ...forever,
   })
 

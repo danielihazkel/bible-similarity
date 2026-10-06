@@ -7,6 +7,7 @@ import { parEn } from './pages/parallels'
 import { patEn } from './pages/patterns'
 import { domEn } from './pages/domains'
 import { senEn } from './pages/senses'
+import { datEn } from './pages/dating'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -74,6 +75,7 @@ export const en = {
     network: { label: 'Network', hint: 'Echo communities, most echoed passages' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
+    language: { label: 'Language', hint: 'Late Biblical Hebrew profile of each chapter' },
     eval: { label: 'Evaluation', hint: 'How well known cross-references are found' },
   } satisfies Record<string, string | { label: string; hint: string }>,
 
@@ -367,6 +369,7 @@ export const en = {
   pat: patEn,
   dom: domEn,
   sen: senEn,
+  dat: datEn,
   ov: ovEn,
 }
 

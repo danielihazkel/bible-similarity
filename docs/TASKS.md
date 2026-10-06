@@ -439,3 +439,12 @@ Phase 3 (M39c): API and viewer
 - [x] Tests: spans and subword mapping, MI and the shuffle test, collocates, the run on the fixture (pytest); the API on the fixture DB; Shifts page and senses panel (vitest); e2e: new pages, axe
 
 ✔ A word's senses and uses can be compared across the canon; the dictionary and the contextual reading agree well above chance; 76 / 76 fixture and 80 / 80 real-data e2e.
+
+## M41: A Late Biblical Hebrew profile (§16.24, D58; roadmap A4)
+- [x] `bsim dating` (`analysis/dating.py`): seven features (late words, אנכי, infinitive absolute, את + suffix, directional ה, ואשלחה forms, דויד) per chapter over Hebrew words, shrunk rates; logistic regression of the late books against Genesis–Kings, training chapters scored held out by book; poetic books and poem chapters flagged out of domain; drivers per chapter
+- [x] Checks: leave-one-book-out AUC 0.948 (grammar / spelling only 0.895); synoptic test, trained without Samuel, Kings and Chronicles: Chronicles later in 26 / 26 parallels (p 3e-8)
+- [x] DB `dating_chapters`, `dating_books` (+ `meta.dating`, empty without the stage); API `/dating`, `/dating/book/{id}`, `/unit-dating/{unit}`; `span_label` shared with the sequences
+- [x] Viewer: Overview → Language (book ranges, checks, synoptic gaps, chapters with drivers), profile line on chapter pages; English and Hebrew
+- [x] Tests: word flags, shrunk rates, held-out AUC, drivers, the sign test, a run without late books (pytest); the API on the fixture DB; the Language page in both languages (vitest); e2e: new pages, axe
+
+✔ Every chapter has a language profile whose evidence can be read back; the method passes the synoptic test it was not trained on, and its blind spots (post-exilic prophets, poetry, single spellings) are shown, not hidden; 80 / 80 fixture and 82 / 82 real-data e2e (a contrast issue on the selected book fixed).

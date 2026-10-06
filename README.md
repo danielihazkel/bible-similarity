@@ -7,7 +7,7 @@ Find, for every **verse, chapter, parasha and Masoretic pericope** of the Hebrew
 - **fused**: both combined (weighted reciprocal rank fusion)
 - **structural**: shared grammatical shape (morphology n-grams; shown, not fused)
 
-On top of retrieval, the pipeline looks for patterns in the text: shared phrases, passages that run parallel verse by verse (in the same, mirrored or another order) and how they differ word by word and which changes are systematic, inclusio / chiasm / Leitworte, alphabetic acrostics, parallel verse halves and finer clauses from the te'amim, fixed word pairs of parallel lines, recurring action sequences, wordplay, alliteration and rhyme, people and places, semantic domains and a passage's themes, antithetic and synonymous parallelism, how a word's senses and uses differ across the canon, a corpus map, a network of echoes between passages, stylometry and style seams.
+On top of retrieval, the pipeline looks for patterns in the text: shared phrases, passages that run parallel verse by verse (in the same, mirrored or another order) and how they differ word by word and which changes are systematic, inclusio / chiasm / Leitworte, alphabetic acrostics, parallel verse halves and finer clauses from the te'amim, fixed word pairs of parallel lines, recurring action sequences, wordplay, alliteration and rhyme, people and places, semantic domains and a passage's themes, antithetic and synonymous parallelism, how a word's senses and uses differ across the canon, a Late Biblical Hebrew profile of every chapter, a corpus map, a network of echoes between passages, stylometry and style seams.
 
 Everything is precomputed into SQLite and browsed in a local FastAPI + React viewer: shared-word highlighting, side-by-side comparison with word-level changes, free-text Hebrew search, a concordance, list pages for every analysis and an evaluation page.
 
@@ -31,7 +31,7 @@ uv run bsim serve            # API + viewer on http://localhost:8000
 
 `bsim all` took 38 minutes on the GTX 1080 Ti from an empty clone, with BEREL 3.0 and BGE-M3 already in the Hugging Face cache (they are fetched on first use, about 3 GB). It runs these stages, each also available as its own command (`uv run bsim --help`):
 
-`download` → `build-corpus` → `build-links` → `lexicon` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `seams` → `structure` → `map` → `network` → `stylometry` → `build-db`
+`download` → `build-corpus` → `build-links` → `lexicon` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `dating` → `seams` → `structure` → `map` → `network` → `stylometry` → `build-db`
 
 Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 

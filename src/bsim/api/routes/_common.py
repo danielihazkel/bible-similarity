@@ -87,3 +87,16 @@ def check_unit_type(unit_type: str, allowed: list[str]) -> str:
     if unit_type not in allowed:
         raise unprocessable(f"unknown unit type {unit_type!r}; choose from {list(allowed)}")
     return unit_type
+
+
+def span_label(labels: dict[int, tuple[str, str]], first: int, last: int, lang: int) -> str:
+    """A verse range's label from its ends' labels (`queries.verse_labels`; `lang` 0 English,
+    1 Hebrew): "Genesis 24:2" + "Genesis 24:16" -> "Genesis 24:2–16"."""
+    a, b = labels[first][lang], labels[last][lang]
+    if first == last:
+        return a
+    common = 0
+    while common < min(len(a), len(b)) and a[common] == b[common]:
+        common += 1
+    cut = max(a.rfind(" ", 0, common), a.rfind(":", 0, common)) + 1
+    return f"{a}–{b[cut:]}" if cut > 0 else f"{a} – {b}"

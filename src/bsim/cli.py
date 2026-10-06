@@ -80,6 +80,18 @@ def lexicon(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def dating(config: ConfigOpt = None) -> None:
+    """Score every chapter's Late Biblical Hebrew profile; validate on the synoptic parallels."""
+    from bsim.analysis.dating import run_dating
+
+    try:
+        run_dating(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def senses(config: ConfigOpt = None) -> None:
     """Compare each frequent lemma's SDBH senses and contextual uses across corpus groups."""
     from bsim.analysis.senses import run_senses

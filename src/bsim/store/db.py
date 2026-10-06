@@ -32,6 +32,7 @@ Derived columns:
 - `network_nodes`, `network_edges`, `network_communities`: `bsim network`.
 - `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`: `bsim stylometry`.
 - `lemma_shifts`, `lemma_senses` + `meta.senses`: `bsim senses` (empty without it).
+- `dating_chapters`, `dating_books` + `meta.dating`: `bsim dating` (empty without it).
 - `domains`, `domain_verses`, `words.domains` + `meta.lexicon`: `bsim lexicon` word senses
   (`domain_tables`); empty without it. `parallelism.relation*` and `entities.kind_source` come
   from the analyses run with the lexicon.
@@ -56,6 +57,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.dating import FEATURES as DATING_FEATURES
 from bsim.analysis.structure import Q_COLS, SCORE_COLS
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS
@@ -270,6 +272,27 @@ TABLE_COLUMNS = {
         "sense_q",
         "nmi",
         "nmi_null",
+    ],
+    "dating_chapters": [
+        "unit_id",
+        "book_id",
+        "chapter",
+        "n_words",
+        "role",
+        "out_of_domain",
+        *DATING_FEATURES,
+        "score",
+        "drivers",
+    ],
+    "dating_books": [
+        "book_id",
+        "role",
+        "out_of_domain",
+        "n_chapters",
+        "score",
+        "low",
+        "high",
+        *DATING_FEATURES,
     ],
     "lemma_senses": ["lemma", "kind", "sense", "n", "groups", "collocates", "examples", "domains"],
     "domain_verses": ["code", "verse_id", "weight"],
@@ -764,6 +787,12 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             pd.read_parquet(path) if path.exists() else pd.DataFrame(columns=TABLE_COLUMNS[table])
         )
     out["senses_meta"] = _read_json(sense_dir / "senses.meta.json")
+    dating_dir = resolve_path(cfg, "artifacts") / "dating"
+    for name, table in (("chapters", "dating_chapters"), ("books", "dating_books")):
+        path = dating_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame(columns=TABLE_COLUMNS[table])
+        out[table] = df.assign(out_of_domain=df.out_of_domain.astype(int))
+    out["dating_meta"] = _read_json(dating_dir / "dating.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -953,6 +982,8 @@ def _write_db(
             "domains": domains,
             "domain_verses": domain_verses,
             "lemma_shifts": inputs["lemma_shifts"],
+            "dating_chapters": inputs["dating_chapters"],
+            "dating_books": inputs["dating_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1016,6 +1047,19 @@ def _write_db(
         em = inputs["entities_meta"]
         meta["entities"] = {
             k: em.get(k) for k in ("names", "kinds", "pairs", "kind_sources", "lexicon_vs_cues")
+        }
+        dm_ = inputs["dating_meta"]
+        meta["dating"] = {
+            k: dm_.get(k)
+            for k in (
+                "features",
+                "coefficients",
+                "train_chapters",
+                "held_out_auc",
+                "held_out_auc_grammar",
+                "held_out_books",
+                "synoptic",
+            )
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

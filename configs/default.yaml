@@ -337,6 +337,23 @@ senses:                       # `bsim senses`: a word's senses and uses across t
   examples: 3                 # occurrences shown per cluster / meaning
   seed: 13
 
+dating:                       # `bsim dating`: a Late Biblical Hebrew profile per chapter (DESIGN.md §16.24)
+  early: [Gen, Exod, Lev, Num, Deut, Josh, Judg, 1Sam, 2Sam, 1Kgs, 2Kgs]   # Standard Biblical Hebrew (training)
+  late: [1Chr, 2Chr, Ezra, Neh, Esth, Dan]   # undisputed Late Biblical Hebrew (training; Aramaic words left out)
+  poetic: [Ps, Prov, Job, Song, Lam]         # flagged out of domain: the model is calibrated on prose
+  poetic_share: 0.5           # ... and any chapter with this share of parallel verse halves (poems inside prose)
+  drivers: 3                  # features listed per chapter as pushing its score up
+  lexemes: [4438, 107, 1002, 4082, 1881, 6901, 948, 3187, 3791, 3664, 2165, 1595, 7980]   # מלכות אגרת בירה מדינה דת קבל בוץ יחש כתב כנס זמן גנזים שלט
+  min_words: 150              # Hebrew words a chapter needs to be scored
+  shrink: 20                  # pseudo-counts pulling a chapter's rates towards the training mean
+  C: 1.0                      # logistic regression (standardized features)
+  synoptic:                   # parallels scored by models trained without these books
+    a: [1Sam, 2Sam, 1Kgs, 2Kgs]
+    b: [1Chr, 2Chr]
+    max_q: 0.05               # parallel sequences (`bsim sequences`) used
+    min_words: 40             # Hebrew words on each side
+    examples: 8
+
 seams:                        # `bsim seams`: where a book's style changes (DESIGN.md §16.12)
   block_words: 600            # words compared on each side of a verse boundary
   null_reps: 50               # verse-order shuffles per book (threshold: 95th pct of the maxima)

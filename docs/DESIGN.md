@@ -260,6 +260,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/discoveries?unit_type=verse&mode=semantic&book=&cross_book=&limit=50&offset=0` | strongest pairs without a Sefaria link (§9 `discoveries`), paginated (`limit` ≤ `serve.max_page`), with `total` |
 | `GET /api/resolve?q=` | the verse / chapter a reference names (`Gen 1:1`, `1Sam 3`, `בראשית א א`, `תהלים קי"ט קה`), or `unit: null` (`api/resolve.py`: English titles, OSIS ids, Hebrew names and their unambiguous prefixes; Arabic or canonically written Hebrew numerals) |
 | `GET /api/words/{verse_id}` | every OSHB word: surface, raw lemma, morph code + Hebrew description per morpheme (`text/morph.py`), content lemmas with verse counts, SDBH domain codes (§16.22) |
+| `GET /api/dating`, `/api/dating/book/{book_id}`, `/api/unit-dating/{unit_id}` | Late Biblical Hebrew profile: books with ranges and the model's checks; a book's chapters; the chapter a unit starts in (§16.24) |
 | `GET /api/shifts?by=&max_q=&limit=&offset=`, `/api/lemma/{lemma}/senses` | lemmas by how much their senses / uses differ across corpus groups; one lemma's senses and uses by group (§16.23) |
 | `GET /api/domains`, `/api/domain/{code}?book=&limit=&offset=`, `/api/unit-domains/{unit_id}` | semantic domains: the tree with counts; a domain concordance (path, subdomains, verses per book, verses with the words in it); a unit's themes (§16.22) |
 | `GET /api/lemma/{lemma}?book=&limit=&offset=` | concordance: occurrences, verses per book, a page of verses with the lemma's display tokens |
@@ -394,6 +395,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D58 | Language profile | A Late Biblical Hebrew *profile* (not a date) from seven literature-based features, a logistic regression of Chronicles / Ezra–Nehemiah / Esther / Daniel against Genesis–Kings scored held out by book, validated by the Samuel–Kings / Chronicles parallels with a model that saw neither (26 / 26); poetry flagged out of domain; each score lists its driving features (§16.24) |
 | D57 | Senses across the canon | Two readings compared by corpus group, kept apart: SDBH meanings (sense change) and k-means clusters of pretrained-BEREL word vectors (use change, genre included), each with MI against a shuffled-group null and BH q; clusters described by Hebrew collocates only, never glosses; clusters validated against SDBH by NMI (§16.23) |
 | D56 | Lexicon and domains | Revises D27's "no lexicon": SDBH (CC BY-SA) word senses and semantic domains, tagged per word occurrence from SDBH's own references, and Strong's name types. Glosses and definitions are never stored or shown (D5): the viewer shows domain names, the top two levels also in Hebrew. Domains as a retrieval signal were tested against `fused` on dev and not adopted (§16.22); `bm25_domain` / `tfidf_domain` are shown as their own `domain` mode, not fused (as structural, D32) |
 | D55 | CI and API types | GitHub Actions runs every check that needs no data, model or GPU; the pytest fixture DB moves into the package (`bsim.fixture`) so `bsim fixture-serve` can serve it to Playwright and `bsim openapi` can build the schema. The viewer keeps its hand-written, narrower types and gains a generated drift check instead of being replaced by the generated ones; response models share `ApiModel`, which marks defaulted fields required in the schema since every response includes them. First run: drift found (`SearchResponse.book`, `SequencesResponse.direction`, fields typed optional that are always sent) and three contrast / link-style issues on Compare and Style fixed (§13) |
@@ -639,3 +641,29 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
   - SDBH tags 90 % of the text and some of its meanings are fine-grained.
   - Group sizes differ by an order of magnitude.
   - No diachronic claim: the groups mix date and genre.
+
+### 16.24 A Late Biblical Hebrew profile (`bsim dating`, `analysis/dating.py`, `/language`)
+- **Framing:** a *profile*, not a date. Whether linguistic features can date biblical texts is disputed (Hurvitz, Polzin and Rooker for; Young, Rezetko and Ehrensvärd against), so the score says how much a chapter's Hebrew resembles the undisputed late books, and the viewer says so.
+- **Features** per chapter, over Hebrew words only (Aramaic, morph `A…`, left out). Each is a rate shrunk towards the training mean by 20 pseudo-counts, so a chapter without the context of a feature sits at the mean:
+  - late words: מלכות, אגרת, בירה, מדינה, דת, קבל, בוץ, יחש, כתב, כנס, זמן, גנזים, שלט (per word);
+  - אנכי among first-singular pronouns;
+  - infinitive absolutes among verbs;
+  - את with a suffix against a suffix on the verb;
+  - directional ה (per word);
+  - first-singular wayyiqtols written with ה (ואשלחה);
+  - דויד among the spellings of David.
+
+  On the training books each feature points the expected way: e.g. את + suffix 0.28 vs 0.10, directional ה 5.0 vs 2.4 per 1,000 words, ואשלחה 0.15 vs 0.49, דויד 0.4 % vs 100 %. Rejected after a look at the data: the relative ש (it marks Ecclesiastes and Song, not Chronicles) and the wayyiqtol rate (genre, not date).
+- **Model:** a logistic regression of the late books (Chronicles, Ezra, Nehemiah, Esther, Daniel; 98 chapters) against Genesis–Kings (332 chapters). Chapters need 150 Hebrew words. Training chapters are scored by the model that left their book out.
+- **Checks (2026-10-06):**
+  - Leave-one-book-out AUC 0.948; with grammar and spelling only (no late words, which also carry topics) 0.895.
+  - **Synoptic test:** trained without Samuel, Kings and Chronicles, the model scores both sides of the 26 parallel sequences between Samuel–Kings and Chronicles (`bsim sequences`, q ≤ 0.05, ≥ 40 Hebrew words a side). Chronicles comes out later in 26 of 26 (sign test p = 3 × 10⁻⁸; mean 0.77 vs 0.02), and in 25 of 26 with grammar and spelling only. Same content, two states of the language: the strongest evidence that the profile measures language and not topic.
+- **What it shows (book means):**
+  - Ecclesiastes is the latest-looking book outside the training set (0.45; chapters 2 and 4 at 0.99 and 0.84).
+  - Ezekiel sits between the two (0.14), as its usual description as "transitional" would have it.
+  - The post-exilic prophets look standard: Haggai 0.05, Malachi 0.08, Zechariah 0.19. So does Jonah (0.07), often dated late. This is the kind of evidence the critics of linguistic dating cite: late writers could write Standard Biblical Hebrew.
+  - Single chapters can turn on one feature. Zechariah 12 (0.99), Amos 9 (0.56) and Zechariah 13 score late through the plene דויד; Amos 9:11–15 is the passage often argued to be a late addition, but a spelling can also be a late scribe's.
+  - Ezekiel 27 scores late through בוץ in the Tyre trade list, a topical word.
+  - `drivers` names the features behind every score.
+- **Out of domain:** the poetic books, and chapters with half their verses parallel (in the training books Deut 32 and the Num 33 itinerary, whose short balanced lines score as parallel), are flagged. Poetry drops את and the directional ה whatever its date, so the poetic books' 0.21–0.30 is not a dating claim.
+- **Served:** `dating_chapters`, `dating_books` (+ `meta.dating`); `/dating`, `/dating/book/{id}`, `/unit-dating/{unit}`. Viewer: Overview → Language (book ranges, the checks, the largest synoptic gaps, a book's chapters with their drivers) and a profile line on chapter pages.

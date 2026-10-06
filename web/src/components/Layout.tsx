@@ -51,6 +51,7 @@ const NAV: NavEntry[] = [
       { to: '/network', key: 'network' },
       { to: '/style', key: 'style' },
       { to: '/shifts', key: 'shifts' },
+      { to: '/language', key: 'language' },
       { to: '/eval', key: 'eval' },
     ],
   },

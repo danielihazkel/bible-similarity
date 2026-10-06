@@ -38,6 +38,8 @@ const PAGES = [
   '/style',
   '/shifts',
   '/shifts?by=use&q=all',
+  '/language',
+  '/language?book=0',
   '/eval',
   '/about',
 ]

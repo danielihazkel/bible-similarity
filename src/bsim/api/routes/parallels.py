@@ -36,6 +36,7 @@ from bsim.api.routes._common import (
     State,
     check_min,
     check_page,
+    span_label,
     unit_or_404,
     unprocessable,
     verse_or_404,
@@ -168,15 +169,7 @@ def _sequence_summaries(
     labels = queries.verse_labels(conn, ends)
 
     def span(first: int, last: int, lang: int) -> str:
-        a, b = labels[first][lang], labels[last][lang]
-        if first == last:
-            return a
-        # "Genesis 24:2" + "Genesis 24:16" -> "Genesis 24:2–16"
-        common = 0
-        while common < min(len(a), len(b)) and a[common] == b[common]:
-            common += 1
-        cut = max(a.rfind(" ", 0, common), a.rfind(":", 0, common)) + 1
-        return f"{a}–{b[cut:]}" if cut > 0 else f"{a} – {b}"
+        return span_label(labels, first, last, lang)
 
     return [
         SequenceSummary(

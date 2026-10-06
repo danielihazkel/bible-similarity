@@ -897,3 +897,19 @@ def test_shifts_and_lemma_senses(client):
     assert meaning["kind"] == "sdbh" and meaning["domains"] == ["002001001"]
     none = client.get("/api/lemma/559/senses").json()
     assert none["shift"] is None and none["uses"] == [] and none["senses"] == []
+
+
+def test_dating(client):
+    d = client.get("/api/dating").json()
+    assert d["held_out_auc"] == 0.95 and d["synoptic"]["later"] == 1
+    (ex,) = d["synoptic_examples"]
+    assert (ex["early_label"], ex["late_label"]) == ("v:0–1", "v:5")  # fixture labels
+    books = {b["book_id"]: b for b in d["books"]}
+    assert books[0]["score"] == 0.4 and books[1]["out_of_domain"] is True
+    assert books[0]["features"]["david_plene"] == 0.1
+    chapters = client.get("/api/dating/book/0").json()
+    assert [c["chapter"] for c in chapters] == [1, 2]
+    assert chapters[1]["drivers"] == ["david_plene"] and chapters[1]["score"] == 0.7
+    assert client.get("/api/dating/book/9").status_code == 404
+    assert client.get("/api/unit-dating/v:4").json()["unit_id"] == "c:0:2"
+    assert client.get("/api/unit-dating/c:1:1").json()["score"] is None

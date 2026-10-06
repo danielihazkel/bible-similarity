@@ -20,6 +20,7 @@ import { HitCard } from '../components/HitCard'
 import { PhraseCard } from '../components/PhraseCard'
 import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
+import { DatingLine } from '../components/DatingLine'
 import { ThemesPanel } from '../components/ThemesPanel'
 import { WordPanel } from '../components/WordPanel'
 import { WordplayCard } from '../components/WordplayCard'
@@ -215,6 +216,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         </p>
       )}
       {!isVerse && <ThemesPanel unitId={unit.unit_id} />}
+      {unit.unit_type === 'chapter' && <DatingLine unitId={unit.unit_id} bookId={unit.book_id} />}
       {word ? (
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (

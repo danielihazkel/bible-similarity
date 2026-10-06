@@ -503,6 +503,42 @@ CREATE TABLE lemma_senses (
     PRIMARY KEY (lemma, kind, sense)
 ) WITHOUT ROWID;
 
+-- Late Biblical Hebrew profile (`bsim dating`, §16.24): feature rates and the model's score.
+CREATE TABLE dating_chapters (
+    unit_id TEXT PRIMARY KEY,       -- the chapter unit
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    n_words INTEGER NOT NULL,       -- Hebrew words (Aramaic left out)
+    role TEXT NOT NULL,             -- early | late (training books, scored held out) | scored
+    out_of_domain INTEGER NOT NULL, -- poetry: the model is calibrated on prose
+    lbh_lexemes REAL NOT NULL,
+    anokhi REAL NOT NULL,
+    inf_abs REAL NOT NULL,
+    et_suffix REAL NOT NULL,
+    directional_he REAL NOT NULL,
+    cohortative_wayyiqtol REAL NOT NULL,
+    david_plene REAL NOT NULL,
+    score REAL,                     -- NULL: too few Hebrew words
+    drivers TEXT NOT NULL           -- JSON features pushing the score up most
+) WITHOUT ROWID;
+
+CREATE TABLE dating_books (
+    book_id INTEGER PRIMARY KEY,
+    role TEXT NOT NULL,
+    out_of_domain INTEGER NOT NULL,
+    n_chapters INTEGER NOT NULL,    -- chapters scored
+    score REAL,                     -- mean chapter score
+    low REAL,                       -- 10th / 90th chapter percentiles
+    high REAL,
+    lbh_lexemes REAL NOT NULL,
+    anokhi REAL NOT NULL,
+    inf_abs REAL NOT NULL,
+    et_suffix REAL NOT NULL,
+    directional_he REAL NOT NULL,
+    cohortative_wayyiqtol REAL NOT NULL,
+    david_plene REAL NOT NULL
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

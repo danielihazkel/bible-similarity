@@ -977,6 +977,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dating
+         * @description Every book's mean profile and spread, the model and its checks (held-out AUC, the
+         *     synoptic parallels of Samuel–Kings and Chronicles).
+         */
+        get: operations["dating_api_dating_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dating/book/{book_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dating Book
+         * @description A book's chapters with their profile, features and drivers, in order.
+         */
+        get: operations["dating_book_api_dating_book__book_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/unit-dating/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unit Dating
+         * @description The profile of the chapter a unit starts in (None without `bsim dating`).
+         */
+        get: operations["unit_dating_api_unit_dating__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1285,6 +1346,84 @@ export interface components {
             verse: number;
             /** Shift */
             shift: number;
+        };
+        /** DatingBook */
+        DatingBook: {
+            /** Book Id */
+            book_id: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "early" | "late" | "scored";
+            /** Out Of Domain */
+            out_of_domain: boolean;
+            /** N Chapters */
+            n_chapters: number;
+            /** Score */
+            score: number | null;
+            /** Low */
+            low: number | null;
+            /** High */
+            high: number | null;
+            /** Features */
+            features: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * DatingChapter
+         * @description A chapter's Late Biblical Hebrew profile (DESIGN.md §16.24).
+         */
+        DatingChapter: {
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** N Words */
+            n_words: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "early" | "late" | "scored";
+            /** Out Of Domain */
+            out_of_domain: boolean;
+            /** Score */
+            score: number | null;
+            /** Features */
+            features: {
+                [key: string]: number;
+            };
+            /** Drivers */
+            drivers: string[];
+        };
+        /** DatingResponse */
+        DatingResponse: {
+            /** Features */
+            features: string[];
+            /** Coefficients */
+            coefficients: {
+                [key: string]: number;
+            };
+            /** Held Out Auc */
+            held_out_auc: number | null;
+            /** Held Out Auc Grammar */
+            held_out_auc_grammar: number | null;
+            /** Train Chapters */
+            train_chapters: {
+                [key: string]: number;
+            };
+            /** Synoptic */
+            synoptic: {
+                [key: string]: unknown;
+            };
+            /** Synoptic Examples */
+            synoptic_examples: components["schemas"]["SynopticExample"][];
+            /** Books */
+            books: components["schemas"]["DatingBook"][];
         };
         /** DiscoveriesResponse */
         DiscoveriesResponse: {
@@ -2442,6 +2581,28 @@ export interface components {
             order: number[];
             /** Delta */
             delta: components["schemas"]["StyloDelta"][];
+        };
+        /**
+         * SynopticExample
+         * @description A Samuel–Kings passage and its Chronicles parallel, scored by models that saw neither.
+         */
+        SynopticExample: {
+            /** Early First */
+            early_first: number;
+            /** Late First */
+            late_first: number;
+            /** Early Label */
+            early_label: string;
+            /** Late Label */
+            late_label: string;
+            /** Early Label He */
+            early_label_he: string;
+            /** Late Label He */
+            late_label_he: string;
+            /** Early Score */
+            early_score: number;
+            /** Late Score */
+            late_score: number;
         };
         /**
          * TypeScene
@@ -4328,6 +4489,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LemmaSensesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dating_api_dating_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatingResponse"];
+                };
+            };
+        };
+    };
+    dating_book_api_dating_book__book_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatingChapter"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unit_dating_api_unit_dating__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatingChapter"] | null;
                 };
             };
             /** @description Validation Error */

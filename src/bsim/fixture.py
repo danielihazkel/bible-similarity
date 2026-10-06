@@ -389,17 +389,97 @@ def write_inputs(cfg, tmp_path):
     ).to_parquet(sense_dir / "lemmas.parquet")
     pd.DataFrame(
         [
-            ("7225", "use", "0", 2, json.dumps({"torah": 2}), json.dumps(["430"]),
-             json.dumps([[0, 0], [2, 0]]), json.dumps([])),
-            ("7225", "use", "1", 3, json.dumps({"torah": 3}), json.dumps(["3068"]),
-             json.dumps([[3, 0], [4, 0], [5, 0]]), json.dumps([])),
-            ("7225", "sdbh", "m1", 5, json.dumps({"torah": 5}), json.dumps([]),
-             json.dumps([[0, 0]]), json.dumps(["002001001"])),
+            (
+                "7225",
+                "use",
+                "0",
+                2,
+                json.dumps({"torah": 2}),
+                json.dumps(["430"]),
+                json.dumps([[0, 0], [2, 0]]),
+                json.dumps([]),
+            ),
+            (
+                "7225",
+                "use",
+                "1",
+                3,
+                json.dumps({"torah": 3}),
+                json.dumps(["3068"]),
+                json.dumps([[3, 0], [4, 0], [5, 0]]),
+                json.dumps([]),
+            ),
+            (
+                "7225",
+                "sdbh",
+                "m1",
+                5,
+                json.dumps({"torah": 5}),
+                json.dumps([]),
+                json.dumps([[0, 0]]),
+                json.dumps(["002001001"]),
+            ),
         ],
         columns=["lemma", "kind", "sense", "n", "groups", "collocates", "examples", "domains"],
     ).to_parquet(sense_dir / "senses.parquet")
     (sense_dir / "senses.meta.json").write_text(
         json.dumps({"groups": {"torah": ["Gen", "Exod"]}, "nmi_mean": 0.5, "nmi_null_mean": 0.05}),
+        encoding="utf-8",
+    )
+    # Late Biblical Hebrew profile (`bsim dating`): Genesis 1 standard, Genesis 2 later-looking
+    feats = [
+        "lbh_lexemes",
+        "anokhi",
+        "inf_abs",
+        "et_suffix",
+        "directional_he",
+        "cohortative_wayyiqtol",
+        "david_plene",
+    ]
+    date_dir = art / "dating"
+    date_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            ("c:0:1", 0, 1, 12, "early", False, 0.1, json.dumps([])),
+            ("c:0:2", 0, 2, 4, "early", False, 0.7, json.dumps(["david_plene"])),
+            ("c:1:1", 1, 1, 2, "scored", True, None, json.dumps([])),
+        ],
+        columns=[
+            "unit_id",
+            "book_id",
+            "chapter",
+            "n_words",
+            "role",
+            "out_of_domain",
+            "score",
+            "drivers",
+        ],
+    ).assign(**{f: 0.1 for f in feats}).to_parquet(date_dir / "chapters.parquet")
+    pd.DataFrame(
+        [(0, "early", False, 2, 0.4, 0.1, 0.7), (1, "scored", True, 0, None, None, None)],
+        columns=["book_id", "role", "out_of_domain", "n_chapters", "score", "low", "high"],
+    ).assign(**{f: 0.1 for f in feats}).to_parquet(date_dir / "books.parquet")
+    (date_dir / "dating.meta.json").write_text(
+        json.dumps(
+            {
+                "features": feats,
+                "coefficients": {f: 0.5 for f in feats},
+                "held_out_auc": 0.95,
+                "held_out_auc_grammar": 0.9,
+                "held_out_books": {"0": 0.1},
+                "train_chapters": {"early": 2, "late": 0},
+                "synoptic": {
+                    "pairs": 1,
+                    "later": 1,
+                    "p": 1.0,
+                    "later_grammar": 1,
+                    "p_grammar": 1.0,
+                    "examples": [
+                        {"early": [0, 1], "late": [5, 5], "early_score": 0.1, "late_score": 0.8}
+                    ],
+                },
+            }
+        ),
         encoding="utf-8",
     )
     # style shifts: a curve over book 0 and one seam before v3 (chapter 2)

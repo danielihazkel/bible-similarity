@@ -14,6 +14,7 @@ import { parHe } from './pages/parallels'
 import { patHe } from './pages/patterns'
 import { domHe } from './pages/domains'
 import { senHe } from './pages/senses'
+import { datHe } from './pages/dating'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -81,6 +82,7 @@ export const he: Messages = {
     network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
+    language: { label: 'לשון', hint: 'פרופיל עברית מקראית מאוחרת לכל פרק' },
     eval: { label: 'הערכה', hint: 'עד כמה נמצאות הפניות ידועות' },
   },
 
@@ -369,5 +371,6 @@ export const he: Messages = {
   pat: patHe,
   dom: domHe,
   sen: senHe,
+  dat: datHe,
   ov: ovHe,
 }
