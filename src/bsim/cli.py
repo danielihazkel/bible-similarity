@@ -92,6 +92,18 @@ def dating(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def mirrors(config: ConfigOpt = None) -> None:
+    """Test chiastic against parallel order of repeated words and of clause constituents."""
+    from bsim.analysis.mirrors import run_mirrors
+
+    try:
+        run_mirrors(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def allusions(config: ConfigOpt = None) -> None:
     """Find passages sharing rare words spread over a few verses (shuffle null)."""
     from bsim.analysis.allusions import run_allusions

@@ -1247,6 +1247,7 @@ export type DossierKind =
   | 'ketiv'
   | 'citations'
   | 'allusions'
+  | 'mirrors'
   | 'labels'
 
 export interface DossierEntry {
@@ -1769,4 +1770,93 @@ export interface AllusionsResponse {
   offset: number
   limit: number
   items: Allusion[]
+}
+
+// --- chiasm at the small scale (DESIGN.md §16.33) ---
+
+export interface WordOrderTest {
+  verses_chiastic: number
+  verses_parallel: number
+  pairs_chiastic: number
+  pairs_parallel: number
+  /** chiastic pairs / (chiastic + parallel) */
+  share: number
+  p: number | null
+  verses: number
+  bigrams: number
+  /** 95 % interval of the share, chapters resampled */
+  interval?: [number, number]
+}
+
+export interface ClausePairStats {
+  pair: string
+  n: number
+  poetry: number | null
+  poetry_n: number
+  prose: number | null
+  prose_n: number
+}
+
+/** `meta.mirrors`, all keys absent without `bsim mirrors` */
+export interface MirrorsMeta {
+  words?: { all: WordOrderTest; poetry: WordOrderTest; prose: WordOrderTest }
+  clauses?: { poetry: number | null; poetry_n: number; prose: number | null; prose_n: number; diff: number; p: number; pairs: number; by_pair: ClausePairStats[] }
+  full_mirrors?: number
+  full_mirrors_q?: number
+  min_words?: number
+}
+
+export interface MirrorsResponse {
+  meta: MirrorsMeta & Record<string, unknown>
+}
+
+export interface MirrorVerse {
+  verse_id: number
+  label: string
+  label_he: string
+  poetic: boolean
+  n_pairs: number
+  n_words: number
+  p: number
+  q: number
+  verse: Verse
+  /** display token -> nesting depth of its lemma (0 = the outermost pair) */
+  marks: Record<string, number>
+}
+
+export interface MirrorVersesResponse {
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: MirrorVerse[]
+}
+
+export interface MirrorClause {
+  pair_id: number
+  verse_id: number
+  label: string
+  label_he: string
+  poetic: boolean
+  /** the two constituents, sorted */
+  pair: string
+  first: string
+  second: string
+  mirrored: boolean
+  verse: Verse
+  /** display token -> 0 (the first clause's first constituent) or 1 */
+  marks: Record<string, number>
+}
+
+export interface MirrorClausesResponse {
+  pair: string | null
+  mirrored: boolean | null
+  poetic: boolean | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: MirrorClause[]
 }

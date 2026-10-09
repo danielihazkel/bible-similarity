@@ -1433,6 +1433,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mirrors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mirrors
+         * @description The tests: repeated words in mirrored or parallel order, clause constituents by genre.
+         */
+        get: operations["mirrors_api_mirrors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mirrors/verses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mirror Verses
+         * @description Verses whose twice-used lemmas all nest (A B C … C B A), lowest p first.
+         */
+        get: operations["mirror_verses_api_mirrors_verses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mirrors/clauses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mirror Clauses
+         * @description Consecutive clauses with the same two constituents, in reading order.
+         */
+        get: operations["mirror_clauses_api_mirrors_clauses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -2254,7 +2314,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2847,6 +2907,105 @@ export interface components {
             };
             /** Runtime */
             runtime: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * MirrorClause
+         * @description Two consecutive clauses with the same two constituents, in the same or reversed order.
+         */
+        MirrorClause: {
+            /** Pair Id */
+            pair_id: number;
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Poetic */
+            poetic: boolean;
+            /** Pair */
+            pair: string;
+            /** First */
+            first: string;
+            /** Second */
+            second: string;
+            /** Mirrored */
+            mirrored: boolean;
+            verse: components["schemas"]["Verse"];
+            /** Marks */
+            marks: {
+                [key: string]: number;
+            };
+        };
+        /** MirrorClausesResponse */
+        MirrorClausesResponse: {
+            /** Pair */
+            pair: string | null;
+            /** Mirrored */
+            mirrored: boolean | null;
+            /** Poetic */
+            poetic: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MirrorClause"][];
+        };
+        /**
+         * MirrorVerse
+         * @description A verse whose twice-used lemmas all nest: A B C … C B A (§16.33).
+         */
+        MirrorVerse: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Poetic */
+            poetic: boolean;
+            /** N Pairs */
+            n_pairs: number;
+            /** N Words */
+            n_words: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+            verse: components["schemas"]["Verse"];
+            /** Marks */
+            marks: {
+                [key: string]: number;
+            };
+        };
+        /** MirrorVersesResponse */
+        MirrorVersesResponse: {
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MirrorVerse"][];
+        };
+        /** MirrorsResponse */
+        MirrorsResponse: {
+            /** Meta */
+            meta: {
                 [key: string]: unknown;
             };
         };
@@ -6409,6 +6568,97 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CitationListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mirrors_api_mirrors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirrorsResponse"];
+                };
+            };
+        };
+    };
+    mirror_verses_api_mirrors_verses_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirrorVersesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mirror_clauses_api_mirrors_clauses_get: {
+        parameters: {
+            query?: {
+                pair?: string | null;
+                mirrored?: boolean | null;
+                poetic?: boolean | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirrorClausesResponse"];
                 };
             };
             /** @description Validation Error */

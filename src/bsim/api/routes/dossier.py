@@ -17,6 +17,7 @@ and what it found:
     ketiv                         count = ketiv / qere in the unit's verses
     citations                     count = citations from the unit + resolved citations of it
     allusions                     count = rare-word allusion leads touching the unit (any q)
+    mirrors                       count = full mirrors + mirrored clause pairs in the unit
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -188,6 +189,13 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "allusions",
         computed=state.present(conn, "allusions"),
         count=queries.allusions_page(conn, None, None, span, 1, 0)[0],
+    )
+
+    add(
+        "mirrors",
+        computed=state.present(conn, "mirror_clauses"),
+        count=queries.mirror_verses_page(conn, None, span, 1, 0)[0]
+        + queries.mirror_clauses_page(conn, None, True, None, None, span, 1, 0)[0],
     )
 
     if u["unit_type"] != "verse":

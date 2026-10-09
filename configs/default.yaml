@@ -526,6 +526,16 @@ allusions:                    # `bsim allusions`: rare words shared over a few v
   known_rank: 10              # a pair is known when a verse pair is in the fused top-k or a sequence
   seed: 13
 
+mirrors:                      # `bsim mirrors`: chiasm at the small scale (DESIGN.md §16.33)
+  functions: [Pred, Subj, Objc, Cmpl, Adju, Loca, Time]   # BHSA constituents compared in clause pairs
+  min_pair_n: 30              # constituent pairs listed with at least this many clause pairs
+  shuffles: 9999              # genre label permuted over chapters (clauses)
+  chapter_boot: 2000          # chapter resamples for the word-order interval
+  min_words: 3                # a full mirror nests at least this many lemmas (A B C … C B A)
+  verse_shuffles: 999         # lemma-order shuffles per full mirror
+  max_q: 0.05
+  seed: 13
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list

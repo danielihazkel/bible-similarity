@@ -41,6 +41,9 @@ import type {
   KetivResponse,
   CitationFamily,
   AllusionsResponse,
+  MirrorsResponse,
+  MirrorVersesResponse,
+  MirrorClausesResponse,
   CitationListResponse,
   CitationsResponse,
   KqClass,
@@ -372,6 +375,32 @@ export const useSegmentCurve = (bookId: number | undefined) =>
     queryKey: ['segment-curve', bookId],
     queryFn: ({ signal }) => getJson<SegmentCurve>(`/segments/book/${bookId}`, {}, signal),
     enabled: bookId !== undefined,
+    ...forever,
+  })
+
+export const useMirrors = () =>
+  useQuery({ queryKey: ['mirrors'], queryFn: ({ signal }) => getJson<MirrorsResponse>('/mirrors', {}, signal), ...forever })
+
+const flag = (b: boolean | undefined) => (b === undefined ? undefined : String(b))
+
+export const useMirrorVerses = (q: { book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['mirror-verses', q],
+    queryFn: ({ signal }) => getJson<MirrorVersesResponse>('/mirrors/verses', { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useMirrorClauses = (q: { pair?: string; mirrored?: boolean; poetic?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['mirror-clauses', q],
+    queryFn: ({ signal }) =>
+      getJson<MirrorClausesResponse>(
+        '/mirrors/clauses',
+        { pair: q.pair, mirrored: flag(q.mirrored), poetic: flag(q.poetic), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

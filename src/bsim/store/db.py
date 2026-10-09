@@ -40,6 +40,7 @@ Derived columns:
 - `kq_pairs`, `kq_letters`, `kq_books` + `meta.ketiv`: `bsim ketiv` (empty without it).
 - `citations`, `citation_books` + `meta.citations`: `bsim citations` (empty without it).
 - `allusions` + `meta.allusions`: `bsim allusions` (empty without it).
+- `mirror_verses`, `mirror_clauses` + `meta.mirrors`: `bsim mirrors` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -127,6 +128,8 @@ INDEXES = (
     "CREATE INDEX citations_by_target ON citations (target_vid)",
     "CREATE INDEX allusions_by_a ON allusions (a_start)",
     "CREATE INDEX allusions_by_b ON allusions (b_start)",
+    "CREATE INDEX mirror_clauses_by_verse ON mirror_clauses (verse_id)",
+    "CREATE INDEX mirror_clauses_by_pair ON mirror_clauses (pair, mirrored)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -438,6 +441,18 @@ TABLE_COLUMNS = {
         "gold_rank",
     ],
     "citation_books": ["book_id", "target_book", "n"],
+    "mirror_verses": ["verse_id", "poetic", "n_pairs", "n_words", "p", "q", "lemmas", "idxs"],
+    "mirror_clauses": [
+        "pair_id",
+        "verse_id",
+        "poetic",
+        "pair",
+        "first",
+        "second",
+        "mirrored",
+        "a_words",
+        "b_words",
+    ],
     "allusions": [
         "allusion_id",
         "a_start",
@@ -1067,6 +1082,18 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
     out["allusions"] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS["allusions"])
     out["allusions_meta"] = _read_json(allu_dir / "allusions.meta.json")
+    mir_dir = resolve_path(cfg, "artifacts") / "mirrors"
+    for name, table in (("verses", "mirror_verses"), ("clauses", "mirror_clauses")):
+        path = mir_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        if len(df) and table == "mirror_clauses":
+            df = df.assign(pair_id=range(1, len(df) + 1))
+        out[table] = (
+            df.assign(poetic=df.poetic.astype(int))
+            if len(df)
+            else pd.DataFrame(columns=TABLE_COLUMNS[table])
+        )
+    out["mirrors_meta"] = _read_json(mir_dir / "mirrors.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1272,6 +1299,8 @@ def _write_db(
             "citations": inputs["citations"],
             "citation_books": inputs["citation_books"],
             "allusions": inputs["allusions"],
+            "mirror_verses": inputs["mirror_verses"],
+            "mirror_clauses": inputs["mirror_clauses"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1415,6 +1444,11 @@ def _write_db(
                 "strong_known",
                 "best_new_q",
             )
+        }
+        mm = inputs["mirrors_meta"]
+        meta["mirrors"] = {
+            k: mm.get(k)
+            for k in ("words", "clauses", "full_mirrors", "full_mirrors_q", "min_words")
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

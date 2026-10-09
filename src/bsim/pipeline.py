@@ -266,6 +266,12 @@ def stage_allusions(cfg: dict[str, Any], log: Log) -> None:
     run_allusions(cfg, log=log)
 
 
+def stage_mirrors(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.mirrors import run_mirrors
+
+    run_mirrors(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -311,6 +317,7 @@ STAGES: dict[str, str] = {
     "ketiv": "stage_ketiv",
     "citations": "stage_citations",
     "allusions": "stage_allusions",
+    "mirrors": "stage_mirrors",
     "build-db": "stage_build_db",
 }
 

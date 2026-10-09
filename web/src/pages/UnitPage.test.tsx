@@ -142,6 +142,7 @@ const DOSSIER: Dossier = {
     entry({ kind: 'ketiv', count: 2 }),
     entry({ kind: 'citations', count: 1 }),
     entry({ kind: 'allusions', count: 2 }),
+    entry({ kind: 'mirrors', count: 1 }),
   ],
 }
 
@@ -256,6 +257,7 @@ describe('UnitPage', () => {
     expect(link('2 words written one way and read another')).toBe('/ketiv?unit=v%3A0')
     expect(link('1 explicit citation')).toBe('/citations?unit=v%3A0')
     expect(link('2 passages sharing rare words')).toBe('/phrases?view=spread&unit=v%3A0')
+    expect(link('1 mirrored order')).toBe('/structure?view=small&unit=v%3A0')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')

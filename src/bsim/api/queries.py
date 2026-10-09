@@ -1461,3 +1461,71 @@ def lemma_marks(
         if any(c.rstrip("abcdefghijklmnopqrstuvwxyz") in lemmas for c in (cl or "").split()):
             out[v].append(d)
     return {v: sorted(set(ds)) for v, ds in out.items()}
+
+
+def _span_book(
+    where: list[str], args: list[Any], book_id: int | None, span: tuple[int, int] | None
+) -> None:
+    if book_id is not None:
+        where.append("verse_id IN (SELECT verse_id FROM verses WHERE book_id = ?)")
+        args.append(book_id)
+    if span is not None:
+        where.append("verse_id BETWEEN ? AND ?")
+        args += list(span)
+
+
+def mirror_verses_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Full mirrors, lowest p first."""
+    where: list[str] = ["1 = 1"]
+    args: list[Any] = []
+    _span_book(where, args, book_id, span)
+    w = " AND ".join(where)
+    total = count(conn, f"SELECT COUNT(*) FROM mirror_verses WHERE {w}", args)
+    cur = conn.execute(
+        f"SELECT * FROM mirror_verses WHERE {w} ORDER BY p, n_pairs DESC, verse_id"
+        " LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def mirror_clauses_page(
+    conn: sqlite3.Connection,
+    pair: str | None,
+    mirrored: bool | None,
+    poetic: bool | None,
+    book_id: int | None,
+    span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Clause pairs in reading order."""
+    where: list[str] = ["1 = 1"]
+    args: list[Any] = []
+    for col, val in (("pair", pair), ("mirrored", mirrored), ("poetic", poetic)):
+        if val is not None:
+            where.append(f"{col} = ?")
+            args.append(int(val) if isinstance(val, bool) else val)
+    _span_book(where, args, book_id, span)
+    w = " AND ".join(where)
+    total = count(conn, f"SELECT COUNT(*) FROM mirror_clauses WHERE {w}", args)
+    cur = conn.execute(
+        f"SELECT * FROM mirror_clauses WHERE {w} ORDER BY verse_id, pair_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def display_map(conn: sqlite3.Connection, verse_id: int) -> dict[int, int]:
+    """word idx -> display token of one verse (aligned words only)."""
+    cur = conn.execute(
+        "SELECT idx, display_idx FROM words WHERE verse_id = ? AND display_idx IS NOT NULL",
+        (verse_id,),
+    )
+    return {int(i): int(d) for i, d in cur}

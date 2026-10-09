@@ -707,6 +707,42 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # chiasm at the small scale (`bsim mirrors`): v0 mirrors two lemmas; v1 holds a mirrored
+    # clause pair, v4 a parallel one
+    mir_dir = art / "mirrors"
+    mir_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, False, 1, 2, 0.2, 0.4, '["430", "559", "559", "430"]', "[0, 1, 2, 3]")],
+        columns=["verse_id", "poetic", "n_pairs", "n_words", "p", "q", "lemmas", "idxs"],
+    ).to_parquet(mir_dir / "verses.parquet")
+    pd.DataFrame(
+        [
+            (1, False, "Objc-Pred", "Pred", "Objc", 1, '{"Pred": [1], "Objc": [0]}',
+             '{"Objc": [2], "Pred": [1]}'),
+            (4, True, "Objc-Pred", "Pred", "Objc", 0, '{"Pred": [0]}', '{"Objc": [0]}'),
+        ],
+        columns=["verse_id", "poetic", "pair", "first", "second", "mirrored", "a_words",
+                 "b_words"],
+    ).to_parquet(mir_dir / "clauses.parquet")  # fmt: skip
+    side = {"verses_chiastic": 1, "verses_parallel": 3, "pairs_chiastic": 2, "pairs_parallel": 5,
+            "share": 0.29, "p": 0.6, "verses": 4, "bigrams": 1, "interval": [0.1, 0.5]}  # fmt: skip
+    (mir_dir / "mirrors.meta.json").write_text(
+        json.dumps(
+            {
+                "words": {"all": side, "poetry": {**side, "verses": 1}, "prose": side},
+                "clauses": {
+                    "poetry": 0.0, "poetry_n": 1, "prose": 1.0, "prose_n": 1, "diff": -1.0,
+                    "p": 1.0, "pairs": 2,
+                    "by_pair": [{"pair": "Objc-Pred", "n": 2, "poetry": 0.0, "poetry_n": 1,
+                                 "prose": 1.0, "prose_n": 1}],
+                },
+                "full_mirrors": 1,
+                "full_mirrors_q": 0,
+                "min_words": 2,
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

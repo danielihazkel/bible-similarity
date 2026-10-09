@@ -203,4 +203,6 @@ Explicit citations (§16.31, D67): 116 verses with a formula of reference, 41 re
 
 Rare words over a few verses (§16.32, D68): 176 three-verse window pairs sharing ≥ 3 rare lemmas, 171 known parallels; 3 at q ≤ 0.05 (within-chapter verse shuffle), all known; the 5 new pairs (Exod 28 / Deut 33, Deut 29 / Jer 9, Gen 18 / 1 Sam 28, Lev 13 / 14, Ps 103 / Neh 9) at q ≥ 0.82: leads, not findings.
 
+Chiasm at the small scale (§16.33, D69): repeated words mirror their order in 2,099 verses and repeat it in 2,790 (p 5e-23; 43 % of pairs mirrored, 42–44 %; poetry 39 %). Clause pairs reverse their constituents in 23.5 % of poetry vs 16.7 % of prose (genre permuted over chapters, p 0.0003; object-verb 29 % vs 19 %). 94 full mirrors, none beyond chance after BH.
+
 Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

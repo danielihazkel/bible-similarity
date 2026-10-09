@@ -9,6 +9,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { SmallScaleView } from './SmallScaleView'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -22,8 +23,30 @@ const COLS = [
   { key: 'lexical_inclusio_pct', csv: 'Inclusio lex', sort: 'lexical_inclusio' },
 ] as const satisfies readonly { key: keyof StructureRank; csv: string; sort: StructureSort }[]
 
-/** Units ranked by inclusio / chiasm percentiles. */
+/** Inner structure: whole passages ranked by inclusio / chiasm, or chiasm at the small scale. */
 export function StructurePage() {
+  const { m } = useLocale()
+  const [params, update] = useQueryParams()
+  const view = params.get('view') === 'small' ? 'small' : 'units'
+  return (
+    <div className="page structure-page">
+      <h1>{m.pat.structure.title}</h1>
+      <Segmented
+        label={m.pat.view}
+        value={view}
+        options={[
+          { value: 'units', label: m.mir.views.units },
+          { value: 'small', label: m.mir.views.small },
+        ]}
+        onChange={(v) => update({ view: v === 'small' ? 'small' : null, page: null }, false)}
+      />
+      {view === 'small' ? <SmallScaleView /> : <UnitRanking />}
+    </div>
+  )
+}
+
+/** Units ranked by inclusio / chiasm percentiles. */
+function UnitRanking() {
   const { m, locale } = useLocale()
   const t = m.pat.structure
   const [params, update] = useQueryParams()
@@ -40,8 +63,7 @@ export function StructurePage() {
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
   return (
-    <div className="page structure-page">
-      <h1>{t.title}</h1>
+    <>
       <p className="lede">
         {t.lede[0]}
         <em>{t.lede[1]}</em>
@@ -151,7 +173,7 @@ export function StructurePage() {
           <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
         </>
       )}
-    </div>
+    </>
   )
 }
 

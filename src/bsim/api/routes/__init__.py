@@ -14,6 +14,7 @@ from bsim.api.routes import (
     export,
     ketiv,
     labels,
+    mirrors,
     parallels,
     phrases,
     poetics,
@@ -38,6 +39,7 @@ for _module in (
     segments,
     ketiv,
     citations,
+    mirrors,
     dossier,
     export,
 ):

@@ -22,6 +22,7 @@ import { dosHe } from './pages/dossier'
 import { divHe } from './pages/divisions'
 import { kqHe } from './pages/ketiv'
 import { citHe } from './pages/citations'
+import { mirHe } from './pages/mirrors'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -394,5 +395,6 @@ export const he: Messages = {
   div: divHe,
   kq: kqHe,
   cit: citHe,
+  mir: mirHe,
   ov: ovHe,
 }

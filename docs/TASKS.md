@@ -540,10 +540,17 @@ Phase 3 (M39c): API and viewer
 
 ✔ 176 pairs, 171 known parallels; nothing new beats the within-chapter shuffle (the 3 at q ≤ 0.05 are known, the best new q 0.82): the five new echoes (Urim and Thummim, wormwood and gall, …) are shown as leads; 145 / 145 fixture and 114 / 114 real-data e2e.
 
+## M51: Chiasm at the small scale (§16.33, D69; proposed A6)
+- [x] `bsim mirrors` (`analysis/mirrors.py`, pipeline stage after allusions, ~16 s): mirrored against repeated order of lemmas used twice in a verse (bigrams apart; sign test, chapter-resampled interval, poetry / prose); constituent order of consecutive BHSA clause pairs (genre permuted over chapters, per constituent pair); full mirrors with a per-verse shuffle p and BH q
+- [x] DB `mirror_verses`, `mirror_clauses` (+ `meta.mirrors`, empty without the stage); API `/mirrors`, `/mirrors/verses`, `/mirrors/clauses`; dossier entry `mirrors`
+- [x] Viewer: Structure → Small scale (both tests, the constituent table, clause pairs with their two parts marked, full mirrors by depth); English and Hebrew
+- [x] Tests: order counts (mirrored, spread, bigram, no overlap, thrice), sign test and interval, clause pairs, the chapter permutation (pytest); the API and dossier on the fixture DB; the view, its lists, Hebrew, back to whole passages, the empty state, the dossier chip (vitest); e2e: the view in both languages with axe
+
+✔ Repeated words keep their order more often than they mirror it (2,790 vs 2,099 verses, p 5e-23, poetry too); poetry mirrors its clause constituents more than prose (23.5 % vs 16.7 %, p 0.0003); the 94 full mirrors are leads; 151 / 151 fixture and 118 / 118 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
 - A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
-- A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")
 - A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`
 - C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)
 - C3 Shared statistics: G² (five copies) and `shuffle_within` (sequences, wordplay) into `analysis/stats.py` (`permute_within` is there since M47)

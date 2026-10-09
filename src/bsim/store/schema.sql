@@ -633,6 +633,32 @@ CREATE TABLE segment_books (
     PRIMARY KEY (book_id, ref)
 ) WITHOUT ROWID;
 
+-- Chiasm at the small scale (`bsim mirrors`, §16.33): verses whose twice-used lemmas all nest
+-- (A B C … C B A; leads with a shuffle p), and consecutive clause pairs with the same two
+-- constituents in the same (parallel) or reversed (mirrored) order.
+CREATE TABLE mirror_verses (
+    verse_id INTEGER PRIMARY KEY,
+    poetic INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,       -- nested lemma pairs
+    n_words INTEGER NOT NULL,       -- lemmas used twice
+    p REAL NOT NULL,
+    q REAL NOT NULL,
+    lemmas TEXT NOT NULL,           -- JSON: the twice-used lemmas in verse order
+    idxs TEXT NOT NULL              -- JSON: their word indexes
+) WITHOUT ROWID;
+
+CREATE TABLE mirror_clauses (
+    pair_id INTEGER PRIMARY KEY,
+    verse_id INTEGER NOT NULL,
+    poetic INTEGER NOT NULL,
+    pair TEXT NOT NULL,             -- the two constituents, sorted (Objc-Pred)
+    first TEXT NOT NULL,            -- the first clause's order
+    second TEXT NOT NULL,
+    mirrored INTEGER NOT NULL,      -- 1 = the second clause reverses it
+    a_words TEXT NOT NULL,          -- JSON {function: [word idx]} of the first clause
+    b_words TEXT NOT NULL
+) WITHOUT ROWID;
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

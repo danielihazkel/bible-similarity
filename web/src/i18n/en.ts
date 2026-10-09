@@ -15,6 +15,7 @@ import { dosEn } from './pages/dossier'
 import { divEn } from './pages/divisions'
 import { kqEn } from './pages/ketiv'
 import { citEn } from './pages/citations'
+import { mirEn } from './pages/mirrors'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -393,6 +394,7 @@ export const en = {
   div: divEn,
   kq: kqEn,
   cit: citEn,
+  mir: mirEn,
   ov: ovEn,
 }
 
