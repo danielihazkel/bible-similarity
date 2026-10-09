@@ -513,9 +513,18 @@ Phase 3 (M39c): API and viewer
 
 ✔ Every kind of division falls at turns of the text more than chance (MAM open 0.650, closed 0.554, parashot 0.771, chapters 0.708; calibration 0.507); open over closed and agreed over single-tradition breaks hold (p 0.001); chapters without a paragraph break are weaker turns (0.616 vs 0.728); 20 chapters in running text led by known disputed divisions (Gen 47:1, Isa 64:1, Hag 2:1, Hos 6:1); `results.sqlite` 654 MB; 125 / 125 fixture (1 skipped by design) and 104 / 104 real-data e2e.
 
+## M48: Written and read — ketiv and qere (§16.30, D66; proposed A3)
+- [x] `data.oshb.kq_pairs`: both sides of every ketiv / qere from the raw OSHB, with the read words' position in the verse
+- [x] `bsim ketiv` (`analysis/ketiv.py`, pipeline stage after segments, ~8 s): letter classes, grammar from both sides' lemmas and morphology with the differing features, euphemisms (`ketiv.euphemisms`), the written form of an aligned parallel (sequences + diffs alignment)
+- [x] Findings: look-alike letters against letter frequencies (with and without ו / י), every letter pair (BH q), fuller written spelling in the late books (books permuted), parallels siding with qere or ketiv, written ־ו read ־יו, spread over the books
+- [x] DB `kq_pairs`, `kq_letters`, `kq_books` (+ `meta.ketiv`, empty without the stage); API `/ketiv`, `/ketiv/pairs?cls&grammar&parallel&euphemism&book&unit`; dossier entry `ketiv`
+- [x] Viewer: Patterns → Written and read (findings, kinds, books, letters, grammar in words, every pair with its verse and parallel); English and Hebrew
+- [x] Tests: the parser (both readings, positions), letter classes, morphology features and grammar, letter pairs and look-alikes, the late-book permutation, parallel readings, position checks (pytest); the API and dossier on the fixture DB; the page, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → pair → parallel
+
+✔ 1,260 pairs described; look-alike letters 71 % of one-letter swaps (3.9 % expected), the late books' written spelling fuller (82 % vs 40 %, p 0.006), aligned parallels write the qere 57 : 11; `results.sqlite` 655 MB.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- A3 Ketiv / qere: classify the pairs (spelling, letter swap, word division, euphemism), distribution by book, LBH features of the ketiv forms
 - A4 Explicit citations (ככתוב, כאשר צוה ה׳ ביד משה) resolved through phrases / sequences, and a directed echo network oriented by borrowing and dating (DESIGN §16 "not done")
 - A5 Allusions spread over 2–3 verses: rare-lemma window overlap with a shuffle null
 - A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")

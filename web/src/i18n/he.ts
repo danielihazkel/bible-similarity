@@ -20,6 +20,7 @@ import { synHe } from './pages/syntax'
 import { borHe } from './pages/borrowing'
 import { dosHe } from './pages/dossier'
 import { divHe } from './pages/divisions'
+import { kqHe } from './pages/ketiv'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -83,6 +84,7 @@ export const he: Messages = {
     structure: { label: 'מבנה', hint: 'מסגרת, כיאזם, מילים מנחות' },
     acrostics: { label: 'אקרוסטיכונים', hint: 'שורות לפי סדר הא״ב' },
     divisions: { label: 'חלוקות', hint: 'האם הפרשות והפרקים נופלים במקום שהטקסט פונה?' },
+    ketiv: { label: 'כתיב וקרי', hint: 'מה שכתוב לעומת מה שנקרא' },
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
@@ -388,5 +390,6 @@ export const he: Messages = {
   bor: borHe,
   dos: dosHe,
   div: divHe,
+  kq: kqHe,
   ov: ovHe,
 }

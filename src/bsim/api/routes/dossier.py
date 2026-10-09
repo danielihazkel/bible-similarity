@@ -14,6 +14,7 @@ and what it found:
     network                       count = rank by PageRank, total = units ranked
     divisions                     count = flagged gaps at or inside the unit; value / key = the
                                   score / kind of the gap the unit opens with
+    ketiv                         count = ketiv / qere in the unit's verses
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -167,6 +168,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         ),
         value=opening[0] if opening else None,
         key=opening[1] if opening else None,
+    )
+
+    add(
+        "ketiv",
+        computed=state.present(conn, "kq_pairs"),
+        count=_count(conn, "SELECT COUNT(*) FROM kq_pairs WHERE verse_id BETWEEN ? AND ?", span),
     )
 
     if u["unit_type"] != "verse":

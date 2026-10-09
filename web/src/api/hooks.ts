@@ -38,6 +38,11 @@ import type {
   SpeechResponse,
   VoiceDetail,
   SegmentCurve,
+  KetivResponse,
+  KqClass,
+  KqGrammar,
+  KqPairsResponse,
+  KqParallel,
   SegmentGapsResponse,
   SegmentKind,
   SegmentsResponse,
@@ -363,6 +368,31 @@ export const useSegmentCurve = (bookId: number | undefined) =>
     queryKey: ['segment-curve', bookId],
     queryFn: ({ signal }) => getJson<SegmentCurve>(`/segments/book/${bookId}`, {}, signal),
     enabled: bookId !== undefined,
+    ...forever,
+  })
+
+export const useKetiv = () =>
+  useQuery({ queryKey: ['ketiv'], queryFn: ({ signal }) => getJson<KetivResponse>('/ketiv', {}, signal), ...forever })
+
+export const useKqPairs = (q: {
+  cls?: KqClass
+  grammar?: KqGrammar
+  parallel?: KqParallel
+  euphemism?: boolean
+  book?: number
+  unit?: string
+  limit: number
+  offset: number
+}) =>
+  useQuery({
+    queryKey: ['ketiv-pairs', q],
+    queryFn: ({ signal }) =>
+      getJson<KqPairsResponse>(
+        '/ketiv/pairs',
+        { cls: q.cls, grammar: q.grammar, parallel: q.parallel, euphemism: q.euphemism === undefined ? undefined : String(q.euphemism), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

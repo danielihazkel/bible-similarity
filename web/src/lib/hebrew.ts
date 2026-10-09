@@ -60,3 +60,11 @@ export function hebrewNumeral(n: number): string {
   if (o) out += ONES[o - 1]
   return out
 }
+
+const FINALS: Record<string, string> = { כ: 'ך', מ: 'ם', נ: 'ן', פ: 'ף', צ: 'ץ' }
+
+/** A word's last letter in its final form (forms stored with the finals folded: מלכ -> מלך). */
+export function withFinals(word: string): string {
+  const last = word.at(-1)
+  return last && FINALS[last] ? word.slice(0, -1) + FINALS[last] : word
+}

@@ -1332,6 +1332,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ketiv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ketiv
+         * @description Counts by class and grammar, the checks, the rate per book and the letter swaps.
+         */
+        get: operations["ketiv_api_ketiv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ketiv/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ketiv Pairs
+         * @description Every ketiv / qere in reading order with its verse, filtered; `unit`: those inside it.
+         */
+        get: operations["ketiv_pairs_api_ketiv_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -1990,7 +2030,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2179,6 +2219,130 @@ export interface components {
             preview: string | null;
             link: components["schemas"]["GoldLink"] | null;
             phrase: components["schemas"]["PhraseInfo"] | null;
+        };
+        /** KetivResponse */
+        KetivResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["KqBook"][];
+            /** Letters */
+            letters: components["schemas"]["KqLetter"][];
+        };
+        /** KqBook */
+        KqBook: {
+            /** Book Id */
+            book_id: number;
+            /** N */
+            n: number;
+            /** Words */
+            words: number;
+            /** Rate */
+            rate: number;
+            /** Vowel Letter */
+            vowel_letter: number;
+            /** Ketiv Fuller */
+            ketiv_fuller: number | null;
+            /** Swap */
+            swap: number;
+            /** Division */
+            division: number;
+            /** Other Cls */
+            other_cls: number;
+            /** Form */
+            form: number;
+            /** Word */
+            word: number;
+        };
+        /** KqLetter */
+        KqLetter: {
+            /** Pair */
+            pair: string;
+            /** N */
+            n: number;
+            /** Expected */
+            expected: number;
+            /** Ratio */
+            ratio: number | null;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+            /** Lookalike */
+            lookalike: boolean;
+        };
+        /**
+         * KqPair
+         * @description One ketiv / qere (§16.30): what is written, what is read, and how they differ.
+         */
+        KqPair: {
+            /** Kq Id */
+            kq_id: number;
+            /** Verse Id */
+            verse_id: number;
+            /** Book Id */
+            book_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Ketiv */
+            ketiv: string;
+            /** Qere */
+            qere: string;
+            /**
+             * Cls
+             * @enum {string}
+             */
+            cls: "vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other";
+            /** Fuller */
+            fuller: ("ketiv" | "qere") | null;
+            /** Letters */
+            letters: string | null;
+            /** Grammar */
+            grammar: ("spelling" | "form" | "word") | null;
+            /** Features */
+            features: string[];
+            /** Euphemism */
+            euphemism: boolean;
+            /** Parallel */
+            parallel: ("qere" | "ketiv" | "neither") | null;
+            /** Partner Vid */
+            partner_vid: number | null;
+            /** Partner Label */
+            partner_label: string | null;
+            /** Partner Label He */
+            partner_label_he: string | null;
+            /** Partner Form */
+            partner_form: string | null;
+            verse: components["schemas"]["Verse"];
+            /** Display */
+            display: number[];
+        };
+        /** KqPairsResponse */
+        KqPairsResponse: {
+            /** Cls */
+            cls: ("vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other") | null;
+            /** Grammar */
+            grammar: string | null;
+            /** Parallel */
+            parallel: string | null;
+            /** Euphemism */
+            euphemism: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["KqPair"][];
         };
         /**
          * Label
@@ -5872,6 +6036,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SegmentCurve"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ketiv_api_ketiv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KetivResponse"];
+                };
+            };
+        };
+    };
+    ketiv_pairs_api_ketiv_pairs_get: {
+        parameters: {
+            query?: {
+                cls?: ("vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other") | null;
+                grammar?: ("spelling" | "form" | "word") | null;
+                parallel?: ("qere" | "ketiv" | "neither") | null;
+                euphemism?: boolean | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KqPairsResponse"];
                 };
             };
             /** @description Validation Error */

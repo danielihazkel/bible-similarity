@@ -105,6 +105,8 @@ a:hover {
 p a:not(.hit-ref):not(.name-chip),
 .footer a,
 .seam-list a,
+.division-findings a,
+.kq-classes a,
 .about-page li a,
 .compare-page .column > h2 a {
   text-decoration: underline;
@@ -2411,3 +2413,14 @@ a.dossier-chip:hover {
 .gap-verses { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem; }
 .gap-before { color: var(--muted); }
 .gap-mark { display: block; border-top: 2px dashed var(--accent); width: 4rem; margin-inline-start: auto; }
+
+/* ---------- Written and read (§16.30) ---------- */
+
+.ketiv-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 2rem; }
+.kq-classes { padding-inline-start: 1.2rem; }
+.kq-classes li { margin: 0.2rem 0; }
+.kq-features { columns: 2 16rem; padding-inline-start: 1.2rem; }
+.kq-pair { font-family: var(--font-he, inherit); font-size: 1.15rem; }
+.kq-read { color: var(--accent); }
+.kq-features-line { margin: 0.2rem 0; }
+.kq-item .he { font-size: 1.05rem; }

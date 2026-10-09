@@ -707,6 +707,62 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # ketiv / qere (`bsim ketiv`): a fuller reading in v4 that the parallel v5 writes, a ו > י
+    # swap in v5, a word read but not written in v2
+    kq_dir = art / "ketiv"
+    kq_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (1, 2, 0, 0, 0, 1, "", "רֵאשִׁית", "", "ראשית", "", "7225", "", "HNcfsa",
+             "qere_only", None, None, None, "[]", 0, None, None, None),
+            (2, 4, 0, 0, 1, 1, "ראשת", "רֵאשִׁית", "ראשת", "ראשית", "7225", "7225", "HNcfsa",
+             "HNcfsa", "vowel_letter", "qere", None, "spelling", "[]", 0, "qere", 5, "ראשית"),
+            (3, 5, 1, 0, 1, 1, "ראשות", "רֵאשִׁית", "ראשות", "ראשית", "7225", "7225", "HNcfsa",
+             "HNcfpa", "swap", None, "ו>י", "form", '["number s>p"]', 1, None, None, None),
+        ],
+        columns=[
+            "kq_id", "verse_id", "book_id", "pos", "n_ketiv", "n_qere", "ketiv", "qere",
+            "ketiv_c", "qere_c", "ketiv_lemma", "qere_lemma", "ketiv_morph", "qere_morph", "cls",
+            "fuller", "letters", "grammar", "features", "euphemism", "parallel", "partner_vid",
+            "partner_form",
+        ],
+    ).astype({"partner_vid": "Int64"}).to_parquet(kq_dir / "pairs.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("וי", 1, 0.1, 10.0, 0.01, 0.02, True), ("אב", 0, 0.2, 0.0, 1.0, 1.0, False)],
+        columns=["pair", "n", "expected", "ratio", "p", "q", "lookalike"],
+    ).to_parquet(kq_dir / "letters.parquet")
+    pd.DataFrame(
+        [(0, 2, 6, 333.3, 1, 0.0, 0, 1, 0, 0, 0), (1, 1, 1, 1000.0, 0, None, 1, 0, 0, 1, 0)],
+        columns=[
+            "book_id", "n", "words", "rate", "vowel_letter", "ketiv_fuller", "swap", "division",
+            "other_cls", "form", "word",
+        ],
+    ).to_parquet(kq_dir / "books.parquet")  # fmt: skip
+    (kq_dir / "ketiv.meta.json").write_text(
+        json.dumps(
+            {
+                "pairs": 3,
+                "classes": {"qere_only": 1, "vowel_letter": 1, "swap": 1},
+                "grammar": {"spelling": 1, "form": 1},
+                "euphemisms": 1,
+                "features": [["number s>p", 1]],
+                "checks": {
+                    "lookalike": {
+                        "all": {"n": 1, "lookalike": 1, "share": 1.0, "expected": 0.04, "p": 0.04},
+                        "without_wy": {"n": 0, "lookalike": 0, "share": None, "expected": 0.01,
+                                       "p": 1.0},
+                    },
+                    "late_fuller": {"late": 0.6, "late_n": 10, "other": 0.4, "other_n": 20,
+                                    "diff": 0.2, "p": 0.04, "books": 2},
+                    "parallel": {"qere": 1, "ketiv": 0, "neither": 0, "p": 1.0},
+                    "plural_suffix": {"plural": 1, "waw_yw": 0},
+                    "books": {"chi2": 3.2, "p": 0.07},
+                },
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     # style shifts: a curve over book 0 and one seam before v3 (chapter 2)
     seam_dir = art / "seams"
     seam_dir.mkdir(parents=True, exist_ok=True)

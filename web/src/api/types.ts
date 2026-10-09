@@ -1244,6 +1244,7 @@ export type DossierKind =
   | 'voices'
   | 'network'
   | 'divisions'
+  | 'ketiv'
   | 'labels'
 
 export interface DossierEntry {
@@ -1518,4 +1519,119 @@ export interface SegmentCurve {
   book_id: number
   points: SegmentPoint[]
   agreement: SegmentBook[]
+}
+
+// --- what is written against what is read (DESIGN.md §16.30) ---
+
+export type KqClass =
+  | 'vowel_letter'
+  | 'swap'
+  | 'vowel_position'
+  | 'metathesis'
+  | 'division'
+  | 'qere_only'
+  | 'ketiv_only'
+  | 'same_letters'
+  | 'other'
+export type KqGrammar = 'spelling' | 'form' | 'word'
+export type KqParallel = 'qere' | 'ketiv' | 'neither'
+
+export interface KqBook {
+  book_id: number
+  n: number
+  words: number
+  /** per 1,000 words */
+  rate: number
+  vowel_letter: number
+  /** share of the vowel-letter pairs written fuller than read */
+  ketiv_fuller: number | null
+  swap: number
+  division: number
+  other_cls: number
+  form: number
+  word: number
+}
+
+export interface KqLetter {
+  /** two letters, sorted */
+  pair: string
+  n: number
+  expected: number
+  ratio: number | null
+  p: number
+  q: number
+  lookalike: boolean
+}
+
+interface KqShare {
+  n: number
+  lookalike: number
+  share: number | null
+  expected: number
+  p: number
+}
+
+/** `meta.ketiv`, all keys absent without `bsim ketiv` */
+export interface KetivMeta {
+  pairs?: number
+  classes?: Partial<Record<KqClass, number>>
+  grammar?: Partial<Record<KqGrammar, number>>
+  euphemisms?: number
+  /** [feature difference, count], most frequent first */
+  features?: [string, number][]
+  checks?: {
+    lookalike: { all: KqShare; without_wy: KqShare }
+    late_fuller: { late: number | null; late_n?: number; other: number | null; other_n?: number; diff: number | null; p: number | null; books?: number }
+    parallel: { qere: number; ketiv: number; neither: number; p: number | null }
+    plural_suffix: { plural: number; waw_yw: number }
+    books: { chi2: number | null; p: number | null }
+  }
+}
+
+export interface KetivResponse {
+  meta: KetivMeta & Record<string, unknown>
+  books: KqBook[]
+  letters: KqLetter[]
+}
+
+export interface KqPair {
+  kq_id: number
+  verse_id: number
+  book_id: number
+  label: string
+  label_he: string
+  /** as written, unpointed */
+  ketiv: string
+  /** as read, pointed */
+  qere: string
+  cls: KqClass
+  fuller: 'ketiv' | 'qere' | null
+  /** swap: ketiv letter > qere letter */
+  letters: string | null
+  grammar: KqGrammar | null
+  /** inflection features that differ, e.g. `number s>p` */
+  features: string[]
+  euphemism: boolean
+  /** what an aligned parallel passage writes */
+  parallel: KqParallel | null
+  partner_vid: number | null
+  partner_label: string | null
+  partner_label_he: string | null
+  partner_form: string | null
+  verse: Verse
+  /** display tokens of the read words */
+  display: number[]
+}
+
+export interface KqPairsResponse {
+  cls: KqClass | null
+  grammar: string | null
+  parallel: string | null
+  euphemism: boolean | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: KqPair[]
 }

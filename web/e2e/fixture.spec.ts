@@ -42,6 +42,9 @@ const PAGES = [
   '/divisions',
   '/divisions?book=0&kind=cut',
   '/divisions?unit=c%3A0%3A2',
+  '/ketiv',
+  '/ketiv?cls=swap&euphemism=1',
+  '/ketiv?unit=v%3A4',
   '/map',
   '/network',
   '/style',
@@ -115,6 +118,17 @@ test('a chapter that starts in running text links to its place on the Divisions 
   await expect(page.locator('.gap-item')).toHaveCount(1)
   await expect(page.locator('.gap-item .gap-verses .he')).toHaveCount(2)
   await expect(page.getByRole('img', { name: /The score of every boundary/ })).toBeVisible()
+})
+
+test('a verse with a ketiv / qere links to it, and the parallel that writes the qere', async ({ page }) => {
+  await page.goto('/unit/v%3A4')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '1 word written one way and read another' }).click()
+  await expect(page).toHaveURL(/\/ketiv\?unit=v%3A4/)
+  await expect(page.locator('.kq-item')).toHaveCount(1)
+  await expect(page.locator('.kq-item .w-focus')).toHaveCount(1)
+  await page.locator('.kq-item').getByRole('link', { name: /writes .*: the qere/ }).click()
+  await expect(page).toHaveURL(/\/unit\/v%3A5/)
 })
 
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {

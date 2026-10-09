@@ -4,7 +4,8 @@ Ketiv/qere: a ketiv word is `<w type="x-ketiv">`, followed by
 `<note type="variant"><catchWord/><rdg type="x-qere">…qere words…</rdg></note>`. One qere may
 replace several ketiv words, a qere may stand alone (qere wela ketiv), and the qere reading may
 be empty (ketiv wela qere). All other notes (textual notes, alternative accents, exegesis) are
-ignored. `kq` picks which reading becomes the verse's words.
+ignored. `kq` picks which reading becomes the verse's words; `kq_pairs` keeps both sides of
+every ketiv / qere (the ketiv / qere analysis, DESIGN.md §16.30).
 """
 
 from __future__ import annotations
@@ -80,6 +81,44 @@ def parse_verse(verse_el: etree._Element, kq: str = "qere") -> OshbVerse:
                         out.words.extend(_word(w, "q") for w in rdg.iter(f"{NS}w"))
         elif el.tag == f"{NS}seg" and el.get("type") in ("x-pe", "x-samekh"):
             out.breaks.append(el.get("type")[2:])
+    return out
+
+
+@dataclass
+class KqPair:
+    """One ketiv / qere: the written words, the read words (either may be empty) and `pos`,
+    the index in the verse's qere-reading words of the first read word (or of the word the
+    reading would follow, for a ketiv without qere)."""
+
+    osis: str
+    pos: int
+    ketiv: list[Word] = field(default_factory=list)
+    qere: list[Word] = field(default_factory=list)
+
+
+def kq_pairs(verse_el: etree._Element) -> list[KqPair]:
+    """Every ketiv / qere of one verse, in order: the ketiv words before a variant note pair
+    with that note's qere words."""
+    osis = verse_el.get("osisID")
+    out: list[KqPair] = []
+    pending: list[Word] = []
+    pos = 0  # words of the qere reading so far
+    for el in verse_el:
+        if el.tag == f"{NS}w":
+            if el.get("type") == "x-ketiv":
+                pending.append(_word(el, "k"))
+                continue
+            pos += 1
+        elif el.tag == f"{NS}note" and el.get("type") == "variant":
+            qere = [
+                _word(w, "q")
+                for rdg in el.iter(f"{NS}rdg")
+                if rdg.get("type") == "x-qere"
+                for w in rdg.iter(f"{NS}w")
+            ]
+            out.append(KqPair(osis, pos, pending, qere))
+            pos += len(qere)
+            pending = []
     return out
 
 

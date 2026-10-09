@@ -13,6 +13,7 @@ import { synEn } from './pages/syntax'
 import { borEn } from './pages/borrowing'
 import { dosEn } from './pages/dossier'
 import { divEn } from './pages/divisions'
+import { kqEn } from './pages/ketiv'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -76,6 +77,7 @@ export const en = {
     structure: { label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
     acrostics: { label: 'Acrostics', hint: 'Lines through the alphabet' },
     divisions: { label: 'Divisions', hint: 'Do paragraphs and chapters fall where the text turns?' },
+    ketiv: { label: 'Written and read', hint: 'Ketiv and qere: what is written against what is read' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
@@ -387,6 +389,7 @@ export const en = {
   bor: borEn,
   dos: dosEn,
   div: divEn,
+  kq: kqEn,
   ov: ovEn,
 }
 

@@ -37,6 +37,7 @@ Derived columns:
 - `voice_speakers`, `voice_features`, `voice_pairs` + `meta.voices`: `bsim voices` (empty without
   it or without `bsim syntax`).
 - `segment_gaps`, `segment_books` + `meta.segments`: `bsim segments` (empty without it).
+- `kq_pairs`, `kq_letters`, `kq_books` + `meta.ketiv`: `bsim ketiv` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -118,6 +119,8 @@ INDEXES = (
     "CREATE INDEX seams_by_verse ON seams (verse_id)",
     "CREATE INDEX segment_gaps_by_kind ON segment_gaps (kind, score)",
     "CREATE INDEX segment_gaps_by_book ON segment_gaps (book_id, verse_id)",
+    "CREATE INDEX kq_pairs_by_verse ON kq_pairs (verse_id)",
+    "CREATE INDEX kq_pairs_by_cls ON kq_pairs (cls, verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -387,6 +390,45 @@ TABLE_COLUMNS = {
         "kind",
     ],
     "segment_books": ["book_id", "ref", "k", "pk", "pk_null", "pk_p", "wd", "wd_null", "wd_p"],
+    "kq_pairs": [
+        "kq_id",
+        "verse_id",
+        "book_id",
+        "pos",
+        "n_ketiv",
+        "n_qere",
+        "ketiv",
+        "qere",
+        "ketiv_c",
+        "qere_c",
+        "ketiv_lemma",
+        "qere_lemma",
+        "ketiv_morph",
+        "qere_morph",
+        "cls",
+        "fuller",
+        "letters",
+        "grammar",
+        "features",
+        "euphemism",
+        "parallel",
+        "partner_vid",
+        "partner_form",
+    ],
+    "kq_letters": ["pair", "n", "expected", "ratio", "p", "q", "lookalike"],
+    "kq_books": [
+        "book_id",
+        "n",
+        "words",
+        "rate",
+        "vowel_letter",
+        "ketiv_fuller",
+        "swap",
+        "division",
+        "other_cls",
+        "form",
+        "word",
+    ],
     "borrowing_sequences": [
         "seq_id",
         "a_book",
@@ -971,6 +1013,13 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
         out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
     out["segments_meta"] = _read_json(seg_dir / "segments.meta.json")
+    kq_dir = resolve_path(cfg, "artifacts") / "ketiv"
+    for name in ("pairs", "letters", "books"):
+        table, path = f"kq_{name}", kq_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["kq_letters"] = out["kq_letters"].assign(lookalike=lambda d: d.lookalike.astype(int))
+    out["ketiv_meta"] = _read_json(kq_dir / "ketiv.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1170,6 +1219,9 @@ def _write_db(
             "voice_pairs": inputs["voice_pairs"],
             "segment_gaps": inputs["segment_gaps"],
             "segment_books": inputs["segment_books"],
+            "kq_pairs": inputs["kq_pairs"],
+            "kq_letters": inputs["kq_letters"],
+            "kq_books": inputs["kq_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1289,6 +1341,11 @@ def _write_db(
                 "agreement",
                 "kinds",
             )
+        }
+        km = inputs["ketiv_meta"]
+        meta["ketiv"] = {
+            k: km.get(k)
+            for k in ("pairs", "classes", "grammar", "euphemisms", "features", "checks")
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

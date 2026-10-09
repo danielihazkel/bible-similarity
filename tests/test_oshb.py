@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from bsim.data.oshb import content_lemmas, parse_verse
+from bsim.data.oshb import content_lemmas, kq_pairs, parse_verse
 
 NS = "http://www.bibletechnologies.net/2003/OSIS/namespace"
 
@@ -58,3 +58,11 @@ def test_content_lemmas():
     assert content_lemmas("l/6213 a") == ("6213a",)
     assert content_lemmas("1961+") == ("1961",)
     assert content_lemmas("i/c") == ()
+
+
+def test_kq_pairs_keep_both_readings():
+    pairs = kq_pairs(etree.fromstring(VERSE))
+    assert [(len(p.ketiv), len(p.qere), p.pos) for p in pairs] == [(2, 1, 3), (0, 1, 4), (1, 0, 5)]
+    assert [w.surface for w in pairs[0].ketiv] == ["חרי", "יונים"]
+    assert pairs[0].qere[0].lemma == "1686" and pairs[0].osis == "Ruth.3.5"
+    assert pairs[1].qere[0].morph == "HR/Sp1cs"

@@ -466,6 +466,18 @@ segments:                     # `bsim segments`: do the traditional divisions fa
   quiet_max: 0.05             # MAM paragraph break scoring at most this
   near_seam: 2                # a style seam agrees with a division within ± this many verses
 
+ketiv:                        # `bsim ketiv`: what is written against what is read (DESIGN.md §16.30)
+  lookalike: ["וי", "דר", "בכ", "הח"]   # letter pairs alike in the square script
+  euphemisms:                 # [ketiv lemma, qere lemma]: words read in place of the written one
+    - [7693, 7901]            # שגל -> שכב
+    - [6076, 2914]            # עפלים -> טחורים
+    - [2716, 6675]            # חראיהם -> צואתם (Isa 36:12)
+    - [2755, 6675]            # חריהם -> צואתם (2 Kgs 18:27)
+    - [7890, 4325]            # שיניהם -> מימי (רגליהם)
+  shuffles: 9999              # late-book label permuted over the books
+  features_top: 20            # most frequent grammatical differences kept in the meta
+  seed: 13
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list

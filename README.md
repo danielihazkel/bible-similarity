@@ -33,7 +33,7 @@ uv run bsim serve            # API + viewer on http://localhost:8000
 
 `bsim all` took 38 minutes on the GTX 1080 Ti from an empty clone, with BEREL 3.0 and BGE-M3 already in the Hugging Face cache (they are fetched on first use, about 3 GB). It runs these stages, each also available as its own command (`uv run bsim --help`):
 
-`download` → `build-corpus` → `build-links` → `lexicon` → `syntax` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `dating` → `borrowing` → `seams` → `structure` → `map` → `network` → `stylometry` → `voices` → `segments` → `build-db`
+`download` → `build-corpus` → `build-links` → `lexicon` → `syntax` → `lexical` → `lexical-topk` → `train-simcse` → `train-sup` → `embed` → `topk` → `units` → `fuse` → `evaluate` → `eval-openbible` → `phrases` → `sequences` → `diffs` → `typescenes` → `parallelism` → `acrostics` → `wordplay` → `sound` → `entities` → `senses` → `dating` → `borrowing` → `seams` → `structure` → `map` → `network` → `stylometry` → `voices` → `segments` → `ketiv` → `build-db`
 
 Re-run part of it with `--from`, `--to` and `--skip`, e.g. `uv run bsim all --from embed` after retraining, or `--skip download`. The test split is evaluated only on the first run; later runs refresh dev metrics and keep the recorded test numbers (`bsim evaluate --split test --force` replaces them).
 

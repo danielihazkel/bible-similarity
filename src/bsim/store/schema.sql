@@ -633,6 +633,58 @@ CREATE TABLE segment_books (
     PRIMARY KEY (book_id, ref)
 ) WITHOUT ROWID;
 
+-- What is written against what is read (`bsim ketiv`, §16.30): every ketiv / qere of the OSHB.
+-- pos: index in the verse's words (the qere reading) of the first read word.
+CREATE TABLE kq_pairs (
+    kq_id INTEGER PRIMARY KEY,
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    pos INTEGER NOT NULL,
+    n_ketiv INTEGER NOT NULL,       -- written words (0: read, not written)
+    n_qere INTEGER NOT NULL,        -- read words (0: written, not read)
+    ketiv TEXT NOT NULL,            -- as written (unpointed)
+    qere TEXT NOT NULL,             -- as read (pointed)
+    ketiv_c TEXT NOT NULL,          -- consonants, final forms folded
+    qere_c TEXT NOT NULL,
+    ketiv_lemma TEXT NOT NULL,
+    qere_lemma TEXT NOT NULL,
+    ketiv_morph TEXT NOT NULL,
+    qere_morph TEXT NOT NULL,
+    cls TEXT NOT NULL,              -- vowel_letter | swap | vowel_position | metathesis | division | qere_only | ketiv_only | same_letters | other
+    fuller TEXT,                    -- vowel_letter: ketiv | qere, the side with more letters
+    letters TEXT,                   -- swap: ketiv letter > qere letter
+    grammar TEXT,                   -- spelling | form | word
+    features TEXT NOT NULL,         -- JSON: the inflection features that differ, "number s>p"
+    euphemism INTEGER NOT NULL,
+    parallel TEXT,                  -- qere | ketiv | neither: what an aligned parallel writes
+    partner_vid INTEGER,
+    partner_form TEXT
+) WITHOUT ROWID;
+
+CREATE TABLE kq_letters (
+    pair TEXT PRIMARY KEY,          -- two letters, sorted
+    n INTEGER NOT NULL,             -- one-letter swaps between them
+    expected REAL NOT NULL,         -- from the letter frequencies of the text
+    ratio REAL,
+    p REAL NOT NULL,
+    q REAL NOT NULL,
+    lookalike INTEGER NOT NULL      -- in `ketiv.lookalike`
+) WITHOUT ROWID;
+
+CREATE TABLE kq_books (
+    book_id INTEGER PRIMARY KEY,
+    n INTEGER NOT NULL,
+    words INTEGER NOT NULL,
+    rate REAL NOT NULL,             -- per 1,000 words
+    vowel_letter INTEGER NOT NULL,
+    ketiv_fuller REAL,              -- share of vowel-letter pairs where the ketiv is fuller
+    swap INTEGER NOT NULL,
+    division INTEGER NOT NULL,      -- division, qere only, ketiv only
+    other_cls INTEGER NOT NULL,
+    form INTEGER NOT NULL,          -- same lemma, another form
+    word INTEGER NOT NULL           -- another lemma
+) WITHOUT ROWID;
+
 -- Which side of a parallel looks like the borrower (`bsim borrowing`, §16.27). A = earlier in
 -- the canon; a sign > 0 says B looks later. direction: a_to_b | b_to_a | unclear.
 CREATE TABLE borrowing_sequences (

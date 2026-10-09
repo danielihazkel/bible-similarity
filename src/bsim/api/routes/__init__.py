@@ -11,6 +11,7 @@ from bsim.api.routes import (
     domains,
     dossier,
     export,
+    ketiv,
     labels,
     parallels,
     phrases,
@@ -34,6 +35,7 @@ for _module in (
     borrowing,
     labels,
     segments,
+    ketiv,
     dossier,
     export,
 ):
