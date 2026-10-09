@@ -50,7 +50,7 @@ import numpy as np
 import pandas as pd
 from scipy import sparse
 
-from bsim.analysis.stats import bh_q, empirical_p
+from bsim.analysis.stats import bh_q, empirical_p, permute_within
 from bsim.analysis.stylometry import MORPH_LABELS, feature_counts, feature_matrix
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BY_OSIS
@@ -118,15 +118,6 @@ def rates(counts: np.ndarray, words: np.ndarray) -> np.ndarray:
 def delta(a: np.ndarray, b: np.ndarray, sd: np.ndarray) -> np.ndarray:
     """Burrows' Delta between rate vectors (last axis = features)."""
     return np.mean(np.abs(a - b) / sd, axis=-1)
-
-
-def permute_within(lab: np.ndarray, group: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """`lab` shuffled among the rows of each group (each group keeps its labels)."""
-    by_group = np.argsort(group, kind="stable")
-    shuffled = np.lexsort((rng.random(len(lab)), group))
-    out = np.empty_like(lab)
-    out[by_group] = lab[shuffled]
-    return out
 
 
 def distinctiveness(

@@ -37,6 +37,10 @@ import type {
   SpeechBookResponse,
   SpeechResponse,
   VoiceDetail,
+  SegmentCurve,
+  SegmentGapsResponse,
+  SegmentKind,
+  SegmentsResponse,
   Dossier,
   VoicesResponse,
   UnitSyntax,
@@ -339,6 +343,26 @@ export const useVoice = (key: string | undefined) =>
     queryKey: ['voice', key],
     queryFn: ({ signal }) => getJson<VoiceDetail>(`/voices/${encodeURIComponent(key ?? '')}`, {}, signal),
     enabled: key !== undefined,
+    ...forever,
+  })
+
+export const useSegments = () =>
+  useQuery({ queryKey: ['segments'], queryFn: ({ signal }) => getJson<SegmentsResponse>('/segments', {}, signal), ...forever })
+
+export const useSegmentGaps = (q: { kind?: SegmentKind; book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['segment-gaps', q],
+    queryFn: ({ signal }) =>
+      getJson<SegmentGapsResponse>('/segments/gaps', { kind: q.kind, book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useSegmentCurve = (bookId: number | undefined) =>
+  useQuery({
+    queryKey: ['segment-curve', bookId],
+    queryFn: ({ signal }) => getJson<SegmentCurve>(`/segments/book/${bookId}`, {}, signal),
+    enabled: bookId !== undefined,
     ...forever,
   })
 

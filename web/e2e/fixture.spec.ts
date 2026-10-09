@@ -39,6 +39,9 @@ const PAGES = [
   '/poetry?sort=antithetic',
   '/structure',
   '/acrostics',
+  '/divisions',
+  '/divisions?book=0&kind=cut',
+  '/divisions?unit=c%3A0%3A2',
   '/map',
   '/network',
   '/style',
@@ -102,6 +105,16 @@ test('a verse page says what the analyses found and links to the filtered lists'
   await expect(page).toHaveURL(/\/borrowing\?unit=v%3A1/)
   await expect(page.locator('.unit-filter')).toBeVisible()
   await expect(page.locator('.borrow-pair')).toHaveCount(1)
+})
+
+test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A2')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: 'a chapter start inside running text' }).click()
+  await expect(page).toHaveURL(/\/divisions\?book=0&unit=c%3A0%3A2/)
+  await expect(page.locator('.gap-item')).toHaveCount(1)
+  await expect(page.locator('.gap-item .gap-verses .he')).toHaveCount(2)
+  await expect(page.getByRole('img', { name: /The score of every boundary/ })).toBeVisible()
 })
 
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {

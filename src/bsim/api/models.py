@@ -1289,7 +1289,7 @@ class VoiceDetail(ApiModel):
 DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
-    "voices", "network", "labels",
+    "voices", "network", "divisions", "labels",
 ]  # fmt: skip
 
 
@@ -1300,6 +1300,7 @@ class DossierEntry(ApiModel):
     scope: Literal["unit", "chapter"]  # read on the unit itself or on its chapter
     computed: bool  # False: the stage did not run (or does not cover this unit type)
     count: int | None = None  # rows found, 1 / 0 for a yes / no finding, a rank (network)
+    # divisions: count = flagged gaps in the unit; value / key = score / kind of its opening gap
     total: int | None = None  # network: units ranked
     value: float | None = None  # lowest q (acrostic, structure), score (dating)
     key: str | None = None  # speech: speaker lemma; voices: voice profile key
@@ -1364,3 +1365,71 @@ class BorrowingResponse(ApiModel):
     used_signs: list[str]  # the signs that vote
     held_out: SignCheck | None  # signs chosen without each book pair, scored on it
     books: list[BorrowingBookPair]  # the most parallel verses first
+
+
+SegmentKind = Literal["turn", "cut", "quiet"]
+
+
+class SegmentBook(ApiModel):
+    """A book's top-K gaps as a segmentation against its MAM breaks or chapters (§16.29)."""
+
+    book_id: int
+    ref: Literal["mam", "chapter"]
+    k: int  # Pk window, in verses
+    pk: float
+    pk_null: float  # mean over K random gaps
+    pk_p: float
+    wd: float
+    wd_null: float
+    wd_p: float
+
+
+class SegmentsResponse(ApiModel):
+    meta: dict[str, Any]  # window, groups, contrasts, calibration, seams, agreement, kinds
+    books: list[SegmentBook]
+
+
+class SegmentGap(ApiModel):
+    """A gap between two verses (`verse_id` = the verse after it), its cohesion and divisions."""
+
+    verse_id: int
+    book_id: int
+    label: str  # the verse after the gap
+    label_he: str
+    score: float  # within-book percentile of the cohesion drop (1 = sharpest turn of the book)
+    lex: float  # cosine across the gap, lemmas
+    sem: float  # the same, embeddings
+    mam: Literal["pe", "samekh"] | None
+    oshb: Literal["pe", "samekh"] | None
+    chapter: bool
+    seam: bool
+    kind: SegmentKind | None
+    verses: list[Verse]  # the verse before and the verse after
+
+
+class SegmentGapsResponse(ApiModel):
+    kind: SegmentKind | None
+    book: int | None
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[SegmentGap]
+
+
+class SegmentPoint(ApiModel):
+    verse_id: int
+    chapter: int
+    verse: int
+    score: float
+    mam: Literal["pe", "samekh"] | None
+    oshb: Literal["pe", "samekh"] | None
+    chapter_start: bool
+    seam: bool
+    kind: SegmentKind | None
+
+
+class SegmentCurve(ApiModel):
+    book_id: int
+    points: list[SegmentPoint]
+    agreement: list[SegmentBook]

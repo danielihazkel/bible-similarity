@@ -33,6 +33,14 @@ export const dosEn = {
     speech: (n: number, who: string | null) => `${countEn(n, 'quotation clause', 'quotation clauses')}${who ? `, mostly ${who}` : ''}`,
     voices: (who: string) => `the voice of ${who}`,
     network: (rank: number, of: number) => `echoes: number ${numEn(rank)} of ${numEn(of)}`,
+    divisions: (n: number, key: string | null) =>
+      n === 1 && key === 'turn'
+        ? 'opens at an unmarked turn'
+        : n === 1 && key === 'cut'
+          ? 'a chapter start inside running text'
+          : n === 1 && key === 'quiet'
+            ? 'opens at a quiet paragraph break'
+            : countEn(n, 'point where text and division disagree', 'points where text and division disagree'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -54,6 +62,7 @@ export const dosEn = {
     speech: 'direct speech',
     voices: 'speaker voices',
     network: 'echo network',
+    divisions: 'text and divisions',
   } as Record<DossierKind, string>,
 }
 
@@ -83,6 +92,14 @@ export const dosHe: typeof dosEn = {
     speech: (n: number, who: string | null) => `${countHe(n, 'פסוקית ציטוט אחת', 'שתי פסוקיות ציטוט', 'פסוקיות ציטוט')}${who ? `, בעיקר ${who}` : ''}`,
     voices: (who: string) => `קולו של ${who}`,
     network: (rank: number, of: number) => `הדים: מקום ${numHe(rank)} מתוך ${numHe(of)}`,
+    divisions: (n: number, key: string | null) =>
+      n === 1 && key === 'turn'
+        ? 'נפתח במפנה שאינו מסומן'
+        : n === 1 && key === 'cut'
+          ? 'תחילת פרק בתוך טקסט רציף'
+          : n === 1 && key === 'quiet'
+            ? 'נפתח בפרשה שקטה'
+            : countHe(n, 'מקום אחד שבו הטקסט והחלוקה חלוקים', 'שני מקומות שבהם הטקסט והחלוקה חלוקים', 'מקומות שבהם הטקסט והחלוקה חלוקים'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -103,5 +120,6 @@ export const dosHe: typeof dosEn = {
     speech: 'דיבור ישיר',
     voices: 'קולות הדוברים',
     network: 'רשת ההדים',
+    divisions: 'טקסט וחלוקות',
   },
 }

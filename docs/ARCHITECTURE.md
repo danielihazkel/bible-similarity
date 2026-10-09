@@ -151,6 +151,7 @@ bible-similarity/
 │   │   ├── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
 │   │   ├── borrowing.py            # `bsim borrowing`: which side of a parallel looks later (§16.27)
 │   │   ├── voices.py               # `bsim voices`: each speaker's style against the same books (§16.28)
+│   │   ├── segments.py             # `bsim segments`: paragraphs, chapters and seams against cohesion (§16.29)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
@@ -165,7 +166,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, dossier, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, dossier, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -228,10 +229,11 @@ bible-similarity/
 | 11g | `bsim dating` | verses, words, parallelism, sequences | `artifacts/dating/{chapters,books}.parquet` + `dating.meta.json` (§16.24) |
 | 11h | `bsim borrowing` | verses, words, sequences, diffs | `artifacts/borrowing/{sequences,books}.parquet` + `borrowing.meta.json` (§16.27) |
 | 11e' | `bsim voices` | verses, words, syntax clauses | `artifacts/voices/{speakers,features,pairs}.parquet` + `voices.meta.json` (§16.28; empty without `bsim syntax`) |
+| 11e'' | `bsim segments` | verses, words, units, final semantic embeddings, seams | `artifacts/segments/{gaps,books}.parquet` + `segments.meta.json` (§16.29) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
-| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S]` | — | runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

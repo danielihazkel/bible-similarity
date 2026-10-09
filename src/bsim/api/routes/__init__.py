@@ -15,6 +15,7 @@ from bsim.api.routes import (
     parallels,
     phrases,
     poetics,
+    segments,
     senses,
     syntax,
 )
@@ -32,6 +33,7 @@ for _module in (
     syntax,
     borrowing,
     labels,
+    segments,
     dossier,
     export,
 ):

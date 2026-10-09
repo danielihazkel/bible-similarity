@@ -6,6 +6,8 @@
   to a list in which about 5 % of the entries are expected to be chance. Every analysis that
   scores many units at once (acrostics, rewrites, inclusio / chiasm) reports q next to its score.
 - `pct_to_p`: the upper-tail p-value of a percentile measured against `samples` null draws.
+- `permute_within`: labels shuffled inside groups (a book, a chapter), the null of an analysis
+  that must keep each group's mix (voices §16.28, divisions §16.29).
 """
 
 from __future__ import annotations
@@ -35,3 +37,12 @@ def pct_to_p(pct: np.ndarray, samples: int) -> np.ndarray:
     """p of a score at percentile `pct` (share of null draws below it) among `samples` draws."""
     pct = np.asarray(pct, dtype=np.float64)
     return (1 + samples * (1 - pct)) / (1 + samples)
+
+
+def permute_within(lab: np.ndarray, group: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+    """`lab` shuffled among the rows of each group (each group keeps its labels)."""
+    by_group = np.argsort(group, kind="stable")
+    shuffled = np.lexsort((rng.random(len(lab)), group))
+    out = np.empty_like(lab)
+    out[by_group] = lab[shuffled]
+    return out

@@ -242,6 +242,12 @@ def stage_voices(cfg: dict[str, Any], log: Log) -> None:
     run_voices(cfg, log=log)
 
 
+def stage_segments(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.segments import run_segments
+
+    run_segments(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -283,6 +289,7 @@ STAGES: dict[str, str] = {
     "network": "stage_network",
     "stylometry": "stage_stylometry",
     "voices": "stage_voices",
+    "segments": "stage_segments",
     "build-db": "stage_build_db",
 }
 

@@ -456,6 +456,16 @@ voices:                       # `bsim voices`: does a speaker have a style of th
     distinct:                 # the most distinct speaker of a book, named in advance
       - {book: Job, speaker: "453"}                              # Elihu
 
+segments:                     # `bsim segments`: do the traditional divisions fall where the text turns? (DESIGN.md §16.29)
+  window_grid: [2, 3, 4, 6]   # verses compared on each side of a boundary; chosen on the dev books
+  shuffles: 999               # within-book label shuffles (and random segmentations per book)
+  seed: 13
+  turn_min: 0.97              # unmarked turn: a score (within-book percentile) at least this,
+  turn_peak: 3                #   the highest within ± this many boundaries, no division within 1 verse
+  cut_max: 0.25               # chapter start with no paragraph break in either tradition, score at most this
+  quiet_max: 0.05             # MAM paragraph break scoring at most this
+  near_seam: 2                # a style seam agrees with a division within ± this many verses
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list

@@ -5,13 +5,13 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
+from bsim.analysis.stats import permute_within
 from bsim.analysis.stylometry import feature_counts, feature_matrix
 from bsim.analysis.voices import (
     DIVINE,
     author_check,
     distinctiveness,
     group_sums,
-    permute_within,
     proper_names,
     speaker_key,
     verdict,

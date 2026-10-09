@@ -600,6 +600,39 @@ CREATE TABLE voice_pairs (
     PRIMARY KEY (a, b)
 ) WITHOUT ROWID;
 
+-- Where the text turns and where it is divided (`bsim segments`, §16.29): every gap between two
+-- verses of a book (verse_id = the verse after it), its cohesion and the divisions drawn there.
+CREATE TABLE segment_gaps (
+    verse_id INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    lex REAL NOT NULL,              -- cosine of the lemma windows on the two sides
+    sem REAL NOT NULL,              -- the same over verse embeddings
+    lex_depth REAL NOT NULL,        -- TextTiling depth of the drop
+    sem_depth REAL NOT NULL,
+    score REAL NOT NULL,            -- within-book percentile of the two depths (1 = sharpest turn)
+    mam TEXT,                       -- pe | samekh: paragraph break in the MAM
+    oshb TEXT,                      -- the same in the OSHB (Leningrad)
+    chapter INTEGER NOT NULL,       -- 1 = a chapter starts here
+    parasha INTEGER NOT NULL,
+    seam INTEGER NOT NULL,          -- 1 = a style seam (§16.12)
+    kind TEXT                       -- turn (unmarked) | cut (chapter in cohesive text) | quiet (break in it)
+) WITHOUT ROWID;
+
+-- The top-K gaps of a book as a segmentation against its MAM breaks / chapters (ref), with the
+-- mean Pk / WindowDiff of K random gaps and the lower-tail p.
+CREATE TABLE segment_books (
+    book_id INTEGER NOT NULL,
+    ref TEXT NOT NULL,              -- mam | chapter
+    k INTEGER NOT NULL,             -- the Pk window, in verses
+    pk REAL NOT NULL,
+    pk_null REAL NOT NULL,
+    pk_p REAL NOT NULL,
+    wd REAL NOT NULL,
+    wd_null REAL NOT NULL,
+    wd_p REAL NOT NULL,
+    PRIMARY KEY (book_id, ref)
+) WITHOUT ROWID;
+
 -- Which side of a parallel looks like the borrower (`bsim borrowing`, §16.27). A = earlier in
 -- the canon; a sign > 0 says B looks later. direction: a_to_b | b_to_a | unclear.
 CREATE TABLE borrowing_sequences (

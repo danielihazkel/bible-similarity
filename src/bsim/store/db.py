@@ -36,6 +36,7 @@ Derived columns:
 - `borrowing_sequences`, `borrowing_books` + `meta.borrowing`: `bsim borrowing` (empty without it).
 - `voice_speakers`, `voice_features`, `voice_pairs` + `meta.voices`: `bsim voices` (empty without
   it or without `bsim syntax`).
+- `segment_gaps`, `segment_books` + `meta.segments`: `bsim segments` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -115,6 +116,8 @@ INDEXES = (
     "CREATE INDEX typescenes_by_a ON typescenes (a_unit)",
     "CREATE INDEX typescenes_by_b ON typescenes (b_unit)",
     "CREATE INDEX seams_by_verse ON seams (verse_id)",
+    "CREATE INDEX segment_gaps_by_kind ON segment_gaps (kind, score)",
+    "CREATE INDEX segment_gaps_by_book ON segment_gaps (book_id, verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -368,6 +371,22 @@ TABLE_COLUMNS = {
     ],
     "voice_features": ["key", "side", "rank", "feature", "label", "rate", "rate_ref", "z"],
     "voice_pairs": ["a", "b", "delta"],
+    "segment_gaps": [
+        "verse_id",
+        "book_id",
+        "lex",
+        "sem",
+        "lex_depth",
+        "sem_depth",
+        "score",
+        "mam",
+        "oshb",
+        "chapter",
+        "parasha",
+        "seam",
+        "kind",
+    ],
+    "segment_books": ["book_id", "ref", "k", "pk", "pk_null", "pk_p", "wd", "wd_null", "wd_p"],
     "borrowing_sequences": [
         "seq_id",
         "a_book",
@@ -946,6 +965,12 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         books=[json.dumps([int(b) for b in bs]) for bs in out["voice_speakers"].books]
     )
     out["voices_meta"] = _read_json(voice_dir / "voices.meta.json")
+    seg_dir = resolve_path(cfg, "artifacts") / "segments"
+    for name in ("gaps", "books"):
+        table, path = f"segment_{name}", seg_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["segments_meta"] = _read_json(seg_dir / "segments.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1143,6 +1168,8 @@ def _write_db(
             "voice_speakers": inputs["voice_speakers"],
             "voice_features": inputs["voice_features"],
             "voice_pairs": inputs["voice_pairs"],
+            "segment_gaps": inputs["segment_gaps"],
+            "segment_books": inputs["segment_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1246,6 +1273,21 @@ def _write_db(
                 "sensitivity",
                 "order",
                 "checks",
+            )
+        }
+        sgm = inputs["segments_meta"]
+        meta["segments"] = {
+            k: sgm.get(k)
+            for k in (
+                "window",
+                "window_grid",
+                "gaps",
+                "groups",
+                "contrasts",
+                "calibration",
+                "seams",
+                "agreement",
+                "kinds",
             )
         }
         snm = inputs["senses_meta"]

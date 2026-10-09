@@ -12,6 +12,7 @@ import { labEn } from './pages/labels'
 import { synEn } from './pages/syntax'
 import { borEn } from './pages/borrowing'
 import { dosEn } from './pages/dossier'
+import { divEn } from './pages/divisions'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -74,6 +75,7 @@ export const en = {
     typescenes: { label: 'Action sequences', hint: 'The same actions in the same order' },
     structure: { label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
     acrostics: { label: 'Acrostics', hint: 'Lines through the alphabet' },
+    divisions: { label: 'Divisions', hint: 'Do paragraphs and chapters fall where the text turns?' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
@@ -384,6 +386,7 @@ export const en = {
   syn: synEn,
   bor: borEn,
   dos: dosEn,
+  div: divEn,
   ov: ovEn,
 }
 

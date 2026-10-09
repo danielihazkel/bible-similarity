@@ -50,6 +50,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return e.key ? `/speech?view=voices&voice=${encodeURIComponent(e.key)}` : undefined
     case 'network':
       return `/network?type=${unit.unit_type}&unit=${u}`
+    case 'divisions':
+      return `/divisions?book=${unit.book_id}&unit=${u}`
     case 'names':
       return unit.unit_type === 'verse' ? undefined : '#unit-names'
   }

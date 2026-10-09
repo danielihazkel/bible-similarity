@@ -502,14 +502,24 @@ Phase 3 (M39c): API and viewer
 
 ✔ Every analysis that touches a passage is one click from it, and "nothing here" is told apart from "not run"; a dossier is computed in ~12 ms in-process on the real DB (cached after); 117 / 117 fixture and 100 / 100 real-data e2e.
 
+## M47: Where the text divides (§16.29, D65; proposed A2)
+- [x] `bsim segments` (`analysis/segments.py`, pipeline stage after voices, ~25 s): every verse boundary scored by TextTiling depth of lemma (idf) and embedding cohesion across a window, combined as a within-book percentile; window chosen on the dev books (`segments.window_grid`: 4)
+- [x] Divisions on the boundaries: MAM and Leningrad (OSHB) open / closed paragraphs, chapter starts, parashot, style seams; within-book shuffle tests per kind (999), contrasts (open vs closed, both traditions vs one, chapters with vs without a paragraph break), a calibration shuffle, seams near divisions, Pk / WindowDiff per book against random segmentations
+- [x] Lists: unmarked turns, chapters in running text, quiet paragraph breaks (`turn_min`, `turn_peak`, `cut_max`, `quiet_max`)
+- [x] `stats.permute_within` (moved from voices)
+- [x] DB `segment_gaps`, `segment_books` (+ `meta.segments`, empty without the stage); API `/segments`, `/segments/gaps?kind&book&unit`, `/segments/book/{id}`; dossier entry `divisions`
+- [x] Viewer: Patterns → Divisions (tests table and contrasts, a book's boundary scores by paragraph type with chapter lines and a chapter zoom, the three lists with the verses on either side, `?unit=` from the dossier); English and Hebrew
+- [x] Tests: window cosines, depth, scores and ties, Pk / WindowDiff, agreement, group tests and contrasts on planted data, gap labels across book ends, peaks, kinds, lemma weights (pytest); the API and dossier on the fixture DB; the page, its chart, chapter zoom, a unit's list in Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → list
+
+✔ Every kind of division falls at turns of the text more than chance (MAM open 0.650, closed 0.554, parashot 0.771, chapters 0.708; calibration 0.507); open over closed and agreed over single-tradition breaks hold (p 0.001); chapters without a paragraph break are weaker turns (0.616 vs 0.728); 20 chapters in running text led by known disputed divisions (Gen 47:1, Isa 64:1, Hag 2:1, Hos 6:1); `results.sqlite` 654 MB; 125 / 125 fixture (1 skipped by design) and 104 / 104 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- A2 Segmentation agreement: semantic / lexical-cohesion boundaries (TextTiling depth scores) against petucha / setuma, chapter divisions and style seams (Pk / WindowDiff vs random breaks)
 - A3 Ketiv / qere: classify the pairs (spelling, letter swap, word division, euphemism), distribution by book, LBH features of the ketiv forms
 - A4 Explicit citations (ככתוב, כאשר צוה ה׳ ביד משה) resolved through phrases / sequences, and a directed echo network oriented by borrowing and dating (DESIGN §16 "not done")
 - A5 Allusions spread over 2–3 verses: rare-lemma window overlap with a shuffle null
 - A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")
 - A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`
 - C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)
-- C3 Shared statistics: G² (five copies) and `shuffle_within` (two) into `analysis/stats.py`
+- C3 Shared statistics: G² (five copies) and `shuffle_within` (sequences, wordplay) into `analysis/stats.py` (`permute_within` is there since M47)
 - B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

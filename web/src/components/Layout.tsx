@@ -40,6 +40,7 @@ const NAV: NavEntry[] = [
     items: [
       { to: '/structure', key: 'structure' },
       { to: '/acrostics', key: 'acrostics' },
+      { to: '/divisions', key: 'divisions' },
       { to: '/poetry', key: 'poetry' },
       { to: '/wordplay', key: 'wordplay' },
       { to: '/names', key: 'names' },

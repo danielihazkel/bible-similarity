@@ -1271,6 +1271,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/segments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Segments
+         * @description The divisions against the text's cohesion: tests, contrasts and per-book agreement.
+         */
+        get: operations["segments_api_segments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/segments/gaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Segment Gaps
+         * @description Unmarked turns (sharpest first), chapter starts and paragraph breaks inside cohesive
+         *     text (most cohesive first); `unit`: those at or inside that unit, in reading order.
+         */
+        get: operations["segment_gaps_api_segments_gaps_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/segments/book/{book_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Segment Curve
+         * @description Every gap of one book with its score and divisions, and the book's agreement rows.
+         */
+        get: operations["segment_curve_api_segments_book__book_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -1929,7 +1990,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2810,6 +2871,121 @@ export interface components {
             k: number;
             /** Hits */
             hits: components["schemas"]["SearchHit"][];
+        };
+        /**
+         * SegmentBook
+         * @description A book's top-K gaps as a segmentation against its MAM breaks or chapters (§16.29).
+         */
+        SegmentBook: {
+            /** Book Id */
+            book_id: number;
+            /**
+             * Ref
+             * @enum {string}
+             */
+            ref: "mam" | "chapter";
+            /** K */
+            k: number;
+            /** Pk */
+            pk: number;
+            /** Pk Null */
+            pk_null: number;
+            /** Pk P */
+            pk_p: number;
+            /** Wd */
+            wd: number;
+            /** Wd Null */
+            wd_null: number;
+            /** Wd P */
+            wd_p: number;
+        };
+        /** SegmentCurve */
+        SegmentCurve: {
+            /** Book Id */
+            book_id: number;
+            /** Points */
+            points: components["schemas"]["SegmentPoint"][];
+            /** Agreement */
+            agreement: components["schemas"]["SegmentBook"][];
+        };
+        /**
+         * SegmentGap
+         * @description A gap between two verses (`verse_id` = the verse after it), its cohesion and divisions.
+         */
+        SegmentGap: {
+            /** Verse Id */
+            verse_id: number;
+            /** Book Id */
+            book_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Score */
+            score: number;
+            /** Lex */
+            lex: number;
+            /** Sem */
+            sem: number;
+            /** Mam */
+            mam: ("pe" | "samekh") | null;
+            /** Oshb */
+            oshb: ("pe" | "samekh") | null;
+            /** Chapter */
+            chapter: boolean;
+            /** Seam */
+            seam: boolean;
+            /** Kind */
+            kind: ("turn" | "cut" | "quiet") | null;
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+        };
+        /** SegmentGapsResponse */
+        SegmentGapsResponse: {
+            /** Kind */
+            kind: ("turn" | "cut" | "quiet") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["SegmentGap"][];
+        };
+        /** SegmentPoint */
+        SegmentPoint: {
+            /** Verse Id */
+            verse_id: number;
+            /** Chapter */
+            chapter: number;
+            /** Verse */
+            verse: number;
+            /** Score */
+            score: number;
+            /** Mam */
+            mam: ("pe" | "samekh") | null;
+            /** Oshb */
+            oshb: ("pe" | "samekh") | null;
+            /** Chapter Start */
+            chapter_start: boolean;
+            /** Seam */
+            seam: boolean;
+            /** Kind */
+            kind: ("turn" | "cut" | "quiet") | null;
+        };
+        /** SegmentsResponse */
+        SegmentsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["SegmentBook"][];
         };
         /** SenseExample */
         SenseExample: {
@@ -5619,6 +5795,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabelsEval"];
+                };
+            };
+        };
+    };
+    segments_api_segments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentsResponse"];
+                };
+            };
+        };
+    };
+    segment_gaps_api_segments_gaps_get: {
+        parameters: {
+            query?: {
+                kind?: ("turn" | "cut" | "quiet") | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentGapsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    segment_curve_api_segments_book__book_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentCurve"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

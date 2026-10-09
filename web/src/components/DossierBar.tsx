@@ -29,7 +29,9 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
               ? c.voices(e.label ?? e.key ?? '')
               : e.kind === 'network'
                 ? c.network(e.count ?? 0, e.total ?? 0)
-                : c[e.kind](e.count ?? 0)
+                : e.kind === 'divisions'
+                  ? c.divisions(e.count ?? 0, e.key)
+                  : c[e.kind](e.count ?? 0)
     return e.scope === 'chapter' ? text + t.inChapter : text
   }
   return (

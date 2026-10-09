@@ -1243,6 +1243,7 @@ export type DossierKind =
   | 'speech'
   | 'voices'
   | 'network'
+  | 'divisions'
   | 'labels'
 
 export interface DossierEntry {
@@ -1251,13 +1252,13 @@ export interface DossierEntry {
   scope: 'unit' | 'chapter'
   /** false: the stage did not run (or does not cover this unit type) */
   computed: boolean
-  /** rows found; 1 / 0 for a yes / no finding; network: rank */
+  /** rows found; 1 / 0 for a yes / no finding; network: rank; divisions: flagged gaps in the unit */
   count: number | null
   /** network: units ranked */
   total: number | null
-  /** lowest q (acrostic, structure) or score (dating) */
+  /** lowest q (acrostic, structure), score (dating), divisions: score of the unit's opening gap */
   value: number | null
-  /** speech: speaker lemma; voices: voice profile key */
+  /** speech: speaker lemma; voices: voice profile key; divisions: kind of the opening gap */
   key: string | null
   /** speech / voices: the speaker's Hebrew form */
   label: string | null
@@ -1415,4 +1416,106 @@ export interface BorrowingResponse {
   used_signs: string[]
   held_out: SignCheck | null
   books: BorrowingBookPair[]
+}
+
+// --- where the text turns and where it is divided (DESIGN.md §16.29) ---
+
+export type SegmentKind = 'turn' | 'cut' | 'quiet'
+export type Paragraph = 'pe' | 'samekh'
+
+/** A book's top-K gaps as a segmentation against its MAM breaks or its chapters */
+export interface SegmentBook {
+  book_id: number
+  ref: 'mam' | 'chapter'
+  /** Pk window, in verses */
+  k: number
+  pk: number
+  /** mean over K random gaps */
+  pk_null: number
+  pk_p: number
+  wd: number
+  wd_null: number
+  wd_p: number
+}
+
+/** One kind of division: its gaps' mean score against the labels shuffled in each book */
+export interface SegmentGroup {
+  n: number
+  score: number | null
+  null: number | null
+  p: number | null
+  lex: number | null
+  sem: number | null
+}
+
+export interface SegmentContrast {
+  a: number | null
+  b: number | null
+  diff: number | null
+  p: number | null
+}
+
+/** `meta.segments`, all keys absent without `bsim segments` */
+export interface SegmentsMeta {
+  window?: number
+  window_grid?: Record<string, number>
+  gaps?: number
+  groups?: Record<string, SegmentGroup>
+  contrasts?: Record<string, SegmentContrast>
+  calibration?: SegmentGroup
+  seams?: { n: number; share: number | null; null: number | null; p: number | null; near?: number }
+  agreement?: Record<string, { books: number; pk: number; pk_null: number; wd: number; wd_null: number; better: number }>
+  kinds?: Record<SegmentKind, number>
+}
+
+export interface SegmentsResponse {
+  meta: SegmentsMeta & Record<string, unknown>
+  books: SegmentBook[]
+}
+
+/** A gap between two verses (`verse_id` = the verse after it) */
+export interface SegmentGap {
+  verse_id: number
+  book_id: number
+  label: string
+  label_he: string
+  /** within-book percentile of the cohesion drop (1 = the book's sharpest turn) */
+  score: number
+  lex: number
+  sem: number
+  mam: Paragraph | null
+  oshb: Paragraph | null
+  chapter: boolean
+  seam: boolean
+  kind: SegmentKind | null
+  /** the verse before the gap and the verse after it */
+  verses: Verse[]
+}
+
+export interface SegmentGapsResponse {
+  kind: SegmentKind | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: SegmentGap[]
+}
+
+export interface SegmentPoint {
+  verse_id: number
+  chapter: number
+  verse: number
+  score: number
+  mam: Paragraph | null
+  oshb: Paragraph | null
+  chapter_start: boolean
+  seam: boolean
+  kind: SegmentKind | null
+}
+
+export interface SegmentCurve {
+  book_id: number
+  points: SegmentPoint[]
+  agreement: SegmentBook[]
 }

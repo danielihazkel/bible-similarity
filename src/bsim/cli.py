@@ -92,6 +92,18 @@ def dating(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def segments(config: ConfigOpt = None) -> None:
+    """Test whether paragraph breaks and chapters fall where the text's cohesion drops."""
+    from bsim.analysis.segments import run_segments
+
+    try:
+        run_segments(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def voices(config: ConfigOpt = None) -> None:
     """Profile each speaker's style against the other speech of their books (shuffle null)."""
     from bsim.analysis.voices import run_voices

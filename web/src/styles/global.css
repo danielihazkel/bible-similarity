@@ -2378,3 +2378,36 @@ a.dossier-chip {
 a.dossier-chip:hover {
   background: var(--accent-soft);
 }
+
+/* ---------- Divisions (§16.29) ---------- */
+
+.division-chart {
+  width: 100%;
+  max-width: 760px;
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0.5rem 0;
+}
+.division-chart .div-pe { stroke: var(--accent); }
+.division-chart .div-samekh { stroke: var(--lex); }
+.division-chart .div-none { stroke: var(--border); }
+.div-chapter-line { stroke: var(--sem); stroke-dasharray: 2 3; }
+.division-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; }
+.division-legend .swatch {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+.swatch.div-pe { background: var(--accent); }
+.swatch.div-samekh { background: var(--lex); }
+.swatch.div-none { background: var(--border); }
+.swatch.div-chapter { background: var(--sem); }
+.division-findings { padding-inline-start: 1.2rem; }
+.division-findings li { margin: 0.25rem 0; }
+.gap-verses { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem; }
+.gap-before { color: var(--muted); }
+.gap-mark { display: block; border-top: 2px dashed var(--accent); width: 4rem; margin-inline-start: auto; }

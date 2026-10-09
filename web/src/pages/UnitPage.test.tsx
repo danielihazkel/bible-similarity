@@ -138,6 +138,7 @@ const DOSSIER: Dossier = {
     entry({ kind: 'structure', scope: 'chapter', target_unit: 'c:25:118', value: 0.4, count: 0 }),
     entry({ kind: 'speech', count: 2, key: '1732', label: 'דוד' }),
     entry({ kind: 'voices', count: 1, key: '1732', label: 'דוד' }),
+    entry({ kind: 'divisions', count: 1, key: 'cut', value: 0.09 }),
   ],
 }
 
@@ -248,6 +249,7 @@ describe('UnitPage', () => {
     expect(link('acrostic, q < 0.001 (chapter)')).toBe('/unit/c%3A25%3A118?acrostic=1')
     expect(link('2 quotation clauses, mostly דוד')).toBe('/unit/v%3A0?syntax=1')
     expect(link('the voice of דוד')).toBe('/speech?view=voices&voice=1732')
+    expect(link('a chapter start inside running text')).toBe('/divisions?book=0&unit=v%3A0')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')
@@ -259,6 +261,7 @@ describe('UnitPage', () => {
     renderAt('/unit/v:0', 'he')
     const bar = await screen.findByRole('navigation', { name: 'מה מצאו הניתוחים כאן' })
     expect(screen.getByRole('link', { name: 'צירוף משותף אחד' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'תחילת פרק בתוך טקסט רציף' })).toBeTruthy()
     expect(bar.textContent).toContain('לא חושב בבנייה זו: מי שאל')
   })
 

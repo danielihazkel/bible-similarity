@@ -659,6 +659,54 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # divisions (`bsim segments`): in book 0 a quiet samekh before v1, an unmarked turn before
+    # v2, chapter 2 starting inside cohesive text at v3 (also the style seam), a pe before v4
+    seg_dir = art / "segments"
+    seg_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (0, 1, 0.9, 0.95, 0.0, 0.0, 0.03, "samekh", None, 0, 0, 0, "quiet"),
+            (0, 2, 0.1, 0.4, 0.6, 0.5, 0.98, None, None, 0, 0, 0, "turn"),
+            (0, 3, 0.7, 0.9, 0.1, 0.05, 0.1, None, None, 1, 0, 1, "cut"),
+            (0, 4, 0.3, 0.6, 0.3, 0.2, 0.5, "pe", "pe", 0, 0, 0, None),
+        ],
+        columns=[
+            "book_id", "verse_id", "lex", "sem", "lex_depth", "sem_depth", "score", "mam",
+            "oshb", "chapter", "parasha", "seam", "kind",
+        ],
+    ).to_parquet(seg_dir / "gaps.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, "mam", 2, 0.3, 0.45, 0.04, 0.35, 0.5, 0.03)],
+        columns=["book_id", "ref", "k", "pk", "pk_null", "pk_p", "wd", "wd_null", "wd_p"],
+    ).to_parquet(seg_dir / "books.parquet")
+    group = {"n": 2, "score": 0.27, "null": 0.5, "p": 0.6, "lex": 0.3, "sem": 0.3}
+    (seg_dir / "segments.meta.json").write_text(
+        json.dumps(
+            {
+                "window": 4,
+                "window_grid": {"2": 0.55, "4": 0.57},
+                "gaps": 4,
+                "groups": {
+                    "mam": group,
+                    "mam_pe": {**group, "n": 1, "score": 0.5},
+                    "mam_samekh": {**group, "n": 1, "score": 0.03},
+                    "chapter_only": {**group, "n": 1, "score": 0.1},
+                    "unmarked": {**group, "n": 1, "score": 0.98},
+                },
+                "contrasts": {"pe_samekh": {"a": 0.5, "b": 0.03, "diff": 0.47, "p": 0.3}},
+                "calibration": {"n": 2, "score": 0.5, "null": 0.5, "p": 0.5},
+                "seams": {"n": 1, "share": 1.0, "null": 0.5, "p": 0.4, "near": 2},
+                "agreement": {
+                    "mam": {
+                        "books": 1, "pk": 0.3, "pk_null": 0.45, "wd": 0.35, "wd_null": 0.5,
+                        "better": 1,
+                    }
+                },
+                "kinds": {"turn": 1, "cut": 1, "quiet": 1},
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # style shifts: a curve over book 0 and one seam before v3 (chapter 2)
     seam_dir = art / "seams"
     seam_dir.mkdir(parents=True, exist_ok=True)
