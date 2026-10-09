@@ -1289,7 +1289,7 @@ class VoiceDetail(ApiModel):
 DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
-    "voices", "network", "divisions", "ketiv", "citations", "labels",
+    "voices", "network", "divisions", "ketiv", "citations", "allusions", "labels",
 ]  # fmt: skip
 
 
@@ -1561,3 +1561,42 @@ class CitationListResponse(ApiModel):
     offset: int
     limit: int
     items: list[Citation]
+
+
+class AllusionLemma(ApiModel):
+    lemma: str  # Strong's number
+    form: str
+
+
+class Allusion(ApiModel):
+    """Two passages of a few verses sharing rare words (§16.32)."""
+
+    allusion_id: int
+    a_start: int
+    a_end: int
+    b_start: int
+    b_end: int
+    a_label: str
+    a_label_he: str
+    b_label: str
+    b_label_he: str
+    n_shared: int
+    score: float
+    q: float
+    known: bool  # already a fused neighbour or a parallel sequence
+    lemmas: list[AllusionLemma]
+    a_verses: list[Verse]
+    b_verses: list[Verse]
+    a_marks: dict[int, list[int]]  # verse_id -> display tokens of the shared words
+    b_marks: dict[int, list[int]]
+
+
+class AllusionsResponse(ApiModel):
+    meta: dict[str, Any]  # rare_lemmas, window, pairs, known, max_q, strong, best_new_q
+    known: bool | None
+    book: int | None
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[Allusion]

@@ -633,6 +633,23 @@ CREATE TABLE segment_books (
     PRIMARY KEY (book_id, ref)
 ) WITHOUT ROWID;
 
+-- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
+-- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
+CREATE TABLE allusions (
+    allusion_id INTEGER PRIMARY KEY,
+    a_start INTEGER NOT NULL,
+    a_end INTEGER NOT NULL,
+    b_start INTEGER NOT NULL,
+    b_end INTEGER NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    n_shared INTEGER NOT NULL,      -- rare lemmas shared
+    score REAL NOT NULL,            -- their idf sum
+    q REAL NOT NULL,
+    known INTEGER NOT NULL,
+    lemmas TEXT NOT NULL            -- JSON [[lemma, form], ...], rarest first
+) WITHOUT ROWID;
+
 -- Verses that say they quote or fulfil another (`bsim citations`, §16.31): the formula, the best
 -- source and whether BM25 alone and cosine alone agree on it (resolved).
 CREATE TABLE citations (

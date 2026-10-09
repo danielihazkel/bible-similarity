@@ -707,6 +707,26 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
+    allu_dir = art / "allusions"
+    allu_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (1, 0, 1, 3, 4, 0, 0, 3, 24.5, 0.04, 1, '[["7225", "ראשית"], ["430", "אלהים"]]'),
+            (2, 1, 2, 5, 5, 0, 1, 3, 20.1, 0.8, 0, '[["7225", "ראשית"]]'),
+        ],
+        columns=[
+            "allusion_id", "a_start", "a_end", "b_start", "b_end", "a_book", "b_book",
+            "n_shared", "score", "q", "known", "lemmas",
+        ],
+    ).to_parquet(allu_dir / "pairs.parquet")  # fmt: skip
+    (allu_dir / "allusions.meta.json").write_text(
+        json.dumps(
+            {"rare_lemmas": 3, "window": 2, "pairs": 2, "known": 1, "max_q": 0.05, "strong": 1,
+             "strong_known": 1, "best_new_q": 0.8}  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # citations (`bsim citations`): v3 says it fulfils v0 (resolved, a named source), v5 cites
     # the Torah without a source both signals agree on
     cite_dir = art / "citations"

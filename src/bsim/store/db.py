@@ -39,6 +39,7 @@ Derived columns:
 - `segment_gaps`, `segment_books` + `meta.segments`: `bsim segments` (empty without it).
 - `kq_pairs`, `kq_letters`, `kq_books` + `meta.ketiv`: `bsim ketiv` (empty without it).
 - `citations`, `citation_books` + `meta.citations`: `bsim citations` (empty without it).
+- `allusions` + `meta.allusions`: `bsim allusions` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -124,6 +125,8 @@ INDEXES = (
     "CREATE INDEX kq_pairs_by_cls ON kq_pairs (cls, verse_id)",
     "CREATE INDEX citations_by_verse ON citations (verse_id)",
     "CREATE INDEX citations_by_target ON citations (target_vid)",
+    "CREATE INDEX allusions_by_a ON allusions (a_start)",
+    "CREATE INDEX allusions_by_b ON allusions (b_start)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -435,6 +438,20 @@ TABLE_COLUMNS = {
         "gold_rank",
     ],
     "citation_books": ["book_id", "target_book", "n"],
+    "allusions": [
+        "allusion_id",
+        "a_start",
+        "a_end",
+        "b_start",
+        "b_end",
+        "a_book",
+        "b_book",
+        "n_shared",
+        "score",
+        "q",
+        "known",
+        "lemmas",
+    ],
     "kq_books": [
         "book_id",
         "n",
@@ -1045,6 +1062,11 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
         out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
     out["citations_meta"] = _read_json(cite_dir / "citations.meta.json")
+    allu_dir = resolve_path(cfg, "artifacts") / "allusions"
+    path = allu_dir / "pairs.parquet"
+    df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+    out["allusions"] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS["allusions"])
+    out["allusions_meta"] = _read_json(allu_dir / "allusions.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1249,6 +1271,7 @@ def _write_db(
             "kq_books": inputs["kq_books"],
             "citations": inputs["citations"],
             "citation_books": inputs["citation_books"],
+            "allusions": inputs["allusions"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1378,6 +1401,20 @@ def _write_db(
         meta["citations"] = {
             k: cm.get(k)
             for k in ("citations", "resolved", "families", "gold", "word_lag_median", "book_pairs")
+        }
+        alm = inputs["allusions_meta"]
+        meta["allusions"] = {
+            k: alm.get(k)
+            for k in (
+                "rare_lemmas",
+                "window",
+                "pairs",
+                "known",
+                "max_q",
+                "strong",
+                "strong_known",
+                "best_new_q",
+            )
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

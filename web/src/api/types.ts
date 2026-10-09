@@ -1246,6 +1246,7 @@ export type DossierKind =
   | 'divisions'
   | 'ketiv'
   | 'citations'
+  | 'allusions'
   | 'labels'
 
 export interface DossierEntry {
@@ -1713,4 +1714,59 @@ export interface CitationListResponse {
   offset: number
   limit: number
   items: Citation[]
+}
+
+// --- rare words two passages share over a few verses (DESIGN.md §16.32) ---
+
+export interface AllusionLemma {
+  /** Strong's number */
+  lemma: string
+  form: string
+}
+
+export interface Allusion {
+  allusion_id: number
+  a_start: number
+  a_end: number
+  b_start: number
+  b_end: number
+  a_label: string
+  a_label_he: string
+  b_label: string
+  b_label_he: string
+  n_shared: number
+  score: number
+  q: number
+  /** already a fused neighbour or a parallel sequence */
+  known: boolean
+  /** rarest first */
+  lemmas: AllusionLemma[]
+  a_verses: Verse[]
+  b_verses: Verse[]
+  /** verse_id -> display tokens of the shared words */
+  a_marks: Record<string, number[]>
+  b_marks: Record<string, number[]>
+}
+
+/** `meta.allusions`, all keys absent without `bsim allusions` */
+export interface AllusionsMeta {
+  rare_lemmas?: number
+  window?: number
+  pairs?: number
+  known?: number
+  max_q?: number
+  strong?: number
+  strong_known?: number
+  best_new_q?: number | null
+}
+
+export interface AllusionsResponse {
+  meta: AllusionsMeta & Record<string, unknown>
+  known: boolean | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: Allusion[]
 }

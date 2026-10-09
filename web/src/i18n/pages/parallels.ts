@@ -33,6 +33,21 @@ export const parEn = {
     recurringTitle: (n: number) => `Show phrases shared by more than ${n} verses (idioms)`,
     recurring: 'Include recurring phrases',
     none: 'No shared phrases match these filters.',
+    views: { phrases: 'Phrases', spread: 'Spread over verses' },
+    viewLabel: 'What to list',
+  },
+
+  spread: {
+    lede: (w: number) =>
+      `Passages of ${w} verses sharing at least three rare words (found in 15 verses or fewer, names left out), wherever they stand in the passages: an allusion can borrow a few words without quoting a phrase. Verse order shuffled within every chapter gives the chance level (q): it keeps each chapter's vocabulary and only scatters the words.`,
+    finding: (pairs: number, known: number, strong: number, strongKnown: number, best: string) =>
+      `${numEn(pairs)} passage pairs, ${numEn(known)} of them already found as parallels. ${numEn(strong)} beat the shuffles (q ≤ 0.05), all known parallels (${numEn(strongKnown)}); the best new pair has q ${best}. The new pairs are leads, not findings.`,
+    onlyNew: 'Only pairs not found as parallels',
+    none: 'No passage pairs match these filters.',
+    shared: (n: number) => `${numEn(n)} rare words`,
+    known: 'known parallel',
+    page: (n: number, page: number, pages: number) => `${numEn(n)} passage pairs · page ${page} of ${pages}`,
+    noData: 'Not computed in this build: run `bsim allusions`, then `bsim build-db`.',
   },
 
   sequences: {
@@ -166,6 +181,21 @@ export const parHe: typeof parEn = {
     recurringTitle: (n: number) => `הצגת צירופים המשותפים ליותר מ־${n} פסוקים (ניבים)`,
     recurring: 'כולל צירופים חוזרים',
     none: 'אין צירופים משותפים התואמים את הסינון.',
+    views: { phrases: 'צירופים', spread: 'פזורים על פני פסוקים' },
+    viewLabel: 'מה להציג',
+  },
+
+  spread: {
+    lede: (w: number) =>
+      `קטעים של ${numHe(w)} פסוקים החולקים לפחות שלוש מילים נדירות (המופיעות ב־15 פסוקים או פחות, בלי שמות), בכל מקום שהן עומדות בקטעים: רמיזה יכולה לשאול כמה מילים בלי לצטט צירוף. ערבוב סדר הפסוקים בתוך כל פרק נותן את רמת המקריות (q): הוא שומר על אוצר המילים של כל פרק ורק מפזר את המילים.`,
+    finding: (pairs: number, known: number, strong: number, strongKnown: number, best: string) =>
+      `${numHe(pairs)} זוגות קטעים, ${numHe(known)} מהם כבר נמצאו כמקבילות. ${numHe(strong)} עולים על הערבובים (q ≤ 0.05), כולם מקבילות ידועות (${numHe(strongKnown)}); לזוג החדש הטוב ביותר q ${best}. הזוגות החדשים הם כיווני חיפוש, לא ממצאים.`,
+    onlyNew: 'רק זוגות שלא נמצאו כמקבילות',
+    none: 'אין זוגות קטעים התואמים את הסינון.',
+    shared: (n: number) => `${numHe(n)} מילים נדירות`,
+    known: 'מקבילה ידועה',
+    page: (n: number, page: number, pages: number) => `${numHe(n)} זוגות קטעים · עמוד ${page} מתוך ${pages}`,
+    noData: 'לא חושב בבנייה זו: הריצו `bsim allusions` ואחר כך `bsim build-db`.',
   },
 
   sequences: {

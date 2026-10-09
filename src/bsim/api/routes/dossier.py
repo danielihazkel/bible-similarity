@@ -16,6 +16,7 @@ and what it found:
                                   score / kind of the gap the unit opens with
     ketiv                         count = ketiv / qere in the unit's verses
     citations                     count = citations from the unit + resolved citations of it
+    allusions                     count = rare-word allusion leads touching the unit (any q)
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -181,6 +182,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "citations",
         computed=state.present(conn, "citations"),
         count=queries.citations_page(conn, None, None, None, span, 1, 0)[0],
+    )
+
+    add(
+        "allusions",
+        computed=state.present(conn, "allusions"),
+        count=queries.allusions_page(conn, None, None, span, 1, 0)[0],
     )
 
     if u["unit_type"] != "verse":

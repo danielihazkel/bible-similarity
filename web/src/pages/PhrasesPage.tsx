@@ -1,5 +1,6 @@
 import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
 import { EmptyList, Pager } from '../components/Pager'
+import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { UnitFilter } from '../components/UnitFilter'
@@ -7,6 +8,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { SpreadView } from './SpreadView'
 
 const PAGE_SIZE = 50
 const MIN_TOKENS = [3, 4, 5, 6, 8, 10]
@@ -14,8 +16,30 @@ const MIN_TOKENS = [3, 4, 5, 6, 8, 10]
 // Kings / Isaiah / Chronicles survives, an idiom shared by many verses does not.
 const MAX_SPREAD = 3
 
-/** The strongest shared phrases in the Tanakh (local alignment of lemma streams). */
+/** Shared phrases, and rare words shared over a few verses (`?view=spread`). */
 export function PhrasesPage() {
+  const { m } = useLocale()
+  const [params, update] = useQueryParams()
+  const view = params.get('view') === 'spread' ? 'spread' : 'phrases'
+  return (
+    <div className="page phrases-page">
+      <h1>{m.par.phrases.title}</h1>
+      <Segmented
+        label={m.par.phrases.viewLabel}
+        value={view}
+        options={[
+          { value: 'phrases', label: m.par.phrases.views.phrases },
+          { value: 'spread', label: m.par.phrases.views.spread },
+        ]}
+        onChange={(v) => update({ view: v === 'spread' ? 'spread' : null, page: null }, false)}
+      />
+      {view === 'spread' ? <SpreadView /> : <PhraseList />}
+    </div>
+  )
+}
+
+/** The strongest shared phrases in the Tanakh (local alignment of lemma streams). */
+function PhraseList() {
   const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -42,8 +66,7 @@ export function PhrasesPage() {
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
   return (
-    <div className="page phrases-page">
-      <h1>{m.par.phrases.title}</h1>
+    <>
       <p className="lede">{m.par.phrases.lede}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
@@ -112,6 +135,6 @@ export function PhrasesPage() {
           <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
         </>
       )}
-    </div>
+    </>
   )
 }

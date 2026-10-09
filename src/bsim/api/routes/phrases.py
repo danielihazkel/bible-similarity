@@ -1,4 +1,4 @@
-"""Shared phrases (DESIGN.md §16.1)."""
+"""Shared phrases (DESIGN.md §16.1) and rare words shared over a few verses (§16.32)."""
 
 from __future__ import annotations
 
@@ -10,6 +10,9 @@ from fastapi import APIRouter, Response
 
 from bsim.api import queries
 from bsim.api.models import (
+    Allusion,
+    AllusionLemma,
+    AllusionsResponse,
     PhrasePair,
     PhrasesResponse,
     UnitSummary,
@@ -25,6 +28,61 @@ from bsim.api.routes._common import (
 )
 
 router = APIRouter()
+
+
+@router.get("/allusions", response_model=AllusionsResponse)
+def allusions(
+    state: State,
+    conn: Conn,
+    known: bool | None = None,
+    book: int | None = None,
+    unit: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Passages sharing rare words over a few verses (DESIGN.md §16.32), strongest first, with
+    both passages and the shared words marked; `known`: already found as a parallel."""
+    check_page(state, limit, offset)
+    total, rows = queries.allusions_page(conn, known, book, unit_span(conn, unit), limit, offset)
+    ends = [v for r in rows for v in (r["a_start"], r["a_end"], r["b_start"], r["b_end"])]
+    labels = queries.verse_labels(conn, ends)
+
+    def span(first: int, last: int, lang: int) -> str:
+        return f"{labels[first][lang]} – {labels[last][lang]}"
+
+    items = []
+    for r in rows:
+        a = list(range(r["a_start"], r["a_end"] + 1))
+        b = list(range(r["b_start"], r["b_end"] + 1))
+        lemmas = json.loads(r["lemmas"])
+        keys = {lem for lem, _ in lemmas}
+        verses = queries.verses_by_id(conn, a + b)
+        items.append(
+            Allusion(
+                **{k: r[k] for k in ("allusion_id", "a_start", "a_end", "b_start", "b_end")},
+                **{k: r[k] for k in ("n_shared", "score", "q")},
+                a_label=span(a[0], a[-1], 0),
+                a_label_he=span(a[0], a[-1], 1),
+                b_label=span(b[0], b[-1], 0),
+                b_label_he=span(b[0], b[-1], 1),
+                known=bool(r["known"]),
+                lemmas=[AllusionLemma(lemma=lem, form=f) for lem, f in lemmas],
+                a_verses=[verses[v] for v in a],
+                b_verses=[verses[v] for v in b],
+                a_marks=queries.lemma_marks(conn, a, keys),
+                b_marks=queries.lemma_marks(conn, b, keys),
+            )
+        )
+    return {
+        "meta": state.meta.get("allusions") or {},
+        "known": known,
+        "book": book,
+        "unit": unit,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": items,
+    }
 
 
 def _phrase_pairs(

@@ -517,6 +517,15 @@ citations:                    # `bsim citations`: verses that say they quote or 
     - ["Exodus 39:26", "Exodus 28:34"]
     - ["Exodus 39:31", "Exodus 28:37"]
 
+allusions:                    # `bsim allusions`: rare words shared over a few verses (DESIGN.md §16.32)
+  window: 3                   # consecutive verses of one chapter
+  rare_max: 15                # a rare lemma is in at most this many verses (and at least 2)
+  min_shared: 3               # rare lemmas two windows must share
+  null_reps: 20               # verse-order shuffles within chapters
+  max_q: 0.05
+  known_rank: 10              # a pair is known when a verse pair is in the fused top-k or a sequence
+  seed: 13
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list

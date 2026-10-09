@@ -532,10 +532,17 @@ Phase 3 (M39c): API and viewer
 
 ✔ 116 citations, 41 resolved; only "as commanded" resolves above chance as a family (55 % vs 32 %, p 0.0008), "as it is written" and the fulfilment notices do not; gold 15 / 20 at rank 1, every resolved gold citation right (10 / 10); 141 / 141 fixture and 112 / 112 real-data e2e.
 
+## M50: Rare words over a few verses (§16.32, D68; proposed A5)
+- [x] `bsim allusions` (`analysis/allusions.py`, pipeline stage after citations, ~5 s): rare lemmas (Strong's numbers, 2–15 verses, no names, gentilics or Aramaic), three-verse windows of different chapters sharing ≥ 3, idf score, overlap suppression; within-chapter verse-shuffle null (null-ratio q, as §16.7); known = fused top 10 or a sequence
+- [x] DB `allusions` (+ `meta.allusions`, empty without the stage); API `/allusions?known&book&unit` with both passages and the shared words marked; dossier entry `allusions`
+- [x] Viewer: Phrases → Spread over verses (new pairs by default, the rare words, both passages marked, q, Compare); English and Hebrew
+- [x] Tests: rare lemmas (senses merged, names and Aramaic out), windows within a chapter, pairs and suppression (pytest); the API and dossier on the fixture DB; the view, its default, the toggle back to phrases, the dossier chip (vitest); e2e: the view in both languages with axe
+
+✔ 176 pairs, 171 known parallels; nothing new beats the within-chapter shuffle (the 3 at q ≤ 0.05 are known, the best new q 0.82): the five new echoes (Urim and Thummim, wormwood and gall, …) are shown as leads; 145 / 145 fixture and 114 / 114 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
 - A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
-- A5 Allusions spread over 2–3 verses: rare-lemma window overlap with a shuffle null
 - A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")
 - A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`
 - C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)

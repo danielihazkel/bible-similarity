@@ -260,6 +260,12 @@ def stage_citations(cfg: dict[str, Any], log: Log) -> None:
     run_citations(cfg, log=log)
 
 
+def stage_allusions(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.allusions import run_allusions
+
+    run_allusions(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -304,6 +310,7 @@ STAGES: dict[str, str] = {
     "segments": "stage_segments",
     "ketiv": "stage_ketiv",
     "citations": "stage_citations",
+    "allusions": "stage_allusions",
     "build-db": "stage_build_db",
 }
 

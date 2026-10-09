@@ -2434,3 +2434,9 @@ a.dossier-chip:hover {
 .cite-source { border-inline-start: 3px solid var(--border); padding-inline-start: 0.75rem; margin: 0.4rem 0; }
 .cite-source p { margin: 0 0 0.2rem; }
 .cite-source-text { color: var(--muted); }
+
+/* ---------- Rare words spread over verses (§16.32) ---------- */
+
+.spread-lemmas { margin: 0.25rem 0; font-size: 1.1rem; color: var(--accent); }
+.spread-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0.5rem 1.5rem; }
+.spread-side p { margin: 0.15rem 0; }

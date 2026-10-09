@@ -243,6 +243,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/allusions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Allusions
+         * @description Passages sharing rare words over a few verses (DESIGN.md §16.32), strongest first, with
+         *     both passages and the shared words marked; `known`: already found as a parallel.
+         */
+        get: operations["allusions_api_allusions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/phrases/{verse_id}": {
         parameters: {
             query?: never;
@@ -1572,6 +1593,80 @@ export interface components {
             /** Items */
             items: components["schemas"]["Alliteration"][];
         };
+        /**
+         * Allusion
+         * @description Two passages of a few verses sharing rare words (§16.32).
+         */
+        Allusion: {
+            /** Allusion Id */
+            allusion_id: number;
+            /** A Start */
+            a_start: number;
+            /** A End */
+            a_end: number;
+            /** B Start */
+            b_start: number;
+            /** B End */
+            b_end: number;
+            /** A Label */
+            a_label: string;
+            /** A Label He */
+            a_label_he: string;
+            /** B Label */
+            b_label: string;
+            /** B Label He */
+            b_label_he: string;
+            /** N Shared */
+            n_shared: number;
+            /** Score */
+            score: number;
+            /** Q */
+            q: number;
+            /** Known */
+            known: boolean;
+            /** Lemmas */
+            lemmas: components["schemas"]["AllusionLemma"][];
+            /** A Verses */
+            a_verses: components["schemas"]["Verse"][];
+            /** B Verses */
+            b_verses: components["schemas"]["Verse"][];
+            /** A Marks */
+            a_marks: {
+                [key: string]: number[];
+            };
+            /** B Marks */
+            b_marks: {
+                [key: string]: number[];
+            };
+        };
+        /** AllusionLemma */
+        AllusionLemma: {
+            /** Lemma */
+            lemma: string;
+            /** Form */
+            form: string;
+        };
+        /** AllusionsResponse */
+        AllusionsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Allusion"][];
+        };
         /** Book */
         Book: {
             /** Book Id */
@@ -2159,7 +2254,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -4523,6 +4618,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvalResponse"];
+                };
+            };
+        };
+    };
+    allusions_api_allusions_get: {
+        parameters: {
+            query?: {
+                known?: boolean | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllusionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

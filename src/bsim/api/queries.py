@@ -1414,3 +1414,50 @@ def citations_page(
         [*args, limit, offset],
     )
     return total, _dicts(cur)
+
+
+def allusions_page(
+    conn: sqlite3.Connection,
+    known: bool | None,
+    book_id: int | None,
+    span: tuple[int, int] | None,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Allusion leads, strongest first; `span`: either side overlapping these verses."""
+    where, args = ["1 = 1"], []
+    if known is not None:
+        where.append("known = ?")
+        args.append(int(known))
+    if book_id is not None:
+        where.append("(a_book = ? OR b_book = ?)")
+        args += [book_id, book_id]
+    if span is not None:
+        where.append("((a_start <= ? AND a_end >= ?) OR (b_start <= ? AND b_end >= ?))")
+        args += [span[1], span[0], span[1], span[0]]
+    w = " AND ".join(where)
+    total = count(conn, f"SELECT COUNT(*) FROM allusions WHERE {w}", args)
+    cur = conn.execute(
+        f"SELECT * FROM allusions WHERE {w} ORDER BY score DESC, allusion_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def lemma_marks(
+    conn: sqlite3.Connection, vids: list[int], lemmas: set[str]
+) -> dict[int, list[int]]:
+    """verse_id -> display tokens of its words carrying one of `lemmas` (Strong's numbers, any
+    sense letter)."""
+    out: dict[int, list[int]] = {v: [] for v in vids}
+    if not vids or not lemmas:
+        return out
+    cur = conn.execute(
+        f"SELECT verse_id, display_idx, content_lemmas FROM words WHERE verse_id IN"
+        f" ({_marks(len(vids))}) AND display_idx IS NOT NULL",
+        vids,
+    )
+    for v, d, cl in cur:
+        if any(c.rstrip("abcdefghijklmnopqrstuvwxyz") in lemmas for c in (cl or "").split()):
+            out[v].append(d)
+    return {v: sorted(set(ds)) for v, ds in out.items()}

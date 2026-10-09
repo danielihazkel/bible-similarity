@@ -48,6 +48,8 @@ const PAGES = [
   '/citations',
   '/citations?family=word&resolved=1',
   '/citations?unit=v%3A0',
+  '/phrases?view=spread',
+  '/phrases?view=spread&all=1&unit=c%3A0%3A2',
   '/map',
   '/network',
   '/style',

@@ -201,4 +201,6 @@ Written and read (§16.30, D66), 1,260 ketiv / qere of the OSHB: 583 vowel lette
 
 Explicit citations (§16.31, D67): 116 verses with a formula of reference, 41 resolved (BM25 and cosine agree on the source). Against random verses under the same rules: as commanded 55 % vs 32 % (p 0.0008), the word fulfilled 32 % vs 27 % (p 0.32), as it is written 11 % vs 8 % (p 0.36). Gold (20 named sources): 15 at rank 1, 17 in the top 5, resolved 10 / 10 right.
 
+Rare words over a few verses (§16.32, D68): 176 three-verse window pairs sharing ≥ 3 rare lemmas, 171 known parallels; 3 at q ≤ 0.05 (within-chapter verse shuffle), all known; the 5 new pairs (Exod 28 / Deut 33, Deut 29 / Jer 9, Gen 18 / 1 Sam 28, Lev 13 / 14, Ps 103 / Neh 9) at q ≥ 0.82: leads, not findings.
+
 Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

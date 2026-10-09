@@ -40,6 +40,7 @@ import type {
   SegmentCurve,
   KetivResponse,
   CitationFamily,
+  AllusionsResponse,
   CitationListResponse,
   CitationsResponse,
   KqClass,
@@ -371,6 +372,19 @@ export const useSegmentCurve = (bookId: number | undefined) =>
     queryKey: ['segment-curve', bookId],
     queryFn: ({ signal }) => getJson<SegmentCurve>(`/segments/book/${bookId}`, {}, signal),
     enabled: bookId !== undefined,
+    ...forever,
+  })
+
+export const useAllusions = (q: { known?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['allusions', q],
+    queryFn: ({ signal }) =>
+      getJson<AllusionsResponse>(
+        '/allusions',
+        { known: q.known === undefined ? undefined : String(q.known), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

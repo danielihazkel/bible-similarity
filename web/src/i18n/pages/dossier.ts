@@ -43,6 +43,7 @@ export const dosEn = {
             : countEn(n, 'point where text and division disagree', 'points where text and division disagree'),
     ketiv: (n: number) => countEn(n, 'word written one way and read another', 'words written one way and read another'),
     citations: (n: number) => countEn(n, 'explicit citation', 'explicit citations'),
+    allusions: (n: number) => countEn(n, 'passage sharing rare words', 'passages sharing rare words'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -67,6 +68,7 @@ export const dosEn = {
     divisions: 'text and divisions',
     ketiv: 'ketiv and qere',
     citations: 'explicit citations',
+    allusions: 'rare words shared',
   } as Record<DossierKind, string>,
 }
 
@@ -106,6 +108,7 @@ export const dosHe: typeof dosEn = {
             : countHe(n, 'מקום אחד שבו הטקסט והחלוקה חלוקים', 'שני מקומות שבהם הטקסט והחלוקה חלוקים', 'מקומות שבהם הטקסט והחלוקה חלוקים'),
     ketiv: (n: number) => countHe(n, 'מילה אחת שנכתבת כך ונקראת אחרת', 'שתי מילים שנכתבות כך ונקראות אחרת', 'מילים שנכתבות כך ונקראות אחרת'),
     citations: (n: number) => countHe(n, 'הפניה מפורשת אחת', 'שתי הפניות מפורשות', 'הפניות מפורשות'),
+    allusions: (n: number) => countHe(n, 'קטע אחד החולק מילים נדירות', 'שני קטעים החולקים מילים נדירות', 'קטעים החולקים מילים נדירות'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -129,5 +132,6 @@ export const dosHe: typeof dosEn = {
     divisions: 'טקסט וחלוקות',
     ketiv: 'כתיב וקרי',
     citations: 'הפניות מפורשות',
+    allusions: 'מילים נדירות משותפות',
   },
 }

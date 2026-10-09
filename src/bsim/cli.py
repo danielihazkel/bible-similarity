@@ -92,6 +92,18 @@ def dating(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def allusions(config: ConfigOpt = None) -> None:
+    """Find passages sharing rare words spread over a few verses (shuffle null)."""
+    from bsim.analysis.allusions import run_allusions
+
+    try:
+        run_allusions(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def citations(config: ConfigOpt = None) -> None:
     """Resolve verses that say they quote or fulfil another to their sources."""
     from bsim.analysis.citations import run_citations
