@@ -24,7 +24,10 @@ ConfigOpt = Annotated[
 def download(
     only: Annotated[
         list[str] | None,
-        typer.Option(help="Restrict to groups: oshb, text, schemas, links, lexicon (repeatable)"),
+        typer.Option(
+            help="Restrict to groups: oshb, text, schemas, links, lexicon, syntax, parallels"
+            " (repeatable)"
+        ),
     ] = None,
     workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
     config: ConfigOpt = None,
@@ -527,6 +530,18 @@ def eval_openbible(config: ConfigOpt = None) -> None:
 
     try:
         run_eval_openbible(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("eval-etcbc")
+def eval_etcbc(config: ConfigOpt = None) -> None:
+    """Score the final verse systems and the parallel analyses on ETCBC's parallel passages."""
+    from bsim.eval.etcbc import run_eval_etcbc
+
+    try:
+        run_eval_etcbc(load_config(config), log=typer.echo)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

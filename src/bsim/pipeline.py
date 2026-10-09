@@ -272,6 +272,13 @@ def stage_mirrors(cfg: dict[str, Any], log: Log) -> None:
     run_mirrors(cfg, log=log)
 
 
+def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
+    """Third gold set (dev only), after the parallel analyses it also scores."""
+    from bsim.eval.etcbc import run_eval_etcbc
+
+    run_eval_etcbc(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -318,6 +325,7 @@ STAGES: dict[str, str] = {
     "citations": "stage_citations",
     "allusions": "stage_allusions",
     "mirrors": "stage_mirrors",
+    "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
 

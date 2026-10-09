@@ -94,7 +94,7 @@ def session(cfg):
         oshb["raw_url"].format(commit=oshb["commit"], osis=b.osis): f"<osis {b.osis}/>".encode()
         for b in BOOKS
     }
-    for key in ("sdbh", "hebrew_lexicon", "bhsa"):
+    for key in ("sdbh", "hebrew_lexicon", "bhsa", "etcbc_parallels"):
         s = cfg["sources"][key]
         for file in s["files"]:
             other[s["raw_url"].format(commit=s["commit"], file=file)] = file.encode()
@@ -105,10 +105,11 @@ def test_plan_targets(cfg, session):
     targets = plan_targets(cfg, session)
     by_group = {
         g: [t for t in targets if t.group == g]
-        for g in ("oshb", "text", "schemas", "links", "lexicon", "syntax")
+        for g in ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels")
     }
     assert {t.rel for t in by_group["syntax"]} >= {"bhsa/otype.tf", "bhsa/oslots.tf"}
     assert not any("gloss" in t.rel for t in by_group["syntax"])  # D5
+    assert [t.rel for t in by_group["parallels"]] == ["etcbc_parallels/crossref.tf"]
     assert len(by_group["oshb"]) == len(by_group["text"]) == len(by_group["schemas"]) == 39
     assert [t.rel for t in by_group["links"]] == [
         "sefaria/links/links0.csv",
@@ -125,7 +126,7 @@ def test_plan_targets(cfg, session):
 
 def test_run_download_is_idempotent(cfg, session, tmp_path):
     m1 = run_download(cfg, session, raw_dir=tmp_path, log=lambda *_: None)
-    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"])
+    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1
     assert (tmp_path / "oshb" / "Gen.xml").read_bytes() == b"<osis Gen/>"
     assert (tmp_path / "sefaria" / "text" / "Song of Songs.json").exists()
     assert load_manifest(tmp_path)["oshb_commit"] == cfg["sources"]["oshb"]["commit"]

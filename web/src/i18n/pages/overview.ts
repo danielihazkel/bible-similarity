@@ -121,6 +121,14 @@ export const ovEn = {
     openbibleShare: (pct: string) => ` Only ${pct}% of OpenBible pairs are also Sefaria links.`,
     againstOpenbible: 'Against OpenBible',
     againstSefaria: 'Against Sefaria (same books)',
+    etcbc: (split: string) => `A third opinion: ETCBC's parallel passages (${split} books)`,
+    etcbcLede: (parallels: number, formulas: number, max: number) =>
+      `Verse pairs whose text is nearly the same (ETCBC parallels notebook, similarity ≥ 75 %): ${numEn(parallels)} parallels. The ${numEn(formulas)} pairs among verses with more than ${numEn(max)} partners are formulas and list items (וידבר יהוה אל משה לאמר has 157) and are left out.`,
+    etcbcShare: (sef: string, ob: string) => ` ${sef}% of them are also Sefaria links and ${ob}% OpenBible references: the commentary rarely links a verse to its near-copy.`,
+    againstEtcbc: 'Against ETCBC',
+    etcbcBands: (bands: string) => `Fused recall@10 by similarity: ${bands}.`,
+    etcbcCoverage: (fused: string, phrase: string, seq: string, prec: string, nSeq: number) =>
+      `All parallels (every split): ${fused}% are in the fused top 10, ${phrase}% share a phrase, ${seq}% lie in a strong sequence; ${prec}% of the ${numEn(nSeq)} verse pairs of the strong sequences are ETCBC parallels (the rest are reworded).`,
     system: 'System',
     servedAs: (modes: string) => `served: ${modes}`,
   },
@@ -265,6 +273,15 @@ export const ovHe: typeof ovEn = {
     openbibleShare: (pct: string) => ` רק ${pct}% מזוגות OpenBible הם גם קישורים בספריא.`,
     againstOpenbible: 'מול OpenBible',
     againstSefaria: 'מול ספריא (אותם ספרים)',
+    etcbc: (split: string) =>
+      `דעה שלישית: הקטעים המקבילים של ETCBC (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
+    etcbcLede: (parallels: number, formulas: number, max: number) =>
+      `זוגות פסוקים שנוסחם כמעט זהה (מחברת המקבילות של ETCBC, דמיון 75% ומעלה): ${numHe(parallels)} מקבילות. ${numHe(formulas)} הזוגות בין פסוקים שיש להם יותר מ־${numHe(max)} בני זוג הם נוסחאות ופריטי רשימה (לוידבר יהוה אל משה לאמר יש 157) ואינם נכללים.`,
+    etcbcShare: (sef: string, ob: string) => ` ${sef}% מהם הם גם קישורים בספריא ו־${ob}% הפניות OpenBible: הפרשנות כמעט אינה מקשרת פסוק להעתקו.`,
+    againstEtcbc: 'מול ETCBC',
+    etcbcBands: (bands: string) => `החזרה@10 של המשולב לפי דמיון: ${bands}.`,
+    etcbcCoverage: (fused: string, phrase: string, seq: string, prec: string, nSeq: number) =>
+      `כל המקבילות (בכל החלוקות): ${fused}% נמצאות בעשרה הראשונים של המשולב, ${phrase}% חולקות צירוף, ${seq}% נמצאות ברצף חזק; ${prec}% מ־${numHe(nSeq)} זוגות הפסוקים של הרצפים החזקים הם מקבילות ETCBC (השאר מנוסחים מחדש).`,
     system: 'מערכת',
     servedAs: (modes: string) => `מוצג: ${modes}`,
   },

@@ -779,9 +779,31 @@ export type OpenBibleEval = {
   results: Record<string, { system: string; openbible: MetricSet; sefaria: MetricSet }>
 }
 
+export type EtcbcEval = {
+  evaluated_at?: string
+  split?: string
+  /** a pair is a parallel when both verses have at most this many partners */
+  max_partners?: number
+  stats?: { edges: number; pairs: number; parallels: number; formula_pairs: number }
+  gold?: Record<string, number | null>
+  /** mode -> the system evaluated and its metrics on each gold set */
+  results: Record<string, { system: string; etcbc: MetricSet; sefaria: MetricSet }>
+  /** similarity band (percent) -> fused recall@10 */
+  bands?: Record<string, { pairs: number; 'recall@10': number | null }>
+  coverage?: {
+    pairs: number
+    in_sequence?: number | null
+    in_phrase?: number | null
+    in_fused_top10?: number | null
+    sequence_pairs?: number
+    sequence_pairs_in_etcbc?: number | null
+  }
+}
+
 export interface EvalResponse {
   splits: Record<string, EvalSplit>
   openbible: OpenBibleEval | null
+  etcbc: EtcbcEval | null
   /** unit type -> mode -> the system served for it */
   final: Record<string, Record<string, string>>
 }

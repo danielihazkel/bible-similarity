@@ -1,5 +1,5 @@
 import { useEval } from '../api/hooks'
-import type { MetricSet } from '../api/types'
+import type { EtcbcEval, MetricSet } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 
@@ -19,7 +19,7 @@ export function EvalPage() {
   const res = useEval()
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
-  const { splits, openbible, final } = res.data
+  const { splits, openbible, etcbc, final } = res.data
   const splitNames = ['dev', 'test'].filter((s) => s in splits).concat(Object.keys(splits).filter((s) => s !== 'dev' && s !== 'test'))
 
   return (
@@ -74,7 +74,45 @@ export function EvalPage() {
           ))}
         </section>
       )}
+      {etcbc && <EtcbcSection etcbc={etcbc} />}
     </div>
+  )
+}
+
+const p100 = (x: number | null | undefined) => (x == null ? '–' : (x * 100).toFixed(1))
+
+function EtcbcSection({ etcbc }: { etcbc: EtcbcEval }) {
+  const m = useT()
+  const t = m.ov.eval
+  const c = etcbc.coverage
+  const bands = Object.entries(etcbc.bands ?? {})
+    .map(([b, v]) => `${b} % ${v['recall@10'] == null ? '–' : v['recall@10'].toFixed(2)} (${v.pairs})`)
+    .join(', ')
+  return (
+    <section aria-label="ETCBC">
+      <h2>{t.etcbc(etcbc.split ?? 'dev')}</h2>
+      <p className="muted small">
+        {etcbc.stats && t.etcbcLede(etcbc.stats.parallels, etcbc.stats.formula_pairs, etcbc.max_partners ?? 5)}
+        {etcbc.gold && t.etcbcShare(p100(etcbc.gold.etcbc_also_in_sefaria), p100(etcbc.gold.etcbc_also_in_openbible))}
+      </p>
+      {(['etcbc', 'sefaria'] as const).map((gold) => (
+        <MetricTable
+          key={gold}
+          caption={gold === 'etcbc' ? t.againstEtcbc : t.againstSefaria}
+          rows={Object.entries(etcbc.results).map(([mode, r]) => ({
+            label: `${mode} (${r.system})`,
+            served: [],
+            metrics: r[gold],
+          }))}
+        />
+      ))}
+      {bands && <p className="small">{t.etcbcBands(bands)}</p>}
+      {c && (
+        <p className="small">
+          {t.etcbcCoverage(p100(c.in_fused_top10), p100(c.in_phrase), p100(c.in_sequence), p100(c.sequence_pairs_in_etcbc), c.sequence_pairs ?? 0)}
+        </p>
+      )}
+    </section>
   )
 }
 

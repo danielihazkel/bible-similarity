@@ -232,7 +232,8 @@ export interface paths {
         };
         /**
          * Evaluation
-         * @description Retrieval metrics against the Sefaria gold (dev, and the one test run) and OpenBible.
+         * @description Retrieval metrics against the Sefaria gold (dev, and the one test run), OpenBible and
+         *     ETCBC's parallel passages.
          */
         get: operations["evaluation_api_eval_get"];
         put?: never;
@@ -2446,6 +2447,10 @@ export interface components {
             };
             /** Openbible */
             openbible: {
+                [key: string]: unknown;
+            } | null;
+            /** Etcbc */
+            etcbc: {
                 [key: string]: unknown;
             } | null;
             /** Final */

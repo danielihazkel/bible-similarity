@@ -874,6 +874,7 @@ class Meta(ApiModel):
 class EvalResponse(ApiModel):
     splits: dict[str, Any]  # artifacts/eval/metrics.json `splits` (empty before `bsim eval`)
     openbible: dict[str, Any] | None  # artifacts/eval/openbible.json
+    etcbc: dict[str, Any] | None  # artifacts/eval/etcbc.json
     final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it
 
 

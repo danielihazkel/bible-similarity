@@ -43,6 +43,11 @@ sources:
     files: [otype.tf, oslots.tf, book.tf, chapter.tf, verse.tf, g_cons_utf8.tf, lex.tf, sp.tf,
             typ.tf, kind.tf, domain.tf, txt.tf, function.tf, rela.tf, mother.tf, vt.tf, ps.tf,
             gn.tf]
+  etcbc_parallels:            # ETCBC parallels notebook (Text-Fabric), CC BY-NC 4.0: near-verbatim verse pairs (DESIGN.md §16.34)
+    repo: ETCBC/parallels
+    commit: d0b3b42ab79b35d1ef349bda9dc1e62b2a56486e   # master @ 2023-11-13 (data version 2021)
+    raw_url: https://raw.githubusercontent.com/ETCBC/parallels/{commit}/tf/2021/{file}
+    files: [crossref.tf]
 
 lexicon:                      # `bsim lexicon`: SDBH senses and domains per word, Strong's name types (DESIGN.md §16.22)
   search_window: 2            # an SDBH word reference may sit this many morphemes off OSHB's count
@@ -535,6 +540,11 @@ mirrors:                      # `bsim mirrors`: chiasm at the small scale (DESIG
   verse_shuffles: 999         # lemma-order shuffles per full mirror
   max_q: 0.05
   seed: 13
+
+etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
+  bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
+  max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)
+  max_q: 0.05                 # a strong sequence (coverage)
 
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8

@@ -548,10 +548,17 @@ Phase 3 (M39c): API and viewer
 
 ✔ Repeated words keep their order more often than they mirror it (2,790 vs 2,099 verses, p 5e-23, poetry too); poetry mirrors its clause constituents more than prose (23.5 % vs 16.7 %, p 0.0003); the 94 full mirrors are leads; 151 / 151 fixture and 118 / 118 real-data e2e.
 
+## M52: ETCBC's parallel passages as a third gold (§16.34, D70; proposed A7)
+- [x] `sources.etcbc_parallels` (pinned commit) and the `parallels` download group; `bsim eval-etcbc` (`eval/etcbc.py`, pipeline stage before build-db, ~7 s): Text-Fabric edges with values, BHSA verse nodes to verse ids, undirected pairs without neighbours, formula and list cliques set apart (`etcbc.max_partners`), the Sefaria split rule
+- [x] Dev retrieval of the final verse systems against ETCBC and Sefaria, fused recall@10 by similarity band; coverage of all parallels by sequences, phrases and the fused list; strong-sequence pairs ETCBC lists; overlap with Sefaria and OpenBible
+- [x] `/eval` → `etcbc`; Evaluation page section (both tables, bands, coverage); English and Hebrew
+- [x] Tests: edges with values (implicit sources), gold links (neighbours, split rule, best value), formula cliques, coverage (pytest); `/eval` with and without the file; the Evaluation section (vitest)
+
+✔ 1,973 near-verbatim parallels (13,645 formula pairs apart): lexical nDCG@10 0.853, fused 0.832 on dev; 94 % of all parallels in the fused top 10; 56 % of strong-sequence pairs are ETCBC parallels; only 11 % are Sefaria links; 151 / 151 fixture and 118 / 118 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
 - A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
-- A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`
 - C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)
 - C3 Shared statistics: G² (five copies) and `shuffle_within` (sequences, wordplay) into `analysis/stats.py` (`permute_within` is there since M47)
 - B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component
