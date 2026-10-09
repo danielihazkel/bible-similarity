@@ -92,6 +92,18 @@ def dating(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def citations(config: ConfigOpt = None) -> None:
+    """Resolve verses that say they quote or fulfil another to their sources."""
+    from bsim.analysis.citations import run_citations
+
+    try:
+        run_citations(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def ketiv(config: ConfigOpt = None) -> None:
     """Compare what is written (ketiv) with what is read (qere): letters, grammar, parallels."""
     from bsim.analysis.ketiv import run_ketiv

@@ -5,6 +5,7 @@ import { useT } from './context/localeContext'
 import { BooksPage } from './pages/BooksPage'
 
 // pages load on first visit (the landing page ships with the app)
+const CitationsPage = lazy(() => import('./pages/CitationsPage').then((m) => ({ default: m.CitationsPage })))
 const KetivPage = lazy(() => import('./pages/KetivPage').then((m) => ({ default: m.KetivPage })))
 const DivisionsPage = lazy(() => import('./pages/DivisionsPage').then((m) => ({ default: m.DivisionsPage })))
 const AcrosticsPage = lazy(() => import('./pages/AcrosticsPage').then((m) => ({ default: m.AcrosticsPage })))
@@ -71,6 +72,7 @@ export function App() {
           <Route path="acrostics" element={<AcrosticsPage />} />
           <Route path="divisions" element={<DivisionsPage />} />
           <Route path="ketiv" element={<KetivPage />} />
+          <Route path="citations" element={<CitationsPage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="network" element={<NetworkPage />} />
           <Route path="style" element={<StylometryPage />} />

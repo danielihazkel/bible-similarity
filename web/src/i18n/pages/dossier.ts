@@ -42,6 +42,7 @@ export const dosEn = {
             ? 'opens at a quiet paragraph break'
             : countEn(n, 'point where text and division disagree', 'points where text and division disagree'),
     ketiv: (n: number) => countEn(n, 'word written one way and read another', 'words written one way and read another'),
+    citations: (n: number) => countEn(n, 'explicit citation', 'explicit citations'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -65,6 +66,7 @@ export const dosEn = {
     network: 'echo network',
     divisions: 'text and divisions',
     ketiv: 'ketiv and qere',
+    citations: 'explicit citations',
   } as Record<DossierKind, string>,
 }
 
@@ -103,6 +105,7 @@ export const dosHe: typeof dosEn = {
             ? 'נפתח בפרשה שקטה'
             : countHe(n, 'מקום אחד שבו הטקסט והחלוקה חלוקים', 'שני מקומות שבהם הטקסט והחלוקה חלוקים', 'מקומות שבהם הטקסט והחלוקה חלוקים'),
     ketiv: (n: number) => countHe(n, 'מילה אחת שנכתבת כך ונקראת אחרת', 'שתי מילים שנכתבות כך ונקראות אחרת', 'מילים שנכתבות כך ונקראות אחרת'),
+    citations: (n: number) => countHe(n, 'הפניה מפורשת אחת', 'שתי הפניות מפורשות', 'הפניות מפורשות'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -125,5 +128,6 @@ export const dosHe: typeof dosEn = {
     network: 'רשת ההדים',
     divisions: 'טקסט וחלוקות',
     ketiv: 'כתיב וקרי',
+    citations: 'הפניות מפורשות',
   },
 }

@@ -107,6 +107,8 @@ p a:not(.hit-ref):not(.name-chip),
 .seam-list a,
 .division-findings a,
 .kq-classes a,
+.cite-books a,
+.cite-source a,
 .about-page li a,
 .compare-page .column > h2 a {
   text-decoration: underline;
@@ -2424,3 +2426,11 @@ a.dossier-chip:hover {
 .kq-read { color: var(--accent); }
 .kq-features-line { margin: 0.2rem 0; }
 .kq-item .he { font-size: 1.05rem; }
+
+/* ---------- Citations (§16.31) ---------- */
+
+.cite-books { columns: 3 14rem; padding-inline-start: 1.2rem; }
+.cite-books li { margin: 0.15rem 0; }
+.cite-source { border-inline-start: 3px solid var(--border); padding-inline-start: 0.75rem; margin: 0.4rem 0; }
+.cite-source p { margin: 0 0 0.2rem; }
+.cite-source-text { color: var(--muted); }

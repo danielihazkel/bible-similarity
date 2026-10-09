@@ -707,6 +707,43 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # citations (`bsim citations`): v3 says it fulfils v0 (resolved, a named source), v5 cites
+    # the Torah without a source both signals agree on
+    cite_dir = art / "citations"
+    cite_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (1, "word", 3, 0, "דבר יהוה אשר דבר", 0, 0, 12.5, 0.97, 1, "[[0, 12.5], [1, 9.1]]",
+             "[[0, 0]]", 1),
+            (2, "written", 5, 1, "ככתוב", 1, 0, 4.2, 0.4, 0, "[[1, 4.2], [2, 4.0]]", None, None),
+        ],
+        columns=[
+            "cite_id", "family", "verse_id", "book_id", "formula", "target_vid", "target_book",
+            "score", "pct", "resolved", "candidates", "gold", "gold_rank",
+        ],
+    ).astype({"gold_rank": "Int64"}).to_parquet(cite_dir / "citations.parquet")  # fmt: skip
+    pd.DataFrame([(0, 0, 1)], columns=["book_id", "target_book", "n"]).to_parquet(
+        cite_dir / "books.parquet"
+    )
+    fam = {"verses": 1, "share": 1.0, "null_share": 0.25, "p": 0.25, "pct_median": 0.97}
+    (cite_dir / "citations.meta.json").write_text(
+        json.dumps(
+            {
+                "citations": 2,
+                "resolved": 1,
+                "families": {
+                    "written": {**fam, "resolved": 0, "share": 0.0, "p": 1.0, "pct_median": 0.4},
+                    "word": {**fam, "resolved": 1},
+                    "command": {**fam, "verses": 0, "resolved": 0, "share": None, "p": None},
+                },
+                "gold": {"named": 1, "found": 1, "missing": [], "top1": 1, "top_k": 1, "k": 5,
+                         "resolved": 1, "resolved_right": 1},
+                "word_lag_median": 3.0,
+                "book_pairs": 1,
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # ketiv / qere (`bsim ketiv`): a fuller reading in v4 that the parallel v5 writes, a ו > י
     # swap in v5, a word read but not written in v2
     kq_dir = art / "ketiv"

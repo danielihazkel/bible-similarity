@@ -33,6 +33,7 @@ const NAV: NavEntry[] = [
       { to: '/changes', key: 'changes' },
       { to: '/borrowing', key: 'borrowing' },
       { to: '/typescenes', key: 'typescenes' },
+      { to: '/citations', key: 'citations' },
     ],
   },
   {

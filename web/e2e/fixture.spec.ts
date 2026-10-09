@@ -45,6 +45,9 @@ const PAGES = [
   '/ketiv',
   '/ketiv?cls=swap&euphemism=1',
   '/ketiv?unit=v%3A4',
+  '/citations',
+  '/citations?family=word&resolved=1',
+  '/citations?unit=v%3A0',
   '/map',
   '/network',
   '/style',
@@ -129,6 +132,17 @@ test('a verse with a ketiv / qere links to it, and the parallel that writes the 
   await expect(page.locator('.kq-item .w-focus')).toHaveCount(1)
   await page.locator('.kq-item').getByRole('link', { name: /writes .*: the qere/ }).click()
   await expect(page).toHaveURL(/\/unit\/v%3A5/)
+})
+
+test('a verse that is cited links to the citation and its source', async ({ page }) => {
+  await page.goto('/unit/v%3A0')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '1 explicit citation' }).click()
+  await expect(page).toHaveURL(/\/citations\?unit=v%3A0/)
+  await expect(page.locator('.cite-item')).toHaveCount(1)
+  await expect(page.locator('.cite-item .cite-source .he')).toHaveCount(1)
+  await page.locator('.cite-item').getByRole('link', { name: 'Compare' }).click()
+  await expect(page).toHaveURL(/\/compare\?/)
 })
 
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {

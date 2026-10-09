@@ -478,6 +478,45 @@ ketiv:                        # `bsim ketiv`: what is written against what is re
   features_top: 20            # most frequent grammatical differences kept in the meta
   seed: 13
 
+citations:                    # `bsim citations`: verses that say they quote or fulfil another (DESIGN.md §16.31)
+  families:                   # in order: a verse matching several keeps the first
+    written:                  # "as it is written": sought in the Torah
+      pattern: "ככתוב|כאשר כתוב|ככל הכתוב|כתוב בספר|הכתוב"
+      target: torah
+    word:                     # "the word of the LORD which he spoke / proclaimed (by ...)": sought anywhere earlier
+      pattern: "(דבר יהוה|דבר האלהים|דברו)( הוא)? אשר (דבר|קרא)|אשר דבר( יהוה)? ביד"
+      target: earlier
+    command:                  # "as the LORD commanded Moses": sought in the Torah
+      pattern: "(כאשר|ככל אשר) צוה יהוה (את|אל) משה"
+      target: torah
+  min_distance: 3             # a source is at least this many verses before the citation
+  agree_window: 3             # resolved: BM25 alone and cosine alone pick verses this close to the source
+  candidates: 5               # best sources kept per citation
+  null_samples: 500           # random verses of the same books, per family
+  seed: 13
+  gold_window: 3              # a candidate within this many verses of a named source is a hit
+  gold:                       # [citation, its source(s)] as scholarship names them
+    - ["I Kings 2:27", "I Samuel 2:27-36"]
+    - ["I Kings 12:15", "I Kings 11:29-39"]
+    - ["I Kings 15:29", "I Kings 14:10-11"]
+    - ["I Kings 16:12", "I Kings 16:1-4"]
+    - ["I Kings 16:34", "Joshua 6:26"]
+    - ["I Kings 22:38", "I Kings 21:19"]
+    - ["II Kings 9:36", "I Kings 21:23"]
+    - ["II Kings 10:17", "I Kings 21:21-22"]
+    - ["II Kings 23:16", "I Kings 13:2"]
+    - ["II Kings 24:2", "II Kings 21:10-15"]
+    - ["II Kings 14:6", "Deuteronomy 24:16"]
+    - ["II Chronicles 25:4", "Deuteronomy 24:16"]
+    - ["Joshua 8:31", "Exodus 20:22", "Deuteronomy 27:5-6"]
+    - ["Nehemiah 8:15", "Leviticus 23:40-42"]
+    - ["Ezra 3:4", "Leviticus 23:34-36", "Numbers 29:12-38"]
+    - ["Exodus 39:5", "Exodus 28:8"]
+    - ["Exodus 39:7", "Exodus 28:12"]
+    - ["Exodus 39:21", "Exodus 28:28"]
+    - ["Exodus 39:26", "Exodus 28:34"]
+    - ["Exodus 39:31", "Exodus 28:37"]
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list

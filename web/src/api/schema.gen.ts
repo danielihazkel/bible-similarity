@@ -1372,6 +1372,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/citations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Citations
+         * @description Counts by family against random verses, the gold check and the book graph.
+         */
+        get: operations["citations_api_citations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/citations/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Citation List
+         * @description Citations in reading order with their source; `unit`: citing from it or resolved into it.
+         */
+        get: operations["citation_list_api_citations_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -1724,6 +1764,95 @@ export interface components {
             /** Items */
             items: components["schemas"]["ChangeGroup"][];
         };
+        /**
+         * Citation
+         * @description A verse with a formula of reference and its best source (§16.31).
+         */
+        Citation: {
+            /** Cite Id */
+            cite_id: number;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "written" | "word" | "command";
+            /** Verse Id */
+            verse_id: number;
+            /** Book Id */
+            book_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Formula */
+            formula: string;
+            verse: components["schemas"]["Verse"];
+            target: components["schemas"]["Verse"] | null;
+            /** Target Label */
+            target_label: string | null;
+            /** Target Label He */
+            target_label_he: string | null;
+            /** Score */
+            score: number | null;
+            /** Pct */
+            pct: number | null;
+            /** Resolved */
+            resolved: boolean;
+            /** Candidates */
+            candidates: components["schemas"]["CitationCandidate"][];
+            /** Gold Rank */
+            gold_rank: number | null;
+            /** Named */
+            named: boolean;
+        };
+        /** CitationBook */
+        CitationBook: {
+            /** Book Id */
+            book_id: number;
+            /** Target Book */
+            target_book: number;
+            /** N */
+            n: number;
+        };
+        /** CitationCandidate */
+        CitationCandidate: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Score */
+            score: number;
+        };
+        /** CitationListResponse */
+        CitationListResponse: {
+            /** Family */
+            family: ("written" | "word" | "command") | null;
+            /** Resolved */
+            resolved: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Citation"][];
+        };
+        /** CitationsResponse */
+        CitationsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["CitationBook"][];
+        };
         /** ClauseInfo */
         ClauseInfo: {
             /** Typ */
@@ -2030,7 +2159,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -6094,6 +6223,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KqPairsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    citations_api_citations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CitationsResponse"];
+                };
+            };
+        };
+    };
+    citation_list_api_citations_list_get: {
+        parameters: {
+            query?: {
+                family?: ("written" | "word" | "command") | null;
+                resolved?: boolean | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CitationListResponse"];
                 };
             };
             /** @description Validation Error */

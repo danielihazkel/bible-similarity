@@ -254,6 +254,12 @@ def stage_ketiv(cfg: dict[str, Any], log: Log) -> None:
     run_ketiv(cfg, log=log)
 
 
+def stage_citations(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.citations import run_citations
+
+    run_citations(cfg, log=log)
+
+
 def stage_build_db(cfg: dict[str, Any], log: Log) -> None:
     from bsim.store.db import run_build_db
 
@@ -297,6 +303,7 @@ STAGES: dict[str, str] = {
     "voices": "stage_voices",
     "segments": "stage_segments",
     "ketiv": "stage_ketiv",
+    "citations": "stage_citations",
     "build-db": "stage_build_db",
 }
 

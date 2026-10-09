@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from bsim.api.routes import (
     borrowing,
+    citations,
     core,
     corpus,
     dating,
@@ -36,6 +37,7 @@ for _module in (
     labels,
     segments,
     ketiv,
+    citations,
     dossier,
     export,
 ):

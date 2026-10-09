@@ -199,4 +199,6 @@ Where the text divides (§16.29, D65), 23,167 verse boundaries scored by lemma a
 
 Written and read (§16.30, D66), 1,260 ketiv / qere of the OSHB: 583 vowel letter, 457 one letter, 56 vowel letter moved, 25 word division, 112 other. Look-alike letters 71 % of one-letter swaps vs 3.9 % by letter frequency (without ו / י 12 % vs 1.3 %, p 1e-12). Written form fuller in 82 % of vowel-letter pairs in the late books vs 40 % elsewhere (books permuted, p 0.006). Aligned parallels write the qere 57 times, the ketiv 11 (p 1e-8). 82 of 142 singular → plural readings are a written ־ו read ־יו. 14 euphemisms. `results.sqlite` 655 MB.
 
+Explicit citations (§16.31, D67): 116 verses with a formula of reference, 41 resolved (BM25 and cosine agree on the source). Against random verses under the same rules: as commanded 55 % vs 32 % (p 0.0008), the word fulfilled 32 % vs 27 % (p 0.32), as it is written 11 % vs 8 % (p 0.36). Gold (20 named sources): 15 at rank 1, 17 in the top 5, resolved 10 / 10 right.
+
 Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

@@ -1245,6 +1245,7 @@ export type DossierKind =
   | 'network'
   | 'divisions'
   | 'ketiv'
+  | 'citations'
   | 'labels'
 
 export interface DossierEntry {
@@ -1634,4 +1635,82 @@ export interface KqPairsResponse {
   offset: number
   limit: number
   items: KqPair[]
+}
+
+// --- verses that say they quote or fulfil another (DESIGN.md §16.31) ---
+
+export type CitationFamily = 'written' | 'word' | 'command'
+
+export interface CitationBook {
+  /** the citing book */
+  book_id: number
+  /** the cited book */
+  target_book: number
+  n: number
+}
+
+export interface CitationFamilyStats {
+  verses: number
+  resolved: number
+  share: number | null
+  /** share of random verses of the same books whose two signals agree */
+  null_share: number | null
+  p: number | null
+  pct_median: number | null
+}
+
+/** `meta.citations`, all keys absent without `bsim citations` */
+export interface CitationsMeta {
+  citations?: number
+  resolved?: number
+  families?: Partial<Record<CitationFamily, CitationFamilyStats>>
+  gold?: { named: number; found: number; missing: string[]; top1: number; top_k: number; k: number; resolved: number; resolved_right: number }
+  word_lag_median?: number | null
+  book_pairs?: number
+}
+
+export interface CitationsResponse {
+  meta: CitationsMeta & Record<string, unknown>
+  books: CitationBook[]
+}
+
+export interface CitationCandidate {
+  verse_id: number
+  label: string
+  label_he: string
+  score: number
+}
+
+export interface Citation {
+  cite_id: number
+  family: CitationFamily
+  verse_id: number
+  book_id: number
+  label: string
+  label_he: string
+  /** the matched words, consonantal */
+  formula: string
+  verse: Verse
+  target: Verse | null
+  target_label: string | null
+  target_label_he: string | null
+  score: number | null
+  pct: number | null
+  /** BM25 alone and cosine alone agree on the source */
+  resolved: boolean
+  candidates: CitationCandidate[]
+  gold_rank: number | null
+  /** scholarship names a source for this citation */
+  named: boolean
+}
+
+export interface CitationListResponse {
+  family: CitationFamily | null
+  resolved: boolean | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: Citation[]
 }

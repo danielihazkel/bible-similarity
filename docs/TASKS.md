@@ -523,9 +523,18 @@ Phase 3 (M39c): API and viewer
 
 ✔ 1,260 pairs described; look-alike letters 71 % of one-letter swaps (3.9 % expected), the late books' written spelling fuller (82 % vs 40 %, p 0.006), aligned parallels write the qere 57 : 11; `results.sqlite` 655 MB.
 
+## M49: Explicit citations (§16.31, D67; proposed A4)
+- [x] `bsim citations` (`analysis/citations.py`, pipeline stage after ketiv, ~3 s): formula families (`citations.families`: as it is written, the word fulfilled, as commanded) with their allowed sources; BM25 + cosine z-score; resolved when the two signals agree; each family against random verses of the same books (binomial); percentiles of the scores
+- [x] Gold check (`citations.gold`, 20 sources named by scholarship): rank-1, top-5 and the precision of "resolved"
+- [x] DB `citations`, `citation_books` (+ `meta.citations`, empty without the stage); API `/citations`, `/citations/list?family&resolved&book&unit`; dossier entry `citations` (citing from the unit or resolved into it)
+- [x] Viewer: Parallels → Citations (families against random verses, gold, who cites whom, every citation with its source and candidates, Compare); English and Hebrew
+- [x] Tests: formula families, allowed sources, ranking and agreement, gold parsing and ranks (pytest); the API (unit as source or target) and the dossier on the fixture DB; the page, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → citation → Compare
+
+✔ 116 citations, 41 resolved; only "as commanded" resolves above chance as a family (55 % vs 32 %, p 0.0008), "as it is written" and the fulfilment notices do not; gold 15 / 20 at rank 1, every resolved gold citation right (10 / 10); 141 / 141 fixture and 112 / 112 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- A4 Explicit citations (ככתוב, כאשר צוה ה׳ ביד משה) resolved through phrases / sequences, and a directed echo network oriented by borrowing and dating (DESIGN §16 "not done")
+- A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
 - A5 Allusions spread over 2–3 verses: rare-lemma window overlap with a shuffle null
 - A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")
 - A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`

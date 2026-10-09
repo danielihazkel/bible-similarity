@@ -14,6 +14,7 @@ import { borEn } from './pages/borrowing'
 import { dosEn } from './pages/dossier'
 import { divEn } from './pages/divisions'
 import { kqEn } from './pages/ketiv'
+import { citEn } from './pages/citations'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -74,6 +75,7 @@ export const en = {
     sequences: { label: 'Sequences', hint: 'Passages parallel verse by verse' },
     changes: { label: 'Changes', hint: 'How parallel passages differ' },
     typescenes: { label: 'Action sequences', hint: 'The same actions in the same order' },
+    citations: { label: 'Citations', hint: '"As it is written", "according to the word of the LORD": resolved' },
     structure: { label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
     acrostics: { label: 'Acrostics', hint: 'Lines through the alphabet' },
     divisions: { label: 'Divisions', hint: 'Do paragraphs and chapters fall where the text turns?' },
@@ -390,6 +392,7 @@ export const en = {
   dos: dosEn,
   div: divEn,
   kq: kqEn,
+  cit: citEn,
   ov: ovEn,
 }
 

@@ -633,6 +633,31 @@ CREATE TABLE segment_books (
     PRIMARY KEY (book_id, ref)
 ) WITHOUT ROWID;
 
+-- Verses that say they quote or fulfil another (`bsim citations`, §16.31): the formula, the best
+-- source and whether BM25 alone and cosine alone agree on it (resolved).
+CREATE TABLE citations (
+    cite_id INTEGER PRIMARY KEY,
+    family TEXT NOT NULL,           -- written | word | command
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    formula TEXT NOT NULL,          -- the matched words (consonantal)
+    target_vid INTEGER,             -- the best source
+    target_book INTEGER,
+    score REAL,                     -- mean z of BM25 and cosine over the allowed verses
+    pct REAL,                       -- share of random verses' best scores below it
+    resolved INTEGER NOT NULL,      -- 1 = BM25 and cosine agree on the source
+    candidates TEXT NOT NULL,       -- JSON [[verse_id, score], ...], best first
+    gold TEXT,                      -- JSON [[first, last], ...]: the sources scholarship names
+    gold_rank INTEGER               -- rank of the first candidate near a named source
+) WITHOUT ROWID;
+
+CREATE TABLE citation_books (
+    book_id INTEGER NOT NULL,       -- the citing book
+    target_book INTEGER NOT NULL,   -- the cited book
+    n INTEGER NOT NULL,             -- resolved citations
+    PRIMARY KEY (book_id, target_book)
+) WITHOUT ROWID;
+
 -- What is written against what is read (`bsim ketiv`, §16.30): every ketiv / qere of the OSHB.
 -- pos: index in the verse's words (the qere reading) of the first read word.
 CREATE TABLE kq_pairs (

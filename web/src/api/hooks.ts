@@ -39,6 +39,9 @@ import type {
   VoiceDetail,
   SegmentCurve,
   KetivResponse,
+  CitationFamily,
+  CitationListResponse,
+  CitationsResponse,
   KqClass,
   KqGrammar,
   KqPairsResponse,
@@ -368,6 +371,29 @@ export const useSegmentCurve = (bookId: number | undefined) =>
     queryKey: ['segment-curve', bookId],
     queryFn: ({ signal }) => getJson<SegmentCurve>(`/segments/book/${bookId}`, {}, signal),
     enabled: bookId !== undefined,
+    ...forever,
+  })
+
+export const useCitations = () =>
+  useQuery({ queryKey: ['citations'], queryFn: ({ signal }) => getJson<CitationsResponse>('/citations', {}, signal), ...forever })
+
+export const useCitationList = (q: { family?: CitationFamily; resolved?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['citation-list', q],
+    queryFn: ({ signal }) =>
+      getJson<CitationListResponse>(
+        '/citations/list',
+        {
+          family: q.family,
+          resolved: q.resolved === undefined ? undefined : String(q.resolved),
+          book: q.book,
+          unit: q.unit,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

@@ -15,6 +15,7 @@ and what it found:
     divisions                     count = flagged gaps at or inside the unit; value / key = the
                                   score / kind of the gap the unit opens with
     ketiv                         count = ketiv / qere in the unit's verses
+    citations                     count = citations from the unit + resolved citations of it
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -174,6 +175,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "ketiv",
         computed=state.present(conn, "kq_pairs"),
         count=_count(conn, "SELECT COUNT(*) FROM kq_pairs WHERE verse_id BETWEEN ? AND ?", span),
+    )
+
+    add(
+        "citations",
+        computed=state.present(conn, "citations"),
+        count=queries.citations_page(conn, None, None, None, span, 1, 0)[0],
     )
 
     if u["unit_type"] != "verse":

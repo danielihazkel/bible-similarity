@@ -38,6 +38,7 @@ Derived columns:
   it or without `bsim syntax`).
 - `segment_gaps`, `segment_books` + `meta.segments`: `bsim segments` (empty without it).
 - `kq_pairs`, `kq_letters`, `kq_books` + `meta.ketiv`: `bsim ketiv` (empty without it).
+- `citations`, `citation_books` + `meta.citations`: `bsim citations` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -121,6 +122,8 @@ INDEXES = (
     "CREATE INDEX segment_gaps_by_book ON segment_gaps (book_id, verse_id)",
     "CREATE INDEX kq_pairs_by_verse ON kq_pairs (verse_id)",
     "CREATE INDEX kq_pairs_by_cls ON kq_pairs (cls, verse_id)",
+    "CREATE INDEX citations_by_verse ON citations (verse_id)",
+    "CREATE INDEX citations_by_target ON citations (target_vid)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -416,6 +419,22 @@ TABLE_COLUMNS = {
         "partner_form",
     ],
     "kq_letters": ["pair", "n", "expected", "ratio", "p", "q", "lookalike"],
+    "citations": [
+        "cite_id",
+        "family",
+        "verse_id",
+        "book_id",
+        "formula",
+        "target_vid",
+        "target_book",
+        "score",
+        "pct",
+        "resolved",
+        "candidates",
+        "gold",
+        "gold_rank",
+    ],
+    "citation_books": ["book_id", "target_book", "n"],
     "kq_books": [
         "book_id",
         "n",
@@ -1020,6 +1039,12 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
     out["kq_letters"] = out["kq_letters"].assign(lookalike=lambda d: d.lookalike.astype(int))
     out["ketiv_meta"] = _read_json(kq_dir / "ketiv.meta.json")
+    cite_dir = resolve_path(cfg, "artifacts") / "citations"
+    for name, table in (("citations", "citations"), ("books", "citation_books")):
+        path = cite_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["citations_meta"] = _read_json(cite_dir / "citations.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1222,6 +1247,8 @@ def _write_db(
             "kq_pairs": inputs["kq_pairs"],
             "kq_letters": inputs["kq_letters"],
             "kq_books": inputs["kq_books"],
+            "citations": inputs["citations"],
+            "citation_books": inputs["citation_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1346,6 +1373,11 @@ def _write_db(
         meta["ketiv"] = {
             k: km.get(k)
             for k in ("pairs", "classes", "grammar", "euphemisms", "features", "checks")
+        }
+        cm = inputs["citations_meta"]
+        meta["citations"] = {
+            k: cm.get(k)
+            for k in ("citations", "resolved", "families", "gold", "word_lag_median", "book_pairs")
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

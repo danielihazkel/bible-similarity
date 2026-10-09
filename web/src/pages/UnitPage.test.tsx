@@ -140,6 +140,7 @@ const DOSSIER: Dossier = {
     entry({ kind: 'voices', count: 1, key: '1732', label: 'דוד' }),
     entry({ kind: 'divisions', count: 1, key: 'cut', value: 0.09 }),
     entry({ kind: 'ketiv', count: 2 }),
+    entry({ kind: 'citations', count: 1 }),
   ],
 }
 
@@ -252,6 +253,7 @@ describe('UnitPage', () => {
     expect(link('the voice of דוד')).toBe('/speech?view=voices&voice=1732')
     expect(link('a chapter start inside running text')).toBe('/divisions?book=0&unit=v%3A0')
     expect(link('2 words written one way and read another')).toBe('/ketiv?unit=v%3A0')
+    expect(link('1 explicit citation')).toBe('/citations?unit=v%3A0')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')

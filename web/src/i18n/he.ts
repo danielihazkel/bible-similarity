@@ -21,6 +21,7 @@ import { borHe } from './pages/borrowing'
 import { dosHe } from './pages/dossier'
 import { divHe } from './pages/divisions'
 import { kqHe } from './pages/ketiv'
+import { citHe } from './pages/citations'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -81,6 +82,7 @@ export const he: Messages = {
     sequences: { label: 'רצפים', hint: 'קטעים מקבילים פסוק אחר פסוק' },
     changes: { label: 'שינויים', hint: 'במה נבדלים קטעים מקבילים' },
     typescenes: { label: 'רצפי פעולות', hint: 'אותן פעולות באותו סדר' },
+    citations: { label: 'הפניות', hint: '"ככתוב", "כדבר יהוה": אל מה הן מפנות' },
     structure: { label: 'מבנה', hint: 'מסגרת, כיאזם, מילים מנחות' },
     acrostics: { label: 'אקרוסטיכונים', hint: 'שורות לפי סדר הא״ב' },
     divisions: { label: 'חלוקות', hint: 'האם הפרשות והפרקים נופלים במקום שהטקסט פונה?' },
@@ -391,5 +393,6 @@ export const he: Messages = {
   dos: dosHe,
   div: divHe,
   kq: kqHe,
+  cit: citHe,
   ov: ovHe,
 }
