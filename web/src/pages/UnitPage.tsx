@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import {
+  useDossier,
   useExplain,
   usePhrasesOf,
   useSequences,
@@ -21,6 +22,7 @@ import { PhraseCard } from '../components/PhraseCard'
 import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { DatingLine } from '../components/DatingLine'
+import { DossierBar } from '../components/DossierBar'
 import { ThemesPanel } from '../components/ThemesPanel'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
@@ -30,6 +32,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { nameLink, unitLink } from '../lib/links'
 import { unitLabel, verseRef } from '../lib/names'
+import { isFound } from '../lib/dossier'
 import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
@@ -89,7 +92,14 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const diff = useVerseDiff(unit.start_verse_id, activeTgt, isVerse && marks === 'changes')
   const diffData = diff.data && diff.data.b === activeTgt ? diff.data : undefined
   useHitKeys(similar.data?.hits.map((h) => h.unit.start_verse_id) ?? [], activeTgt, isVerse ? setPinned : undefined)
-  const phrases = usePhrasesOf(isVerse ? unit.start_verse_id : undefined)
+  // What every analysis found here; a panel whose analysis found nothing is not fetched at all
+  // (if the dossier fails, the panels load as before).
+  const dossier = useDossier(unit.unit_id)
+  const has = (kind: 'phrases' | 'wordplay' | 'sequences') => {
+    const e = dossier.data?.entries.find((x) => x.kind === kind)
+    return dossier.isError || (e !== undefined && isFound(e))
+  }
+  const phrases = usePhrasesOf(isVerse && has('phrases') ? unit.start_verse_id : undefined)
   const halvesOn = params.get('halves') === '1'
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
@@ -98,14 +108,17 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const minorOf = (v: Verse) => (clausesOn ? clauseBreaks(halvesOf.get(v.verse_id)) : undefined)
   const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
   const network = useUnitNetwork(isVerse ? undefined : unit.unit_id)
-  const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 })
-  const sequences = useSequences({
-    unit: unit.unit_id,
-    direction: 'forward',
-    maxQ: SEQUENCE_MAX_Q,
-    limit: SEQUENCES_SHOWN,
-    offset: 0,
-  })
+  const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 }, has('wordplay'))
+  const sequences = useSequences(
+    {
+      unit: unit.unit_id,
+      direction: 'forward',
+      maxQ: SEQUENCE_MAX_Q,
+      limit: SEQUENCES_SHOWN,
+      offset: 0,
+    },
+    has('sequences'),
+  )
 
   const onHover = (tgt: number, on: boolean) => {
     window.clearTimeout(hoverTimer.current)
@@ -123,6 +136,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <UnitName en={unit.label_en} he={unit.label_he} big spaced />
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h1>
+      <DossierBar unit={unit} dossier={dossier.data} error={dossier.error} />
 
       <div className="toolbar halves-bar">
         <label className="check" title={m.unit.halvesTitle}>
@@ -191,7 +205,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
       </section>
       {names.error && <PanelError what={m.unit.theNames} error={names.error} />}
       {names.data && names.data.length > 0 && (
-        <p className="unit-names" aria-label={m.unit.namesLabel}>
+        <p className="unit-names" id="unit-names" aria-label={m.unit.namesLabel}>
           <span className="muted small">{m.unit.names}</span>
           {names.data.map((e) => (
             <Link key={e.lemma} to={nameLink(e.lemma)} className={`name-chip kind-${e.kind}`} title={m.unit.nameTitle(e.n_here, e.n_mentions)}>

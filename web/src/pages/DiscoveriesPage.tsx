@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useBooks, useDiscoveries, discoveriesParams } from '../api/hooks'
+import { UnitFilter } from '../components/UnitFilter'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { ModeToggle, Segmented } from '../components/Controls'
@@ -32,9 +33,10 @@ export function DiscoveriesPage() {
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const crossBook = params.get('cross') === '1'
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const query = { unitType, mode, book, crossBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const query = { unitType, mode, book, crossBook, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
   const disc = useDiscoveries(query)
   const pages = disc.data ? Math.max(1, Math.ceil(disc.data.total / PAGE_SIZE)) : 1
   // Any filter change returns to the first page.
@@ -48,6 +50,7 @@ export function DiscoveriesPage() {
         <em>{m.par.discoveries.ledeNot}</em>
         {m.par.discoveries.ledeAfter}
       </p>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <Segmented
           label={m.units.unitType}

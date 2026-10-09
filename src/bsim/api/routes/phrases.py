@@ -20,6 +20,7 @@ from bsim.api.routes._common import (
     check_min,
     check_page,
     gold_link,
+    unit_span,
     verse_or_404,
 )
 
@@ -87,17 +88,20 @@ def phrases(
     cross_book: bool = False,
     min_tokens: int = 3,
     max_spread: int | None = None,
+    unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    """The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms)."""
+    """The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms;
+    `unit`: phrases with a side in that unit's verses)."""
     check_page(state, limit, offset)
     check_min(min_tokens, "min_tokens")
     total, rows = queries.phrases_page(
-        conn, book, cross_book, min_tokens, max_spread, limit, offset
+        conn, book, cross_book, min_tokens, max_spread, limit, offset, unit_span(conn, unit)
     )
     return {
         "book": book,
+        "unit": unit,
         "cross_book": cross_book,
         "min_tokens": min_tokens,
         "max_spread": max_spread,

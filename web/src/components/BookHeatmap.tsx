@@ -3,24 +3,35 @@ import type { Book } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 
-interface Props {
-  books: Book[]
-  /** Book ids in display order. */
-  order: number[]
+interface HeatmapProps<K extends string | number> {
+  /** Row / column labels by key. */
+  names: Map<K, string>
+  /** Keys in display order. */
+  order: K[]
   /** 0..1 intensity of a cell, or undefined for no data. */
-  value: (a: number, b: number) => number | undefined
-  title: (a: number, b: number) => string
+  value: (a: K, b: K) => number | undefined
+  title: (a: K, b: K) => string
   selected: string | null
   onSelect: (key: string | null) => void
   label: string
 }
 
+interface Props extends Omit<HeatmapProps<number>, 'names'> {
+  books: Book[]
+}
+
+/** The heatmap over books, labelled with their names in the interface language. */
+export function BookHeatmap({ books, ...rest }: Props) {
+  const { locale } = useLocale()
+  return <Heatmap names={new Map(books.map((b) => [b.book_id, bookName(b, locale)]))} {...rest} />
+}
+
 /**
- * Book x book SVG heatmap; a cell key is `{a}-{b}` (row book, column book). With keyboard focus the
+ * Key x key SVG heatmap; a cell key is `{a}-{b}` (row key, column key). With keyboard focus the
  * arrow keys move a cursor over the cells (its title is announced) and Enter / Space selects.
  */
-export function BookHeatmap({ books, order, value, title, selected, onSelect, label }: Props) {
-  const { m, locale } = useLocale()
+export function Heatmap<K extends string | number>({ names: name, order, value, title, selected, onSelect, label }: HeatmapProps<K>) {
+  const { m } = useLocale()
   const [hover, setHover] = useState<string>()
   const [cursor, setCursor] = useState<[number, number]>()
   const n = order.length
@@ -40,7 +51,6 @@ export function BookHeatmap({ books, order, value, title, selected, onSelect, la
       onSelect(selected === cursorKey ? null : cursorKey)
     }
   }
-  const name = new Map(books.map((b) => [b.book_id, bookName(b, locale)]))
   const cell = 14
   const pad = 96
   const size = pad + order.length * cell

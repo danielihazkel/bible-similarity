@@ -92,6 +92,18 @@ def dating(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def voices(config: ConfigOpt = None) -> None:
+    """Profile each speaker's style against the other speech of their books (shuffle null)."""
+    from bsim.analysis.voices import run_voices
+
+    try:
+        run_voices(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def senses(config: ConfigOpt = None) -> None:
     """Compare each frequent lemma's SDBH senses and contextual uses across corpus groups."""
     from bsim.analysis.senses import run_senses

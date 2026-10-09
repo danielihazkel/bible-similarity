@@ -129,6 +129,49 @@ export const synEn = {
   explicitShare: (n: number, of: number) => `named in the introduction for ${numEn(n)} of ${numEn(of)} words`,
   share: (label: string, pct: number) => `${label} ${pct}%`,
   chapter: 'Chapter',
+  // the Voices tab (DESIGN.md §16.28)
+  tabs: { books: 'Books', voices: 'Voices' } as Record<'books' | 'voices', string>,
+  view: 'View',
+  voices: {
+    lede: "Does a speaker have a style of their own? Each person's direct speech is profiled with the features of the Style page (the most frequent words, verb forms, grammar) and compared with the other attributed speech of the same books, so book and genre are held fixed. A speaker is distinct when the distance (Burrows' Delta) is larger than when the speaker labels are shuffled among the quotations of each book.",
+    summary: (n: number, sig: number) => `${numEn(n)} speakers profiled; ${numEn(sig)} distinct beyond chance (q ≤ 0.05).`,
+    calibration: (cal: number, of: number) => `Check of the test: one shuffled labelling scored the same way passes ${numEn(cal)} of ${numEn(of)}.`,
+    rho: (r: string, n: number) => `With only the quotations whose introduction names the speaker (${numEn(n)} speakers), the ranking agrees at ρ ${r}.`,
+    reliability: 'Speakers inferred from an earlier clause are right about two times in three; Job, his friends, Elihu and Daniel are almost all inferred.',
+    noData: 'No speaker voices in this build (run `bsim voices`).',
+    divine: 'God (יהוה, אלהים, אדני)',
+    narrator: 'narrator',
+    unattributed: 'speech, speaker not found',
+    speakers: 'Speakers, most distinct first',
+    cols: { speaker: 'Speaker', book: 'Mostly in', words: 'Words', delta: 'Delta', effect: 'Distinctiveness', q: 'q' },
+    effectTitle: 'Delta above its shuffled expectation, in standard deviations of the shuffles',
+    explicit: (n: number, of: number) => `${numEn(n)} of ${numEn(of)} words named in the introduction`,
+    deltaTitle: (d: string, n: string) => `Delta ${d} (shuffled labels: ${n} on average)`,
+    checks: 'Checks named in advance',
+    author: (who: string, a: string, b: string) => `${who} in ${a} and in ${b}`,
+    verdicts: {
+      author: "each portrayal sounds like its own book's narrator: the author's voice over the character's",
+      differs: 'the two portrayals differ, but not towards their narrators',
+      same: 'no difference between the two portrayals beyond chance',
+      underpowered: 'too few words on one side to tell',
+    } as Record<string, string>,
+    authorNums: (cross: string, pc: string, dab: string, pab: string, wa: number, wb: number) =>
+      `towards the narrators ${cross} (p ${pc}); between the portrayals ${dab} (p ${pab}); ${numEn(wa)} / ${numEn(wb)} words`,
+    distinct: (who: string, book: string, rank: number | null, of: number) =>
+      rank === null
+        ? `${book}: ${who} is not among the profiled speakers`
+        : `${book}: ${who} is number ${rank} of ${numEn(of)} speakers by distinctiveness (expected: number 1)`,
+    matrix: 'Distance between voices',
+    matrixLede: "Burrows' Delta between the speakers, the narrator and unattributed speech; darker = more alike. Not adjusted for size or book: descriptive only.",
+    pair: (a: string, b: string, d: string) => `${a} – ${b}: Delta ${d}`,
+    profile: (who: string) => `What stands out in the speech of ${who}`,
+    more: 'Uses more than the others in the same books',
+    less: 'Uses less',
+    nearest: 'Closest voices:',
+    chapters: 'Where they speak most',
+    clauses: (n: number) => `${numEn(n)} clauses`,
+    select: 'Choose a speaker in the table to see their profile.',
+  },
 }
 
 export const synHe: typeof synEn = {
@@ -183,4 +226,46 @@ export const synHe: typeof synEn = {
   explicitShare: (n: number, of: number) => `נקוב בפסוקית המציגה ב־${numHe(n)} מתוך ${numHe(of)} מילים`,
   share: (label: string, pct: number) => `${label} ${pct}%`,
   chapter: 'פרק',
+  tabs: { books: 'ספרים', voices: 'קולות' },
+  view: 'תצוגה',
+  voices: {
+    lede: 'האם לדובר יש סגנון משלו? הדיבור הישיר של כל דמות מתואר בתכונות של עמוד הסגנון (המילים השכיחות, צורות הפועל, הדקדוק) ומושווה לשאר הדיבור המשויך באותם ספרים, כך שהספר והסוגה קבועים. דובר נחשב ייחודי כשהמרחק (Delta של Burrows) גדול מזה שמתקבל כשמערבבים את שמות הדוברים בין הציטוטים של כל ספר.',
+    summary: (n: number, sig: number) => `${numHe(n)} דוברים נבדקו; ${numHe(sig)} ייחודיים מעבר למקרה (q ≤ 0.05).`,
+    calibration: (cal: number, of: number) => `בדיקת המבחן: שיוך מעורבב אחד שנבדק באותה דרך עובר ב־${numHe(cal)} מתוך ${numHe(of)}.`,
+    rho: (r: string, n: number) => `רק עם הציטוטים שבהם הפסוקית המציגה נוקבת בשם הדובר (${numHe(n)} דוברים) הדירוג מתאים ב־ρ ${r}.`,
+    reliability: 'דוברים שהוסקו מפסוקית קודמת נכונים בערך פעמיים מתוך שלוש; איוב, רעיו, אליהוא ודניאל כמעט כולם משוערים.',
+    noData: 'אין קולות דוברים בבנייה זו (הריצו `bsim voices`).',
+    divine: 'האל (יהוה, אלהים, אדני)',
+    narrator: 'המספר',
+    unattributed: 'דיבור, הדובר לא נמצא',
+    speakers: 'דוברים, הייחודי ביותר ראשון',
+    cols: { speaker: 'דובר', book: 'בעיקר ב', words: 'מילים', delta: 'Delta', effect: 'ייחודיות', q: 'q' },
+    effectTitle: 'ה־Delta מעל הצפוי בערבוב, ביחידות של סטיית התקן של הערבובים',
+    explicit: (n: number, of: number) => `${numHe(n)} מתוך ${numHe(of)} מילים עם דובר נקוב`,
+    deltaTitle: (d: string, n: string) => `Delta ${d} (בערבוב: ${n} בממוצע)`,
+    checks: 'בדיקות שנקבעו מראש',
+    author: (who: string, a: string, b: string) => `${who} ב${a} וב${b}`,
+    verdicts: {
+      author: 'כל תיאור נשמע כמו המספר של ספרו: קול המחבר גובר על קול הדמות',
+      differs: 'שני התיאורים שונים, אבל לא בכיוון המספרים שלהם',
+      same: 'אין הבדל בין שני התיאורים מעבר למקרה',
+      underpowered: 'מעט מדי מילים באחד הצדדים כדי לקבוע',
+    },
+    authorNums: (cross: string, pc: string, dab: string, pab: string, wa: number, wb: number) =>
+      `לכיוון המספרים ${cross} (p ${pc}); בין התיאורים ${dab} (p ${pab}); ${numHe(wa)} / ${numHe(wb)} מילים`,
+    distinct: (who: string, book: string, rank: number | null, of: number) =>
+      rank === null
+        ? `${book}: ${who} אינו בין הדוברים שנבדקו`
+        : `${book}: ${who} במקום ${numHe(rank)} מתוך ${numHe(of)} דוברים בייחודיות (הצפי: מקום 1)`,
+    matrix: 'המרחק בין הקולות',
+    matrixLede: 'Delta של Burrows בין הדוברים, המספר והדיבור הלא משויך; כהה יותר = דומה יותר. בלי תיקון לגודל או לספר: תיאורי בלבד.',
+    pair: (a: string, b: string, d: string) => `${a} – ${b}: Delta ${d}`,
+    profile: (who: string) => `מה בולט בדיבורו של ${who}`,
+    more: 'משתמש יותר מאחרים באותם ספרים',
+    less: 'משתמש פחות',
+    nearest: 'הקולות הקרובים:',
+    chapters: 'היכן מדבר הכי הרבה',
+    clauses: (n: number) => `${numHe(n)} פסוקיות`,
+    select: 'בחרו דובר בטבלה כדי לראות את הפרופיל שלו.',
+  },
 }

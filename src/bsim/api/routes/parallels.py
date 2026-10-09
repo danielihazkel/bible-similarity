@@ -38,6 +38,7 @@ from bsim.api.routes._common import (
     check_page,
     span_label,
     unit_or_404,
+    unit_span,
     unprocessable,
     verse_or_404,
 )
@@ -113,15 +114,18 @@ def changes(
     op: str = "substitution",
     a_book: int | None = None,
     b_book: int | None = None,
+    unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
     """How parallel passages differ across the corpus: changes grouped by word, most frequent
-    first, with up to 3 example verse pairs (A = earlier passage in canon order)."""
+    first, with up to 3 example verse pairs (A = earlier passage in canon order); `unit`: verse
+    pairs with a side in that unit."""
     if op not in df_.OPS or op == "same":
         raise unprocessable(f"op must be one of {[o for o in df_.OPS if o != 'same']}")
     check_page(state, limit, offset)
-    total, groups = queries.change_groups(conn, op, a_book, b_book, limit, offset)
+    span = unit_span(conn, unit)
+    total, groups = queries.change_groups(conn, op, a_book, b_book, limit, offset, span)
     keys = {k for g in groups for k in (g["a_key"], g["b_key"]) if k and not k.startswith("~")}
     gloss = queries.gloss(conn, (p for k in keys for p in k.split("+")))
     by_form = op in queries.FORM_OPS
@@ -129,7 +133,7 @@ def changes(
     def group(g: dict[str, Any]) -> tuple[str | None, str | None]:
         return (g["a_form"], g["b_form"]) if by_form else (g["a_key"], g["b_key"])
 
-    ex = queries.change_examples(conn, op, a_book, b_book, [group(g) for g in groups], 3)
+    ex = queries.change_examples(conn, op, a_book, b_book, [group(g) for g in groups], 3, span)
     labels = queries.verse_labels(
         conn, (v for es in ex.values() for e in es for v in (e["a"], e["b"]))
     )
@@ -137,7 +141,8 @@ def changes(
         "op": op,
         "a_book": a_book,
         "b_book": b_book,
-        "totals": queries.change_totals(conn, a_book, b_book),
+        "unit": unit,
+        "totals": queries.change_totals(conn, a_book, b_book, span),
         "total": total,
         "offset": offset,
         "limit": limit,
@@ -333,9 +338,9 @@ def typescenes(
     check_page(state, limit, offset)
     if max_q is not None and not 0 <= max_q <= 1:
         raise unprocessable("max_q must be between 0 and 1")
-    if unit is not None:
-        unit_or_404(conn, unit)
-    total, rows = queries.typescenes_page(conn, book, max_q, hide_textual, unit, limit, offset)
+    total, rows = queries.typescenes_page(
+        conn, book, max_q, hide_textual, unit_span(conn, unit), limit, offset
+    )
     units_ = queries.units_by_id(conn, [u for r in rows for u in (r["a_unit"], r["b_unit"])])
     aligned = {id(r): json.loads(r["aligned"]) for r in rows}
     gloss = queries.gloss(conn, (lem for al in aligned.values() for *_, lem in al))

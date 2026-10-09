@@ -164,12 +164,16 @@ def discoveries(
     mode: Mode = "semantic",
     book: int | None = None,
     cross_book: bool = False,
+    unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
+    """Strong pairs without a Sefaria link; `unit`: the pairs that unit is in (its type)."""
     check_unit_type(unit_type, state.cfg["units"]["types"])
     check_page(state, limit, offset)
-    total, rows = queries.discoveries(conn, unit_type, mode, book, cross_book, limit, offset)
+    if unit is not None:
+        unit_type = unit_or_404(conn, unit)["unit_type"]
+    total, rows = queries.discoveries(conn, unit_type, mode, book, cross_book, limit, offset, unit)
     units_ = queries.units_by_id(conn, [i for r in rows for i in (r["a_id"], r["b_id"])])
     verses, previews = _texts(
         state, conn, unit_type, [u["start_verse_id"] for u in units_.values()]
@@ -197,6 +201,7 @@ def discoveries(
         "mode": mode,
         "book": book,
         "cross_book": cross_book,
+        "unit": unit,
         "total": total,
         "offset": offset,
         "limit": limit,

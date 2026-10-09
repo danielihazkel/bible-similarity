@@ -1,12 +1,14 @@
 import { Link } from 'react-router'
 import { useBooks, useSpeech, useSpeechBook } from '../api/hooks'
 import type { SpeakerInfo, SpeechShares } from '../api/types'
+import { Segmented } from '../components/Controls'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
 import { lemmaLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { VoicesView } from './VoicesView'
 
 const PARTS = ['narration', 'divine', 'other', 'unattributed', 'discourse'] as const
 type Part = (typeof PARTS)[number]
@@ -23,8 +25,29 @@ function parts(s: SpeechShares): Record<Part, number> {
 
 const pct = (x: number) => Math.round(x * 100)
 
-/** Narration, direct speech and its speakers per book and chapter (DESIGN.md §16.26). */
+type View = 'books' | 'voices'
+
+/** Who speaks: narration, direct speech and its speakers per book and chapter (DESIGN.md §16.26),
+ * and the speakers' voices (§16.28). */
 export function SpeechPage() {
+  const t = useLocale().m.syn
+  const [params, update] = useQueryParams()
+  const view: View = params.get('view') === 'voices' ? 'voices' : 'books'
+  return (
+    <div className="page speech-page">
+      <h1>{t.title}</h1>
+      <Segmented<View>
+        label={t.view}
+        value={view}
+        onChange={(v) => update({ view: v === 'books' ? null : v, voice: null, book: null })}
+        options={(['books', 'voices'] as const).map((v) => ({ value: v, label: t.tabs[v] }))}
+      />
+      {view === 'voices' ? <VoicesView /> : <SpeechBooks />}
+    </div>
+  )
+}
+
+function SpeechBooks() {
   const { m, locale } = useLocale()
   const t = m.syn
   const [params, update] = useQueryParams()
@@ -37,8 +60,7 @@ export function SpeechPage() {
   const names = new Map(books.data?.map((b) => [b.book_id, bookName(b, locale)]) ?? [])
   const sp = (res.data.meta.speaker ?? null) as Record<string, number> | null
   return (
-    <div className="page speech-page">
-      <h1>{t.title}</h1>
+    <>
       <p className="lede">{t.lede}</p>
       {sp && <p className="muted small">{t.caveat(sp.explicit ?? 0, sp.carried ?? 0, sp.enclosing ?? 0, sp.unknown ?? 0)}</p>}
       {res.data.books.length === 0 ? (
@@ -72,7 +94,7 @@ export function SpeechPage() {
           {book !== undefined && <BookSpeech bookId={book} name={names.get(book) ?? String(book)} />}
         </>
       )}
-    </div>
+    </>
   )
 }
 

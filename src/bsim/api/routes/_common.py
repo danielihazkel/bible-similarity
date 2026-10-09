@@ -66,6 +66,14 @@ def unit_or_404(conn: sqlite3.Connection, unit_id: str) -> dict[str, Any]:
     return u
 
 
+def unit_span(conn: sqlite3.Connection, unit_id: str | None) -> tuple[int, int] | None:
+    """(first, last) verse id of a `unit` filter (None: no filter; 404: unknown unit)."""
+    if unit_id is None:
+        return None
+    u = unit_or_404(conn, unit_id)
+    return u["start_verse_id"], u["end_verse_id"]
+
+
 def verse_or_404(state: ServeState, verse_id: int) -> int:
     if not 0 <= verse_id < state.n_verses:
         raise HTTPException(status_code=404, detail=f"unknown verse {verse_id}")

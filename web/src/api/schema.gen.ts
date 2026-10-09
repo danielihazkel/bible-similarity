@@ -79,7 +79,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Discoveries */
+        /**
+         * Discoveries
+         * @description Strong pairs without a Sefaria link; `unit`: the pairs that unit is in (its type).
+         */
         get: operations["discoveries_api_discoveries_get"];
         put?: never;
         post?: never;
@@ -270,7 +273,8 @@ export interface paths {
         };
         /**
          * Phrases
-         * @description The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms).
+         * @description The strongest shared phrases in the corpus (`max_spread`: hide recurring idioms;
+         *     `unit`: phrases with a side in that unit's verses).
          */
         get: operations["phrases_api_phrases_get"];
         put?: never;
@@ -311,7 +315,8 @@ export interface paths {
         /**
          * Changes
          * @description How parallel passages differ across the corpus: changes grouped by word, most frequent
-         *     first, with up to 3 example verse pairs (A = earlier passage in canon order).
+         *     first, with up to 3 example verse pairs (A = earlier passage in canon order); `unit`: verse
+         *     pairs with a side in that unit.
          */
         get: operations["changes_api_changes_get"];
         put?: never;
@@ -620,7 +625,8 @@ export interface paths {
         };
         /**
          * Rhymes
-         * @description Runs of consecutive cola ending alike, most significant first.
+         * @description Runs of consecutive cola ending alike, most significant first; `unit`: runs overlapping
+         *     that unit.
          */
         get: operations["rhymes_api_rhymes_get"];
         put?: never;
@@ -1099,6 +1105,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/voices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Voices
+         * @description Every profiled speaker, the most distinct first, and the Delta between voices.
+         */
+        get: operations["voices_api_voices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/voices/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Voice
+         * @description One speaker's profile: features against the same books, nearest voices, chapters.
+         */
+        get: operations["voice_api_voices__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/borrowing": {
         parameters: {
             query?: never;
@@ -1109,7 +1155,8 @@ export interface paths {
         /**
          * Borrowing
          * @description Book pairs with their parallels, each with its signs and direction, and the check of the
-         *     signs on the directions scholars accept.
+         *     signs on the directions scholars accept; `unit`: only the parallels touching that unit (and
+         *     their book pairs).
          */
         get: operations["borrowing_api_borrowing_get"];
         put?: never;
@@ -1216,6 +1263,26 @@ export interface paths {
          * @description How each mode's lists separate your real pairs from your not pairs (live, all labels).
          */
         get: operations["labels_eval_api_labels_eval_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dossier/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dossier
+         * @description Every analysis's findings on one unit, with links to read them (see the module doc).
+         */
+        get: operations["dossier_api_dossier__unit_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1427,6 +1494,8 @@ export interface components {
         };
         /** BorrowingResponse */
         BorrowingResponse: {
+            /** Unit */
+            unit: string | null;
             /** Checks */
             checks: {
                 [key: string]: components["schemas"]["SignCheck"];
@@ -1539,6 +1608,8 @@ export interface components {
             a_book: number | null;
             /** B Book */
             b_book: number | null;
+            /** Unit */
+            unit: string | null;
             /** Totals */
             totals: {
                 [key: string]: number;
@@ -1747,6 +1818,8 @@ export interface components {
             book: number | null;
             /** Cross Book */
             cross_book: boolean;
+            /** Unit */
+            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -1839,6 +1912,43 @@ export interface components {
             lift: number;
             /** G2 */
             g2: number;
+        };
+        /** Dossier */
+        Dossier: {
+            /** Unit Id */
+            unit_id: string;
+            /** Entries */
+            entries: components["schemas"]["DossierEntry"][];
+        };
+        /**
+         * DossierEntry
+         * @description One analysis on one unit (`/dossier`); which fields carry what depends on `kind`.
+         */
+        DossierEntry: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "labels";
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "unit" | "chapter";
+            /** Computed */
+            computed: boolean;
+            /** Count */
+            count: number | null;
+            /** Total */
+            total: number | null;
+            /** Value */
+            value: number | null;
+            /** Key */
+            key: string | null;
+            /** Label */
+            label: string | null;
+            /** Target Unit */
+            target_unit: string | null;
         };
         /** Echo */
         Echo: {
@@ -2448,6 +2558,8 @@ export interface components {
         PhrasesResponse: {
             /** Book */
             book: number | null;
+            /** Unit */
+            unit: string | null;
             /** Cross Book */
             cross_book: boolean;
             /** Min Tokens */
@@ -2604,6 +2716,8 @@ export interface components {
             book: number | null;
             /** Max Q */
             max_q: number | null;
+            /** Unit */
+            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -3330,6 +3444,91 @@ export interface components {
             /** Clauses */
             clauses: components["schemas"]["ClauseInfo"][];
         };
+        /** VoiceChapter */
+        VoiceChapter: {
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** N Clauses */
+            n_clauses: number;
+        };
+        /** VoiceDetail */
+        VoiceDetail: {
+            speaker: components["schemas"]["VoiceSpeaker"];
+            /** Features */
+            features: components["schemas"]["VoiceFeature"][];
+            /** Nearest */
+            nearest: components["schemas"]["VoicePair"][];
+            /** Chapters */
+            chapters: components["schemas"]["VoiceChapter"][];
+        };
+        /** VoiceFeature */
+        VoiceFeature: {
+            /** Side */
+            side: string;
+            /** Rank */
+            rank: number;
+            /** Feature */
+            feature: string;
+            /** Label */
+            label: string;
+            /** Rate */
+            rate: number;
+            /** Rate Ref */
+            rate_ref: number;
+            /** Z */
+            z: number;
+        };
+        /** VoicePair */
+        VoicePair: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /** Delta */
+            delta: number;
+        };
+        /** VoiceSpeaker */
+        VoiceSpeaker: {
+            /** Key */
+            key: string;
+            /** He */
+            he: string | null;
+            /** N Words */
+            n_words: number;
+            /** N Explicit */
+            n_explicit: number;
+            /** N Clauses */
+            n_clauses: number;
+            /** Main Book */
+            main_book: number;
+            /** Books */
+            books: number[];
+            /** Delta */
+            delta: number;
+            /** Null Mean */
+            null_mean: number;
+            /** Effect */
+            effect: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+        };
+        /** VoicesResponse */
+        VoicesResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Speakers */
+            speakers: components["schemas"]["VoiceSpeaker"][];
+            /** Pairs */
+            pairs: components["schemas"]["VoicePair"][];
+        };
         /** WordDetail */
         WordDetail: {
             /** Idx */
@@ -3594,6 +3793,7 @@ export interface operations {
                 mode?: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
                 book?: number | null;
                 cross_book?: boolean;
+                unit?: string | null;
                 limit?: number;
                 offset?: number;
             };
@@ -3899,6 +4099,7 @@ export interface operations {
                 cross_book?: boolean;
                 min_tokens?: number;
                 max_spread?: number | null;
+                unit?: string | null;
                 limit?: number;
                 offset?: number;
             };
@@ -3966,6 +4167,7 @@ export interface operations {
                 op?: string;
                 a_book?: number | null;
                 b_book?: number | null;
+                unit?: string | null;
                 limit?: number;
                 offset?: number;
             };
@@ -4464,6 +4666,7 @@ export interface operations {
             query?: {
                 book?: number | null;
                 max_q?: number | null;
+                unit?: string | null;
                 limit?: number;
                 offset?: number;
             };
@@ -5172,7 +5375,7 @@ export interface operations {
             };
         };
     };
-    borrowing_api_borrowing_get: {
+    voices_api_voices_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -5187,7 +5390,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["VoicesResponse"];
+                };
+            };
+        };
+    };
+    voice_api_voices__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrowing_api_borrowing_get: {
+        parameters: {
+            query?: {
+                unit?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["BorrowingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -5354,6 +5619,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabelsEval"];
+                };
+            };
+        };
+    };
+    dossier_api_dossier__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dossier"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

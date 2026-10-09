@@ -50,6 +50,7 @@ from bsim.api.routes._common import (
     check_page,
     check_unit_type,
     unit_or_404,
+    unit_span,
     unprocessable,
 )
 
@@ -461,14 +462,16 @@ def rhymes(
     conn: Conn,
     book: int | None = None,
     max_q: float | None = None,
+    unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    """Runs of consecutive cola ending alike, most significant first."""
+    """Runs of consecutive cola ending alike, most significant first; `unit`: runs overlapping
+    that unit."""
     check_page(state, limit, offset)
     if max_q is not None and not 0 <= max_q <= 1:
         raise unprocessable("max_q must be between 0 and 1")
-    total, rows = queries.rhymes_page(conn, book, max_q, limit, offset)
+    total, rows = queries.rhymes_page(conn, book, max_q, limit, offset, unit_span(conn, unit))
     vids = sorted({v for r in rows for v in range(r["start_vid"], r["end_vid"] + 1)})
     verses = queries.verses_by_id(conn, vids)
     labels = queries.verse_labels(conn, [v for r in rows for v in (r["start_vid"], r["end_vid"])])
@@ -479,6 +482,7 @@ def rhymes(
     return {
         "book": book,
         "max_q": max_q,
+        "unit": unit,
         "total": total,
         "offset": offset,
         "limit": limit,

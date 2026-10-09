@@ -34,6 +34,8 @@ Derived columns:
 - `lemma_shifts`, `lemma_senses` + `meta.senses`: `bsim senses` (empty without it).
 - `dating_chapters`, `dating_books` + `meta.dating`: `bsim dating` (empty without it).
 - `borrowing_sequences`, `borrowing_books` + `meta.borrowing`: `bsim borrowing` (empty without it).
+- `voice_speakers`, `voice_features`, `voice_pairs` + `meta.voices`: `bsim voices` (empty without
+  it or without `bsim syntax`).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -106,6 +108,13 @@ INDEXES = (
     "CREATE INDEX domain_verses_by_verse ON domain_verses (verse_id, code)",
     "CREATE INDEX clauses_by_verse ON clauses (verse_id)",
     "CREATE INDEX syntax_phrases_by_verse ON syntax_phrases (verse_id)",
+    # the lookups by verse / unit of /dossier and the `unit=` list filters
+    "CREATE INDEX diff_changes_by_a ON diff_changes (a)",
+    "CREATE INDEX diff_changes_by_b ON diff_changes (b)",
+    "CREATE INDEX discoveries_by_b ON discoveries (unit_type, mode, b_id)",
+    "CREATE INDEX typescenes_by_a ON typescenes (a_unit)",
+    "CREATE INDEX typescenes_by_b ON typescenes (b_unit)",
+    "CREATE INDEX seams_by_verse ON seams (verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -344,6 +353,21 @@ TABLE_COLUMNS = {
         "n_words",
     ],
     "speakers": ["book_id", "lemma", "n_words", "n_explicit"],
+    "voice_speakers": [
+        "key",
+        "n_words",
+        "n_explicit",
+        "n_clauses",
+        "main_book",
+        "books",
+        "delta",
+        "null_mean",
+        "effect",
+        "p",
+        "q",
+    ],
+    "voice_features": ["key", "side", "rank", "feature", "label", "rate", "rate_ref", "z"],
+    "voice_pairs": ["a", "b", "delta"],
     "borrowing_sequences": [
         "seq_id",
         "a_book",
@@ -913,6 +937,15 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             else pd.DataFrame(columns=TABLE_COLUMNS[table])
         )
     out["borrowing_meta"] = _read_json(bor_dir / "borrowing.meta.json")
+    voice_dir = resolve_path(cfg, "artifacts") / "voices"
+    for name in ("speakers", "features", "pairs"):
+        table, path = f"voice_{name}", voice_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["voice_speakers"] = out["voice_speakers"].assign(
+        books=[json.dumps([int(b) for b in bs]) for bs in out["voice_speakers"].books]
+    )
+    out["voices_meta"] = _read_json(voice_dir / "voices.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1107,6 +1140,9 @@ def _write_db(
             **{t: inputs[t] for t in SYNTAX_TABLES},
             "borrowing_sequences": inputs["borrowing_sequences"],
             "borrowing_books": inputs["borrowing_books"],
+            "voice_speakers": inputs["voice_speakers"],
+            "voice_features": inputs["voice_features"],
+            "voice_pairs": inputs["voice_pairs"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1195,6 +1231,21 @@ def _write_db(
                 "used_vote",
                 "known_sequences",
                 "sequences",
+            )
+        }
+        vm = inputs["voices_meta"]
+        meta["voices"] = {
+            k: vm.get(k)
+            for k in (
+                "speakers",
+                "features",
+                "speech_clauses",
+                "words",
+                "significant",
+                "calibration",
+                "sensitivity",
+                "order",
+                "checks",
             )
         }
         snm = inputs["senses_meta"]

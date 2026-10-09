@@ -30,6 +30,7 @@ const verse = (id: number): Verse => ({
 })
 const RESPONSE: PhrasesResponse = {
   book: null,
+  unit: null,
   cross_book: false,
   min_tokens: 3,
   max_spread: 3,
@@ -84,5 +85,38 @@ describe('PhrasesPage', () => {
     expect(calls).toContain('/api/phrases?min_tokens=3&max_spread=3&limit=50&offset=0')
     fireEvent.click(screen.getByLabelText('Include recurring phrases'))
     await waitFor(() => expect(calls).toContain('/api/phrases?min_tokens=3&limit=50&offset=0'))
+  })
+
+  it('lists every phrase of one unit (from the dossier) and can go back to all', async () => {
+    const calls: string[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        calls.push(url)
+        const body = url.startsWith('/api/phrases')
+          ? { ...RESPONSE, unit: 'v:1' }
+          : url.startsWith('/api/unit/')
+            ? { unit: unit(1, 'Hosea 13:8'), verses: [], parents: [], prev_id: null, next_id: null }
+            : url.startsWith('/api/books')
+              ? []
+              : null
+        return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
+      }),
+    )
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={['/phrases?unit=v:1']}>
+          <Routes>
+            <Route path="/phrases" element={<PhrasesPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(await screen.findByRole('status')).toBeTruthy()
+    // recurring idioms are not hidden for one unit: its count matches the dossier's
+    expect(calls).toContain('/api/phrases?min_tokens=3&unit=v%3A1&limit=50&offset=0')
+    fireEvent.click(screen.getByRole('button', { name: /Show all/ }))
+    await waitFor(() => expect(calls).toContain('/api/phrases?min_tokens=3&max_spread=3&limit=50&offset=0'))
   })
 })

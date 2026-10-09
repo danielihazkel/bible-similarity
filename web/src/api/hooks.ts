@@ -36,6 +36,9 @@ import type {
   BorrowingSequence,
   SpeechBookResponse,
   SpeechResponse,
+  VoiceDetail,
+  Dossier,
+  VoicesResponse,
   UnitSyntax,
   Meta,
   MapResponse,
@@ -143,6 +146,8 @@ export interface DiscoveriesQuery {
   mode: Mode
   book: number | undefined
   crossBook: boolean
+  /** only the pairs this unit is in (the list then shows its unit type) */
+  unit?: string
   limit: number
   offset: number
 }
@@ -153,6 +158,7 @@ export const discoveriesParams = (q: DiscoveriesQuery): Params => ({
   mode: q.mode,
   book: q.book,
   cross_book: q.crossBook ? 'true' : undefined,
+  unit: q.unit,
   limit: q.limit,
   offset: q.offset,
 })
@@ -257,8 +263,12 @@ export const useUnitDating = (unitId: string | undefined) =>
   })
 
 /** Which side of each cross-book parallel looks like the borrower (DESIGN.md §16.27). */
-export const useBorrowing = () =>
-  useQuery({ queryKey: ['borrowing'], queryFn: ({ signal }) => getJson<BorrowingResponse>('/borrowing', {}, signal), ...forever })
+export const useBorrowing = (unit?: string) =>
+  useQuery({
+    queryKey: ['borrowing', unit],
+    queryFn: ({ signal }) => getJson<BorrowingResponse>('/borrowing', { unit }, signal),
+    ...forever,
+  })
 
 export const useBorrowingSequence = (seqId: number | undefined) =>
   useQuery({
@@ -313,6 +323,25 @@ export const useUnitSyntax = (unitId: string | undefined) =>
 export const useSpeech = () =>
   useQuery({ queryKey: ['speech'], queryFn: ({ signal }) => getJson<SpeechResponse>('/speech', {}, signal), ...forever })
 
+/** What every analysis says about one unit (`/dossier`). */
+export const useDossier = (unitId: string) =>
+  useQuery({
+    queryKey: ['dossier', unitId],
+    queryFn: ({ signal }) => getJson<Dossier>(`/dossier/${encodeURIComponent(unitId)}`, {}, signal),
+    staleTime: 60_000,
+  })
+
+export const useVoices = () =>
+  useQuery({ queryKey: ['voices'], queryFn: ({ signal }) => getJson<VoicesResponse>('/voices', {}, signal), ...forever })
+
+export const useVoice = (key: string | undefined) =>
+  useQuery({
+    queryKey: ['voice', key],
+    queryFn: ({ signal }) => getJson<VoiceDetail>(`/voices/${encodeURIComponent(key ?? '')}`, {}, signal),
+    enabled: key !== undefined,
+    ...forever,
+  })
+
 export const useSpeechBook = (bookId: number | undefined) =>
   useQuery({
     queryKey: ['speech-book', bookId],
@@ -344,6 +373,8 @@ export interface PhrasesQuery {
   crossBook: boolean
   minTokens: number
   maxSpread: number | undefined
+  /** only phrases with a side in this unit */
+  unit?: string
   limit: number
   offset: number
 }
@@ -354,6 +385,7 @@ export const phrasesParams = (q: PhrasesQuery): Params => ({
   cross_book: q.crossBook ? 'true' : undefined,
   min_tokens: q.minTokens,
   max_spread: q.maxSpread,
+  unit: q.unit,
   limit: q.limit,
   offset: q.offset,
 })
@@ -498,6 +530,8 @@ export interface ChangesQuery {
   op: DiffOp
   aBook?: number
   bBook?: number
+  /** only verse pairs with a side in this unit */
+  unit?: string
   limit: number
   offset: number
 }
@@ -507,6 +541,7 @@ export const changesParams = (q: ChangesQuery): Params => ({
   op: q.op,
   a_book: q.aBook,
   b_book: q.bBook,
+  unit: q.unit,
   limit: q.limit,
   offset: q.offset,
 })
@@ -581,8 +616,9 @@ export const wordplayParams = (q: WordplayQuery): Params => ({
   offset: q.offset,
 })
 
-export const useWordplay = (q: WordplayQuery) =>
+export const useWordplay = (q: WordplayQuery, enabled = true) =>
   useQuery({
+    enabled,
     queryKey: ['wordplay', q],
     queryFn: ({ signal }) =>
       getJson<WordplayResponse>(
@@ -811,11 +847,11 @@ export const useAlliteration = (q: { book?: number; unit?: string; limit: number
     ...forever,
   })
 
-export const useRhymes = (q: { book?: number; maxQ?: number; limit: number; offset: number }) =>
+export const useRhymes = (q: { book?: number; maxQ?: number; unit?: string; limit: number; offset: number }) =>
   useQuery({
     queryKey: ['rhymes', q],
     queryFn: ({ signal }) =>
-      getJson<RhymesResponse>('/rhymes', { book: q.book, max_q: q.maxQ, limit: q.limit, offset: q.offset }, signal),
+      getJson<RhymesResponse>('/rhymes', { book: q.book, max_q: q.maxQ, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

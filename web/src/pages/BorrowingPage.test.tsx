@@ -36,6 +36,7 @@ const SEQ: BorrowingSequence = {
 }
 const check = (agree: number, n: number, p: number) => ({ agree, n, p, unclear: null })
 const RES: BorrowingResponse = {
+  unit: null,
   checks: {
     language: check(30, 35, 2.2e-5),
     spelling: check(29, 31, 1e-7),

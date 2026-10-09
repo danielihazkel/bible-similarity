@@ -9,6 +9,7 @@ import { ChangesPage } from './ChangesPage'
 
 const RES: ChangesResponse = {
   op: 'substitution',
+  unit: null,
   a_book: null,
   b_book: null,
   totals: { substitution: 1963, added: 1632 },

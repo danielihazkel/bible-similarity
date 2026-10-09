@@ -91,16 +91,16 @@ def word_features(morph: str | None) -> list[str]:
     return sorted(f for f in out if f in MORPH_LABELS)
 
 
-def feature_matrix(
-    words: pd.DataFrame, unit_of_verse: np.ndarray, n_units: int, mfw: list[str]
+def feature_counts(
+    words: pd.DataFrame, unit_of_word: np.ndarray, n_units: int, mfw: list[str]
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
-    """(units x features relative frequencies, words per unit, feature names)."""
+    """(units x features counts, words per unit, feature names); `unit_of_word[i]` is the unit
+    of the i-th row of `words` (−1: left out)."""
     names = [f"lemma:{lem}" for lem in mfw] + list(MORPH_LABELS)
     col = {n: i for i, n in enumerate(names)}
     counts = np.zeros((n_units, len(names)))
     n_words = np.zeros(n_units)
-    for vid, lems, morph in zip(words.verse_id, words.content_lemmas, words.morph, strict=True):
-        u = unit_of_verse[vid]
+    for u, lems, morph in zip(unit_of_word, words.content_lemmas, words.morph, strict=True):
         if u < 0:
             continue
         n_words[u] += 1
@@ -110,6 +110,15 @@ def feature_matrix(
                 counts[u, c] += 1
         for f in word_features(morph):
             counts[u, col[f]] += 1
+    return counts, n_words, names
+
+
+def feature_matrix(
+    words: pd.DataFrame, unit_of_verse: np.ndarray, n_units: int, mfw: list[str]
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """(units x features relative frequencies, words per unit, feature names)."""
+    unit_of_word = np.asarray(unit_of_verse)[words.verse_id.to_numpy()]
+    counts, n_words, names = feature_counts(words, unit_of_word, n_units, mfw)
     rel = np.divide(counts, n_words[:, None], out=np.zeros_like(counts), where=n_words[:, None] > 0)
     return rel, n_words, names
 

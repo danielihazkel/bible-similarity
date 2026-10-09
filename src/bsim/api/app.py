@@ -99,6 +99,8 @@ class ServeState:
     structure_cache: LruCache = field(default_factory=lambda: LruCache(0))
     sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    dossier_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    _present: dict[str, bool] = field(default_factory=dict)
     _lemma_total: int | None = None
     _verse_books: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
@@ -108,6 +110,14 @@ class ServeState:
         if self._lemma_total is None:
             self._lemma_total = queries.corpus_lemma_total(conn)
         return self._lemma_total
+
+    def present(self, conn: sqlite3.Connection, table: str) -> bool:
+        """Whether a table has rows: an optional stage that did not run leaves it empty (read once
+        per table; the DB is read-only)."""
+        if table not in self._present:
+            row = conn.execute(f"SELECT EXISTS (SELECT 1 FROM {table})").fetchone()
+            self._present[table] = bool(row[0])
+        return self._present[table]
 
     def connect(self) -> sqlite3.Connection:
         # FastAPI may close a sync dependency on another thread than it opened it on.
@@ -242,6 +252,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         runtime,
         structure_cache=LruCache(serve["structure_cache"]),
         sequence_cache=LruCache(serve["sequence_cache"]),
+        dossier_cache=LruCache(serve["dossier_cache"]),
         query_cache=LruCache(serve["search"]["query_cache"]),
     )
 

@@ -482,3 +482,34 @@ Phase 3 (M39c): API and viewer
 ## M43b: Clause shapes as a mode (D62)
 - [x] `final_systems.syntax: bm25_syntax`, `unit_syntax: tfidf_syntax` (unit TF-IDF over the clause tokens, `bsim units`); `syntax` in the DB modes, API and viewer ("Clauses" / "פסוקיות"); `store.max_size_mb` 4096 (DB 616 MB)
 - [x] Tests: six modes in the fixture DB (matches, discoveries); e2e: the mode on a unit page in both languages
+
+## M45: Speaker voices (§16.28, D63)
+- [x] `stylometry.feature_counts` (features per word-level unit; `feature_matrix` is now a wrapper)
+- [x] `bsim voices` (`analysis/voices.py`, pipeline stage after stylometry, ~31 s): proper-name speakers (OSHB `Np` in most occurrences, `voices.exclude` peoples) and the divine names as one voice; Delta to the other attributed speech of the same books; within-book clause-label shuffle null (999), BH q; calibration shuffle; explicit-only sensitivity; Delta between voices, the narrator and unattributed speech; feature profiles
+- [x] Checks fixed in advance (`voices.checks`): author vs character (David in Samuel / Chronicles, God in Kings / Chronicles, Solomon in Kings / Chronicles), the most distinct speaker of Job (Elihu)
+- [x] DB `voice_speakers`, `voice_features`, `voice_pairs` (+ `meta.voices`, empty without the stage); API `/voices`, `/voices/{key}`
+- [x] Viewer: Who speaks → Voices (speakers with distinctiveness and q, the checks, Delta heatmap via the generalised `Heatmap`, a speaker's profile with `FeatureBars`, chapters where they speak); English and Hebrew
+- [x] Tests: feature counts, clause mapping, keys and proper names, within-group shuffle, a planted speaker found and an unplanted one not, the author check and its verdicts (pytest); the API on the fixture DB; the Voices tab and its empty state (vitest); e2e: the tab in both languages, axe
+
+✔ 23 speakers profiled, 18 distinct at q ≤ 0.05 (calibration shuffle 0 / 23, explicit-only ρ 0.88); David and God sound like the book that narrates them (p 0.001 / 0.045), Solomon does not differ between Kings and Chronicles; Elihu ranks second in Job, after Job (the named expectation fails, reported).
+
+## M46: The unit dossier (§10, D64)
+- [x] `/dossier/{unit}` (`api/routes/dossier.py`): one entry per analysis with `computed` (optional stages read from table presence, `ServeState.present`), counts / q / score / speaker, chapter scope for verses; cached (`serve.dossier_cache`) except your labels, read live
+- [x] `unit=` on `/phrases`, `/changes`, `/rhymes`, `/discoveries`, `/borrowing`; `/typescenes?unit=` matches any pericope overlapping the unit (was: the pericope itself); CSV export carries the filter
+- [x] Indexes for the lookups: `diff_changes (a)`, `(b)`, `discoveries (unit_type, mode, b_id)`, `typescenes (a_unit)`, `(b_unit)`, `seams (verse_id)`
+- [x] Viewer: `DossierBar` under the unit heading (findings as links to the filtered lists or panels; "nothing found"; "not computed in this build"); the phrases / wordplay / sequences panels are not fetched when the dossier found none; `?unit=` with `UnitFilter` on Phrases (recurring idioms included), Changes, Discoveries, Who borrowed, Action sequences, alliteration and rhyme
+- [x] Tests: dossier of a verse and a chapter (counts equal the filtered lists), live labels, not-computed stages, the new filters and 404s, the export (pytest); the bar in both languages, skipped panels, a dossier failure, the Phrases filter (vitest); e2e: filtered pages, a dossier chip to a filtered list
+
+✔ Every analysis that touches a passage is one click from it, and "nothing here" is told apart from "not run"; a dossier is computed in ~12 ms in-process on the real DB (cached after); 117 / 117 fixture and 100 / 100 real-data e2e.
+
+## Proposed (not started)
+Suggestions from the 2026-10-09 review, in rough order of value for cost:
+- A2 Segmentation agreement: semantic / lexical-cohesion boundaries (TextTiling depth scores) against petucha / setuma, chapter divisions and style seams (Pk / WindowDiff vs random breaks)
+- A3 Ketiv / qere: classify the pairs (spelling, letter swap, word division, euphemism), distribution by book, LBH features of the ketiv forms
+- A4 Explicit citations (ככתוב, כאשר צוה ה׳ ביד משה) resolved through phrases / sequences, and a directed echo network oriented by borrowing and dating (DESIGN §16 "not done")
+- A5 Allusions spread over 2–3 verses: rare-lemma window overlap with a shuffle null
+- A6 Clause-level chiasm over BHSA clauses (DESIGN §16.26 "not done")
+- A7 ETCBC `parallels` as a gold set for `sequences` / `phrases`
+- C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)
+- C3 Shared statistics: G² (five copies) and `shuffle_within` (two) into `analysis/stats.py`
+- B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

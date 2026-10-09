@@ -8,7 +8,7 @@ from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models import BorrowingBookPair, BorrowingResponse, BorrowingSequence
-from bsim.api.routes._common import Conn, State, span_label, unit_or_404
+from bsim.api.routes._common import Conn, State, span_label, unit_or_404, unit_span
 
 router = APIRouter()
 COLUMNS = (
@@ -47,20 +47,29 @@ def _sequences(conn: Conn, rows: list[dict[str, Any]]) -> list[BorrowingSequence
 
 
 @router.get("/borrowing", response_model=BorrowingResponse)
-def borrowing(state: State, conn: Conn) -> dict[str, Any]:
+def borrowing(state: State, conn: Conn, unit: str | None = None) -> dict[str, Any]:
     """Book pairs with their parallels, each with its signs and direction, and the check of the
-    signs on the directions scholars accept."""
+    signs on the directions scholars accept; `unit`: only the parallels touching that unit (and
+    their book pairs)."""
     meta = state.meta.get("borrowing") or {}
+    span = unit_span(conn, unit)
+    rows = (
+        queries.borrowing_sequences(conn)
+        if span is None
+        else queries.borrowing_touching(conn, span)
+    )
     by_pair: dict[tuple[int, int], list[BorrowingSequence]] = {}
-    for s in _sequences(conn, queries.borrowing_sequences(conn)):
+    for s in _sequences(conn, rows):
         by_pair.setdefault((s.a_book, s.b_book), []).append(s)
     return {
+        "unit": unit,
         "checks": meta.get("checks") or {},
         "used_signs": meta.get("used_signs") or [],
         "held_out": meta.get("held_out"),
         "books": [
             BorrowingBookPair(**b, items=by_pair.get((b["a_book"], b["b_book"]), []))
             for b in queries.borrowing_books(conn)
+            if span is None or (b["a_book"], b["b_book"]) in by_pair
         ],
     }
 

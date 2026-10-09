@@ -11,6 +11,7 @@ import { datEn } from './pages/dating'
 import { labEn } from './pages/labels'
 import { synEn } from './pages/syntax'
 import { borEn } from './pages/borrowing'
+import { dosEn } from './pages/dossier'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -382,6 +383,7 @@ export const en = {
   lab: labEn,
   syn: synEn,
   bor: borEn,
+  dos: dosEn,
   ov: ovEn,
 }
 

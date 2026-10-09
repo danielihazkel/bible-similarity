@@ -93,6 +93,8 @@ export interface PhrasesResponse {
   cross_book: boolean
   min_tokens: number
   max_spread: number | null
+  /** only phrases with a side in this unit */
+  unit: string | null
   total: number
   offset: number
   limit: number
@@ -117,6 +119,8 @@ export interface DiscoveriesResponse {
   mode: Mode
   book: number | null
   cross_book: boolean
+  /** only the pairs this unit is in */
+  unit: string | null
   total: number
   offset: number
   limit: number
@@ -533,6 +537,8 @@ export interface ChangesResponse {
   op: DiffOp
   a_book: number | null
   b_book: number | null
+  /** only verse pairs with a side in this unit */
+  unit: string | null
   totals: Partial<Record<DiffOp, number>>
   total: number
   offset: number
@@ -952,6 +958,7 @@ export interface Rhyme {
 export interface RhymesResponse {
   book: number | null
   max_q: number | null
+  unit: string | null
   total: number
   offset: number
   limit: number
@@ -1216,6 +1223,143 @@ export interface SpeechBookResponse {
   speakers: SpeakerInfo[]
 }
 
+// --- dossier: every analysis on one unit (DESIGN.md §10) ---
+
+export type DossierKind =
+  | 'phrases'
+  | 'sequences'
+  | 'changes'
+  | 'borrowing'
+  | 'wordplay'
+  | 'alliteration'
+  | 'rhymes'
+  | 'typescenes'
+  | 'discoveries'
+  | 'seams'
+  | 'names'
+  | 'acrostic'
+  | 'dating'
+  | 'structure'
+  | 'speech'
+  | 'voices'
+  | 'network'
+  | 'labels'
+
+export interface DossierEntry {
+  kind: DossierKind
+  /** read on the unit itself or on the chapter holding it (`target_unit`) */
+  scope: 'unit' | 'chapter'
+  /** false: the stage did not run (or does not cover this unit type) */
+  computed: boolean
+  /** rows found; 1 / 0 for a yes / no finding; network: rank */
+  count: number | null
+  /** network: units ranked */
+  total: number | null
+  /** lowest q (acrostic, structure) or score (dating) */
+  value: number | null
+  /** speech: speaker lemma; voices: voice profile key */
+  key: string | null
+  /** speech / voices: the speaker's Hebrew form */
+  label: string | null
+  target_unit: string | null
+}
+
+export interface Dossier {
+  unit_id: string
+  entries: DossierEntry[]
+}
+
+// --- speaker voices (DESIGN.md §16.28) ---
+
+export interface VoiceSpeaker {
+  /** speaker lemma, or `divine` (the divine names together) */
+  key: string
+  /** Hebrew form of the lemma; null for `divine` */
+  he: string | null
+  n_words: number
+  n_explicit: number
+  n_clauses: number
+  main_book: number
+  books: number[]
+  /** Burrows' Delta to the other attributed speech of the same books */
+  delta: number
+  null_mean: number
+  /** (delta - null mean) / null sd */
+  effect: number
+  p: number
+  q: number
+}
+
+export interface VoicePair {
+  /** speaker keys, `narrator`, `unattributed` */
+  a: string
+  b: string
+  delta: number
+}
+
+export interface AuthorCheck {
+  speaker: string
+  a: string[]
+  b: string[]
+  cross: number
+  p_cross: number
+  d_ab: number
+  p_ab: number
+  words_a: number
+  words_b: number
+  verdict: 'author' | 'differs' | 'same' | 'underpowered'
+}
+
+export interface DistinctCheck {
+  book: string
+  speaker: string
+  rank: number | null
+  of: number
+  ranking: { key: string; effect: number; q: number }[]
+}
+
+/** `meta.voices`, all keys absent without `bsim voices` */
+export interface VoicesMeta {
+  speakers?: number | null
+  significant?: number | null
+  calibration?: { significant: number; of: number } | null
+  sensitivity?: { speakers: number; rho: number | null } | null
+  words?: Record<string, number> | null
+  order?: string[] | null
+  checks?: { author: AuthorCheck[]; distinct: DistinctCheck[] } | null
+}
+
+export interface VoicesResponse {
+  meta: VoicesMeta & Record<string, unknown>
+  speakers: VoiceSpeaker[]
+  pairs: VoicePair[]
+}
+
+export interface VoiceFeature {
+  side: 'over' | 'under'
+  rank: number
+  feature: string
+  label: string
+  rate: number
+  rate_ref: number
+  z: number
+}
+
+export interface VoiceChapter {
+  unit_id: string
+  book_id: number
+  chapter: number
+  n_clauses: number
+}
+
+export interface VoiceDetail {
+  speaker: VoiceSpeaker
+  features: VoiceFeature[]
+  /** a = this speaker, nearest first */
+  nearest: VoicePair[]
+  chapters: VoiceChapter[]
+}
+
 // --- who borrowed (DESIGN.md §16.27) ---
 
 export type BorrowDirection = 'a_to_b' | 'b_to_a' | 'unclear'
@@ -1265,6 +1409,8 @@ export interface BorrowingBookPair {
 }
 
 export interface BorrowingResponse {
+  /** only the parallels touching this unit */
+  unit: string | null
   checks: Record<string, SignCheck>
   used_signs: string[]
   held_out: SignCheck | null

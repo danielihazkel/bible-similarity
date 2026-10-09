@@ -118,6 +118,7 @@ class DiscoveriesResponse(ApiModel):
     mode: Mode
     book: int | None
     cross_book: bool
+    unit: str | None  # only the pairs this unit is in
     total: int  # pairs matching the filters
     offset: int
     limit: int
@@ -141,6 +142,7 @@ class PhrasePair(ApiModel):
 
 class PhrasesResponse(ApiModel):
     book: int | None
+    unit: str | None  # only phrases with a side in this unit
     cross_book: bool
     min_tokens: int
     max_spread: int | None
@@ -181,6 +183,7 @@ class ChangesResponse(ApiModel):
     op: DiffOp
     a_book: int | None
     b_book: int | None
+    unit: str | None  # only verse pairs with a side in this unit
     totals: dict[str, int]  # changes per op under the book filters
     total: int  # groups
     offset: int
@@ -1068,6 +1071,7 @@ class Rhyme(ApiModel):
 class RhymesResponse(ApiModel):
     book: int | None
     max_q: float | None
+    unit: str | None
     total: int
     offset: int
     limit: int
@@ -1231,6 +1235,83 @@ class SpeechBookResponse(ApiModel):
     speakers: list[SpeakerInfo]
 
 
+class VoiceSpeaker(ApiModel):
+    key: str  # speaker lemma, or `divine` (the divine names together)
+    he: str | None  # Hebrew form of the lemma; None for `divine`
+    n_words: int
+    n_explicit: int  # words whose introduction names the speaker itself
+    n_clauses: int
+    main_book: int
+    books: list[int]  # most words first
+    delta: float  # Burrows' Delta to the other attributed speech of the same books
+    null_mean: float  # ... expected under the within-book label shuffle
+    effect: float  # (delta - null mean) / null sd
+    p: float
+    q: float
+
+
+class VoicePair(ApiModel):
+    a: str  # speaker keys, `narrator`, `unattributed`
+    b: str
+    delta: float
+
+
+class VoicesResponse(ApiModel):
+    meta: dict[str, Any]  # `bsim voices`: counts, calibration, sensitivity, order, checks
+    speakers: list[VoiceSpeaker]  # empty without `bsim voices`
+    pairs: list[VoicePair]
+
+
+class VoiceFeature(ApiModel):
+    side: str  # over | under
+    rank: int
+    feature: str
+    label: str  # Hebrew: the lemma or the morphology feature
+    rate: float  # per word in the speaker's speech
+    rate_ref: float  # ... in the other attributed speech of the same books
+    z: float  # (rate - rate_ref) / chapter sd
+
+
+class VoiceChapter(ApiModel):
+    unit_id: str
+    book_id: int
+    chapter: int
+    n_clauses: int  # the speaker's speech clauses in it
+
+
+class VoiceDetail(ApiModel):
+    speaker: VoiceSpeaker
+    features: list[VoiceFeature]
+    nearest: list[VoicePair]  # a = this speaker, nearest first
+    chapters: list[VoiceChapter]  # where the speaker talks most
+
+
+DossierKind = Literal[
+    "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
+    "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
+    "voices", "network", "labels",
+]  # fmt: skip
+
+
+class DossierEntry(ApiModel):
+    """One analysis on one unit (`/dossier`); which fields carry what depends on `kind`."""
+
+    kind: DossierKind
+    scope: Literal["unit", "chapter"]  # read on the unit itself or on its chapter
+    computed: bool  # False: the stage did not run (or does not cover this unit type)
+    count: int | None = None  # rows found, 1 / 0 for a yes / no finding, a rank (network)
+    total: int | None = None  # network: units ranked
+    value: float | None = None  # lowest q (acrostic, structure), score (dating)
+    key: str | None = None  # speech: speaker lemma; voices: voice profile key
+    label: str | None = None  # speech / voices: the speaker's Hebrew form
+    target_unit: str | None = None  # the chapter read for a chapter-scope entry
+
+
+class Dossier(ApiModel):
+    unit_id: str
+    entries: list[DossierEntry]
+
+
 class SignCheck(ApiModel):
     agree: int  # sequences a sign points the accepted way
     n: int  # sequences it voted on
@@ -1278,6 +1359,7 @@ class BorrowingBookPair(ApiModel):
 
 
 class BorrowingResponse(ApiModel):
+    unit: str | None  # only the parallels touching this unit
     checks: dict[str, SignCheck]  # each sign and all four on the accepted directions
     used_signs: list[str]  # the signs that vote
     held_out: SignCheck | None  # signs chosen without each book pair, scored on it

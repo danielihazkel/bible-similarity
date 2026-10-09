@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Book, SpeechBookResponse, SpeechResponse, UnitSyntax } from '../api/types'
+import type { Book, SpeechBookResponse, SpeechResponse, UnitSyntax, VoiceDetail, VoicesResponse } from '../api/types'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { LocaleProvider } from '../context/Locale'
 import { SpeechPage } from './SpeechPage'
@@ -20,6 +20,41 @@ const LEV: SpeechBookResponse = {
   chapters: [{ unit_id: 'c:2:1', chapter: 1, ...shares }],
   speakers: [GOD, { lemma: '4872', he: 'משה', n_words: 300, n_explicit: 120, divine: false }],
 }
+const SAMUEL: Book = { book_id: 7, name: 'I Samuel', he_name: 'שמואל א', osis: '1Sam', section: 'Prophets', n_chapters: 31 }
+const CHR: Book = { book_id: 37, name: 'I Chronicles', he_name: 'דברי הימים א', osis: '1Chr', section: 'Writings', n_chapters: 29 }
+const speaker = (key: string, he: string | null, effect: number, q: number) => ({
+  key, he, n_words: 3000, n_explicit: 1800, n_clauses: 400, main_book: 7, books: [7, 37], delta: 0.3,
+  null_mean: 0.2, effect, p: q, q,
+})  // prettier-ignore
+const VOICES: VoicesResponse = {
+  meta: {
+    significant: 1,
+    calibration: { significant: 0, of: 2 },
+    sensitivity: { speakers: 2, rho: 0.88 },
+    order: ['divine', '1732', 'narrator'],
+    checks: {
+      author: [
+        { speaker: '1732', a: ['1Sam'], b: ['1Chr'], cross: 0.153, p_cross: 0.001, d_ab: 0.6, p_ab: 0.001, words_a: 1969, words_b: 1004, verdict: 'author' },
+      ],
+      distinct: [{ book: '1Sam', speaker: '1732', rank: 2, of: 2, ranking: [{ key: 'divine', effect: 9, q: 0.001 }, { key: '1732', effect: 5.3, q: 0.002 }] }],
+    },
+  },
+  speakers: [speaker('divine', null, 9, 0.001), speaker('1732', 'דוד', 0.4, 0.3)],
+  pairs: [
+    { a: 'divine', b: '1732', delta: 0.4 },
+    { a: 'divine', b: 'narrator', delta: 0.9 },
+    { a: '1732', b: 'narrator', delta: 0.5 },
+  ],
+}  // prettier-ignore
+const DAVID: VoiceDetail = {
+  speaker: speaker('1732', 'דוד', 0.4, 0.3),
+  features: [
+    { side: 'over', rank: 0, feature: 'verb:h', label: 'עתיד מוארך', rate: 0.01, rate_ref: 0.004, z: 1.3 },
+    { side: 'under', rank: 1, feature: 'verb:q', label: 'וקטל (עבר מהופך)', rate: 0.01, rate_ref: 0.03, z: -1.1 },
+  ],
+  nearest: [{ a: '1732', b: 'divine', delta: 0.4 }],
+  chapters: [{ unit_id: 'c:37:17', book_id: 37, chapter: 17, n_clauses: 30 }],
+}  // prettier-ignore
 const SYNTAX: UnitSyntax = {
   verses: [
     {
@@ -60,7 +95,9 @@ function mockApi() {
     vi.fn(async (url: string) => {
       const path = new URL(url, 'http://x').pathname
       const body =
-        path === '/api/books' ? BOOKS
+        path === '/api/books' ? [...BOOKS, SAMUEL, CHR]
+        : path === '/api/voices' ? VOICES
+        : path === '/api/voices/1732' ? DAVID
         : path === '/api/speech' ? SPEECH
         : path === '/api/speech/book/2' ? LEV
         : path === '/api/syntax/v%3A2680' ? SYNTAX
@@ -113,6 +150,36 @@ describe('SpeechPage', () => {
     renderAt(<SpeechPage />, '/speech?book=2', 'he')
     expect(await screen.findByRole('heading', { level: 1, name: 'מי מדבר' })).toBeTruthy()
     expect(await screen.findByRole('link', { name: 'ויקרא א' })).toBeTruthy()
+  })
+})
+
+describe('Voices', () => {
+  it('lists speakers with the checks, and opens a speaker’s profile', async () => {
+    mockApi()
+    renderAt(<SpeechPage />, '/speech')
+    fireEvent.click(await screen.findByRole('radio', { name: 'Voices' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/speech?view=voices'))
+    expect(await screen.findByText(/2 speakers profiled; 1 distinct beyond chance/)).toBeTruthy()
+    expect(screen.getByText(/passes 0 of 2/)).toBeTruthy()
+    expect(screen.getByText('דוד in I Samuel and in I Chronicles')).toBeTruthy()
+    expect(screen.getByText(/the author's voice over the character's/)).toBeTruthy()
+    expect(screen.getByText(/I Samuel: דוד is number 2 of 2 speakers/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'God (יהוה, אלהים, אדני)' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'דוד' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/speech?view=voices&voice=1732'))
+    expect(await screen.findByText('עתיד מוארך')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'I Chronicles 17' }).getAttribute('href')).toBe('/unit/c%3A37%3A17?syntax=1')
+    expect(screen.getByRole('img', { name: /Distance between voices/ })).toBeTruthy()
+  })
+
+  it('reads in Hebrew, and says when the stage did not run', async () => {
+    mockApi()
+    renderAt(<SpeechPage />, '/speech?view=voices', 'he')
+    expect(await screen.findByText('דוד בשמואל א ובדברי הימים א')).toBeTruthy()
+    cleanup()
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ meta: {}, speakers: [], pairs: [] }))))
+    renderAt(<SpeechPage />, '/speech?view=voices')
+    expect(await screen.findByText(/No speaker voices in this build/)).toBeTruthy()
   })
 })
 

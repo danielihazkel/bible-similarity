@@ -33,6 +33,7 @@ const verse = (id: number, text: string): Verse => ({
 
 const response = (offset: number): DiscoveriesResponse => ({
   unit_type: 'verse',
+  unit: null,
   mode: 'semantic',
   book: null,
   cross_book: false,

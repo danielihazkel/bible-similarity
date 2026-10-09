@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useBooks, useTypeScenes } from '../api/hooks'
 import { EmptyList, Pager } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookOption, unitLabel } from '../lib/names'
@@ -17,12 +18,14 @@ export function TypeScenesPage() {
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const all = params.get('q') === 'all'
   const showTextual = params.get('textual') === '1'
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useTypeScenes({
     book,
     maxQ: all ? undefined : 0.05,
     hideTextual: !showTextual,
+    unit,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   })
@@ -34,6 +37,7 @@ export function TypeScenesPage() {
       <h1>{m.par.typeScenes.title}</h1>
       <p className="lede">{m.par.typeScenes.lede}</p>
       <p className="muted small">{m.par.typeScenes.note}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <label className="control">
           <span>{m.par.book}</span>

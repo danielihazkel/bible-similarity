@@ -2,6 +2,7 @@ import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
 import { EmptyList, Pager } from '../components/Pager'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
+import { UnitFilter } from '../components/UnitFilter'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { bookOption } from '../lib/names'
@@ -23,13 +24,16 @@ export function PhrasesPage() {
   const recurring = params.get('recurring') === '1'
   const minRaw = Number(params.get('min'))
   const minTokens = MIN_TOKENS.includes(minRaw) ? minRaw : 3
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const query = {
     book,
     crossBook,
     minTokens,
-    maxSpread: recurring ? undefined : MAX_SPREAD,
+    // a unit's own phrases are all listed, recurring idioms included
+    maxSpread: recurring || unit ? undefined : MAX_SPREAD,
+    unit,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   }
@@ -41,6 +45,7 @@ export function PhrasesPage() {
     <div className="page phrases-page">
       <h1>{m.par.phrases.title}</h1>
       <p className="lede">{m.par.phrases.lede}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <label className="control">
           <span>{m.par.book}</span>

@@ -2,9 +2,11 @@ import { Link } from 'react-router'
 import { useBooks, useBorrowing } from '../api/hooks'
 import type { BorrowingBookPair, BorrowingSequence } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
+import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { sequenceLink } from '../lib/links'
 import { bookName } from '../lib/names'
+import { useQueryParams } from '../lib/urlState'
 
 const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
 
@@ -12,8 +14,10 @@ const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
 export function BorrowingPage() {
   const { m, locale } = useLocale()
   const t = m.bor
+  const [params, update] = useQueryParams()
+  const unit = params.get('unit') || undefined
   const books = useBooks()
-  const res = useBorrowing()
+  const res = useBorrowing(unit)
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
   const d = res.data
@@ -25,6 +29,7 @@ export function BorrowingPage() {
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
       <p className="muted small">{t.caveat}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null })} />}
       {d.books.length === 0 ? (
         <p className="status">{t.noData}</p>
       ) : (

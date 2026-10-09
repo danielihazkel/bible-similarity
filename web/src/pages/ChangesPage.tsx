@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useBooks, useChanges, changesParams } from '../api/hooks'
+import { UnitFilter } from '../components/UnitFilter'
 import type { ChangeGroup, DiffOp } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
@@ -28,7 +29,7 @@ export function ChangesPage() {
         <Segmented
           label={m.par.changes.view}
           value={view}
-          onChange={(v) => update({ view: v === 'words' ? null : v, page: null })}
+          onChange={(v) => update({ view: v === 'words' ? null : v, page: null, unit: null })}
           options={[
             { value: 'words', label: m.par.changes.byWord },
             { value: 'rewrites', label: m.par.changes.rewrites },
@@ -55,9 +56,10 @@ function ChangesByWord() {
   }
   const aBook = num('a')
   const bBook = num('b')
+  const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
-  const query = { op, aBook, bBook, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  const query = { op, aBook, bBook, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
   const res = useChanges(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
@@ -79,6 +81,7 @@ function ChangesByWord() {
 
   return (
     <>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <Segmented
           label={m.par.changes.kind}

@@ -9,6 +9,7 @@ from bsim.api.routes import (
     corpus,
     dating,
     domains,
+    dossier,
     export,
     labels,
     parallels,
@@ -31,6 +32,7 @@ for _module in (
     syntax,
     borrowing,
     labels,
+    dossier,
     export,
 ):
     router.include_router(_module.router)

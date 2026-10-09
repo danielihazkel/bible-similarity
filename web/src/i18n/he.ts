@@ -18,6 +18,7 @@ import { datHe } from './pages/dating'
 import { labHe } from './pages/labels'
 import { synHe } from './pages/syntax'
 import { borHe } from './pages/borrowing'
+import { dosHe } from './pages/dossier'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -383,5 +384,6 @@ export const he: Messages = {
   lab: labHe,
   syn: synHe,
   bor: borHe,
+  dos: dosHe,
   ov: ovHe,
 }

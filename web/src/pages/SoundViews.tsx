@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useAlliteration, useRhymes } from '../api/hooks'
+import { UnitFilter } from '../components/UnitFilter'
 import type { Highlight } from '../lib/highlight'
 import { HebrewText } from '../components/HebrewText'
 import { EmptyList, Pager } from '../components/Pager'
@@ -18,12 +19,14 @@ export function AlliterationView({ book }: { book?: number }) {
   const t = m.pat.sound
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
-  const res = useAlliteration({ book, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const unit = params.get('unit') || undefined
+  const res = useAlliteration({ book, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   return (
     <>
       <p className="lede">{t.alliterationLede}</p>
       <p className="muted small">{t.alliterationNote}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null, page: null })} />}
       {res.isPending ? (
         <Loading />
       ) : res.error ? (
@@ -74,11 +77,13 @@ export function RhymeView({ book }: { book?: number }) {
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
   const all = params.get('rq') === 'all'
-  const res = useRhymes({ book, maxQ: all ? undefined : 0.05, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const unit = params.get('unit') || undefined
+  const res = useRhymes({ book, maxQ: all ? undefined : 0.05, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   return (
     <>
       <p className="lede">{t.rhymeLede}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null, page: null })} />}
       <div className="toolbar">
         <label className="check">
           <input

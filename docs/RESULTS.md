@@ -192,3 +192,7 @@ Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 9
 Syntax (§16.26, D60): `bm25_syntax` as a third list in the fusion +0.0005, CI [−0.0031, +0.0044]; `bm25_morph_syntax` against `bm25_morph` +0.0039, CI [−0.0007, +0.0086] (Sefaria), +0.0036, CI [+0.0015, +0.0058] (OpenBible): not adopted; clause-shape neighbours are shown as "built the same way" instead.
 
 Direction of borrowing (§16.27, D61), 35 parallels of accepted direction: language 30 / 35, spelling 29 / 31, smoothing 15 / 28, expansion 15 / 33; language + spelling chosen without each book pair, scored on it: 30 / 32 right, 3 undecided.
+
+Speaker voices (§16.28, D63): 23 speakers, 18 distinct at q ≤ 0.05 against a within-book label shuffle (calibration shuffle: 0 / 23; explicit-only ρ 0.88). Author over character: David (Samuel / Chronicles) cross 0.153, p 0.001; God (Kings / Chronicles) 0.046, p 0.045; Solomon (Kings / Chronicles) no difference, p 0.92. Elihu second of five Job speakers (expected first).
+
+Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

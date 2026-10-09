@@ -4,6 +4,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
+  Dossier,
+  DossierEntry,
   ExplainResponse,
   SimilarResponse,
   UnitDetail,
@@ -121,6 +123,23 @@ const HALVES: UnitParallelism = {
 }
 
 const EMPTY_PAGE = { total: 0, offset: 0, limit: 5, items: [] }
+const entry = (e: Partial<DossierEntry> & Pick<DossierEntry, 'kind'>): DossierEntry => ({
+  scope: 'unit', computed: true, count: 0, total: null, value: null, key: null, label: null, target_unit: null, ...e,
+})  // prettier-ignore
+const DOSSIER: Dossier = {
+  unit_id: 'v:0',
+  entries: [
+    entry({ kind: 'phrases', count: 1 }),
+    entry({ kind: 'sequences', count: 0 }),
+    entry({ kind: 'wordplay', count: 0 }),
+    entry({ kind: 'changes', count: 3 }),
+    entry({ kind: 'borrowing', computed: false }),
+    entry({ kind: 'acrostic', scope: 'chapter', target_unit: 'c:25:118', value: 0.0004, count: 1 }),
+    entry({ kind: 'structure', scope: 'chapter', target_unit: 'c:25:118', value: 0.4, count: 0 }),
+    entry({ kind: 'speech', count: 2, key: '1732', label: 'דוד' }),
+    entry({ kind: 'voices', count: 1, key: '1732', label: 'דוד' }),
+  ],
+}
 
 function mockApi(failing: string[] = []) {
   const calls: string[] = []
@@ -130,7 +149,9 @@ function mockApi(failing: string[] = []) {
       calls.push(url)
       const u = new URL(url, 'http://x')
       if (failing.includes(u.pathname)) return new Response(JSON.stringify({ detail: 'boom' }), { status: 500 })
-      const body = u.pathname.startsWith('/api/unit/')
+      const body = u.pathname.startsWith('/api/dossier/')
+        ? DOSSIER
+        : u.pathname.startsWith('/api/unit/')
         ? DETAIL
         : u.pathname.startsWith('/api/similar/')
           ? similar(u.searchParams.get('mode')!)
@@ -217,14 +238,43 @@ describe('UnitPage', () => {
     expect(container.querySelector('h2')).toBeTruthy()
   })
 
+  it('lists what the analyses found and skips the panels with nothing to show', async () => {
+    const calls = mockApi()
+    renderAt('/unit/v:0')
+    const bar = await screen.findByRole('navigation', { name: 'What the analyses found here' })
+    const link = (name: string | RegExp) => screen.getByRole('link', { name }).getAttribute('href')
+    expect(link('1 shared phrase')).toBe('/phrases?unit=v%3A0')
+    expect(link('3 word changes in parallels')).toBe('/changes?unit=v%3A0')
+    expect(link('acrostic, q < 0.001 (chapter)')).toBe('/unit/c%3A25%3A118?acrostic=1')
+    expect(link('2 quotation clauses, mostly דוד')).toBe('/unit/v%3A0?syntax=1')
+    expect(link('the voice of דוד')).toBe('/speech?view=voices&voice=1732')
+    expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
+    expect(bar.textContent).toContain('Not computed in this build: who borrowed')
+    await screen.findByLabelText('Shared phrases')
+    expect(calls.some((c) => c.includes('/api/wordplay') || c.includes('/api/sequences'))).toBe(false)
+  })
+
+  it('shows the dossier in Hebrew', async () => {
+    mockApi()
+    renderAt('/unit/v:0', 'he')
+    const bar = await screen.findByRole('navigation', { name: 'מה מצאו הניתוחים כאן' })
+    expect(screen.getByRole('link', { name: 'צירוף משותף אחד' })).toBeTruthy()
+    expect(bar.textContent).toContain('לא חושב בבנייה זו: מי שאל')
+  })
+
   it('says when an optional panel fails instead of hiding it', async () => {
-    mockApi(['/api/phrases/0', '/api/wordplay'])
+    // without a dossier every panel is fetched, as before it existed
+    mockApi(['/api/phrases/0', '/api/wordplay', '/api/dossier/v%3A0'])
     renderAt('/unit/v:0')
     await screen.findByText('Test 1:6')
     // the server's detail is its own (bidi-isolated) element: match the alert's whole text
     await waitFor(() =>
       expect(screen.getAllByRole('alert').map((a) => a.textContent)).toEqual(
-        expect.arrayContaining(['Could not load shared phrases (500: boom).', 'Could not load wordplay (500: boom).']),
+        expect.arrayContaining([
+          'Could not load shared phrases (500: boom).',
+          'Could not load wordplay (500: boom).',
+          'Could not load what the analyses found here (500: boom).',
+        ]),
       ),
     )
     expect(screen.queryByText(/Could not load parallel sequences/)).toBeNull()

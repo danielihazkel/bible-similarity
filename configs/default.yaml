@@ -440,6 +440,22 @@ stylometry:                   # `bsim stylometry`: style profiles (DESIGN.md §1
   top_features: 8             # most over- / under-used features kept per book
   axis_features: 6            # loadings listed per principal axis
 
+voices:                       # `bsim voices`: does a speaker have a style of their own? (DESIGN.md §16.28)
+  min_words: 300              # attributed speech words a speaker needs to be profiled
+  exclude: ["3478"]           # proper names of peoples, not persons (ישראל); common-noun speakers are never profiled
+  shuffles: 999               # speaker labels permuted over the speech clauses of each book
+  sensitivity_shuffles: 199   # the same with explicitly introduced speech only
+  top_features: 8             # most over- / under-used features kept per speaker
+  chapters: 12                # /voices/{key}: chapters listed where the speaker talks most
+  seed: 13
+  checks:
+    author:                   # a speaker in two corpora: is each side closer to its own narrator?
+      - {speaker: "1732", a: [1Sam, 2Sam], b: [1Chr]}           # David
+      - {speaker: divine, a: [1Kgs, 2Kgs], b: [1Chr, 2Chr]}     # God
+      - {speaker: "8010", a: [1Kgs], b: [2Chr]}                  # Solomon
+    distinct:                 # the most distinct speaker of a book, named in advance
+      - {book: Job, speaker: "453"}                              # Elihu
+
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list
@@ -475,6 +491,9 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   sqlite_pool: 4              # idle read-only connections kept between requests (keeps their cache)
   encoder_retry_s: 5          # Retry-After of a semantic /search sent while the encoder still loads
   sequence_cache: 256         # /sequences/{id}: responses kept in memory (LRU; deterministic)
+  dossier_cache: 1024         # /dossier/{unit}: responses kept in memory (LRU; labels are read live)
+  dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
+    max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
   search:
     min_root_letters: 2       # greedy prefix stripping keeps at least this many letters
     bigrams: true             # surface BM25 also indexes adjacent-token bigrams

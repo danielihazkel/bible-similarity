@@ -1,5 +1,5 @@
-"""BHSA clauses and phrases of a unit, verses built the same way, and who speaks where
-(DESIGN.md §16.26)."""
+"""BHSA clauses and phrases of a unit, verses built the same way, who speaks where
+(DESIGN.md §16.26), and the speakers' voices (§16.28)."""
 
 from __future__ import annotations
 
@@ -21,6 +21,12 @@ from bsim.api.models import (
     UnitSummary,
     UnitSyntax,
     VerseSyntax,
+    VoiceChapter,
+    VoiceDetail,
+    VoiceFeature,
+    VoicePair,
+    VoiceSpeaker,
+    VoicesResponse,
 )
 from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
 from bsim.data.lexicon import strong_key
@@ -160,4 +166,37 @@ def speech_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
             for c in chapters
         ],
         "speakers": _speakers(state, queries.speakers(conn, book_id)),
+    }
+
+
+@router.get("/voices", response_model=VoicesResponse)
+def voices(state: State, conn: Conn) -> dict[str, Any]:
+    """Every profiled speaker, the most distinct first, and the Delta between voices."""
+    return {
+        "meta": state.meta.get("voices") or {},
+        "speakers": [VoiceSpeaker(**r) for r in queries.voice_speakers(conn)],
+        "pairs": [VoicePair(**r) for r in queries.voice_pairs(conn)],
+    }
+
+
+@router.get("/voices/{key}", response_model=VoiceDetail)
+def voice(key: str, state: State, conn: Conn) -> dict[str, Any]:
+    """One speaker's profile: features against the same books, nearest voices, chapters."""
+    rows = queries.voice_speakers(conn, key)
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"no voice profile for {key!r}")
+    gods = state.cfg["syntax"]["divine"]
+    lemmas = (
+        [s for s in queries.speaker_lemmas(conn) if strong_key(s) in gods]
+        if key == "divine"
+        else [key]
+    )
+    chapters = queries.speaker_chapters(conn, lemmas, state.cfg["voices"]["chapters"])
+    return {
+        "speaker": VoiceSpeaker(**rows[0]),
+        "features": [VoiceFeature(**r) for r in queries.voice_features(conn, key)],
+        "nearest": [VoicePair(**r) for r in queries.voice_pairs(conn, key)],
+        "chapters": [
+            VoiceChapter(unit_id=f"c:{c['book_id']}:{c['chapter']}", **c) for c in chapters
+        ],
     }

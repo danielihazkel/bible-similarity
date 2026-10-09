@@ -211,9 +211,13 @@ def discoveries(
     cross_book: bool,
     limit: int,
     offset: int,
+    unit_id: str | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
-    """(total, page) of `discoveries` rows, strongest first."""
+    """(total, page) of `discoveries` rows, strongest first; `unit_id`: the pairs it is in."""
     where, args = "unit_type = ? AND mode = ?", [unit_type, mode]
+    if unit_id is not None:
+        where += " AND (a_id = ? OR b_id = ?)"
+        args += [unit_id, unit_id]
     if book_id is not None:
         where += " AND (a_book = ? OR b_book = ?)"
         args += [book_id, book_id]
@@ -436,15 +440,24 @@ def sequences_page(
     return total, _dicts(cur)
 
 
-def _change_filter(op: str, a_book: int | None, b_book: int | None) -> tuple[str, list[Any]]:
+def _change_filter(
+    op: str | None, a_book: int | None, b_book: int | None, span: tuple[int, int] | None = None
+) -> tuple[str, list[Any]]:
+    """`op` None: every op; `span`: verse pairs with a side in these verses."""
     # a moved word has a row on each side: count the A side only
-    where, args = "op = ?" + (" AND a_idx IS NOT NULL" if op == "moved" else ""), [op]
+    if op is None:
+        where, args = "(op != 'moved' OR a_idx IS NOT NULL)", []
+    else:
+        where, args = "op = ?" + (" AND a_idx IS NOT NULL" if op == "moved" else ""), [op]
     if a_book is not None:
         where += " AND a_book = ?"
         args.append(a_book)
     if b_book is not None:
         where += " AND b_book = ?"
         args.append(b_book)
+    if span is not None:
+        where += " AND (a BETWEEN ? AND ? OR b BETWEEN ? AND ?)"
+        args += [*span, *span]
     return where, args
 
 
@@ -463,10 +476,11 @@ def change_groups(
     b_book: int | None,
     limit: int,
     offset: int,
+    span: tuple[int, int] | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
     """(number of groups, groups) of `diff_changes` by word key (by written form for spelling /
     form changes), most frequent first; the non-grouping pair of columns is None."""
-    where, args = _change_filter(op, a_book, b_book)
+    where, args = _change_filter(op, a_book, b_book, span)
     ca, cb = _group_cols(op)
     total = count(
         conn,
@@ -490,13 +504,14 @@ def change_examples(
     b_book: int | None,
     groups: list[tuple[str | None, str | None]],
     n: int,
+    span: tuple[int, int] | None = None,
 ) -> dict[tuple[str | None, str | None], list[dict[str, Any]]]:
     """Up to `n` example verse pairs of each group (`groups`: values of its grouping columns),
     in one query."""
     out: dict[tuple[str | None, str | None], list[dict[str, Any]]] = {g: [] for g in groups}
     if not groups:
         return out
-    where, args = _change_filter(op, a_book, b_book)
+    where, args = _change_filter(op, a_book, b_book, span)
     ca, cb = _group_cols(op)
     values = ", ".join("(?, ?)" for _ in groups)
     cur = conn.execute(
@@ -514,16 +529,13 @@ def change_examples(
 
 
 def change_totals(
-    conn: sqlite3.Connection, a_book: int | None, b_book: int | None
+    conn: sqlite3.Connection,
+    a_book: int | None,
+    b_book: int | None,
+    span: tuple[int, int] | None = None,
 ) -> dict[str, int]:
-    """Changes per op under the book filters (moved words counted once)."""
-    where, args = "(op != 'moved' OR a_idx IS NOT NULL)", []
-    if a_book is not None:
-        where += " AND a_book = ?"
-        args.append(a_book)
-    if b_book is not None:
-        where += " AND b_book = ?"
-        args.append(b_book)
+    """Changes per op under the book / verse filters (moved words counted once)."""
+    where, args = _change_filter(None, a_book, b_book, span)
     cur = conn.execute(f"SELECT op, COUNT(*) FROM diff_changes WHERE {where} GROUP BY op", args)
     return dict(cur.fetchall())
 
@@ -764,8 +776,13 @@ def phrases_page(
     max_spread: int | None,
     limit: int,
     offset: int,
+    span: tuple[int, int] | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
+    """Shared phrases, strongest first; `span` = (first, last) verse id one side lies in."""
     where, args = "n_tokens >= ?", [min_tokens]
+    if span is not None:
+        where += " AND (a BETWEEN ? AND ? OR b BETWEEN ? AND ?)"
+        args += [*span, *span]
     if max_spread is not None:
         where += " AND spread <= ?"
         args.append(max_spread)
@@ -1051,9 +1068,18 @@ def alliteration_page(
 
 
 def rhymes_page(
-    conn: sqlite3.Connection, book_id: int | None, max_q: float | None, limit: int, offset: int
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    max_q: float | None,
+    limit: int,
+    offset: int,
+    span: tuple[int, int] | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
+    """Rhyme runs, most significant first; `span`: runs overlapping these verses."""
     where, args = "1 = 1", []
+    if span is not None:
+        where += " AND start_vid <= ? AND end_vid >= ?"
+        args += [span[1], span[0]]
     if book_id is not None:
         where += " AND book_id = ?"
         args.append(book_id)
@@ -1073,10 +1099,11 @@ def typescenes_page(
     book_id: int | None,
     max_q: float | None,
     hide_textual: bool,
-    unit_id: str | None,
+    span: tuple[int, int] | None,
     limit: int,
     offset: int,
 ) -> tuple[int, list[dict[str, Any]]]:
+    """Pericope pairs, most significant first; `span`: a pericope overlapping these verses."""
     where, args = "1 = 1", []
     if book_id is not None:
         where += " AND (a_book = ? OR b_book = ?)"
@@ -1086,9 +1113,13 @@ def typescenes_page(
         args.append(max_q)
     if hide_textual:
         where += " AND parallel_text = 0"
-    if unit_id is not None:
-        where += " AND (a_unit = ? OR b_unit = ?)"
-        args += [unit_id, unit_id]
+    if span is not None:
+        inside = (
+            "SELECT unit_id FROM units WHERE unit_type = 'pericope'"
+            " AND start_verse_id <= ? AND end_verse_id >= ?"
+        )
+        where += f" AND (a_unit IN ({inside}) OR b_unit IN ({inside}))"
+        args += [span[1], span[0], span[1], span[0]]
     total = count(conn, f"SELECT COUNT(*) FROM typescenes WHERE {where}", args)
     cur = conn.execute(
         f"SELECT * FROM typescenes WHERE {where} ORDER BY q, score DESC, a_unit, b_unit"
@@ -1154,6 +1185,58 @@ def speakers(conn: sqlite3.Connection, book_id: int | None = None) -> list[dict[
     return _dicts(cur)
 
 
+def voice_speakers(conn: sqlite3.Connection, key: str | None = None) -> list[dict[str, Any]]:
+    """Profiled speakers, the most distinct first (all, or one), with their Hebrew form."""
+    where, args = ("WHERE v.key = ?", (key,)) if key is not None else ("", ())
+    cur = conn.execute(
+        "SELECT v.*, g.he_lemma AS he FROM voice_speakers v"
+        f" LEFT JOIN lemma_gloss g ON g.lemma = v.key {where} ORDER BY v.effect DESC, v.key",
+        args,
+    )
+    return [{**r, "books": json.loads(r["books"])} for r in _dicts(cur)]
+
+
+def voice_pairs(conn: sqlite3.Connection, key: str | None = None) -> list[dict[str, Any]]:
+    """Delta between voices (all pairs, or those of one voice with it as `a`, nearest first)."""
+    if key is None:
+        return _dicts(conn.execute("SELECT a, b, delta FROM voice_pairs ORDER BY a, b"))
+    cur = conn.execute(
+        "SELECT a, b, delta FROM voice_pairs WHERE a = ?"
+        " UNION ALL SELECT b AS a, a AS b, delta FROM voice_pairs WHERE b = ?"
+        " ORDER BY delta",
+        (key, key),
+    )
+    return _dicts(cur)
+
+
+def voice_features(conn: sqlite3.Connection, key: str) -> list[dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT side, rank, feature, label, rate, rate_ref, z FROM voice_features"
+        " WHERE key = ? ORDER BY rank",
+        (key,),
+    )
+    return _dicts(cur)
+
+
+def speaker_lemmas(conn: sqlite3.Connection) -> list[str]:
+    return [r[0] for r in conn.execute("SELECT DISTINCT speaker FROM clauses WHERE speaker != ''")]
+
+
+def speaker_chapters(
+    conn: sqlite3.Connection, lemmas: list[str], limit: int
+) -> list[dict[str, Any]]:
+    """Chapters with the most speech clauses of these speaker lemmas."""
+    marks = ",".join("?" * len(lemmas))
+    cur = conn.execute(
+        "SELECT v.book_id, v.chapter, COUNT(*) AS n_clauses FROM clauses c"
+        f" JOIN verses v ON v.verse_id = c.verse_id WHERE c.speaker IN ({marks})"
+        " AND c.txt LIKE '%Q' GROUP BY v.book_id, v.chapter"
+        " ORDER BY n_clauses DESC, v.book_id, v.chapter LIMIT ?",
+        (*lemmas, limit),
+    )
+    return _dicts(cur)
+
+
 def borrowing_sequences(
     conn: sqlite3.Connection, seq_id: int | None = None
 ) -> list[dict[str, Any]]:
@@ -1170,6 +1253,16 @@ def borrowing_between(
         " (a_start <= ? AND a_end >= ? AND b_start <= ? AND b_end >= ?)"
         " OR (a_start <= ? AND a_end >= ? AND b_start <= ? AND b_end >= ?) ORDER BY seq_id",
         (a[1], a[0], b[1], b[0], b[1], b[0], a[1], a[0]),
+    )
+    return _dicts(cur)
+
+
+def borrowing_touching(conn: sqlite3.Connection, span: tuple[int, int]) -> list[dict[str, Any]]:
+    """Scored parallels with either side overlapping verse range `span`."""
+    cur = conn.execute(
+        "SELECT * FROM borrowing_sequences WHERE (a_start <= ? AND a_end >= ?)"
+        " OR (b_start <= ? AND b_end >= ?) ORDER BY seq_id",
+        (span[1], span[0], span[1], span[0]),
     )
     return _dicts(cur)
 

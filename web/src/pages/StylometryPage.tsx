@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useBooks, useBookStyle, useStylometry } from '../api/hooks'
-import type { Book, StyloFeature, StyloPoint } from '../api/types'
+import type { Book, StyloPoint } from '../api/types'
+import { FeatureBars as Features } from '../components/FeatureBars'
 import { BookHeatmap } from '../components/BookHeatmap'
 import { SeamsPanel } from '../components/SeamsPanel'
 import { Scatter } from '../components/Scatter'
@@ -127,29 +128,6 @@ function BookProfile({ book, name }: { book: number; name: Map<number, string> }
         <span className="muted">{m.ov.style.closest}</span> {p.closest.map((c) => `${name.get(c.b)} (${c.delta.toFixed(2)})`).join(', ')}
       </p>
     </section>
-  )
-}
-
-function Features({ title, items }: { title: string; items: StyloFeature[] }) {
-  const m = useT()
-  const max = Math.max(...items.map((f) => Math.abs(f.z)), 1)
-  return (
-    <>
-      <p className="muted small">{title}</p>
-      <ul className="feature-bars">
-        {items.map((f) => (
-          <li key={f.feature} title={m.ov.style.feature(f.feature, (f.rate * 100).toFixed(2), f.z.toFixed(1))}>
-            <span dir="rtl" lang="he" className="he">
-              {f.label}
-            </span>
-            <span className="bar-track">
-              <span className={`bar-fill ${f.z < 0 ? 'neg' : ''}`} style={{ width: `${(Math.abs(f.z) / max) * 100}%` }} />
-            </span>
-            <span className="bar-n">{f.z > 0 ? '+' : ''}{f.z.toFixed(1)}</span>
-          </li>
-        ))}
-      </ul>
-    </>
   )
 }
 

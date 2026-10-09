@@ -565,6 +565,41 @@ CREATE TABLE speakers (
     PRIMARY KEY (book_id, lemma)
 ) WITHOUT ROWID;
 
+-- Speaker voices (`bsim voices`, §16.28): each person's speech against the other speech of
+-- their books, Burrows' Delta with a within-book label-shuffle null. key: speaker lemma | divine.
+CREATE TABLE voice_speakers (
+    key TEXT PRIMARY KEY,
+    n_words INTEGER NOT NULL,
+    n_explicit INTEGER NOT NULL,    -- words whose introduction names the speaker itself
+    n_clauses INTEGER NOT NULL,
+    main_book INTEGER NOT NULL,     -- the book with most of the speaker's words
+    books TEXT NOT NULL,            -- JSON book ids, most words first
+    delta REAL NOT NULL,            -- Delta to the same books' other attributed speech
+    null_mean REAL NOT NULL,
+    effect REAL NOT NULL,           -- (delta - null mean) / null sd
+    p REAL NOT NULL,
+    q REAL NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE voice_features (
+    key TEXT NOT NULL,
+    side TEXT NOT NULL,             -- over | under
+    rank INTEGER NOT NULL,
+    feature TEXT NOT NULL,
+    label TEXT NOT NULL,
+    rate REAL NOT NULL,
+    rate_ref REAL NOT NULL,
+    z REAL NOT NULL,                -- (rate - rate_ref) / chapter sd
+    PRIMARY KEY (key, rank)
+) WITHOUT ROWID;
+
+CREATE TABLE voice_pairs (
+    a TEXT NOT NULL,                -- speaker keys, narrator, unattributed
+    b TEXT NOT NULL,
+    delta REAL NOT NULL,
+    PRIMARY KEY (a, b)
+) WITHOUT ROWID;
+
 -- Which side of a parallel looks like the borrower (`bsim borrowing`, §16.27). A = earlier in
 -- the canon; a sign > 0 says B looks later. direction: a_to_b | b_to_a | unclear.
 CREATE TABLE borrowing_sequences (

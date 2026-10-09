@@ -48,8 +48,15 @@ const PAGES = [
   '/language?book=0',
   '/speech',
   '/speech?book=0',
+  '/speech?view=voices&voice=divine',
   '/unit/v%3A1?syntax=1',
   '/unit/c%3A0%3A1?syntax=1',
+  '/phrases?unit=v%3A0',
+  '/changes?unit=v%3A3',
+  '/borrowing?unit=v%3A5',
+  '/discoveries?unit=v%3A3',
+  '/typescenes?unit=c%3A0%3A1',
+  '/wordplay?view=rhyme&rq=all&unit=c%3A0%3A1',
   '/eval',
   '/about',
 ]
@@ -85,6 +92,16 @@ test('a verse lists its similar verses and links to them', async ({ page }) => {
   const hits = page.locator('.hit')
   await expect(hits.first()).toBeVisible()
   expect(await hits.count()).toBeGreaterThan(0)
+})
+
+test('a verse page says what the analyses found and links to the filtered lists', async ({ page }) => {
+  await page.goto('/unit/v%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await expect(bar).toBeVisible()
+  await bar.getByRole('link', { name: /parallel with a borrowing estimate/ }).click()
+  await expect(page).toHaveURL(/\/borrowing\?unit=v%3A1/)
+  await expect(page.locator('.unit-filter')).toBeVisible()
+  await expect(page.locator('.borrow-pair')).toHaveCount(1)
 })
 
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {

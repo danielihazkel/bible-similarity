@@ -40,7 +40,11 @@ const PAGES: [string, RegExp][] = [
   ['/shifts', /Shifts/],
   ['/language?book=32', /Language/],
   ['/speech?book=2', /Who speaks/],
+  ['/speech?view=voices&voice=1732', /Who speaks/],
   ['/borrowing', /Who borrowed/],
+  ['/borrowing?unit=c%3A10%3A18', /Who borrowed/],
+  ['/phrases?unit=c%3A10%3A18', /Shared phrases/],
+  ['/changes?unit=c%3A10%3A18', /How parallels differ|Changes/],
   ['/unit/c%3A0%3A22?syntax=1', /Genesis 22/],
   ['/lemma/1350a', /גאל/],
   ['/about', /About/],
@@ -103,7 +107,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/network', '/acrostics', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

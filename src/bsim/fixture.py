@@ -582,6 +582,83 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # speaker voices (`bsim voices`): God (Genesis) distinct, Moses (Exodus) not
+    voice_dir = art / "voices"
+    voice_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            ("divine", 3, 3, 1, 0, [0], 0.9, 0.3, 4.2, 0.001, 0.002),
+            ("4872", 2, 0, 1, 1, [1], 0.4, 0.38, 0.2, 0.41, 0.41),
+        ],
+        columns=[
+            "key", "n_words", "n_explicit", "n_clauses", "main_book", "books", "delta",
+            "null_mean", "effect", "p", "q",
+        ],
+    ).to_parquet(voice_dir / "speakers.parquet")  # fmt: skip
+    pd.DataFrame(
+        [
+            ("divine", "over", 0, "verb:q", "וקטל (עבר מהופך)", 0.05, 0.02, 1.2),
+            ("divine", "under", 1, "lemma:4100", "מה", 0.001, 0.008, -1.4),
+            ("4872", "over", 0, "lemma:430", "אלהים", 0.5, 0.2, 0.6),
+        ],
+        columns=["key", "side", "rank", "feature", "label", "rate", "rate_ref", "z"],
+    ).to_parquet(voice_dir / "features.parquet")
+    pd.DataFrame(
+        [("divine", "4872", 0.7), ("divine", "narrator", 0.9), ("4872", "narrator", 0.5)],
+        columns=["a", "b", "delta"],
+    ).to_parquet(voice_dir / "pairs.parquet")
+    (voice_dir / "voices.meta.json").write_text(
+        json.dumps(
+            {
+                "speakers": 2,
+                "features": 125,
+                "speech_clauses": 2,
+                "words": {"attributed": 5, "profiled": 5, "narration": 4, "unattributed": 2},
+                "significant": 1,
+                "calibration": {"significant": 0, "of": 2},
+                "sensitivity": {"speakers": 1, "rho": None},
+                "order": ["divine", "4872", "narrator"],
+                "checks": {
+                    "author": [
+                        {
+                            "speaker": "divine",
+                            "a": ["Gen"],
+                            "b": ["Exod"],
+                            "cross": 0.15,
+                            "p_cross": 0.001,
+                            "d_ab": 0.6,
+                            "p_ab": 0.001,
+                            "words_a": 400,
+                            "words_b": 350,
+                            "verdict": "author",
+                        },
+                        {
+                            "speaker": "4872",
+                            "a": ["Gen"],
+                            "b": ["Exod"],
+                            "cross": 0.0,
+                            "p_cross": 0.5,
+                            "d_ab": 0.1,
+                            "p_ab": 0.9,
+                            "words_a": 0,
+                            "words_b": 2,
+                            "verdict": "underpowered",
+                        },
+                    ],
+                    "distinct": [
+                        {
+                            "book": "Gen",
+                            "speaker": "divine",
+                            "rank": 1,
+                            "of": 1,
+                            "ranking": [{"key": "divine", "effect": 4.2, "q": 0.002}],
+                        }
+                    ],
+                },
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # style shifts: a curve over book 0 and one seam before v3 (chapter 2)
     seam_dir = art / "seams"
     seam_dir.mkdir(parents=True, exist_ok=True)
