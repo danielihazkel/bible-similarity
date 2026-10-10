@@ -125,6 +125,18 @@ def allusions(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def echoes(config: ConfigOpt = None) -> None:
+    """Give the cross-book echoes a direction: citations, borrowing, then the language profile."""
+    from bsim.analysis.echoes import run_echoes
+
+    try:
+        run_echoes(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def citations(config: ConfigOpt = None) -> None:
     """Resolve verses that say they quote or fulfil another to their sources."""
     from bsim.analysis.citations import run_citations

@@ -16,6 +16,7 @@ import { divEn } from './pages/divisions'
 import { kqEn } from './pages/ketiv'
 import { citEn } from './pages/citations'
 import { mirEn } from './pages/mirrors'
+import { echoEn } from './pages/echoes'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -86,7 +87,7 @@ export const en = {
     names: { label: 'Names', hint: 'People and places' },
     domains: { label: 'Domains', hint: 'Words by meaning: semantic fields' },
     map: { label: 'Map', hint: 'Units by meaning, book affinity' },
-    network: { label: 'Network', hint: 'Echo communities, most echoed passages' },
+    network: { label: 'Network', hint: 'Echo communities, most echoed passages, who echoes whom' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
     language: { label: 'Language', hint: 'Late Biblical Hebrew profile of each chapter' },
@@ -395,6 +396,7 @@ export const en = {
   kq: kqEn,
   cit: citEn,
   mir: mirEn,
+  echo: echoEn,
   ov: ovEn,
 }
 

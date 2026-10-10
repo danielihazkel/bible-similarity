@@ -23,6 +23,7 @@ import { divHe } from './pages/divisions'
 import { kqHe } from './pages/ketiv'
 import { citHe } from './pages/citations'
 import { mirHe } from './pages/mirrors'
+import { echoHe } from './pages/echoes'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -93,7 +94,7 @@ export const he: Messages = {
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
     domains: { label: 'תחומים', hint: 'מילים לפי משמעות: שדות סמנטיים' },
     map: { label: 'מפה', hint: 'יחידות לפי משמעות, קרבה בין ספרים' },
-    network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר' },
+    network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר, מי מהדהד את מי' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
     language: { label: 'לשון', hint: 'פרופיל עברית מקראית מאוחרת לכל פרק' },
@@ -396,5 +397,6 @@ export const he: Messages = {
   kq: kqHe,
   cit: citHe,
   mir: mirHe,
+  echo: echoHe,
   ov: ovHe,
 }

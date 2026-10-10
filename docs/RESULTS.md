@@ -207,6 +207,8 @@ Rare words over a few verses (§16.32, D68): 176 three-verse window pairs sharin
 
 Chiasm at the small scale (§16.33, D69): repeated words mirror their order in 2,099 verses and repeat it in 2,790 (p 5e-23; 43 % of pairs mirrored, 42–44 %; poetry 39 %). Clause pairs reverse their constituents in 23.5 % of poetry vs 16.7 % of prose (genre permuted over chapters, p 0.0003; object-verb 29 % vs 19 %). 94 full mirrors, none beyond chance after BH.
 
+Who echoes whom (§16.36, D72): 459 of 2,422 cross-book chapter pairs directed (14 cited, 82 borrowed, 363 by the late-language profile at a gap ≥ 0.3). The language direction agrees with the spelling sign of the parallels in 23 of 23 (p 2e-7), with the citations 2 of 2 (too few) and with the borrowing estimates 58 of 59 (same features). 50 language directions run against the canon: 23 among the late Writings, 12 from 1 Kgs 20 alone, Ezek 44 → Lev 21, Judg 5 → Num 24 / Deut 33. Two book contradictions, both known misses of §16.27 (2 Kings ↔ Jeremiah, Psalms ↔ 1 Chronicles). 5 s; DB 655 MB.
+
 ETCBC parallel passages (§16.34, D70), a string-similarity gold: 1,973 parallels (13,645 formula and list pairs set apart). Dev nDCG@10: lexical 0.853, fused 0.832, semantic 0.749; fused recall@10 0.90 / 0.96 / 1.00 by similarity band. All parallels: 94 % in the fused top 10, 80 % share a phrase, 38 % in a strong sequence; 56 % of strong-sequence pairs are ETCBC parallels; 11 % are Sefaria links, 20 % OpenBible.
 
 Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

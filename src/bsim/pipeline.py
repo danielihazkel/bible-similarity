@@ -269,6 +269,12 @@ def stage_allusions(cfg: dict[str, Any], log: Log) -> None:
     run_allusions(cfg, log=log)
 
 
+def stage_echoes(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.echoes import run_echoes
+
+    run_echoes(cfg, log=log)
+
+
 def stage_mirrors(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.mirrors import run_mirrors
 
@@ -327,6 +333,7 @@ STAGES: dict[str, str] = {
     "ketiv": "stage_ketiv",
     "citations": "stage_citations",
     "allusions": "stage_allusions",
+    "echoes": "stage_echoes",
     "mirrors": "stage_mirrors",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
@@ -378,6 +385,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "ketiv": (*_CORPUS, "sequences", "diffs"),
     "citations": (*_CORPUS, "lexical", "embed"),
     "allusions": (*_CORPUS, *_TOPK, "sequences"),
+    "echoes": (*_CORPUS, "network", "citations", "borrowing", "dating"),
     "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
     "eval-etcbc": (*_CORPUS, "build-links", *_TOPK, "eval-openbible", "phrases", "sequences"),
 }

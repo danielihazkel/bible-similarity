@@ -763,6 +763,43 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # directed echoes (`bsim echoes`): book 1 borrowed from chapter 0:1 (a parallel sequence);
+    # chapter 0:2 looks later than 1:1 by its language, against the canon
+    echo_dir = art / "echoes"
+    echo_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [
+            (1, "c:0:1", "c:1:1", 0, 1, 0, 2, 5, 5, 0.8, 0, 1, 0.4, 1, 1, "borrowed"),
+            (2, "c:0:2", "c:1:1", 0, 1, 3, 4, 5, 5, 0.5, 0, 0, -0.5, -1, -1, "language"),
+        ],
+        columns=[
+            "edge_id", "a", "b", "a_book", "b_book", "a_start", "a_end", "b_start", "b_end",
+            "weight", "n_cited", "borrowed", "gap", "language", "direction", "basis",
+        ],
+    ).to_parquet(echo_dir / "edges.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, 1, 0, 1, 0), (1, 0, 0, 0, 1)],
+        columns=["src_book", "dst_book", "cited", "borrowed", "language"],
+    ).to_parquet(echo_dir / "books.parquet")
+    pd.DataFrame(
+        [("c:0:1", 0, 1, 0, 1, 0), ("c:0:2", 0, 0, 1, 0, 0), ("c:1:1", 1, 1, 1, 0, 1)],
+        columns=["unit_id", "book_id", "lends", "borrows", "lends_explicit", "borrows_explicit"],
+    ).to_parquet(echo_dir / "chapters.parquet")
+    (echo_dir / "echoes.meta.json").write_text(
+        json.dumps(
+            {
+                "language_gap": 0.3, "pairs": 2, "network_pairs": 2, "in_domain": 2,
+                "bases": {"cited": 0, "borrowed": 1, "language": 1, "conflict": 0, "none": 0},
+                "checks": {
+                    "cited": {"n": 0, "agree": 0, "p": 1.0, "underpowered": True},
+                    "spelling": {"n": 1, "agree": 1, "p": 1.0, "underpowered": True},
+                    "borrowed": {"n": 1, "agree": 1, "p": 1.0, "underpowered": True},
+                },
+                "language_forward": 0, "language_backward": 1, "cycles": [],
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # citations (`bsim citations`): v3 says it fulfils v0 (resolved, a named source), v5 cites
     # the Torah without a source both signals agree on
     cite_dir = art / "citations"

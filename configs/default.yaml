@@ -440,7 +440,13 @@ network:                      # `bsim network`: echoes between passages, central
   label_lemmas: 5             # community label: top G² lemmas
   seed: 13
 
-stylometry:                   # `bsim stylometry`: style profiles (DESIGN.md §16.6)
+echoes:                       # `bsim echoes`: a direction on the cross-book echoes (DESIGN.md §16.36)
+  language_gap: 0.3           # the language layer directs a pair whose late-profile scores differ this much
+  explicit_weight: 1.0        # weight of a cited / borrowed chapter pair the network does not link
+  min_check: 10               # a check with fewer decided cases is reported as underpowered
+  max_cycle: 4                # book cycles (cited / borrowed layers) listed up to this length
+
+stylometry:                  # `bsim stylometry`: style profiles (DESIGN.md §16.6)
   mfw: 100                    # most frequent content lemmas used as features
   min_words: 150              # chapters shorter than this are not projected
   top_features: 8             # most over- / under-used features kept per book

@@ -574,7 +574,15 @@ Phase 3 (M39c): API and viewer
 
 ✔ `bsim all` reran those 24 stages in 13 min 30 s (the other 16 skipped). 65 of the 69 outputs were identical; entities' name links and parallelism's word pairs held the same rows with ties re-sorted (G² equal to the last digit, summed in another order); senses' examples and network's layout also differ between two runs of unchanged code, which led to two fixes (set order fed a seeded draw and a seeded layout).
 
+## M55: Who echoes whom (§16.36, D72; proposed A4b)
+- [x] `bsim echoes` (`analysis/echoes.py`, pipeline stage after allusions, ~5 s): the chapter network's cross-book edges plus the chapter pairs of resolved citations and decided borrowing sequences; directed by the first deciding layer (cited, borrowed, then the late-language profile at `echoes.language_gap`); conflicts kept apart
+- [x] Checks fixed in advance: language against citations, against the spelling sign, against borrowing (stated as not independent); directions against the canon order; book cycles of the explicit layers
+- [x] DB `echo_edges`, `echo_books`, `echo_chapters` (+ `meta.echoes`, empty without the stage); API `/echoes`, `/echoes/list?basis&directed&backward&book&unit`; dossier entry `echoes`
+- [x] Viewer: Network → Directions (checks, book to book, chapters drawn on most, every pair with its evidence, against-the-canon filter, Compare); English and Hebrew
+- [x] Tests: layer order, language vote, chapter pairs against the canon, cycles, a toy run (pytest); the API and the dossier on the fixture DB; the view, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the view in both languages with axe, dossier chip → directions → Compare
+
+✔ 459 of 2,422 pairs directed; language agrees with spelling 23 / 23 (p 2e-7); 50 language directions against the canon (1 Kgs 20, Ezek 44 → Lev 21, the late Writings); the two contradictions are §16.27's known misses; 157 / 157 fixture and 122 / 122 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
 - B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

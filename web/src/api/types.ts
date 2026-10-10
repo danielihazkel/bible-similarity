@@ -1270,6 +1270,7 @@ export type DossierKind =
   | 'citations'
   | 'allusions'
   | 'mirrors'
+  | 'echoes'
   | 'labels'
 
 export interface DossierEntry {
@@ -1792,6 +1793,90 @@ export interface AllusionsResponse {
   offset: number
   limit: number
   items: Allusion[]
+}
+
+// --- a direction on the cross-book echoes (DESIGN.md §16.36) ---
+
+export type EchoBasis = 'cited' | 'borrowed' | 'language' | 'conflict' | 'none'
+
+export interface EchoBook {
+  /** the book drawn on */
+  src_book: number
+  /** the book echoing it */
+  dst_book: number
+  /** directed chapter pairs by the layer that decided them */
+  cited: number
+  borrowed: number
+  language: number
+}
+
+export interface EchoChapter {
+  unit: UnitSummary
+  /** directed pairs it is the source of */
+  lends: number
+  /** directed pairs it is the echo of */
+  borrows: number
+  /** cited or borrowed only */
+  lends_explicit: number
+  borrows_explicit: number
+}
+
+export interface EchoCheck {
+  n: number
+  agree: number
+  p: number
+  underpowered: boolean
+}
+
+/** `meta.echoes`, all keys absent without `bsim echoes` */
+export interface EchoesMeta {
+  language_gap?: number
+  pairs?: number
+  network_pairs?: number
+  in_domain?: number
+  bases?: Record<EchoBasis, number>
+  checks?: { cited: EchoCheck; spelling: EchoCheck; borrowed: EchoCheck }
+  language_forward?: number
+  language_backward?: number
+  /** book ids, each a cycle of the cited / borrowed book graph */
+  cycles?: number[][]
+}
+
+export interface EchoesResponse {
+  meta: EchoesMeta & Record<string, unknown>
+  books: EchoBook[]
+  sources: EchoChapter[]
+}
+
+/** A cross-book chapter pair; a is the earlier in the canon */
+export interface EchoEdge {
+  edge_id: number
+  a: UnitSummary
+  b: UnitSummary
+  /** network edge weight */
+  weight: number
+  /** resolved citations from b into a */
+  n_cited: number
+  /** +1 b borrowed from a, -1 a from b, 0 none / unclear */
+  borrowed: number
+  /** late-profile score of b minus a (null: a side out of domain) */
+  gap: number | null
+  language: number | null
+  /** +1 b echoes a, -1 a echoes b, 0 undecided */
+  direction: number
+  basis: EchoBasis
+}
+
+export interface EchoListResponse {
+  basis: EchoBasis | null
+  directed: boolean | null
+  backward: boolean | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: EchoEdge[]
 }
 
 // --- chiasm at the small scale (DESIGN.md §16.33) ---

@@ -106,7 +106,7 @@ def test_deps_name_earlier_stages():
     for name, deps in pipeline.DEPS.items():
         assert all(order.index(d) < order.index(name) for d in deps), name
     assert set(pipeline.DEPS["build-db"]) == set(order) - {"build-db"}
-    assert pipeline.downstream(["diffs"]) == {"borrowing", "ketiv", "build-db"}
+    assert pipeline.downstream(["diffs"]) == {"borrowing", "ketiv", "echoes", "build-db"}
 
 
 def test_stage_code_hashes_cover_their_modules():

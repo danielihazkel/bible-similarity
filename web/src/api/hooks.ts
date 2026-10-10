@@ -46,6 +46,9 @@ import type {
   MirrorClausesResponse,
   CitationListResponse,
   CitationsResponse,
+  EchoBasis,
+  EchoesResponse,
+  EchoListResponse,
   KqClass,
   KqGrammar,
   KqPairsResponse,
@@ -429,6 +432,38 @@ export const useCitationList = (q: { family?: CitationFamily; resolved?: boolean
         {
           family: q.family,
           resolved: q.resolved === undefined ? undefined : String(q.resolved),
+          book: q.book,
+          unit: q.unit,
+          limit: q.limit,
+          offset: q.offset,
+        },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useEchoes = () =>
+  useQuery({ queryKey: ['echoes'], queryFn: ({ signal }) => getJson<EchoesResponse>('/echoes', {}, signal), ...forever })
+
+export const useEchoList = (q: {
+  basis?: EchoBasis
+  directed?: boolean
+  backward?: boolean
+  book?: number
+  unit?: string
+  limit: number
+  offset: number
+}) =>
+  useQuery({
+    queryKey: ['echo-list', q],
+    queryFn: ({ signal }) =>
+      getJson<EchoListResponse>(
+        '/echoes/list',
+        {
+          basis: q.basis,
+          directed: q.directed === undefined ? undefined : String(q.directed),
+          backward: q.backward === undefined ? undefined : String(q.backward),
           book: q.book,
           unit: q.unit,
           limit: q.limit,

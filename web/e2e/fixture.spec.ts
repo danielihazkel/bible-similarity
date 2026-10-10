@@ -55,6 +55,8 @@ const PAGES = [
   '/structure?view=small&unit=c%3A0%3A1&mirrored=1',
   '/map',
   '/network',
+  '/network?view=directions',
+  '/network?view=directions&backward=1&unit=c%3A1%3A1',
   '/style',
   '/shifts',
   '/shifts?by=use&q=all',
@@ -147,6 +149,17 @@ test('a verse that is cited links to the citation and its source', async ({ page
   await expect(page.locator('.cite-item')).toHaveCount(1)
   await expect(page.locator('.cite-item .cite-source .he')).toHaveCount(1)
   await page.locator('.cite-item').getByRole('link', { name: 'Compare' }).click()
+  await expect(page).toHaveURL(/\/compare\?/)
+})
+
+test('a verse in a chapter echoed by another book links to its directed echoes', async ({ page }) => {
+  await page.goto('/unit/v%3A5')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '2 directed echoes with other books' }).click()
+  await expect(page).toHaveURL(/\/network\?view=directions&unit=v%3A5/)
+  await expect(page.locator('.echo-item')).toHaveCount(2)
+  await expect(page.locator('.echo-item').filter({ hasText: 'against the canon order' })).toHaveCount(1)
+  await page.locator('.echo-item').first().getByRole('link', { name: 'Compare' }).click()
   await expect(page).toHaveURL(/\/compare\?/)
 })
 

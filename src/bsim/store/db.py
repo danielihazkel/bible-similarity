@@ -40,6 +40,7 @@ Derived columns:
 - `kq_pairs`, `kq_letters`, `kq_books` + `meta.ketiv`: `bsim ketiv` (empty without it).
 - `citations`, `citation_books` + `meta.citations`: `bsim citations` (empty without it).
 - `allusions` + `meta.allusions`: `bsim allusions` (empty without it).
+- `echo_edges`, `echo_books`, `echo_chapters` + `meta.echoes`: `bsim echoes` (empty without it).
 - `mirror_verses`, `mirror_clauses` + `meta.mirrors`: `bsim mirrors` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
@@ -128,6 +129,8 @@ INDEXES = (
     "CREATE INDEX citations_by_target ON citations (target_vid)",
     "CREATE INDEX allusions_by_a ON allusions (a_start)",
     "CREATE INDEX allusions_by_b ON allusions (b_start)",
+    "CREATE INDEX echo_edges_by_a ON echo_edges (a_start)",
+    "CREATE INDEX echo_edges_by_b ON echo_edges (b_start)",
     "CREATE INDEX mirror_clauses_by_verse ON mirror_clauses (verse_id)",
     "CREATE INDEX mirror_clauses_by_pair ON mirror_clauses (pair, mirrored)",
 )
@@ -466,6 +469,33 @@ TABLE_COLUMNS = {
         "q",
         "known",
         "lemmas",
+    ],
+    "echo_edges": [
+        "edge_id",
+        "a",
+        "b",
+        "a_book",
+        "b_book",
+        "a_start",
+        "a_end",
+        "b_start",
+        "b_end",
+        "weight",
+        "n_cited",
+        "borrowed",
+        "gap",
+        "language",
+        "direction",
+        "basis",
+    ],
+    "echo_books": ["src_book", "dst_book", "cited", "borrowed", "language"],
+    "echo_chapters": [
+        "unit_id",
+        "book_id",
+        "lends",
+        "borrows",
+        "lends_explicit",
+        "borrows_explicit",
     ],
     "kq_books": [
         "book_id",
@@ -1082,6 +1112,16 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
     out["allusions"] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS["allusions"])
     out["allusions_meta"] = _read_json(allu_dir / "allusions.meta.json")
+    echo_dir = resolve_path(cfg, "artifacts") / "echoes"
+    for name, table in (
+        ("edges", "echo_edges"),
+        ("books", "echo_books"),
+        ("chapters", "echo_chapters"),
+    ):
+        path = echo_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["echoes_meta"] = _read_json(echo_dir / "echoes.meta.json")
     mir_dir = resolve_path(cfg, "artifacts") / "mirrors"
     for name, table in (("verses", "mirror_verses"), ("clauses", "mirror_clauses")):
         path = mir_dir / f"{name}.parquet"
@@ -1299,6 +1339,9 @@ def _write_db(
             "citations": inputs["citations"],
             "citation_books": inputs["citation_books"],
             "allusions": inputs["allusions"],
+            "echo_edges": inputs["echo_edges"],
+            "echo_books": inputs["echo_books"],
+            "echo_chapters": inputs["echo_chapters"],
             "mirror_verses": inputs["mirror_verses"],
             "mirror_clauses": inputs["mirror_clauses"],
             "lemma_senses": inputs["lemma_senses"],
@@ -1443,6 +1486,21 @@ def _write_db(
                 "strong",
                 "strong_known",
                 "best_new_q",
+            )
+        }
+        em = inputs["echoes_meta"]
+        meta["echoes"] = {
+            k: em.get(k)
+            for k in (
+                "language_gap",
+                "pairs",
+                "network_pairs",
+                "in_domain",
+                "bases",
+                "checks",
+                "language_forward",
+                "language_backward",
+                "cycles",
             )
         }
         mm = inputs["mirrors_meta"]

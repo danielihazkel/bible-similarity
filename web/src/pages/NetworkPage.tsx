@@ -8,6 +8,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { DirectionsView } from './DirectionsView'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
@@ -17,8 +18,30 @@ const W = 960
 const H = 620
 const PAD = 28
 
-/** Passages as a network of echoes: communities that echo each other, and the most echoed passages. */
+/** Passages as a network of echoes: communities that echo each other, the most echoed passages, and
+ * (`?view=directions`) who echoes whom across books. */
 export function NetworkPage() {
+  const m = useT()
+  const [params, update] = useQueryParams()
+  const view = params.get('view') === 'directions' ? 'directions' : 'communities'
+  return (
+    <div className="page network-page">
+      <h1>{m.ov.network.title}</h1>
+      <Segmented
+        label={m.echo.viewLabel}
+        value={view}
+        options={[
+          { value: 'communities', label: m.echo.views.communities },
+          { value: 'directions', label: m.echo.views.directions },
+        ]}
+        onChange={(v) => update({ view: v === 'directions' ? 'directions' : null, unit: null, page: null }, false)}
+      />
+      {view === 'directions' ? <DirectionsView /> : <Communities />}
+    </div>
+  )
+}
+
+function Communities() {
   const m = useT()
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
@@ -38,8 +61,7 @@ export function NetworkPage() {
   const bookOf = useMemo(() => new Map((books.data ?? []).map((b) => [b.book_id, b])), [books.data])
 
   return (
-    <div className="page network-page">
-      <h1>{m.ov.network.title}</h1>
+    <>
       <p className="lede">
         {m.ov.network.ledeLinked(unitType)}
         <em>{m.ov.network.communities}</em>
@@ -95,7 +117,7 @@ export function NetworkPage() {
           </section>
         </>
       )}
-    </div>
+    </>
   )
 }
 

@@ -156,6 +156,7 @@ bible-similarity/
 │   │   ├── ketiv.py                # `bsim ketiv`: ketiv against qere, letters, grammar, parallels (§16.30)
 │   │   ├── citations.py            # `bsim citations`: formulas of reference resolved to sources (§16.31)
 │   │   ├── allusions.py            # `bsim allusions`: rare words shared over a few verses (§16.32)
+│   │   ├── echoes.py               # `bsim echoes`: a direction on the cross-book echoes (§16.36)
 │   │   ├── mirrors.py              # `bsim mirrors`: chiasm in repeated words and clause pairs (§16.33)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
@@ -172,7 +173,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, mirrors, dossier, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, dossier, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -239,6 +240,7 @@ bible-similarity/
 | 11e''' | `bsim ketiv` | raw OSHB, verses, words, sequences | `artifacts/ketiv/{pairs,letters,books}.parquet` + `ketiv.meta.json` (§16.30) |
 | 11e'''' | `bsim citations` | verses, final lexical index, final semantic embeddings | `artifacts/citations/{citations,books}.parquet` + `citations.meta.json` (§16.31) |
 | 11e''''' | `bsim allusions` | verses, words, fused verse top-k, sequences | `artifacts/allusions/pairs.parquet` + `allusions.meta.json` (§16.32) |
+| 11e''''''' | `bsim echoes` | units, network edges, citations, borrowing sequences, dating chapters | `artifacts/echoes/{edges,books,chapters}.parquet` + `echoes.meta.json` (§16.36) |
 | 11e'''''' | `bsim mirrors` | verses, words, syntax phrases, parallelism | `artifacts/mirrors/{verses,clauses}.parquet` + `mirrors.meta.json` (§16.33) |
 | 11f' | `bsim eval-etcbc` | ETCBC `crossref` + BHSA verse grid, final verse top-k, sequences, phrases | `data/processed/etcbc_links.parquet`, `artifacts/eval/etcbc.{json,md}` (§16.34) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |

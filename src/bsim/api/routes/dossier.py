@@ -18,6 +18,7 @@ and what it found:
     citations                     count = citations from the unit + resolved citations of it
     allusions                     count = rare-word allusion leads touching the unit (any q)
     mirrors                       count = full mirrors + mirrored clause pairs in the unit
+    echoes                        count = directed cross-book echoes of the unit's chapters
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -189,6 +190,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "allusions",
         computed=state.present(conn, "allusions"),
         count=queries.allusions_page(conn, None, None, span, 1, 0)[0],
+    )
+
+    add(
+        "echoes",
+        computed=state.present(conn, "echo_edges"),
+        count=queries.echoes_page(conn, None, True, None, None, span, 1, 0)[0],
     )
 
     add(

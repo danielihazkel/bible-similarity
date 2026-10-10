@@ -1434,6 +1434,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/echoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Echoes
+         * @description The checks, directed pairs per book pair and the chapters other books draw on most.
+         */
+        get: operations["echoes_api_echoes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/echoes/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Echo List
+         * @description Chapter pairs, cited first, then borrowed and language; `backward`: the echo comes earlier
+         *     in the canon than its source; `unit`: either chapter overlapping it.
+         */
+        get: operations["echo_list_api_echoes_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/mirrors": {
         parameters: {
             query?: never;
@@ -2315,7 +2356,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2344,6 +2385,91 @@ export interface components {
             b: number;
             /** Sim */
             sim: number;
+        };
+        /** EchoBook */
+        EchoBook: {
+            /** Src Book */
+            src_book: number;
+            /** Dst Book */
+            dst_book: number;
+            /** Cited */
+            cited: number;
+            /** Borrowed */
+            borrowed: number;
+            /** Language */
+            language: number;
+        };
+        /** EchoChapter */
+        EchoChapter: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Lends */
+            lends: number;
+            /** Borrows */
+            borrows: number;
+            /** Lends Explicit */
+            lends_explicit: number;
+            /** Borrows Explicit */
+            borrows_explicit: number;
+        };
+        /**
+         * EchoEdge
+         * @description A cross-book chapter pair with a direction when a layer decides one (§16.36); a is the
+         *     earlier in the canon.
+         */
+        EchoEdge: {
+            /** Edge Id */
+            edge_id: number;
+            a: components["schemas"]["UnitSummary"];
+            b: components["schemas"]["UnitSummary"];
+            /** Weight */
+            weight: number;
+            /** N Cited */
+            n_cited: number;
+            /** Borrowed */
+            borrowed: number;
+            /** Gap */
+            gap: number | null;
+            /** Language */
+            language: number | null;
+            /** Direction */
+            direction: number;
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "cited" | "borrowed" | "language" | "conflict" | "none";
+        };
+        /** EchoListResponse */
+        EchoListResponse: {
+            /** Basis */
+            basis: ("cited" | "borrowed" | "language" | "conflict" | "none") | null;
+            /** Directed */
+            directed: boolean | null;
+            /** Backward */
+            backward: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["EchoEdge"][];
+        };
+        /** EchoesResponse */
+        EchoesResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["EchoBook"][];
+            /** Sources */
+            sources: components["schemas"]["EchoChapter"][];
         };
         /** EntitiesResponse */
         EntitiesResponse: {
@@ -6573,6 +6699,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CitationListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    echoes_api_echoes_get: {
+        parameters: {
+            query?: {
+                top?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EchoesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    echo_list_api_echoes_list_get: {
+        parameters: {
+            query?: {
+                basis?: ("cited" | "borrowed" | "language" | "conflict" | "none") | null;
+                directed?: boolean | null;
+                backward?: boolean | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EchoListResponse"];
                 };
             };
             /** @description Validation Error */

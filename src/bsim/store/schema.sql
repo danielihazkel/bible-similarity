@@ -676,6 +676,47 @@ CREATE TABLE allusions (
     lemmas TEXT NOT NULL            -- JSON [[lemma, form], ...], rarest first
 ) WITHOUT ROWID;
 
+-- A direction on the cross-book chapter echoes (`bsim echoes`, §16.36): a earlier in the canon;
+-- direction +1 = b echoes a, -1 = a echoes b, 0 = undecided; basis = the layer that decided it.
+CREATE TABLE echo_edges (
+    edge_id INTEGER PRIMARY KEY,
+    a TEXT NOT NULL,                -- chapter unit ids
+    b TEXT NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    a_start INTEGER NOT NULL,
+    a_end INTEGER NOT NULL,
+    b_start INTEGER NOT NULL,
+    b_end INTEGER NOT NULL,
+    weight REAL NOT NULL,           -- network edge weight (explicit_weight when only cited / borrowed)
+    n_cited INTEGER NOT NULL,       -- resolved citations from b into a
+    borrowed INTEGER NOT NULL,      -- direction of the decided parallel sequences over the pair
+    gap REAL,                       -- late-profile score of b minus a (NULL: a side out of domain)
+    language INTEGER,               -- the gap's vote (0: under language_gap)
+    direction INTEGER NOT NULL,
+    basis TEXT NOT NULL             -- cited | borrowed | language | conflict | none
+) WITHOUT ROWID;
+
+-- Directed pairs per (source book, echoing book) and deciding layer.
+CREATE TABLE echo_books (
+    src_book INTEGER NOT NULL,
+    dst_book INTEGER NOT NULL,
+    cited INTEGER NOT NULL,
+    borrowed INTEGER NOT NULL,
+    language INTEGER NOT NULL,
+    PRIMARY KEY (src_book, dst_book)
+) WITHOUT ROWID;
+
+-- Per chapter: directed pairs it is the source (lends) or the echo (borrows) of.
+CREATE TABLE echo_chapters (
+    unit_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    lends INTEGER NOT NULL,
+    borrows INTEGER NOT NULL,
+    lends_explicit INTEGER NOT NULL,    -- cited or borrowed only
+    borrows_explicit INTEGER NOT NULL
+) WITHOUT ROWID;
+
 -- Verses that say they quote or fulfil another (`bsim citations`, §16.31): the formula, the best
 -- source and whether BM25 alone and cosine alone agree on it (resolved).
 CREATE TABLE citations (
