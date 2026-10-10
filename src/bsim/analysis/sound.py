@@ -239,7 +239,7 @@ def run_sound(cfg: dict[str, Any], log: Log = print) -> Path:
     al.to_parquet(out / "alliteration.parquet")
     rh.to_parquet(out / "rhymes.parquet")
     meta = {
-        "config_hash": config_hash(cfg, "sound"),
+        "config_hash": config_hash(cfg, "sound", "structure.leitwort_skip_pos"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "cola": len(lines),
         "alliterations": int(len(al)),

@@ -180,7 +180,7 @@ def run_network(cfg: dict[str, Any], log: Log = print) -> Path:
         all_comms, columns=["unit_type", "community", "size", "lemmas", "books"]
     ).to_parquet(out / "communities.parquet", index=False)
     meta = {
-        "config_hash": config_hash(cfg, "network", "final_systems"),
+        "config_hash": config_hash(cfg, "network", "final_systems", "structure.leitwort_skip_pos"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         **summary,
         "seconds": round(time.perf_counter() - t0, 1),

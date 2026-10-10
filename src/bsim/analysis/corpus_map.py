@@ -213,7 +213,9 @@ def run_map(cfg: dict[str, Any], log: Log = print) -> Path:
         columns={"a": "a_vid", "b": "b_vid"}
     ).to_parquet(out / "book_examples.parquet", index=False)
     meta = {
-        "config_hash": config_hash(cfg, "map", "final_systems", "seed"),
+        "config_hash": config_hash(
+            cfg, "map", "final_systems", "seed", "structure.leitwort_skip_pos"
+        ),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "embeddings": emb_path.name,
         "pairs": int(len(pairs)),

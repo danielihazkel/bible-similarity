@@ -353,7 +353,7 @@ def run_senses(cfg: dict[str, Any], log: Log = print, vectors: dict | None = Non
     senses.to_parquet(out / "senses.parquet")
     both = lemmas.dropna(subset=["nmi"])
     meta = {
-        "config_hash": config_hash(cfg, "senses"),
+        "config_hash": config_hash(cfg, "senses", "structure.leitwort_skip_pos"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "encoder": sc["encoder"],
         "groups": {g: sc["groups"][g] for g in group_names},

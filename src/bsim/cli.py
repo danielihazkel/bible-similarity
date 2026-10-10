@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from bsim.config import load_config
+
+# Logs carry Hebrew and signs such as ≤; a redirected stream on Windows defaults to cp1252.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure") and (_stream.encoding or "").lower() != "utf-8":
+        _stream.reconfigure(encoding="utf-8")
 
 app = typer.Typer(
     help="Hebrew Bible similarity pipeline.",
@@ -700,18 +706,43 @@ def run_all(
         str | None, typer.Option("--to", help="Last stage to run (default: build-db)")
     ] = None,
     skip: Annotated[list[str] | None, typer.Option(help="Stage to leave out (repeatable)")] = None,
+    force: Annotated[
+        bool, typer.Option("--force", help="Run every selected stage, even when up to date")
+    ] = False,
+    rerun: Annotated[
+        list[str] | None, typer.Option(help="Run this stage even when up to date (repeatable)")
+    ] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Only say which stages would run and why")
+    ] = False,
+    adopt: Annotated[
+        bool,
+        typer.Option(
+            "--adopt", help="Record the selected stages' current outputs as up to date, run nothing"
+        ),
+    ] = False,
     config: ConfigOpt = None,
 ) -> None:
-    """Run the full offline pipeline end to end (download ... build-db)."""
+    """Run the offline pipeline end to end (download ... build-db), skipping stages up to date."""
     from bsim import pipeline
 
     try:
         pipeline.select_stages(start, stop, skip or ())
+        if unknown := sorted(set(rerun or ()) - set(pipeline.STAGES)):
+            raise ValueError(f"unknown stage(s) {unknown}")
     except ValueError as e:
         raise typer.BadParameter(str(e)) from e
     try:
         pipeline.run_all(
-            load_config(config), log=typer.echo, start=start, stop=stop, skip=skip or ()
+            load_config(config),
+            log=typer.echo,
+            start=start,
+            stop=stop,
+            skip=skip or (),
+            force=force,
+            rerun=rerun or (),
+            dry_run=dry_run,
+            adopt=adopt,
         )
     except RuntimeError as e:
         typer.echo(str(e), err=True)

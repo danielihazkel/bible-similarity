@@ -556,9 +556,17 @@ Phase 3 (M39c): API and viewer
 
 ✔ 1,973 near-verbatim parallels (13,645 formula pairs apart): lexical nDCG@10 0.853, fused 0.832 on dev; 94 % of all parallels in the fused top 10; 56 % of strong-sequence pairs are ETCBC parallels; only 11 % are Sefaria links; 151 / 151 fixture and 118 / 118 real-data e2e.
 
+## M53: Incremental `bsim all` (§16.35, D71; proposed C2)
+- [x] Fix first: `config_hash` takes dotted keys; `sound`, `parallelism`, `senses`, `map`, `network` hash `structure.leitwort_skip_pos`
+- [x] `bsim/incremental.py`: `TrackedConfig` (keys read, two levels), code hash over the import closure, an audit hook for files opened, outputs from folder snapshots, content hashes cached by size and mtime; `paths.pipeline_state`, `pipeline.roots`, `pipeline.ignore`
+- [x] `pipeline.DEPS` (each stage's upstream stages) with a note for any read it misses; `bsim all --force / --rerun / --dry-run / --adopt`
+- [x] `bsim` writes UTF-8 when its output is redirected (a log line with ≤ stopped `senses` under cp1252)
+- [x] Tests: tracked keys (dotted, missing, dumped, deep-copied), the import closure, DEPS order, skip / rerun / early cut-off / deleted and hand-edited outputs / dry run / adopt / undeclared reads on toy stages, the CLI flags (pytest)
+
+✔ A second `bsim all` with nothing changed takes 2.3 s; `--rerun mirrors` ran mirrors (27 s) and build-db (3:09; `mirrors.meta.json` carries a build time, so build-db follows) and skipped the other 38 stages: 3 min 42 s, against 38 min for the whole pipeline.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
 - A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
-- C2 Incremental `bsim all`: skip a stage whose chained config + input hashes match (fix first: `sound`, `parallelism`, `senses` read `structure.leitwort_skip_pos` without hashing it)
 - C3 Shared statistics: G² (five copies) and `shuffle_within` (sequences, wordplay) into `analysis/stats.py` (`permute_within` is there since M47)
 - B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

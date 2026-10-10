@@ -11,7 +11,7 @@ runner = CliRunner()
 
 
 @pytest.fixture
-def calls(monkeypatch):
+def calls(monkeypatch, pipeline_cfg):
     """Replace every stage with a recorder."""
     seen: list[str] = []
     for name, fn in pipeline.STAGES.items():

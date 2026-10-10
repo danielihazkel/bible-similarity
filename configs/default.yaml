@@ -10,6 +10,7 @@ paths:
   artifacts: artifacts
   db: artifacts/results.sqlite
   labels: data/labels.sqlite  # your judgements of pairs, written by the viewer (DESIGN.md §16.25)
+  pipeline_state: artifacts/pipeline_state.json   # `bsim all`: each stage's code, config, input and output hashes (DESIGN.md §16.35)
   web_dist: web/dist          # production viewer build (`npm run build` in web/), served by `bsim serve`
 
 sources:
@@ -551,6 +552,8 @@ pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.p
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
   unit_systems: [tfidf, tfidf_morph, tfidf_domain, tfidf_syntax, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
+  roots: [data_raw, data_interim, data_processed, models, artifacts]   # `paths` keys whose files are stage inputs and outputs (incremental runs, §16.35)
+  ignore: ["models/_runs/*", "*.tmp", "*-journal", "*-wal", "*-shm"]   # never a stage input or output (training checkpoints, SQLite side files)
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch

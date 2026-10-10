@@ -168,6 +168,8 @@ CSLS helps every encoder (nDCG@10: `berel_mean` 0.113 → 0.124, `bge_m3` 0.123 
 | train-simcse | 10:08 | build-db | 0:40 |
 | train-sup | 19:28 | | |
 
+Incremental runs (§16.35, 2026-10-10): with download … evaluate adopted, the 26 analysis stages and build-db ran in 17 min (a first run stopped in `senses` on a console encoding error; the rerun skipped the ten stages already done and went on from there); a second `bsim all` with nothing changed took 2.3 s; `--rerun mirrors` ran mirrors (27 s) and build-db (3:09; `mirrors.meta.json` carries a build time, so build-db follows) and skipped the other 38 stages: 3 min 42 s, against 38 min for the whole pipeline.
+
 Every dev and test metric above (all systems, all unit types) came out identical to three decimals, and `results.sqlite` again held 4,144,976 matches (`/similar` median 0.58 ms). `data/` + `models/` + `artifacts/` take 2.8 GB. `bsim serve` on the clone (after `npm ci && npm run build` in `web/`) served the viewer and answered Ps 14:1 → Ps 53:2 at rank 1 in all three modes and the search "בראשית ברא אלהים" → Genesis 1:1 first in every mode.
 
 ## Later experiments (dev only)

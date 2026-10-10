@@ -3,6 +3,9 @@
 Stages run in a fixed dependency order and call the same runners as the single-stage
 commands; the system lists come from `pipeline` in the config. The test split is evaluated
 only when `metrics.json` has no test entry yet (it is run once, never replaced here).
+
+Runs are incremental (DESIGN.md §16.35, `bsim/incremental.py`): a stage whose code, config keys
+and input files are unchanged since it last succeeded is skipped; `--force` runs them all.
 """
 
 from __future__ import annotations
@@ -330,6 +333,67 @@ STAGES: dict[str, str] = {
 }
 
 
+# stage -> the earlier stages whose outputs it reads. A stage's inputs are these stages' outputs
+# plus every file it is seen to open; the list is what the audit hook cannot see (model folders
+# read by native code, globbed systems, files only checked for existence) and what an adopted
+# stage relies on. `bsim all` notes a read from a stage missing here.
+_CORPUS = ("download", "build-corpus")
+_MODELS = ("train-simcse", "train-sup")
+_TOPK = ("lexical-topk", "topk", "units", "fuse")
+DEPS: dict[str, tuple[str, ...]] = {
+    "download": (),
+    "build-corpus": ("download",),
+    "build-links": (*_CORPUS,),
+    "lexicon": (*_CORPUS,),
+    "syntax": (*_CORPUS, "lexicon"),
+    "lexical": (*_CORPUS, "lexicon", "syntax"),
+    "lexical-topk": (*_CORPUS, "lexical"),
+    "train-simcse": (*_CORPUS,),
+    "train-sup": (*_CORPUS, "build-links", "lexical", "lexical-topk", "train-simcse"),
+    "embed": (*_CORPUS, *_MODELS),
+    "topk": (*_CORPUS, "lexical", "embed"),
+    "units": (*_CORPUS, "lexical", "embed"),
+    "fuse": (*_CORPUS, "build-links", *_TOPK[:3]),
+    "evaluate": (*_CORPUS, "build-links", *_TOPK),
+    "eval-openbible": (*_CORPUS, "build-links", *_TOPK),
+    "phrases": (*_CORPUS, "lexical", "lexical-topk", "fuse"),
+    "sequences": (*_CORPUS, *_TOPK),
+    "diffs": (*_CORPUS, "sequences"),
+    "typescenes": (*_CORPUS, "sequences"),
+    "parallelism": (*_CORPUS, "lexicon", *_MODELS),
+    "acrostics": (*_CORPUS, "parallelism"),
+    "wordplay": (*_CORPUS,),
+    "sound": (*_CORPUS, "parallelism"),
+    "entities": (*_CORPUS, "lexicon"),
+    "senses": (*_CORPUS, "lexicon", *_MODELS),
+    "dating": (*_CORPUS, "parallelism", "sequences"),
+    "borrowing": (*_CORPUS, "sequences", "diffs", "dating"),
+    "seams": (*_CORPUS,),
+    "structure": (*_CORPUS, "embed"),
+    "map": (*_CORPUS, "embed", *_TOPK),
+    "network": (*_CORPUS, *_TOPK),
+    "stylometry": (*_CORPUS,),
+    "voices": (*_CORPUS, "syntax"),
+    "segments": (*_CORPUS, "build-links", "embed", "seams"),
+    "ketiv": (*_CORPUS, "sequences", "diffs"),
+    "citations": (*_CORPUS, "lexical", "embed"),
+    "allusions": (*_CORPUS, *_TOPK, "sequences"),
+    "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
+    "eval-etcbc": (*_CORPUS, "build-links", *_TOPK, "eval-openbible", "phrases", "sequences"),
+}
+DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")
+
+
+def downstream(stages: Iterable[str]) -> set[str]:
+    """The stages that depend, directly or not, on any of `stages` (themselves excluded)."""
+    found: set[str] = set()
+    frontier = set(stages)
+    while frontier:
+        frontier = {s for s, d in DEPS.items() if s not in found and frontier & set(d)}
+        found |= frontier
+    return found - set(stages)
+
+
 def select_stages(
     start: str | None = None, stop: str | None = None, skip: Iterable[str] = ()
 ) -> list[str]:
@@ -361,22 +425,81 @@ def run_all(
     start: str | None = None,
     stop: str | None = None,
     skip: Iterable[str] = (),
+    *,
+    force: bool = False,
+    rerun: Iterable[str] = (),
+    dry_run: bool = False,
+    adopt: bool = False,
 ) -> dict[str, float]:
-    """Run the selected stages in order; returns seconds per stage."""
+    """Run the selected stages in order, skipping those up to date; returns seconds per stage run.
+
+    `force` runs every selected stage, `rerun` the named ones; `dry_run` only says which stages
+    would run and why; `adopt` records the selected stages as up to date without running them
+    (for artifacts built before incremental runs, or by hand).
+    """
+    from bsim import incremental as inc
+
     stages = select_stages(start, stop, skip)
+    rerun = set(rerun)
+    unknown = sorted(rerun - set(STAGES))
+    if unknown:
+        raise ValueError(f"unknown stage(s) {unknown}; stages: {', '.join(STAGES)}")
+    order = list(STAGES)
+    state = inc.State(resolve_path(cfg, "pipeline_state"))
+    scope = inc.Scope.from_config(cfg)
+
+    def reason(name: str) -> str | None:
+        if force:
+            return "forced"
+        if name in rerun:
+            return "--rerun"
+        return inc.stale_reason(name, globals()[STAGES[name]], cfg, state, DEPS[name])
+
+    if adopt:
+        for name in stages:
+            inc.adopt(name, globals()[STAGES[name]], cfg, state)
+            log(f"adopted {name}: its current outputs count as up to date")
+        state.save()
+        return {}
+    if dry_run:
+        stale = {name: r for name in stages if (r := reason(name))}
+        after = downstream(stale) & set(stages)
+        for name in stages:
+            if name in stale:
+                log(f"  run      {name:<15} {stale[name]}")
+            elif name in after:
+                ups = [d for d in DEPS[name] if d in stale or d in after]
+                log(f"  maybe    {name:<15} if {', '.join(ups)} change what they write")
+            else:
+                log(f"  skip     {name:<15} up to date")
+        return {}
+
     timings: dict[str, float] = {}
     t_all = time.perf_counter()
     for i, name in enumerate(stages, 1):
-        log(f"=== [{i}/{len(stages)}] {name} ===")
+        why = reason(name)
+        if why is None:
+            log(f"=== [{i}/{len(stages)}] {name}: up to date, skipped ===")
+            continue
+        log(f"=== [{i}/{len(stages)}] {name} ({why}) ===")
+        fn = globals()[STAGES[name]]
+        before = scope.snapshot()
+        tracked = inc.TrackedConfig(cfg)
         t0 = time.perf_counter()
         try:
-            globals()[STAGES[name]](cfg, log)
+            with inc.tracking_reads(scope) as reads:
+                fn(tracked, log)
         except RuntimeError as e:
             raise RuntimeError(f"stage {name!r} failed: {e}") from e
         timings[name] = time.perf_counter() - t0
+        inc.record(
+            name, fn, cfg, state, order=order, deps=DEPS[name], seen=tracked.seen, reads=reads,
+            before=before, after=scope.snapshot(), seconds=timings[name], log=log,
+        )  # fmt: skip
+        state.save()
         log(f"=== {name} done in {_fmt_secs(timings[name])} ===")
-    log("stage timings:")
+    log(f"stage timings ({len(timings)} run, {len(stages) - len(timings)} up to date):")
     for name, secs in timings.items():
-        log(f"  {name:<13} {_fmt_secs(secs)}")
-    log(f"  {'total':<13} {_fmt_secs(time.perf_counter() - t_all)}")
+        log(f"  {name:<15} {_fmt_secs(secs)}")
+    log(f"  {'total':<15} {_fmt_secs(time.perf_counter() - t_all)}")
     return timings

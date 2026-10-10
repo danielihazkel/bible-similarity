@@ -525,7 +525,9 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
     pairs_df.to_parquet(out / "word_pairs.parquet")
     lr = model[-1]
     meta = {
-        "config_hash": config_hash(cfg, "parallelism", "final_systems"),
+        "config_hash": config_hash(
+            cfg, "parallelism", "final_systems", "structure.leitwort_skip_pos"
+        ),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "encoder": base,
         "cola": {str(k): v for k, v in sorted(Counter(len(s) for s in spans).items())},
