@@ -2,8 +2,7 @@ import { Link } from 'react-router'
 import { useBooks, useRewriteProfiles, useRewrites, rewritesParams } from '../api/hooks'
 import type { Rewrite, RewriteOp, RewriteProfile } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -82,37 +81,36 @@ export function RewritesView() {
       </div>
       {profile && <Profile p={profile} from={name(profile.a_book)} to={name(profile.b_book)} />}
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.rewrites.none}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.par.rewrites.page(res.data.total, page, pages)}
+      <PagedList
+        res={res}
+        empty={m.par.rewrites.none}
+        summary={(data) => (
+          <>
+            {m.par.rewrites.page(data.total, page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'rewrites', params: rewritesParams(query) }}
-              filename={`rewrites-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((r) => ({
-                  earlier_book: nameEn(r.a_book),
-                  later_book: nameEn(r.b_book),
-                  change: r.op,
-                  earlier: r.a_he ?? '',
-                  later: r.b_he ?? '',
-                  times: r.n,
-                  of: r.base,
-                  g2: r.g2,
-                  q: r.q,
-                }))
-              }
+            all={{ list: 'rewrites', params: rewritesParams(query) }}
+            filename={`rewrites-p${page}.csv`}
+            rows={() =>
+            data.items.map((r) => ({
+            earlier_book: nameEn(r.a_book),
+            later_book: nameEn(r.b_book),
+            change: r.op,
+            earlier: r.a_he ?? '',
+            later: r.b_he ?? '',
+            times: r.n,
+            of: r.base,
+            g2: r.g2,
+            q: r.q,
+            }))
+            }
             />
-          </p>
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
                   {!profile && <th>{m.par.rewrites.books}</th>}
@@ -128,15 +126,14 @@ export function RewritesView() {
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((r) => (
+                {data.items.map((r) => (
                   <Row key={`${pairKey(r)}|${r.op}|${r.a_key}|${r.b_key}`} r={r} showBooks={!profile} name={name} />
                 ))}
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

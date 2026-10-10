@@ -3,8 +3,7 @@ import { structureParams, useStructureRanking } from '../api/hooks'
 import type { LeitwortNumbers, StructureRank, StructureSort, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
@@ -102,31 +101,30 @@ function UnitRanking() {
       <p className="muted small">{t.note}</p>
       {res.data?.leitwort_numbers && <SevenNote n={res.data.leitwort_numbers} />}
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.units(res.data.total)} · {m.pat.pageOf(page, pages)}
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {m.pat.units(data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
-              filename={`structure-${unitType}-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((r) => ({
-                  unit: r.unit.label_en,
-                  verses: r.unit.n_verses,
-                  ...Object.fromEntries(COLS.map((c) => [c.csv, r[c.key] as number | null])),
-                }))
-              }
-              all={{ list: 'structure', params: structureParams(query) }}
+            filename={`structure-${unitType}-p${page}.csv`}
+            rows={() =>
+            data.items.map((r) => ({
+            unit: r.unit.label_en,
+            verses: r.unit.n_verses,
+            ...Object.fromEntries(COLS.map((c) => [c.csv, r[c.key] as number | null])),
+            }))
+            }
+            all={{ list: 'structure', params: structureParams(query) }}
             />
-          </p>
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`rank-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`rank-table ${stale}`}>
               <thead>
                 <tr>
                   <th>#</th>
@@ -141,9 +139,9 @@ function UnitRanking() {
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((r, i) => (
+                {data.items.map((r, i) => (
                   <tr key={r.unit.unit_id}>
-                    <td className="muted">{res.data.offset + i + 1}</td>
+                    <td className="muted">{data.offset + i + 1}</td>
                     <td>
                       <Link to={unitLink(r.unit.unit_id, '?structure=1')}>{unitLabel(r.unit, locale)}</Link>
                       {locale === 'en' && (
@@ -170,9 +168,8 @@ function UnitRanking() {
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

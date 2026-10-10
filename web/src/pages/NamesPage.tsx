@@ -4,7 +4,7 @@ import { useBooks, useEntities, useEntity, entitiesParams } from '../api/hooks'
 import type { Book, EntityDetail, EntityKind } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
@@ -76,32 +76,31 @@ export function NamesPage() {
 
       <div className="names-grid">
         <section aria-label={m.ov.names.list}>
-          {res.isPending ? (
-            <Loading />
-          ) : res.error ? (
-            <ErrorBox error={res.error} />
-          ) : res.data.items.length === 0 ? (
-            <EmptyList total={res.data.total} limit={res.data.limit}>{m.ov.names.noMatch}</EmptyList>
-          ) : (
-            <>
-              <p className="muted small">
-                {m.ov.names.count(res.data.total, book !== undefined, page, pages)}
+          <PagedList
+            res={res}
+            empty={m.ov.names.noMatch}
+            summary={(data) => (
+              <>
+                {m.ov.names.count(data.total, book !== undefined, page, pages)}
                 {' · '}
                 <ExportCsv
-                  all={{ list: 'names', params: entitiesParams(query) }}
-                  filename={`names-p${page}.csv`}
-                  rows={() =>
-                    res.data.items.map((e) => ({
-                      name: e.he,
-                      kind: e.kind,
-                      mentions: e.n_here ?? e.n_mentions,
-                      verses: e.n_verses,
-                    }))
-                  }
+                all={{ list: 'names', params: entitiesParams(query) }}
+                filename={`names-p${page}.csv`}
+                rows={() =>
+                data.items.map((e) => ({
+                name: e.he,
+                kind: e.kind,
+                mentions: e.n_here ?? e.n_mentions,
+                verses: e.n_verses,
+                }))
+                }
                 />
-              </p>
-              <ul className={`name-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-                {res.data.items.map((e) => (
+              </>
+            )}
+          >
+            {(data, stale) => (
+              <ul className={`name-list ${stale}`}>
+                {data.items.map((e) => (
                   <li key={e.lemma}>
                     <button
                       type="button"
@@ -117,9 +116,8 @@ export function NamesPage() {
                   </li>
                 ))}
               </ul>
-              <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-            </>
-          )}
+            )}
+          </PagedList>
         </section>
         {selected && <EntityPanel lemma={selected} books={books.data ?? []} onPick={(l) => update({ e: l }, false)} />}
       </div>

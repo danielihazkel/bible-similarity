@@ -1,10 +1,9 @@
 import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { UnitFilter } from '../components/UnitFilter'
-import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -101,40 +100,38 @@ function PhraseList() {
         </label>
       </div>
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.phrases.none}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.par.pairsPage(res.data.total, page, pages)}
+      <PagedList
+        res={res}
+        empty={m.par.phrases.none}
+        summary={(data) => (
+          <>
+            {m.par.pairsPage(data.total, page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'phrases', params: phrasesParams(query) }}
-              filename={`phrases-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((p) => ({
-                  a: p.a.label_en,
-                  b: p.b.label_en,
-                  score: p.score,
-                  lemmas: p.n_tokens,
-                  spread: p.spread,
-                  sefaria_link: p.link?.level ?? '',
-                }))
-              }
+            all={{ list: 'phrases', params: phrasesParams(query) }}
+            filename={`phrases-p${page}.csv`}
+            rows={() =>
+            data.items.map((p) => ({
+            a: p.a.label_en,
+            b: p.b.label_en,
+            score: p.score,
+            lemmas: p.n_tokens,
+            spread: p.spread,
+            sefaria_link: p.link?.level ?? '',
+            }))
+            }
             />
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((p) => (
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((p) => (
               <PhraseCard key={`${p.a.unit_id}|${p.b.unit_id}`} p={p} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

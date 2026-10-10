@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useBooks, useKetiv, useKqPairs } from '../api/hooks'
 import type { Book, KetivMeta, KqBook, KqClass, KqGrammar, KqLetter, KqPair, KqParallel } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -273,25 +273,19 @@ function PairList({ books }: { books: Book[] }) {
           {t.filters.euphemism}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((p) => (
+      <PagedList
+        res={res}
+        empty={t.none}
+        summary={(data) => t.page(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((p) => (
               <PairItem key={p.kq_id} p={p} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </section>
   )
 }

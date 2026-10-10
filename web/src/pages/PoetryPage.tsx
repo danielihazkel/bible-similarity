@@ -3,8 +3,7 @@ import { useBooks, useParallelism, parallelismParams } from '../api/hooks'
 import type { ParallelBook, UnitType } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, bookOption, unitLabel } from '../lib/names'
@@ -111,36 +110,35 @@ function UnitsView() {
         </label>
       </div>
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
             {sort === 'antithetic'
-              ? t.rankedAnti(res.data.total, m.units.plural(unitType), res.data.min_parallel)
-              : t.ranked(res.data.total, m.units.plural(unitType))}{' '}
+            ? t.rankedAnti(data.total, m.units.plural(unitType), data.min_parallel)
+            : t.ranked(data.total, m.units.plural(unitType))}{' '}
             · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'poetry', params: parallelismParams(query) }}
-              filename={`parallel-halves-${unitType}-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((r) => ({
-                  unit: r.unit.label_en,
-                  share_parallel: r.share_parallel,
-                  share_antithetic: r.share_antithetic,
-                  mean_prob: r.mean_prob,
-                  verses: r.n_scored,
-                }))
-              }
+            all={{ list: 'poetry', params: parallelismParams(query) }}
+            filename={`parallel-halves-${unitType}-p${page}.csv`}
+            rows={() =>
+            data.items.map((r) => ({
+            unit: r.unit.label_en,
+            share_parallel: r.share_parallel,
+            share_antithetic: r.share_antithetic,
+            mean_prob: r.mean_prob,
+            verses: r.n_scored,
+            }))
+            }
             />
-          </p>
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{m.units.type(unitType)}</th>
@@ -159,7 +157,7 @@ function UnitsView() {
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((r) => (
+                {data.items.map((r) => (
                   <tr key={r.unit.unit_id}>
                     <td>
                       <Link to={unitLink(r.unit.unit_id, '?halves=1')}>{unitLabel(r.unit, locale)}</Link>
@@ -181,9 +179,8 @@ function UnitsView() {
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

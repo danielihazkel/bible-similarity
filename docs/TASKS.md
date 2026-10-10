@@ -605,6 +605,12 @@ Phase 3 (M39c): API and viewer
 
 ✔ Real DB: 78 strong chains (43 between books), 1,228 in the same order, all 3,615 capped at the 2,000 strongest; 137 / 137 vitest, 171 / 171 fixture and 130 / 130 real-data e2e (the jump-box tests now find the box's field inside its dialog: the unit page has a combobox of its own).
 
+## M59: One paged list (§11.1; proposed B6)
+- [x] `PagedList` (`components/Pager.tsx`): the loading / error / empty / past-the-end states, summary line, stale marker and pager of a list page in one place
+- [x] 21 lists in 19 files moved to it (20 by a one-off script that rewrote only blocks matching the old skeleton exactly, Sequences by hand); concordance, domain verses and rare-word pairs keep their own states (their header comes from the same response)
+- [x] Tests: each state, past the end, stale, paging, a single page (vitest); every list page's existing tests unchanged
+
+✔ 141 / 141 vitest; 171 / 171 fixture and 130 / 130 real-data e2e.
+
 ## Proposed (not started)
-Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- B6 a shared paged-list component
+Every suggestion from the 2026-10-09 review is done (M45–M59).

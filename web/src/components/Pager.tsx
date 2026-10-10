@@ -1,6 +1,8 @@
+import type { UseQueryResult } from '@tanstack/react-query'
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { useT } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { ErrorBox, Loading } from './Status'
 
 /** Previous / next, and a page number to jump to. */
 export function Pager({ page, pages, onPage }: { page: number; pages: number; onPage: (p: number) => void }) {
@@ -68,4 +70,51 @@ export function EmptyList({ total, limit, children }: { total: number; limit: nu
     )
   }
   return <p className="status">{children}</p>
+}
+
+interface Page {
+  items: unknown[]
+  total: number
+  limit: number
+}
+
+/**
+ * A list page's states in one place: loading, an error, empty (or past its last page), and then a
+ * summary line above the list, the list itself and the pager. The page is the URL's `page`; the
+ * list is drawn by `children`, given `stale` (`'stale'` while the next page loads over this one)
+ * for its class.
+ */
+export function PagedList<T extends Page>({
+  res,
+  empty,
+  summary,
+  children,
+}: {
+  res: UseQueryResult<T>
+  /** what an empty list says */
+  empty: ReactNode
+  /** the line above the list (count and page, an export link …) */
+  summary?: (data: T, page: number, pages: number) => ReactNode
+  children: (data: T, stale: string) => ReactNode
+}) {
+  const [params, update] = useQueryParams()
+  const page = parsePage(params.get('page'))
+  if (res.isPending) return <Loading />
+  if (res.isError) return <ErrorBox error={res.error} />
+  const data = res.data
+  if (data.items.length === 0) {
+    return (
+      <EmptyList total={data.total} limit={data.limit}>
+        {empty}
+      </EmptyList>
+    )
+  }
+  const pages = Math.max(1, Math.ceil(data.total / data.limit))
+  return (
+    <>
+      {summary && <p className="muted small">{summary(data, page, pages)}</p>}
+      {children(data, res.isPlaceholderData ? 'stale' : '')}
+      <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
+    </>
+  )
 }

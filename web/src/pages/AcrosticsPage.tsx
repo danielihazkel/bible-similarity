@@ -2,8 +2,7 @@ import { Link } from 'react-router'
 import { useAcrostics, useBooks, acrosticsParams } from '../api/hooks'
 import { AcrosticChain } from '../components/AcrosticChain'
 import { ExportCsv } from '../components/ExportCsv'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, bookOption, unitLabel } from '../lib/names'
@@ -66,37 +65,36 @@ export function AcrosticsPage() {
         </label>
       </div>
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.chapters(res.data.total)} · {m.pat.pageOf(page, pages)}
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {m.pat.chapters(data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'acrostics', params: acrosticsParams(query) }}
-              filename={`acrostics-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((a) => ({
-                  chapter: a.unit.label_en,
-                  letters: a.n_letters,
-                  skipped: a.missing,
-                  from: a.first_letter,
-                  to: a.last_letter,
-                  lines: a.granularity,
-                  order: a.order_name,
-                  p: a.p,
-                  q: a.q,
-                }))
-              }
+            all={{ list: 'acrostics', params: acrosticsParams(query) }}
+            filename={`acrostics-p${page}.csv`}
+            rows={() =>
+            data.items.map((a) => ({
+            chapter: a.unit.label_en,
+            letters: a.n_letters,
+            skipped: a.missing,
+            from: a.first_letter,
+            to: a.last_letter,
+            lines: a.granularity,
+            order: a.order_name,
+            p: a.p,
+            q: a.q,
+            }))
+            }
             />
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((a) => (
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((a) => (
               <li key={a.unit.unit_id} className="disc acrostic-card">
                 <div className="hit-head">
                   <Link to={unitLink(a.unit.unit_id, '?acrostic=1')}>
@@ -124,9 +122,8 @@ export function AcrosticsPage() {
               </li>
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </div>
   )
 }

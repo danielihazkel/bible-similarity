@@ -3,7 +3,7 @@ import { useBooks, useCitationList, useCitations } from '../api/hooks'
 import type { Book, Citation, CitationBook, CitationFamily, CitationsMeta } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -130,25 +130,19 @@ function CitationList({ books, name }: { books: Book[]; name: (id: number) => st
           {t.filters.resolved}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((c) => (
+      <PagedList
+        res={res}
+        empty={t.none}
+        summary={(data) => t.page(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((c) => (
               <CitationItem key={c.cite_id} c={c} book={name(c.book_id)} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </section>
   )
 }

@@ -4,8 +4,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import type { ChangeGroup, DiffOp } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale, useT } from '../context/localeContext'
 import { DIFF_OPS } from '../lib/diff'
 import { sequenceLink } from '../lib/links'
@@ -99,34 +98,33 @@ function ChangesByWord() {
         {bookSelect(m.par.changes.laterIn, 'b', bBook)}
       </div>
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.changes.none}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.par.changes.page(res.data.total, page, pages)}
+      <PagedList
+        res={res}
+        empty={m.par.changes.none}
+        summary={(data) => (
+          <>
+            {m.par.changes.page(data.total, page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'changes', params: changesParams(query) }}
-              filename={`changes-${op}-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((g) => ({
-                  kind: op,
-                  earlier: g.a_he,
-                  later: g.b_he,
-                  times: g.count,
-                  sequences: g.n_sequences,
-                  example: g.examples[0] ? `${g.examples[0].a_label} -> ${g.examples[0].b_label}` : '',
-                }))
-              }
+            all={{ list: 'changes', params: changesParams(query) }}
+            filename={`changes-${op}-p${page}.csv`}
+            rows={() =>
+            data.items.map((g) => ({
+            kind: op,
+            earlier: g.a_he,
+            later: g.b_he,
+            times: g.count,
+            sequences: g.n_sequences,
+            example: g.examples[0] ? `${g.examples[0].a_label} -> ${g.examples[0].b_label}` : '',
+            }))
+            }
             />
-          </p>
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{m.par.changes.earlier}</th>
@@ -138,15 +136,14 @@ function ChangesByWord() {
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((g) => (
+                {data.items.map((g) => (
                   <Row key={`${g.a_key}|${g.b_key}`} g={g} />
                 ))}
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useBooks, useEchoList, useEchoes } from '../api/hooks'
 import type { Book, EchoBasis, EchoBook, EchoChapter, EchoEdge, EchoesMeta } from '../api/types'
 import { Segmented } from '../components/Controls'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -212,25 +212,19 @@ function EchoList({ books }: { books: Book[] }) {
           {t.filters.backward}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((e) => (
+      <PagedList
+        res={res}
+        empty={t.none}
+        summary={(data) => t.page(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((e) => (
               <EchoItem key={e.edge_id} e={e} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </section>
   )
 }

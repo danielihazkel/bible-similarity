@@ -1,8 +1,7 @@
 import { useBooks, useWordplay, wordplayParams } from '../api/hooks'
 import type { WordplayPair } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { WordplayCard } from '../components/WordplayCard'
 import { useLocale } from '../context/localeContext'
@@ -114,40 +113,38 @@ function PairsView() {
         </label>
       </div>
 
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.pairs(res.data.total)} · {m.pat.pageOf(page, pages)}
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {m.pat.pairs(data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'wordplay', params: wordplayParams(query) }}
-              filename={`wordplay-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((p) => ({
-                  verse: p.a_label,
-                  word_a: p.a_form,
-                  word_b: p.b_form,
-                  kind: p.kind,
-                  words_apart: p.gap,
-                  score: p.score,
-                }))
-              }
+            all={{ list: 'wordplay', params: wordplayParams(query) }}
+            filename={`wordplay-p${page}.csv`}
+            rows={() =>
+            data.items.map((p) => ({
+            verse: p.a_label,
+            word_a: p.a_form,
+            word_b: p.b_form,
+            kind: p.kind,
+            words_apart: p.gap,
+            score: p.score,
+            }))
+            }
             />
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((p) => (
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((p) => (
               <WordplayCard key={`${p.a_vid}:${p.a_display}|${p.b_vid}:${p.b_display}`} p={p} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

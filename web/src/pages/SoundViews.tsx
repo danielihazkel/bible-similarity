@@ -3,8 +3,7 @@ import { useAlliteration, useRhymes } from '../api/hooks'
 import { UnitFilter } from '../components/UnitFilter'
 import type { Highlight } from '../lib/highlight'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -27,19 +26,18 @@ export function AlliterationView({ book }: { book?: number }) {
       <p className="lede">{t.alliterationLede}</p>
       <p className="muted small">{t.alliterationNote}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null, page: null })} />}
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.cola(res.data.total)} · {m.pat.pageOf(page, pages)}
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((a) => {
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {m.pat.cola(data.total)} · {m.pat.pageOf(page, pages)}
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((a) => {
               const marks: Highlight = new Map(a.words.map((i) => [i, 'focus']))
               return (
                 <li key={`${a.verse.verse_id}:${a.colon}`} className="disc">
@@ -63,9 +61,8 @@ export function AlliterationView({ book }: { book?: number }) {
               )
             })}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }
@@ -94,19 +91,18 @@ export function RhymeView({ book }: { book?: number }) {
           {m.pat.includeQ}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.rhymeEmpty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.runs(res.data.total)} · {m.pat.pageOf(page, pages)}
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((r) => (
+      <PagedList
+        res={res}
+        empty={t.rhymeEmpty}
+        summary={(data) => (
+          <>
+            {m.pat.runs(data.total)} · {m.pat.pageOf(page, pages)}
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((r) => (
               <li key={`${r.start_vid}:${r.ending}`} className="disc">
                 <div className="hit-head">
                   <span className="pun he" dir="rtl" lang="he">
@@ -130,9 +126,8 @@ export function RhymeView({ book }: { book?: number }) {
               </li>
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

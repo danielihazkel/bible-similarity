@@ -1,8 +1,7 @@
 import { Link } from 'react-router'
 import { useWordPairs, wordPairsParams } from '../api/hooks'
 import { ExportCsv } from '../components/ExportCsv'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
@@ -34,27 +33,26 @@ export function WordPairsView() {
           {m.pat.includeQ}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.pat.pairs(res.data.total)} · {m.pat.pageOf(page, pages)}
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {m.pat.pairs(data.total)} · {m.pat.pageOf(page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'word-pairs', params: wordPairsParams(query) }}
-              filename={`word-pairs-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((w) => ({ first: w.a.he_lemma, second: w.b.he_lemma, times: w.n, expected: w.expected, reverse: w.reverse, q: w.q }))
-              }
+            all={{ list: 'word-pairs', params: wordPairsParams(query) }}
+            filename={`word-pairs-p${page}.csv`}
+            rows={() =>
+            data.items.map((w) => ({ first: w.a.he_lemma, second: w.b.he_lemma, times: w.n, expected: w.expected, reverse: w.reverse, q: w.q }))
+            }
             />
-          </p>
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{t.first}</th>
@@ -71,7 +69,7 @@ export function WordPairsView() {
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((w) => (
+                {data.items.map((w) => (
                   <tr key={`${w.a.lemma}|${w.b.lemma}`}>
                     <td>
                       <Link to={lemmaLink(w.a.lemma)}>{he(w.a.he_lemma)}</Link>
@@ -99,9 +97,8 @@ export function WordPairsView() {
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

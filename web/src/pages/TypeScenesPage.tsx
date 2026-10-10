@@ -1,7 +1,6 @@
 import { Link } from 'react-router'
 import { useBooks, useTypeScenes } from '../api/hooks'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
@@ -59,19 +58,14 @@ export function TypeScenesPage() {
           {m.par.typeScenes.textual}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{m.par.typeScenes.none}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.par.pairsPage(res.data.total, page, pages)}
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((t) => (
+      <PagedList
+        res={res}
+        empty={m.par.typeScenes.none}
+        summary={(data) => m.par.pairsPage(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((t) => (
               <li key={`${t.a.unit_id}|${t.b.unit_id}`} className="disc">
                 <div className="hit-head">
                   <Link to={unitLink(t.a.unit_id)}>{unitLabel(t.a, locale)}</Link>
@@ -99,9 +93,8 @@ export function TypeScenesPage() {
               </li>
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </div>
   )
 }

@@ -1,8 +1,7 @@
 import { Link } from 'react-router'
 import { useShifts } from '../api/hooks'
 import { Segmented } from '../components/Controls'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -40,19 +39,18 @@ export function ShiftsPage() {
           {t.includeAll}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>{t.empty}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {t.ranked(res.data.total)} · {m.pat.pageOf(page, pages)}
-          </p>
+      <PagedList
+        res={res}
+        empty={t.empty}
+        summary={(data) => (
+          <>
+            {t.ranked(data.total)} · {m.pat.pageOf(page, pages)}
+          </>
+        )}
+      >
+        {(data, stale) => (
           <div className="table-wrap">
-            <table className={`change-table ${res.isPlaceholderData ? 'stale' : ''}`}>
+            <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{t.word}</th>
@@ -62,11 +60,11 @@ export function ShiftsPage() {
                   </th>
                   <th className="num">{t.q}</th>
                   <th className="num">{by === 'sense' ? t.senses : t.uses}</th>
-                  <th title={t.groupsTitle}>{res.data.group_order.map((g) => t.groups[g] ?? g).join(' · ')}</th>
+                  <th title={t.groupsTitle}>{data.group_order.map((g) => t.groups[g] ?? g).join(' · ')}</th>
                 </tr>
               </thead>
               <tbody>
-                {res.data.items.map((r) => {
+                {data.items.map((r) => {
                   const excess = by === 'sense' ? r.sense_excess : r.use_excess
                   const q = by === 'sense' ? r.sense_q : r.use_q
                   const most = Math.max(1, ...Object.values(r.groups))
@@ -85,7 +83,7 @@ export function ShiftsPage() {
                       <td className="num">{by === 'sense' ? r.n_senses : r.k}</td>
                       <td>
                         <span className="group-strip" aria-label={t.groupsTitle}>
-                          {res.data.group_order.map((g) => (
+                          {data.group_order.map((g) => (
                             <span
                               key={g}
                               className="group-cell"
@@ -101,9 +99,8 @@ export function ShiftsPage() {
               </tbody>
             </table>
           </div>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </div>
   )
 }

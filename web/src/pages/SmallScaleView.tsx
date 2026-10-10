@@ -3,7 +3,7 @@ import { useBooks, useMirrorClauses, useMirrors, useMirrorVerses } from '../api/
 import type { MirrorClause, MirrorsMeta, MirrorVerse } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -166,25 +166,19 @@ function ClauseList({ book, unit, pairs }: { book?: number; unit?: string; pairs
           {t.filters.mirrored}
         </label>
       </div>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((c) => (
+      <PagedList
+        res={res}
+        empty={t.none}
+        summary={(data) => t.page(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((c) => (
               <ClauseItem key={c.pair_id} c={c} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }
@@ -207,32 +201,26 @@ function ClauseItem({ c }: { c: MirrorClause }) {
 
 function VerseList({ book, unit, k, total }: { book?: number; unit?: string; k: number; total: number }) {
   const t = useLocale().m.mir
-  const [params, update] = useQueryParams()
+  const [params] = useQueryParams()
   const page = parsePage(params.get('page'))
   const res = useMirrorVerses({ book, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   return (
     <>
       <p className="muted small">{t.fullNote(total, k)}</p>
-      {res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((v) => (
+      <PagedList
+        res={res}
+        empty={t.none}
+        summary={(data) => t.page(data.total, page, pages)}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {data.items.map((v) => (
               <VerseItem key={v.verse_id} v={v} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

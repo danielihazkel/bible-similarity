@@ -6,8 +6,7 @@ import { ExportCsv } from '../components/ExportCsv'
 import { ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
-import { EmptyList, Pager } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PagedList } from '../components/Pager'
 import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { formatScore } from '../lib/format'
@@ -77,39 +76,37 @@ export function DiscoveriesPage() {
       </div>
       <p className="muted small">{m.modes.hints[mode]}.</p>
 
-      {disc.isPending ? (
-        <Loading />
-      ) : disc.error ? (
-        <ErrorBox error={disc.error} />
-      ) : disc.data.items.length === 0 ? (
-        <EmptyList total={disc.data.total} limit={disc.data.limit}>{m.par.discoveries.none}</EmptyList>
-      ) : (
-        <>
-          <p className="muted small">
-            {m.par.pairsPage(disc.data.total, page, pages)}
+      <PagedList
+        res={disc}
+        empty={m.par.discoveries.none}
+        summary={(data) => (
+          <>
+            {m.par.pairsPage(data.total, page, pages)}
             {' · '}
             <ExportCsv
-              all={{ list: 'discoveries', params: discoveriesParams(query) }}
-              filename={`discoveries-${unitType}-${mode}-p${page}.csv`}
-              rows={() =>
-                disc.data.items.map((d) => ({
-                  a: d.a.label_en,
-                  b: d.b.label_en,
-                  score: d.score,
-                  rank_a_to_b: d.rank_ab,
-                  rank_b_to_a: d.rank_ba,
-                }))
-              }
+            all={{ list: 'discoveries', params: discoveriesParams(query) }}
+            filename={`discoveries-${unitType}-${mode}-p${page}.csv`}
+            rows={() =>
+            data.items.map((d) => ({
+            a: d.a.label_en,
+            b: d.b.label_en,
+            score: d.score,
+            rank_a_to_b: d.rank_ab,
+            rank_b_to_a: d.rank_ba,
+            }))
+            }
             />
-          </p>
-          <ol className={`disc-list ${disc.isPlaceholderData ? 'stale' : ''}`} start={disc.data.offset + 1}>
-            {disc.data.items.map((d) => (
+          </>
+        )}
+      >
+        {(data, stale) => (
+          <ol className={`disc-list ${stale}`} start={data.offset + 1}>
+            {data.items.map((d) => (
               <DiscoveryCard key={`${d.a.unit_id}|${d.b.unit_id}`} d={d} mode={mode} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </div>
   )
 }

@@ -1,10 +1,9 @@
 import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
-import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { bookOption } from '../lib/names'
@@ -116,43 +115,45 @@ export function SequencesPage() {
           hideSameChapter={hideSameChapter}
           books={books.data ?? []}
         />
-      ) : res.isPending ? (
-        <Loading />
-      ) : res.error ? (
-        <ErrorBox error={res.error} />
-      ) : res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {m.par.sequences.none}
-          {order !== 'forward' && qChoice !== 'all' && m.par.sequences.mirroredHint}
-        </EmptyList>
       ) : (
-        <>
-          <p className="muted small">
-            {m.par.sequences.page(res.data.total, page, pages)}
-            {' · '}
-            <ExportCsv
-              all={{ list: 'sequences', params: sequencesParams(query) }}
-              filename={`sequences-p${page}.csv`}
-              rows={() =>
-                res.data.items.map((s) => ({
-                  id: s.seq_id,
-                  a: s.a_label,
-                  b: s.b_label,
-                  verse_pairs: s.n_pairs,
-                  score: s.score,
-                  q: s.q,
-                  sefaria_links: s.n_gold,
-                }))
-              }
-            />
-          </p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((s) => (
-              <SequenceCard key={s.seq_id} s={s} />
-            ))}
-          </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
+        <PagedList
+          res={res}
+          empty={
+            <>
+              {m.par.sequences.none}
+              {order !== 'forward' && qChoice !== 'all' && m.par.sequences.mirroredHint}
+            </>
+          }
+          summary={(data) => (
+            <>
+              {m.par.sequences.page(data.total, page, pages)}
+              {' · '}
+              <ExportCsv
+                all={{ list: 'sequences', params: sequencesParams(query) }}
+                filename={`sequences-p${page}.csv`}
+                rows={() =>
+                  data.items.map((s) => ({
+                    id: s.seq_id,
+                    a: s.a_label,
+                    b: s.b_label,
+                    verse_pairs: s.n_pairs,
+                    score: s.score,
+                    q: s.q,
+                    sefaria_links: s.n_gold,
+                  }))
+                }
+              />
+            </>
+          )}
+        >
+          {(data, stale) => (
+            <ol className={`disc-list ${stale}`}>
+              {data.items.map((s) => (
+                <SequenceCard key={s.seq_id} s={s} />
+              ))}
+            </ol>
+          )}
+        </PagedList>
       )}
     </div>
   )
