@@ -56,6 +56,8 @@ const PAGES = [
   '/map',
   '/network',
   '/findings',
+  '/sequences?view=arcs',
+  '/sequences?view=arcs&q=all&book=1',
   '/network?view=directions',
   '/network?view=directions&backward=1&unit=c%3A1%3A1',
   '/style',
@@ -169,7 +171,8 @@ for (const locale of ['en', 'he'] as const) {
     await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
     await page.goto('/map')
     await page.keyboard.press('Control+k')
-    const box = page.getByRole('combobox')
+    // the jump box's own field: a page may have comboboxes of its own (the unit page's Top k)
+    const box = page.getByRole('dialog').getByRole('combobox')
     await expect(box).toBeFocused()
     await box.fill('Gen 1:2')
     await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected', 'true')
@@ -178,15 +181,25 @@ for (const locale of ['en', 'he'] as const) {
     await box.press('Enter')
     await expect(page).toHaveURL(/\/unit\/v%3A1$/)
     await page.keyboard.press('Control+k')
-    await page.getByRole('combobox').fill('ראשית')
+    await box.fill('ראשית')
     await page.getByRole('option', { name: /ראשית.*7225/ }).click()
     await expect(page).toHaveURL(/\/lemma\/7225$/)
     await page.keyboard.press('Control+k')
-    await page.getByRole('combobox').fill(locale === 'en' ? 'netw' : 'רשת')
-    await page.getByRole('combobox').press('Enter')
+    await box.fill(locale === 'en' ? 'netw' : 'רשת')
+    await box.press('Enter')
     await expect(page).toHaveURL(/\/network$/)
   })
 }
+
+test('an arc across the canon opens its chain from the keyboard', async ({ page }) => {
+  await page.goto('/sequences?view=arcs&q=all')
+  const arcs = page.locator('.arc-diagram a.arc')
+  await expect(arcs).toHaveCount(2)
+  const first = page.getByRole('link', { name: /^v:0–1 ↔ v:3–4/ })
+  await first.focus()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/\/sequences\/1$/)
+})
 
 test('the home page leads to the findings, and each finding to its evidence', async ({ page }) => {
   await page.goto('/')

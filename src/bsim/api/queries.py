@@ -446,6 +446,15 @@ SEQUENCE_COLS = (
 )
 
 
+def book_spans(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """First and last verse id of every book, in canon order."""
+    cur = conn.execute(
+        "SELECT book_id, MIN(verse_id) AS start, MAX(verse_id) AS end FROM verses"
+        " GROUP BY book_id ORDER BY book_id"
+    )
+    return _dicts(cur)
+
+
 def sequences_page(
     conn: sqlite3.Connection,
     book_id: int | None,

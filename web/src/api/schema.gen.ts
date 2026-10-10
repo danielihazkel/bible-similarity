@@ -390,6 +390,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sequences/arcs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sequence Arcs
+         * @description The chains across the canon, strongest first (up to `serve.max_arcs`), with the books'
+         *     verse spans to lay them out.
+         */
+        get: operations["sequence_arcs_api_sequences_arcs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sequences/{seq_id}": {
         parameters: {
             query?: never;
@@ -1830,6 +1851,15 @@ export interface components {
             book_id: number;
             /** N Verses */
             n_verses: number;
+        };
+        /** BookSpan */
+        BookSpan: {
+            /** Book Id */
+            book_id: number;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
         };
         /** BookStyle */
         BookStyle: {
@@ -3749,6 +3779,22 @@ export interface components {
             /** Display Idx */
             display_idx: number | null;
         };
+        /**
+         * SequenceArcsResponse
+         * @description Every chain at once, for the arc diagram across the canon.
+         */
+        SequenceArcsResponse: {
+            /** Max Q */
+            max_q: number | null;
+            /** Direction */
+            direction: string | null;
+            /** Total */
+            total: number;
+            /** Books */
+            books: components["schemas"]["BookSpan"][];
+            /** Items */
+            items: components["schemas"]["SequenceSummary"][];
+        };
         /** SequenceDetail */
         SequenceDetail: {
             sequence: components["schemas"]["SequenceSummary"];
@@ -5218,6 +5264,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SequencesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sequence_arcs_api_sequences_arcs_get: {
+        parameters: {
+            query?: {
+                max_q?: number | null;
+                direction?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SequenceArcsResponse"];
                 };
             };
             /** @description Validation Error */

@@ -598,6 +598,13 @@ Phase 3 (M39c): API and viewer
 
 ✔ Real DB: 8 claims hold (acrostics, divisions, the synoptic test, borrowing held out, "as commanded", voices, mirrored clauses, language against spelling), 2 fail (sevens, chiasm in repeated words), 1 lead (rare-word allusions); 165 / 165 fixture (the accessibility loops' time limit raised for the longer page list) and 126 / 126 real-data e2e; 134 / 134 vitest.
 
+## M58: Parallel sequences across the canon (§11.1; proposed B4)
+- [x] `GET /api/sequences/arcs?max_q&direction`: every matching chain at once, strongest first, up to `serve.max_arcs`, with the books' verse spans
+- [x] Viewer: Sequences → *Across the canon*: an arc per chain over the books in canon order (right to left in Hebrew), width by verse pairs, colour between / within books; the list's filters; a chosen book brings out its arcs; every arc a link to its chain; English and Hebrew
+- [x] Tests: the endpoint, its filters, the cap and bad parameters (pytest); arcs, links, drawing order, labels, filters, highlight, the view switch, right to left in Hebrew (vitest); e2e: keyboard from an arc to its chain, the view in both languages with axe
+
+✔ Real DB: 78 strong chains (43 between books), 1,228 in the same order, all 3,615 capped at the 2,000 strongest; 137 / 137 vitest, 171 / 171 fixture and 130 / 130 real-data e2e (the jump-box tests now find the box's field inside its dialog: the unit page has a combobox of its own).
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- B4 canon arc diagram of parallels; B6 a shared paged-list component
+- B6 a shared paged-list component

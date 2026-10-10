@@ -490,6 +490,24 @@ export interface SequenceSummary {
 
 export type SequenceDirection = 'forward' | 'reverse' | 'mixed'
 
+export interface BookSpan {
+  book_id: number
+  /** first verse id */
+  start: number
+  /** last verse id */
+  end: number
+}
+
+/** Every chain at once, for the arc diagram across the canon */
+export interface SequenceArcsResponse {
+  max_q: number | null
+  direction: string | null
+  /** chains matching; at most `serve.max_arcs` are returned, strongest first */
+  total: number
+  books: BookSpan[]
+  items: SequenceSummary[]
+}
+
 export interface SequencesResponse {
   book: number | null
   cross_book: boolean

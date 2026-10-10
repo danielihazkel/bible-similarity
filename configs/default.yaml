@@ -590,6 +590,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   sqlite_pool: 4              # idle read-only connections kept between requests (keeps their cache)
   encoder_retry_s: 5          # Retry-After of a semantic /search sent while the encoder still loads
   sequence_cache: 256         # /sequences/{id}: responses kept in memory (LRU; deterministic)
+  max_arcs: 2000              # /sequences/arcs: the most chains drawn across the canon (strongest first)
   dossier_cache: 1024         # /dossier/{unit}: responses kept in memory (LRU; labels are read live)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q

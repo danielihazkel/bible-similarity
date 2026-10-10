@@ -40,6 +40,8 @@ const PAGES: [string, RegExp][] = [
   ['/network?type=pericope&unit=s%3A50', /Network of echoes/],
   ['/network?view=directions', /Network of echoes/],
   ['/findings', /Findings/],
+  ['/sequences?view=arcs', /Parallel sequences/],
+  ['/sequences?view=arcs&q=all&order=any&book=37', /Parallel sequences/],
   ['/network?view=directions&basis=cited', /Network of echoes/],
   ['/sequences?order=reverse&q=all', /Parallel sequences/],
   ['/changes?view=rewrites&pair=8-37', /How parallels differ/],
@@ -119,7 +121,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -132,12 +134,14 @@ async function checkA11y(page: Page) {
 test('Ctrl+K jumps to a chapter by reference and to a word by its form', async ({ page }) => {
   await page.goto('/')
   await page.keyboard.press('Control+k')
-  await page.getByRole('combobox').fill('Ps 23')
+  // the jump box's own field: the unit page has a combobox of its own (Top k)
+  const box = page.getByRole('dialog').getByRole('combobox')
+  await box.fill('Ps 23')
   await expect(page.getByRole('option', { name: 'Psalms 23' })).toBeVisible()
-  await page.getByRole('combobox').press('Enter')
+  await box.press('Enter')
   await expect(page).toHaveURL(/\/unit\/c%3A26%3A23$/)
   await page.keyboard.press('Control+k')
-  await page.getByRole('combobox').fill('שָׁלוֹם')
+  await box.fill('שָׁלוֹם')
   await page.getByRole('option', { name: /שלום.*7965/ }).click()
   await expect(page).toHaveURL(/\/lemma\/7965$/)
 })

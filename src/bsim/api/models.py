@@ -418,6 +418,22 @@ class SequenceSummary(ApiModel):
     n_gold: int  # aligned pairs that are Sefaria links
 
 
+class BookSpan(ApiModel):
+    book_id: int
+    start: int  # first verse id
+    end: int  # last verse id
+
+
+class SequenceArcsResponse(ApiModel):
+    """Every chain at once, for the arc diagram across the canon."""
+
+    max_q: float | None
+    direction: str | None
+    total: int  # chains matching; at most `serve.max_arcs` are returned, strongest first
+    books: list[BookSpan]
+    items: list[SequenceSummary]
+
+
 class SequencesResponse(ApiModel):
     book: int | None
     cross_book: bool

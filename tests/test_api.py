@@ -451,6 +451,26 @@ def test_stylometry(client):
     assert client.get("/api/stylometry/book/99").status_code == 404
 
 
+def test_sequence_arcs(client, built):
+    body = client.get("/api/sequences/arcs").json()
+    assert body["total"] == 2 and [s["seq_id"] for s in body["items"]] == [1, 2]
+    assert body["books"] == [
+        {"book_id": 0, "start": 0, "end": 4},
+        {"book_id": 1, "start": 5, "end": 5},
+    ]
+    assert body["items"][0]["a_label"] == "v:0–1"
+    strong = client.get("/api/sequences/arcs?max_q=0.05").json()
+    assert [s["seq_id"] for s in strong["items"]] == [1] and strong["max_q"] == 0.05
+    for bad in ("direction=sideways", "max_q=2"):
+        assert client.get(f"/api/sequences/arcs?{bad}").status_code == 422
+    # at most `serve.max_arcs`, strongest first; the total still counts every chain
+    cfg, _ = built
+    cfg["serve"]["max_arcs"] = 1
+    capped = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    one = capped.get("/api/sequences/arcs").json()
+    assert one["total"] == 2 and [s["seq_id"] for s in one["items"]] == [1]
+
+
 def test_sequences(client):
     body = client.get("/api/sequences").json()
     assert body["total"] == 2 and [s["seq_id"] for s in body["items"]] == [1, 2]

@@ -1,6 +1,7 @@
 import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
 import { EmptyList, Pager } from '../components/Pager'
+import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { ErrorBox, Loading } from '../components/Status'
@@ -8,16 +9,19 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { SequenceArcs } from './SequenceArcs'
 
 const PAGE_SIZE = 50
 // The default hides chains that a text with shuffled verse order produces about as often.
 const ORDERS: (SequenceDirection | 'any')[] = ['forward', 'reverse', 'mixed', 'any']
 const Q_OPTIONS = ['0.05', '0.2', 'all']
 
-/** Passages that run parallel verse by verse, in the same order (retellings, synoptic accounts). */
+/** Passages that run parallel verse by verse, in the same order (retellings, synoptic accounts); as a
+ * list, or (`?view=arcs`) as arcs across the canon. */
 export function SequencesPage() {
   const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
+  const arcs = params.get('view') === 'arcs'
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const crossBook = params.get('cross') === '1'
@@ -39,7 +43,7 @@ export function SequencesPage() {
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   }
-  const res = useSequences(query)
+  const res = useSequences(query, !arcs)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
 
@@ -47,7 +51,16 @@ export function SequencesPage() {
     <div className="page sequences-page">
       <h1>{m.par.sequences.title}</h1>
       <p className="lede">{m.par.sequences.lede}</p>
-      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
+      <Segmented
+        label={m.par.sequences.viewLabel}
+        value={arcs ? 'arcs' : 'list'}
+        options={[
+          { value: 'list', label: m.par.sequences.views.list },
+          { value: 'arcs', label: m.par.sequences.views.arcs },
+        ]}
+        onChange={(v) => set({ view: v === 'arcs' ? 'arcs' : null })}
+      />
+      {unit && !arcs && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <label className="control">
           <span>{m.par.book}</span>
@@ -94,7 +107,16 @@ export function SequencesPage() {
         </label>
       </div>
 
-      {res.isPending ? (
+      {arcs ? (
+        <SequenceArcs
+          maxQ={query.maxQ}
+          direction={query.direction}
+          book={book}
+          crossBook={crossBook}
+          hideSameChapter={hideSameChapter}
+          books={books.data ?? []}
+        />
+      ) : res.isPending ? (
         <Loading />
       ) : res.error ? (
         <ErrorBox error={res.error} />

@@ -79,6 +79,7 @@ import type {
   SequenceDirection,
   UnitDomains,
   SequencesResponse,
+  SequenceArcsResponse,
   SimilarResponse,
   StructureRankingResponse,
   StructureResponse,
@@ -687,6 +688,16 @@ export const useSequences = (q: SequencesQuery, enabled = true) =>
         signal,
       ),
     enabled,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Every chain matching a significance and an order, for the arcs across the canon. */
+export const useSequenceArcs = (q: { maxQ?: number; direction?: SequenceDirection }) =>
+  useQuery({
+    queryKey: ['sequence-arcs', q],
+    queryFn: ({ signal }) =>
+      getJson<SequenceArcsResponse>('/sequences/arcs', { max_q: q.maxQ, direction: q.direction }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

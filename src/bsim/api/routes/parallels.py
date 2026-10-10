@@ -16,6 +16,7 @@ from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models import (
     AlignedVerb,
+    BookSpan,
     ChangeExample,
     ChangeGroup,
     ChangesResponse,
@@ -23,6 +24,7 @@ from bsim.api.models import (
     Rewrite,
     RewriteProfile,
     RewritesResponse,
+    SequenceArcsResponse,
     SequenceDetail,
     SequencesResponse,
     SequenceSummary,
@@ -228,6 +230,32 @@ def sequences(
         "total": total,
         "offset": offset,
         "limit": limit,
+        "items": _sequence_summaries(conn, rows),
+    }
+
+
+@router.get("/sequences/arcs", response_model=SequenceArcsResponse)
+def sequence_arcs(
+    state: State,
+    conn: Conn,
+    max_q: float | None = None,
+    direction: str | None = None,
+) -> dict[str, Any]:
+    """The chains across the canon, strongest first (up to `serve.max_arcs`), with the books'
+    verse spans to lay them out."""
+    if direction is not None and direction not in sq.DIRECTIONS:
+        raise unprocessable(f"direction must be one of {list(sq.DIRECTIONS)}")
+    if max_q is not None and not 0 <= max_q <= 1:
+        raise unprocessable("max_q must be between 0 and 1")
+    limit = state.cfg["serve"]["max_arcs"]
+    total, rows = queries.sequences_page(
+        conn, None, False, False, max_q, 1, None, limit, 0, direction
+    )
+    return {
+        "max_q": max_q,
+        "direction": direction,
+        "total": total,
+        "books": [BookSpan(**b) for b in queries.book_spans(conn)],
         "items": _sequence_summaries(conn, rows),
     }
 
