@@ -583,6 +583,14 @@ Phase 3 (M39c): API and viewer
 
 ✔ 459 of 2,422 pairs directed; language agrees with spelling 23 / 23 (p 2e-7); 50 language directions against the canon (1 Kgs 20, Ezek 44 → Lev 21, the late Writings); the two contradictions are §16.27's known misses; 157 / 157 fixture and 122 / 122 real-data e2e.
 
+## M56: Jump box (§11.1; proposed B2)
+- [x] `GET /api/lemmas?q=`: lemmas by Strong's number or Hebrew form (pointing ignored, finals folded, prefix letters dropped when nothing matches), exact first, commonest first
+- [x] `components/JumpBox.tsx`: Ctrl+K / ⌘K anywhere or *Jump to…* in the top bar; a passage by reference, a word by form or number, a page by name (the nav list moved to `lib/nav.ts`, shared with the menus), a text search last; a modal combobox with arrows, Enter, Escape and focus return; Enter before the lookups settle looks up at once
+- [x] English and Hebrew; phone width without the key hints
+- [x] Tests: the lookup by number, pointed form, prefixed form and prefix (pytest); reference, word, page, arrows and wrap, Escape and focus, an Enter that beats the pause, Hebrew (vitest); e2e: Ctrl+K to a verse, a lemma and a page in both languages with axe on the open box (fixture), a chapter and a pointed word on the real DB
+
+✔ 131 / 131 vitest; 161 / 161 fixture and 124 / 124 real-data e2e.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component
+- B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

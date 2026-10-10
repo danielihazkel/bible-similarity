@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import threading
 from collections import OrderedDict, defaultdict
@@ -11,6 +12,7 @@ from typing import Any
 
 from bsim.data.canon import BOOKS, hebrew_numeral
 from bsim.store.db import MODES
+from bsim.text.normalize import match_key
 
 UNIT_COLS = (
     "unit_id, unit_type, label_en, label_he, book_id, start_verse_id, end_verse_id, n_verses,"
@@ -242,6 +244,49 @@ def lemma_stats(conn: sqlite3.Connection, lemmas: Iterable[str]) -> dict[str, di
         lemmas,
     )
     return {r["lemma"]: r for r in _dicts(cur)}
+
+
+_LEMMA_INDEX: dict[str, list[tuple[str, str, str, int]]] = {}
+_STRONG = re.compile(r"[Hh]?(\d+)([a-z]?)")
+_PREFIXES = set("והבכלמש")
+
+
+def lemma_lookup(conn: sqlite3.Connection, q: str, limit: int) -> list[dict[str, Any]]:
+    """Lemmas named by a Strong's number (`7965`, `H1350a`) or a Hebrew form (consonants, finals
+    folded; one or two prefix letters dropped when the whole form matches nothing): exact matches
+    first, then lemmas starting with it, the commonest first. The lemma list is read once per DB."""
+    db = conn.execute("PRAGMA database_list").fetchone()[2]
+    index = _LEMMA_INDEX.get(db)
+    if index is None:
+        rows = conn.execute("SELECT lemma, he_lemma, n_verses FROM lemma_gloss").fetchall()
+        index = [(lem, he, match_key(he), n) for lem, he, n in rows]
+        _LEMMA_INDEX[db] = index
+    q = q.strip()
+    strong = _STRONG.fullmatch(q)
+    if strong:
+        num, sense = strong.groups()
+        exact = re.compile(rf"{num}{sense}")
+        loose = re.compile(rf"{num}[a-z]?")
+        ranked = [
+            (0 if exact.fullmatch(lem) else 1, -n, lem, he)
+            for lem, he, _, n in index
+            if loose.fullmatch(lem)
+        ]
+    else:
+        key = match_key(q)
+        ranked = []
+        # a form with prefixes (בראשית, והמלך): drop up to two prefix letters until one matches
+        for drop in range(3):
+            if len(key) - drop < 2 or (drop and key[drop - 1] not in _PREFIXES):
+                break
+            k0 = key[drop:]
+            ranked = [
+                (0 if k == k0 else 1, -n, lem, he) for lem, he, k, n in index if k.startswith(k0)
+            ]
+            if ranked:
+                break
+    ranked.sort()
+    return [{"lemma": lem, "he_lemma": he, "n_verses": -n} for _, n, lem, he in ranked[:limit]]
 
 
 def verse_at(conn: sqlite3.Connection, book_id: int, chapter: int, verse: int) -> int | None:

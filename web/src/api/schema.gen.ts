@@ -166,6 +166,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lemmas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lemmas
+         * @description Lemmas by Strong's number (`7965`, `H1350a`) or Hebrew form (`שלום`, pointing ignored).
+         */
+        get: operations["lemmas_api_lemmas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/words/{verse_id}": {
         parameters: {
             query?: never;
@@ -2914,6 +2934,13 @@ export interface components {
             /** He Lemma */
             he_lemma: string;
         };
+        /** LemmaLookup */
+        LemmaLookup: {
+            /** Query */
+            query: string;
+            /** Items */
+            items: components["schemas"]["LemmaStat"][];
+        };
         /** LemmaSense */
         LemmaSense: {
             /**
@@ -4793,6 +4820,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResolveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lemmas_api_lemmas_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LemmaLookup"];
                 };
             };
             /** @description Validation Error */

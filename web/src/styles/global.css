@@ -1952,6 +1952,77 @@ svg[tabindex]:focus-visible {
 .copy-link:hover {
   background: var(--accent-soft);
 }
+/* Jump box (Ctrl+K): a passage, a word or a page */
+.jump-open kbd {
+  margin-inline-start: 0.2rem;
+}
+.jump-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10vh 16px 0;
+  background: rgb(20 14 6 / 0.35);
+}
+.jump {
+  width: min(640px, 100%);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgb(20 14 6 / 0.25);
+  padding: 0.6rem;
+}
+.jump-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1.05rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+}
+.jump-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 0.4rem;
+}
+.jump-heading {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 0.5rem 0.65rem 0.15rem;
+}
+.jump-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.jump-option[aria-selected='true'] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 var(--accent);
+}
+:root[dir='rtl'] .jump-option[aria-selected='true'] {
+  box-shadow: inset -3px 0 var(--accent);
+}
+.jump-option .he {
+  font-size: 1.15rem;
+}
+.jump-keys {
+  margin: 0.4rem 0.65rem 0;
+}
+@media (max-width: 720px) {
+  .jump-open kbd,
+  .jump-keys {
+    display: none;
+  }
+}
 kbd {
   font-family: var(--font-ui);
   font-size: 0.8em;

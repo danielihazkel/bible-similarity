@@ -151,6 +151,7 @@ CSLS helps every encoder (nDCG@10: `berel_mean` 0.113 → 0.124, `bge_m3` 0.123 
 | `results.sqlite` | 241 MB, 4,144,976 matches (3 modes × 4 unit types × top-50), built in ~40–50 s |
 | `/similar` (SQLite, k = 50, neighbours excluded) | median 0.53 ms, max 2.3 ms |
 | `/search` on CPU, median (max) of 20 queries | lexical 7.7 (14.8) ms, semantic 57 (87) ms, fused 72 (82) ms |
+| `/lemmas` (jump box) | ~1 ms; the first call reads the 9,204-lemma list (~0.12 s) |
 | `bsim serve` startup | serving after ~12–14 s, query encoder ready after ~32 s |
 | spot checks | Ps 14:1 → Ps 53:2 and Ex 20:2 → Deut 5:6 at rank 1 in every mode; II Sam 22 ↔ Ps 18 compare pairs all 51 verses (BMA 0.90) |
 

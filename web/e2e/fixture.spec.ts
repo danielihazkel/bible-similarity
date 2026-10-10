@@ -163,6 +163,30 @@ test('a verse in a chapter echoed by another book links to its directed echoes',
   await expect(page).toHaveURL(/\/compare\?/)
 })
 
+for (const locale of ['en', 'he'] as const) {
+  test(`Ctrl+K jumps to a passage, a word or a page (${locale})`, async ({ page }) => {
+    await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+    await page.goto('/map')
+    await page.keyboard.press('Control+k')
+    const box = page.getByRole('combobox')
+    await expect(box).toBeFocused()
+    await box.fill('Gen 1:2')
+    await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected', 'true')
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+    await box.press('Enter')
+    await expect(page).toHaveURL(/\/unit\/v%3A1$/)
+    await page.keyboard.press('Control+k')
+    await page.getByRole('combobox').fill('ראשית')
+    await page.getByRole('option', { name: /ראשית.*7225/ }).click()
+    await expect(page).toHaveURL(/\/lemma\/7225$/)
+    await page.keyboard.press('Control+k')
+    await page.getByRole('combobox').fill(locale === 'en' ? 'netw' : 'רשת')
+    await page.getByRole('combobox').press('Enter')
+    await expect(page).toHaveURL(/\/network$/)
+  })
+}
+
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {
   // it writes to the server's one labels file: run once, not on every device at the same time
   test.skip(info.project.name !== 'desktop')

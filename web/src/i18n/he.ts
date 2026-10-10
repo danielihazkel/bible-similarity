@@ -235,6 +235,19 @@ export const he: Messages = {
     passage: 'קטע בספריא',
   },
 
+  jump: {
+    open: 'מעבר אל…',
+    openTitle: 'מעבר אל קטע, מילה או עמוד (Ctrl+K)',
+    label: 'מעבר אל קטע, מילה או עמוד',
+    placeholder: 'בראשית א · Gen 1:1 · שלום · 7965 · רשת',
+    passage: 'קטע',
+    words: 'מילים',
+    pages: 'עמודים',
+    search: 'חיפוש בטקסט',
+    searchFor: (q: string) => `חיפוש בטקסט: „${q}”`,
+    verses: (n: number) => (n === 1 ? 'פסוק אחד' : n === 2 ? 'שני פסוקים' : `${n.toLocaleString('he-IL')} פסוקים`),
+    keys: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לסגירה',
+  },
   picker: {
     lookingUp: 'מחפש…',
     notRef: (q: string) => `לא הפניה: ${q}`,

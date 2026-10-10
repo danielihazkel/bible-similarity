@@ -24,6 +24,7 @@ from bsim.api.models import (
     ExplainResponse,
     Hit,
     LemmaForm,
+    LemmaLookup,
     LemmaStat,
     Meta,
     Mode,
@@ -356,6 +357,14 @@ def resolve(q: str, conn: Conn) -> dict[str, Any]:
         vid = queries.verse_at(conn, r.book.book_id, r.chapter, r.verse)
         unit_id = None if vid is None else f"v:{vid}"
     return {"query": q, "unit": queries.unit(conn, unit_id) if unit_id else None}
+
+
+@router.get("/lemmas", response_model=LemmaLookup)
+def lemmas(q: str, conn: Conn, limit: int = 8) -> dict[str, Any]:
+    """Lemmas by Strong's number (`7965`, `H1350a`) or Hebrew form (`שלום`, pointing ignored)."""
+    if not 1 <= limit <= 50:
+        raise unprocessable("limit must be between 1 and 50")
+    return {"query": q, "items": [LemmaStat(**r) for r in queries.lemma_lookup(conn, q, limit)]}
 
 
 def _lemma_stat(stats: dict[str, dict[str, Any]], lemma: str) -> LemmaStat:

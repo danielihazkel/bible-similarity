@@ -321,6 +321,20 @@ def test_resolve(client):
     assert unit("בראשית ברא") is None
 
 
+def test_lemma_lookup(client):
+    def found(q):
+        return [i["lemma"] for i in client.get("/api/lemmas", params={"q": q}).json()["items"]]
+
+    assert found("7225") == found("H7225") == ["7225"]
+    assert found("רֵאשִׁית") == ["7225"]  # pointing ignored
+    assert found("בְּרֵאשִׁית") == ["7225"]  # the prefix dropped when the whole form matches nothing
+    assert found("אל") == ["430"]  # a prefix of the form
+    assert found("ש") == found("abc") == found("99999") == []
+    item = client.get("/api/lemmas", params={"q": "יהוה"}).json()["items"][0]
+    assert item == {"lemma": "3068", "he_lemma": "יהוה", "n_verses": 2}
+    assert client.get("/api/lemmas", params={"q": "x", "limit": 0}).status_code == 422
+
+
 def test_words(client):
     words = client.get("/api/words/0").json()
     assert [w["surface"] for w in words] == TEXTS[0].split()

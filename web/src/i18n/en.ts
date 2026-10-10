@@ -233,6 +233,19 @@ export const en = {
     passage: 'Sefaria passage',
   },
 
+  jump: {
+    open: 'Jump to…',
+    openTitle: 'Jump to a passage, a word or a page (Ctrl+K)',
+    label: 'Jump to a passage, a word or a page',
+    placeholder: 'Gen 1:1 · בראשית א · שלום · 7965 · network',
+    passage: 'Passage',
+    words: 'Words',
+    pages: 'Pages',
+    search: 'Search the text',
+    searchFor: (q: string) => `Search the text for “${q}”`,
+    verses: (n: number) => `${n.toLocaleString('en-US')} ${n === 1 ? 'verse' : 'verses'}`,
+    keys: '↑ ↓ to move · Enter to open · Esc to close',
+  },
   picker: {
     lookingUp: 'Looking up…',
     notRef: (q: string) => `Not a reference: ${q}`,

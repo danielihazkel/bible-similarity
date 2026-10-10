@@ -184,10 +184,10 @@ bible-similarity/
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   └── src/
 │       ├── api/                    # types mirroring api/models.py (+ generated schema and drift check), fetch client, TanStack Query hooks
-│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting (+ vitest)
+│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list (+ vitest)
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
-│       ├── components/             # HebrewText, controls, hit card, unit picker, layout + footer
+│       ├── components/             # HebrewText, controls, hit card, unit picker, jump box (Ctrl+K), layout + footer
 │       ├── pages/                  # books, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, map, network, style, shifts, language, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)

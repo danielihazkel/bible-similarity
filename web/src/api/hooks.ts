@@ -67,6 +67,7 @@ import type {
   PhrasePair,
   PhrasesResponse,
   ResolveResponse,
+  LemmaLookup,
   RhymesResponse,
   RewriteOp,
   RewriteProfile,
@@ -200,6 +201,16 @@ export const useResolve = (q: string) =>
     queryKey: ['resolve', q],
     queryFn: ({ signal }) => getJson<ResolveResponse>('/resolve', { q }, signal),
     enabled: q.trim().length > 0,
+    ...forever,
+  })
+
+/** Lemmas by Strong's number or Hebrew form, for the jump box. */
+export const useLemmaLookup = (q: string) =>
+  useQuery({
+    queryKey: ['lemma-lookup', q],
+    queryFn: ({ signal }) => getJson<LemmaLookup>('/lemmas', { q }, signal),
+    enabled: q.trim().length > 0,
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

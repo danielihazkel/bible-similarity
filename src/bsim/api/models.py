@@ -520,6 +520,11 @@ class LemmaStat(ApiModel):
     n_verses: int  # verses containing it
 
 
+class LemmaLookup(ApiModel):
+    query: str
+    items: list[LemmaStat]  # exact matches first, then prefixes; the commonest first
+
+
 class WordDetail(ApiModel):
     idx: int
     display_idx: int | None

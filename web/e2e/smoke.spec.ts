@@ -128,6 +128,19 @@ async function checkA11y(page: Page) {
   }
 }
 
+test('Ctrl+K jumps to a chapter by reference and to a word by its form', async ({ page }) => {
+  await page.goto('/')
+  await page.keyboard.press('Control+k')
+  await page.getByRole('combobox').fill('Ps 23')
+  await expect(page.getByRole('option', { name: 'Psalms 23' })).toBeVisible()
+  await page.getByRole('combobox').press('Enter')
+  await expect(page).toHaveURL(/\/unit\/c%3A26%3A23$/)
+  await page.keyboard.press('Control+k')
+  await page.getByRole('combobox').fill('שָׁלוֹם')
+  await page.getByRole('option', { name: /שלום.*7965/ }).click()
+  await expect(page).toHaveURL(/\/lemma\/7965$/)
+})
+
 test('the Hebrew interface is right to left, persists and loads every page cleanly', async ({ page }) => {
   test.setTimeout(120_000)
   const errors = collectErrors(page)

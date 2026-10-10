@@ -204,6 +204,12 @@ export interface LemmaStat {
   n_verses: number
 }
 
+export interface LemmaLookup {
+  query: string
+  /** exact matches first, then prefixes; the commonest first */
+  items: LemmaStat[]
+}
+
 export interface WordDetail {
   idx: number
   display_idx: number | null
