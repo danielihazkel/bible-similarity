@@ -1570,6 +1570,25 @@ class CitationListResponse(ApiModel):
     items: list[Citation]
 
 
+FindingKey = Literal[
+    "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "echoes",
+    "sevens", "chiasm", "allusions",
+]  # fmt: skip
+
+
+class Finding(ApiModel):
+    """One analysis's tested claim (`/findings`): the deciding numbers and the verdict they give."""
+
+    key: FindingKey
+    verdict: Literal["holds", "fails", "lead"]
+    values: dict[str, float | None]  # which keys depends on `key`
+
+
+class FindingsResponse(ApiModel):
+    alpha: float
+    items: list[Finding]  # in the order the page shows them; analyses not computed are left out
+
+
 EchoBasis = Literal["cited", "borrowed", "language", "conflict", "none"]
 
 

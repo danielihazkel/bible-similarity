@@ -16,6 +16,11 @@ export function BooksPage() {
     <div className="page">
       <h1>{m.books.title}</h1>
       <p className="lede">{m.books.lede}</p>
+      <p>
+        <Link to="/findings" className="findings-link">
+          {m.books.findings} {m.locale === 'he' ? '←' : '→'}
+        </Link>
+      </p>
       {[...sections].map(([section, books]) => (
         <section key={section} className="section">
           <h2>

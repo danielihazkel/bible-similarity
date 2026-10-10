@@ -47,6 +47,7 @@ import type {
   CitationListResponse,
   CitationsResponse,
   EchoBasis,
+  FindingsResponse,
   EchoesResponse,
   EchoListResponse,
   KqClass,
@@ -453,6 +454,9 @@ export const useCitationList = (q: { family?: CitationFamily; resolved?: boolean
     placeholderData: keepPreviousData,
     ...forever,
   })
+
+export const useFindings = () =>
+  useQuery({ queryKey: ['findings'], queryFn: ({ signal }) => getJson<FindingsResponse>('/findings', {}, signal), ...forever })
 
 export const useEchoes = () =>
   useQuery({ queryKey: ['echoes'], queryFn: ({ signal }) => getJson<EchoesResponse>('/echoes', {}, signal), ...forever })

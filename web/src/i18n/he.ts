@@ -24,6 +24,7 @@ import { kqHe } from './pages/ketiv'
 import { citHe } from './pages/citations'
 import { mirHe } from './pages/mirrors'
 import { echoHe } from './pages/echoes'
+import { findHe } from './pages/findings'
 
 const num = (n: number) => n.toLocaleString('he-IL')
 /** Hebrew counts: one, two (dual-like forms) and many. */
@@ -71,6 +72,7 @@ export const he: Messages = {
 
   nav: {
     browse: 'עיון',
+    findings: 'ממצאים',
     search: 'חיפוש',
     compare: 'השוואה',
     about: 'אודות',
@@ -299,6 +301,7 @@ export const he: Messages = {
   books: {
     title: 'עיון',
     lede: 'בחרו ספר, ואחר כך פרק, פרשה או פיסקה. כל יחידה מציגה את היחידות הדומות לה ביותר בניסוח, במשמעות או בשניהם.',
+    findings: 'מה מצאו הניתוחים: הטענות שכל אחד בדק, ואילו מהן עומדות במבחן',
   },
 
   unit: {
@@ -411,5 +414,6 @@ export const he: Messages = {
   cit: citHe,
   mir: mirHe,
   echo: echoHe,
+  find: findHe,
   ov: ovHe,
 }

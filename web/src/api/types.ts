@@ -1801,6 +1801,34 @@ export interface AllusionsResponse {
   items: Allusion[]
 }
 
+// --- the tested claim of each analysis (`/findings`, DESIGN.md §10) ---
+
+export type FindingKey =
+  | 'acrostics'
+  | 'divisions'
+  | 'dating'
+  | 'borrowing'
+  | 'citations'
+  | 'voices'
+  | 'clauses'
+  | 'echoes'
+  | 'sevens'
+  | 'chiasm'
+  | 'allusions'
+
+export interface Finding {
+  key: FindingKey
+  verdict: 'holds' | 'fails' | 'lead'
+  /** the deciding numbers; which keys depends on `key` */
+  values: Record<string, number | null>
+}
+
+export interface FindingsResponse {
+  alpha: number
+  /** in page order; analyses not computed are left out */
+  items: Finding[]
+}
+
 // --- a direction on the cross-book echoes (DESIGN.md §16.36) ---
 
 export type EchoBasis = 'cited' | 'borrowed' | 'language' | 'conflict' | 'none'

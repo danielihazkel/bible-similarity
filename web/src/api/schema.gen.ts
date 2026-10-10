@@ -1575,6 +1575,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/findings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Findings
+         * @description The tested claims of the analyses with their deciding numbers and verdicts.
+         */
+        get: operations["findings_api_findings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2614,6 +2634,33 @@ export interface components {
             b: number;
             /** Shared */
             shared: components["schemas"]["SharedLemma"][];
+        };
+        /**
+         * Finding
+         * @description One analysis's tested claim (`/findings`): the deciding numbers and the verdict they give.
+         */
+        Finding: {
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "echoes" | "sevens" | "chiasm" | "allusions";
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "holds" | "fails" | "lead";
+            /** Values */
+            values: {
+                [key: string]: number | null;
+            };
+        };
+        /** FindingsResponse */
+        FindingsResponse: {
+            /** Alpha */
+            alpha: number;
+            /** Items */
+            items: components["schemas"]["Finding"][];
         };
         /**
          * GoldLink
@@ -6957,6 +7004,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    findings_api_findings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FindingsResponse"];
                 };
             };
         };

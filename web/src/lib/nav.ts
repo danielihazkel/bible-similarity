@@ -18,6 +18,7 @@ export type NavEntry = NavItem | NavGroup
 
 export const NAV: NavEntry[] = [
   { to: '/', key: 'browse' },
+  { to: '/findings', key: 'findings' },
   { to: '/search', key: 'search' },
   { to: '/compare', key: 'compare' },
   {

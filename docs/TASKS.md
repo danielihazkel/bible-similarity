@@ -591,6 +591,13 @@ Phase 3 (M39c): API and viewer
 
 ✔ 131 / 131 vitest; 161 / 161 fixture and 124 / 124 real-data e2e.
 
+## M57: Findings (§10, §11.1; proposed B3)
+- [x] `GET /api/findings`: per analysis the tested claim's deciding numbers (from `meta`) and a verdict at `serve.findings.alpha` (holds / fails / lead); stages not run are left out
+- [x] Viewer: `/findings` (top bar, and a link on the home page): claims grouped borne out / not borne out / leads, each a sentence with its numbers and a link to the evidence; sentences branch on the direction of the numbers; English and Hebrew
+- [x] Tests: each verdict rule both ways, missing stages, a zero expected count (pytest); grouping, numbers, links, direction-dependent wording in Hebrew, the empty state (vitest); e2e: home → findings → evidence, the page in both languages with axe
+
+✔ Real DB: 8 claims hold (acrostics, divisions, the synoptic test, borrowing held out, "as commanded", voices, mirrored clauses, language against spelling), 2 fail (sevens, chiasm in repeated words), 1 lead (rare-word allusions); 165 / 165 fixture (the accessibility loops' time limit raised for the longer page list) and 126 / 126 real-data e2e; 134 / 134 vitest.
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
-- B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component
+- B4 canon arc diagram of parallels; B6 a shared paged-list component

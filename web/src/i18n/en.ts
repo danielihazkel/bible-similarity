@@ -17,6 +17,7 @@ import { kqEn } from './pages/ketiv'
 import { citEn } from './pages/citations'
 import { mirEn } from './pages/mirrors'
 import { echoEn } from './pages/echoes'
+import { findEn } from './pages/findings'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -64,6 +65,7 @@ export const en = {
 
   nav: {
     browse: 'Browse',
+    findings: 'Findings',
     search: 'Search',
     compare: 'Compare',
     about: 'About',
@@ -297,6 +299,7 @@ export const en = {
   books: {
     title: 'Browse',
     lede: 'Pick a book, then a chapter, parasha or pericope. Every unit lists its most similar units by shared wording, meaning, or both.',
+    findings: 'What the analyses found: the claims each one tested, and which of them hold',
   },
 
   unit: {
@@ -410,6 +413,7 @@ export const en = {
   cit: citEn,
   mir: mirEn,
   echo: echoEn,
+  find: findEn,
   ov: ovEn,
 }
 

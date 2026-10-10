@@ -593,6 +593,8 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   dossier_cache: 1024         # /dossier/{unit}: responses kept in memory (LRU; labels are read live)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
+  findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)
+    alpha: 0.05               # a test at or below this p (or q) counts as holding
   search:
     min_root_letters: 2       # greedy prefix stripping keeps at least this many letters
     bigrams: true             # surface BM25 also indexes adjacent-token bigrams

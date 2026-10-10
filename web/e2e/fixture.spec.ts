@@ -55,6 +55,7 @@ const PAGES = [
   '/structure?view=small&unit=c%3A0%3A1&mirrored=1',
   '/map',
   '/network',
+  '/findings',
   '/network?view=directions',
   '/network?view=directions&backward=1&unit=c%3A1%3A1',
   '/style',
@@ -187,6 +188,16 @@ for (const locale of ['en', 'he'] as const) {
   })
 }
 
+test('the home page leads to the findings, and each finding to its evidence', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: /What the analyses found/ }).click()
+  await expect(page).toHaveURL(/\/findings$/)
+  const leads = page.getByRole('region', { name: 'Leads, not findings' })
+  await expect(leads.locator('.finding')).toHaveCount(1)
+  await leads.getByRole('link', { name: 'Rare words over a few verses: Phrases' }).click()
+  await expect(page).toHaveURL(/\/phrases\?view=spread$/)
+})
+
 test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {
   // it writes to the server's one labels file: run once, not on every device at the same time
   test.skip(info.project.name !== 'desktop')
@@ -202,7 +213,7 @@ test('a pair is labelled from a list of similar verses and shows on the Labels p
 })
 
 test('the Hebrew interface is right to left and loads every page cleanly', async ({ page }) => {
-  test.setTimeout(120_000)
+  test.setTimeout(240_000)
   const errors = collectErrors(page)
   await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
   for (const path of PAGES) {
@@ -214,7 +225,7 @@ test('the Hebrew interface is right to left and loads every page cleanly', async
 
 for (const locale of ['en', 'he'] as const) {
   test(`no serious accessibility violations (${locale})`, async ({ page }) => {
-    test.setTimeout(150_000)
+    test.setTimeout(300_000)
     await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
     for (const path of PAGES) {
       await loads(page, path)

@@ -1952,6 +1952,38 @@ svg[tabindex]:focus-visible {
 .copy-link:hover {
   background: var(--accent-soft);
 }
+/* Findings: each analysis's tested claim, grouped by verdict */
+.findings-link {
+  font-weight: 600;
+}
+.findings-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0.75rem;
+}
+.finding {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.85rem;
+}
+.findings-group.fails .finding {
+  border-inline-start-color: var(--muted);
+}
+.findings-group.lead .finding {
+  border-inline-start-style: dashed;
+}
+.finding h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+.finding p {
+  margin: 0 0 0.4rem;
+}
+
 /* Jump box (Ctrl+K): a passage, a word or a page */
 .jump-open kbd {
   margin-inline-start: 0.2rem;

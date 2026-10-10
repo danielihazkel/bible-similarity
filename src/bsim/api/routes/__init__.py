@@ -13,6 +13,7 @@ from bsim.api.routes import (
     dossier,
     echoes,
     export,
+    findings,
     ketiv,
     labels,
     mirrors,
@@ -43,6 +44,7 @@ for _module in (
     echoes,
     mirrors,
     dossier,
+    findings,
     export,
 ):
     router.include_router(_module.router)
