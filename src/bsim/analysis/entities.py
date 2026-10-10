@@ -29,7 +29,6 @@ verse_id, n`) and `links.parquet` (`a, b, n_verses, expected, g2`, both directio
 from __future__ import annotations
 
 import json
-import math
 import time
 from collections import Counter
 from collections.abc import Callable
@@ -40,6 +39,7 @@ from typing import Any
 
 import pandas as pd
 
+from bsim.analysis.stats import g2_table
 from bsim.config import config_hash, resolve_path
 from bsim.data.lexicon import strong_key
 
@@ -111,13 +111,6 @@ def agreement(lex: list[str | None], cues: list[str]) -> dict[str, Any]:
 KINDS = ("person", "place")
 
 
-def g2(k: int, n_a: int, n_b: int, n: int) -> float:
-    """Dunning's log-likelihood of a 2x2 table: k verses with both, n_a / n_b with each, n total."""
-    cells = [(k, n_a * n_b / n), (n_a - k, n_a * (n - n_b) / n)]
-    cells += [(n_b - k, (n - n_a) * n_b / n), (n - n_a - n_b + k, (n - n_a) * (n - n_b) / n)]
-    return 2 * sum(o * math.log(o / e) for o, e in cells if o > 0 and e > 0)
-
-
 def links(
     verse_names: dict[int, set[str]], n_verses: dict[str, int], n_total: int, min_together: int
 ) -> pd.DataFrame:
@@ -131,7 +124,7 @@ def links(
             continue
         expected = n_verses[a] * n_verses[b] / n_total
         if k > expected:
-            rows.append((a, b, k, expected, g2(k, n_verses[a], n_verses[b], n_total)))
+            rows.append((a, b, k, expected, g2_table(k, n_verses[a], n_verses[b], n_total)))
     return pd.DataFrame(rows, columns=["a", "b", "n_verses", "expected", "g2"])
 
 

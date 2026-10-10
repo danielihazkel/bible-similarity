@@ -7,10 +7,16 @@
   scores many units at once (acrostics, rewrites, inclusio / chiasm) reports q next to its score.
 - `pct_to_p`: the upper-tail p-value of a percentile measured against `samples` null draws.
 - `permute_within`: labels shuffled inside groups (a book, a chapter), the null of an analysis
-  that must keep each group's mix (voices §16.28, divisions §16.29).
+  that must keep each group's mix (voices §16.28, divisions §16.29); `shuffle_within`: the
+  permutation of positions that does the same (sequences §16.7, wordplay, allusions).
+- `g2_table`: Dunning's log-likelihood G² of a 2 × 2 table (rewrites, word pairs, name links,
+  sense collocates). Keyness against the rest of the corpus (§16.2) and a unit's domains against
+  the corpus share keep their own two-cell forms.
 """
 
 from __future__ import annotations
+
+import math
 
 import numpy as np
 
@@ -46,3 +52,24 @@ def permute_within(lab: np.ndarray, group: np.ndarray, rng: np.random.Generator)
     out = np.empty_like(lab)
     out[by_group] = lab[shuffled]
     return out
+
+
+def shuffle_within(groups: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+    """A permutation of `range(len(groups))` that moves positions only within their group."""
+    perm = np.arange(len(groups))
+    order = np.argsort(groups, kind="stable")
+    bounds = np.flatnonzero(np.diff(groups[order])) + 1
+    for ids in np.split(order, bounds):
+        perm[ids] = rng.permutation(ids)
+    return perm
+
+
+def g2_table(n11: float, row: float, col: float, total: float) -> float:
+    """Dunning's G² of a 2 × 2 table given its top-left cell, its row and column totals and the
+    grand total (empty cells add nothing)."""
+    cells = [n11, row - n11, col - n11, total - row - col + n11]
+    expected = [row * col, row * (total - col), (total - row) * col, (total - row) * (total - col)]
+    g2 = sum(
+        o * math.log(o * total / e) for o, e in zip(cells, expected, strict=True) if o > 0 and e > 0
+    )
+    return max(0.0, 2 * g2)

@@ -41,6 +41,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.stats import g2_table
 from bsim.config import config_hash, resolve_path
 from bsim.text.normalize import consonantal, match_key
 
@@ -268,7 +269,7 @@ def rewrites(changes: pd.DataFrame, sides: Counter, min_count: int) -> pd.DataFr
             base = sides[(side, ab, bb, key)]
             # column total: all words of that side undergoing this change
             col = op_total[k[1]] if op_total is not None else len(g)
-            g2 = _g2(n, base, col, total)
+            g2 = g2_table(n, base, col, total)
             expected = base * col / total if total else 0.0
             rows.append(
                 (
@@ -287,17 +288,6 @@ def rewrites(changes: pd.DataFrame, sides: Counter, min_count: int) -> pd.DataFr
     out = pd.DataFrame(rows, columns=cols[:-1])
     out["q"] = bh_q(out.p.to_numpy()) if len(out) else []
     return out.sort_values(["q", "g2"], ascending=[True, False], ignore_index=True)[cols]
-
-
-def _g2(n11: int, row: int, col: int, total: int) -> float:
-    """Dunning's G² of a 2 x 2 table given its top-left cell and margins."""
-    cells = [n11, row - n11, col - n11, total - row - col + n11]
-    exp = [row * col, row * (total - col), (total - row) * col, (total - row) * (total - col)]
-    g2 = 0.0
-    for o, e in zip(cells, exp, strict=True):
-        if o > 0 and e > 0:
-            g2 += o * np.log(o * total / e)
-    return float(max(0.0, 2 * g2))
 
 
 def profiles(changes: pd.DataFrame, sides: Counter, pairs: Counter) -> pd.DataFrame:

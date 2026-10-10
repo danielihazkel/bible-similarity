@@ -64,7 +64,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import bh_q
+from bsim.analysis.stats import bh_q, g2_table
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
@@ -141,11 +141,7 @@ def word_pairs(
             continue
         r, c = n_first[x], n_second[y]
         expected = r * c / total
-        cells = [n, r - n, c - n, total - r - c + n]
-        exp = [r * c, r * (total - c), (total - r) * c, (total - r) * (total - c)]
-        g2 = 2 * sum(
-            o * np.log(o * total / e) for o, e in zip(cells, exp, strict=True) if o > 0 and e > 0
-        )
+        g2 = g2_table(n, r, c, total)
         p = float(chi2.sf(g2, 1)) if n > expected else 1.0
         rows.append(
             (

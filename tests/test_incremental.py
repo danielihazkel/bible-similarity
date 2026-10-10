@@ -94,6 +94,8 @@ def test_code_hash_follows_imports(tmp_path):
     h = inc.code_hash(stage, root, "fakepkg")
     (root / "d.py").write_text("y = 2\n")
     assert inc.code_hash(stage, root, "fakepkg") == h
+    (root / "c.py").write_bytes(b"# a comment\r\nx = 1  # one\r\n")  # layout and CRLF only
+    assert inc.code_hash(stage, root, "fakepkg") == h
     (root / "c.py").write_text("x = 2\n")
     assert inc.code_hash(stage, root, "fakepkg") != h
 
@@ -164,3 +166,15 @@ def test_cli_flags(toy, monkeypatch):
     assert result.exit_code == 0 and "never run" in result.output
     result = CliRunner().invoke(app, ["all", "--rerun", "nope"])
     assert result.exit_code != 0
+
+
+def test_adopt_keeps_a_record(toy):
+    cfg, run, logs, art = toy
+    run()
+    cfg["toy"]["b"] = 22
+    assert run(adopt=True, start="b", stop="b") == []
+    assert run() == []  # b's new config accepted; its inputs and outputs still tracked
+    (art / "a" / "out.txt").write_text("other", "utf-8")
+    assert run() == ["a"]  # a restores "x": b's recorded input is unchanged
+    state = json.loads(Path(cfg["paths"]["pipeline_state"]).read_text("utf-8"))
+    assert state["stages"]["b"]["inputs"] and state["stages"]["b"]["outputs"]

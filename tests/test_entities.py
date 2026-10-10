@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from bsim.analysis.entities import classify, g2, is_name, links, name_cues, top_partners
+from bsim.analysis.entities import classify, is_name, links, name_cues, top_partners
+from bsim.analysis.stats import g2_table as g2
 
 
 def test_is_name_and_classify():

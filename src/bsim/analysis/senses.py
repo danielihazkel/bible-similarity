@@ -43,7 +43,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import bh_q
+from bsim.analysis.stats import bh_q, g2_table
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
@@ -128,14 +128,9 @@ def cluster_uses(
 def g2_over(k: int, n_a: int, m: int, n_b: int) -> float:
     """Dunning's G² of a lemma in `k` of `n_a` verses here against `m` of `n_b` elsewhere,
     positive only when over-represented here."""
-    import math
-
-    total, hit = n_a + n_b, k + m
-    if k == 0 or hit == 0 or k / n_a <= m / max(n_b, 1):
+    if k == 0 or k / n_a <= m / max(n_b, 1):
         return 0.0
-    cells = [(k, n_a * hit / total), (n_a - k, n_a * (total - hit) / total)]
-    cells += [(m, n_b * hit / total), (n_b - m, n_b * (total - hit) / total)]
-    return 2 * sum(o * math.log(o / e) for o, e in cells if o > 0 and e > 0)
+    return g2_table(k, n_a, k + m, n_a + n_b)
 
 
 def top_collocates(
@@ -320,7 +315,7 @@ def run_senses(cfg: dict[str, Any], log: Log = print, vectors: dict | None = Non
             row["nmi_null"] = float(
                 np.mean([nmi(sl[sel], rng.permutation(labels[sel])) for _ in range(20)])
             )
-            for s in sorted(major, key=lambda s: -sense_counts[s]):
+            for s in sorted(major, key=lambda s: (-sense_counts[s], s)):  # ties: by id
                 idx = np.flatnonzero(sl == s)
                 ex = rng.choice(idx, size=min(sc["examples"], len(idx)), replace=False)
                 sense_rows.append(

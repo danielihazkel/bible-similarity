@@ -1,5 +1,6 @@
 import numpy as np
 
+from bsim.analysis.stats import shuffle_within
 from bsim.analysis.wordplay import (
     find_pairs,
     heard,
@@ -7,7 +8,6 @@ from bsim.analysis.wordplay import (
     letters,
     neighbour_index,
     relation,
-    shuffle_within,
     skeleton,
     vowel_pattern,
 )

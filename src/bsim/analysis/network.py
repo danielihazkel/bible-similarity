@@ -83,7 +83,14 @@ def analyse(
         if len(c) == 1:
             xy[c[0]] = (0.5, 0.5)
             continue
-        pos = nx.spring_layout(g.subgraph(c), weight="weight", seed=n["seed"])
+        # a copy in community order: a subgraph view lists a small community's nodes in set
+        # order (string hashes vary per process), which reorders the seeded starting layout
+        sub = nx.Graph()
+        sub.add_nodes_from(c)
+        sub.add_weighted_edges_from(
+            (u, v, d["weight"]) for u, v, d in g.subgraph(c).edges(data=True)
+        )
+        pos = nx.spring_layout(sub, weight="weight", seed=n["seed"])
         arr = np.array([pos[u] for u in c])
         lo, span = arr.min(axis=0), np.ptp(arr, axis=0)
         span[span == 0] = 1.0

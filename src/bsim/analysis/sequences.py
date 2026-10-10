@@ -36,6 +36,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.stats import shuffle_within
 from bsim.config import config_hash, resolve_path
 from bsim.retrieve.filters import neighbor_mask
 from bsim.retrieve.fusion import final_systems
@@ -166,16 +167,6 @@ def all_chains(
             used.update(zip(c.a, c.b, strict=True))
         kept += new
     return kept
-
-
-def shuffle_within(groups: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """A permutation of `range(len(groups))` that moves ids only within their group."""
-    perm = np.arange(len(groups))
-    order = np.argsort(groups, kind="stable")
-    bounds = np.flatnonzero(np.diff(groups[order])) + 1
-    for ids in np.split(order, bounds):
-        perm[ids] = rng.permutation(ids)
-    return perm
 
 
 def q_values(observed: np.ndarray, null: np.ndarray, reps: int) -> np.ndarray:

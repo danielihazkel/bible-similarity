@@ -141,7 +141,7 @@ bible-similarity/
 │   │   ├── parallelism.py          # `bsim parallelism`: te'amim verse halves, poetic parallelism (§16.9)
 │   │   ├── wordplay.py             # `bsim wordplay`: sound-alike words close together (§16.10)
 │   │   ├── acrostic.py             # `bsim acrostics`: alphabetic acrostics, whole or broken (§16.15)
-│   │   ├── stats.py                # shared p / Benjamini–Hochberg q helpers (§16.14)
+│   │   ├── stats.py                # shared p / Benjamini–Hochberg q, group-preserving shuffles, 2 × 2 G² (§16.14)
 │   │   ├── sound.py                # `bsim sound`: alliteration and rhyme (§16.19)
 │   │   ├── typescenes.py           # `bsim typescenes`: verb-order alignment of pericopes (§16.20)
 │   │   ├── entities.py             # `bsim entities`: people / places, co-occurrence network (§16.11)

@@ -10,8 +10,8 @@ from bsim.analysis.sequences import (
     chain_frame,
     find_chains,
     q_values,
-    shuffle_within,
 )
+from bsim.analysis.stats import shuffle_within
 
 BOOK = np.array([0] * 20 + [1] * 20)
 

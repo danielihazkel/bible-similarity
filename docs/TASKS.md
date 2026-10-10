@@ -565,8 +565,16 @@ Phase 3 (M39c): API and viewer
 
 ✔ A second `bsim all` with nothing changed takes 2.3 s; `--rerun mirrors` ran mirrors (27 s) and build-db (3:09; `mirrors.meta.json` carries a build time, so build-db follows) and skipped the other 38 stages: 3 min 42 s, against 38 min for the whole pipeline.
 
+## M54: Shared statistics (§16.14; proposed C3)
+- [x] `stats.g2_table` replaces the four copies of the 2 × 2 G² (diffs, parallelism, entities, senses); keyness (structure) and domain over-representation (API) are different two-cell statistics and stay
+- [x] `stats.shuffle_within` replaces the copies in sequences and wordplay (allusions imports it from there)
+- [x] Found by comparing the rerun with the run before: senses (example draws) and network (layout) depended on set order, so two runs of the same code differed; senses breaks count ties by sense id, network lays out each community from a copy in a fixed node order, and network now gives the same bytes under any `PYTHONHASHSEED`; senses differs only in one list of examples (the uses of דבר nearest their centre, near-identical formula verses whose order is GPU arithmetic)
+- [x] Incremental runs hash syntax trees (line endings, comments, layout do not rerun anything); `--adopt` on a stage with a record keeps it
+- [x] Tests: `g2_table` against SciPy's log-likelihood test, `shuffle_within` with split groups (pytest); the moved helpers' callers
+
+✔ `bsim all` reran those 24 stages in 13 min 30 s (the other 16 skipped). 65 of the 69 outputs were identical; entities' name links and parallelism's word pairs held the same rows with ties re-sorted (G² equal to the last digit, summed in another order); senses' examples and network's layout also differ between two runs of unchanged code, which led to two fixes (set order fed a seeded draw and a seeded layout).
+
 ## Proposed (not started)
 Suggestions from the 2026-10-09 review, in rough order of value for cost:
 - A4b A directed echo network: the resolved citations (§16.31) with the cross-book parallels oriented by borrowing (§16.27) and dating (§16.24)
-- C3 Shared statistics: G² (five copies) and `shuffle_within` (sequences, wordplay) into `analysis/stats.py` (`permute_within` is there since M47)
 - B2 Ctrl+K jump box (references, lemmas, pages); B3 a findings landing page; B4 canon arc diagram of parallels; B6 a shared paged-list component

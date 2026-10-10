@@ -41,6 +41,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.sequences import q_values
+from bsim.analysis.stats import shuffle_within
 from bsim.config import config_hash, resolve_path
 from bsim.text.normalize import consonantal, fold_finals
 
@@ -170,15 +171,6 @@ def find_pairs(
                 continue
             out.append((i, j, kind, (idf[li] + idf[lj]) / 2 - distance * (j - i - 1)))
     return out
-
-
-def shuffle_within(chapters: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """A permutation of positions that keeps every position inside its (contiguous) chapter."""
-    perm = np.arange(len(chapters))
-    bounds = np.flatnonzero(np.diff(chapters)) + 1
-    for ids in np.split(perm.copy(), bounds):
-        perm[ids] = rng.permutation(ids)
-    return perm
 
 
 def is_proper(morph: str | None) -> bool:

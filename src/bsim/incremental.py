@@ -205,6 +205,23 @@ def module_closure(
     return sorted(seen)
 
 
+@functools.cache
+def _tree(data: bytes) -> str:
+    return ast.dump(ast.parse(data))
+
+
+def _module_tree(path: Path) -> str:
+    """A module's syntax tree as text: line endings, comments and layout do not count."""
+    return _tree(path.read_bytes())
+
+
+def _source_tree(src: str) -> str:
+    try:
+        return ast.dump(ast.parse(src))
+    except SyntaxError:  # a lambda cut out of a longer line
+        return src
+
+
 def _source(fn: Callable[..., Any]) -> str:
     try:
         return textwrap.dedent(inspect.getsource(fn))
@@ -213,7 +230,8 @@ def _source(fn: Callable[..., Any]) -> str:
 
 
 def code_hash(fn: Callable[..., Any], root: Path = PACKAGE_ROOT, package: str = PACKAGE) -> str:
-    """Hash of a stage function, the same-module helpers it calls and the modules they import."""
+    """Hash of a stage function, the same-module helpers it calls and the modules they import
+    (their syntax trees, so reformatting, comments and line endings change nothing)."""
     module = getattr(fn, "__module__", "") or ""
     fns = [fn]
     glob = getattr(fn, "__globals__", {})
@@ -225,14 +243,14 @@ def code_hash(fn: Callable[..., Any], root: Path = PACKAGE_ROOT, package: str = 
     h = hashlib.sha256()
     for f in fns:
         src = _source(f)
-        h.update(src.encode("utf-8"))
+        h.update(_source_tree(src).encode("utf-8"))
         with contextlib.suppress(SyntaxError):  # a lambda cut out of a longer line
             start |= _imports(ast.parse(src), module, False, package)
     for name in module_closure(start, root, package):
         found = _module_file(name, root, package)
         if found:
             h.update(name.encode("utf-8"))
-            h.update(found[0].read_bytes())
+            h.update(_module_tree(found[0]).encode("utf-8"))
     return h.hexdigest()[:16]
 
 
@@ -492,9 +510,19 @@ def record(
 def adopt(name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State) -> None:
     """Mark a stage up to date without running it: its outputs are trusted as they are.
 
-    Its config is every section its code names (it has not run, so the keys it reads are not
-    known); inputs and outputs are empty, so the first rerun of a stage it depends on reruns it.
+    A stage with a record keeps it, with its code, config, input and output hashes taken as they
+    are now (for a change known not to matter). One without: its config is every section its
+    code names (the keys it reads are not known), inputs and outputs are empty, so the first
+    rerun of a stage it depends on reruns it.
     """
+    old = state.stages.get(name)
+    if old is not None:
+        old["code"] = code_hash(fn)
+        old["config"] = {k: value_hash(config_value(cfg, k)) for k in old["config"]}
+        for part in ("inputs", "outputs"):
+            old[part] = {k: h for k in old[part] if (h := state.files.sha(k)) is not None}
+        old["adopted"] = True
+        return
     state.stages[name] = {
         "code": code_hash(fn),
         "config": {k: value_hash(cfg[k]) for k in config_literals(fn, cfg)},

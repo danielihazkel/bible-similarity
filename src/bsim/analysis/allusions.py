@@ -36,7 +36,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from bsim.analysis.sequences import q_values, shuffle_within
+from bsim.analysis.sequences import q_values
+from bsim.analysis.stats import shuffle_within
 from bsim.config import config_hash, resolve_path
 
 Log = Callable[[str], None]
