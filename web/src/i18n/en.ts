@@ -19,6 +19,7 @@ import { mirEn } from './pages/mirrors'
 import { metEn } from './pages/meter'
 import { rootEn } from './pages/roots'
 import { readerEn } from './pages/reader'
+import { refEn } from './pages/refrains'
 import { echoEn } from './pages/echoes'
 import { findEn } from './pages/findings'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
@@ -88,6 +89,7 @@ export const en = {
     divisions: { label: 'Divisions', hint: 'Do paragraphs and chapters fall where the text turns?' },
     ketiv: { label: 'Written and read', hint: 'Ketiv and qere: what is written against what is read' },
     roots: { label: 'Roots', hint: 'Words of one root side by side; key roots of a chapter' },
+    refrains: { label: 'Refrains', hint: 'Phrases that come back inside a passage' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
@@ -419,6 +421,7 @@ export const en = {
   met: metEn,
   root: rootEn,
   reader: readerEn,
+  ref: refEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

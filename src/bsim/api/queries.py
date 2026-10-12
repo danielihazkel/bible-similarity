@@ -1853,3 +1853,64 @@ def entity_lemmas(conn: sqlite3.Connection, lemmas: Iterable[str]) -> set[str]:
         f"SELECT lemma FROM entities WHERE lemma IN ({_marks(len(lemmas))})", lemmas
     )
     return {r[0] for r in cur}
+
+
+def refrains_page(
+    conn: sqlite3.Connection,
+    book_id: int | None,
+    span: tuple[int, int] | None,
+    strongest: bool,
+    known: bool,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Refrains, strongest burst first; `span`: with a verse in it; `strongest`: only the
+    strongest of each group sharing a verse; `known`: only those named in advance."""
+    where, args = ["1 = 1"], []
+    if book_id is not None:
+        where.append("r.book_id = ?")
+        args.append(book_id)
+    if strongest:
+        where.append("r.strongest = 1")
+    if known:
+        where.append("r.known IS NOT NULL")
+    if span is not None:
+        where.append(
+            "EXISTS (SELECT 1 FROM refrain_verses v WHERE v.refrain_id = r.refrain_id"
+            " AND v.verse_id BETWEEN ? AND ?)"
+        )
+        args += list(span)
+    w = " AND ".join(where)
+    total = count(conn, f"SELECT COUNT(*) FROM refrains r WHERE {w}", args)
+    cur = conn.execute(
+        f"SELECT * FROM refrains r WHERE {w} ORDER BY r.refrain_id LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def refrain_verses(conn: sqlite3.Connection, ids: list[int]) -> dict[int, list[dict[str, Any]]]:
+    """refrain_id -> its verses in order, with the display span of the phrase."""
+    if not ids:
+        return {}
+    cur = conn.execute(
+        f"SELECT * FROM refrain_verses WHERE refrain_id IN ({_marks(len(ids))})"
+        " ORDER BY refrain_id, verse_id",
+        ids,
+    )
+    out: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for r in _dicts(cur):
+        out[r["refrain_id"]].append(r)
+    return out
+
+
+def refrains_in(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
+    """Every refrain verse in a range with its refrain: `verse_id, first, last, refrain_id, k,
+    text, known, strongest`, strongest refrain first."""
+    cur = conn.execute(
+        "SELECT v.verse_id, v.first, v.last, r.refrain_id, r.k, r.text, r.known, r.strongest"
+        " FROM refrain_verses v JOIN refrains r ON r.refrain_id = v.refrain_id"
+        " WHERE v.verse_id BETWEEN ? AND ? ORDER BY r.refrain_id, v.verse_id",
+        (first, last),
+    )
+    return _dicts(cur)

@@ -578,6 +578,27 @@ roots:                        # `bsim roots`: root families, words of one root s
     - ["2Sam 11", 7971]       # שלח: David sends
   seed: 13
 
+refrains:                     # `bsim refrains`: phrases that come back inside a passage (DESIGN.md §16.40)
+  min_tokens: 3               # a seed: this many lemmas in a row inside a verse (prefixes dropped)
+  min_content: 2              # of which at least this many nouns, verbs or adjectives (names not counted)
+  min_count: 3                # a refrain is in at least this many verses of one book
+  max_gap: 20                 # consecutive occurrences at most this many verses apart
+  alpha: 0.05                 # a refrain: estimated false discovery rate against the shuffles at most this
+  shuffles: 20                # verse orders shuffled within each book (the runs found by chance)
+  draws: 1000                 # random placements for the spacing and turn tests
+  known_share: 0.67           # the check of the refrains named in advance holds when at least this share is found
+  known:                      # [its opening words, its verses]: refrains scholarship names, fixed in advance; found when one refrain is in `min_count` of the verses
+    - ["ויהי ערב ויהי בקר", ["Genesis 1:5", "Genesis 1:8", "Genesis 1:13", "Genesis 1:19", "Genesis 1:23", "Genesis 1:31"]]
+    - ["על שלשה פשעי ועל ארבעה", ["Amos 1:3", "Amos 1:6", "Amos 1:9", "Amos 1:11", "Amos 1:13", "Amos 2:1", "Amos 2:4", "Amos 2:6"]]
+    - ["ולא שבתם עדי", ["Amos 4:6", "Amos 4:8", "Amos 4:9", "Amos 4:10", "Amos 4:11"]]
+    - ["בכל זאת לא שב אפו", ["Isaiah 9:11", "Isaiah 9:16", "Isaiah 9:20", "Isaiah 10:4"]]
+    - ["מה תשתוחחי נפשי", ["Psalms 42:6", "Psalms 42:12", "Psalms 43:5"]]
+    - ["השיבנו והאר פניך ונושעה", ["Psalms 80:4", "Psalms 80:8", "Psalms 80:20"]]
+    - ["ויצעקו אל יהוה בצר להם", ["Psalms 107:6", "Psalms 107:13", "Psalms 107:19", "Psalms 107:28"]]
+    - ["כי לעולם חסדו", ["Psalms 136:1", "Psalms 136:13", "Psalms 136:26"]]
+    - ["השבעתי אתכם בנות ירושלם", ["Song of Songs 2:7", "Song of Songs 3:5", "Song of Songs 8:4"]]
+  seed: 13
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)
@@ -625,6 +646,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
+  refrain_verses: 3           # /refrains/list: verses shown in full per refrain (the rest as references)
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
     rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)

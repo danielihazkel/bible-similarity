@@ -45,6 +45,7 @@ Derived columns:
 - `meter_lines`, `meter_chapters` + `meta.meter`: `bsim meter` (empty without it).
 - `lemma_roots`, `root_pairs`, `root_books`, `root_leitworte` + `meta.roots`: `bsim roots` (empty
   without it).
+- `refrains`, `refrain_verses` + `meta.refrains`: `bsim refrains` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -141,6 +142,8 @@ INDEXES = (
     "CREATE INDEX root_pairs_by_verse ON root_pairs (verse_id)",
     "CREATE INDEX root_pairs_by_kind ON root_pairs (kind, verse_id)",
     "CREATE INDEX root_leitworte_by_hidden ON root_leitworte (hidden, g2 DESC)",
+    "CREATE INDEX refrains_by_book ON refrains (book_id, refrain_id)",
+    "CREATE INDEX refrain_verses_by_verse ON refrain_verses (verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -478,6 +481,24 @@ TABLE_COLUMNS = {
         "b_lemma",
     ],
     "root_books": ["book_id", "words", "cognate", "expected", "inf_abs"],
+    "refrains": [
+        "refrain_id",
+        "book_id",
+        "k",
+        "first_vid",
+        "last_vid",
+        "n_tokens",
+        "p",
+        "q",
+        "cv",
+        "regular_p",
+        "turn",
+        "strongest",
+        "known",
+        "text",
+        "lemmas",
+    ],
+    "refrain_verses": ["refrain_id", "verse_id", "first", "last"],
     "root_leitworte": [
         "unit_id",
         "rank",
@@ -1203,6 +1224,14 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             hidden=lambda d: d.hidden.astype(int)
         )
     out["roots_meta"] = _read_json(root_dir / "roots.meta.json")
+    ref_dir = resolve_path(cfg, "artifacts") / "refrains"
+    for name, table in (("refrains", "refrains"), ("occurrences", "refrain_verses")):
+        path = ref_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    if len(out["refrains"]):
+        out["refrains"] = out["refrains"].assign(strongest=lambda d: d.strongest.astype(int))
+    out["refrains_meta"] = _read_json(ref_dir / "refrains.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1421,6 +1450,8 @@ def _write_db(
             ),
             "root_books": inputs["root_books"],
             "root_leitworte": inputs["root_leitworte"],
+            "refrains": inputs["refrains"],
+            "refrain_verses": inputs["refrain_verses"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1605,6 +1636,26 @@ def _write_db(
                 "known_better",
                 "top",
                 "hidden",
+            )
+        }
+        fm = inputs["refrains_meta"]
+        meta["refrains"] = {
+            k: fm.get(k)
+            for k in (
+                "min_tokens",
+                "min_count",
+                "max_gap",
+                "alpha",
+                "shuffles",
+                "candidates",
+                "detect",
+                "refrains",
+                "distinct",
+                "known",
+                "known_found",
+                "known_share",
+                "regular",
+                "turns",
             )
         }
         tm = inputs["meter_meta"]

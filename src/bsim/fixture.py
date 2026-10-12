@@ -821,6 +821,42 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # refrains (`bsim refrains`): אלהים ויאמר יהוה in v0-v2 (named in advance, the strongest), ראשית
+    # in v2-v4 (shares v2, so not the strongest of its group); a second named refrain not found
+    ref_dir = art / "refrains"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(1, 0, 3, 0, 2, 3, 1e-6, 0.001, 0.0, 0.04, 0.7, True, "ויהי ערב ויהי בקר",
+          "אֱלֹהִים וַיֹּאמֶר יְהוָה", "430 559 3068"),
+         (2, 0, 3, 2, 4, 1, 1e-4, 0.03, 0.0, None, 0.5, False, None, "רֵאשִׁית", "7225")],
+        columns=["refrain_id", "book_id", "k", "first_vid", "last_vid", "n_tokens", "p", "q", "cv",
+                 "regular_p", "turn", "strongest", "known", "text", "lemmas"],
+    ).astype({"regular_p": "Float64"}).to_parquet(ref_dir / "refrains.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(1, 0, 1, 3), (1, 1, 0, 2), (1, 2, 0, 1), (2, 2, 0, 0), (2, 3, 0, 0), (2, 4, 0, 0)],
+        columns=["refrain_id", "verse_id", "first", "last"],
+    ).to_parquet(ref_dir / "occurrences.parquet")
+    (ref_dir / "refrains.meta.json").write_text(
+        json.dumps(
+            {
+                "min_tokens": 3, "min_count": 3, "max_gap": 20, "alpha": 0.05, "shuffles": 20,
+                "candidates": 5, "detect": {"observed": 2, "expected": 0.1}, "refrains": 2,
+                "distinct": 1, "known_found": 1, "known_share": 0.5,
+                "known": [
+                    {"name": "ויהי ערב ויהי בקר", "verses": [0, 1, 2], "first": "B0 1:1",
+                     "last": "B0 1:3", "refrain_id": 1, "text": "אֱלֹהִים וַיֹּאמֶר יְהוָה", "k": 3,
+                     "q": 0.001},
+                    {"name": "השבעתי אתכם בנות ירושלם", "verses": [3, 4, 5],
+                     "first": "B0 2:1", "last": "B1 1:1", "refrain_id": None, "text": None,
+                     "k": None, "q": None},
+                ],
+                "regular": {"testable": 1, "regular": 1, "share": 1.0, "p": 0.05},
+                "turns": {"n": 3, "observed": 0.7, "expected": 0.6, "p": 0.04},
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

@@ -22,6 +22,7 @@ and what it found:
     mirrors                       count = full mirrors + mirrored clause pairs in the unit
     echoes                        count = directed cross-book echoes of the unit's chapters
     roots                         count = words of one root side by side in the unit's verses
+    refrains                      count = refrains with a verse in the unit
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -222,6 +223,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "roots",
         computed=state.present(conn, "root_pairs"),
         count=queries.root_pairs_page(conn, None, None, span, 1, 0)[0],
+    )
+
+    add(
+        "refrains",
+        computed=state.present(conn, "refrains"),
+        count=queries.refrains_page(conn, None, span, False, False, 1, 0)[0],
     )
 
     add(

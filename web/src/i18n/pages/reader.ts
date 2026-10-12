@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, countHe } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'turns'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'turns'
 
 const pctOf = (x: number) => Math.round(x * 100)
 
@@ -19,6 +19,7 @@ export const readerEn = {
     speakers: 'Speakers',
     cola: 'Verse halves',
     leitworte: 'Leitworte',
+    refrains: 'Refrains',
     phrases: 'Shared phrases',
     rare: 'Rare words',
     wordplay: 'Wordplay',
@@ -29,6 +30,7 @@ export const readerEn = {
     speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
     cola: 'Where the accents divide each verse into halves and clauses',
     leitworte: 'Words repeated here far more than in the rest of the Bible',
+    refrains: 'Phrases that come back nearby, more densely than chance',
     phrases: 'Words in a phrase another verse shares',
     rare: 'Words found in only a few verses of the Bible',
     wordplay: 'Words a few apart that sound alike',
@@ -53,6 +55,11 @@ export const readerEn = {
   byRoot: 'By root',
   noLeitworte: 'No Leitworte here.',
   leitwortTitle: (he: string, count: number, expected: string) => `Leitwort ${he}: ${count} times here, ${expected} expected`,
+  // refrains
+  refrainsKey: 'A line above: a phrase that comes back nearby (a refrain).',
+  noRefrains: 'No refrain here.',
+  refrainTitle: (text: string, k: number) => `refrain ${text}: in ${countEn(k, 'verse', 'verses')}`,
+  allRefrains: 'Every refrain here',
   // phrases
   phrasesKey: 'Underlined: in a phrase another verse shares (thicker: more verses).',
   phraseTitle: (n: number) => `in a phrase shared with ${countEn(n, 'other verse', 'other verses')}`,
@@ -85,6 +92,7 @@ export const readerHe: typeof readerEn = {
     speakers: 'דוברים',
     cola: 'חצאי פסוק',
     leitworte: 'מילים מנחות',
+    refrains: 'פזמונים חוזרים',
     phrases: 'צירופים משותפים',
     rare: 'מילים נדירות',
     wordplay: 'משחקי מילים',
@@ -95,6 +103,7 @@ export const readerHe: typeof readerEn = {
     speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
     cola: 'היכן הטעמים מחלקים כל פסוק לחצאים ולפסוקיות',
     leitworte: 'מילים שחוזרות כאן הרבה יותר מבשאר המקרא',
+    refrains: 'צירופים החוזרים בסמיכות, בצפיפות שהמקרה אינו מסביר',
     phrases: 'מילים בצירוף שפסוק אחר חולק',
     rare: 'מילים שנמצאות רק בפסוקים מעטים במקרא',
     wordplay: 'מילים קרובות שנשמעות דומה',
@@ -116,6 +125,10 @@ export const readerHe: typeof readerEn = {
   byRoot: 'לפי שורש',
   noLeitworte: 'אין כאן מילים מנחות.',
   leitwortTitle: (he: string, count: number, expected: string) => `מילה מנחה ${he}: ${count} פעמים כאן, צפוי ${expected}`,
+  refrainsKey: 'קו עליון: צירוף החוזר בסמיכות (פזמון חוזר).',
+  noRefrains: 'אין כאן פזמון חוזר.',
+  refrainTitle: (text: string, k: number) => `פזמון חוזר ${text}: ב־${countHe(k, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}`,
+  allRefrains: 'כל הפזמונים כאן',
   phrasesKey: 'קו תחתון: בצירוף שפסוק אחר חולק (עבה יותר: פסוקים רבים יותר).',
   phraseTitle: (n: number) => `בצירוף המשותף ל${countHe(n, 'פסוק אחר אחד', 'שני פסוקים אחרים', 'פסוקים אחרים')}`,
   rareKey: (max: number) =>

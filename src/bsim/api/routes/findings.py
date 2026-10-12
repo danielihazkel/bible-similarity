@@ -215,6 +215,46 @@ def _laments(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | No
     return Finding(key="laments", verdict="holds" if holds else "fails", values=values)
 
 
+def _refrains(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    r = meta.get("refrains") or {}
+    if not r.get("known"):
+        return None
+    d = r.get("detect") or {}
+    values = {
+        "found": r.get("known_found"),
+        "n": len(r["known"]),
+        "refrains": d.get("observed"),
+        "expected": d.get("expected"),
+        "distinct": r.get("distinct"),
+    }
+    # the claim: the refrains scholarship names are found, among more refrains than chance gives
+    share = (r.get("known_found") or 0) / len(r["known"])
+    holds = share >= r.get("known_share", 2 / 3) and (d.get("observed") or 0) > (
+        d.get("expected") or 0
+    )
+    return Finding(key="refrains", verdict="holds" if holds else "fails", values=values)
+
+
+def _refrain_regular(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    g = (meta.get("refrains") or {}).get("regular") or {}
+    if not g.get("testable"):
+        return None
+    values = {k: g.get(k) for k in ("testable", "regular", "share", "p")}
+    # the claim: refrains recur at more even intervals than the same number placed at random
+    holds = g["share"] > alpha and g["p"] <= alpha
+    return Finding(key="refrain_regular", verdict="holds" if holds else "fails", values=values)
+
+
+def _refrain_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    t = (meta.get("refrains") or {}).get("turns") or {}
+    if t.get("p") is None:
+        return None
+    values = {k: t.get(k) for k in ("n", "observed", "expected", "p")}
+    # the claim: a refrain's verse stands next to a sharper turn than other verses of its span
+    holds = t["observed"] > t["expected"] and t["p"] <= alpha
+    return Finding(key="refrain_turns", verdict="holds" if holds else "fails", values=values)
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -230,6 +270,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _chiasm,
     _laments,
     _root_leitworte,
+    _refrains,
+    _refrain_regular,
+    _refrain_turns,
     _allusions,
 ]
 

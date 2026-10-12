@@ -5,6 +5,8 @@ import type {
   Acrostic,
   AcrosticsResponse,
   ReaderResponse,
+  RefrainsListResponse,
+  RefrainsResponse,
   AffinityPair,
   AlliterationResponse,
   AffinityResponse,
@@ -430,6 +432,38 @@ export const useReader = (unitId: string | undefined) =>
     queryKey: ['reader', unitId],
     queryFn: ({ signal }) => getJson<ReaderResponse>(`/reader/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
+    ...forever,
+  })
+
+export const useRefrains = () =>
+  useQuery({
+    queryKey: ['refrains'],
+    queryFn: ({ signal }) => getJson<RefrainsResponse>('/refrains', {}, signal),
+    ...forever,
+  })
+
+export interface RefrainQuery {
+  book?: number
+  unit?: string
+  strongest: boolean
+  known: boolean
+  limit: number
+  offset: number
+}
+
+export const refrainParams = (q: RefrainQuery): Params => ({
+  book: q.book,
+  unit: q.unit,
+  strongest: q.strongest ? undefined : 0,
+  known: q.known ? 1 : undefined,
+})
+
+export const useRefrainList = (q: RefrainQuery) =>
+  useQuery({
+    queryKey: ['refrain-list', q],
+    queryFn: ({ signal }) =>
+      getJson<RefrainsListResponse>('/refrains/list', { ...refrainParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

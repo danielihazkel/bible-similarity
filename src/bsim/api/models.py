@@ -1335,7 +1335,7 @@ DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
-    "meter", "roots", "labels",
+    "meter", "roots", "refrains", "labels",
 ]  # fmt: skip
 
 
@@ -1611,7 +1611,8 @@ class CitationListResponse(ApiModel):
 
 FindingKey = Literal[
     "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
-    "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions",
+    "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
+    "refrain_regular", "refrain_turns",
 ]  # fmt: skip
 
 
@@ -1954,8 +1955,16 @@ class ReaderGap(ApiModel):
     chapter: bool
 
 
+class ReaderRefrain(ApiModel):
+    refrain_id: int
+    text: str
+    k: int  # verses holding it
+    known: str | None
+
+
 class ReaderVerse(ApiModel):
     verse_id: int
+    refrains: dict[str, int]  # display token -> index into `refrains`
     speech: dict[str, int]  # display token -> index into `speakers`
     phrases: dict[str, int]  # display token -> other verses sharing a phrase through it
     rare: dict[str, int]  # display token -> verses holding its rarest content word (names out)
@@ -1969,6 +1978,72 @@ class ReaderResponse(ApiModel):
 
     unit: UnitSummary
     rare_verses: int  # a word is rare in at most this many verses
-    computed: dict[str, bool]  # layer -> its stage ran (speech, phrases, wordplay, ketiv, gaps)
+    computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains)
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
+    refrains: list[ReaderRefrain]  # strongest first
     verses: list[ReaderVerse]
+
+
+class RefrainVerse(ApiModel):
+    verse_id: int
+    label: str
+    label_he: str
+    first: int  # display tokens of the phrase, inclusive
+    last: int
+
+
+class Refrain(ApiModel):
+    """A phrase that comes back inside a passage (DESIGN.md §16.40)."""
+
+    refrain_id: int  # 1 = the strongest burst
+    book_id: int
+    k: int  # verses holding it
+    n_tokens: int
+    p: float  # burst: the chance of k verses in its span at the phrase's rate in the book
+    q: float  # false discovery rate against verse orders shuffled within books
+    cv: float  # coefficient of variation of the gaps between its verses
+    regular_p: float | None  # random placements as even (None: too few to test)
+    turn: float | None  # mean of each verse's sharper neighbouring gap score (§16.29)
+    strongest: bool  # the strongest refrain of its group sharing a verse
+    known: str | None  # the refrain named in advance that it is
+    text: str  # its first occurrence, pointed
+    lemmas: str
+    occurrences: list[RefrainVerse]
+    verses: list[Verse]  # the first few occurrences' verses (`serve.refrain_verses`)
+
+
+class RefrainKnown(ApiModel):
+    """A refrain scholarship names, fixed in advance, and the refrain found for it."""
+
+    name: str
+    first_vid: int
+    label: str  # its first named verse
+    label_he: str
+    n_verses: int  # verses named
+    refrain_id: int | None  # None: not found
+    text: str | None
+    k: int | None
+    q: float | None
+
+
+class RefrainBook(ApiModel):
+    book_id: int
+    refrains: int
+    strongest: int
+
+
+class RefrainsResponse(ApiModel):
+    meta: dict[str, Any]  # detect, refrains, distinct, known_found, regular, turns, parameters
+    known: list[RefrainKnown]
+    books: list[RefrainBook]  # canon order
+
+
+class RefrainsListResponse(ApiModel):
+    book: int | None
+    unit: str | None
+    strongest: bool
+    known: bool
+    total: int
+    offset: int
+    limit: int
+    items: list[Refrain]

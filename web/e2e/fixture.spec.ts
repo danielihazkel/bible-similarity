@@ -33,6 +33,9 @@ const PAGES = [
   '/roots?kind=inf_abs',
   '/root/7218',
   '/read/c%3A0%3A1',
+  '/refrains',
+  '/refrains?all=1&unit=v%3A2&known=1',
+  '/read/c%3A0%3A1?layers=refrains',
   '/read/c%3A0%3A1?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns',
   '/read/c%3A0%3A2?layers=wordplay%2Cketiv%2Cturns%2Cleitworte&lw=root',
   '/poetry?view=meter&group=pool',
@@ -168,6 +171,17 @@ test('the unit page opens the layered reader, whose layers paint the words', asy
   await expect(page.locator('.reader-text .wp-partner')).toHaveCount(1)
   await page.getByRole('link', { name: /Next/ }).click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A2\?layers=/)
+})
+
+test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {
+  await page.goto('/unit/v%3A2')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '2 refrains' }).click()
+  await expect(page).toHaveURL(/\/refrains\?unit=v%3A2&all=1/)
+  await expect(page.locator('li.refrain')).toHaveCount(2)
+  await page.locator('li.refrain').first().getByRole('link', { name: 'Read in the passage' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=refrains/)
+  await expect(page.locator('.reader-text .rf')).toHaveCount(8)
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

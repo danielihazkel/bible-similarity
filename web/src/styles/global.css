@@ -110,6 +110,8 @@ p a:not(.hit-ref):not(.name-chip),
 .cite-books a,
 .cite-source a,
 .about-page li a,
+.reader-legend a,
+.refrain-more a,
 .compare-page .column > h2 a {
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -2707,6 +2709,13 @@ a.dossier-chip:hover {
 .layer-key.lw {
   background: var(--surface);
 }
+/* a refrain: a line above the words (the underline belongs to shared phrases) */
+.rf {
+  border-top: 2px solid var(--sem);
+}
+.layer-key.rf-key {
+  border-top: 2px solid var(--sem);
+}
 .ph {
   text-decoration-line: underline;
   text-decoration-color: var(--lex);
@@ -2769,4 +2778,17 @@ a.dossier-chip:hover {
 .gap-cut .gap-kind {
   color: var(--accent);
   font-weight: 600;
+}
+
+/* Refrains (§16.40) */
+.refrain-text {
+  font-family: var(--font-he);
+  font-size: 1.25rem;
+}
+.refrains-page .he-cell {
+  font-family: var(--font-he);
+  font-size: 1.1rem;
+}
+.refrain .verse-ref {
+  margin-inline-end: 0.4rem;
 }

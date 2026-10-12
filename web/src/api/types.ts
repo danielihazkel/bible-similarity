@@ -1324,6 +1324,7 @@ export type DossierKind =
   | 'echoes'
   | 'meter'
   | 'roots'
+  | 'refrains'
   | 'labels'
 
 export interface DossierEntry {
@@ -1866,6 +1867,9 @@ export type FindingKey =
   | 'laments'
   | 'root_leitworte'
   | 'allusions'
+  | 'refrains'
+  | 'refrain_regular'
+  | 'refrain_turns'
 
 export interface Finding {
   key: FindingKey
@@ -2306,8 +2310,17 @@ export interface ReaderGap {
   mam: Paragraph | null
   chapter: boolean
 }
+export interface ReaderRefrain {
+  refrain_id: number
+  text: string
+  /** verses holding it */
+  k: number
+  known: string | null
+}
 export interface ReaderVerse {
   verse_id: number
+  /** display token -> index into `refrains` */
+  refrains: Record<string, number>
   /** display token -> index into `speakers` */
   speech: Record<string, number>
   /** display token -> other verses sharing a phrase through it */
@@ -2324,5 +2337,94 @@ export interface ReaderResponse {
   rare_verses: number
   computed: Record<string, boolean>
   speakers: ReaderSpeaker[]
+  /** strongest first */
+  refrains: ReaderRefrain[]
   verses: ReaderVerse[]
+}
+
+// Refrains (`/refrains`, DESIGN.md §16.40): phrases that come back inside a passage.
+export interface RefrainVerse {
+  verse_id: number
+  label: string
+  label_he: string
+  /** display tokens of the phrase, inclusive */
+  first: number
+  last: number
+}
+export interface Refrain {
+  /** 1 = the strongest burst */
+  refrain_id: number
+  book_id: number
+  /** verses holding it */
+  k: number
+  n_tokens: number
+  p: number
+  /** false discovery rate against verse orders shuffled within books */
+  q: number
+  /** coefficient of variation of the gaps between its verses */
+  cv: number
+  /** random placements as even (null: too few to test) */
+  regular_p: number | null
+  /** mean of each verse's sharper neighbouring gap score */
+  turn: number | null
+  /** the strongest refrain of its group sharing a verse */
+  strongest: boolean
+  known: string | null
+  text: string
+  lemmas: string
+  occurrences: RefrainVerse[]
+  /** the first few occurrences' verses */
+  verses: Verse[]
+}
+export interface RefrainKnown {
+  name: string
+  first_vid: number
+  label: string
+  label_he: string
+  n_verses: number
+  refrain_id: number | null
+  text: string | null
+  k: number | null
+  q: number | null
+}
+export interface RefrainBook {
+  book_id: number
+  refrains: number
+  strongest: number
+}
+export interface RefrainTest {
+  n?: number
+  observed: number | null
+  expected: number | null
+  p?: number | null
+}
+export interface RefrainsMeta {
+  min_tokens?: number
+  min_count?: number
+  max_gap?: number
+  alpha?: number
+  shuffles?: number
+  candidates?: number
+  detect?: RefrainTest
+  refrains?: number
+  distinct?: number
+  known_found?: number
+  known_share?: number
+  regular?: { testable: number; regular: number; share: number | null; p: number | null }
+  turns?: RefrainTest | null
+}
+export interface RefrainsResponse {
+  meta: RefrainsMeta & Record<string, unknown>
+  known: RefrainKnown[]
+  books: RefrainBook[]
+}
+export interface RefrainsListResponse {
+  book: number | null
+  unit: string | null
+  strongest: boolean
+  known: boolean
+  total: number
+  offset: number
+  limit: number
+  items: Refrain[]
 }

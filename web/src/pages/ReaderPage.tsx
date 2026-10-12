@@ -16,15 +16,17 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'phrases', 'rare', 'wordplay', 'ketiv', 'turns']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'turns']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
+  refrains: 'refrains',
   phrases: 'phrases',
   wordplay: 'wordplay',
   ketiv: 'ketiv',
   turns: 'gaps',
 }
 const LEITWORTE_SHOWN = 6
+const REFRAINS_SHOWN = 4
 const SPEAKER_COLOURS = 8
 
 /** The layered reader (§16.39): one unit with the analyses' word-level findings as layers. */
@@ -95,6 +97,12 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
         const l = leitworte[lw]
         cls.push('lw', `lw-${lw}`)
         titles.push(t.leitwortTitle(l.he, l.count, l.expected.toFixed(1)))
+      }
+      const rf = on('refrains') ? r?.refrains[i] : undefined
+      if (rf !== undefined && reader.data?.refrains[rf]) {
+        const x = reader.data.refrains[rf]
+        cls.push('rf')
+        titles.push(t.refrainTitle(x.text, x.k))
       }
       const ph = on('phrases') ? r?.phrases[i] : undefined
       if (ph !== undefined) {
@@ -294,6 +302,24 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
             </>
           )}
         </>,
+      )}
+      {row(
+        'refrains',
+        !reader ? (
+          ''
+        ) : reader.refrains.length === 0 ? (
+          <span className="muted">{t.noRefrains}</span>
+        ) : (
+          <>
+            {t.refrainsKey}{' '}
+            {reader.refrains.slice(0, REFRAINS_SHOWN).map((x) => (
+              <span key={x.refrain_id} className="layer-key rf-key" dir="rtl" lang="he">
+                {x.text}
+              </span>
+            ))}{' '}
+            <Link to={`/refrains?unit=${encodeURIComponent(reader.unit.unit_id)}&all=1`}>{t.allRefrains}</Link>
+          </>
+        ),
       )}
       {row('phrases', t.phrasesKey)}
       {row('rare', reader ? t.rareKey(reader.rare_verses) : '')}

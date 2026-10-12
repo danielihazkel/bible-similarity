@@ -95,6 +95,21 @@ export const findEn = {
       text: (v: V) =>
         `Do the Leitworte scholars name rank higher when a root's words are counted together? Of ${numEn(n(v, 'n'))}, ${numEn(n(v, 'by_root'))} are in their chapter's top ${numEn(n(v, 'top'))} by root and ${numEn(n(v, 'by_lemma'))} by word; the root ranks higher for ${numEn(n(v, 'better'))}. Counted by root, ${numEn(n(v, 'hidden'))} key roots appear that no single word shows: leads.`,
     },
+    refrains: {
+      title: 'Refrains',
+      text: (v: V) =>
+        `Are the refrains scholars name found among the phrases that come back nearby? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}, among ${numEn(n(v, 'refrains'))} refrains against ${n(v, 'expected').toFixed(0)} runs as strong with each book's verses shuffled (${numEn(n(v, 'distinct'))} distinct).`,
+    },
+    refrain_regular: {
+      title: 'Refrains at even intervals',
+      text: (v: V) =>
+        `Do refrains come back at even intervals? ${numEn(n(v, 'regular'))} of ${numEn(n(v, 'testable'))} testable refrains are more even than the same repeats placed at random in their span (${pct(n(v, 'share'))} against 5%, p ${fp(n(v, 'p'))}).`,
+    },
+    refrain_turns: {
+      title: 'Refrains at the turns',
+      text: (v: V) =>
+        `Does a refrain stand where the text turns? The sharper gap next to a refrain's verse scores ${x2(n(v, 'observed'))} against ${x2(n(v, 'expected'))} for other verses of its span (p ${fp(n(v, 'p'))}, ${numEn(n(v, 'n'))} verses).`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -187,6 +202,21 @@ export const findHe: typeof findEn = {
       title: 'מילים מנחות לפי שורש',
       text: (v: V) =>
         `האם המילים המנחות שהמחקר מונה מדורגות גבוה יותר כשמילות השורש נספרות יחד? מתוך ${numHe(n(v, 'n'))}, ${numHe(n(v, 'by_root'))} נמצאות בין ${numHe(n(v, 'top'))} המובילות בפרקן לפי שורש ו־${numHe(n(v, 'by_lemma'))} לפי מילה; השורש מדורג גבוה יותר ב־${numHe(n(v, 'better'))}. בספירה לפי שורש מופיעים ${numHe(n(v, 'hidden'))} שורשים מנחים שאף מילה בודדת אינה מראה: כיווני חקירה.`,
+    },
+    refrains: {
+      title: 'פזמונים חוזרים',
+      text: (v: V) =>
+        `האם הפזמונים שהמחקר מונה נמצאים בין הצירופים החוזרים בסמיכות? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}, בין ${numHe(n(v, 'refrains'))} פזמונים לעומת ${n(v, 'expected').toFixed(0)} רצפים חזקים כמותם כשפסוקי כל ספר מעורבבים (${numHe(n(v, 'distinct'))} נפרדים).`,
+    },
+    refrain_regular: {
+      title: 'פזמונים במרווחים שווים',
+      text: (v: V) =>
+        `האם פזמונים חוזרים במרווחים שווים? ${numHe(n(v, 'regular'))} מתוך ${numHe(n(v, 'testable'))} פזמונים שאפשר לבחון שווים יותר מאותן חזרות שהונחו באקראי בטווח שלהם (${pct(n(v, 'share'))} לעומת 5%, p ${fp(n(v, 'p'))}).`,
+    },
+    refrain_turns: {
+      title: 'פזמונים במפנים',
+      text: (v: V) =>
+        `האם פזמון עומד היכן שהטקסט מתחלף? המעבר החד ליד פסוק של פזמון מקבל ${x2(n(v, 'observed'))} לעומת ${x2(n(v, 'expected'))} בפסוקים אחרים בטווח שלו (p ${fp(n(v, 'p'))}, ${numHe(n(v, 'n'))} פסוקים).`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

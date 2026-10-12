@@ -58,7 +58,7 @@ def test_reader_too_long(built):
 def test_reader_without_stages(built):
     cfg, db = built
     with sqlite3.connect(db) as conn:
-        for t in ("clauses", "phrases", "wordplay", "kq_pairs", "segment_gaps"):
+        for t in ("clauses", "phrases", "wordplay", "kq_pairs", "segment_gaps", "refrains"):
             conn.execute(f"DELETE FROM {t}")
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()

@@ -2,7 +2,7 @@
 
 import type { Layer } from '../i18n/pages/reader'
 
-export const LAYERS: readonly Layer[] = ['speakers', 'cola', 'leitworte', 'phrases', 'rare', 'wordplay', 'ketiv', 'turns']
+export const LAYERS: readonly Layer[] = ['speakers', 'cola', 'leitworte', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'turns']
 export const DEFAULT_LAYERS: Layer[] = ['speakers', 'leitworte', 'turns']
 
 /** `?layers=` (comma-separated; absent: the default set, empty: none). */

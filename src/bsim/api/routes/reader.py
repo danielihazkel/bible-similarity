@@ -14,6 +14,7 @@ from bsim.api import queries
 from bsim.api.models import (
     ReaderGap,
     ReaderKetiv,
+    ReaderRefrain,
     ReaderResponse,
     ReaderSpeaker,
     ReaderVerse,
@@ -45,7 +46,7 @@ def _speech(
 @router.get("/reader/{unit_id}", response_model=ReaderResponse)
 def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
-    pairs, ketiv / qere and the turns and MAM breaks before each verse."""
+    pairs, ketiv / qere, refrains and the turns and MAM breaks before each verse."""
     u = unit_or_404(conn, unit_id)
     limit = state.cfg["serve"]["max_compare_verses"]
     if u["n_verses"] > limit:
@@ -128,6 +129,17 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 **{k: r[k] for k in ("ketiv", "qere", "cls")},
             )
         )
+    # refrains: each token of a phrase that comes back nearby, the strongest refrain first
+    found: dict[int, ReaderRefrain] = {}
+    ref_at: dict[int, dict[int, int]] = defaultdict(dict)
+    for r in queries.refrains_in(conn, first, last):
+        if r["refrain_id"] not in found:
+            found[r["refrain_id"]] = ReaderRefrain(
+                **{k: r[k] for k in ("refrain_id", "text", "k", "known")}
+            )
+        i = list(found).index(r["refrain_id"])
+        for t in range(r["first"], r["last"] + 1):
+            ref_at[r["verse_id"]].setdefault(t, i)
     gaps = {
         g["verse_id"]: ReaderGap(
             score=g["score"], kind=g["kind"], mam=g["mam"], chapter=bool(g["chapter"])
@@ -144,12 +156,15 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "wordplay": state.present(conn, "wordplay"),
             "ketiv": state.present(conn, "kq_pairs"),
             "gaps": state.present(conn, "segment_gaps"),
+            "refrains": state.present(conn, "refrains"),
         },
         "speakers": speakers,
+        "refrains": list(found.values()),
         "verses": [
             ReaderVerse(
                 verse_id=v,
                 speech={str(t): index[s] for t, s in sorted(speech.get(v, {}).items())},
+                refrains={str(t): i for t, i in sorted(ref_at.get(v, {}).items())},
                 phrases={str(t): len(o) for t, o in sorted(partners.get(v, {}).items())},
                 rare={str(t): n for t, n in sorted(rare.get(v, {}).items())},
                 wordplay=wordplay.get(v, []),

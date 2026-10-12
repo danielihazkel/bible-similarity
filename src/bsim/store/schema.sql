@@ -730,6 +730,34 @@ CREATE TABLE root_leitworte (
     PRIMARY KEY (unit_id, rank)
 ) WITHOUT ROWID;
 
+-- Phrases that come back inside a passage (`bsim refrains`, §16.40): refrain_id 1 = the strongest
+-- burst; strongest = the strongest refrain of its group sharing a verse (the tests' sample).
+CREATE TABLE refrains (
+    refrain_id INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    k INTEGER NOT NULL,             -- verses holding it
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_tokens INTEGER NOT NULL,      -- lemmas of the phrase (prefixes dropped)
+    p REAL NOT NULL,                -- burst: Poisson chance of k verses in its span at the seed's book rate
+    q REAL NOT NULL,                -- false discovery rate against verse orders shuffled within books
+    cv REAL NOT NULL,               -- coefficient of variation of the gaps between its verses
+    regular_p REAL,                 -- random placements as even (NULL: too few to test)
+    turn REAL,                      -- mean of each verse's sharper neighbouring gap score (§16.29)
+    strongest INTEGER NOT NULL,
+    known TEXT,                     -- the refrain of `refrains.known` it is
+    text TEXT NOT NULL,             -- its first occurrence, pointed
+    lemmas TEXT NOT NULL
+);
+
+CREATE TABLE refrain_verses (
+    refrain_id INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    first INTEGER NOT NULL,         -- display tokens of the phrase, inclusive
+    last INTEGER NOT NULL,
+    PRIMARY KEY (refrain_id, verse_id)
+) WITHOUT ROWID;
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

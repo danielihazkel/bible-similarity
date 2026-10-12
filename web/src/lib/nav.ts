@@ -42,6 +42,7 @@ export const NAV: NavEntry[] = [
       { to: '/divisions', key: 'divisions' },
       { to: '/ketiv', key: 'ketiv' },
       { to: '/roots', key: 'roots' },
+      { to: '/refrains', key: 'refrains' },
       { to: '/poetry', key: 'poetry' },
       { to: '/wordplay', key: 'wordplay' },
       { to: '/names', key: 'names' },

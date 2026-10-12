@@ -293,6 +293,12 @@ def stage_roots(cfg: dict[str, Any], log: Log) -> None:
     run_roots(cfg, log=log)
 
 
+def stage_refrains(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.refrains import run_refrains
+
+    run_refrains(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -349,6 +355,7 @@ STAGES: dict[str, str] = {
     "mirrors": "stage_mirrors",
     "meter": "stage_meter",
     "roots": "stage_roots",
+    "refrains": "stage_refrains",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -403,6 +410,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
     "meter": (*_CORPUS, "parallelism"),
     "roots": (*_CORPUS,),
+    "refrains": (*_CORPUS, "segments"),
     "eval-etcbc": (*_CORPUS, "build-links", *_TOPK, "eval-openbible", "phrases", "sequences"),
 }
 DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")

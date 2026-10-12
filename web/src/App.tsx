@@ -11,6 +11,7 @@ const KetivPage = lazy(() => import('./pages/KetivPage').then((m) => ({ default:
 const RootsPage = lazy(() => import('./pages/RootsPage').then((m) => ({ default: m.RootsPage })))
 const RootPage = lazy(() => import('./pages/RootPage').then((m) => ({ default: m.RootPage })))
 const ReaderPage = lazy(() => import('./pages/ReaderPage').then((m) => ({ default: m.ReaderPage })))
+const RefrainsPage = lazy(() => import('./pages/RefrainsPage').then((m) => ({ default: m.RefrainsPage })))
 const DivisionsPage = lazy(() => import('./pages/DivisionsPage').then((m) => ({ default: m.DivisionsPage })))
 const AcrosticsPage = lazy(() => import('./pages/AcrosticsPage').then((m) => ({ default: m.AcrosticsPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -79,6 +80,7 @@ export function App() {
           <Route path="roots" element={<RootsPage />} />
           <Route path="root/:root" element={<RootPage />} />
           <Route path="read/:unitId" element={<ReaderPage />} />
+          <Route path="refrains" element={<RefrainsPage />} />
           <Route path="citations" element={<CitationsPage />} />
           <Route path="findings" element={<FindingsPage />} />
           <Route path="map" element={<MapPage />} />

@@ -1700,6 +1700,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/refrains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Refrains
+         * @description The detection against shuffled verse orders, the spacing and turn tests, the refrains
+         *     named in advance and the refrains per book.
+         */
+        get: operations["refrains_api_refrains_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/refrains/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Refrain List
+         * @description Refrains, strongest burst first, with every verse holding them (the phrase marked).
+         */
+        get: operations["refrain_list_api_refrains_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -1710,7 +1751,7 @@ export interface paths {
         /**
          * Reader
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
-         *     pairs, ketiv / qere and the turns and MAM breaks before each verse.
+         *     pairs, ketiv / qere, refrains and the turns and MAM breaks before each verse.
          */
         get: operations["reader_api_reader__unit_id__get"];
         put?: never;
@@ -2571,7 +2612,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2819,7 +2860,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns";
             /**
              * Verdict
              * @enum {string}
@@ -3700,6 +3741,17 @@ export interface components {
              */
             cls: "vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other";
         };
+        /** ReaderRefrain */
+        ReaderRefrain: {
+            /** Refrain Id */
+            refrain_id: number;
+            /** Text */
+            text: string;
+            /** K */
+            k: number;
+            /** Known */
+            known: string | null;
+        };
         /**
          * ReaderResponse
          * @description The word-level layers of the layered reader (`/reader/{unit_id}`) for one unit.
@@ -3714,6 +3766,8 @@ export interface components {
             };
             /** Speakers */
             speakers: components["schemas"]["ReaderSpeaker"][];
+            /** Refrains */
+            refrains: components["schemas"]["ReaderRefrain"][];
             /** Verses */
             verses: components["schemas"]["ReaderVerse"][];
         };
@@ -3732,6 +3786,10 @@ export interface components {
         ReaderVerse: {
             /** Verse Id */
             verse_id: number;
+            /** Refrains */
+            refrains: {
+                [key: string]: number;
+            };
             /** Speech */
             speech: {
                 [key: string]: number;
@@ -3773,6 +3831,118 @@ export interface components {
             kind: "substitution" | "metathesis" | "extension";
             /** Q */
             q: number;
+        };
+        /**
+         * Refrain
+         * @description A phrase that comes back inside a passage (DESIGN.md §16.40).
+         */
+        Refrain: {
+            /** Refrain Id */
+            refrain_id: number;
+            /** Book Id */
+            book_id: number;
+            /** K */
+            k: number;
+            /** N Tokens */
+            n_tokens: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+            /** Cv */
+            cv: number;
+            /** Regular P */
+            regular_p: number | null;
+            /** Turn */
+            turn: number | null;
+            /** Strongest */
+            strongest: boolean;
+            /** Known */
+            known: string | null;
+            /** Text */
+            text: string;
+            /** Lemmas */
+            lemmas: string;
+            /** Occurrences */
+            occurrences: components["schemas"]["RefrainVerse"][];
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+        };
+        /** RefrainBook */
+        RefrainBook: {
+            /** Book Id */
+            book_id: number;
+            /** Refrains */
+            refrains: number;
+            /** Strongest */
+            strongest: number;
+        };
+        /**
+         * RefrainKnown
+         * @description A refrain scholarship names, fixed in advance, and the refrain found for it.
+         */
+        RefrainKnown: {
+            /** Name */
+            name: string;
+            /** First Vid */
+            first_vid: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** N Verses */
+            n_verses: number;
+            /** Refrain Id */
+            refrain_id: number | null;
+            /** Text */
+            text: string | null;
+            /** K */
+            k: number | null;
+            /** Q */
+            q: number | null;
+        };
+        /** RefrainVerse */
+        RefrainVerse: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** First */
+            first: number;
+            /** Last */
+            last: number;
+        };
+        /** RefrainsListResponse */
+        RefrainsListResponse: {
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Strongest */
+            strongest: boolean;
+            /** Known */
+            known: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Refrain"][];
+        };
+        /** RefrainsResponse */
+        RefrainsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: components["schemas"]["RefrainKnown"][];
+            /** Books */
+            books: components["schemas"]["RefrainBook"][];
         };
         /**
          * RelationPair
@@ -7761,6 +7931,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RootFamily"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refrains_api_refrains_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefrainsResponse"];
+                };
+            };
+        };
+    };
+    refrain_list_api_refrains_list_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                unit?: string | null;
+                strongest?: boolean;
+                known?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefrainsListResponse"];
                 };
             };
             /** @description Validation Error */

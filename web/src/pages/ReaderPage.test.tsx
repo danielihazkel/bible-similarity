@@ -45,11 +45,13 @@ const VERSE_DETAIL: UnitDetail = {
 const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
-  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true },
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true },
   speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2 }],
+  refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
   verses: [
     {
       verse_id: 0,
+      refrains: {},
       speech: {},
       phrases: { '0': 6 },
       rare: { '1': 1 },
@@ -71,6 +73,7 @@ const READER: ReaderResponse = {
     },
     {
       verse_id: 1,
+      refrains: { '0': 0, '1': 0 },
       speech: { '2': 0, '3': 0 },
       phrases: {},
       rare: {},
@@ -207,6 +210,13 @@ describe('ReaderPage', () => {
     await waitFor(() => expect(container.querySelectorAll('.wp-partner')).toHaveLength(1))
     expect(container.querySelector('.wp-partner')?.textContent).toContain('אוֹר')
     expect(container.querySelector('.wp-partner')?.getAttribute('title')).toBe('written אר, read אוֹר: A vowel letter')
+  })
+
+  it('marks the refrains and links to them', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=refrains')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .rf')).toHaveLength(2))
+    expect(container.querySelector('.reader-text .rf')?.getAttribute('title')).toBe('refrain וַיֹּאמֶר אֱלֹהִים: in 9 verses')
+    expect(screen.getByRole('link', { name: 'Every refrain here' }).getAttribute('href')).toBe('/refrains?unit=c%3A0%3A1&all=1')
   })
 
   it('counts Leitworte by root on request', async () => {

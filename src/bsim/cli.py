@@ -113,6 +113,14 @@ def mirrors(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def refrains(config: ConfigOpt = None) -> None:
+    """Phrases that come back inside a passage: refrains, their spacing and the turns they mark."""
+    from bsim.analysis.refrains import run_refrains
+
+    run_refrains(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots
