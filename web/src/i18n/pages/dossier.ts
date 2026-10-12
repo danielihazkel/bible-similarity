@@ -47,6 +47,7 @@ export const dosEn = {
     mirrors: (n: number) => countEn(n, 'mirrored order', 'mirrored orders'),
     echoes: (n: number) => countEn(n, 'directed echo with another book', 'directed echoes with other books'),
     meter: (net: number) => `lines fall like a lament (net ${net.toFixed(2)})`,
+    roots: (n: number) => countEn(n, 'pair of words of one root', 'pairs of words of one root'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -75,6 +76,7 @@ export const dosEn = {
     mirrors: 'mirrored order',
     echoes: 'who echoes whom',
     meter: 'falling lines',
+    roots: 'words of one root',
   } as Record<DossierKind, string>,
 }
 
@@ -118,6 +120,7 @@ export const dosHe: typeof dosEn = {
     mirrors: (n: number) => countHe(n, 'סדר הפוך אחד', 'שני סדרים הפוכים', 'סדרים הפוכים'),
     echoes: (n: number) => countHe(n, 'הד מכוון אחד עם ספר אחר', 'שני הדים מכוונים עם ספרים אחרים', 'הדים מכוונים עם ספרים אחרים'),
     meter: (net: number) => `שורות יורדות כקינה (נטו ${net.toFixed(2)})`,
+    roots: (n: number) => countHe(n, 'זוג מילים אחד מאותו שורש', 'שני זוגות מילים מאותו שורש', 'זוגות מילים מאותו שורש'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -145,5 +148,6 @@ export const dosHe: typeof dosEn = {
     mirrors: 'סדר הפוך',
     echoes: 'מי מהדהד את מי',
     meter: 'שורות יורדות',
+    roots: 'מילים מאותו שורש',
   },
 }

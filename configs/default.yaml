@@ -561,6 +561,23 @@ meter:                        # `bsim meter`: stresses per line and the falling 
   top_patterns: 6             # commonest a:b patterns listed per chapter group
   seed: 13
 
+roots:                        # `bsim roots`: root families, words of one root side by side, Leitworte by root (DESIGN.md §16.38)
+  min_radicals: 2             # a root needs this many strong radicals to gather a family (the consonant check)
+  max_depth: 2                # derivation links followed at most (longer chains are Strong's guesses)
+  exclude: [8671, 8672, 8673, 1285, 410, 433, 430]   # kept out of families: wrong derivations that pass the checks (nine / ninety / ninth "from" שעה, ברית "from" ברר) and the divine names (אל, אלוה, אלהים)
+  window: 3                   # two words of one root at most this many words apart in a verse
+  shuffles: 200               # content words permuted within chapters (the chance count)
+  known:                      # [chapter, root (Strong's)]: Leitworte scholarship names, fixed in advance
+    - ["Gen 27", 1288]        # ברך: the stolen blessing
+    - ["Gen 37", 2492]        # חלם: Joseph's dreams
+    - ["Gen 32", 6437]        # פנה: face to face at the Jabbok
+    - ["Jonah 1", 3381]       # ירד: Jonah goes down
+    - ["Jonah 1", 1431]       # גדל: great wind, great fear
+    - ["Ruth 1", 7725]        # שוב: turning back
+    - ["1Sam 15", 8085]       # שמע: listening and obeying
+    - ["2Sam 11", 7971]       # שלח: David sends
+  seed: 13
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)

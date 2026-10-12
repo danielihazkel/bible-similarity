@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
@@ -80,6 +80,7 @@ const WORDS: WordDetail[] = [
     in_formula: false,
     lemmas: [{ lemma: '559', he_lemma: 'אמר', n_verses: 4300 }],
     domains: ['002003001'],
+    roots: [{ lemma: '559', root: '559', root_he: 'אָמַר' }],
   },
 ]
 
@@ -164,6 +165,7 @@ const DOSSIER: Dossier = {
     entry({ kind: 'mirrors', count: 1 }),
     entry({ kind: 'echoes', count: 2 }),
     entry({ kind: 'meter', scope: 'chapter', target_unit: 'c:25:118', value: 0.61, count: 1 }),
+    entry({ kind: 'roots', count: 2 }),
   ],
 }
 
@@ -283,6 +285,7 @@ describe('UnitPage', () => {
     expect(link('1 mirrored order')).toBe('/structure?view=small&unit=v%3A0')
     expect(link('2 directed echoes with other books')).toBe('/network?view=directions&unit=v%3A0')
     expect(link('lines fall like a lament (net 0.61) (chapter)')).toBe('/unit/c%3A25%3A118?halves=1&meter=1')
+    expect(link('2 pairs of words of one root')).toBe('/roots?unit=v%3A0')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')
@@ -334,6 +337,7 @@ describe('UnitPage', () => {
     const panel = await screen.findByLabelText('Word analysis')
     await waitFor(() => expect(panel.textContent).toContain('פועל · קל · עבר'))
     expect(panel.querySelector('a')?.getAttribute('href')).toBe('/lemma/559')
+    expect(within(panel).getByRole('link', { name: 'root אָמַר' }).getAttribute('href')).toBe('/root/559')
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByLabelText('Word analysis')).toBeNull()
   })

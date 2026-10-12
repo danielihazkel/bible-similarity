@@ -159,6 +159,7 @@ bible-similarity/
 │   │   ├── echoes.py               # `bsim echoes`: a direction on the cross-book echoes (§16.36)
 │   │   ├── mirrors.py              # `bsim mirrors`: chiasm in repeated words and clause pairs (§16.33)
 │   │   ├── meter.py                # `bsim meter`: stresses per line, the falling lament line (§16.37)
+│   │   ├── roots.py                # `bsim roots`: root families, words of one root side by side, Leitworte by root (§16.38)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
@@ -174,7 +175,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -244,11 +245,12 @@ bible-similarity/
 | 11e''''''' | `bsim echoes` | units, network edges, citations, borrowing sequences, dating chapters | `artifacts/echoes/{edges,books,chapters}.parquet` + `echoes.meta.json` (§16.36) |
 | 11e'''''' | `bsim mirrors` | verses, words, syntax phrases, parallelism | `artifacts/mirrors/{verses,clauses}.parquet` + `mirrors.meta.json` (§16.33) |
 | 11e⁸ | `bsim meter` | verses, words, parallelism | `artifacts/meter/{lines,chapters}.parquet` + `meter.meta.json` (§16.37) |
+| 11e⁹ | `bsim roots` | raw HebrewStrong.xml, verses, words, units | `artifacts/roots/{lemmas,pairs,books,leitworte}.parquet` + `roots.meta.json` (§16.38) |
 | 11f' | `bsim eval-etcbc` | ETCBC `crossref` + BHSA verse grid, final verse top-k, sequences, phrases | `data/processed/etcbc_links.parquet`, `artifacts/eval/etcbc.{json,md}` (§16.34) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

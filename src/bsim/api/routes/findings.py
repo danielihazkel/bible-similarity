@@ -179,6 +179,33 @@ def _meter(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None
     return Finding(key="meter", verdict="holds" if holds else "fails", values=values)
 
 
+def _cognate(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    t = ((meta.get("roots") or {}).get("tests") or {}).get("cognate")
+    if not t:
+        return None
+    values = {k: t[k] for k in ("observed", "expected", "ratio", "p")}
+    # the claim: a verb takes a noun of its own root nearby more often than chance
+    holds = t["ratio"] > 1 and t["p"] <= alpha
+    return Finding(key="cognate", verdict="holds" if holds else "fails", values=values)
+
+
+def _root_leitworte(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    r = meta.get("roots") or {}
+    if not r.get("known"):
+        return None
+    values = {
+        "n": len(r["known"]),
+        "top": r.get("top"),
+        "by_root": r.get("known_top_root"),
+        "by_lemma": r.get("known_top_lemma"),
+        "better": r.get("known_better"),
+        "hidden": r.get("hidden"),
+    }
+    # the claim: counted by root, the Leitworte scholarship names rank higher than by lemma
+    holds = (r.get("known_top_root") or 0) > (r.get("known_top_lemma") or 0)
+    return Finding(key="root_leitworte", verdict="holds" if holds else "fails", values=values)
+
+
 def _laments(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     n = (meta.get("meter") or {}).get("named") or {}
     if n.get("p") is None:
@@ -197,10 +224,12 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _voices,
     _clauses,
     _meter,
+    _cognate,
     _echoes,
     _sevens,
     _chiasm,
     _laments,
+    _root_leitworte,
     _allusions,
 ]
 

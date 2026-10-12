@@ -49,6 +49,22 @@ const STRUCTURE: StructureResponse = {
   leitworte: [
     { lemma: '113', he_lemma: 'אדון', count: 2, expected: 0.1, g2: 12, multiple_of: [], occurrences: { '10': [1], '12': [1] } },
   ],
+  root_leitworte: [
+    {
+      root: '2142',
+      root_he: 'זָכַר',
+      count: 4,
+      expected: 0.3,
+      g2: 15,
+      lemmas: [
+        { lemma: '2142', he_lemma: 'זכר', n_verses: 220 },
+        { lemma: '2143', he_lemma: 'זכר', n_verses: 23 },
+      ],
+      hidden: true,
+      occurrences: { '10': [0], '11': [1] },
+    },
+    { root: '113', root_he: 'אדון', count: 2, expected: 0.1, g2: 12, lemmas: [{ lemma: '113', he_lemma: 'אדון', n_verses: 300 }], hidden: false, occurrences: {} },
+  ],
 }
 const RANKING: StructureRankingResponse = {
   unit_type: 'chapter',
@@ -162,6 +178,14 @@ describe('structure panel', () => {
     expect(screen.getByText(/8:2 ↔ 8:10, 0.90/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: /אדון/ }))
     await waitFor(() => expect(container.ownerDocument.querySelectorAll('.source .w-focus')).toHaveLength(2))
+    // a root whose two words are counted together: one chip (✦: neither word is a Leitwort alone)
+    expect(screen.queryAllByRole('button', { name: /אדון/ })).toHaveLength(1)
+    const root = screen.getByRole('button', { name: /זָכַר/ })
+    expect(root.textContent).toContain('✦')
+    fireEvent.click(root)
+    await waitFor(() => expect(root.getAttribute('aria-pressed')).toBe('true'))
+    const focus = container.ownerDocument.querySelectorAll('.source .w-focus')
+    expect([...focus].map((e) => e.textContent)).toEqual(['יְהוָה', 'עוֹלְלִים'])
   })
 })
 

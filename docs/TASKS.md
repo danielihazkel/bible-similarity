@@ -621,12 +621,22 @@ Phase 3 (M39c): API and viewer
 
 ✔ Lamentations 1–4 fall: net fall 0.39 against 0.17 for poetry under the same accents (p 0.008) and 0.14 for Psalms, Proverbs and Job (p 0.001), at every line length tried (p ≤ 0.011); 3:2 is Lamentations' commonest line; Lam 5 at the 74th percentile; chapters naming קינה not borne out (p 0.26), though Ezek 19 and 27 fall like Lamentations; 496 pytest, 146 / 146 vitest, 179 / 179 fixture (1 skipped by design) and 134 / 134 real-data e2e.
 
+## M61: Root families (§16.38, D74; proposed A2)
+- [x] `bsim roots` (`analysis/roots.py`, pipeline stage after meter, ~35 s): Strong's derivations followed at most `max_depth` links, kept where the word is the root's strong radicals in a Hebrew shape; names, Aramaic, patronymics, the divine names and `exclude` out
+- [x] Words of one root side by side (cognate verb + noun, other, infinitive absolute) against content words permuted within chapters; per book counts
+- [x] Leitworte by root per chapter; check fixed in advance on eight named Leitworte; hidden key roots (two or more words, none a Leitwort alone)
+- [x] DB `lemma_roots`, `root_pairs`, `root_books`, `root_leitworte` (+ `meta.roots`); API `/roots`, `/roots/pairs`, `/roots/hidden`, `/root/{root}`, `root_leitworte` on `/structure`, `roots` on `/words`; dossier `roots`; findings `cognate`, `root_leitworte`; CSV `root-pairs`, `hidden-roots`
+- [x] Viewer: Patterns → Roots (side by side, key roots), the root page, a root chip in the word panel, "By root" chips in the structure panel; English and Hebrew
+- [x] Tests: radicals and shapes, derivations, families (depth, names, exclude), tokens and pairs, the vectorised count against the pair list, the API, dossier, findings, export and DB on the fixture (pytest); the page, its views and filters, Hebrew, the empty state, the family page, both panels' chips, the dossier chip, the findings (vitest); e2e: the pages, dossier chip → pairs → root
+
+✔ A verb takes a noun of its own root nearby 4.1 times as often as chance (1,677 vs 406, p 0.005); counted by root, the eight named Leitworte do not rank higher (6 / 8 in the top 12 either way: 3 up, 3 down); 896 hidden key roots as leads; the infinitive absolute is rare in Chronicles (0.15 per 1,000 words vs ~1 in Kings); 506 pytest, 152 / 152 vitest, 189 / 189 fixture (1 skipped by design) and 140 / 140 real-data e2e (a word-chip contrast on the root page fixed).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
 Analyses
 - [x] A1 (done, M60) Meter: stresses per colon (accented words, maqaf-joined = one) over the existing cola (`text/accents.py`); balanced vs falling lines per book / chapter. Claim: Lamentations 1–4 have more falling (qinah, 3:2) lines than other poetry (chapter permutation); Isa 14:4–21, Amos 5:2 as known extras, Lam 5 as control. Poetry tab, stress counts on the verse halves
-- A2 Root families: Strong's derivation links in HebrewStrong.xml (already downloaded; parse to check) → root families; Leitworte by root (§16.2 is by lemma) checked on Gen 27 ברך, Jonah ירד / גדל, 1 Sam 15 שמע / קול; figura etymologica (infinitive absolute + finite verb, cognate objects; out of scope in §16.10) per book against a shuffle; root chip and concordance by root
+- [x] A2 (done, M61) Root families: Strong's derivation links in HebrewStrong.xml (already downloaded; parse to check) → root families; Leitworte by root (§16.2 is by lemma) checked on Gen 27 ברך, Jonah ירד / גדל, 1 Sam 15 שמע / קול; figura etymologica (infinitive absolute + finite verb, cognate objects; out of scope in §16.10) per book against a shuffle; root chip and concordance by root
 - A3 Refrains: Smith–Waterman within a book (`analysis/phrases.py`), phrases recurring ≥ 3 times, gap regularity against a verse shuffle; known list in config (Amos 4:6–11, Isa 9:11–10:4, Ps 42–43, Ps 107, Ps 136, Gen 1); second claim: refrains fall at the turns of §16.29
 - A4 Psalm genres and the lament turn: per-psalm address / person / imperatives / SDBH distress vs praise domains, clusters against Gunkel's genres in config (NMI vs shuffled labels); a change point inside laments checked on known turns (Ps 6:9, 13:6, 22:23, 28:6)
 - A5 Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way

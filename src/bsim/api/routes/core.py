@@ -31,6 +31,7 @@ from bsim.api.models import (
     Pair,
     PhraseInfo,
     ResolveResponse,
+    RootRef,
     SearchHit,
     SearchMode,
     SearchResponse,
@@ -378,6 +379,12 @@ def words(verse_id: int, state: State, conn: Conn) -> list[WordDetail]:
     verse_or_404(state, verse_id)
     rows = queries.words(conn, [verse_id], detail=True)
     stats = queries.lemma_stats(conn, (lem for w in rows for lem in w["content_lemmas"].split()))
+    index = state.roots(conn)
+
+    def roots_of(lemmas: list[str]) -> list[RootRef]:
+        fams = ((lem, index.family(lem)) for lem in dict.fromkeys(lemmas))
+        return [RootRef(lemma=lem, root=f[0], root_he=f[1]) for lem, f in fams if f]
+
     return [
         WordDetail(
             idx=w["idx"],
@@ -389,6 +396,7 @@ def words(verse_id: int, state: State, conn: Conn) -> list[WordDetail]:
             in_formula=bool(w["in_formula"]),
             lemmas=[_lemma_stat(stats, lem) for lem in dict.fromkeys(w["content_lemmas"].split())],
             domains=(w["domains"] or "").split(),
+            roots=roots_of(w["content_lemmas"].split()),
         )
         for w in rows
     ]

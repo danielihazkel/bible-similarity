@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { useStructure } from '../api/hooks'
-import type { Leitwort, StructureBasis, StructureScore, Verse } from '../api/types'
-import { useT } from '../context/localeContext'
+import type { Leitwort, RootLeitwort, StructureBasis, StructureScore, Verse } from '../api/types'
+import { useLocale, useT } from '../context/localeContext'
 import { compareLink } from '../lib/links'
 import { Segmented } from './Controls'
 import { ErrorBox, Loading } from './Status'
@@ -85,9 +85,47 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
               </button>
             ))}
           </div>
+          <RootChips roots={res.data.root_leitworte} lemma={lemma} onLemma={onLemma} />
         </div>
       )}
     </div>
+  )
+}
+
+/** The unit's Leitworte by root, where a root gathers two or more of its words: a chip highlights
+ * all of them in the text (as a Leitwort does), ✦ marks a root none of whose words is a Leitwort. */
+function RootChips({ roots, lemma, onLemma }: { roots: RootLeitwort[]; lemma: string | undefined; onLemma: Props['onLemma'] }) {
+  const { m } = useLocale()
+  const t = m.root
+  const shown = roots.filter((r) => r.lemmas.length > 1)
+  if (shown.length === 0) return null
+  return (
+    <>
+      <h4>{t.rootLeitworte}</h4>
+      <p className="muted small">{t.rootLeitworteLede}</p>
+      <div className="chips root-leitworte">
+        {shown.map((r) => {
+          const key = `root:${r.root}`
+          const asLeitwort: Leitwort = { lemma: key, he_lemma: r.root_he, count: r.count, expected: r.expected, g2: r.g2, multiple_of: [], occurrences: r.occurrences }
+          return (
+            <button
+              key={key}
+              type="button"
+              className={`chip ${lemma === key ? 'on' : ''}`}
+              aria-pressed={lemma === key}
+              title={t.rootLeitwortTitle(r.count, r.expected.toFixed(1), r.g2.toFixed(0), r.lemmas.map((l) => l.he_lemma).join(' · '))}
+              onClick={() => onLemma(lemma === key ? undefined : key, asLeitwort)}
+            >
+              {r.hidden && <span aria-hidden="true">{t.hiddenMark} </span>}
+              <span dir="rtl" lang="he">
+                {r.root_he}
+              </span>{' '}
+              <span className="small">×{r.count}</span>
+            </button>
+          )
+        })}
+      </div>
+    </>
   )
 }
 

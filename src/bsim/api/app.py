@@ -102,6 +102,7 @@ class ServeState:
     dossier_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _present: dict[str, bool] = field(default_factory=dict)
     _lemma_total: int | None = None
+    _roots: queries.RootIndex | None = None
     _verse_books: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
 
@@ -110,6 +111,13 @@ class ServeState:
         if self._lemma_total is None:
             self._lemma_total = queries.corpus_lemma_total(conn)
         return self._lemma_total
+
+    def roots(self, conn: sqlite3.Connection) -> queries.RootIndex:
+        """Each lemma's root family and each root's corpus count (`queries.root_index`), read
+        once; empty without `bsim roots`."""
+        if self._roots is None:
+            self._roots = queries.root_index(conn)
+        return self._roots
 
     def present(self, conn: sqlite3.Connection, table: str) -> bool:
         """Whether a table has rows: an optional stage that did not run leaves it empty (read once

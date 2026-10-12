@@ -221,6 +221,17 @@ export interface WordDetail {
   lemmas: LemmaStat[]
   /** SDBH domain codes of its content morphemes (named by `/domains`) */
   domains: string[]
+  /** its content lemmas' root families (`bsim roots`; empty without it) */
+  roots: RootRef[]
+}
+
+/** A content lemma's root family (DESIGN.md §16.38), when the family has other words */
+export interface RootRef {
+  lemma: string
+  /** Strong's number of the root */
+  root: string
+  /** the root's Strong's headword */
+  root_he: string
 }
 
 export interface BookCount {
@@ -332,6 +343,22 @@ export interface StructureResponse {
   semantic: StructureBasis
   lexical: StructureBasis
   leitworte: Leitwort[]
+  /** Leitworte with each root's words counted together (empty without `bsim roots`) */
+  root_leitworte: RootLeitwort[]
+}
+
+export interface RootLeitwort {
+  root: string
+  root_he: string
+  count: number
+  expected: number
+  g2: number
+  /** the family's words in the unit */
+  lemmas: LemmaStat[]
+  /** two or more words, none of them among the Leitworte by lemma */
+  hidden: boolean
+  /** verse_id -> display token indices */
+  occurrences: Record<string, number[]>
 }
 
 export type StructureSort = 'semantic_chiasm' | 'lexical_chiasm' | 'semantic_inclusio' | 'lexical_inclusio'
@@ -1296,6 +1323,7 @@ export type DossierKind =
   | 'mirrors'
   | 'echoes'
   | 'meter'
+  | 'roots'
   | 'labels'
 
 export interface DossierEntry {
@@ -1831,10 +1859,12 @@ export type FindingKey =
   | 'voices'
   | 'clauses'
   | 'meter'
+  | 'cognate'
   | 'echoes'
   | 'sevens'
   | 'chiasm'
   | 'laments'
+  | 'root_leitworte'
   | 'allusions'
 
 export interface Finding {
@@ -2118,4 +2148,127 @@ export interface UnitMeter {
   /** the chapter the unit starts in */
   chapter: MeterChapter | null
   verses: MeterVerse[]
+}
+
+// --- root families (DESIGN.md §16.38) ---
+
+export type RootPairKind = 'cognate' | 'other' | 'inf_abs'
+
+export interface RootBook {
+  book_id: number
+  /** Hebrew words */
+  words: number
+  /** a verb and a noun of one root side by side */
+  cognate: number
+  /** ... with the content words permuted within chapters */
+  expected: number
+  /** infinitive absolute + finite verb (מות יומת) */
+  inf_abs: number
+}
+
+export interface RootKnown {
+  unit: UnitSummary
+  root: string
+  root_he: string
+  /** best rank of any word of the family, counted by lemma */
+  lemma_rank: number | null
+  /** rank of the family counted by root */
+  root_rank: number | null
+}
+
+export interface RootTest {
+  observed: number
+  expected: number
+  ratio: number
+  p: number
+}
+
+/** `meta.roots`, all keys absent without `bsim roots` */
+export interface RootsMeta {
+  entries?: number
+  derived?: number
+  joined?: number
+  lemmas?: number
+  families?: number
+  family_lemmas?: number
+  window?: number
+  shuffles?: number
+  pairs?: Record<RootPairKind, number>
+  tests?: { cognate: RootTest; other: RootTest }
+  known_top_lemma?: number
+  known_top_root?: number
+  known_better?: number
+  top?: number
+  hidden?: number
+}
+
+export interface RootsResponse {
+  meta: RootsMeta & Record<string, unknown>
+  known: RootKnown[]
+  /** canon order */
+  books: RootBook[]
+}
+
+export interface RootPair {
+  pair_id: number
+  verse_id: number
+  label: string
+  label_he: string
+  kind: RootPairKind
+  root: string
+  root_he: string
+  a: LemmaStat
+  b: LemmaStat
+  verse: Verse
+  /** display token -> 0 (the first word) or 1 */
+  marks: Record<string, number>
+}
+
+export interface RootPairsResponse {
+  kind: RootPairKind | null
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: RootPair[]
+}
+
+export interface HiddenRoot {
+  unit: UnitSummary
+  rank: number
+  root: string
+  root_he: string
+  count: number
+  g2: number
+  /** Strong's numbers of the family in the chapter */
+  n_words: number
+  /** best rank of one of them counted by lemma */
+  lemma_rank: number | null
+  lemmas: LemmaStat[]
+}
+
+export interface HiddenRootsResponse {
+  book: number | null
+  unit: string | null
+  total: number
+  offset: number
+  limit: number
+  items: HiddenRoot[]
+}
+
+export interface RootFamily {
+  root: string
+  root_he: string
+  /** commonest first */
+  members: LemmaStat[]
+  /** member lemma -> how Strong's derives it (from, feminine of, ...) */
+  links: Record<string, string>
+  n_verses: number
+  by_book: BookCount[]
+  book: number | null
+  total: number
+  offset: number
+  limit: number
+  items: ConcordanceHit[]
 }

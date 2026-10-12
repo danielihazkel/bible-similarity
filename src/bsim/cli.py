@@ -113,6 +113,18 @@ def mirrors(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def roots(config: ConfigOpt = None) -> None:
+    """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
+    from bsim.analysis.roots import run_roots
+
+    try:
+        run_roots(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def meter(config: ConfigOpt = None) -> None:
     """Count stresses per line from the te'amim and test the falling lament line."""
     from bsim.analysis.meter import run_meter

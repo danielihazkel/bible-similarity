@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useDomains, useWords } from '../api/hooks'
 import type { Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
-import { lemmaLink } from '../lib/links'
+import { lemmaLink, rootLink } from '../lib/links'
 import { DomainChip } from './DomainName'
 import { HebrewPlain } from './HebrewText'
 import { ErrorBox, Loading } from './Status'
@@ -46,6 +46,14 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
                       {l.he_lemma}
                     </span>{' '}
                     <span className="muted small">{m.word.verses(l.n_verses)}</span>
+                  </Link>
+                ))}
+                {w.roots.map((r) => (
+                  <Link key={`root-${r.root}`} className="chip root-chip" to={rootLink(r.root)} title={m.root.rootChipTitle}>
+                    {m.root.root}{' '}
+                    <span dir="rtl" lang="he">
+                      {r.root_he}
+                    </span>
                   </Link>
                 ))}
               </div>

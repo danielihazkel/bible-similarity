@@ -780,6 +780,47 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # root families (`bsim roots`): ראשית joins the root ראש; v0 holds a cognate pair, v1 an
+    # infinitive absolute; chapter 0:1 has a hidden Leitwort by root
+    root_dir = art / "roots"
+    root_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [("7218", "7218", "7218", "רֹאשׁ", None), ("7225", "7225", "7218", "רֹאשׁ", "from"),
+         ("430", "430", "430", "אֱלֹהִים", None), ("559", "559", "559", "אָמַר", None),
+         ("3068", "3068", "3068", "יְהֹוָה", None)],
+        columns=["lemma", "strong", "root", "root_he", "link"],
+    ).to_parquet(root_dir / "lemmas.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, 0, 2, "7218", "cognate", "7225", "559"), (1, 1, 2, "559", "inf_abs", "559", "559")],
+        columns=["verse_id", "a_idx", "b_idx", "root", "kind", "a_lemma", "b_lemma"],
+    ).to_parquet(root_dir / "pairs.parquet")
+    pd.DataFrame(
+        {"book_id": [0, 1], "words": [9, 1], "cognate": [1, 0], "expected": [0.5, 0.0],
+         "inf_abs": [1, 0]}
+    ).to_parquet(root_dir / "books.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("c:0:1", 1, "7218", 3, 5.0, 2, 14, True), ("c:0:2", 1, "7218", 2, 3.0, 1, 1, False)],
+        columns=["unit_id", "rank", "root", "count", "g2", "n_words", "lemma_rank", "hidden"],
+    ).astype({"lemma_rank": "Int64"}).to_parquet(root_dir / "leitworte.parquet")
+    (root_dir / "roots.meta.json").write_text(
+        json.dumps(
+            {
+                "entries": 5, "derived": 1, "joined": 1, "lemmas": 4, "families": 1,
+                "family_lemmas": 2, "window": 3, "shuffles": 20,
+                "pairs": {"cognate": 1, "other": 0, "inf_abs": 1},
+                "tests": {
+                    "cognate": {"observed": 1, "expected": 0.5, "ratio": 2.0, "p": 0.01},
+                    "other": {"observed": 0, "expected": 0.2, "ratio": 0.0, "p": 1.0},
+                },
+                "known": [{"chapter": "B0 1", "book_id": 0, "chapter_no": 1, "root": "7218",
+                           "he": "רֹאשׁ", "lemma_rank": 14, "root_rank": 1}],
+                "known_top_lemma": 0, "known_top_root": 1, "known_better": 1, "top": 12,
+                "hidden": 1,
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

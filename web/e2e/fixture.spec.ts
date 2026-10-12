@@ -28,6 +28,10 @@ const PAGES = [
   '/poetry',
   '/poetry?view=pairs',
   '/poetry?view=meter',
+  '/roots',
+  '/roots?view=key',
+  '/roots?kind=inf_abs',
+  '/root/7218',
   '/poetry?view=meter&group=pool',
   '/unit/c%3A0%3A1?halves=1&meter=1',
   '/wordplay',
@@ -134,6 +138,17 @@ test('a chapter whose lines fall like a lament links to the stresses of its line
   await expect(page.locator('.source .meter-badge').first()).toHaveText('3:1')
   await page.goto('/poetry?view=meter')
   await expect(page.getByRole('heading', { name: 'Does Lamentations fall?' })).toBeVisible()
+})
+
+test('a verse with two words of one root links to them, and on to the root', async ({ page }) => {
+  await page.goto('/unit/v%3A0')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: /pair of words of one root/ }).click()
+  await expect(page).toHaveURL(/\/roots\?unit=v%3A0/)
+  await expect(page.locator('.root-pair')).toHaveCount(1)
+  await page.locator('.root-pair').getByRole('link', { name: /root/ }).click()
+  await expect(page).toHaveURL(/\/root\/7218/)
+  await expect(page.locator('.root-members .lemma-chip')).toHaveCount(1)
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

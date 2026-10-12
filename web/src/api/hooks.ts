@@ -43,6 +43,11 @@ import type {
   AllusionsResponse,
   MeterGroup,
   MeterResponse,
+  HiddenRootsResponse,
+  RootFamily,
+  RootPairKind,
+  RootPairsResponse,
+  RootsResponse,
   UnitMeter,
   MirrorsResponse,
   MirrorVersesResponse,
@@ -416,6 +421,40 @@ export const useUnitMeter = (unitId: string | undefined) =>
     queryKey: ['unit-meter', unitId],
     queryFn: ({ signal }) => getJson<UnitMeter>(`/meter/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
+    ...forever,
+  })
+
+export const useRoots = () =>
+  useQuery({ queryKey: ['roots'], queryFn: ({ signal }) => getJson<RootsResponse>('/roots', {}, signal), ...forever })
+
+export type RootPairsQuery = { kind?: RootPairKind; book?: number; unit?: string; limit: number; offset: number }
+export const rootPairsParams = (q: RootPairsQuery): Params => ({ kind: q.kind, book: q.book, unit: q.unit })
+
+export const useRootPairs = (q: RootPairsQuery) =>
+  useQuery({
+    queryKey: ['root-pairs', q],
+    queryFn: ({ signal }) => getJson<RootPairsResponse>('/roots/pairs', { ...rootPairsParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export type HiddenRootsQuery = { book?: number; unit?: string; limit: number; offset: number }
+export const hiddenRootsParams = (q: HiddenRootsQuery): Params => ({ book: q.book, unit: q.unit })
+
+export const useHiddenRoots = (q: HiddenRootsQuery) =>
+  useQuery({
+    queryKey: ['hidden-roots', q],
+    queryFn: ({ signal }) => getJson<HiddenRootsResponse>('/roots/hidden', { ...hiddenRootsParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useRootFamily = (root: string | undefined, q: { book?: number; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['root', root, q],
+    queryFn: ({ signal }) => getJson<RootFamily>(`/root/${encodeURIComponent(root!)}`, { book: q.book, limit: q.limit, offset: q.offset }, signal),
+    enabled: !!root,
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

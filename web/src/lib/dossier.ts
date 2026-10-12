@@ -44,6 +44,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return unitLink(target, '?structure=1')
     case 'dating':
       return `/language?book=${unit.book_id}`
+    case 'roots':
+      return `/roots?unit=${u}`
     case 'meter':
       return unitLink(target, '?halves=1&meter=1')
     case 'speech':

@@ -541,6 +541,14 @@ class LemmaLookup(ApiModel):
     items: list[LemmaStat]  # exact matches first, then prefixes; the commonest first
 
 
+class RootRef(ApiModel):
+    """A content lemma's root family (DESIGN.md §16.38), when the family has other words."""
+
+    lemma: str
+    root: str  # Strong's number of the root
+    root_he: str  # the root's Strong's headword
+
+
 class WordDetail(ApiModel):
     idx: int
     display_idx: int | None
@@ -551,6 +559,7 @@ class WordDetail(ApiModel):
     in_formula: bool
     lemmas: list[LemmaStat]  # its content lemmas
     domains: list[str]  # SDBH domain codes of its content morphemes (`/domains` names them)
+    roots: list[RootRef] = []  # its content lemmas' root families (`bsim roots`)
 
 
 class BookCount(ApiModel):
@@ -759,12 +768,26 @@ class Leitwort(ApiModel):
     occurrences: dict[int, list[int]]  # verse_id -> display token indices
 
 
+class RootLeitwort(ApiModel):
+    """A root over-represented in the unit, its words counted together (DESIGN.md §16.38)."""
+
+    root: str
+    root_he: str
+    count: int
+    expected: float
+    g2: float
+    lemmas: list[LemmaStat]  # the family's words in the unit
+    hidden: bool  # two or more words, none of them among the Leitworte by lemma
+    occurrences: dict[int, list[int]]  # verse_id -> display token indices
+
+
 class StructureResponse(ApiModel):
     unit: UnitSummary
     verse_ids: list[int]
     semantic: StructureBasis
     lexical: StructureBasis
     leitworte: list[Leitwort]
+    root_leitworte: list[RootLeitwort] = []  # empty without `bsim roots`
 
 
 class StructureRank(ApiModel):
@@ -1312,7 +1335,7 @@ DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
-    "meter", "labels",
+    "meter", "roots", "labels",
 ]  # fmt: skip
 
 
@@ -1588,7 +1611,7 @@ class CitationListResponse(ApiModel):
 
 FindingKey = Literal[
     "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
-    "echoes", "sevens", "chiasm", "laments", "allusions",
+    "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions",
 ]  # fmt: skip
 
 
@@ -1802,3 +1825,95 @@ class UnitMeter(ApiModel):
     max_stresses: int
     chapter: MeterChapter | None  # the chapter the unit starts in
     verses: list[MeterVerse]
+
+
+RootPairKind = Literal["cognate", "other", "inf_abs"]
+
+
+class RootBook(ApiModel):
+    book_id: int
+    words: int  # Hebrew words
+    cognate: int  # a verb and a noun of one root side by side
+    expected: float  # ... with the content words permuted within chapters
+    inf_abs: int  # infinitive absolute + finite verb (מות יומת)
+
+
+class RootKnown(ApiModel):
+    """A Leitwort named in advance, ranked among its chapter's Leitworte both ways."""
+
+    unit: UnitSummary
+    root: str
+    root_he: str
+    lemma_rank: int | None  # best rank of any word of the family, counted by lemma
+    root_rank: int | None  # rank of the family counted by root
+
+
+class RootsResponse(ApiModel):
+    meta: dict[str, Any]  # families, pairs per kind, tests (cognate, other), known_*, hidden
+    known: list[RootKnown]
+    books: list[RootBook]  # canon order
+
+
+class RootPair(ApiModel):
+    """Two words of one root side by side in a verse (DESIGN.md §16.38)."""
+
+    pair_id: int
+    verse_id: int
+    label: str
+    label_he: str
+    kind: RootPairKind
+    root: str
+    root_he: str
+    a: LemmaStat
+    b: LemmaStat
+    verse: Verse
+    marks: dict[int, int]  # display token -> 0 (the first word) or 1
+
+
+class RootPairsResponse(ApiModel):
+    kind: RootPairKind | None
+    book: int | None
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[RootPair]
+
+
+class HiddenRoot(ApiModel):
+    """A chapter Leitwort that only shows when its words are counted as one root."""
+
+    unit: UnitSummary
+    rank: int
+    root: str
+    root_he: str
+    count: int
+    g2: float
+    n_words: int  # Strong's numbers of the family in the chapter
+    lemma_rank: int | None  # best rank of one of them counted by lemma
+    lemmas: list[LemmaStat]  # the family's words
+
+
+class HiddenRootsResponse(ApiModel):
+    book: int | None
+    unit: str | None
+    total: int
+    offset: int
+    limit: int
+    items: list[HiddenRoot]
+
+
+class RootFamily(ApiModel):
+    """A root family and a page of the verses holding any of its words (`/root/{root}`)."""
+
+    root: str
+    root_he: str
+    members: list[LemmaStat]  # commonest first
+    links: dict[str, str]  # member lemma -> how Strong's derives it (from, feminine of, ...)
+    n_verses: int
+    by_book: list[BookCount]
+    book: int | None
+    total: int
+    offset: int
+    limit: int
+    items: list[ConcordanceHit]

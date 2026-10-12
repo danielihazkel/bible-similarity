@@ -8,6 +8,8 @@ import { BooksPage } from './pages/BooksPage'
 const FindingsPage = lazy(() => import('./pages/FindingsPage').then((m) => ({ default: m.FindingsPage })))
 const CitationsPage = lazy(() => import('./pages/CitationsPage').then((m) => ({ default: m.CitationsPage })))
 const KetivPage = lazy(() => import('./pages/KetivPage').then((m) => ({ default: m.KetivPage })))
+const RootsPage = lazy(() => import('./pages/RootsPage').then((m) => ({ default: m.RootsPage })))
+const RootPage = lazy(() => import('./pages/RootPage').then((m) => ({ default: m.RootPage })))
 const DivisionsPage = lazy(() => import('./pages/DivisionsPage').then((m) => ({ default: m.DivisionsPage })))
 const AcrosticsPage = lazy(() => import('./pages/AcrosticsPage').then((m) => ({ default: m.AcrosticsPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -73,6 +75,8 @@ export function App() {
           <Route path="acrostics" element={<AcrosticsPage />} />
           <Route path="divisions" element={<DivisionsPage />} />
           <Route path="ketiv" element={<KetivPage />} />
+          <Route path="roots" element={<RootsPage />} />
+          <Route path="root/:root" element={<RootPage />} />
           <Route path="citations" element={<CitationsPage />} />
           <Route path="findings" element={<FindingsPage />} />
           <Route path="map" element={<MapPage />} />

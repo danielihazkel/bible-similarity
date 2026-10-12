@@ -1618,6 +1618,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/roots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Roots
+         * @description Families, the side-by-side test, the Leitworte named in advance and the books.
+         */
+        get: operations["roots_api_roots_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/roots/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Root Pairs
+         * @description Two words of one root side by side in a verse, in canon order.
+         */
+        get: operations["root_pairs_api_roots_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/roots/hidden": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Hidden Roots
+         * @description Chapter Leitworte that only show when a root's words are counted together, strongest
+         *     first; `unit` = the chapters it overlaps.
+         */
+        get: operations["hidden_roots_api_roots_hidden_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/root/{root}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Root Family
+         * @description A root's family (its words, how Strong's derives them) and the verses holding any of
+         *     them, with per-book counts.
+         */
+        get: operations["root_family_api_root__root__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -2468,7 +2550,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2716,7 +2798,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "echoes" | "sevens" | "chiasm" | "laments" | "allusions";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions";
             /**
              * Verdict
              * @enum {string}
@@ -2752,6 +2834,44 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * HiddenRoot
+         * @description A chapter Leitwort that only shows when its words are counted as one root.
+         */
+        HiddenRoot: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Rank */
+            rank: number;
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+            /** Count */
+            count: number;
+            /** G2 */
+            g2: number;
+            /** N Words */
+            n_words: number;
+            /** Lemma Rank */
+            lemma_rank: number | null;
+            /** Lemmas */
+            lemmas: components["schemas"]["LemmaStat"][];
+        };
+        /** HiddenRootsResponse */
+        HiddenRootsResponse: {
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["HiddenRoot"][];
         };
         /** Hit */
         Hit: {
@@ -3683,6 +3803,158 @@ export interface components {
             /** Items */
             items: components["schemas"]["Rhyme"][];
         };
+        /** RootBook */
+        RootBook: {
+            /** Book Id */
+            book_id: number;
+            /** Words */
+            words: number;
+            /** Cognate */
+            cognate: number;
+            /** Expected */
+            expected: number;
+            /** Inf Abs */
+            inf_abs: number;
+        };
+        /**
+         * RootFamily
+         * @description A root family and a page of the verses holding any of its words (`/root/{root}`).
+         */
+        RootFamily: {
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+            /** Members */
+            members: components["schemas"]["LemmaStat"][];
+            /** Links */
+            links: {
+                [key: string]: string;
+            };
+            /** N Verses */
+            n_verses: number;
+            /** By Book */
+            by_book: components["schemas"]["BookCount"][];
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ConcordanceHit"][];
+        };
+        /**
+         * RootKnown
+         * @description A Leitwort named in advance, ranked among its chapter's Leitworte both ways.
+         */
+        RootKnown: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+            /** Lemma Rank */
+            lemma_rank: number | null;
+            /** Root Rank */
+            root_rank: number | null;
+        };
+        /**
+         * RootLeitwort
+         * @description A root over-represented in the unit, its words counted together (DESIGN.md §16.38).
+         */
+        RootLeitwort: {
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+            /** Count */
+            count: number;
+            /** Expected */
+            expected: number;
+            /** G2 */
+            g2: number;
+            /** Lemmas */
+            lemmas: components["schemas"]["LemmaStat"][];
+            /** Hidden */
+            hidden: boolean;
+            /** Occurrences */
+            occurrences: {
+                [key: string]: number[];
+            };
+        };
+        /**
+         * RootPair
+         * @description Two words of one root side by side in a verse (DESIGN.md §16.38).
+         */
+        RootPair: {
+            /** Pair Id */
+            pair_id: number;
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "cognate" | "other" | "inf_abs";
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+            a: components["schemas"]["LemmaStat"];
+            b: components["schemas"]["LemmaStat"];
+            verse: components["schemas"]["Verse"];
+            /** Marks */
+            marks: {
+                [key: string]: number;
+            };
+        };
+        /** RootPairsResponse */
+        RootPairsResponse: {
+            /** Kind */
+            kind: ("cognate" | "other" | "inf_abs") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["RootPair"][];
+        };
+        /**
+         * RootRef
+         * @description A content lemma's root family (DESIGN.md §16.38), when the family has other words.
+         */
+        RootRef: {
+            /** Lemma */
+            lemma: string;
+            /** Root */
+            root: string;
+            /** Root He */
+            root_he: string;
+        };
+        /** RootsResponse */
+        RootsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: components["schemas"]["RootKnown"][];
+            /** Books */
+            books: components["schemas"]["RootBook"][];
+        };
         /**
          * Seam
          * @description A point where a book's style changes (DESIGN.md §16.12).
@@ -4189,6 +4461,11 @@ export interface components {
             lexical: components["schemas"]["StructureBasis"];
             /** Leitworte */
             leitworte: components["schemas"]["Leitwort"][];
+            /**
+             * Root Leitworte
+             * @default []
+             */
+            root_leitworte: components["schemas"]["RootLeitwort"][];
         };
         /** StructureScore */
         StructureScore: {
@@ -4648,6 +4925,11 @@ export interface components {
             lemmas: components["schemas"]["LemmaStat"][];
             /** Domains */
             domains: string[];
+            /**
+             * Roots
+             * @default []
+             */
+            roots: components["schemas"]["RootRef"][];
         };
         /**
          * WordPair
@@ -7232,6 +7514,130 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnitMeter"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    roots_api_roots_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RootsResponse"];
+                };
+            };
+        };
+    };
+    root_pairs_api_roots_pairs_get: {
+        parameters: {
+            query?: {
+                kind?: ("cognate" | "other" | "inf_abs") | null;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RootPairsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hidden_roots_api_roots_hidden_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HiddenRootsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    root_family_api_root__root__get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                root: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RootFamily"];
                 };
             };
             /** @description Validation Error */

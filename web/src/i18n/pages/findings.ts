@@ -61,6 +61,11 @@ export const findEn = {
       text: (v: V) =>
         `Do the lines of Lamentations 1–4 fall — a longer member, then a shorter one (3:2), the lament's line? Net fall ${x2(n(v, 'mean'))} against ${x2(n(v, 'pool_mean'))} for other poetry under the same accents (p ${fp(n(v, 'p'))}; against Psalms, Proverbs and Job p ${fp(n(v, 'poetic_p'))}). Lamentations 5, a lament in even lines, falls more than ${pct(n(v, 'control_pct'))} of that poetry.`,
     },
+    cognate: {
+      title: 'A verb and a noun of one root',
+      text: (v: V) =>
+        `Does a verb take a noun of its own root nearby (ויחלם חלום, “he dreamt a dream”) by choice? ${numEn(n(v, 'observed'))} such pairs within three words, against ${n(v, 'expected').toFixed(0)} with the content words of each chapter shuffled (${n(v, 'ratio').toFixed(1)}×, p ${fp(n(v, 'p'))}).`,
+    },
     echoes: {
       title: 'Who echoes whom',
       text: (v: V) =>
@@ -84,6 +89,11 @@ export const findEn = {
       title: 'Chapters that speak of a lament',
       text: (v: V) =>
         `Do the ${numEn(n(v, 'n'))} chapters outside Lamentations that use the word קינה fall too? Net fall ${x2(n(v, 'mean'))} against ${x2(n(v, 'pool_mean'))} for other poetry (p ${fp(n(v, 'p'))}). The word also picks chapters that only mention a lament.`,
+    },
+    root_leitworte: {
+      title: 'Leitworte counted by root',
+      text: (v: V) =>
+        `Do the Leitworte scholars name rank higher when a root's words are counted together? Of ${numEn(n(v, 'n'))}, ${numEn(n(v, 'by_root'))} are in their chapter's top ${numEn(n(v, 'top'))} by root and ${numEn(n(v, 'by_lemma'))} by word; the root ranks higher for ${numEn(n(v, 'better'))}. Counted by root, ${numEn(n(v, 'hidden'))} key roots appear that no single word shows: leads.`,
     },
     allusions: {
       title: 'Rare words over a few verses',
@@ -144,6 +154,11 @@ export const findHe: typeof findEn = {
       text: (v: V) =>
         `האם שורות איכה א–ד יורדות — צלע ארוכה ואחריה קצרה (3:2), שורת הקינה? ירידה נטו ${x2(n(v, 'mean'))} לעומת ${x2(n(v, 'pool_mean'))} בשירה אחרת באותה מערכת טעמים (p ${fp(n(v, 'p'))}; מול תהלים, משלי ואיוב p ${fp(n(v, 'poetic_p'))}). איכה ה, קינה בשורות שקולות, יורדת יותר מ־${pct(n(v, 'control_pct'))} מאותה שירה.`,
     },
+    cognate: {
+      title: 'פועל ושם מאותו שורש',
+      text: (v: V) =>
+        `האם פועל לוקח שם מאותו שורש בסמוך לו (מושא פנימי: ויחלם חלום) מתוך בחירה? ${numHe(n(v, 'observed'))} זוגות כאלה בטווח שלוש מילים, לעומת ${n(v, 'expected').toFixed(0)} כשמילות התוכן של כל פרק מעורבבות (פי ${n(v, 'ratio').toFixed(1)}, p ${fp(n(v, 'p'))}).`,
+    },
     echoes: {
       title: 'מי מהדהד את מי',
       text: (v: V) =>
@@ -167,6 +182,11 @@ export const findHe: typeof findEn = {
       title: 'פרקים המדברים על קינה',
       text: (v: V) =>
         `האם גם ${numHe(n(v, 'n'))} הפרקים מחוץ לאיכה שבהם המילה קינה יורדים? ירידה נטו ${x2(n(v, 'mean'))} לעומת ${x2(n(v, 'pool_mean'))} בשירה אחרת (p ${fp(n(v, 'p'))}). המילה מאתרת גם פרקים שרק מזכירים קינה.`,
+    },
+    root_leitworte: {
+      title: 'מילים מנחות לפי שורש',
+      text: (v: V) =>
+        `האם המילים המנחות שהמחקר מונה מדורגות גבוה יותר כשמילות השורש נספרות יחד? מתוך ${numHe(n(v, 'n'))}, ${numHe(n(v, 'by_root'))} נמצאות בין ${numHe(n(v, 'top'))} המובילות בפרקן לפי שורש ו־${numHe(n(v, 'by_lemma'))} לפי מילה; השורש מדורג גבוה יותר ב־${numHe(n(v, 'better'))}. בספירה לפי שורש מופיעים ${numHe(n(v, 'hidden'))} שורשים מנחים שאף מילה בודדת אינה מראה: כיווני חקירה.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

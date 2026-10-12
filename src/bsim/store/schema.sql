@@ -687,6 +687,49 @@ CREATE TABLE meter_chapters (
     PRIMARY KEY (book_id, chapter)
 ) WITHOUT ROWID;
 
+-- Root families (`bsim roots`, §16.38): each content lemma's root (Strong's derivations that pass the
+-- consonant check), words of one root side by side, cognate pairs per book, and each chapter's
+-- Leitworte counted by root.
+CREATE TABLE lemma_roots (
+    lemma TEXT PRIMARY KEY,
+    strong TEXT NOT NULL,
+    root TEXT NOT NULL,             -- Strong's number of the family's root (the lemma's own when alone)
+    root_he TEXT NOT NULL,          -- the root's Strong's headword
+    link TEXT                       -- how Strong's derives it (from, feminine of, ...); NULL for a root
+) WITHOUT ROWID;
+
+CREATE TABLE root_pairs (
+    pair_id INTEGER PRIMARY KEY,
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    a_idx INTEGER NOT NULL,         -- word indexes, a before b
+    b_idx INTEGER NOT NULL,
+    root TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- cognate | other | inf_abs
+    a_lemma TEXT NOT NULL,
+    b_lemma TEXT NOT NULL
+);
+
+CREATE TABLE root_books (
+    book_id INTEGER PRIMARY KEY,
+    words INTEGER NOT NULL,         -- Hebrew words
+    cognate INTEGER NOT NULL,       -- verb + noun of one root side by side
+    expected REAL NOT NULL,         -- ... with the content words permuted within chapters
+    inf_abs INTEGER NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE root_leitworte (
+    unit_id TEXT NOT NULL,          -- a chapter
+    rank INTEGER NOT NULL,
+    root TEXT NOT NULL,
+    count INTEGER NOT NULL,
+    g2 REAL NOT NULL,
+    n_words INTEGER NOT NULL,       -- Strong's numbers of the family in the chapter
+    lemma_rank INTEGER,             -- best rank of any of them counted by lemma (NULL: unranked)
+    hidden INTEGER NOT NULL,        -- 1 = two or more words, none in the top by lemma
+    PRIMARY KEY (unit_id, rank)
+) WITHOUT ROWID;
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

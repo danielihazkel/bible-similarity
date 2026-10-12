@@ -23,12 +23,14 @@ from bsim.api.models import (
     Echo,
     Leitwort,
     LemmaForm,
+    LemmaStat,
     ParallelBook,
     ParallelismResponse,
     ParallelUnit,
     RelationPair,
     Rhyme,
     RhymesResponse,
+    RootLeitwort,
     StructureBasis,
     StructureRank,
     StructureRankingResponse,
@@ -53,6 +55,7 @@ from bsim.api.routes._common import (
     unit_span,
     unprocessable,
 )
+from bsim.data.lexicon import strong_key
 
 router = APIRouter()
 
@@ -272,8 +275,9 @@ def _structure(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -
         c["leitwort_min_count"],
         c["leitwort_top"],
     )
+    root_keys, root_lemmas = _root_leitworte(counts, keys, stats, state, conn, c)
     occ: dict[str, dict[int, set[int]]] = defaultdict(lambda: defaultdict(set))
-    wanted = {k.lemma for k in keys}
+    wanted = {k.lemma for k in keys} | {lem for lems in root_lemmas.values() for lem in lems}
     for w in rows:
         if w["display_idx"] is not None:
             for t in set(w["content_lemmas"].split()) & wanted:
@@ -294,7 +298,70 @@ def _structure(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -
             )
             for k in keys
         ],
+        "root_leitworte": [
+            RootLeitwort(
+                root=k.lemma,
+                root_he=root_he,
+                count=k.count,
+                expected=k.expected,
+                g2=k.g2,
+                lemmas=[
+                    LemmaStat(lemma=lem, he_lemma=stats[lem]["he_lemma"],
+                              n_verses=stats[lem]["n_verses"])
+                    for lem in root_lemmas[k.lemma]
+                ],  # fmt: skip
+                hidden=hidden,
+                occurrences=_merge_occ(occ, root_lemmas[k.lemma]),
+            )
+            for k, root_he, hidden in root_keys
+        ],
     }
+
+
+def _root_leitworte(
+    counts: Counter[str],
+    lemma_keys: list[st.Keyword],
+    stats: dict[str, dict[str, Any]],
+    state: ServeState,
+    conn: sqlite3.Connection,
+    c: dict[str, Any],
+) -> tuple[list[tuple[st.Keyword, str, bool]], dict[str, list[str]]]:
+    """The unit's Leitworte with each root's words counted together (`bsim roots`; none without
+    it): (keyword, root headword — the word's own form outside a family —, hidden) and each
+    root's lemmas in the unit. Names and words outside a family count as themselves, as in the
+    stage."""
+    index = state.roots(conn)
+    if not index.root_of:
+        return [], {}
+    by_root: Counter[str] = Counter()
+    lemmas: dict[str, list[str]] = defaultdict(list)
+    for lem, n in counts.items():
+        r = index.root_of.get(lem, (lem, ""))[0]
+        by_root[r] += n
+        lemmas[r].append(lem)
+    corpus = {r: index.counts.get(r, 0) for r in by_root}
+    for r, lems in lemmas.items():  # a word outside lemma_roots (a name) keeps its own count
+        if r not in index.counts:
+            corpus[r] = sum(stats[x]["n_words"] for x in lems)
+    keys = st.leitworte(
+        by_root, corpus, state.lemma_total(conn), c["leitwort_min_count"], c["leitwort_top"]
+    )
+    top = {k.lemma for k in lemma_keys}
+    out = []
+    for k in keys:
+        lems = sorted(lemmas[k.lemma], key=lambda x: -counts[x])
+        words = {strong_key(x) for x in lems}
+        he = index.root_of[lems[0]][1] if lems[0] in index.root_of else stats[lems[0]]["he_lemma"]
+        out.append((k, he, len(words) > 1 and not top & set(lems)))
+    return out, {k.lemma: sorted(lemmas[k.lemma], key=lambda x: -counts[x]) for k in keys}
+
+
+def _merge_occ(occ: dict[str, dict[int, set[int]]], lemmas: list[str]) -> dict[int, list[int]]:
+    out: dict[int, set[int]] = defaultdict(set)
+    for lem in lemmas:
+        for v, ix in occ.get(lem, {}).items():
+            out[v] |= ix
+    return {v: sorted(ix) for v, ix in out.items()}
 
 
 @router.get("/structure", response_model=StructureRankingResponse)

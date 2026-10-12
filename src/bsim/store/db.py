@@ -43,6 +43,8 @@ Derived columns:
 - `echo_edges`, `echo_books`, `echo_chapters` + `meta.echoes`: `bsim echoes` (empty without it).
 - `mirror_verses`, `mirror_clauses` + `meta.mirrors`: `bsim mirrors` (empty without it).
 - `meter_lines`, `meter_chapters` + `meta.meter`: `bsim meter` (empty without it).
+- `lemma_roots`, `root_pairs`, `root_books`, `root_leitworte` + `meta.roots`: `bsim roots` (empty
+  without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -135,6 +137,10 @@ INDEXES = (
     "CREATE INDEX mirror_clauses_by_verse ON mirror_clauses (verse_id)",
     "CREATE INDEX mirror_clauses_by_pair ON mirror_clauses (pair, mirrored)",
     "CREATE INDEX meter_chapters_by_net ON meter_chapters (net DESC)",
+    "CREATE INDEX lemma_roots_by_root ON lemma_roots (root)",
+    "CREATE INDEX root_pairs_by_verse ON root_pairs (verse_id)",
+    "CREATE INDEX root_pairs_by_kind ON root_pairs (kind, verse_id)",
+    "CREATE INDEX root_leitworte_by_hidden ON root_leitworte (hidden, g2 DESC)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -459,6 +465,29 @@ TABLE_COLUMNS = {
         "b_words",
     ],
     "meter_lines": ["verse_id", "idx", "first", "last", "stresses", "a", "b"],
+    "lemma_roots": ["lemma", "strong", "root", "root_he", "link"],
+    "root_pairs": [
+        "pair_id",
+        "verse_id",
+        "book_id",
+        "a_idx",
+        "b_idx",
+        "root",
+        "kind",
+        "a_lemma",
+        "b_lemma",
+    ],
+    "root_books": ["book_id", "words", "cognate", "expected", "inf_abs"],
+    "root_leitworte": [
+        "unit_id",
+        "rank",
+        "root",
+        "count",
+        "g2",
+        "n_words",
+        "lemma_rank",
+        "hidden",
+    ],
     "meter_chapters": [
         "book_id",
         "chapter",
@@ -1157,6 +1186,23 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             df = df.rename(columns={"group": "grp"})
         out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
     out["meter_meta"] = _read_json(met_dir / "meter.meta.json")
+    root_dir = resolve_path(cfg, "artifacts") / "roots"
+    for name, table in (
+        ("lemmas", "lemma_roots"),
+        ("pairs", "root_pairs"),
+        ("books", "root_books"),
+        ("leitworte", "root_leitworte"),
+    ):
+        path = root_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    if len(out["root_pairs"]):
+        out["root_pairs"] = out["root_pairs"].assign(pair_id=range(1, len(out["root_pairs"]) + 1))
+    if len(out["root_leitworte"]):
+        out["root_leitworte"] = out["root_leitworte"].assign(
+            hidden=lambda d: d.hidden.astype(int)
+        )
+    out["roots_meta"] = _read_json(root_dir / "roots.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1369,6 +1415,12 @@ def _write_db(
             "mirror_clauses": inputs["mirror_clauses"],
             "meter_lines": inputs["meter_lines"],
             "meter_chapters": inputs["meter_chapters"],
+            "lemma_roots": inputs["lemma_roots"],
+            "root_pairs": inputs["root_pairs"].assign(
+                book_id=lambda d: d.verse_id.map(verses.set_index("verse_id").book_id)
+            ),
+            "root_books": inputs["root_books"],
+            "root_leitworte": inputs["root_leitworte"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1532,6 +1584,28 @@ def _write_db(
         meta["mirrors"] = {
             k: mm.get(k)
             for k in ("words", "clauses", "full_mirrors", "full_mirrors_q", "min_words")
+        }
+        rm = inputs["roots_meta"]
+        meta["roots"] = {
+            k: rm.get(k)
+            for k in (
+                "entries",
+                "derived",
+                "joined",
+                "lemmas",
+                "families",
+                "family_lemmas",
+                "window",
+                "shuffles",
+                "pairs",
+                "tests",
+                "known",
+                "known_top_lemma",
+                "known_top_root",
+                "known_better",
+                "top",
+                "hidden",
+            )
         }
         tm = inputs["meter_meta"]
         meta["meter"] = {
