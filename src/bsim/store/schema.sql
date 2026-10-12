@@ -659,6 +659,34 @@ CREATE TABLE mirror_clauses (
     b_words TEXT NOT NULL
 ) WITHOUT ROWID;
 
+-- Stresses per line from the te'amim (`bsim meter`, §16.37): every verse cut into lines (accent
+-- spans of at most `meter.max_stresses` stresses) with the stresses of the line's two members, and
+-- per chapter the falling / rising shares of its measured lines.
+CREATE TABLE meter_lines (
+    verse_id INTEGER NOT NULL,
+    idx INTEGER NOT NULL,
+    first INTEGER NOT NULL,         -- inclusive display-token span
+    last INTEGER NOT NULL,
+    stresses INTEGER NOT NULL,
+    a INTEGER,                      -- stresses of the first / second member (NULL: no split)
+    b INTEGER,
+    PRIMARY KEY (verse_id, idx)
+) WITHOUT ROWID;
+
+CREATE TABLE meter_chapters (
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    grp TEXT NOT NULL,              -- test | control | pool | poetic | prose
+    n_lines INTEGER NOT NULL,       -- measured lines
+    fall REAL NOT NULL,             -- share with a > b
+    rise REAL NOT NULL,             -- share with a < b
+    net REAL NOT NULL,              -- fall - rise
+    share32 REAL NOT NULL,          -- share of 3:2 lines
+    prob REAL,                      -- mean probability of parallel halves
+    pct REAL,                       -- share of pool chapters with a lower net fall
+    PRIMARY KEY (book_id, chapter)
+) WITHOUT ROWID;
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

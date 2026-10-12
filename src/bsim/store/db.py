@@ -42,6 +42,7 @@ Derived columns:
 - `allusions` + `meta.allusions`: `bsim allusions` (empty without it).
 - `echo_edges`, `echo_books`, `echo_chapters` + `meta.echoes`: `bsim echoes` (empty without it).
 - `mirror_verses`, `mirror_clauses` + `meta.mirrors`: `bsim mirrors` (empty without it).
+- `meter_lines`, `meter_chapters` + `meta.meter`: `bsim meter` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -133,6 +134,7 @@ INDEXES = (
     "CREATE INDEX echo_edges_by_b ON echo_edges (b_start)",
     "CREATE INDEX mirror_clauses_by_verse ON mirror_clauses (verse_id)",
     "CREATE INDEX mirror_clauses_by_pair ON mirror_clauses (pair, mirrored)",
+    "CREATE INDEX meter_chapters_by_net ON meter_chapters (net DESC)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -455,6 +457,19 @@ TABLE_COLUMNS = {
         "mirrored",
         "a_words",
         "b_words",
+    ],
+    "meter_lines": ["verse_id", "idx", "first", "last", "stresses", "a", "b"],
+    "meter_chapters": [
+        "book_id",
+        "chapter",
+        "grp",
+        "n_lines",
+        "fall",
+        "rise",
+        "net",
+        "share32",
+        "prob",
+        "pct",
     ],
     "allusions": [
         "allusion_id",
@@ -1134,6 +1149,14 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             else pd.DataFrame(columns=TABLE_COLUMNS[table])
         )
     out["mirrors_meta"] = _read_json(mir_dir / "mirrors.meta.json")
+    met_dir = resolve_path(cfg, "artifacts") / "meter"
+    for name in ("lines", "chapters"):
+        table, path = f"meter_{name}", met_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        if len(df) and name == "chapters":
+            df = df.rename(columns={"group": "grp"})
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["meter_meta"] = _read_json(met_dir / "meter.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1344,6 +1367,8 @@ def _write_db(
             "echo_chapters": inputs["echo_chapters"],
             "mirror_verses": inputs["mirror_verses"],
             "mirror_clauses": inputs["mirror_clauses"],
+            "meter_lines": inputs["meter_lines"],
+            "meter_chapters": inputs["meter_chapters"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1507,6 +1532,26 @@ def _write_db(
         meta["mirrors"] = {
             k: mm.get(k)
             for k in ("words", "clauses", "full_mirrors", "full_mirrors_q", "min_words")
+        }
+        tm = inputs["meter_meta"]
+        meta["meter"] = {
+            k: tm.get(k)
+            for k in (
+                "min_stresses",
+                "max_stresses",
+                "min_lines",
+                "pool_quantile",
+                "pool_prob",
+                "lines",
+                "split",
+                "test",
+                "test_poetic",
+                "test_chapters",
+                "control",
+                "named",
+                "grid",
+                "groups",
+            )
         }
         snm = inputs["senses_meta"]
         meta["senses"] = {

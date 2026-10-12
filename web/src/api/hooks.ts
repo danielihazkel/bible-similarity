@@ -41,6 +41,9 @@ import type {
   KetivResponse,
   CitationFamily,
   AllusionsResponse,
+  MeterGroup,
+  MeterResponse,
+  UnitMeter,
   MirrorsResponse,
   MirrorVersesResponse,
   MirrorClausesResponse,
@@ -396,6 +399,25 @@ export const useSegmentCurve = (bookId: number | undefined) =>
 
 export const useMirrors = () =>
   useQuery({ queryKey: ['mirrors'], queryFn: ({ signal }) => getJson<MirrorsResponse>('/mirrors', {}, signal), ...forever })
+
+export type MeterQuery = { group?: MeterGroup; book?: number; limit: number; offset: number }
+export const meterParams = (q: MeterQuery): Params => ({ group: q.group, book: q.book })
+
+export const useMeter = (q: MeterQuery) =>
+  useQuery({
+    queryKey: ['meter', q],
+    queryFn: ({ signal }) => getJson<MeterResponse>('/meter', { ...meterParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useUnitMeter = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['unit-meter', unitId],
+    queryFn: ({ signal }) => getJson<UnitMeter>(`/meter/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
 
 const flag = (b: boolean | undefined) => (b === undefined ? undefined : String(b))
 

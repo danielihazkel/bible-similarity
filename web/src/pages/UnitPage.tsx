@@ -11,10 +11,11 @@ import {
   useUnitNetwork,
   useVerseDiff,
   useUnitEntities,
+  useUnitMeter,
   useUnitParallelism,
   useWordplay,
 } from '../api/hooks'
-import type { Acrostic, Leitwort, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
+import type { Acrostic, Leitwort, MeterLine, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
@@ -105,7 +106,13 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const breaksOf = (v: Verse) => colonBreaks(halvesOf.get(v.verse_id))
   const clausesOn = halvesOn && params.get('clauses') === '1'
-  const minorOf = (v: Verse) => (clausesOn ? clauseBreaks(halvesOf.get(v.verse_id)) : undefined)
+  // the stresses toggle only where `bsim meter` ran (or the dossier cannot tell)
+  const meterComputed = dossier.isError || !!dossier.data?.entries.some((e) => e.kind === 'meter' && e.computed)
+  const meterOn = halvesOn && meterComputed && params.get('meter') === '1'
+  const meter = useUnitMeter(meterOn ? unit.unit_id : undefined)
+  const linesOf = new Map((meter.data?.verses ?? []).map((v) => [v.verse_id, v.lines]))
+  const minorOf = (v: Verse) =>
+    clausesOn ? clauseBreaks(halvesOf.get(v.verse_id)) : meterOn ? lineBreaks(linesOf.get(v.verse_id), halvesOf.get(v.verse_id)) : undefined
   const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
   const network = useUnitNetwork(isVerse ? undefined : unit.unit_id)
   const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 }, has('wordplay'))
@@ -149,6 +156,18 @@ function UnitView({ detail }: { detail: UnitDetail }) {
             {m.unit.clauses}
           </label>
         )}
+        {halvesOn && meterComputed && (
+          <label className="check" title={m.met.toggleTitle}>
+            <input type="checkbox" checked={meterOn} onChange={(e) => update({ meter: e.target.checked ? '1' : null }, false)} />
+            {m.met.toggle}
+          </label>
+        )}
+        {meterOn && meter.error && <PanelError what={m.met.theMeter} error={meter.error} />}
+        {meterOn && meter.data?.chapter && (
+          <span className="muted small">
+            {m.met.chapterLine(meter.data.chapter.net, meter.data.chapter.pct, m.met.groups[meter.data.chapter.group])}
+          </span>
+        )}
         {halvesOn && halves.isPending && (
           <span className="muted small" role="status">
             {m.unit.loadingHalves}
@@ -181,6 +200,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
               minorBreaks={minorOf(verses[0])}
             />
             {halvesOn && <ParallelBadge h={halvesOf.get(verses[0].verse_id)} at={halves.data?.parallel_at} />}
+            {meterOn && <MeterBadge lines={linesOf.get(verses[0].verse_id)} />}
           </p>
         ) : (
           <ol className="verse-list">
@@ -198,6 +218,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                   minorBreaks={minorOf(v)}
                 />
                 {halvesOn && <ParallelBadge h={halvesOf.get(v.verse_id)} at={halves.data?.parallel_at} />}
+                {meterOn && <MeterBadge lines={linesOf.get(v.verse_id)} />}
               </li>
             ))}
           </ol>
@@ -423,6 +444,24 @@ function clauseBreaks(h: VerseHalves | undefined): Set<number> | undefined {
   if (!h?.clauses || h.clauses.length < 2) return undefined
   const major = colonBreaks(h) ?? new Set<number>()
   return new Set(h.clauses.slice(0, -1).map(([, end]) => end).filter((e) => !major.has(e)))
+}
+
+/** Display indexes ending a stress line that are not colon ends (every line but the last). */
+function lineBreaks(lines: MeterLine[] | undefined, h: VerseHalves | undefined): Set<number> | undefined {
+  if (!lines || lines.length < 2) return undefined
+  const major = colonBreaks(h) ?? new Set<number>()
+  return new Set(lines.slice(0, -1).map((l) => l.last).filter((e) => !major.has(e)))
+}
+
+/** The stresses of each line of a verse: first member : second (a total when it does not split). */
+function MeterBadge({ lines }: { lines?: MeterLine[] }) {
+  const t = useT().met
+  if (!lines || lines.length === 0) return null
+  return (
+    <span className="meter-badge small" dir="ltr" title={t.verseLines}>
+      {lines.map((l) => (l.a != null && l.b != null ? `${l.a}:${l.b}` : t.unsplit(l.stresses))).join(' · ')}
+    </span>
+  )
 }
 
 function ParallelBadge({ h, at }: { h?: VerseHalves; at?: number }) {

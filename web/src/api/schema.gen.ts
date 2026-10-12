@@ -1576,6 +1576,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/meter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meter
+         * @description The falling-line tests and the chapters with enough measured lines, highest net fall
+         *     first.
+         */
+        get: operations["meter_api_meter_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/meter/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unit Meter
+         * @description Every line of the unit's verses with its stresses, and the chapter it starts in (no lines
+         *     without `bsim meter`).
+         */
+        get: operations["unit_meter_api_meter__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -2426,7 +2468,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2674,7 +2716,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "echoes" | "sevens" | "chiasm" | "allusions";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "echoes" | "sevens" | "chiasm" | "laments" | "allusions";
             /**
              * Verdict
              * @enum {string}
@@ -3144,6 +3186,77 @@ export interface components {
             runtime: {
                 [key: string]: unknown;
             };
+        };
+        /**
+         * MeterChapter
+         * @description A chapter's lines by the stresses of their two members (DESIGN.md §16.37).
+         */
+        MeterChapter: {
+            unit: components["schemas"]["UnitSummary"];
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "test" | "control" | "pool" | "poetic" | "prose";
+            /** N Lines */
+            n_lines: number;
+            /** Fall */
+            fall: number;
+            /** Rise */
+            rise: number;
+            /** Net */
+            net: number;
+            /** Share32 */
+            share32: number;
+            /** Prob */
+            prob: number | null;
+            /** Pct */
+            pct: number | null;
+        };
+        /** MeterLine */
+        MeterLine: {
+            /** First */
+            first: number;
+            /** Last */
+            last: number;
+            /** Stresses */
+            stresses: number;
+            /** A */
+            a: number | null;
+            /** B */
+            b: number | null;
+        };
+        /** MeterResponse */
+        MeterResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Test Chapters */
+            test_chapters: components["schemas"]["MeterChapter"][];
+            /** Control Chapters */
+            control_chapters: components["schemas"]["MeterChapter"][];
+            /** Named Chapters */
+            named_chapters: components["schemas"]["MeterChapter"][];
+            /** Group */
+            group: ("test" | "control" | "pool" | "poetic" | "prose") | null;
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MeterChapter"][];
+        };
+        /** MeterVerse */
+        MeterVerse: {
+            /** Verse Id */
+            verse_id: number;
+            /** Lines */
+            lines: components["schemas"]["MeterLine"][];
         };
         /**
          * MirrorClause
@@ -4238,6 +4351,18 @@ export interface components {
             themes: components["schemas"]["DomainShare"][];
             /** Broad */
             broad: components["schemas"]["DomainShare"][];
+        };
+        /** UnitMeter */
+        UnitMeter: {
+            /** Unit Id */
+            unit_id: string;
+            /** Min Stresses */
+            min_stresses: number;
+            /** Max Stresses */
+            max_stresses: number;
+            chapter: components["schemas"]["MeterChapter"] | null;
+            /** Verses */
+            verses: components["schemas"]["MeterVerse"][];
         };
         /**
          * UnitNetwork
@@ -7042,6 +7167,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MirrorClausesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    meter_api_meter_get: {
+        parameters: {
+            query?: {
+                group?: ("test" | "control" | "pool" | "poetic" | "prose") | null;
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unit_meter_api_meter__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitMeter"];
                 };
             };
             /** @description Validation Error */

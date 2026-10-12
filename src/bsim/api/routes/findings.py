@@ -161,6 +161,33 @@ def _allusions(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | 
     return Finding(key="allusions", verdict="holds" if new_hold else "lead", values=values)
 
 
+def _meter(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    m = meta.get("meter") or {}
+    t = m.get("test") or {}
+    if t.get("p") is None:
+        return None
+    control = (m.get("control") or [{}])[0]
+    values = {
+        "mean": t["mean"],
+        "pool_mean": t["pool_mean"],
+        "p": t["p"],
+        "poetic_p": (m.get("test_poetic") or {}).get("p"),
+        "control_pct": control.get("pct"),
+    }
+    # the claim: Lamentations 1-4 fall (long member, then short) more than other poetry
+    holds = t["mean"] > t["pool_mean"] and t["p"] <= alpha
+    return Finding(key="meter", verdict="holds" if holds else "fails", values=values)
+
+
+def _laments(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    n = (meta.get("meter") or {}).get("named") or {}
+    if n.get("p") is None:
+        return None
+    values = {k: n[k] for k in ("n", "mean", "pool_mean", "p")}
+    holds = n["mean"] > n["pool_mean"] and n["p"] <= alpha
+    return Finding(key="laments", verdict="holds" if holds else "fails", values=values)
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -169,9 +196,11 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _citations,
     _voices,
     _clauses,
+    _meter,
     _echoes,
     _sevens,
     _chiasm,
+    _laments,
     _allusions,
 ]
 

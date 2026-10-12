@@ -21,8 +21,8 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
     const text =
       e.kind === 'acrostic' || e.kind === 'structure'
         ? c[e.kind](e.value ?? 1)
-        : e.kind === 'dating'
-          ? c.dating(e.value ?? 0)
+        : e.kind === 'dating' || e.kind === 'meter'
+          ? c[e.kind](e.value ?? 0)
           : e.kind === 'speech'
             ? c.speech(e.count ?? 0, e.label)
             : e.kind === 'voices'

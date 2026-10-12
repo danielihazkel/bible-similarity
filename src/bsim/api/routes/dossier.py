@@ -9,6 +9,8 @@ and what it found:
     discoveries, seams, names     count = rows touching the unit's verses
     acrostic, structure           value = the lowest q; count = 1 when it is ≤ `serve.dossier.max_q`
     dating                        value = the chapter's Late Biblical Hebrew score
+    meter                         value = the chapter's net fall; count = 1 when it is at or above
+                                  the `serve.dossier.meter_pct` share of the poetry pool
     speech                        count = quotation clauses; label / key = the speaker of most
     voices                        key = that speaker's voice profile, when it has one
     network                       count = rank by PageRank, total = units ranked
@@ -124,6 +126,23 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
             target_unit=chapter["unit_id"],
             value=d["score"] if d else None,
             count=int(d is not None and d["score"] is not None),
+        )
+        row = conn.execute(
+            "SELECT net, pct, n_lines FROM meter_chapters WHERE book_id = ? AND chapter = ?",
+            (chapter["book_id"], int(chapter["unit_id"].rsplit(":", 1)[1])),
+        ).fetchone()
+        min_lines = (state.meta.get("meter") or {}).get("min_lines") or 1
+        measured = row is not None and row[2] >= min_lines
+        falls = (
+            measured and row[1] is not None and row[1] >= state.cfg["serve"]["dossier"]["meter_pct"]
+        )
+        add(
+            "meter",
+            computed=state.present(conn, "meter_chapters"),
+            scope=scope,
+            target_unit=chapter["unit_id"],
+            value=row[0] if measured else None,
+            count=int(falls),
         )
     holder = u if u["unit_type"] != "verse" else chapter
     if holder is not None:

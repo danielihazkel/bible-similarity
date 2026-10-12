@@ -27,6 +27,9 @@ const PAGES = [
   '/typescenes',
   '/poetry',
   '/poetry?view=pairs',
+  '/poetry?view=meter',
+  '/poetry?view=meter&group=pool',
+  '/unit/c%3A0%3A1?halves=1&meter=1',
   '/wordplay',
   '/wordplay?view=alliteration',
   '/wordplay?view=rhyme',
@@ -121,6 +124,16 @@ test('a verse page says what the analyses found and links to the filtered lists'
   await expect(page).toHaveURL(/\/borrowing\?unit=v%3A1/)
   await expect(page.locator('.unit-filter')).toBeVisible()
   await expect(page.locator('.borrow-pair')).toHaveCount(1)
+})
+
+test('a chapter whose lines fall like a lament links to the stresses of its lines', async ({ page }) => {
+  await page.goto('/unit/v%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: /lines fall like a lament/ }).click()
+  await expect(page).toHaveURL(/\/unit\/c%3A0%3A1\?halves=1&meter=1/)
+  await expect(page.locator('.source .meter-badge').first()).toHaveText('3:1')
+  await page.goto('/poetry?view=meter')
+  await expect(page.getByRole('heading', { name: 'Does Lamentations fall?' })).toBeVisible()
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

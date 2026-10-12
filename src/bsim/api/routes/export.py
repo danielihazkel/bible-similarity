@@ -18,7 +18,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from bsim.api.routes import core, parallels, phrases, poetics
+from bsim.api.routes import core, meter, parallels, phrases, poetics
 from bsim.api.routes import corpus as corpus_routes
 from bsim.api.routes._common import Conn, State, unprocessable
 
@@ -41,6 +41,7 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "structure": poetics.structure_ranking,
     "acrostics": poetics.acrostics,
     "names": corpus_routes.entities,
+    "meter": meter.meter,
 }
 SKIPPED = {"verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix"}
 INTERNAL = {"state", "conn", "limit", "offset", "response"}

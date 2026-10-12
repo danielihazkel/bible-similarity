@@ -548,6 +548,19 @@ mirrors:                      # `bsim mirrors`: chiasm at the small scale (DESIG
   max_q: 0.05
   seed: 13
 
+meter:                        # `bsim meter`: stresses per line and the falling lament line (DESIGN.md §16.37)
+  min_stresses: 4             # a measured line carries 4-7 stresses (2:2 ... 4:3) ...
+  max_stresses: 7             # ... and a verse is cut into the largest accent spans of at most this many
+  grid: [[3, 8], [4, 6], [5, 7], [4, 8]]   # other line lengths the test is repeated with (robustness)
+  test: {Lam: [1, 2, 3, 4]}   # chapters said to be in the falling (qinah) line
+  control: {Lam: [5]}         # a lament not in it
+  pool_quantile: 0.75         # pool = prose-accented chapters at or above this quantile of mean parallel-halves probability
+  min_lines: 10               # measured lines a chapter needs to be tested or ranked
+  lament_lemma: 7015          # קינה: chapters naming a lament are tested like the test chapters
+  shuffles: 9999              # chapter draws of the group tests
+  top_patterns: 6             # commonest a:b patterns listed per chapter group
+  seed: 13
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)
@@ -594,6 +607,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   dossier_cache: 1024         # /dossier/{unit}: responses kept in memory (LRU; labels are read live)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
+    meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)
     alpha: 0.05               # a test at or below this p (or q) counts as holding
   search:

@@ -743,6 +743,43 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # stresses per line (`bsim meter`): chapter 0:1 is the test chapter (its lines fall), 0:2 the
+    # poetry pool, 1:1 the control; 0:2 names a lament
+    met_dir = art / "meter"
+    met_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, 0, 0, 3, 4, 3, 1), (1, 0, 0, 2, 3, 2, 1), (2, 0, 0, 1, 2, None, None),
+         (3, 0, 0, 1, 2, 1, 1), (4, 0, 0, 1, 2, 1, 1), (5, 0, 0, 1, 2, None, None)],
+        columns=["verse_id", "idx", "first", "last", "stresses", "a", "b"],
+    ).astype({"a": "Int64", "b": "Int64"}).to_parquet(met_dir / "lines.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, 1, "test", 2, 1.0, 0.0, 1.0, 0.0, 0.2, 1.0),
+         (0, 2, "pool", 2, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0),
+         (1, 1, "control", 1, 0.0, 0.0, 0.0, 0.0, None, 0.0)],
+        columns=["book_id", "chapter", "group", "n_lines", "fall", "rise", "net", "share32",
+                 "prob", "pct"],
+    ).to_parquet(met_dir / "chapters.parquet")  # fmt: skip
+    group = {"n": 1, "pool_n": 1, "mean": 1.0, "pool_mean": 0.0, "null_mean": 0.5, "p": 0.5}
+    (met_dir / "meter.meta.json").write_text(
+        json.dumps(
+            {
+                "min_stresses": 2, "max_stresses": 7, "min_lines": 1, "pool_quantile": 0.75,
+                "pool_prob": 0.25, "lines": 6, "split": 4,
+                "test": {**group, "p": 0.04}, "test_poetic": group,
+                "test_chapters": [{"book_id": 0, "chapter": 1, "net": 1.0, "pct": 1.0,
+                                   "n_lines": 2}],
+                "control": [{"book_id": 1, "chapter": 1, "net": 0.0, "pct": 0.0, "n_lines": 1}],
+                "named": {**group, "mean": 0.0, "p": 1.0,
+                          "chapters": [{"book_id": 0, "chapter": 2, "net": 0.0, "pct": 0.0,
+                                        "n_lines": 2}]},
+                "grid": [{"min": 3, "max": 8, "mean": 1.0, "pool_mean": 0.0, "pool_p": 0.04,
+                          "poetic_p": 0.5}],
+                "groups": {"test": {"chapters": 1, "lines": 2, "fall": 1.0, "rise": 0.0,
+                                    "patterns": [["3:1", 1], ["2:1", 1]]}},
+            }  # fmt: skip
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

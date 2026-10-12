@@ -16,6 +16,7 @@ import { divEn } from './pages/divisions'
 import { kqEn } from './pages/ketiv'
 import { citEn } from './pages/citations'
 import { mirEn } from './pages/mirrors'
+import { metEn } from './pages/meter'
 import { echoEn } from './pages/echoes'
 import { findEn } from './pages/findings'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
@@ -412,6 +413,7 @@ export const en = {
   kq: kqEn,
   cit: citEn,
   mir: mirEn,
+  met: metEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

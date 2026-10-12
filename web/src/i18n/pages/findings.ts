@@ -56,6 +56,11 @@ export const findEn = {
       text: (v: V) =>
         `${n(v, 'poetry') > n(v, 'prose') ? 'Poetry reverses the order of two parallel clauses more often than prose' : 'Poetry does not reverse two parallel clauses more often than prose'}: ${pct(n(v, 'poetry'))} of ${numEn(n(v, 'poetry_n'))} pairs against ${pct(n(v, 'prose'))} of ${numEn(n(v, 'prose_n'))} (p ${fp(n(v, 'p'))}).`,
     },
+    meter: {
+      title: 'The falling lament line',
+      text: (v: V) =>
+        `Do the lines of Lamentations 1–4 fall — a longer member, then a shorter one (3:2), the lament's line? Net fall ${x2(n(v, 'mean'))} against ${x2(n(v, 'pool_mean'))} for other poetry under the same accents (p ${fp(n(v, 'p'))}; against Psalms, Proverbs and Job p ${fp(n(v, 'poetic_p'))}). Lamentations 5, a lament in even lines, falls more than ${pct(n(v, 'control_pct'))} of that poetry.`,
+    },
     echoes: {
       title: 'Who echoes whom',
       text: (v: V) =>
@@ -74,6 +79,11 @@ export const findEn = {
         n(v, 'share') < 0.5
           ? `Two words repeated in a verse come back in the same order more often than mirrored: ${numEn(n(v, 'verses_parallel'))} verses against ${numEn(n(v, 'verses_chiastic'))} (${pct(n(v, 'share'))} of pairs mirrored, p ${fp(n(v, 'p'))}). The figure exists, but it is not the habit.`
           : `Two words repeated in a verse come back mirrored more often than in the same order: ${numEn(n(v, 'verses_chiastic'))} verses against ${numEn(n(v, 'verses_parallel'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    laments: {
+      title: 'Chapters that speak of a lament',
+      text: (v: V) =>
+        `Do the ${numEn(n(v, 'n'))} chapters outside Lamentations that use the word קינה fall too? Net fall ${x2(n(v, 'mean'))} against ${x2(n(v, 'pool_mean'))} for other poetry (p ${fp(n(v, 'p'))}). The word also picks chapters that only mention a lament.`,
     },
     allusions: {
       title: 'Rare words over a few verses',
@@ -129,6 +139,11 @@ export const findHe: typeof findEn = {
       text: (v: V) =>
         `${n(v, 'poetry') > n(v, 'prose') ? 'השירה הופכת את סדר שתי פסוקיות מקבילות יותר מן הפרוזה' : 'השירה אינה הופכת את סדר שתי פסוקיות מקבילות יותר מן הפרוזה'}: ${pct(n(v, 'poetry'))} מתוך ${numHe(n(v, 'poetry_n'))} זוגות לעומת ${pct(n(v, 'prose'))} מתוך ${numHe(n(v, 'prose_n'))} (p ${fp(n(v, 'p'))}).`,
     },
+    meter: {
+      title: 'שורת הקינה היורדת',
+      text: (v: V) =>
+        `האם שורות איכה א–ד יורדות — צלע ארוכה ואחריה קצרה (3:2), שורת הקינה? ירידה נטו ${x2(n(v, 'mean'))} לעומת ${x2(n(v, 'pool_mean'))} בשירה אחרת באותה מערכת טעמים (p ${fp(n(v, 'p'))}; מול תהלים, משלי ואיוב p ${fp(n(v, 'poetic_p'))}). איכה ה, קינה בשורות שקולות, יורדת יותר מ־${pct(n(v, 'control_pct'))} מאותה שירה.`,
+    },
     echoes: {
       title: 'מי מהדהד את מי',
       text: (v: V) =>
@@ -147,6 +162,11 @@ export const findHe: typeof findEn = {
         n(v, 'share') < 0.5
           ? `שתי מילים החוזרות בפסוק שבות באותו סדר יותר מאשר במהופך: ${numHe(n(v, 'verses_parallel'))} פסוקים לעומת ${numHe(n(v, 'verses_chiastic'))} (${pct(n(v, 'share'))} מן הזוגות במהופך, p ${fp(n(v, 'p'))}). התבנית קיימת, אבל אינה ההרגל.`
           : `שתי מילים החוזרות בפסוק שבות במהופך יותר מאשר באותו סדר: ${numHe(n(v, 'verses_chiastic'))} פסוקים לעומת ${numHe(n(v, 'verses_parallel'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    laments: {
+      title: 'פרקים המדברים על קינה',
+      text: (v: V) =>
+        `האם גם ${numHe(n(v, 'n'))} הפרקים מחוץ לאיכה שבהם המילה קינה יורדים? ירידה נטו ${x2(n(v, 'mean'))} לעומת ${x2(n(v, 'pool_mean'))} בשירה אחרת (p ${fp(n(v, 'p'))}). המילה מאתרת גם פרקים שרק מזכירים קינה.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

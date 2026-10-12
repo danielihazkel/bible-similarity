@@ -46,6 +46,7 @@ export const dosEn = {
     allusions: (n: number) => countEn(n, 'passage sharing rare words', 'passages sharing rare words'),
     mirrors: (n: number) => countEn(n, 'mirrored order', 'mirrored orders'),
     echoes: (n: number) => countEn(n, 'directed echo with another book', 'directed echoes with other books'),
+    meter: (net: number) => `lines fall like a lament (net ${net.toFixed(2)})`,
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -73,6 +74,7 @@ export const dosEn = {
     allusions: 'rare words shared',
     mirrors: 'mirrored order',
     echoes: 'who echoes whom',
+    meter: 'falling lines',
   } as Record<DossierKind, string>,
 }
 
@@ -115,6 +117,7 @@ export const dosHe: typeof dosEn = {
     allusions: (n: number) => countHe(n, 'קטע אחד החולק מילים נדירות', 'שני קטעים החולקים מילים נדירות', 'קטעים החולקים מילים נדירות'),
     mirrors: (n: number) => countHe(n, 'סדר הפוך אחד', 'שני סדרים הפוכים', 'סדרים הפוכים'),
     echoes: (n: number) => countHe(n, 'הד מכוון אחד עם ספר אחר', 'שני הדים מכוונים עם ספרים אחרים', 'הדים מכוונים עם ספרים אחרים'),
+    meter: (net: number) => `שורות יורדות כקינה (נטו ${net.toFixed(2)})`,
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -141,5 +144,6 @@ export const dosHe: typeof dosEn = {
     allusions: 'מילים נדירות משותפות',
     mirrors: 'סדר הפוך',
     echoes: 'מי מהדהד את מי',
+    meter: 'שורות יורדות',
   },
 }

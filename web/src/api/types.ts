@@ -1295,6 +1295,7 @@ export type DossierKind =
   | 'allusions'
   | 'mirrors'
   | 'echoes'
+  | 'meter'
   | 'labels'
 
 export interface DossierEntry {
@@ -1307,7 +1308,7 @@ export interface DossierEntry {
   count: number | null
   /** network: units ranked */
   total: number | null
-  /** lowest q (acrostic, structure), score (dating), divisions: score of the unit's opening gap */
+  /** lowest q (acrostic, structure), score (dating), divisions: score of the unit's opening gap, meter: net fall */
   value: number | null
   /** speech: speaker lemma; voices: voice profile key; divisions: kind of the opening gap */
   key: string | null
@@ -1829,9 +1830,11 @@ export type FindingKey =
   | 'citations'
   | 'voices'
   | 'clauses'
+  | 'meter'
   | 'echoes'
   | 'sevens'
   | 'chiasm'
+  | 'laments'
   | 'allusions'
 
 export interface Finding {
@@ -2018,4 +2021,101 @@ export interface MirrorClausesResponse {
   offset: number
   limit: number
   items: MirrorClause[]
+}
+
+// --- stresses per line and the falling lament line (DESIGN.md §16.37) ---
+
+export type MeterGroup = 'test' | 'control' | 'pool' | 'poetic' | 'prose'
+
+export interface MeterChapter {
+  unit: UnitSummary
+  /** the test / control chapters, the poetry pool (prose accents), the poetic accent books, the rest */
+  group: MeterGroup
+  /** measured lines: `min_stresses`…`max_stresses`, both members stressed */
+  n_lines: number
+  /** share with the first member longer (3:2) */
+  fall: number
+  /** share with it shorter (2:3) */
+  rise: number
+  /** fall − rise */
+  net: number
+  share32: number
+  /** mean probability of parallel verse halves */
+  prob: number | null
+  /** share of the pool chapters with a lower net fall */
+  pct: number | null
+}
+
+export interface MeterGroupTest {
+  n: number
+  pool_n: number
+  mean: number | null
+  pool_mean: number | null
+  null_mean?: number
+  p: number | null
+}
+
+export interface MeterGroupStats {
+  chapters: number
+  lines: number
+  fall: number | null
+  rise: number | null
+  /** commonest `a:b` patterns with their counts */
+  patterns: [string, number][]
+}
+
+/** `meta.meter`, all keys absent without `bsim meter` */
+export interface MeterMeta {
+  min_stresses?: number
+  max_stresses?: number
+  min_lines?: number
+  pool_quantile?: number
+  pool_prob?: number
+  lines?: number
+  split?: number
+  /** the test chapters against the poetry pool / the poetic accent books */
+  test?: MeterGroupTest
+  test_poetic?: MeterGroupTest
+  /** chapters naming a lament (קינה) against the pool */
+  named?: MeterGroupTest
+  grid?: { min: number; max: number; mean: number | null; pool_mean: number | null; pool_p: number | null; poetic_p: number | null }[]
+  groups?: Partial<Record<MeterGroup, MeterGroupStats>>
+}
+
+export interface MeterResponse {
+  meta: MeterMeta & Record<string, unknown>
+  test_chapters: MeterChapter[]
+  control_chapters: MeterChapter[]
+  named_chapters: MeterChapter[]
+  group: MeterGroup | null
+  book: number | null
+  total: number
+  offset: number
+  limit: number
+  /** highest net fall first */
+  items: MeterChapter[]
+}
+
+export interface MeterLine {
+  /** inclusive display-token span */
+  first: number
+  last: number
+  stresses: number
+  /** stresses of the two members; null when the line does not split */
+  a: number | null
+  b: number | null
+}
+
+export interface MeterVerse {
+  verse_id: number
+  lines: MeterLine[]
+}
+
+export interface UnitMeter {
+  unit_id: string
+  min_stresses: number
+  max_stresses: number
+  /** the chapter the unit starts in */
+  chapter: MeterChapter | null
+  verses: MeterVerse[]
 }

@@ -281,6 +281,12 @@ def stage_mirrors(cfg: dict[str, Any], log: Log) -> None:
     run_mirrors(cfg, log=log)
 
 
+def stage_meter(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.meter import run_meter
+
+    run_meter(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -335,6 +341,7 @@ STAGES: dict[str, str] = {
     "allusions": "stage_allusions",
     "echoes": "stage_echoes",
     "mirrors": "stage_mirrors",
+    "meter": "stage_meter",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -387,6 +394,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "allusions": (*_CORPUS, *_TOPK, "sequences"),
     "echoes": (*_CORPUS, "network", "citations", "borrowing", "dating"),
     "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
+    "meter": (*_CORPUS, "parallelism"),
     "eval-etcbc": (*_CORPUS, "build-links", *_TOPK, "eval-openbible", "phrases", "sequences"),
 }
 DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")

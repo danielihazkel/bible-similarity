@@ -9,6 +9,7 @@ import type {
   ExplainResponse,
   SimilarResponse,
   UnitDetail,
+  UnitMeter,
   UnitParallelism,
   UnitSummary,
   PhrasePair,
@@ -122,6 +123,24 @@ const HALVES: UnitParallelism = {
   ],
 }
 
+const METER: UnitMeter = {
+  unit_id: 'v:0',
+  min_stresses: 4,
+  max_stresses: 7,
+  chapter: {
+    unit: unit(0, 'Test 1'),
+    group: 'test',
+    n_lines: 40,
+    fall: 0.68,
+    rise: 0.08,
+    net: 0.61,
+    share32: 0.44,
+    prob: 0.2,
+    pct: 0.994,
+  },
+  verses: [{ verse_id: 0, lines: [{ first: 0, last: 1, stresses: 2, a: 1, b: 1 }, { first: 2, last: 2, stresses: 1, a: null, b: null }] }],
+}
+
 const EMPTY_PAGE = { total: 0, offset: 0, limit: 5, items: [] }
 const entry = (e: Partial<DossierEntry> & Pick<DossierEntry, 'kind'>): DossierEntry => ({
   scope: 'unit', computed: true, count: 0, total: null, value: null, key: null, label: null, target_unit: null, ...e,
@@ -144,6 +163,7 @@ const DOSSIER: Dossier = {
     entry({ kind: 'allusions', count: 2 }),
     entry({ kind: 'mirrors', count: 1 }),
     entry({ kind: 'echoes', count: 2 }),
+    entry({ kind: 'meter', scope: 'chapter', target_unit: 'c:25:118', value: 0.61, count: 1 }),
   ],
 }
 
@@ -171,6 +191,8 @@ function mockApi(failing: string[] = []) {
                   ? { a: 0, b: 5, a_marks: { '2': 'omitted' }, b_marks: { '2': 'added' }, counts: {}, shared: 0.6, loose: false }
                   : u.pathname.startsWith('/api/parallelism/')
                   ? HALVES
+                  : u.pathname.startsWith('/api/meter/')
+                  ? METER
                   : u.pathname === '/api/wordplay' || u.pathname === '/api/sequences'
                     ? EMPTY_PAGE
                     : null
@@ -260,6 +282,7 @@ describe('UnitPage', () => {
     expect(link('2 passages sharing rare words')).toBe('/phrases?view=spread&unit=v%3A0')
     expect(link('1 mirrored order')).toBe('/structure?view=small&unit=v%3A0')
     expect(link('2 directed echoes with other books')).toBe('/network?view=directions&unit=v%3A0')
+    expect(link('lines fall like a lament (net 0.61) (chapter)')).toBe('/unit/c%3A25%3A118?halves=1&meter=1')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')
@@ -332,6 +355,17 @@ describe('UnitPage', () => {
     expect(container.querySelector('.source .clause-break')).toBeNull()
     fireEvent.click(screen.getByLabelText('Finer clauses'))
     await waitFor(() => expect(container.querySelectorAll('.source .clause-break')).toHaveLength(1))
+  })
+
+  it('shows the stresses of each line with the chapter it is in', async () => {
+    const calls = mockApi()
+    const { container } = renderAt('/unit/v:0?halves=1')
+    await screen.findByText('Test 1:6')
+    fireEvent.click(await screen.findByLabelText('Stresses'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?halves=1&meter=1'))
+    await waitFor(() => expect(container.querySelector('.source .meter-badge')?.textContent).toBe('1:1 · 1'))
+    expect(screen.getByText(/This chapter's lines: net fall 0\.61, above 99% of the poetry pool \(Lamentations 1–4\)/)).toBeTruthy()
+    expect(calls.some((c) => c.startsWith('/api/meter/v%3A0'))).toBe(true)
   })
 
   it('marks word changes instead of shared words, and j pins the next hit', async () => {

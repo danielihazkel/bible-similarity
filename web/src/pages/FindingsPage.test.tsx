@@ -11,6 +11,8 @@ const FINDINGS: FindingsResponse = {
   alpha: 0.05,
   items: [
     { key: 'dating', verdict: 'holds', values: { later: 26, pairs: 26, p: 3e-8, auc: 0.9476 } },
+    { key: 'meter', verdict: 'holds', values: { mean: 0.388, pool_mean: 0.175, p: 0.0079, poetic_p: 0.0013, control_pct: 0.736 } },
+    { key: 'laments', verdict: 'fails', values: { n: 12, mean: 0.202, pool_mean: 0.171, p: 0.259 } },
     { key: 'sevens', verdict: 'fails', values: { ratio7: 1.159, ratio10: 1.407, smallest: 7, largest: 12 } },
     { key: 'chiasm', verdict: 'fails', values: { verses_chiastic: 2099, verses_parallel: 2790, share: 0.4287, p: 4.9e-23 } },
     { key: 'allusions', verdict: 'lead', values: { pairs: 176, known: 171, strong: 3, strong_known: 3, best_new_q: 0.8154 } },
@@ -58,6 +60,9 @@ describe('FindingsPage', () => {
     const leads = screen.getByRole('region', { name: 'Leads, not findings' })
     expect(within(leads).getByText(/176 pairs of passages .* 171 are known parallels, and the best new one has q 0.82/)).toBeTruthy()
     expect(screen.getByText(/passes at p ≤ 0.05/)).toBeTruthy()
+    expect(within(holds).getByText(/Do the lines of Lamentations 1–4 fall — .* Net fall 0\.39 against 0\.17 .* \(p 0\.008; against Psalms, Proverbs and Job p 0\.001\)\. Lamentations 5, .* more than 74% of that poetry/)).toBeTruthy()
+    expect(within(holds).getByRole('link', { name: 'The falling lament line: Poetry' }).getAttribute('href')).toBe('/poetry?view=meter')
+    expect(within(fails).getByText(/Do the 12 chapters outside Lamentations that use the word קינה fall too\? Net fall 0\.20 against 0\.17 for other poetry \(p 0\.26\)/)).toBeTruthy()
   })
 
   it('words a claim by the direction the numbers take, in Hebrew', async () => {

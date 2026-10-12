@@ -23,6 +23,7 @@ import { divHe } from './pages/divisions'
 import { kqHe } from './pages/ketiv'
 import { citHe } from './pages/citations'
 import { mirHe } from './pages/mirrors'
+import { metHe } from './pages/meter'
 import { echoHe } from './pages/echoes'
 import { findHe } from './pages/findings'
 
@@ -413,6 +414,7 @@ export const he: Messages = {
   kq: kqHe,
   cit: citHe,
   mir: mirHe,
+  met: metHe,
   echo: echoHe,
   find: findHe,
   ov: ovHe,

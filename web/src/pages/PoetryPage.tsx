@@ -8,6 +8,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, bookOption, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { MeterView } from './MeterView'
 import { WordPairsView } from './WordPairsView'
 
 const PAGE_SIZE = 50
@@ -18,7 +19,8 @@ const pct = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}%
 export function PoetryPage() {
   const m = useT()
   const [params, update] = useQueryParams()
-  const view = params.get('view') === 'pairs' ? 'pairs' : 'units'
+  const raw = params.get('view')
+  const view = raw === 'pairs' || raw === 'meter' ? raw : 'units'
   return (
     <div className="page poetry-page">
       <h1>{m.pat.poetry.title}</h1>
@@ -30,10 +32,11 @@ export function PoetryPage() {
           options={[
             { value: 'units', label: m.pat.poetry.unitsView },
             { value: 'pairs', label: m.pat.poetry.pairsView },
+            { value: 'meter', label: m.met.view },
           ]}
         />
       </div>
-      {view === 'pairs' ? <WordPairsView /> : <UnitsView />}
+      {view === 'pairs' ? <WordPairsView /> : view === 'meter' ? <MeterView /> : <UnitsView />}
     </div>
   )
 }

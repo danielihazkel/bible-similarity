@@ -612,5 +612,37 @@ Phase 3 (M39c): API and viewer
 
 ✔ 141 / 141 vitest; 171 / 171 fixture and 130 / 130 real-data e2e.
 
+## M60: Meter — stresses per line and the falling lament line (§16.37, D73; proposed A1)
+- [x] `bsim meter` (`analysis/meter.py`, pipeline stage after mirrors, ~5 s): stresses from the accents (a word not ending in maqaf), lines = the largest spans of the accent dichotomy (strongest pause, the first of equals) of at most `max_stresses` stresses, split at their own main pause into `a:b`; net fall per chapter (falling − rising share of lines of 4–7 stresses)
+- [x] Test fixed in advance: Lam 1–4 against poetry under the same prose accents (top quarter of prose-accented chapters by parallel-halves probability) by drawing chapters; against Psalms / Proverbs / Job; a grid of line lengths; Lam 5 as control; chapters naming קינה (H7015) tested the same way
+- [x] DB `meter_lines`, `meter_chapters` (+ `meta.meter`, empty without the stage); API `/meter?group&book`, `/meter/{unit}`; dossier entry `meter` (`serve.dossier.meter_pct`); findings `meter` and `laments`; CSV export `meter`
+- [x] Viewer: Poetry → Meter (the test, control, line lengths, commonest lines, chapters naming a lament, ranking by group and book); *Stresses* next to the verse halves on unit pages (`a:b` per line, line ends marked, the chapter's net fall); English and Hebrew
+- [x] Tests: stresses, the dichotomy and its ties, lines and maqaf, chapter rates, the group test, the API, dossier, findings and DB on the fixture (pytest); the view, its filter, Hebrew, the empty state, the unit-page toggle, the dossier chip, the findings (vitest); e2e: the view and the unit toggle in both languages with axe, dossier chip → stresses
+
+✔ Lamentations 1–4 fall: net fall 0.39 against 0.17 for poetry under the same accents (p 0.008) and 0.14 for Psalms, Proverbs and Job (p 0.001), at every line length tried (p ≤ 0.011); 3:2 is Lamentations' commonest line; Lam 5 at the 74th percentile; chapters naming קינה not borne out (p 0.26), though Ezek 19 and 27 fall like Lamentations; 496 pytest, 146 / 146 vitest, 179 / 179 fixture (1 skipped by design) and 134 / 134 real-data e2e.
+
 ## Proposed (not started)
-Every suggestion from the 2026-10-09 review is done (M45–M59).
+Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
+
+Analyses
+- [x] A1 (done, M60) Meter: stresses per colon (accented words, maqaf-joined = one) over the existing cola (`text/accents.py`); balanced vs falling lines per book / chapter. Claim: Lamentations 1–4 have more falling (qinah, 3:2) lines than other poetry (chapter permutation); Isa 14:4–21, Amos 5:2 as known extras, Lam 5 as control. Poetry tab, stress counts on the verse halves
+- A2 Root families: Strong's derivation links in HebrewStrong.xml (already downloaded; parse to check) → root families; Leitworte by root (§16.2 is by lemma) checked on Gen 27 ברך, Jonah ירד / גדל, 1 Sam 15 שמע / קול; figura etymologica (infinitive absolute + finite verb, cognate objects; out of scope in §16.10) per book against a shuffle; root chip and concordance by root
+- A3 Refrains: Smith–Waterman within a book (`analysis/phrases.py`), phrases recurring ≥ 3 times, gap regularity against a verse shuffle; known list in config (Amos 4:6–11, Isa 9:11–10:4, Ps 42–43, Ps 107, Ps 136, Gen 1); second claim: refrains fall at the turns of §16.29
+- A4 Psalm genres and the lament turn: per-psalm address / person / imperatives / SDBH distress vs praise domains, clusters against Gunkel's genres in config (NMI vs shuffled labels); a change point inside laments checked on known turns (Ps 6:9, 13:6, 22:23, 28:6)
+- A5 Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way
+- A6 Who speaks to whom: addressee from the introducing clause's אל-complement and vocatives (hand check of 50, as M43); conversation network per book, turn length, last word; "To whom" on the Speech page
+- A7 Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
+
+Viewer
+- B1 Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
+- B2 Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
+- B3 Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
+
+Backend, models, code health
+- C1 Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
+- C2 Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
+- C3 Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
+- C4 `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
+- C5 Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
+
+Suggested order: A1 → A2 → B1 → A3 → C1.

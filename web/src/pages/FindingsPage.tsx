@@ -15,6 +15,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   citations: { to: '/citations?family=command', nav: 'citations' },
   voices: { to: '/speech?view=voices', nav: 'speech' },
   clauses: { to: '/structure?view=small', nav: 'structure' },
+  meter: { to: '/poetry?view=meter', nav: 'poetry' },
+  laments: { to: '/poetry?view=meter', nav: 'poetry' },
   echoes: { to: '/network?view=directions', nav: 'network' },
   sevens: { to: '/structure', nav: 'structure' },
   chiasm: { to: '/structure?view=small', nav: 'structure' },

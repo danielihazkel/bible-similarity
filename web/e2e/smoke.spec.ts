@@ -36,6 +36,8 @@ const PAGES: [string, RegExp][] = [
   ['/wordplay?view=alliteration', /Wordplay/],
   ['/wordplay?view=rhyme', /Wordplay/],
   ['/poetry?view=pairs', /Parallel halves/],
+  ['/poetry?view=meter', /Parallel halves/],
+  ['/unit/c%3A31%3A3?halves=1&meter=1', /Lamentations 3/],
   ['/unit/c%3A26%3A1?halves=1&clauses=1', /Psalms 1/],
   ['/network?type=pericope&unit=s%3A50', /Network of echoes/],
   ['/network?view=directions', /Network of echoes/],
@@ -121,7 +123,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/unit/c%3A0%3A22?syntax=1', '/labels', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')

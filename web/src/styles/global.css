@@ -1541,6 +1541,13 @@ svg[tabindex]:focus-visible {
 .halves-bar {
   margin-bottom: 0.4rem;
 }
+.meter-badge {
+  margin-inline-start: 0.5rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: help;
+}
 .book-bars {
   list-style: none;
   padding: 0;
