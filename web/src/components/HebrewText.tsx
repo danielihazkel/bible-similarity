@@ -5,6 +5,13 @@ import { useTextMode } from '../context/textModeContext'
 import { displayForm, endsWithMaqaf } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
 
+/** What the layered reader paints on one word: classes, a tooltip, small marks after it. */
+export interface WordLook {
+  className?: string
+  title?: string
+  marks?: string[]
+}
+
 interface Props {
   verse: Verse
   highlight?: Highlight
@@ -16,10 +23,12 @@ interface Props {
   breaks?: Set<number>
   /** Display indexes after which a clause (a weaker accent pause) ends: shown as a thin |. */
   minorBreaks?: Set<number>
+  /** Per display index: extra classes, a tooltip and marks (the layered reader). */
+  decorate?: (displayIdx: number) => WordLook | undefined
 }
 
 /** A verse's display tokens, right to left, with the text mode and lemma highlights applied. */
-export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks, minorBreaks }: Props) {
+export function HebrewText({ verse, highlight, className, onWordClick, selected, breaks, minorBreaks, decorate }: Props) {
   const m = useT()
   const { mode } = useTextMode()
   const tokens = verse.display_tokens
@@ -38,10 +47,21 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
     <span className={`he ${className ?? ''}`} dir="rtl" lang="he">
       {tokens.map((t, i) => {
         const mark = highlight?.get(i)
+        const look = decorate?.(i)
         const sep = i < tokens.length - 1 && !endsWithMaqaf(t) ? ' ' : ''
-        const cls = [mark && `w w-${mark}`, onWordClick && 'w-click', selected === i && 'w-selected']
+        const cls = [mark && `w w-${mark}`, look?.className, onWordClick && 'w-click', selected === i && 'w-selected']
           .filter(Boolean)
           .join(' ')
+        const text = (
+          <>
+            {displayForm(t, mode)}
+            {look?.marks?.map((s, k) => (
+              <sup key={k} className="w-mark">
+                {s}
+              </sup>
+            ))}
+          </>
+        )
         return (
           <span key={i}>
             {onWordClick ? (
@@ -51,6 +71,7 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
                 data-word=""
                 tabIndex={i === stop ? 0 : -1}
                 aria-pressed={selected === i}
+                title={look?.title}
                 onClick={() => onWordClick(i)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -59,10 +80,12 @@ export function HebrewText({ verse, highlight, className, onWordClick, selected,
                   } else move(e, i)
                 }}
               >
-                {displayForm(t, mode)}
+                {text}
               </span>
             ) : (
-              <span className={cls || undefined}>{displayForm(t, mode)}</span>
+              <span className={cls || undefined} title={look?.title}>
+                {text}
+              </span>
             )}
             {breaks?.has(i) ? (
               <span className="colon-break" aria-label={m.word.pause}>

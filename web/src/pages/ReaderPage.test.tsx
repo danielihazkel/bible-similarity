@@ -1,0 +1,241 @@
+// @vitest-environment jsdom
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { ReaderResponse, StructureResponse, UnitDetail, UnitParallelism, UnitSummary, Verse } from '../api/types'
+import { LocaleProvider } from '../context/Locale'
+import { parseLayers, toggleLayer } from '../lib/layers'
+import { ReaderPage } from './ReaderPage'
+
+const CHAPTER: UnitSummary = {
+  unit_id: 'c:0:1',
+  unit_type: 'chapter',
+  label_en: 'Genesis 1',
+  label_he: 'בראשית א',
+  book_id: 0,
+  start_verse_id: 0,
+  end_verse_id: 1,
+  n_verses: 2,
+  marker: null,
+}
+const verse = (id: number, n: number, tokens: string[]): Verse => ({
+  verse_id: id,
+  book_id: 0,
+  chapter: 1,
+  verse: n,
+  ref: `Genesis 1:${n}`,
+  ref_he: `בראשית א:${n}`,
+  text_display: tokens.join(' '),
+  display_tokens: tokens,
+  ketiv_note: null,
+})
+const DETAIL: UnitDetail = {
+  unit: CHAPTER,
+  verses: [verse(0, 1, ['בְּרֵאשִׁית', 'בָּרָא', 'אֱלֹהִים']), verse(1, 2, ['וַיֹּאמֶר', 'אֱלֹהִים', 'יְהִי', 'אוֹר'])],
+  parents: [],
+  prev_id: null,
+  next_id: 'c:0:2',
+}
+const VERSE_DETAIL: UnitDetail = {
+  ...DETAIL,
+  unit: { ...CHAPTER, unit_id: 'v:1', unit_type: 'verse', start_verse_id: 1, end_verse_id: 1, n_verses: 1 },
+  verses: [DETAIL.verses[1]],
+}
+const READER: ReaderResponse = {
+  unit: CHAPTER,
+  rare_verses: 3,
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true },
+  speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2 }],
+  verses: [
+    {
+      verse_id: 0,
+      speech: {},
+      phrases: { '0': 6 },
+      rare: { '1': 1 },
+      wordplay: [
+        {
+          display: 1,
+          partner_vid: 1,
+          partner_display: 3,
+          partner_label: 'Genesis 1:2',
+          partner_label_he: 'בראשית א:ב',
+          form: 'ברא',
+          partner_form: 'אור',
+          kind: 'metathesis',
+          q: 0.01,
+        },
+      ],
+      ketiv: [],
+      gap: null,
+    },
+    {
+      verse_id: 1,
+      speech: { '2': 0, '3': 0 },
+      phrases: {},
+      rare: {},
+      wordplay: [],
+      ketiv: [{ display: [3], ketiv: 'אר', qere: 'אוֹר', cls: 'vowel_letter' }],
+      gap: { score: 0.98, kind: 'turn', mam: 'pe', chapter: false },
+    },
+  ],
+}
+const STRUCTURE = {
+  unit: CHAPTER,
+  verse_ids: [0, 1],
+  leitworte: [{ lemma: '430', he_lemma: 'אלהים', count: 2, expected: 0.4, g2: 9, multiple_of: [], occurrences: { '0': [2], '1': [1] } }],
+  root_leitworte: [
+    {
+      root: '1254',
+      root_he: 'ברא',
+      count: 1,
+      expected: 0.1,
+      g2: 5,
+      lemmas: [],
+      hidden: true,
+      occurrences: { '0': [1] },
+    },
+  ],
+} as unknown as StructureResponse
+const HALVES = {
+  unit: CHAPTER,
+  parallel_at: 0.5,
+  mean_prob: null,
+  share_parallel: null,
+  n_scored: 0,
+  verses: [{ verse_id: 1, n_cola: 2, cola: [[0, 1], [2, 3]], clauses: [] }],
+} as unknown as UnitParallelism
+
+function Location() {
+  const l = useLocation()
+  return <output data-testid="loc">{l.pathname + l.search}</output>
+}
+
+function renderAt(path: string, locale: 'en' | 'he' = 'en', reader: ReaderResponse = READER) {
+  const calls: string[] = []
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string) => {
+      calls.push(url)
+      const p = decodeURIComponent(new URL(url, 'http://x').pathname)
+      const body =
+        p === '/api/unit/c:0:1'
+          ? DETAIL
+          : p === '/api/unit/v:1'
+            ? VERSE_DETAIL
+            : p === '/api/reader/c:0:1'
+              ? reader
+              : p === '/api/structure/c:0:1'
+                ? STRUCTURE
+                : p === '/api/parallelism/c:0:1'
+                  ? HALVES
+                  : null
+      return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
+    }),
+  )
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const r = render(
+    <QueryClientProvider client={client}>
+      <LocaleProvider initial={locale}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/read/:unitId" element={<ReaderPage />} />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </LocaleProvider>
+    </QueryClientProvider>,
+  )
+  return { ...r, calls }
+}
+
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
+
+describe('layers in the URL', () => {
+  it('reads the default set, an explicit list and none', () => {
+    expect([...parseLayers(null)]).toEqual(['speakers', 'leitworte', 'turns'])
+    expect([...parseLayers('rare,cola,bogus')]).toEqual(['cola', 'rare'])
+    expect(parseLayers('').size).toBe(0)
+  })
+  it('switches one layer, back to no parameter at the default set', () => {
+    expect(toggleLayer(parseLayers(null), 'cola')).toBe('speakers,cola,leitworte,turns')
+    expect(toggleLayer(parseLayers('speakers,cola,leitworte,turns'), 'cola')).toBeNull()
+    expect(toggleLayer(parseLayers('rare'), 'rare')).toBe('')
+  })
+})
+
+describe('ReaderPage', () => {
+  it('paints speakers, Leitworte and turns by default', async () => {
+    const { container, calls } = renderAt('/read/c%3A0%3A1')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .spk-0')).toHaveLength(2))
+    expect(container.querySelector('.reader-text .spk-0')?.getAttribute('title')).toBe('spoken by אלהים')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .lw-0')).toHaveLength(2))
+    expect(container.querySelector('.reader-text .lw-0')?.getAttribute('title')).toBe('Leitwort אלהים: 2 times here, 0.4 expected')
+    expect(container.querySelector('.reader-gap.gap-turn')?.textContent).toBe('פturn')
+    expect(screen.getByText(/2 words/).closest('.layer-key')?.textContent).toContain('(God)')
+    // layers that are off are neither fetched nor painted
+    expect(calls.some((c) => c.includes('/parallelism/'))).toBe(false)
+    expect(container.querySelector('.ph, .wp, .w-mark')).toBeNull()
+    expect(screen.getByRole('link', { name: /Next/ }).getAttribute('href')).toBe('/read/c%3A0%3A2')
+  })
+
+  it('turns layers on and off through the URL', async () => {
+    const { container, calls } = renderAt('/read/c%3A0%3A1')
+    await screen.findByRole('button', { name: 'Verse halves' })
+    fireEvent.click(screen.getByRole('button', { name: 'Verse halves' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1?layers=speakers%2Ccola%2Cleitworte%2Cturns'))
+    await waitFor(() => expect(container.querySelectorAll('.colon-break')).toHaveLength(1))
+    expect(calls.some((c) => c.includes('/parallelism/'))).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Speakers' }))
+    await waitFor(() => expect(container.querySelector('.reader-text .spk')).toBeNull())
+    expect(screen.getByRole('button', { name: 'Speakers' }).getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('marks shared phrases, rare words, ketiv and wordplay partners', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=phrases,rare,ketiv,wordplay')
+    await waitFor(() => expect(container.querySelector('.ph-3')).not.toBeNull())
+    expect(container.querySelector('.ph-3')?.getAttribute('title')).toBe('in a phrase shared with 6 other verses')
+    const marks = [...container.querySelectorAll('.w-mark')].map((s) => s.textContent)
+    expect(marks).toEqual(['1', 'ק'])
+    const play = container.querySelector('.wp')!
+    // a word's tooltip lists what every layer says about it
+    expect(play.getAttribute('title')).toBe('sounds like אור (Genesis 1:2): Letters swapped\nnowhere else in the Bible (hapax legomenon)')
+    fireEvent.click(play)
+    await waitFor(() => expect(container.querySelectorAll('.wp-partner')).toHaveLength(1))
+    expect(container.querySelector('.wp-partner')?.textContent).toContain('אוֹר')
+    expect(container.querySelector('.wp-partner')?.getAttribute('title')).toBe('written אר, read אוֹר: A vowel letter')
+  })
+
+  it('counts Leitworte by root on request', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=leitworte')
+    fireEvent.click(await screen.findByRole('radio', { name: 'By root' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1?layers=leitworte&lw=root'))
+    await waitFor(() => expect(container.querySelector('.reader-text .lw-0')?.textContent).toBe('בָּרָא'))
+  })
+
+  it('says which layers this build did not compute', async () => {
+    renderAt('/read/c%3A0%3A1?layers=speakers,turns', 'en', {
+      ...READER,
+      computed: { speech: false, phrases: true, wordplay: true, ketiv: true, gaps: false },
+      speakers: [],
+      verses: READER.verses.map((v) => ({ ...v, speech: {}, gap: null })),
+    })
+    expect(await screen.findByText('Speakers: not computed in this build.')).toBeTruthy()
+    expect(screen.getByText('Turns: not computed in this build.')).toBeTruthy()
+  })
+
+  it('reads in Hebrew', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1', 'he')
+    expect(await screen.findByRole('button', { name: 'מילים מנחות' })).toBeTruthy()
+    await waitFor(() => expect(container.querySelector('.reader-text .spk-0')?.getAttribute('title')).toBe('בפי אלהים'))
+    expect(container.querySelector('.gap-kind')?.textContent).toBe('מפנה')
+  })
+
+  it('reads a verse in its chapter', async () => {
+    renderAt('/read/v%3A1?layers=rare')
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe("/read/c%3A0%3A1?layers=rare"))
+  })
+})

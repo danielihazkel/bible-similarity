@@ -32,6 +32,9 @@ const PAGES = [
   '/roots?view=key',
   '/roots?kind=inf_abs',
   '/root/7218',
+  '/read/c%3A0%3A1',
+  '/read/c%3A0%3A1?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns',
+  '/read/c%3A0%3A2?layers=wordplay%2Cketiv%2Cturns%2Cleitworte&lw=root',
   '/poetry?view=meter&group=pool',
   '/unit/c%3A0%3A1?halves=1&meter=1',
   '/wordplay',
@@ -149,6 +152,22 @@ test('a verse with two words of one root links to them, and on to the root', asy
   await page.locator('.root-pair').getByRole('link', { name: /root/ }).click()
   await expect(page).toHaveURL(/\/root\/7218/)
   await expect(page.locator('.root-members .lemma-chip')).toHaveCount(1)
+})
+
+test('the unit page opens the layered reader, whose layers paint the words', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A1')
+  await page.getByRole('link', { name: 'Read with layers' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1$/)
+  // speakers and turns are on by default: Genesis 1:2 is spoken, a turn comes before 1:3
+  await expect(page.locator('.reader-text .spk')).toHaveCount(2)
+  await expect(page.locator('.reader-gap.gap-turn')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Wordplay' }).click()
+  await expect(page).toHaveURL(/layers=speakers%2Cleitworte%2Cwordplay%2Cturns/)
+  await expect(page.locator('.reader-text .wp')).toHaveCount(2)
+  await page.locator('.reader-text .wp').first().click()
+  await expect(page.locator('.reader-text .wp-partner')).toHaveCount(1)
+  await page.getByRole('link', { name: /Next/ }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A2\?layers=/)
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

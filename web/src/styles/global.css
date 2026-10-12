@@ -2591,3 +2591,182 @@ a.dossier-chip:hover {
 .spread-lemmas { margin: 0.25rem 0; font-size: 1.1rem; color: var(--accent); }
 .spread-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0.5rem 1.5rem; }
 .spread-side p { margin: 0.15rem 0; }
+
+/* The layered reader (§16.39): speakers as a background tint, Leitworte as coloured bold text,
+   shared phrases underlined, wordplay boxed, rare words and ketiv as small marks. Every
+   foreground here is ≥ 5:1 on every speaker tint, in both themes. */
+:root {
+  --spk-0: #fbe1c6;
+  --spk-1: #d6ebd0;
+  --spk-2: #d7e3f6;
+  --spk-3: #f3d8ea;
+  --spk-4: #ebe5bd;
+  --spk-5: #cfeaea;
+  --spk-6: #e4d8f5;
+  --spk-7: #f6d6d0;
+  --lw-0: #a1251a;
+  --lw-1: #1f4e96;
+  --lw-2: #2c6420;
+  --lw-3: #772b88;
+  --lw-4: #7f4b00;
+  --lw-5: #0b6262;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --spk-0: #4d3418;
+    --spk-1: #24412a;
+    --spk-2: #22385e;
+    --spk-3: #4b2645;
+    --spk-4: #45401a;
+    --spk-5: #1c4545;
+    --spk-6: #392a58;
+    --spk-7: #522823;
+    --lw-0: #ffa294;
+    --lw-1: #a3c4ff;
+    --lw-2: #a9dd92;
+    --lw-3: #e8a9f4;
+    --lw-4: #f2c277;
+    --lw-5: #8edcdc;
+  }
+}
+.read-link {
+  margin-inline-end: 0.75rem;
+  font-weight: 600;
+}
+.layer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.6rem;
+}
+.layer-toggle {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+}
+.layer-toggle.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+.reader-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.8rem;
+  display: grid;
+  gap: 0.3rem;
+}
+.reader-legend li {
+  line-height: 1.9;
+}
+.reader-legend .segmented {
+  vertical-align: middle;
+}
+.layer-key {
+  display: inline-block;
+  margin-inline-end: 0.3rem;
+  line-height: 1.5;
+  border-radius: 999px;
+  padding: 0 0.55rem;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.layer-key [lang='he'] {
+  font-family: var(--font-he);
+  font-size: 1.05rem;
+}
+.layer-n {
+  font-size: 0.8rem;
+}
+.spk {
+  border-radius: 3px;
+}
+.spk-0 { background: var(--spk-0); }
+.spk-1 { background: var(--spk-1); }
+.spk-2 { background: var(--spk-2); }
+.spk-3 { background: var(--spk-3); }
+.spk-4 { background: var(--spk-4); }
+.spk-5 { background: var(--spk-5); }
+.spk-6 { background: var(--spk-6); }
+.spk-7 { background: var(--spk-7); }
+/* speech whose speaker was not found: poetry is mostly that, so it gets a dotted line, not a tint */
+.spk-unknown { border-bottom: 1px dotted var(--muted); border-radius: 0; }
+.layer-key.spk-unknown { border: 1px dotted var(--muted); border-radius: 999px; }
+.lw {
+  font-weight: 700;
+}
+.lw-0 { color: var(--lw-0); }
+.lw-1 { color: var(--lw-1); }
+.lw-2 { color: var(--lw-2); }
+.lw-3 { color: var(--lw-3); }
+.lw-4 { color: var(--lw-4); }
+.lw-5 { color: var(--lw-5); }
+.layer-key.lw {
+  background: var(--surface);
+}
+.ph {
+  text-decoration-line: underline;
+  text-decoration-color: var(--lex);
+  text-underline-offset: 0.4em;
+}
+.ph-1 { text-decoration-thickness: 1px; }
+.ph-2 { text-decoration-thickness: 2px; }
+.ph-3 { text-decoration-thickness: 3px; }
+.reader-text .wp,
+.reader-text .wp.w-click:hover,
+.reader-text .wp.w-click:focus-visible {
+  outline: 1.5px dashed var(--accent);
+  outline-offset: 1px;
+}
+.reader-text .wp-partner {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+.w-mark {
+  font-family: var(--font-ui);
+  font-size: 0.55em;
+  font-weight: 400;
+  padding-inline-start: 0.1em;
+}
+.reader-text li {
+  flex-wrap: wrap;
+}
+.reader-text li > .he {
+  flex: 1;
+  min-width: 0;
+}
+.reader-gap {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted);
+  cursor: help;
+}
+.reader-gap::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dotted var(--border);
+}
+.reader-gap.gap-turn::after {
+  border-top: 2px solid var(--accent);
+}
+.reader-gap.gap-cut::after {
+  border-top: 2px dashed var(--accent);
+}
+.paragraph-mark {
+  font-family: var(--font-he);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.gap-turn .gap-kind,
+.gap-cut .gap-kind {
+  color: var(--accent);
+  font-weight: 600;
+}

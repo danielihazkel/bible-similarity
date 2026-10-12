@@ -4,6 +4,7 @@ import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
   Acrostic,
   AcrosticsResponse,
+  ReaderResponse,
   AffinityPair,
   AlliterationResponse,
   AffinityResponse,
@@ -420,6 +421,14 @@ export const useUnitMeter = (unitId: string | undefined) =>
   useQuery({
     queryKey: ['unit-meter', unitId],
     queryFn: ({ signal }) => getJson<UnitMeter>(`/meter/${encodeURIComponent(unitId!)}`, {}, signal),
+    enabled: !!unitId,
+    ...forever,
+  })
+
+export const useReader = (unitId: string | undefined) =>
+  useQuery({
+    queryKey: ['reader', unitId],
+    queryFn: ({ signal }) => getJson<ReaderResponse>(`/reader/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
     ...forever,
   })

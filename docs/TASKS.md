@@ -631,6 +631,11 @@ Phase 3 (M39c): API and viewer
 
 ✔ A verb takes a noun of its own root nearby 4.1 times as often as chance (1,677 vs 406, p 0.005); counted by root, the eight named Leitworte do not rank higher (6 / 8 in the top 12 either way: 3 up, 3 down); 896 hidden key roots as leads; the infinitive absolute is rare in Chronicles (0.15 per 1,000 words vs ~1 in Kings); 506 pytest, 152 / 152 vitest, 189 / 189 fixture (1 skipped by design) and 140 / 140 real-data e2e (a word-chip contrast on the root page fixed).
 
+## M62: Layered reader (§16.39, D75; proposed B1)
+- [x] `GET /api/reader/{unit}`: speech per display token, phrase partners, rare words (`serve.reader.rare_verses`, names out), sound-alike pairs with their partner, ketiv / qere, the gap before each verse; `computed` per layer
+- [x] Viewer: the Reader page (`/read/:unit`), eight layers in `?layers=` (speakers, verse halves, Leitworte by word or root, shared phrases, rare words, wordplay, ketiv / qere, turns), a legend per layer, tooltips with every layer's word, the word panel, prev / next keeping the layers; "Read with layers" on the unit page; `HebrewText` takes a per-word `decorate`; colours ≥ 5:1 on every tint in both themes; English and Hebrew
+- [x] Tests: the endpoint on the fixture, across units, too long, without the stages (pytest); the layers in the URL, defaults, toggling, every layer's marks, wordplay partners, by root, not computed, Hebrew, a verse read in its chapter (vitest); e2e: the pages, unit page → reader → a layer → partner → next; axe on Genesis 3 with every layer
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -644,7 +649,7 @@ Analyses
 - A7 Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
 
 Viewer
-- B1 Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
+- [x] B1 (done, M62) Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
 - B2 Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
 - B3 Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
 

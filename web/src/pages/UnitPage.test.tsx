@@ -347,6 +347,8 @@ describe('UnitPage', () => {
     const { container } = renderAt('/unit/v:0')
     await screen.findByText('Test 1:6')
     expect(container.querySelector('.colon-break')).toBeNull()
+    // the layered reader reads the verse in its chapter
+    expect(screen.getByRole('link', { name: 'Read with layers' }).getAttribute('href')).toBe('/read/v%3A0')
     fireEvent.click(screen.getByLabelText("Verse halves (te'amim)"))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?halves=1'))
     await waitFor(() => expect(container.querySelectorAll('.source .colon-break')).toHaveLength(1))

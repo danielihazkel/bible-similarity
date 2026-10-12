@@ -18,6 +18,7 @@ import { citEn } from './pages/citations'
 import { mirEn } from './pages/mirrors'
 import { metEn } from './pages/meter'
 import { rootEn } from './pages/roots'
+import { readerEn } from './pages/reader'
 import { echoEn } from './pages/echoes'
 import { findEn } from './pages/findings'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
@@ -417,6 +418,7 @@ export const en = {
   mir: mirEn,
   met: metEn,
   root: rootEn,
+  reader: readerEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

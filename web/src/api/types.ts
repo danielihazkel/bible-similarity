@@ -2272,3 +2272,57 @@ export interface RootFamily {
   limit: number
   items: ConcordanceHit[]
 }
+
+// The layered reader (`/reader/{unit}`, DESIGN.md §16.39): word-level layers keyed by display token.
+export interface ReaderSpeaker {
+  /** null: speech whose speaker is not known */
+  lemma: string | null
+  he: string | null
+  divine: boolean
+  n_words: number
+}
+export interface ReaderWordplay {
+  display: number
+  partner_vid: number
+  partner_display: number | null
+  partner_label: string
+  partner_label_he: string
+  form: string
+  partner_form: string
+  kind: 'substitution' | 'metathesis' | 'extension'
+  q: number
+}
+export interface ReaderKetiv {
+  /** display tokens of the read words */
+  display: number[]
+  ketiv: string
+  qere: string
+  cls: KqClass
+}
+export interface ReaderGap {
+  /** within-book percentile of the cohesion drop (1 = the book's sharpest turn) */
+  score: number
+  kind: SegmentKind | null
+  mam: Paragraph | null
+  chapter: boolean
+}
+export interface ReaderVerse {
+  verse_id: number
+  /** display token -> index into `speakers` */
+  speech: Record<string, number>
+  /** display token -> other verses sharing a phrase through it */
+  phrases: Record<string, number>
+  /** display token -> verses holding its rarest content word */
+  rare: Record<string, number>
+  wordplay: ReaderWordplay[]
+  ketiv: ReaderKetiv[]
+  /** the gap before the verse: flagged or a MAM break */
+  gap: ReaderGap | null
+}
+export interface ReaderResponse {
+  unit: UnitSummary
+  rare_verses: number
+  computed: Record<string, boolean>
+  speakers: ReaderSpeaker[]
+  verses: ReaderVerse[]
+}

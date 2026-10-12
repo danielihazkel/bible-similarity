@@ -25,6 +25,7 @@ import { citHe } from './pages/citations'
 import { mirHe } from './pages/mirrors'
 import { metHe } from './pages/meter'
 import { rootHe } from './pages/roots'
+import { readerHe } from './pages/reader'
 import { echoHe } from './pages/echoes'
 import { findHe } from './pages/findings'
 
@@ -418,6 +419,7 @@ export const he: Messages = {
   mir: mirHe,
   met: metHe,
   root: rootHe,
+  reader: readerHe,
   echo: echoHe,
   find: findHe,
   ov: ovHe,

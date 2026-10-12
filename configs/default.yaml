@@ -625,6 +625,8 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
+  reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
+    rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)
     alpha: 0.05               # a test at or below this p (or q) counts as holding
   search:

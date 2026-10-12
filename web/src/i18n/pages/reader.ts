@@ -1,0 +1,133 @@
+// Interface strings of the layered reader: a chapter with what the analyses found painted onto its
+// words (DESIGN.md §16.39). English first, Hebrew typed against it.
+
+import type { Paragraph, SegmentKind } from '../../api/types'
+import { countEn, countHe } from '../fmt'
+
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'turns'
+
+const pctOf = (x: number) => Math.round(x * 100)
+
+export const readerEn = {
+  title: 'Reader',
+  lede: 'The text with what the analyses found painted onto its words. Turn layers on and off; hover a word for what each layer says about it, click it for its grammar.',
+  open: 'Read with layers',
+  openTitle: 'The text with its speakers, Leitworte, verse halves, wordplay and more marked on the words',
+  unitPage: 'Similar passages and every analysis',
+  layersLabel: 'Layers',
+  layers: {
+    speakers: 'Speakers',
+    cola: 'Verse halves',
+    leitworte: 'Leitworte',
+    phrases: 'Shared phrases',
+    rare: 'Rare words',
+    wordplay: 'Wordplay',
+    ketiv: 'Ketiv / qere',
+    turns: 'Turns',
+  } satisfies Record<Layer, string>,
+  hints: {
+    speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
+    cola: 'Where the accents divide each verse into halves and clauses',
+    leitworte: 'Words repeated here far more than in the rest of the Bible',
+    phrases: 'Words in a phrase another verse shares',
+    rare: 'Words found in only a few verses of the Bible',
+    wordplay: 'Words a few apart that sound alike',
+    ketiv: 'Words read otherwise than they are written',
+    turns: 'Where the text changes sharply between verses, and the paragraph breaks of the tradition',
+  } satisfies Record<Layer, string>,
+  notComputed: (layer: string) => `${layer}: not computed in this build.`,
+  loading: (layer: string) => `Loading ${layer.toLowerCase()}…`,
+  // speakers
+  speakersKey: 'Who speaks (a dotted line: speech whose speaker was not found):',
+  noSpeech: 'No quoted speech here.',
+  unknownSpeaker: 'speaker not found',
+  divine: 'God',
+  spokenBy: (who: string) => `spoken by ${who}`,
+  speakerWords: (n: number) => countEn(n, 'word', 'words'),
+  // cola
+  colaKey: '‖ ends a verse half, | a clause: the pauses of the accents.',
+  // Leitworte
+  leitworteKey: 'Most over-represented first:',
+  countBy: 'Count',
+  byWord: 'By word',
+  byRoot: 'By root',
+  noLeitworte: 'No Leitworte here.',
+  leitwortTitle: (he: string, count: number, expected: string) => `Leitwort ${he}: ${count} times here, ${expected} expected`,
+  // phrases
+  phrasesKey: 'Underlined: in a phrase another verse shares (thicker: more verses).',
+  phraseTitle: (n: number) => `in a phrase shared with ${countEn(n, 'other verse', 'other verses')}`,
+  // rare words
+  rareKey: (max: number) =>
+    `A small number after a word: its rarest word is in only that many verses of the Bible (at most ${max}; names left out). 1: nowhere else.`,
+  rareTitle: (n: number) => (n === 1 ? 'nowhere else in the Bible (hapax legomenon)' : `in ${n} verses of the Bible`),
+  // wordplay
+  wordplayKey: 'Dashed box: sounds like a word nearby. Click a word to mark its partner.',
+  wordplayTitle: (partner: string, where: string, kind: string) => `sounds like ${partner} (${where}): ${kind}`,
+  // ketiv / qere
+  ketivKey: 'ק after a word: it is read otherwise than written.',
+  ketivTitle: (ketiv: string, qere: string, cls: string) => `written ${ketiv || '–'}, read ${qere}: ${cls}`,
+  // turns
+  turnsKey:
+    'Between verses: a turn (the text changes more sharply than almost anywhere in the book, with no break marked), a chapter cutting running text, a quiet break, and the paragraph breaks of the MAM, פ and ס.',
+  gapKinds: { turn: 'turn', cut: 'chapter in running text', quiet: 'quiet break' } satisfies Record<SegmentKind, string>,
+  gapTitle: (score: number) => `The text changes here more than at ${pctOf(score)}% of the book's verse gaps.`,
+  paragraphTitle: { pe: 'Open paragraph (MAM)', samekh: 'Closed paragraph (MAM)' } satisfies Record<Paragraph, string>,
+}
+
+export const readerHe: typeof readerEn = {
+  title: 'קורא',
+  lede: 'הטקסט ועליו מה שמצאו הניתוחים, מסומן על המילים. אפשר להדליק ולכבות שכבות; ריחוף מעל מילה מראה מה כל שכבה אומרת עליה, ולחיצה פותחת את הדקדוק שלה.',
+  open: 'קריאה בשכבות',
+  openTitle: 'הטקסט ועליו הדוברים, המילים המנחות, חצאי הפסוק, משחקי המילים ועוד, מסומנים על המילים',
+  unitPage: 'קטעים דומים וכל הניתוחים',
+  layersLabel: 'שכבות',
+  layers: {
+    speakers: 'דוברים',
+    cola: 'חצאי פסוק',
+    leitworte: 'מילים מנחות',
+    phrases: 'צירופים משותפים',
+    rare: 'מילים נדירות',
+    wordplay: 'משחקי מילים',
+    ketiv: 'כתיב / קרי',
+    turns: 'מפנים',
+  },
+  hints: {
+    speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
+    cola: 'היכן הטעמים מחלקים כל פסוק לחצאים ולפסוקיות',
+    leitworte: 'מילים שחוזרות כאן הרבה יותר מבשאר המקרא',
+    phrases: 'מילים בצירוף שפסוק אחר חולק',
+    rare: 'מילים שנמצאות רק בפסוקים מעטים במקרא',
+    wordplay: 'מילים קרובות שנשמעות דומה',
+    ketiv: 'מילים שנקראות אחרת משנכתבו',
+    turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
+  },
+  notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
+  loading: (layer: string) => `טוען ${layer}…`,
+  speakersKey: 'מי מדבר (קו מנוקד: דיבור שדוברו לא נמצא):',
+  noSpeech: 'אין כאן דיבור מצוטט.',
+  unknownSpeaker: 'הדובר לא נמצא',
+  divine: 'האל',
+  spokenBy: (who: string) => `בפי ${who}`,
+  speakerWords: (n: number) => countHe(n, 'מילה אחת', 'שתי מילים', 'מילים'),
+  colaKey: '‖ מסיים חצי פסוק, | פסוקית: ההפסקות של הטעמים.',
+  leitworteKey: 'השכיחות מן הצפוי ביותר תחילה:',
+  countBy: 'ספירה',
+  byWord: 'לפי מילה',
+  byRoot: 'לפי שורש',
+  noLeitworte: 'אין כאן מילים מנחות.',
+  leitwortTitle: (he: string, count: number, expected: string) => `מילה מנחה ${he}: ${count} פעמים כאן, צפוי ${expected}`,
+  phrasesKey: 'קו תחתון: בצירוף שפסוק אחר חולק (עבה יותר: פסוקים רבים יותר).',
+  phraseTitle: (n: number) => `בצירוף המשותף ל${countHe(n, 'פסוק אחר אחד', 'שני פסוקים אחרים', 'פסוקים אחרים')}`,
+  rareKey: (max: number) =>
+    `מספר קטן אחרי מילה: המילה הנדירה שבה נמצאת רק במספר זה של פסוקים במקרא (עד ${max}; שמות לא נכללים). 1: בשום מקום אחר.`,
+  rareTitle: (n: number) => (n === 1 ? 'בשום מקום אחר במקרא (מילה יחידאית)' : `ב־${n} פסוקים במקרא`),
+  wordplayKey: 'מסגרת מקווקוות: נשמעת כמו מילה סמוכה. לחיצה על מילה מסמנת את בת זוגה.',
+  wordplayTitle: (partner: string, where: string, kind: string) => `נשמעת כמו ${partner} (${where}): ${kind}`,
+  ketivKey: 'ק אחרי מילה: היא נקראת אחרת משנכתבה.',
+  ketivTitle: (ketiv: string, qere: string, cls: string) => `כתיב ${ketiv || '–'}, קרי ${qere}: ${cls}`,
+  turnsKey:
+    'בין הפסוקים: מפנה (הטקסט משתנה בחדות כמעט יותר מבכל מקום בספר, בלי חלוקה מסומנת), פרק שחותך טקסט רציף, הפסקה שקטה, והפרשות של המסורה, פ ו־ס.',
+  gapKinds: { turn: 'מפנה', cut: 'פרק בתוך טקסט רציף', quiet: 'הפסקה שקטה' },
+  gapTitle: (score: number) => `הטקסט משתנה כאן יותר מאשר ב־${pctOf(score)}% מן המעברים בין פסוקים בספר.`,
+  paragraphTitle: { pe: 'פרשה פתוחה (המסורה)', samekh: 'פרשה סתומה (המסורה)' },
+}

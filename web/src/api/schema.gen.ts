@@ -1700,6 +1700,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reader/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reader
+         * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
+         *     pairs, ketiv / qere and the turns and MAM breaks before each verse.
+         */
+        get: operations["reader_api_reader__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dossier/{unit_id}": {
         parameters: {
             query?: never;
@@ -3650,6 +3671,108 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["PhrasePair"][];
+        };
+        /**
+         * ReaderGap
+         * @description The gap before a verse (§16.29): its cohesion drop and how the text divides there.
+         */
+        ReaderGap: {
+            /** Score */
+            score: number;
+            /** Kind */
+            kind: ("turn" | "cut" | "quiet") | null;
+            /** Mam */
+            mam: ("pe" | "samekh") | null;
+            /** Chapter */
+            chapter: boolean;
+        };
+        /** ReaderKetiv */
+        ReaderKetiv: {
+            /** Display */
+            display: number[];
+            /** Ketiv */
+            ketiv: string;
+            /** Qere */
+            qere: string;
+            /**
+             * Cls
+             * @enum {string}
+             */
+            cls: "vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other";
+        };
+        /**
+         * ReaderResponse
+         * @description The word-level layers of the layered reader (`/reader/{unit_id}`) for one unit.
+         */
+        ReaderResponse: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Rare Verses */
+            rare_verses: number;
+            /** Computed */
+            computed: {
+                [key: string]: boolean;
+            };
+            /** Speakers */
+            speakers: components["schemas"]["ReaderSpeaker"][];
+            /** Verses */
+            verses: components["schemas"]["ReaderVerse"][];
+        };
+        /** ReaderSpeaker */
+        ReaderSpeaker: {
+            /** Lemma */
+            lemma: string | null;
+            /** He */
+            he: string | null;
+            /** Divine */
+            divine: boolean;
+            /** N Words */
+            n_words: number;
+        };
+        /** ReaderVerse */
+        ReaderVerse: {
+            /** Verse Id */
+            verse_id: number;
+            /** Speech */
+            speech: {
+                [key: string]: number;
+            };
+            /** Phrases */
+            phrases: {
+                [key: string]: number;
+            };
+            /** Rare */
+            rare: {
+                [key: string]: number;
+            };
+            /** Wordplay */
+            wordplay: components["schemas"]["ReaderWordplay"][];
+            /** Ketiv */
+            ketiv: components["schemas"]["ReaderKetiv"][];
+            gap: components["schemas"]["ReaderGap"] | null;
+        };
+        /** ReaderWordplay */
+        ReaderWordplay: {
+            /** Display */
+            display: number;
+            /** Partner Vid */
+            partner_vid: number;
+            /** Partner Display */
+            partner_display: number | null;
+            /** Partner Label */
+            partner_label: string;
+            /** Partner Label He */
+            partner_label_he: string;
+            /** Form */
+            form: string;
+            /** Partner Form */
+            partner_form: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "substitution" | "metathesis" | "extension";
+            /** Q */
+            q: number;
         };
         /**
          * RelationPair
@@ -7638,6 +7761,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RootFamily"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reader_api_reader__unit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReaderResponse"];
                 };
             };
             /** @description Validation Error */
