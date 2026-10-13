@@ -645,6 +645,16 @@ Phase 3 (M39c): API and viewer
 
 ✔ 925 refrains against 46 by chance (551 distinct); 8 of 9 named refrains found (the Song of Songs' adjuration is too far apart); even spacing 27 / 179 (15 % vs 5 %, p 3 × 10⁻⁷), mostly lists; refrain verses stand next to sharper turns, 0.679 vs 0.650 (p 0.001). Three choices changed after the first run are reported with a robustness grid.
 
+## M64: More supervision for the encoder (§16.41, D77; proposed C1)
+- [x] `train/pairs.py`: training pairs = Sefaria's train rows, then the train-split pairs of `train.supervised.extra_pairs` (OpenBible ≥ `extra_min_votes` votes, ETCBC parallels) that no earlier source links; hard negatives exclude every source's pairs; `bsim train-sup --extra`
+- [x] `bsim build-golds` (`data/golds.py`, pipeline stage after build-links): OpenBible and ETCBC pairs built before training; `eval-openbible` / `eval-etcbc` read them
+- [x] `bsim supervision-exp` (`eval/supervision.py`): variants `seed14`, `etcbc`, `openbible`, `both` trained with the same recipe; semantic and fused lists scored in memory on the Sefaria, OpenBible and ETCBC dev golds with paired bootstrap CIs; adoption rule fixed before training (fused OpenBible gain above 0 and beyond the reseeded retrain, no significant Sefaria / ETCBC loss)
+- [x] Adopted `both` (`extra_pairs: [openbible, etcbc]`): the experiment's model in place, the Sefaria-only one kept; `--adopt` now adds a newly declared dependency's outputs to a stage's inputs; embed and everything after rerun; test split not rerun
+- [x] API `/eval` → `supervision`; Evaluation page: *More supervision* (fused and semantic tables, the rule, the verdict); English and Hebrew
+- [x] Tests: merging and the gold files, variant configs, the adoption rule, negatives written under their name, adopt with a new dependency, the stage order (pytest); the section, its cells and verdict (vitest)
+
+✔ `both` passes the rule fixed in advance (fused OpenBible dev +0.0056, CI [+0.0017, +0.0096], against ±0.001 for a reseeded retrain; Sefaria +0.0051 and ETCBC +0.0006, CIs include 0); `openbible` alone fails it on ETCBC (−0.030), `etcbc` alone on OpenBible. Adopted: dev fused 0.1895 → 0.1946 (Sefaria), 0.1460 → 0.1516 (OpenBible); all 18 findings keep their verdict. 525 pytest, 167 / 167 vitest, 205 / 205 fixture (1 skipped by design) and 150 / 150 real-data e2e (a chapter link beside "out of domain" on the Language page is now underlined: with the new lists a chapter of Ecclesiastes became out of domain, and axe flagged the link).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -663,10 +673,10 @@ Viewer
 - B3 Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
 
 Backend, models, code health
-- C1 Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
+- [x] C1 (done, M64) Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
 - C2 Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
 - C3 Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
 - C4 `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
 - C5 Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
 
-Suggested order: A1 → A2 → B1 → A3 → C1.
+Suggested order: A1 → A2 → B1 → A3 → C1 (all done, M60–M64).

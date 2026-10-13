@@ -851,10 +851,42 @@ export type EtcbcEval = {
   }
 }
 
+/** A paired bootstrap of per-query gains (variant − baseline). */
+export type Gain = { mean: number; lo: number; hi: number; better: number; worse: number; queries: number }
+
+export type SupervisionEval = {
+  evaluated_at?: string
+  split?: string
+  metric: string
+  baseline: string
+  /** list (semantic | fused) -> gold -> mean metric of the model in use */
+  baseline_scores: Record<string, Record<string, number>>
+  /** gold -> dev queries */
+  queries: Record<string, number>
+  /** the variant whose gain stands for a retrain's noise */
+  noise: string | null
+  results: Record<
+    string,
+    {
+      overrides: Record<string, unknown>
+      model: string
+      /** training rows per pair source */
+      rows_by_source: Record<string, number>
+      /** list -> gold -> mean metric */
+      scores: Record<string, Record<string, number>>
+      /** gold -> list -> gain over the baseline */
+      gains: Record<string, Record<string, Gain>>
+      adopt: boolean
+    }
+  >
+  chosen: string | null
+}
+
 export interface EvalResponse {
   splits: Record<string, EvalSplit>
   openbible: OpenBibleEval | null
   etcbc: EtcbcEval | null
+  supervision: SupervisionEval | null
   /** unit type -> mode -> the system served for it */
   final: Record<string, Record<string, string>>
 }

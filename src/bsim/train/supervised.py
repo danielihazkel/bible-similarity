@@ -1,7 +1,8 @@
 """`bsim train-sup`: supervised contrastive fine-tune on Sefaria links (DESIGN.md §7.2).
 
-Positives are the train-split verse links (both directions); with `hard_negatives` each row gets
-one BM25 hard negative (`train/negatives.py`), giving (anchor, positive, negative) triplets.
+Positives are the train-split verse links (both directions), plus with `extra_pairs` the
+train-split pairs of OpenBible and ETCBC (`train/pairs.py`, §16.41); with `hard_negatives` each row
+gets one BM25 hard negative (`train/negatives.py`), giving (anchor, positive, negative) triplets.
 CachedMultipleNegativesRankingLoss (`mini_batch_size`) gives the large batch within 11 GB.
 
 The start point is `init_from`: a checkpoint under `paths.models` (default `berel-simcse`) or
@@ -27,6 +28,7 @@ from bsim.retrieve.topk import get_device
 from bsim.train.common import TRAIN_META, BestCheckpointCallback, Log, build_model
 from bsim.train.dev_eval import DevEvaluator
 from bsim.train.negatives import run_hard_negatives
+from bsim.train.pairs import training_pairs
 
 BASE_INIT = "base"
 
@@ -36,13 +38,22 @@ def with_overrides(
     init: str | None = None,
     hard_negatives: bool | None = None,
     output: str | None = None,
+    extra_pairs: list[str] | None = None,
+    seed: int | None = None,
 ) -> dict[str, Any]:
-    """A copy of `cfg` with CLI overrides applied to `train.supervised`."""
+    """A copy of `cfg` with CLI overrides applied to `train.supervised` (and the seed)."""
     cfg = copy.deepcopy(cfg)
     sup = cfg["train"]["supervised"]
-    for key, value in (("init_from", init), ("hard_negatives", hard_negatives), ("output", output)):
+    for key, value in (
+        ("init_from", init),
+        ("hard_negatives", hard_negatives),
+        ("output", output),
+        ("extra_pairs", extra_pairs),
+    ):
         if value is not None:
             sup[key] = value
+    if seed is not None:
+        cfg["seed"] = seed
     return cfg
 
 
@@ -56,20 +67,25 @@ def init_model(cfg: dict[str, Any], device: str) -> tuple[Any, str]:
     return load_encoder({"model": str(path), "pooling": "native"}, max_len, device), str(path)
 
 
-def train_dataset(cfg: dict[str, Any], texts: list[str], log: Log) -> dict[str, list[str]]:
+def train_dataset(
+    cfg: dict[str, Any], texts: list[str], log: Log, negatives: str = "hard_negatives"
+) -> tuple[dict[str, list[str]], dict[str, int]]:
+    """The training columns as texts, and the rows per pair source."""
     sup = cfg["train"]["supervised"]
     if sup["hard_negatives"]:
-        neg = run_hard_negatives(cfg, log)
+        neg = run_hard_negatives(cfg, log, negatives)
+        source = neg.source
         cols = {
             "anchor": neg.anchor_vid,
             "positive": neg.positive_vid,
             "negative": neg.negative_vid,
         }
     else:
-        links = pd.read_parquet(resolve_path(cfg, "data_processed") / "links.parquet")
-        train = links[(links.level == "verse") & (links.split == "train")]
+        train, _ = training_pairs(cfg)
+        source = train.source
         cols = {"anchor": train.src_vid, "positive": train.tgt_vid}
-    return {k: [texts[v] for v in vids.to_numpy()] for k, vids in cols.items()}
+    by_source = {str(k): int(v) for k, v in source.value_counts().sort_index().items()}
+    return {k: [texts[v] for v in vids.to_numpy()] for k, vids in cols.items()}, by_source
 
 
 def run_train_sup(
@@ -78,6 +94,9 @@ def run_train_sup(
     init: str | None = None,
     hard_negatives: bool | None = None,
     output: str | None = None,
+    extra_pairs: list[str] | None = None,
+    seed: int | None = None,
+    negatives: str = "hard_negatives",
 ) -> dict[str, Any]:
     from datasets import Dataset
     from sentence_transformers import (
@@ -88,7 +107,7 @@ def run_train_sup(
         CachedMultipleNegativesRankingLoss,
     )
 
-    cfg = with_overrides(cfg, init, hard_negatives, output)
+    cfg = with_overrides(cfg, init, hard_negatives, output, extra_pairs, seed)
     sup = cfg["train"]["supervised"]
     evaluate = DevEvaluator(cfg, "dev")
     proc = resolve_path(cfg, "data_processed")
@@ -97,7 +116,7 @@ def run_train_sup(
     if not (verses.verse_id.to_numpy() == np.arange(len(verses))).all():
         raise RuntimeError("verse_id is not 0..N-1; embedding rows would not match verse ids")
     all_texts = verses.text_model.tolist()
-    data = train_dataset(cfg, all_texts, log)
+    data, by_source = train_dataset(cfg, all_texts, log, negatives)
     if not data["anchor"]:
         raise RuntimeError("no train-split verse links; run `bsim build-links` first")
 
@@ -106,6 +125,7 @@ def run_train_sup(
     out_dir, run_dir = models_dir / sup["output"], models_dir / "_runs" / sup["output"]
     log(
         f"train-sup: init {sup['init_from']} on {device}, {len(data['anchor'])} train rows "
+        f"{by_source} "
         f"({'with' if sup['hard_negatives'] else 'without'} hard negatives), batch "
         f"{sup['batch_size']} (mini {sup['mini_batch_size']}), lr {sup['lr']}, "
         f"{sup['epochs']} epochs -> {out_dir}"
@@ -163,6 +183,7 @@ def run_train_sup(
         "max_seq_length": int(cfg["text"]["max_seq_length"]),
         "seed": cfg["seed"],
         "n_train_rows": len(data["anchor"]),
+        "rows_by_source": by_source,
         "columns": list(data),
         "select_metric": sup["select_metric"],
         "start": callback.history[0],

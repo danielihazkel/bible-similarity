@@ -178,3 +178,18 @@ def test_adopt_keeps_a_record(toy):
     assert run() == ["a"]  # a restores "x": b's recorded input is unchanged
     state = json.loads(Path(cfg["paths"]["pipeline_state"]).read_text("utf-8"))
     assert state["stages"]["b"]["inputs"] and state["stages"]["b"]["outputs"]
+
+
+def test_adopt_takes_a_new_dependency(toy):
+    cfg, run, logs, art = toy
+    run()
+    path = Path(cfg["paths"]["pipeline_state"])
+    state = json.loads(path.read_text("utf-8"))
+    b_out = next(iter(state["stages"]["b"]["outputs"]))
+    del state["stages"]["c"]["inputs"][b_out]  # as if c had declared b only after it ran
+    path.write_text(json.dumps(state), "utf-8")
+    run(dry_run=True)
+    assert any(m.split()[:3] == ["run", "c", "new"] for m in logs)
+    assert run(adopt=True, start="c", stop="c") == []
+    assert run() == []
+    assert b_out in json.loads(path.read_text("utf-8"))["stages"]["c"]["inputs"]

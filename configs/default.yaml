@@ -134,6 +134,8 @@ train:
     dropout: 0.1                # hidden + attention dropout for init_from: base
     hard_negatives: true        # one BM25 hard negative per pair (train/negatives.py)
     hard_negative_rank_range: [5, 50]   # inclusive, after the ±neighbour filter
+    extra_pairs: [openbible, etcbc]   # other golds' train-split pairs as extra positives: openbible | etcbc (train/pairs.py; adopted by supervision-exp, DESIGN.md §16.41)
+    extra_min_votes: 5          # an OpenBible pair needs this many votes to be trained on
     eval_steps: 10              # dev evaluation every N optimizer steps (and each epoch end)
     logging_steps: 10
     select_metric: recall@10    # checkpoint chosen on dev
@@ -257,6 +259,19 @@ retrieval_experiments:        # `bsim retrieval-exp`: contextual / MaxSim vs fus
   maxsim_grid: [0.25, 0.5, 1.0, 2.0, null]
   metric: ndcg@10
   folds: 2                    # cross-fitting: weights chosen on one half of the queries, scored on the other
+  bootstrap_reps: 10000
+  seed: 13
+
+supervision_experiments:      # `bsim supervision-exp`: more supervision for the encoder, dev only (DESIGN.md §16.41)
+  baseline: berel_sup         # the encoders.systems entry in use
+  variants:                   # name -> train-sup overrides; each trains models/{train.supervised.output}-{name}
+    seed14: {seed: 14, extra_pairs: []}   # Sefaria pairs only, another seed: what a retrain alone moves
+    etcbc: {extra_pairs: [etcbc]}       # (variants were scored against the Sefaria-only model, now models/berel-sup-sefaria)
+    openbible: {extra_pairs: [openbible]}
+    both: {extra_pairs: [openbible, etcbc]}
+  noise: seed14               # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance)
+  golds: [sefaria, openbible, etcbc]
+  metric: ndcg@10
   bootstrap_reps: 10000
   seed: 13
 

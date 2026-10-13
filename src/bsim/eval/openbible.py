@@ -2,8 +2,9 @@
 
 Sefaria's links are the training and evaluation gold, and they reflect the connections the
 commentary tradition made famous (§8.4). OpenBible.info's cross-references (CC-BY; crowd-voted,
-derived from the Treasury of Scripture Knowledge) are an independent set: they are only used to
-*evaluate* — on the dev split, never on test, and nothing is tuned on them.
+derived from the Treasury of Scripture Knowledge) are an independent set, scored on the dev split,
+never on test. Nothing was tuned on them until §16.41, which chose the semantic model's training
+pairs on this dev gold (among others) and trains on its train split.
 
 - Only Hebrew Bible ↔ Hebrew Bible references with at least `min_votes` votes. A target range
   expands to its verses (at most `max_range`).
@@ -18,8 +19,12 @@ derived from the Treasury of Scripture Knowledge) are an independent set: they a
 The final verse systems (`final_systems`) are scored with the usual metrics against this gold and,
 side by side, against the Sefaria dev gold; the overlap of the two gold sets is reported.
 
-Writes `data/processed/openbible_links.parquet` (`src_vid, tgt_vid, votes, split`, both directions)
-and `artifacts/eval/openbible.json` + `openbible.md`.
+Since §16.41 the train split (pairs between two train books) is also training data for the
+semantic model; dev and test stay evaluation-only.
+
+`bsim build-golds` writes `data/processed/openbible_links.parquet` (`src_vid, tgt_vid, votes,
+split`, both directions) and `openbible_links.meta.json` (`build_openbible_links`);
+`bsim eval-openbible` writes `artifacts/eval/openbible.json` + `openbible.md`.
 """
 
 from __future__ import annotations
@@ -176,23 +181,42 @@ def overlap(a: dict[int, set[int]], b: dict[int, set[int]]) -> int:
     return sum(len(t & b.get(s, set())) for s, t in a.items())
 
 
-def run_eval_openbible(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
-    proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
-    t0 = time.perf_counter()
-    path = fetch(cfg, log)
-    refs = read_refs(path)
+def write_gold(proc: Path, name: str, links: pd.DataFrame, stats: dict[str, Any]) -> None:
+    """`{name}.parquet` and `{name}.meta.json` (the counts) under `paths.data_processed`."""
+    links.to_parquet(proc / f"{name}.parquet")
+    meta = {"rows": len(links), "stats": stats}
+    (proc / f"{name}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+
+
+def read_gold(proc: Path, name: str) -> tuple[pd.DataFrame, dict[str, Any]]:
+    path = proc / f"{name}.parquet"
+    if not path.exists():
+        raise RuntimeError(f"{path} missing; run `bsim build-golds` first")
+    meta = json.loads((proc / f"{name}.meta.json").read_text("utf-8"))
+    return pd.read_parquet(path), meta["stats"]
+
+
+def build_openbible_links(cfg: dict[str, Any], log: Log = print) -> None:
+    proc = resolve_path(cfg, "data_processed")
+    refs = read_refs(fetch(cfg, log))
     verses = pd.read_parquet(proc / "verses.parquet", columns=["verse_id", "book_id", "osis"])
     splits = json.loads((proc / "splits.json").read_text("utf-8"))
     from bsim.data.canon import BOOKS
 
     split_of_book = {b.book_id: splits["books"][b.sefaria] for b in BOOKS}
     links, stats = gold_links(refs, verses.sort_values("verse_id"), split_of_book, cfg)
-    links.to_parquet(proc / "openbible_links.parquet")
+    write_gold(proc, "openbible_links", links, stats)
     log(
-        f"{stats['hebrew_bible']} Hebrew Bible references -> {stats['pairs']} verse pairs"
-        f" ({stats['votes']} under {cfg['openbible']['min_votes']} votes,"
+        f"OpenBible: {stats['hebrew_bible']} Hebrew Bible references -> {stats['pairs']} verse"
+        f" pairs ({stats['votes']} under {cfg['openbible']['min_votes']} votes,"
         f" {stats['unresolved']} versification-unsafe or unresolved)"
     )
+
+
+def run_eval_openbible(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
+    proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
+    t0 = time.perf_counter()
+    links, stats = read_gold(proc, "openbible_links")
 
     split = "dev"
     ctx = EvalContext.load(cfg, split)

@@ -37,6 +37,13 @@ def stage_build_links(cfg: dict[str, Any], log: Log) -> None:
     run_build_links(cfg, log=log)
 
 
+def stage_build_golds(cfg: dict[str, Any], log: Log) -> None:
+    """OpenBible and ETCBC verse pairs: extra training pairs, and the golds scored later."""
+    from bsim.data.golds import run_build_golds
+
+    run_build_golds(cfg, log=log)
+
+
 def stage_lexicon(cfg: dict[str, Any], log: Log) -> None:
     from bsim.data.lexicon import run_lexicon
 
@@ -131,7 +138,7 @@ def stage_evaluate(cfg: dict[str, Any], log: Log) -> None:
 
 
 def stage_eval_openbible(cfg: dict[str, Any], log: Log) -> None:
-    """Second gold set (dev only); downloads the OpenBible file on first use."""
+    """Second gold set (dev only); its pairs come from `build-golds`."""
     from bsim.eval.openbible import run_eval_openbible
 
     run_eval_openbible(cfg, log=log)
@@ -317,6 +324,7 @@ STAGES: dict[str, str] = {
     "download": "stage_download",
     "build-corpus": "stage_build_corpus",
     "build-links": "stage_build_links",
+    "build-golds": "stage_build_golds",
     "lexicon": "stage_lexicon",
     "syntax": "stage_syntax",
     "lexical": "stage_lexical",
@@ -372,18 +380,21 @@ DEPS: dict[str, tuple[str, ...]] = {
     "download": (),
     "build-corpus": ("download",),
     "build-links": (*_CORPUS,),
+    "build-golds": (*_CORPUS, "build-links"),
     "lexicon": (*_CORPUS,),
     "syntax": (*_CORPUS, "lexicon"),
     "lexical": (*_CORPUS, "lexicon", "syntax"),
     "lexical-topk": (*_CORPUS, "lexical"),
     "train-simcse": (*_CORPUS,),
-    "train-sup": (*_CORPUS, "build-links", "lexical", "lexical-topk", "train-simcse"),
+    "train-sup": (
+        *_CORPUS, "build-links", "build-golds", "lexical", "lexical-topk", "train-simcse"
+    ),
     "embed": (*_CORPUS, *_MODELS),
     "topk": (*_CORPUS, "lexical", "embed"),
     "units": (*_CORPUS, "lexical", "embed"),
     "fuse": (*_CORPUS, "build-links", *_TOPK[:3]),
     "evaluate": (*_CORPUS, "build-links", *_TOPK),
-    "eval-openbible": (*_CORPUS, "build-links", *_TOPK),
+    "eval-openbible": (*_CORPUS, "build-links", "build-golds", *_TOPK),
     "phrases": (*_CORPUS, "lexical", "lexical-topk", "fuse"),
     "sequences": (*_CORPUS, *_TOPK),
     "diffs": (*_CORPUS, "sequences"),
@@ -411,7 +422,9 @@ DEPS: dict[str, tuple[str, ...]] = {
     "meter": (*_CORPUS, "parallelism"),
     "roots": (*_CORPUS,),
     "refrains": (*_CORPUS, "segments"),
-    "eval-etcbc": (*_CORPUS, "build-links", *_TOPK, "eval-openbible", "phrases", "sequences"),
+    "eval-etcbc": (
+        *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
+    ),
 }
 DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")
 
@@ -489,7 +502,7 @@ def run_all(
 
     if adopt:
         for name in stages:
-            inc.adopt(name, globals()[STAGES[name]], cfg, state)
+            inc.adopt(name, globals()[STAGES[name]], cfg, state, DEPS[name])
             log(f"adopted {name}: its current outputs count as up to date")
         state.save()
         return {}

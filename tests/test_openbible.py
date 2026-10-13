@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from bsim.config import load_config
 from bsim.eval.openbible import gold_links, gold_of, overlap, parse_ref, read_refs, resolve
@@ -59,3 +60,15 @@ def test_read_refs(tmp_path):
     f.write_text("From Verse\tTo Verse\tVotes\t#licence note\nGen.1.1\tPs.8.3\t12\n", "utf-8")
     df = read_refs(f)
     assert df.values.tolist() == [["Gen.1.1", "Ps.8.3", 12]]
+
+
+def test_gold_files_round_trip(tmp_path):
+    from bsim.eval.openbible import read_gold, write_gold
+
+    with pytest.raises(RuntimeError, match="build-golds"):
+        read_gold(tmp_path, "openbible_links")
+    links = pd.DataFrame({"src_vid": [1, 2], "tgt_vid": [2, 1], "votes": [7, 7], "split": "train"})
+    write_gold(tmp_path, "openbible_links", links, {"pairs": 1})
+    back, stats = read_gold(tmp_path, "openbible_links")
+    pd.testing.assert_frame_equal(back, links)
+    assert stats == {"pairs": 1}

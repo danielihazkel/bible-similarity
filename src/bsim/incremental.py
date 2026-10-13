@@ -507,11 +507,14 @@ def record(
     }
 
 
-def adopt(name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State) -> None:
+def adopt(
+    name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State, deps: Iterable[str] = ()
+) -> None:
     """Mark a stage up to date without running it: its outputs are trusted as they are.
 
     A stage with a record keeps it, with its code, config, input and output hashes taken as they
-    are now (for a change known not to matter). One without: its config is every section its
+    are now (for a change known not to matter); the outputs of `deps` join its inputs (a stage
+    declared a dependency since its last run). One without: its config is every section its
     code names (the keys it reads are not known), inputs and outputs are empty, so the first
     rerun of a stage it depends on reruns it.
     """
@@ -519,8 +522,9 @@ def adopt(name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State) 
     if old is not None:
         old["code"] = code_hash(fn)
         old["config"] = {k: value_hash(config_value(cfg, k)) for k in old["config"]}
-        for part in ("inputs", "outputs"):
-            old[part] = {k: h for k in old[part] if (h := state.files.sha(k)) is not None}
+        inputs = set(old["inputs"]) | (state.outputs_of(deps) - set(old["outputs"]))
+        old["inputs"] = {k: h for k in sorted(inputs) if (h := state.files.sha(k)) is not None}
+        old["outputs"] = {k: h for k in old["outputs"] if (h := state.files.sha(k)) is not None}
         old["adopted"] = True
         return
     state.stages[name] = {

@@ -1,5 +1,5 @@
 import { useEval } from '../api/hooks'
-import type { EtcbcEval, MetricSet } from '../api/types'
+import type { EtcbcEval, Gain, MetricSet, SupervisionEval } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 
@@ -19,7 +19,7 @@ export function EvalPage() {
   const res = useEval()
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
-  const { splits, openbible, etcbc, final } = res.data
+  const { splits, openbible, etcbc, supervision, final } = res.data
   const splitNames = ['dev', 'test'].filter((s) => s in splits).concat(Object.keys(splits).filter((s) => s !== 'dev' && s !== 'test'))
 
   return (
@@ -75,6 +75,7 @@ export function EvalPage() {
         </section>
       )}
       {etcbc && <EtcbcSection etcbc={etcbc} />}
+      {supervision && <SupervisionSection sup={supervision} />}
     </div>
   )
 }
@@ -112,6 +113,70 @@ function EtcbcSection({ etcbc }: { etcbc: EtcbcEval }) {
           {t.etcbcCoverage(p100(c.in_fused_top10), p100(c.in_phrase), p100(c.in_sequence), p100(c.sequence_pairs_in_etcbc), c.sequence_pairs ?? 0)}
         </p>
       )}
+    </section>
+  )
+}
+
+const gain = (g: Gain) => {
+  const f = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x).toFixed(3)}`
+  return `${f(g.mean)} [${f(g.lo)}, ${f(g.hi)}]`
+}
+
+/** The encoder retrained with more supervision (§16.41): each variant's gain over the model in use. */
+function SupervisionSection({ sup }: { sup: SupervisionEval }) {
+  const m = useT()
+  const t = m.ov.eval
+  const golds = Object.keys(sup.queries)
+  const variants = Object.entries(sup.results)
+  return (
+    <section aria-label={t.supLabel}>
+      <h2>{t.sup(sup.split ?? 'dev')}</h2>
+      <p className="muted small">
+        {t.supLede(sup.metric, sup.noise ?? '–')}
+        {sup.chosen ? t.supChosen(sup.chosen) : t.supNone}
+      </p>
+      {(['fused', 'semantic'] as const).map((list) => (
+        <div key={list} className="table-wrap" tabIndex={0} role="region" aria-label={t.supList[list]}>
+          <table className="rank-table eval-table">
+            <caption>{t.supCaption(t.supList[list], sup.baseline, golds.map((g) => `${t.gold[g] ?? g} ${(sup.baseline_scores[list]?.[g] ?? 0).toFixed(3)}`).join(', '))}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.supVariant}</th>
+                <th scope="col">{t.supRows}</th>
+                {golds.map((g) => (
+                  <th key={g} scope="col" className="num">
+                    {t.gold[g] ?? g}
+                  </th>
+                ))}
+                {list === 'fused' && <th scope="col">{t.supAdopt}</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {variants.map(([name, r]) => (
+                <tr key={name} className={r.adopt ? 'served' : undefined}>
+                  <th scope="row">
+                    <code>{name}</code>
+                  </th>
+                  <td className="small">
+                    {Object.entries(r.rows_by_source)
+                      .map(([s, n]) => t.supSource(s, n))
+                      .join(' · ')}
+                  </td>
+                  {golds.map((g) => {
+                    const x = r.gains[g]?.[list]
+                    return (
+                      <td key={g} className={`num${x && x.lo > 0 ? ' on' : ''}`} title={x ? t.supCounts(x.better, x.worse, x.queries) : undefined}>
+                        {x ? gain(x) : '–'}
+                      </td>
+                    )
+                  })}
+                  {list === 'fused' && <td>{r.adopt ? t.supYes : t.supNo}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </section>
   )
 }

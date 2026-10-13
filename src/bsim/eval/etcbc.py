@@ -4,7 +4,8 @@ The ETCBC *parallels* notebook (Dirk Roorda, Martijn Naaijer; Text-Fabric, CC BY
 BHSA) links verses whose text is nearly the same — the `crossref` edge feature between BHSA verse
 nodes, each with its similarity in percent (≥ 75). Unlike Sefaria's links (the commentary
 tradition) or OpenBible's (crowd votes, mostly thematic), it is a string-similarity gold: the
-synoptic parallels and the repeated passages. It is only used to evaluate, nothing is tuned on it.
+synoptic parallels and the repeated passages. Its dev and test splits are only used to evaluate;
+since §16.41 its train split is also training data for the semantic model.
 
 - **Pairs:** every edge mapped to verse ids by book, chapter and verse (`data.bhsa.BOOKS`; the
   verse grids agree, a BHSA verse without a verse id is counted and dropped), undirected,
@@ -21,8 +22,9 @@ synoptic parallels and the repeated passages. It is only used to evaluate, nothi
   fused top 10 either way; and the share of strong sequences' verse pairs that ETCBC lists.
 - **Overlap** of the dev gold with Sefaria's and OpenBible's.
 
-Writes `data/processed/etcbc_links.parquet` (`src_vid, tgt_vid, similarity, split`, both
-directions, parallels only) and `artifacts/eval/etcbc.json` + `etcbc.md`.
+`bsim build-golds` writes `data/processed/etcbc_links.parquet` (`src_vid, tgt_vid, similarity,
+split`, both directions, parallels only) and its `.meta.json` (`build_etcbc_links`);
+`bsim eval-etcbc` writes `artifacts/eval/etcbc.json` + `etcbc.md`.
 """
 
 from __future__ import annotations
@@ -41,7 +43,7 @@ from bsim.data.bhsa import BOOKS as BHSA_BOOKS
 from bsim.data.bhsa import _nodes, load_bhsa
 from bsim.data.canon import BOOKS
 from bsim.eval.metrics import evaluate_system
-from bsim.eval.openbible import gold_of, overlap
+from bsim.eval.openbible import gold_of, overlap, read_gold, write_gold
 from bsim.eval.report import EvalContext, ranked_lists
 from bsim.retrieve.fusion import final_systems
 
@@ -166,10 +168,8 @@ def _share(a: set[tuple[int, int]], b: set[tuple[int, int]]) -> float | None:
     return round(len(a & b) / len(a), 4) if a else None
 
 
-def run_eval_etcbc(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
-    proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
-    raw = resolve_path(cfg, "data_raw")
-    t0 = time.perf_counter()
+def build_etcbc_links(cfg: dict[str, Any], log: Log = print) -> None:
+    proc, raw = resolve_path(cfg, "data_processed"), resolve_path(cfg, "data_raw")
     path = raw / "etcbc_parallels" / cfg["sources"]["etcbc_parallels"]["files"][0]
     if not path.exists():
         raise RuntimeError(f"{path} missing; run `bsim download --only parallels` first")
@@ -187,11 +187,17 @@ def run_eval_etcbc(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     links = parallels_only(links, cfg["etcbc"]["max_partners"])
     stats["parallels"] = len(links) // 2
     stats["formula_pairs"] = stats["pairs"] - stats["parallels"]
-    links.to_parquet(proc / "etcbc_links.parquet")
+    write_gold(proc, "etcbc_links", links, stats)
     log(
-        f"{stats['edges']} ETCBC edges -> {stats['pairs']} verse pairs, {stats['parallels']}"
+        f"ETCBC: {stats['edges']} edges -> {stats['pairs']} verse pairs, {stats['parallels']}"
         f" parallels ({stats['formula_pairs']} in formulas and lists)"
     )
+
+
+def run_eval_etcbc(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
+    proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
+    t0 = time.perf_counter()
+    links, stats = read_gold(proc, "etcbc_links")
 
     split = "dev"
     ctx = EvalContext.load(cfg, split)

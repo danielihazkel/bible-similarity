@@ -2454,7 +2454,8 @@ tr.out-of-domain td {
 }
 .speaker-list a,
 .clause .speaker a,
-.same-shape a {
+.same-shape a,
+tr.out-of-domain td a {
   text-decoration: underline;  /* links inside running text (axe link-in-text-block) */
 }
 

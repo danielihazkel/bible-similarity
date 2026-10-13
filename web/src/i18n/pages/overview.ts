@@ -11,6 +11,9 @@ const pluralEn: Record<string, string> = { verse: 'verses', chapter: 'chapters',
 const feminine = (type: string) => type === 'pericope' || type === 'parasha'
 const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
 
+const goldEn: Record<string, string> = { sefaria: 'Sefaria', openbible: 'OpenBible', etcbc: 'ETCBC' }
+const goldHe: Record<string, string> = { sefaria: 'ספריא', openbible: 'OpenBible', etcbc: 'ETCBC' }
+
 export const ovEn = {
   chart: {
     scatterKeys: (label: string) => `${label}. Use the arrow keys to step through points and Enter to open one.`,
@@ -129,6 +132,24 @@ export const ovEn = {
     etcbcBands: (bands: string) => `Fused recall@10 by similarity: ${bands}.`,
     etcbcCoverage: (fused: string, phrase: string, seq: string, prec: string, nSeq: number) =>
       `All parallels (every split): ${fused}% are in the fused top 10, ${phrase}% share a phrase, ${seq}% lie in a strong sequence; ${prec}% of the ${numEn(nSeq)} verse pairs of the strong sequences are ETCBC parallels (the rest are reworded).`,
+    // the encoder retrained with more supervision (§16.41)
+    supLabel: 'More supervision',
+    sup: (split: string) => `More supervision: the semantic model retrained with other golds' pairs (${split} books)`,
+    supLede: (metric: string, noise: string) =>
+      `The semantic model learns from Sefaria's links between training books, which lean towards the famous ones. Each variant retrains it the same way with more pairs between training books (OpenBible's cross-references, ETCBC's parallels), or with only another seed (${noise}) to show what a retrain alone moves. The cells give the gain in ${metric} over the model the experiment started from (Sefaria's pairs only), with a 95% bootstrap interval over the development queries; the development and test books are never trained on. The rule was fixed before any training: a variant is adopted only if the fused list gains on OpenBible, with the interval above 0 and the gain larger than the retrain alone moves, and loses nothing significant on Sefaria or ETCBC. `,
+    supChosen: (name: string) => `Passed: ${name}, now the semantic model in use.`,
+    supNone: 'No variant passed, so the model in use stays.',
+    supList: { fused: 'Fused list (lexical + semantic)', semantic: 'Semantic list alone' } as Record<string, string>,
+    supCaption: (list: string, base: string, scores: string) => `${list} · gain over ${base} (${scores})`,
+    supVariant: 'Variant',
+    supRows: 'Training pairs (rows)',
+    supAdopt: 'Passes the rule',
+    supSource: (source: string, n: number) => `${goldEn[source] ?? source} ${numEn(n)}`,
+    supCounts: (better: number, worse: number, queries: number) =>
+      `${numEn(better)} queries better, ${numEn(worse)} worse, of ${numEn(queries)}`,
+    supYes: 'yes',
+    supNo: 'no',
+    gold: goldEn,
     system: 'System',
     servedAs: (modes: string) => `served: ${modes}`,
   },
@@ -282,6 +303,24 @@ export const ovHe: typeof ovEn = {
     etcbcBands: (bands: string) => `החזרה@10 של המשולב לפי דמיון: ${bands}.`,
     etcbcCoverage: (fused: string, phrase: string, seq: string, prec: string, nSeq: number) =>
       `כל המקבילות (בכל החלוקות): ${fused}% נמצאות בעשרה הראשונים של המשולב, ${phrase}% חולקות צירוף, ${seq}% נמצאות ברצף חזק; ${prec}% מ־${numHe(nSeq)} זוגות הפסוקים של הרצפים החזקים הם מקבילות ETCBC (השאר מנוסחים מחדש).`,
+    supLabel: 'פיקוח נוסף',
+    sup: (split: string) =>
+      `פיקוח נוסף: המודל הסמנטי מאומן מחדש עם זוגות מתקני זהב אחרים (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
+    supLede: (metric: string, noise: string) =>
+      `המודל הסמנטי לומד מהקישורים של ספריא בין ספרי האימון, הנוטים אל המפורסמים. כל גרסה מאמנת אותו מחדש באותה דרך עם זוגות נוספים בין ספרי האימון (הפניות OpenBible, מקבילות ETCBC), או רק עם זרע אקראי אחר (${noise}), כדי להראות כמה אימון חוזר לבדו מזיז. התאים מראים את השיפור ב־${metric} לעומת המודל שממנו יצא הניסוי (זוגות ספריא בלבד), עם רווח bootstrap של 95% על שאילתות הפיתוח; ספרי הפיתוח והמבחן אינם משמשים לאימון לעולם. הכלל נקבע לפני כל אימון: גרסה מאומצת רק אם הרשימה המשולבת משתפרת מול OpenBible, כשהרווח מעל 0 והשיפור גדול ממה שאימון חוזר לבדו מזיז, ואינה מפסידה באופן מובהק מול ספריא או ETCBC. `,
+    supChosen: (name: string) => `עברה את הכלל: ${name}, וזהו כעת המודל הסמנטי שבשימוש.`,
+    supNone: 'אף גרסה לא עברה את הכלל, ולכן המודל הנוכחי נשאר.',
+    supList: { fused: 'הרשימה המשולבת (מילונית + סמנטית)', semantic: 'הרשימה הסמנטית לבדה' },
+    supCaption: (list: string, base: string, scores: string) => `${list} · שיפור לעומת ${base} (${scores})`,
+    supVariant: 'גרסה',
+    supRows: 'זוגות אימון (שורות)',
+    supAdopt: 'עוברת את הכלל',
+    supSource: (source: string, n: number) => `${goldHe[source] ?? source} ${numHe(n)}`,
+    supCounts: (better: number, worse: number, queries: number) =>
+      `${numHe(better)} שאילתות השתפרו, ${numHe(worse)} הורעו, מתוך ${numHe(queries)}`,
+    supYes: 'כן',
+    supNo: 'לא',
+    gold: goldHe,
     system: 'מערכת',
     servedAs: (modes: string) => `מוצג: ${modes}`,
   },

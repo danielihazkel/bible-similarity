@@ -1,16 +1,18 @@
 """BM25 hard negatives for the supervised fine-tune (DESIGN.md §7.2).
 
-For each train-split (anchor, positive) verse link, one negative is drawn uniformly from the
-anchor's `bm25_lemma` list (±window neighbours removed, as in the eval report) within ranks
+For each training pair (`train/pairs.py`: Sefaria's train-split verse links, plus the
+`extra_pairs` sources), one negative is drawn uniformly from the anchor's `bm25_lemma` list
+(±window neighbours removed, as in the eval report) within ranks
 `train.supervised.hard_negative_rank_range`. A candidate is excluded when it
-- is verse-linked (any split) to the anchor or to the positive,
+- is verse-linked (any split, any source used) to the anchor or to the positive,
 - lies in a non-train book (dev/test books never enter training),
 - is within ±window same-book verses of the anchor or the positive,
 - has the same `text_model` as the anchor or the positive (repeated formula verses).
 When nothing is eligible, a random train-book verse passing the same checks is used (`fallback`).
 
-Writes `paths.artifacts/train/hard_negatives.parquet` (anchor_vid, positive_vid, negative_vid,
-negative_rank (0 for fallbacks), fallback) and a `.meta.json` with counts.
+Writes `paths.artifacts/train/{name}.parquet` (anchor_vid, positive_vid, source, negative_vid,
+negative_rank (0 for fallbacks), fallback) and a `.meta.json` with counts; `name` is
+`hard_negatives` for the pipeline's model, another for an experiment's (§16.41).
 """
 
 from __future__ import annotations
@@ -27,14 +29,16 @@ from bsim.data.canon import BY_SEFARIA
 from bsim.retrieve.filters import apply_filters
 from bsim.retrieve.topk import read_topk
 from bsim.train.common import Log
+from bsim.train.pairs import training_pairs
 
 LEXICAL_SYSTEM = "bm25_lemma"
 MAX_FALLBACK_TRIES = 1000
 
 
 def linked_sets(links: pd.DataFrame) -> dict[int, set[int]]:
-    """Verse-level links of every split: verse -> linked verses (both directions stored)."""
-    v = links[links.level == "verse"]
+    """Verse-level links of every split: verse -> linked verses (both directions stored).
+    A frame without `level` holds verse pairs only."""
+    v = links[links.level == "verse"] if "level" in links else links
     out: dict[int, set[int]] = {}
     for s, t in zip(v.src_vid.to_numpy(), v.tgt_vid.to_numpy(), strict=True):
         out.setdefault(int(s), set()).add(int(t))
@@ -105,14 +109,16 @@ def mine_hard_negatives(
     )
 
 
-def run_hard_negatives(cfg: dict[str, Any], log: Log = print) -> pd.DataFrame:
+def run_hard_negatives(
+    cfg: dict[str, Any], log: Log = print, name: str = "hard_negatives"
+) -> pd.DataFrame:
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
     topk_path = art / "topk" / "verse" / f"{LEXICAL_SYSTEM}.parquet"
     if not topk_path.exists():
         raise RuntimeError(f"{topk_path} missing; run `bsim topk --system {LEXICAL_SYSTEM}` first")
-    for name, cmd in (("verses.parquet", "build-corpus"), ("links.parquet", "build-links")):
-        if not (proc / name).exists():
-            raise RuntimeError(f"{proc / name} missing; run `bsim {cmd}` first")
+    for file, cmd in (("verses.parquet", "build-corpus"), ("links.parquet", "build-links")):
+        if not (proc / file).exists():
+            raise RuntimeError(f"{proc / file} missing; run `bsim {cmd}` first")
 
     verses = pd.read_parquet(
         proc / "verses.parquet", columns=["verse_id", "book_id", "chapter", "text_model"]
@@ -121,11 +127,10 @@ def run_hard_negatives(cfg: dict[str, Any], log: Log = print) -> pd.DataFrame:
     text_key, _ = pd.factorize(verses.text_model)
     splits = json.loads((proc / "splits.json").read_text("utf-8"))
     train_book = np.zeros(int(book_id.max()) + 1, bool)
-    for name, split in splits["books"].items():
-        train_book[BY_SEFARIA[name].book_id] = split == "train"
+    for book, split in splits["books"].items():
+        train_book[BY_SEFARIA[book].book_id] = split == "train"
 
-    links = pd.read_parquet(proc / "links.parquet")
-    train = links[(links.level == "verse") & (links.split == "train")]
+    train, linked = training_pairs(cfg)
     sup, window = cfg["train"]["supervised"], cfg["retrieval"]["neighbor_window"]
     candidates = apply_filters(read_topk(topk_path), book_id, chapter, {"neighbors"}, window)
     lo, hi = sup["hard_negative_rank_range"]
@@ -135,29 +140,31 @@ def run_hard_negatives(cfg: dict[str, Any], log: Log = print) -> pd.DataFrame:
         candidates,
         book_id,
         train_book,
-        linked_sets(links),
+        linked_sets(linked),
         text_key,
         (int(lo), int(hi)),
         window,
         cfg["seed"],
     )
+    df.insert(2, "source", train.source.to_numpy())
 
     out = art / "train"
     out.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(out / "hard_negatives.parquet", index=False)
+    df.to_parquet(out / f"{name}.parquet", index=False)
     n_fb = int(df.fallback.sum())
     meta = {
         "source": LEXICAL_SYSTEM,
         "rows": len(df),
+        "by_source": {str(k): int(v) for k, v in df.source.value_counts().sort_index().items()},
         "fallbacks": n_fb,
         "distinct_negatives": int(df.negative_vid.nunique()),
         "rank_range": [int(lo), int(hi)],
         "config_hash": config_hash(cfg, "train", "retrieval", "seed"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / "hard_negatives.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    (out / f"{name}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
     log(
-        f"hard negatives: {len(df)} train rows, {n_fb} fallbacks, "
+        f"hard negatives: {len(df)} train rows ({meta['by_source']}), {n_fb} fallbacks, "
         f"{meta['distinct_negatives']} distinct negatives"
     )
     return df

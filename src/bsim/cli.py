@@ -76,6 +76,18 @@ def build_links(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("build-golds")
+def build_golds(config: ConfigOpt = None) -> None:
+    """OpenBible and ETCBC verse pairs, split by book (extra training pairs; dev golds)."""
+    from bsim.data.golds import run_build_golds
+
+    try:
+        run_build_golds(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def lexicon(config: ConfigOpt = None) -> None:
     """Tag every word with its SDBH sense and semantic domains; read Strong's name types."""
@@ -284,11 +296,21 @@ def train_sup(
     output: Annotated[
         str | None, typer.Option(help="Output checkpoint name under models/ (default: config)")
     ] = None,
+    extra: Annotated[
+        str | None,
+        typer.Option(
+            help="Extra train-split pairs: openbible,etcbc (comma-separated) or 'none'"
+            " (default: config)"
+        ),
+    ] = None,
     config: ConfigOpt = None,
 ) -> None:
-    """Supervised contrastive fine-tune on Sefaria links."""
+    """Supervised contrastive fine-tune on Sefaria links (and other golds' train pairs)."""
     from bsim.train.supervised import run_train_sup
 
+    extra_pairs = None
+    if extra is not None:
+        extra_pairs = [] if extra == "none" else [s.strip() for s in extra.split(",") if s.strip()]
     try:
         run_train_sup(
             load_config(config),
@@ -296,6 +318,7 @@ def train_sup(
             init=init,
             hard_negatives=hard_negatives,
             output=output,
+            extra_pairs=extra_pairs,
         )
     except RuntimeError as e:
         typer.echo(str(e), err=True)
@@ -424,6 +447,26 @@ def maxsim(config: ConfigOpt = None) -> None:
 
     try:
         run_maxsim(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("supervision-exp")
+def supervision_exp(
+    retrain: Annotated[
+        bool, typer.Option("--retrain", help="Train every variant again, even if its model exists")
+    ] = False,
+    only: Annotated[
+        list[str] | None, typer.Option(help="Run only this variant (repeatable)")
+    ] = None,
+    config: ConfigOpt = None,
+) -> None:
+    """Retrain the encoder with more supervision (OpenBible, ETCBC pairs) and compare on dev."""
+    from bsim.eval.supervision import run_supervision_experiments
+
+    try:
+        run_supervision_experiments(load_config(config), log=typer.echo, retrain=retrain, only=only)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

@@ -72,20 +72,37 @@ def blend(scored: pd.DataFrame, w: float | None, rrf_k: int) -> pd.DataFrame:
     return combine(scored, w, rrf_k)[["src", "tgt", "rank"]]
 
 
+# gold -> (file under paths.data_processed, the command that writes it); Sefaria's are the links
+GOLD_FILES = {
+    "openbible": ("openbible_links.parquet", "build-golds"),
+    "etcbc": ("etcbc_links.parquet", "build-golds"),
+}
+
+
 class Scorer:
     """Per-query metric of verse lists on the dev golds, neighbour-filtered like the report."""
 
-    def __init__(self, cfg: dict[str, Any], log: Log) -> None:
-        self.ctx = EvalContext.load(cfg, "dev")
-        self.metric = cfg["retrieval_experiments"]["metric"]
-        self.golds = {"sefaria": self.ctx.gold("verse")}
-        ob = resolve_path(cfg, "data_processed") / "openbible_links.parquet"
-        if ob.exists():
-            from bsim.eval.openbible import gold_of
+    def __init__(
+        self,
+        cfg: dict[str, Any],
+        log: Log,
+        golds: tuple[str, ...] = ("sefaria", "openbible"),
+        metric: str | None = None,
+    ) -> None:
+        from bsim.eval.openbible import gold_of
 
-            self.golds["openbible"] = gold_of(pd.read_parquet(ob), "dev")
-        else:
-            log(f"  {ob} missing (run `bsim eval-openbible`): Sefaria gold only")
+        self.ctx = EvalContext.load(cfg, "dev")
+        self.metric = metric or cfg["retrieval_experiments"]["metric"]
+        self.golds = {"sefaria": self.ctx.gold("verse")}
+        for g in golds:
+            if g == "sefaria":
+                continue
+            name, cmd = GOLD_FILES[g]
+            path = resolve_path(cfg, "data_processed") / name
+            if path.exists():
+                self.golds[g] = gold_of(pd.read_parquet(path), "dev")
+            else:
+                log(f"  {path} missing (run `bsim {cmd}`): no {g} gold")
         self.queries = {
             g: sorted(q for q, s in gold.items() if s) for g, gold in self.golds.items()
         }

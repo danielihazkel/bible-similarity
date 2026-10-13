@@ -97,3 +97,37 @@ def test_with_overrides_copies():
     out = with_overrides(cfg, init="base", hard_negatives=False)
     assert out["train"]["supervised"] == {"init_from": "base", "hard_negatives": False}
     assert cfg["train"]["supervised"]["init_from"] == "berel-simcse"
+
+
+def test_run_hard_negatives_writes_under_its_name(tmp_path, monkeypatch):
+    import json
+
+    import bsim.train.negatives as neg
+    from bsim.config import load_config
+
+    cfg = load_config()
+    proc, art = tmp_path / "processed", tmp_path / "artifacts"
+    cfg["paths"] = {**cfg["paths"], "data_processed": str(proc), "artifacts": str(art)}
+    (art / "topk" / "verse").mkdir(parents=True)
+    (art / "topk" / "verse" / f"{neg.LEXICAL_SYSTEM}.parquet").touch()
+    proc.mkdir()
+    (proc / "links.parquet").touch()
+    text = list("abcdefghijklmno")
+    verses = {"verse_id": range(15), "book_id": BOOK, "chapter": 1, "text_model": text}
+    pd.DataFrame(verses).to_parquet(proc / "verses.parquet")
+    books = {"Genesis": "train", "Exodus": "train", "Leviticus": "dev"}
+    (proc / "splits.json").write_text(json.dumps({"books": books}), "utf-8")
+    pairs = pd.DataFrame({"src_vid": [0], "tgt_vid": [8], "source": ["etcbc"]})
+    monkeypatch.setattr(neg, "training_pairs", lambda cfg: (pairs, pairs[["src_vid", "tgt_vid"]]))
+    monkeypatch.setattr(neg, "read_topk", lambda path: _candidates(0, [5, 6]))
+    monkeypatch.setattr(neg, "apply_filters", lambda df, *args: df)
+    df = neg.run_hard_negatives(cfg, log=lambda s: None, name="hard_negatives_x")
+    assert df.source.tolist() == ["etcbc"] and df.negative_vid[0] not in (0, 8)
+    out = art / "train"
+    assert sorted(p.name for p in out.iterdir()) == [
+        "hard_negatives_x.meta.json",
+        "hard_negatives_x.parquet",
+    ]
+    assert json.loads((out / "hard_negatives_x.meta.json").read_text("utf-8"))["by_source"] == {
+        "etcbc": 1
+    }
