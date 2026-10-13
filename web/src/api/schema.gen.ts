@@ -1949,6 +1949,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/patterns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Patterns
+         * @description Verses where the query matches, in canon order (`book`, `unit`: only there), with the
+         *     matches per book. A query that cannot run returns `error` and no verses.
+         */
+        get: operations["patterns_api_patterns_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -4122,6 +4143,73 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["ParallelUnit"][];
+        };
+        /** PatternBook */
+        PatternBook: {
+            /** Book Id */
+            book_id: number;
+            /** Matches */
+            matches: number;
+            /** Verses */
+            verses: number;
+        };
+        /** PatternMatch */
+        PatternMatch: {
+            /** Words */
+            words: number[];
+            /** Tokens */
+            tokens: (number | null)[];
+        };
+        /**
+         * PatternProblem
+         * @description Why a query could not run: what went wrong, where (a character offset) and on what.
+         */
+        PatternProblem: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "empty" | "expected_pattern" | "unclosed" | "bad_condition" | "unknown_key" | "bad_value" | "unknown_value" | "bad_gap" | "too_many" | "variable" | "too_broad";
+            /** At */
+            at: number;
+            /** Token */
+            token: string;
+        };
+        /** PatternResponse */
+        PatternResponse: {
+            /** Q */
+            q: string;
+            error: components["schemas"]["PatternProblem"] | null;
+            /** Patterns */
+            patterns: number;
+            /** Total */
+            total: number;
+            /** Matches */
+            matches: number;
+            /** Books */
+            books: components["schemas"]["PatternBook"][];
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["PatternVerse"][];
+        };
+        /** PatternVerse */
+        PatternVerse: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Unit Id */
+            unit_id: string;
+            /** Text */
+            text: string;
+            /** Matches */
+            matches: components["schemas"]["PatternMatch"][];
+            verse: components["schemas"]["Verse"];
         };
         /** PentateuchChaptersResponse */
         PentateuchChaptersResponse: {
@@ -8948,6 +9036,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FormsListsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patterns_api_patterns_get: {
+        parameters: {
+            query?: {
+                q?: string;
+                book?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatternResponse"];
                 };
             };
             /** @description Validation Error */

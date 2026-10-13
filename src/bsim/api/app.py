@@ -45,6 +45,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from bsim.api import queries
+from bsim.api.patterns import WordTable
 from bsim.api.search import (
     BackgroundEncoder,
     Encoder,
@@ -100,11 +101,27 @@ class ServeState:
     sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     dossier_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    pattern_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _present: dict[str, bool] = field(default_factory=dict)
     _lemma_total: int | None = None
     _roots: queries.RootIndex | None = None
     _verse_books: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
+    _words: WordTable | None = None
+    _words_lock: threading.Lock = field(default_factory=threading.Lock)
+
+    def word_table(self) -> WordTable:
+        """Every word's features for pattern search (`api/patterns.py`), built once (a few
+        seconds; `serve.patterns.preload` starts it with the server)."""
+        if self._words is None:
+            with self._words_lock:
+                if self._words is None:
+                    conn = self.connect()
+                    try:
+                        self._words = WordTable.load(conn)
+                    finally:
+                        conn.close()
+        return self._words
 
     def lemma_total(self, conn: sqlite3.Connection) -> int:
         """Corpus word count over lemmas (`queries.corpus_lemma_total`), read once."""
@@ -248,7 +265,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         "startup_s": round(time.perf_counter() - t0, 2),
     }
     log(f"ready in {runtime['startup_s']:.1f} s")
-    return ServeState(
+    state = ServeState(
         cfg,
         db,
         meta,
@@ -262,7 +279,11 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         sequence_cache=LruCache(serve["sequence_cache"]),
         dossier_cache=LruCache(serve["dossier_cache"]),
         query_cache=LruCache(serve["search"]["query_cache"]),
+        pattern_cache=LruCache(serve["patterns"]["cache"]),
     )
+    if serve["patterns"]["preload"]:
+        threading.Thread(target=state.word_table, name="word-table", daemon=True).start()
+    return state
 
 
 def create_app(

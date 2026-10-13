@@ -697,6 +697,15 @@ Phase 3 (M39c): API and viewer
 
 ✔ 18 of the 19 sayings named in advance are found (Deut 32:30's אחד אלף ושנים reads as one number), and a verse with a graded pair is a parallel line more often than one with another pair of numbers (12 % against 5 %, p 0.026); but graded pairs are no more common than the books' numbers placed at random (105 against 96.2, p 0.20): "one … two" in the measurements of the Tabernacle and Temple swamps the sayings (without 1 / 2: 48 against 37.0, p 0.037, described). 69 lists against 0.7 by chance, 8 of the 10 named in advance (Num 7 and Neh 3 missed).
 
+## M69: Pattern search (§16.46, D82; proposed B2)
+- [x] `api/patterns.py`: the query language (bracketed word patterns, `key=value` / `!=` / `|`, `..N` and `..` gaps, `@` variables on lemma, root and word), a parser that reports errors as codes with a position, the word table from the results DB (OSHB morphology decoded per main morpheme, prefixes and suffix apart; BHSA functions, clause types, speech and speaker), matching by masks and word offsets
+- [x] `/patterns` (paged verses, matches per book, `error`), CSV `patterns`; the word table built in the background at server start (`serve.patterns`), queries cached
+- [x] Check: the infinitive absolute with a finite verb of the same lemma within three words, both orders, 432 + 41 = 473, the count of `bsim roots`
+- [x] Viewer: Patterns → Pattern search (`/query`): query box, examples, syntax guide with every key, errors worded and marked in place, counts per book as filters, matched words marked; English and Hebrew
+- [x] Tests: the morphology decoding, every parse error, matching on a small DB (variables, gaps, functions, speech, prefixes, suffixes, Hebrew lemmas, too broad), the endpoint, paging, filters and CSV, the table built once (pytest); the page, examples, book filter, errors, Hebrew (vitest); e2e: the page in both languages with axe, a query and an error on the fixture, the 432 pairs on the real build
+
+✔ A construction can be searched from the viewer: `[form=infabs root=@r] [root=@r form=finite]` lists the 377 verses of מות יומת and its kind, and the query language reproduces the roots stage's count of infinitive-absolute pairs exactly (473).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -711,7 +720,7 @@ Analyses
 
 Viewer
 - [x] B1 (done, M62) Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
-- B2 Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
+- [x] B2 (done, M69) Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
 - B3 Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
 
 Backend, models, code health

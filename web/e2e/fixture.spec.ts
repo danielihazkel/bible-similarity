@@ -90,6 +90,8 @@ const PAGES = [
   '/speech?view=dialogue',
   '/speech?view=dialogue&book=1&unequal=1',
   '/forms',
+  '/query',
+  '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
   '/map?color=lists',
   '/unit/v%3A1?syntax=1',
@@ -244,6 +246,25 @@ test('a chapter with a numerical saying and a list links to them on the Numbers 
   await expect(page).toHaveURL(/\/forms\?view=lists$/)
   await expect(page.locator('.list')).toHaveCount(2)
   await expect(page.locator('.list').first()).toContainText('genealogy')
+})
+
+test('pattern search: a query, its verses with the words marked, a book, and a broken query', async ({ page }) => {
+  await page.goto('/query')
+  const box = page.getByRole('searchbox', { name: 'Query' })
+  await box.fill('[lemma=430] [lemma=559] ..2 [lemma=3068]')
+  await box.press('Enter')
+  await expect(page.getByText(/2 matches in 2 verses/)).toBeVisible()
+  await expect(page.locator('.query-hit')).toHaveCount(2)
+  await expect(page.locator('.query-hit').first().locator('.w-shared')).toHaveCount(3)
+  await box.fill('[lemma=430] [pos=]')
+  await box.press('Enter')
+  await expect(page.getByRole('alert')).toContainText('A condition is key=value')
+  await expect(page.locator('.query-problem mark')).toHaveText('pos=')
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.getByRole('button', { name: '[form=imperative] ..4 [function=Voct pos=name]' }).click()
+  await expect(page).toHaveURL(/\/query\?q=%5Bform%3Dimperative%5D/)
+  await expect(page.getByText('Nothing matches this pattern.')).toBeVisible()
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

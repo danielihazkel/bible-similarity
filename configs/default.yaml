@@ -988,6 +988,11 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
   refrain_verses: 3           # /refrains/list: verses shown in full per refrain (the rest as references)
   list_verses: 3              # /forms/lists: a list's first verses shown in full
+  patterns:                   # /patterns: pattern search over the words (DESIGN.md §16.46)
+    max_patterns: 8           # word patterns in one query
+    max_matches: 2000000      # partial matches at any step; a broader query is refused (too_broad)
+    cache: 64                 # queries whose matches are kept
+    preload: true             # build the word table in the background when the server starts
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
     rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)

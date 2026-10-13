@@ -37,6 +37,7 @@ export const NAV: NavEntry[] = [
   {
     key: 'patterns',
     items: [
+      { to: '/query', key: 'query' },
       { to: '/structure', key: 'structure' },
       { to: '/acrostics', key: 'acrostics' },
       { to: '/divisions', key: 'divisions' },

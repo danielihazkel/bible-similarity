@@ -2611,6 +2611,62 @@ export interface DialogueExchangesResponse {
   items: DialogueExchange[]
 }
 
+// Pattern search (`/patterns`, DESIGN.md §16.46).
+export type PatternErrorCode =
+  | 'empty'
+  | 'expected_pattern'
+  | 'unclosed'
+  | 'bad_condition'
+  | 'unknown_key'
+  | 'bad_value'
+  | 'unknown_value'
+  | 'bad_gap'
+  | 'too_many'
+  | 'variable'
+  | 'too_broad'
+export interface PatternProblem {
+  code: PatternErrorCode
+  /** character offset in the query */
+  at: number
+  token: string
+}
+export interface PatternMatch {
+  /** the matched words (OSHB word indexes), one per pattern */
+  words: number[]
+  /** their display tokens (null: not aligned) */
+  tokens: (number | null)[]
+}
+export interface PatternVerse {
+  verse_id: number
+  label: string
+  label_he: string
+  /** its chapter */
+  unit_id: string
+  /** each match's words, " … " between them, " | " between matches */
+  text: string
+  matches: PatternMatch[]
+  verse: Verse
+}
+export interface PatternBook {
+  book_id: number
+  matches: number
+  verses: number
+}
+export interface PatternResponse {
+  q: string
+  error: PatternProblem | null
+  /** word patterns in the query */
+  patterns: number
+  /** verses with a match (the paged list) */
+  total: number
+  matches: number
+  /** canon order */
+  books: PatternBook[]
+  offset: number
+  limit: number
+  items: PatternVerse[]
+}
+
 // Graded numerical sayings and lists (`/forms`, DESIGN.md §16.45).
 export interface FormsKnownSaying {
   name: string

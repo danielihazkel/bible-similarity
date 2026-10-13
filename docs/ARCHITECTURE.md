@@ -185,8 +185,9 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, patterns, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
+│       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
@@ -200,7 +201,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, query, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
 ├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e

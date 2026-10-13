@@ -15,6 +15,7 @@ import type {
   RefrainsListResponse,
   RefrainsResponse,
   FormsListsResponse,
+  PatternResponse,
   FormsResponse,
   FormsSayingsResponse,
   AffinityPair,
@@ -551,6 +552,25 @@ export const useRefrainList = (q: RefrainQuery) =>
     queryKey: ['refrain-list', q],
     queryFn: ({ signal }) =>
       getJson<RefrainsListResponse>('/refrains/list', { ...refrainParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export interface PatternQuery {
+  q: string
+  book?: number
+  unit?: string
+  limit: number
+  offset: number
+}
+
+export const patternParams = (q: PatternQuery): Params => ({ q: q.q, book: q.book, unit: q.unit })
+
+export const usePatterns = (q: PatternQuery) =>
+  useQuery({
+    queryKey: ['patterns', q],
+    queryFn: ({ signal }) => getJson<PatternResponse>('/patterns', { ...patternParams(q), limit: q.limit, offset: q.offset }, signal),
+    enabled: q.q.trim() !== '',
     placeholderData: keepPreviousData,
     ...forever,
   })

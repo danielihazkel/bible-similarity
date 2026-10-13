@@ -2855,3 +2855,15 @@ a.dossier-chip:hover {
 .dlg-node text { fill: var(--text); font-size: 13px; }
 .dlg-parties { font-weight: 600; }
 .clause .addressee { margin-inline-start: 0.3rem; }
+
+/* Pattern search (§16.46) */
+.query-input { font-family: ui-monospace, monospace; font-size: 1rem; }
+.query-problem .query-code { margin: 0.3rem 0 0; overflow-wrap: anywhere; }
+.query-problem mark { background: var(--hl-focus); color: var(--hl-focus-text); }
+.query-books { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin: 0.6rem 0; }
+.query-examples { padding-inline-start: 1.2rem; }
+.query-examples li { margin-block: 0.3rem; }
+.query-examples code, .query-help code { overflow-wrap: anywhere; }
+.query-help { margin-block: 1rem; }
+.query-help summary { cursor: pointer; font-weight: 600; }
+.query-help td[dir='ltr'] { text-align: start; }

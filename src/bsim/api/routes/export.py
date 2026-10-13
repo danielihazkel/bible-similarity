@@ -24,6 +24,7 @@ from bsim.api.routes import (
     forms,
     meter,
     parallels,
+    patterns,
     pentateuch,
     phrases,
     poetics,
@@ -62,6 +63,7 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "exchanges": dialogue.dialogue_exchanges,
     "sayings": forms.forms_sayings,
     "lists": forms.forms_lists,
+    "patterns": patterns.patterns,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",
