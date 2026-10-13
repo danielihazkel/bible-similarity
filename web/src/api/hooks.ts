@@ -5,6 +5,8 @@ import type {
   Acrostic,
   AcrosticsResponse,
   ReaderResponse,
+  PentateuchChaptersResponse,
+  PentateuchResponse,
   PsalmsListResponse,
   PsalmsResponse,
   RefrainsListResponse,
@@ -434,6 +436,21 @@ export const useReader = (unitId: string | undefined) =>
     queryKey: ['reader', unitId],
     queryFn: ({ signal }) => getJson<ReaderResponse>(`/reader/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
+    ...forever,
+  })
+
+export const usePentateuch = () =>
+  useQuery({
+    queryKey: ['pentateuch'],
+    queryFn: ({ signal }) => getJson<PentateuchResponse>('/pentateuch', {}, signal),
+    ...forever,
+  })
+
+export const usePentateuchChapters = (book: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['pentateuch-chapters', book, limit, offset],
+    queryFn: ({ signal }) => getJson<PentateuchChaptersResponse>('/pentateuch/chapters', { book, limit, offset }, signal),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

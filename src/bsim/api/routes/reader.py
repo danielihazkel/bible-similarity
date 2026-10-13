@@ -16,6 +16,7 @@ from bsim.api.models import (
     ReaderKetiv,
     ReaderRefrain,
     ReaderResponse,
+    ReaderSource,
     ReaderSpeaker,
     ReaderVerse,
     ReaderWordplay,
@@ -46,8 +47,8 @@ def _speech(
 @router.get("/reader/{unit_id}", response_model=ReaderResponse)
 def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
-    pairs, ketiv / qere, refrains, words of distress and praise, and the turns and MAM breaks
-    before each verse."""
+    pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
+    non-P split, and the turns and MAM breaks before each verse."""
     u = unit_or_404(conn, unit_id)
     limit = state.cfg["serve"]["max_compare_verses"]
     if u["n_verses"] > limit:
@@ -153,6 +154,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         p = any(c.startswith(praise) for c in codes)
         if d != p:
             mood[w["verse_id"]][w["display_idx"]] = "distress" if d else "praise"
+    sources = queries.pentateuch_verses(conn, first, last)
     gaps = {
         g["verse_id"]: ReaderGap(
             score=g["score"], kind=g["kind"], mam=g["mam"], chapter=bool(g["chapter"])
@@ -171,6 +173,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "gaps": state.present(conn, "segment_gaps"),
             "refrains": state.present(conn, "refrains"),
             "mood": state.present(conn, "domains"),
+            "sources": state.present(conn, "pentateuch_verses"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
@@ -180,6 +183,9 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 speech={str(t): index[s] for t, s in sorted(speech.get(v, {}).items())},
                 refrains={str(t): i for t, i in sorted(ref_at.get(v, {}).items())},
                 mood={str(t): m for t, m in sorted(mood.get(v, {}).items())},
+                source=ReaderSource(**{k: sources[v][k] for k in ("side", "prob", "reference")})
+                if v in sources
+                else None,
                 phrases={str(t): len(o) for t, o in sorted(partners.get(v, {}).items())},
                 rare={str(t): n for t, n in sorted(rare.get(v, {}).items())},
                 wordplay=wordplay.get(v, []),

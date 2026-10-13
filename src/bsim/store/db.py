@@ -47,6 +47,8 @@ Derived columns:
   without it).
 - `refrains`, `refrain_verses` + `meta.refrains`: `bsim refrains` (empty without it).
 - `psalms`, `psalm_verses` + `meta.psalms`: `bsim psalms` (empty without it).
+- `pentateuch_verses`, `pentateuch_chapters` + `meta.pentateuch`: `bsim pentateuch` (empty
+  without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -146,6 +148,7 @@ INDEXES = (
     "CREATE INDEX refrains_by_book ON refrains (book_id, refrain_id)",
     "CREATE INDEX refrain_verses_by_verse ON refrain_verses (verse_id)",
     "CREATE INDEX psalm_verses_by_unit ON psalm_verses (unit_id, verse_id)",
+    "CREATE INDEX pentateuch_chapters_by_book ON pentateuch_chapters (book_id, chapter)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -523,6 +526,16 @@ TABLE_COLUMNS = {
         "after",
     ],
     "psalm_verses": ["verse_id", "unit_id", "verse", "words", "distress", "praise"],
+    "pentateuch_verses": ["verse_id", "side", "prob", "reference", "core"],
+    "pentateuch_chapters": [
+        "unit_id",
+        "book_id",
+        "chapter",
+        "verses",
+        "p_like",
+        "assigned",
+        "p_ref",
+    ],
     "root_leitworte": [
         "unit_id",
         "rank",
@@ -1262,6 +1275,16 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
         out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
     out["psalms_meta"] = _read_json(ps_dir / "psalms.meta.json")
+    src_dir = resolve_path(cfg, "artifacts") / "pentateuch"
+    for name, table in (("verses", "pentateuch_verses"), ("chapters", "pentateuch_chapters")):
+        path = src_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    if len(out["pentateuch_verses"]):
+        out["pentateuch_verses"] = out["pentateuch_verses"].assign(
+            core=lambda d: d.core.astype(int)
+        )
+    out["pentateuch_meta"] = _read_json(src_dir / "pentateuch.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1484,6 +1507,8 @@ def _write_db(
             "refrain_verses": inputs["refrain_verses"],
             "psalms": inputs["psalms"],
             "psalm_verses": inputs["psalm_verses"],
+            "pentateuch_verses": inputs["pentateuch_verses"],
+            "pentateuch_chapters": inputs["pentateuch_chapters"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1688,6 +1713,30 @@ def _write_db(
                 "known_share",
                 "regular",
                 "turns",
+            )
+        }
+        ptm = inputs["pentateuch_meta"]
+        meta["pentateuch"] = {
+            k: ptm.get(k)
+            for k in (
+                "verses",
+                "assigned",
+                "reference_p",
+                "p_like",
+                "chunks",
+                "core_verses",
+                "synonym_sets",
+                "alpha",
+                "draws",
+                "agreement",
+                "tests",
+                "confusion",
+                "books",
+                "names",
+                "features",
+                "synonyms",
+                "grid",
+                "prefixes",
             )
         }
         pm = inputs["psalms_meta"]

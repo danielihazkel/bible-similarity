@@ -792,6 +792,26 @@ CREATE TABLE psalm_verses (
     praise INTEGER NOT NULL
 );
 
+-- An unsupervised P / non-P split of Genesis-Numbers (`bsim pentateuch`, §16.43): each verse's side
+-- (P-like: the side holding most of Leviticus), its smoothed probability and the reference.
+CREATE TABLE pentateuch_verses (
+    verse_id INTEGER PRIMARY KEY,
+    side TEXT NOT NULL,             -- P | nonP
+    prob REAL NOT NULL,             -- of the P-like side, smoothed over neighbouring verses
+    reference TEXT,                 -- P | nonP (NULL: unassigned)
+    core INTEGER NOT NULL           -- trained step 2 (a core chunk of step 1)
+);
+
+CREATE TABLE pentateuch_chapters (
+    unit_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    verses INTEGER NOT NULL,
+    p_like REAL NOT NULL,           -- share of its verses on the P-like side
+    assigned INTEGER NOT NULL,      -- verses with a reference label
+    p_ref REAL                      -- share of those the reference calls P
+) WITHOUT ROWID;
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

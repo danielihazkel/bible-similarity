@@ -926,6 +926,49 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # the P / non-P split (`bsim pentateuch`): v0-v2 P-like (v1 against the reference), v3-v5 not
+    # (v5 unassigned); chapter 0:1 mostly P-like
+    src_dir = art / "pentateuch"
+    src_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, 0, 1, 1, 0.9, "P", "P", True), (1, 0, 1, 2, 0.7, "P", "nonP", True),
+         (2, 0, 1, 3, 0.6, "P", "P", False), (3, 0, 2, 1, 0.2, "nonP", "nonP", False),
+         (4, 0, 2, 2, 0.1, "nonP", "nonP", True), (5, 1, 1, 1, 0.4, "nonP", None, False)],
+        columns=["verse_id", "book_id", "chapter", "verse", "prob", "side", "reference", "core"],
+    ).to_parquet(src_dir / "verses.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("c:0:1", 0, 1, 3, 1.0, 3, 2 / 3), ("c:0:2", 0, 2, 2, 0.0, 2, 0.0),
+         ("c:1:1", 1, 1, 1, 0.0, 0, None)],
+        columns=["unit_id", "book_id", "chapter", "verses", "p_like", "assigned", "p_ref"],
+    ).to_parquet(src_dir / "chapters.parquet")  # fmt: skip
+    (src_dir / "pentateuch.meta.json").write_text(
+        json.dumps(
+            {
+                "verses": 6, "assigned": 5, "reference_p": 2, "p_like": 3, "chunks": 2,
+                "core_verses": 3, "synonym_sets": 1, "alpha": 0.05, "draws": 1000,
+                "agreement": 0.8,
+                "tests": {"kappa": {"observed": 0.6, "null": 0.1, "p": 0.01},
+                          "kappa_genesis": {"observed": 0.6, "null": 0.0, "p": 0.02},
+                          "names": {"observed": 0.05, "null": 0.0, "p": 0.3}},
+                "confusion": {"p_like_p": 2, "p_like_non": 1, "non_p": 0, "non_non": 2},
+                "books": {"Genesis": {"verses": 5, "agree": 0.8, "p_like": 0.6, "p_ref": 0.4}},
+                "names": {"p_like": {"yhwh": 1, "elohim": 3, "share": 0.25},
+                          "non_p": {"yhwh": 2, "elohim": 2, "share": 0.5},
+                          "reference_p": 0.0, "reference_non": 0.6},
+                "features": {"p_like": [{"token": "7225", "weight": 0.5},
+                                        {"token": "p:l", "weight": 0.2}],
+                             "non_p": [{"token": "430", "weight": -0.4}]},
+                "synonyms": [{"name": "make", "members": ["1254", "3068@q"], "p_like": [2, 0],
+                              "non_p": [0, 1]}],
+                "grid": [{"chunk_verses": 10, "smooth": 2, "kappa": 0.6, "kappa_genesis": 0.6,
+                          "names": 0.05, "kappa_p": 0.01, "kappa_genesis_p": 0.02,
+                          "names_p": 0.3}],
+                "prefixes": {"l": "ל"},
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

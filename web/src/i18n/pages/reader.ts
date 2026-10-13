@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, countHe } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'turns'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns'
 
 const pctOf = (x: number) => Math.round(x * 100)
 
@@ -25,6 +25,7 @@ export const readerEn = {
     wordplay: 'Wordplay',
     ketiv: 'Ketiv / qere',
     mood: 'Distress and praise',
+    sources: 'P / non-P',
     turns: 'Turns',
   } satisfies Record<Layer, string>,
   hints: {
@@ -37,6 +38,7 @@ export const readerEn = {
     wordplay: 'Words a few apart that sound alike',
     ketiv: 'Words read otherwise than they are written',
     mood: 'Words of distress and of praise (SDBH domains): where a lament turns',
+    sources: 'Which side of the unsupervised P / non-P split each verse of Genesis–Numbers falls on',
     turns: 'Where the text changes sharply between verses, and the paragraph breaks of the tradition',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
@@ -60,6 +62,12 @@ export const readerEn = {
   // mood
   moodKey: 'A bar under a word: solid, a word of praise (praise, song, joy, blessing); dashed, a word of distress (fear, grief, shame, sickness, enemies).',
   moodTitle: { distress: 'a word of distress', praise: 'a word of praise' } as Record<string, string>,
+  // sources
+  sourcesKey: 'A tag after the verse number: its side of the unsupervised split (Genesis–Numbers); outlined where the critics assign it to the other source.',
+  sourceTag: { P: 'P', nonP: 'non-P' } as Record<string, string>,
+  sourceTitle: (side: string, prob: number, reference: string | null) =>
+    `${side === 'P' ? 'P-like' : 'not P-like'} (${Math.round(prob * 100)}% P-like); the critics: ${reference === null ? 'unassigned' : reference === 'P' ? 'P' : 'non-P'}`,
+  allSources: "The split on the Pentateuch's sources page",
   // refrains
   refrainsKey: 'A line above: a phrase that comes back nearby (a refrain).',
   noRefrains: 'No refrain here.',
@@ -103,6 +111,7 @@ export const readerHe: typeof readerEn = {
     wordplay: 'משחקי מילים',
     ketiv: 'כתיב / קרי',
     mood: 'מצוקה ושבח',
+    sources: 'P / לא P',
     turns: 'מפנים',
   },
   hints: {
@@ -115,6 +124,7 @@ export const readerHe: typeof readerEn = {
     wordplay: 'מילים קרובות שנשמעות דומה',
     ketiv: 'מילים שנקראות אחרת משנכתבו',
     mood: 'מילות מצוקה ומילות שבח (תחומי SDBH): היכן קינה פונה',
+    sources: 'באיזה צד של החלוקה הבלתי מונחית ל־P ולא P נופל כל פסוק בבראשית–במדבר',
     turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
@@ -134,6 +144,11 @@ export const readerHe: typeof readerEn = {
   leitwortTitle: (he: string, count: number, expected: string) => `מילה מנחה ${he}: ${count} פעמים כאן, צפוי ${expected}`,
   moodKey: 'פס מתחת למילה: רציף, מילת שבח (הלל, שיר, שמחה, ברכה); מקווקו, מילת מצוקה (פחד, אבל, בושה, חולי, אויבים).',
   moodTitle: { distress: 'מילת מצוקה', praise: 'מילת שבח' },
+  sourcesKey: 'תווית אחרי מספר הפסוק: צדו בחלוקה הבלתי מונחית (בראשית–במדבר); במסגרת בלבד כשהמבקרים מייחסים אותו למקור האחר.',
+  sourceTag: { P: 'P', nonP: 'לא P' },
+  sourceTitle: (side: string, prob: number, reference: string | null) =>
+    `${side === 'P' ? 'דומה ל־P' : 'לא דומה ל־P'} (${Math.round(prob * 100)}% דומה ל־P); המבקרים: ${reference === null ? 'לא שויך' : reference === 'P' ? 'P' : 'לא P'}`,
+  allSources: 'החלוקה בעמוד מקורות התורה',
   refrainsKey: 'קו עליון: צירוף החוזר בסמיכות (פזמון חוזר).',
   noRefrains: 'אין כאן פזמון חוזר.',
   refrainTitle: (text: string, k: number) => `פזמון חוזר ${text}: ב־${countHe(k, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}`,

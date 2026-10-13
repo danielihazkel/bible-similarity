@@ -58,6 +58,7 @@ export const NAV: NavEntry[] = [
       { to: '/style', key: 'style' },
       { to: '/shifts', key: 'shifts' },
       { to: '/language', key: 'language' },
+      { to: '/pentateuch', key: 'pentateuch' },
       { to: '/speech', key: 'speech' },
       { to: '/eval', key: 'eval' },
     ],

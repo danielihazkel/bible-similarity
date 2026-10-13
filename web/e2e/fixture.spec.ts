@@ -39,6 +39,9 @@ const PAGES = [
   '/psalms',
   '/psalms?unit=c%3A0%3A1&turned=1&sort=turn',
   '/read/c%3A0%3A1?layers=mood',
+  '/pentateuch',
+  '/pentateuch?book=1',
+  '/read/c%3A0%3A1?layers=sources',
   '/read/c%3A0%3A1?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns',
   '/read/c%3A0%3A2?layers=wordplay%2Cketiv%2Cturns%2Cleitworte&lw=root',
   '/poetry?view=meter&group=pool',
@@ -198,6 +201,17 @@ test('a psalm links to its form and turn, and on to its words of distress and pr
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=mood/)
   await expect(page.locator('.reader-text .md-praise').first()).toBeVisible()
   await expect(page.locator('.reader-text .md-distress').first()).toBeVisible()
+})
+
+test('a chapter of the Pentateuch opens in the reader with its side of the P / non-P split', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '3 verses on the P-like side' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=sources/)
+  await expect(page.locator('.reader-text .src-tag')).toHaveCount(3)
+  await expect(page.locator('.reader-text .src-differs')).toHaveCount(1)
+  await page.getByRole('link', { name: "The split on the Pentateuch's sources page" }).click()
+  await expect(page.getByRole('heading', { name: "The Pentateuch's sources", level: 1 })).toBeVisible()
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

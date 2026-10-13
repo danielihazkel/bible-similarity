@@ -1336,7 +1336,7 @@ DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
-    "meter", "roots", "refrains", "psalms", "labels",
+    "meter", "roots", "refrains", "psalms", "pentateuch", "labels",
 ]  # fmt: skip
 
 
@@ -1614,7 +1614,7 @@ FindingKey = Literal[
     "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
     "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
     "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
-    "lament_turns",
+    "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",
 ]  # fmt: skip
 
 
@@ -1968,6 +1968,7 @@ class ReaderVerse(ApiModel):
     verse_id: int
     refrains: dict[str, int]  # display token -> index into `refrains`
     mood: dict[str, str]  # display token -> distress | praise (its SDBH domains, `psalms`)
+    source: ReaderSource | None  # the P / non-P split (`bsim pentateuch`; Genesis-Numbers only)
     speech: dict[str, int]  # display token -> index into `speakers`
     phrases: dict[str, int]  # display token -> other verses sharing a phrase through it
     rare: dict[str, int]  # display token -> verses holding its rarest content word (names out)
@@ -1986,6 +1987,53 @@ class ReaderResponse(ApiModel):
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
     refrains: list[ReaderRefrain]  # strongest first
     verses: list[ReaderVerse]
+
+
+class SourceWord(ApiModel):
+    token: str  # Strong's number (`@h` / `@q`: the stem), or `p:x` for a prefix
+    he: str | None
+    weight: float  # standardized coefficient toward the side
+
+
+class SourceSynonym(ApiModel):
+    name: str
+    members: list[str]
+    he: list[str | None]
+    p_like: list[int]  # uses of each member on the P-like side
+    non_p: list[int]
+
+
+class PentateuchResponse(ApiModel):
+    meta: dict[str, Any]  # tests, confusion, books, names, grid, parameters
+    p_like: list[SourceWord]  # the words that pull a verse to the P-like side most
+    non_p: list[SourceWord]
+    synonyms: list[SourceSynonym]
+
+
+class SourceChapter(ApiModel):
+    unit_id: str
+    label: str
+    label_he: str
+    book_id: int
+    chapter: int
+    verses: int
+    p_like: float  # share of its verses on the P-like side
+    assigned: int
+    p_ref: float | None  # share of its assigned verses the reference calls P
+
+
+class PentateuchChaptersResponse(ApiModel):
+    book: int | None
+    total: int
+    offset: int
+    limit: int
+    items: list[SourceChapter]
+
+
+class ReaderSource(ApiModel):
+    side: Literal["P", "nonP"]
+    prob: float
+    reference: Literal["P", "nonP"] | None
 
 
 class PsalmVerse(ApiModel):

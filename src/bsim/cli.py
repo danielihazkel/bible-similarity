@@ -141,6 +141,14 @@ def psalms(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def pentateuch(config: ConfigOpt = None) -> None:
+    """An unsupervised P / non-P split of Genesis-Numbers by synonym choice."""
+    from bsim.analysis.pentateuch import run_pentateuch
+
+    run_pentateuch(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

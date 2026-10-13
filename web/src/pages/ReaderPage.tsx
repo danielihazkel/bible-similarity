@@ -16,7 +16,7 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'turns']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -24,6 +24,7 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   wordplay: 'wordplay',
   ketiv: 'ketiv',
   mood: 'mood',
+  sources: 'sources',
   turns: 'gaps',
 }
 const LEITWORTE_SHOWN = 6
@@ -201,6 +202,14 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
               <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={m.units.similarVerses(verseRef(v, locale))}>
                 {v.verse}
               </Link>
+              {on('sources') && r?.source && (
+                <span
+                  className={`src-tag src-${r.source.side} ${r.source.reference && r.source.reference !== r.source.side ? 'src-differs' : ''}`}
+                  title={t.sourceTitle(r.source.side, r.source.prob, r.source.reference)}
+                >
+                  {t.sourceTag[r.source.side]}
+                </span>
+              )}
               <HebrewText
                 verse={v}
                 decorate={decorate(v, r)}
@@ -332,6 +341,12 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
       {row('wordplay', t.wordplayKey)}
       {row('ketiv', t.ketivKey)}
       {row('mood', t.moodKey)}
+      {row(
+        'sources',
+        <>
+          {t.sourcesKey} <Link to="/pentateuch">{t.allSources}</Link>
+        </>,
+      )}
       {row('turns', t.turnsKey)}
     </ul>
   )

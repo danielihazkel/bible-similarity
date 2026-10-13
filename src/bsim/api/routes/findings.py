@@ -300,6 +300,27 @@ def _lament_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding
     )
 
 
+def _pentateuch(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The P / non-P split's checks: agreement with the reference (all, Genesis alone) and the
+    divine names it never saw, each against the split shifted within books."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        s = meta.get("pentateuch") or {}
+        t = (s.get("tests") or {}).get(test)
+        if not t:
+            return None
+        values = {"observed": t["observed"], "null": t["null"], "p": t["p"],
+                  "agreement": s.get("agreement")}  # fmt: skip
+        if test == "names":
+            n = s.get("names") or {}
+            values.update(p_like=(n.get("p_like") or {}).get("share"),
+                          non_p=(n.get("non_p") or {}).get("share"))  # fmt: skip
+        holds = t["observed"] > t["null"] and t["p"] <= alpha
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -322,6 +343,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _psalm_forms,
     _lament_turn,
     _lament_turns,
+    _pentateuch("pentateuch_split", "kappa"),
+    _pentateuch("pentateuch_genesis", "kappa_genesis"),
+    _pentateuch("pentateuch_names", "names"),
     _allusions,
 ]
 

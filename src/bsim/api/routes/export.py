@@ -18,7 +18,17 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from bsim.api.routes import core, meter, parallels, phrases, poetics, psalms, refrains, roots
+from bsim.api.routes import (
+    core,
+    meter,
+    parallels,
+    pentateuch,
+    phrases,
+    poetics,
+    psalms,
+    refrains,
+    roots,
+)
 from bsim.api.routes import corpus as corpus_routes
 from bsim.api.routes._common import Conn, State, unprocessable
 
@@ -46,6 +56,7 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "hidden-roots": roots.hidden_roots,
     "refrains": refrains.refrain_list,
     "psalms": psalms.psalm_list,
+    "pentateuch": pentateuch.pentateuch_chapters,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",

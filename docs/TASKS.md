@@ -664,6 +664,17 @@ Phase 3 (M39c): API and viewer
 
 ✔ The counted form recovers Gunkel's genres: NMI 0.262 against 0.082 with the genres shuffled (p 0.001; the form alone 0.294, the domains alone 0.142); 6 / 6 genre profiles hold; 7 of 12 named turns found within a verse against 3.4 by chance (p 0.016, but p 0.24 within 2 verses); individual laments do not turn above chance more often than hymns (7 / 37 against 2 / 30, p 0.13). 533 pytest, 173 / 173 vitest, 213 / 213 fixture (1 skipped by design) and 156 / 156 real-data e2e.
 
+## M66: The Pentateuch's sources (§16.43, D79; proposed A5)
+- [x] `bsim pentateuch` (`analysis/pentateuch.py`, pipeline stage after psalms, ~6 s): Genesis–Numbers split in two after Koppel–Dershowitz — chunks of 10 verses by their choices within 18 synonym sets (first principal component), the furthest 30 % of each side training a logistic regression on the synonym members and 60 function words, smoothed over ±2 verses; the side holding most of Leviticus P-like; the divine names never features
+- [x] Fixed before the first run: Noth's P entered by hand (2,787 verses, 88 unassigned); kappa over Genesis–Numbers and within Genesis, and יהוה's share before Exodus 6 on each side, each against the split shifted circularly within books; a grid of chunk size × smoothing
+- [x] DB `pentateuch_verses`, `pentateuch_chapters` (+ `meta.pentateuch`); API `/pentateuch`, `/pentateuch/chapters`, `source` on the reader's verses; dossier `pentateuch`; findings `pentateuch_split`, `pentateuch_genesis`, `pentateuch_names`; CSV `pentateuch`; the reader's *P / non-P* layer
+- [x] Viewer: Overview → The Pentateuch's sources (the checks, confusion, books, grid, the words that decide it, the synonym table, chapter by chapter against the reference); English and Hebrew
+- [x] The new config section was first named `sources`, which overwrote the download sources of the same name (a YAML duplicate key): found by the tests before any pipeline run, renamed `pentateuch` throughout
+- [x] A shadowed variable in `store/db.py` (the new meta block reused stylometry's `sm`) emptied the stylometry axes in one build: caught by the full test run, fixed, DB rebuilt
+- [x] Tests: tokens and the held-out names, chunks, choices, the first component, kappa, the names gap, circular shifts, smoothing, the stage on a toy Pentateuch, the API, reader, findings, dossier, export and DB on the fixture (pytest); the page, its tables, words and stems, chapters, the book switch, Hebrew, the empty state, the reader tag (vitest); e2e: dossier chip → reader with the split → the page
+
+✔ The split finds P: agreement 78 %, kappa 0.559 against 0.161 for the split shifted within books (p 0.001); within Genesis kappa 0.301 against 0.002 (p 0.004) — modest; the divine names, never seen, do not follow it (יהוה 37 % of divine names on the P-like side against 43 %, p 0.28; 1 % against 49 % in the reference). Leviticus, all P, only 69 % P-like. 540 pytest, 179 / 179 vitest, 221 / 221 fixture (1 skipped by design) and 162 / 162 real-data e2e.
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -672,7 +683,7 @@ Analyses
 - [x] A2 (done, M61) Root families: Strong's derivation links in HebrewStrong.xml (already downloaded; parse to check) → root families; Leitworte by root (§16.2 is by lemma) checked on Gen 27 ברך, Jonah ירד / גדל, 1 Sam 15 שמע / קול; figura etymologica (infinitive absolute + finite verb, cognate objects; out of scope in §16.10) per book against a shuffle; root chip and concordance by root
 - [x] A3 (done, M63) Refrains: Smith–Waterman within a book (`analysis/phrases.py`), phrases recurring ≥ 3 times, gap regularity against a verse shuffle; known list in config (Amos 4:6–11, Isa 9:11–10:4, Ps 42–43, Ps 107, Ps 136, Gen 1); second claim: refrains fall at the turns of §16.29
 - [x] A4 (done, M65) Psalm genres and the lament turn: per-psalm address / person / imperatives / SDBH distress vs praise domains, clusters against Gunkel's genres in config (NMI vs shuffled labels); a change point inside laments checked on known turns (Ps 6:9, 13:6, 22:23, 28:6)
-- A5 Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way
+- [x] A5 (done, M66) Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way
 - A6 Who speaks to whom: addressee from the introducing clause's אל-complement and vocatives (hand check of 50, as M43); conversation network per book, turn length, last word; "To whom" on the Speech page
 - A7 Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
 

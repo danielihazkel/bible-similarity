@@ -45,7 +45,7 @@ const VERSE_DETAIL: UnitDetail = {
 const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
-  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true },
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true },
   speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2 }],
   refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
   verses: [
@@ -53,6 +53,7 @@ const READER: ReaderResponse = {
       verse_id: 0,
       refrains: {},
       mood: { '0': 'distress' },
+      source: { side: 'P', prob: 0.83, reference: 'P' },
       speech: {},
       phrases: { '0': 6 },
       rare: { '1': 1 },
@@ -76,6 +77,7 @@ const READER: ReaderResponse = {
       verse_id: 1,
       refrains: { '0': 0, '1': 0 },
       mood: { '1': 'praise', '2': 'praise' },
+      source: { side: 'P', prob: 0.6, reference: 'nonP' },
       speech: { '2': 0, '3': 0 },
       phrases: {},
       rare: {},
@@ -229,6 +231,16 @@ describe('ReaderPage', () => {
     expect(distress[0].textContent).toBe('בְּרֵאשִׁית')
     expect(distress[0].getAttribute('title')).toBe('a word of distress')
     expect(screen.getByText(/A bar under a word: solid, a word of praise/)).toBeTruthy()
+  })
+
+  it('tags each verse with its side of the P / non-P split', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=sources')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .src-tag')).toHaveLength(2))
+    const [a, b] = container.querySelectorAll('.reader-text .src-tag')
+    expect(a.textContent).toBe('P')
+    expect(a.getAttribute('title')).toBe('P-like (83% P-like); the critics: P')
+    expect(b.classList.contains('src-differs')).toBe(true)
+    expect(screen.getByRole('link', { name: "The split on the Pentateuch's sources page" }).getAttribute('href')).toBe('/pentateuch')
   })
 
   it('counts Leitworte by root on request', async () => {

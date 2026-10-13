@@ -1358,6 +1358,7 @@ export type DossierKind =
   | 'roots'
   | 'refrains'
   | 'psalms'
+  | 'pentateuch'
   | 'labels'
 
 export interface DossierEntry {
@@ -1907,6 +1908,9 @@ export type FindingKey =
   | 'psalm_forms'
   | 'lament_turn'
   | 'lament_turns'
+  | 'pentateuch_split'
+  | 'pentateuch_genesis'
+  | 'pentateuch_names'
 
 export interface Finding {
   key: FindingKey
@@ -2360,6 +2364,8 @@ export interface ReaderVerse {
   refrains: Record<string, number>
   /** display token -> distress | praise (its SDBH domains) */
   mood: Record<string, 'distress' | 'praise'>
+  /** the P / non-P split (Genesis-Numbers only) */
+  source: ReaderSource | null
   /** display token -> index into `speakers` */
   speech: Record<string, number>
   /** display token -> other verses sharing a phrase through it */
@@ -2379,6 +2385,97 @@ export interface ReaderResponse {
   /** strongest first */
   refrains: ReaderRefrain[]
   verses: ReaderVerse[]
+}
+
+// The Pentateuch's sources (`/pentateuch`, DESIGN.md §16.43): an unsupervised P / non-P split.
+export interface ReaderSource {
+  side: 'P' | 'nonP'
+  /** of the P-like side, smoothed over neighbouring verses */
+  prob: number
+  /** null: unassigned */
+  reference: 'P' | 'nonP' | null
+}
+export interface SourceWord {
+  /** Strong's number (`@h` / `@q`: the stem), or `p:x` for a prefix */
+  token: string
+  he: string | null
+  weight: number
+}
+export interface SourceSynonym {
+  name: string
+  members: string[]
+  he: (string | null)[]
+  p_like: number[]
+  non_p: number[]
+}
+export interface PentateuchTest {
+  observed: number
+  null: number
+  p: number
+}
+export interface PentateuchBook {
+  verses: number
+  agree: number | null
+  p_like: number
+  p_ref: number | null
+}
+export interface PentateuchSide {
+  yhwh: number
+  elohim: number
+  share: number | null
+}
+export interface PentateuchMeta {
+  verses?: number
+  assigned?: number
+  reference_p?: number
+  p_like?: number
+  chunks?: number
+  core_verses?: number
+  synonym_sets?: number
+  alpha?: number
+  draws?: number
+  agreement?: number
+  tests?: { kappa: PentateuchTest; kappa_genesis: PentateuchTest; names: PentateuchTest }
+  confusion?: { p_like_p: number; p_like_non: number; non_p: number; non_non: number }
+  books?: Record<string, PentateuchBook>
+  names?: { p_like: PentateuchSide; non_p: PentateuchSide; reference_p: number | null; reference_non: number | null }
+  grid?: {
+    chunk_verses: number
+    smooth: number
+    kappa: number
+    kappa_genesis: number
+    names: number
+    kappa_p: number
+    kappa_genesis_p: number
+    names_p: number
+  }[]
+}
+export interface PentateuchResponse {
+  meta: PentateuchMeta & Record<string, unknown>
+  /** the words that pull a verse to the P-like side most */
+  p_like: SourceWord[]
+  non_p: SourceWord[]
+  synonyms: SourceSynonym[]
+}
+export interface SourceChapter {
+  unit_id: string
+  label: string
+  label_he: string
+  book_id: number
+  chapter: number
+  verses: number
+  /** share of its verses on the P-like side */
+  p_like: number
+  assigned: number
+  /** share of its assigned verses the reference calls P */
+  p_ref: number | null
+}
+export interface PentateuchChaptersResponse {
+  book: number | null
+  total: number
+  offset: number
+  limit: number
+  items: SourceChapter[]
 }
 
 // Psalms (`/psalms`, DESIGN.md §16.42): the form of each psalm, Gunkel's genres, the lament's turn.

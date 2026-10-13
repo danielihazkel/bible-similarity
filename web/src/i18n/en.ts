@@ -19,6 +19,7 @@ import { mirEn } from './pages/mirrors'
 import { metEn } from './pages/meter'
 import { rootEn } from './pages/roots'
 import { readerEn } from './pages/reader'
+import { pentEn } from './pages/pentateuch'
 import { psaEn } from './pages/psalms'
 import { refEn } from './pages/refrains'
 import { echoEn } from './pages/echoes'
@@ -101,6 +102,7 @@ export const en = {
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
     language: { label: 'Language', hint: 'Late Biblical Hebrew profile of each chapter' },
+    pentateuch: { label: "The Pentateuch's sources", hint: 'An unsupervised P / non-P split of Genesis–Numbers, against the critics\' P' },
     speech: { label: 'Who speaks', hint: 'Narration and direct speech, and the speakers' },
     eval: { label: 'Evaluation', hint: 'How well known cross-references are found' },
   } satisfies Record<string, string | { label: string; hint: string }>,
@@ -425,6 +427,7 @@ export const en = {
   reader: readerEn,
   ref: refEn,
   psa: psaEn,
+  pent: pentEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

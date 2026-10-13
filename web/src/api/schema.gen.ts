@@ -1783,6 +1783,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pentateuch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pentateuch
+         * @description The split's three checks fixed in advance, its agreement by book, the divine names, the
+         *     robustness grid, and the words and synonym choices that decide it.
+         */
+        get: operations["pentateuch_api_pentateuch_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pentateuch/chapters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pentateuch Chapters
+         * @description Each chapter of Genesis-Numbers: the share of its verses on the P-like side against the
+         *     share the reference calls P.
+         */
+        get: operations["pentateuch_chapters_api_pentateuch_chapters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -1793,8 +1835,8 @@ export interface paths {
         /**
          * Reader
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
-         *     pairs, ketiv / qere, refrains, words of distress and praise, and the turns and MAM breaks
-         *     before each verse.
+         *     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
+         *     non-P split, and the turns and MAM breaks before each verse.
          */
         get: operations["reader_api_reader__unit_id__get"];
         put?: never;
@@ -2655,7 +2697,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2907,7 +2949,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names";
             /**
              * Verdict
              * @enum {string}
@@ -3711,6 +3753,32 @@ export interface components {
             /** Items */
             items: components["schemas"]["ParallelUnit"][];
         };
+        /** PentateuchChaptersResponse */
+        PentateuchChaptersResponse: {
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["SourceChapter"][];
+        };
+        /** PentateuchResponse */
+        PentateuchResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** P Like */
+            p_like: components["schemas"]["SourceWord"][];
+            /** Non P */
+            non_p: components["schemas"]["SourceWord"][];
+            /** Synonyms */
+            synonyms: components["schemas"]["SourceSynonym"][];
+        };
         /** PhraseInfo */
         PhraseInfo: {
             /** Score */
@@ -3932,6 +4000,18 @@ export interface components {
             /** Verses */
             verses: components["schemas"]["ReaderVerse"][];
         };
+        /** ReaderSource */
+        ReaderSource: {
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "P" | "nonP";
+            /** Prob */
+            prob: number;
+            /** Reference */
+            reference: ("P" | "nonP") | null;
+        };
         /** ReaderSpeaker */
         ReaderSpeaker: {
             /** Lemma */
@@ -3955,6 +4035,7 @@ export interface components {
             mood: {
                 [key: string]: string;
             };
+            source: components["schemas"]["ReaderSource"] | null;
             /** Speech */
             speech: {
                 [key: string]: number;
@@ -4778,6 +4859,49 @@ export interface components {
             exclude: string[];
             /** Hits */
             hits: components["schemas"]["Hit"][];
+        };
+        /** SourceChapter */
+        SourceChapter: {
+            /** Unit Id */
+            unit_id: string;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** Verses */
+            verses: number;
+            /** P Like */
+            p_like: number;
+            /** Assigned */
+            assigned: number;
+            /** P Ref */
+            p_ref: number | null;
+        };
+        /** SourceSynonym */
+        SourceSynonym: {
+            /** Name */
+            name: string;
+            /** Members */
+            members: string[];
+            /** He */
+            he: (string | null)[];
+            /** P Like */
+            p_like: number[];
+            /** Non P */
+            non_p: number[];
+        };
+        /** SourceWord */
+        SourceWord: {
+            /** Token */
+            token: string;
+            /** He */
+            he: string | null;
+            /** Weight */
+            weight: number;
         };
         /** SpeakerInfo */
         SpeakerInfo: {
@@ -8209,6 +8333,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PsalmsListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pentateuch_api_pentateuch_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PentateuchResponse"];
+                };
+            };
+        };
+    };
+    pentateuch_chapters_api_pentateuch_chapters_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PentateuchChaptersResponse"];
                 };
             };
             /** @description Validation Error */

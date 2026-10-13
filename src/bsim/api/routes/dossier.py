@@ -24,6 +24,7 @@ and what it found:
     roots                         count = words of one root side by side in the unit's verses
     refrains                      count = refrains with a verse in the unit
     psalms                        count = psalms the unit overlaps
+    pentateuch                    count = verses of the unit on the P-like side of the split
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -236,6 +237,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "psalms",
         computed=state.present(conn, "psalms"),
         count=queries.psalms_page(conn, None, None, None, span, "chapter", 1, 0)[0],
+    )
+
+    add(
+        "pentateuch",
+        computed=state.present(conn, "pentateuch_verses"),
+        count=queries.p_like_verses(conn, *span),
     )
 
     add(

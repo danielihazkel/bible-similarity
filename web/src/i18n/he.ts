@@ -26,6 +26,7 @@ import { mirHe } from './pages/mirrors'
 import { metHe } from './pages/meter'
 import { rootHe } from './pages/roots'
 import { readerHe } from './pages/reader'
+import { pentHe } from './pages/pentateuch'
 import { psaHe } from './pages/psalms'
 import { refHe } from './pages/refrains'
 import { echoHe } from './pages/echoes'
@@ -108,6 +109,7 @@ export const he: Messages = {
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
     language: { label: 'לשון', hint: 'פרופיל עברית מקראית מאוחרת לכל פרק' },
+    pentateuch: { label: 'מקורות התורה', hint: 'חלוקה בלתי מונחית של בראשית–במדבר ל־P ולא P, מול P של המבקרים' },
     speech: { label: 'מי מדבר', hint: 'סיפור ודיבור ישיר, והדוברים' },
     eval: { label: 'הערכה', hint: 'עד כמה נמצאות הפניות ידועות' },
   },
@@ -426,6 +428,7 @@ export const he: Messages = {
   reader: readerHe,
   ref: refHe,
   psa: psaHe,
+  pent: pentHe,
   echo: echoHe,
   find: findHe,
   ov: ovHe,

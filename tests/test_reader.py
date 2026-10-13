@@ -63,6 +63,7 @@ def test_reader_without_stages(built):
         for t in ("clauses", "phrases", "wordplay", "kq_pairs", "segment_gaps", "refrains"):
             conn.execute(f"DELETE FROM {t}")
         conn.execute("DELETE FROM domains")
+        conn.execute("DELETE FROM pentateuch_verses")
         conn.execute("UPDATE words SET domains = NULL")
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()

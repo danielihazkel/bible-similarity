@@ -131,6 +131,21 @@ export const findEn = {
       text: (v: V) =>
         `Do individual laments turn from distress to praise more often than hymns? ${numEn(n(v, 'laments'))} of ${numEn(n(v, 'n_laments'))} laments have a turn above chance, against ${numEn(n(v, 'hymns'))} of ${numEn(n(v, 'n_hymns'))} hymns (p ${fp(n(v, 'p'))}).`,
     },
+    pentateuch_split: {
+      title: "P from the Pentateuch's synonyms",
+      text: (v: V) =>
+        `Split in two by its choices between synonyms and its function words, without being told where P is, does Genesis–Numbers fall along the critics' P? On ${Math.round(n(v, 'agreement') * 100)}% of the verses: kappa ${x3(n(v, 'observed'))} against ${x3(n(v, 'null'))} for the split shifted within each book (p ${fp(n(v, 'p'))}).`,
+    },
+    pentateuch_genesis: {
+      title: 'P within Genesis',
+      text: (v: V) =>
+        `In Genesis, where both sources tell stories, does the split still find P? Kappa ${x3(n(v, 'observed'))} against ${x3(n(v, 'null'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    pentateuch_names: {
+      title: 'The divine names follow the split',
+      text: (v: V) =>
+        `Before Exodus 6, does the P-like side avoid יהוה, which it never saw? יהוה is ${Math.round(n(v, 'p_like') * 100)}% of its divine names against ${Math.round(n(v, 'non_p') * 100)}% on the other side (gap ${x3(n(v, 'observed'))} against ${x3(n(v, 'null'))}, p ${fp(n(v, 'p'))}).`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -258,6 +273,21 @@ export const findHe: typeof findEn = {
       title: 'קינות פונות יותר ממזמורי שבח',
       text: (v: V) =>
         `האם קינות יחיד פונות מן המצוקה אל השבח יותר ממזמורי שבח? ל־${numHe(n(v, 'laments'))} מתוך ${numHe(n(v, 'n_laments'))} קינות יש מפנה מעל המקרה, לעומת ${numHe(n(v, 'hymns'))} מתוך ${numHe(n(v, 'n_hymns'))} מזמורי שבח (p ${fp(n(v, 'p'))}).`,
+    },
+    pentateuch_split: {
+      title: 'P מן הנרדפות של התורה',
+      text: (v: V) =>
+        `כשבראשית–במדבר מחולקים לשניים לפי הבחירה בין נרדפות ולפי מילות התפקוד, בלי שנאמר היכן P, האם החלוקה נופלת לאורך P של המבקרים? ב־${Math.round(n(v, 'agreement') * 100)}% מן הפסוקים: קאפה ${x3(n(v, 'observed'))} לעומת ${x3(n(v, 'null'))} לחלוקה מוזזת בתוך כל ספר (p ${fp(n(v, 'p'))}).`,
+    },
+    pentateuch_genesis: {
+      title: 'P בתוך בראשית',
+      text: (v: V) =>
+        `בבראשית, ששני המקורות בה מספרים סיפורים, האם החלוקה עדיין מוצאת את P? קאפה ${x3(n(v, 'observed'))} לעומת ${x3(n(v, 'null'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    pentateuch_names: {
+      title: 'שמות האל הולכים אחר החלוקה',
+      text: (v: V) =>
+        `לפני שמות ו, האם הצד הדומה ל־P נמנע מיהוה, שלא ראה? יהוה הוא ${Math.round(n(v, 'p_like') * 100)}% משמות האל שבו לעומת ${Math.round(n(v, 'non_p') * 100)}% בצד האחר (פער ${x3(n(v, 'observed'))} לעומת ${x3(n(v, 'null'))}, p ${fp(n(v, 'p'))}).`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',
