@@ -87,6 +87,8 @@ const PAGES = [
   '/speech',
   '/speech?book=0',
   '/speech?view=voices&voice=divine',
+  '/speech?view=dialogue',
+  '/speech?view=dialogue&book=1&unequal=1',
   '/unit/v%3A1?syntax=1',
   '/unit/c%3A0%3A1?syntax=1',
   '/phrases?unit=v%3A0',
@@ -212,6 +214,19 @@ test('a chapter of the Pentateuch opens in the reader with its side of the P / n
   await expect(page.locator('.reader-text .src-differs')).toHaveCount(1)
   await page.getByRole('link', { name: "The split on the Pentateuch's sources page" }).click()
   await expect(page.getByRole('heading', { name: "The Pentateuch's sources", level: 1 })).toBeVisible()
+})
+
+test('a chapter with an exchange links to who speaks to whom, and on to the reader', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '1 exchange between two speakers' }).click()
+  await expect(page).toHaveURL(/\/speech\?view=dialogue&book=0$/)
+  await expect(page.getByRole('img', { name: /most active speakers of/ })).toBeVisible()
+  await expect(page.locator('.dlg-verdict.holds')).toHaveCount(2)
+  await expect(page.locator('.dlg-exchange')).toHaveCount(1)
+  await page.locator('.dlg-exchange').getByRole('link').click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=speakers/)
+  await expect(page.locator('.reader-legend')).toContainText('to 4872')
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

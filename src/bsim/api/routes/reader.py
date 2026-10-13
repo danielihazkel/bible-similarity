@@ -59,10 +59,19 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     vids = range(first, last + 1)
 
     # speech: speakers ordered by the words they speak here, the unknown speaker last
-    speech = _speech(queries.clauses_of(conn, first, last), display)
+    clauses = queries.clauses_of(conn, first, last)
+    speech = _speech(clauses, display)
     said = Counter(s for toks in speech.values() for s in toks.values())
     order = sorted(said, key=lambda s: (s is None, -said[s], s or ""))
     he = queries.gloss(conn, [s for s in order if s is not None])
+    # whom each speaks to here (§16.44), by words
+    to: dict[str | None, Counter] = defaultdict(Counter)
+    to_he: dict[str, str] = {}
+    for c in clauses:
+        a = c.get("addressee")
+        if c["txt"].endswith("Q") and a and a != c["speaker"]:
+            to[c["speaker"]][a] += len(json.loads(c["words"]))
+            to_he[a] = c.get("addressee_he") or a
     divine = state.cfg["syntax"]["divine"]
     speakers = [
         ReaderSpeaker(
@@ -70,6 +79,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             he=he.get(s) if s is not None else None,
             divine=s is not None and strong_key(s) in divine,
             n_words=said[s],
+            to=[to_he[a] for a, _ in to[s].most_common()],
         )
         for s in order
     ]

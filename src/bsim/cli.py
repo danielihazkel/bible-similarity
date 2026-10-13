@@ -149,6 +149,14 @@ def pentateuch(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def dialogue(config: ConfigOpt = None) -> None:
+    """Who speaks to whom: addressees, exchanges and three checks fixed in advance."""
+    from bsim.analysis.dialogue import run_dialogue
+
+    run_dialogue(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

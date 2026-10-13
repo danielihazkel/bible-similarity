@@ -43,7 +43,7 @@ sources:
     # features; no glosses (D5)
     files: [otype.tf, oslots.tf, book.tf, chapter.tf, verse.tf, g_cons_utf8.tf, lex.tf, sp.tf,
             typ.tf, kind.tf, domain.tf, txt.tf, function.tf, rela.tf, mother.tf, vt.tf, ps.tf,
-            gn.tf]
+            gn.tf, nu.tf, prs.tf, prs_ps.tf, prs_gn.tf, prs_nu.tf]
   etcbc_parallels:            # ETCBC parallels notebook (Text-Fabric), CC BY-NC 4.0: near-verbatim verse pairs (DESIGN.md §16.34)
     repo: ETCBC/parallels
     commit: d0b3b42ab79b35d1ef349bda9dc1e62b2a56486e   # master @ 2023-11-13 (data version 2021)
@@ -63,6 +63,10 @@ syntax:                       # `bsim syntax`: BHSA clauses and phrases on OSHB 
   neighbors: 10               # of it, kept per verse in the DB
   speech_speakers: 3          # /speech: speakers listed per book
   pass_through: ["1121"]      # a subject head passed over for a later speaker in its phrase (בני ישראל -> ישראל)
+  addressee_preps: [">L", "L"]          # an introduction's complement opened by these names the addressee (אל, ל)
+  addressee_object_verbs: ["YWH["]      # ... and so does the object of these verbs (צוה)
+  addressee_pass_through: ["1121", "113", "1004", "5650"]   # addressee heads passed over for a later one (בני ישראל, אדני המלך, בית ישראל, עבדך דוד)
+  addressee_turn_gap: 4       # clauses between a quotation's end and the next introduction for them to be one conversation
 
 text:
   kq: qere                    # qere | ketiv — reading used for text_model
@@ -820,6 +824,23 @@ pentateuch:                   # `bsim pentateuch`: an unsupervised P / non-P spl
   draws: 1000                 # circular shifts of the split within each book
   alpha: 0.05
   seed: 13
+
+dialogue:                     # `bsim dialogue`: who speaks to whom (DESIGN.md §16.44); everything below fixed before the first run
+  reliable: [explicit, vocative]   # addressee sources the checks rest on (hand check 32 / 32); all sources as a sensitivity
+  hand_check: {explicit: [21, 21], vocative: [11, 11], turn: [6, 9], pronoun: [4, 9]}   # right / judged: 50 random quotation starts drawn after the rules were set (§16.44)
+  kings: ["4428", "4430", "6547", "5019", "5020", "325"]   # addressed as a king: מלך (Hebrew, Aramaic), פרעה, נבוכדנצר (both), אחשורוש; God is `syntax.divine`
+  deference: ["5650", "519", "8198"]   # with a second-person suffix, "your servant": עבד, אמה, שפחה
+  particle: "4994"            # נא right after an imperative
+  exchange_gap: 4             # clauses between one quotation's end and the next one's start for them to be turns of one exchange
+  shuffles: 999               # "up" labels permuted over the quotations of each book; last turns drawn at random within each exchange
+  alpha: 0.05
+  seed: 13
+  checks:                     # one-sided, at `alpha`
+    deference: up             # "your servant" per 1,000 words is higher in speech to God or a king than to others (Revell 1996): a known answer
+    particle: up              # imperatives take נא more often when addressed to God or a king (the politeness reading; contested: Lambdin 1971 calls it logical, Shulman 1996 and Christiansen 2009 polite)
+    last_word: superior       # in exchanges between unequal parties (God > king > anyone else) the higher one speaks last more often than its share of the turns (open)
+  exchanges_page: 50          # /dialogue/exchanges default page size
+  network_nodes: 14           # /dialogue/book: most active parties drawn in a book's network
 
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10

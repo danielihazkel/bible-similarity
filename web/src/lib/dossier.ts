@@ -52,6 +52,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return `/psalms?unit=${u}`
     case 'pentateuch':
       return readLink(unit.unit_id, '?layers=sources')
+    case 'dialogue':
+      return `/speech?view=dialogue&book=${unit.book_id}`
     case 'meter':
       return unitLink(target, '?halves=1&meter=1')
     case 'speech':

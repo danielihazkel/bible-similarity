@@ -84,6 +84,14 @@ function Clause({ c, showSpeaker }: { c: ClauseInfo; showSpeaker: boolean }) {
           ) : (
             <span className="muted">{t.noSpeaker}</span>
           )}
+          {c.addressee && c.addressee_source && (
+            <>
+              {' '}
+              <Link to={lemmaLink(c.addressee)} className="addressee" title={t.addresseeTitle[c.addressee_source]}>
+                {t.addressee(c.addressee_source, c.addressee_he ?? c.addressee)}
+              </Link>
+            </>
+          )}
         </span>
       )}
     </li>

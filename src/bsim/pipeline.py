@@ -318,6 +318,12 @@ def stage_pentateuch(cfg: dict[str, Any], log: Log) -> None:
     run_pentateuch(cfg, log=log)
 
 
+def stage_dialogue(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.dialogue import run_dialogue
+
+    run_dialogue(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -378,6 +384,7 @@ STAGES: dict[str, str] = {
     "refrains": "stage_refrains",
     "psalms": "stage_psalms",
     "pentateuch": "stage_pentateuch",
+    "dialogue": "stage_dialogue",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -438,6 +445,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "refrains": (*_CORPUS, "segments"),
     "psalms": (*_CORPUS, "lexicon"),
     "pentateuch": (*_CORPUS,),
+    "dialogue": (*_CORPUS, "syntax"),
     "eval-etcbc": (
         *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
     ),

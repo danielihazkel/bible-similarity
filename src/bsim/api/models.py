@@ -1212,6 +1212,9 @@ class ClauseSegment(ApiModel):
     text: str  # the OSHB words, pointed
 
 
+AddresseeSource = Literal["explicit", "vocative", "pronoun", "turn"]
+
+
 class ClauseInfo(ApiModel):
     typ: str  # clause type: WayX, xQtX, NmCl, ...
     kind: str  # VC | NC | WP
@@ -1222,6 +1225,9 @@ class ClauseInfo(ApiModel):
     speaker_he: str | None
     speaker_source: Literal["explicit", "carried", "enclosing"] | None
     divine: bool
+    addressee: str | None  # lemma (§16.44)
+    addressee_he: str | None
+    addressee_source: AddresseeSource | None
     segments: list[ClauseSegment]
 
 
@@ -1243,12 +1249,19 @@ class UnitSyntax(ApiModel):
     neighbors: list[SyntaxNeighbor]  # verse units: verses built the same way
 
 
+class SpeakerTarget(ApiModel):
+    key: str  # addressee lemma, or `divine` (the divine names together)
+    he: str | None  # None for `divine`
+    n_quotes: int
+
+
 class SpeakerInfo(ApiModel):
     lemma: str
     he: str
     n_words: int
     n_explicit: int
     divine: bool
+    to: list[SpeakerTarget] = []  # whom they speak to most (`bsim dialogue`; a book's speakers)
 
 
 class SpeechShares(ApiModel):
@@ -1336,7 +1349,7 @@ DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
-    "meter", "roots", "refrains", "psalms", "pentateuch", "labels",
+    "meter", "roots", "refrains", "psalms", "pentateuch", "dialogue", "labels",
 ]  # fmt: skip
 
 
@@ -1615,6 +1628,7 @@ FindingKey = Literal[
     "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
     "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
     "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",
+    "dialogue_deference", "dialogue_particle", "dialogue_last_word",
 ]  # fmt: skip
 
 
@@ -1927,6 +1941,7 @@ class ReaderSpeaker(ApiModel):
     he: str | None
     divine: bool
     n_words: int  # display tokens of the unit spoken by them
+    to: list[str]  # Hebrew forms of whom they speak to here, the most words first (§16.44)
 
 
 class ReaderWordplay(ApiModel):
@@ -2028,6 +2043,62 @@ class PentateuchChaptersResponse(ApiModel):
     offset: int
     limit: int
     items: list[SourceChapter]
+
+
+class DialogueParty(ApiModel):
+    key: str  # lemma, or `divine` (the divine names together)
+    he: str | None  # None for `divine`
+    rank: int  # 2 God, 1 a king, 0 anyone else
+
+
+class DialogueBook(ApiModel):
+    book_id: int
+    n_quotes: int  # quotations with a speaker and an addressee
+    n_pairs: int
+    n_exchanges: int
+
+
+class DialogueResponse(ApiModel):
+    meta: dict[str, Any]  # counts, hand check, the three checks, sensitivity, opener, lengths
+    books: list[DialogueBook]
+
+
+class DialoguePair(ApiModel):
+    speaker: DialogueParty
+    addressee: DialogueParty
+    n_quotes: int
+    n_words: int
+    n_reliable: int  # quotations whose addressee is explicit or a vocative
+
+
+class DialogueBookResponse(ApiModel):
+    book_id: int
+    pairs: list[DialoguePair]  # the most quotations first
+
+
+class DialogueExchange(ApiModel):
+    exchange: int
+    book_id: int
+    unit_id: str  # the chapter it starts in
+    first: VerseLabel
+    last_verse: VerseLabel
+    a: DialogueParty  # who opens
+    b: DialogueParty
+    turns: int
+    a_turns: int
+    a_words: int
+    b_words: int
+    last: str  # the key of who speaks last
+
+
+class DialogueExchangesResponse(ApiModel):
+    book: int | None
+    party: str | None
+    unequal: bool
+    total: int
+    offset: int
+    limit: int
+    items: list[DialogueExchange]
 
 
 class ReaderSource(ApiModel):

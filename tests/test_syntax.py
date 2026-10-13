@@ -1,4 +1,6 @@
 import json
+import shutil
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -67,6 +69,49 @@ def write_bhsa(raw):
     tf(raw / "txt.tf", "12\tN\nNQ\nN\nNQ\n")
     tf(raw / "rela.tf", "12-15\tNA\n")
     tf(raw / "function.tf", "20\tConj\nPred\nSubj\nPred\nSubj\nConj\nPred\nCmpl\nPred\n")
+    tf(raw / "nu.tf", "NA\nsg\npl\nsg\nsg\nNA\nsg\nNA\npl\n")
+    tf(raw / "prs.tf", "n/a\nabsent\nabsent\nabsent\nabsent\nn/a\nabsent\nHM\nabsent\n")
+    tf(raw / "prs_ps.tf", "8\tp3\n")
+    tf(raw / "prs_gn.tf", "8\tm\n")
+    tf(raw / "prs_nu.tf", "8\tpl\n")
+
+
+def write_dialogue(raw):
+    """Gen 1:1 ויאמר משה אל אהרן | קום (Moses to Aaron); Gen 1:2 ויאמר אליו | שב (Moses again,
+    "to him": the other party, Aaron)."""
+    raw.mkdir(parents=True)
+    (raw / "otype.tf").write_text(
+        "@node\n\n1-10\tword\n11\tbook\n12\tchapter\n13-16\tclause\n17-20\tclause_atom\n"
+        "21-29\tphrase\n30-31\tverse\n",
+        encoding="utf-8",
+    )
+    slots = (
+        "11\t1-10\n1-10\n1-5\n6\n7-9\n10\n1-5\n6\n7-9\n10\n1\n2\n3\n4-5\n6\n7\n8\n9\n10\n"
+        "1-6\n7-10\n"
+    )
+    tf(raw / "oslots.tf", slots, kind="edge")
+    tf(raw / "mother.tf", "18\t17\n20\t19\n", kind="edge")
+    words = ["ו", "יאמר", "משה", "אל", "אהרן", "קום", "ו", "יאמר", "אליו", "שב"]
+    tf(raw / "g_cons_utf8.tf", "\n".join(words) + "\n")
+    tf(raw / "sp.tf", "conj\nverb\nnmpr\nprep\nnmpr\nverb\nconj\nverb\nprep\nverb\n")
+    tf(raw / "lex.tf", "W\n>MR[\nMCH/\n>L\n>HRN/\nQWM[\nW\n>MR[\n>L\nJCB[\n")
+    tf(raw / "ps.tf", "NA\np3\nNA\nNA\nNA\np2\nNA\np3\nNA\np2\n")
+    tf(raw / "gn.tf", "NA\nm\nm\nNA\nm\nm\nNA\nm\nNA\nm\n")
+    tf(raw / "nu.tf", "NA\nsg\nsg\nNA\nsg\nsg\nNA\nsg\nNA\nsg\n")
+    tf(raw / "vt.tf", "NA\nwayq\nNA\nNA\nNA\nimpv\nNA\nwayq\nNA\nimpv\n")
+    tf(raw / "prs.tf", "n/a\nabsent\nabsent\nn/a\nabsent\nabsent\nn/a\nabsent\nW\nabsent\n")
+    tf(raw / "prs_ps.tf", "9\tp3\n")
+    tf(raw / "prs_gn.tf", "9\tm\n")
+    tf(raw / "prs_nu.tf", "9\tsg\n")
+    tf(raw / "book.tf", "11\tGenesis\n30-31\tGenesis\n")
+    tf(raw / "chapter.tf", "30-31\t1\n")
+    tf(raw / "verse.tf", "30\t1\n2\n")
+    tf(raw / "typ.tf", "13\tWayX\nZIm0\nWay0\nZIm0\n21\tCP\nVP\nPrNP\nPP\nVP\nCP\nVP\nPP\nVP\n")
+    tf(raw / "kind.tf", "13-16\tVC\n")
+    tf(raw / "domain.tf", "13\tN\nQ\nN\nQ\n")
+    tf(raw / "txt.tf", "13\tN\nNQ\nN\nNQ\n")
+    tf(raw / "rela.tf", "13-16\tNA\n")
+    tf(raw / "function.tf", "21\tConj\nPred\nSubj\nCmpl\nPred\nConj\nPred\nCmpl\nPred\n")
 
 
 @pytest.fixture
@@ -99,9 +144,36 @@ def test_run_syntax(syntax_cfg):
     assert c.speech.tolist() == [False, True, False, True]
     assert (c.speaker[1], c.speaker_source[1]) == ("430", "explicit")
     assert pd.isna(c.speaker[3])  # ותאמר: אלהים is masculine
+    assert c.quote.tolist() == [-1, 13, -1, 15]
+    # ותאמר להם: "them" is the being named before at its level that agrees (אלהים, plural)
+    assert pd.isna(c.addressee[1])
+    assert (c.addressee[3], c.addressee_source[3]) == ("430", "pronoun")
     p = pd.read_parquet(f"{proc}/syntax_phrases.parquet")
     assert p[p.clause == 12].function.tolist() == ["Conj", "Pred", "Subj"]
     assert [list(w) for w in p[p.clause == 12].words] == [[0], [0], [1]]
+
+
+def test_addressees(syntax_cfg):
+    proc = syntax_cfg["paths"]["data_processed"]
+    raw = syntax_cfg["paths"]["data_raw"]
+    shutil.rmtree(Path(raw) / "bhsa")
+    write_dialogue(Path(raw) / "bhsa")
+    pd.DataFrame(
+        {
+            "verse_id": [0, 0, 0, 0, 0, 1, 1, 1],
+            "idx": [0, 1, 2, 3, 4, 0, 1, 2],
+            "surface": ["וַיֹּאמֶר", "מֹשֶׁה", "אֶל", "אַהֲרֹן", "קוּם", "וַיֹּאמֶר", "אֵלָיו", "שֵׁב"],
+            "content_lemmas": [["559"], ["4872"], ["413"], ["175"], ["6965"], ["559"], ["413"],
+                               ["3427"]],
+        }
+    ).to_parquet(f"{proc}/words.parquet")  # fmt: skip
+    run_syntax(syntax_cfg, log=lambda _: None)
+    c = pd.read_parquet(f"{proc}/syntax_clauses.parquet")
+    q = c[c.speech]
+    assert q.speaker.tolist() == ["4872", "4872"]
+    # אל אהרן names him; אליו, with Moses speaking again, is the one he spoke to before
+    assert q.addressee.tolist() == ["175", "175"]
+    assert q.addressee_source.tolist() == ["explicit", "pronoun"]
 
 
 def test_syntax_tokens():
@@ -167,6 +239,10 @@ def test_syntax_api(client):
     assert [n["unit"]["unit_id"] for n in v["neighbors"]] == ["v:1", "v:3", "v:5", "v:2"]
     speech = client.get("/api/syntax/v:1").json()["verses"][0]["clauses"][0]
     assert speech["speech"] and speech["divine"] and speech["speaker_he"] == "יהוה"
+    # to משה (not in the fixture's lemmas, so no Hebrew form)
+    assert (speech["addressee"], speech["addressee_he"], speech["addressee_source"]) == (
+        "4872", None, "explicit"
+    )
     chapter = client.get("/api/syntax/c:0:1").json()
     assert [x["verse_id"] for x in chapter["verses"]] == [0, 1] and chapter["neighbors"] == []
     assert client.get("/api/syntax/v:99").status_code == 404
@@ -175,11 +251,15 @@ def test_syntax_api(client):
     assert s["meta"]["clauses"] == 5
     books = {b["book_id"]: b for b in s["books"]}
     assert books[0]["speakers"][0] == {
-        "lemma": "3068", "he": "יהוה", "n_words": 3, "n_explicit": 3, "divine": True,
+        "lemma": "3068", "he": "יהוה", "n_words": 3, "n_explicit": 3, "divine": True, "to": [],
     }  # fmt: skip
     assert books[1]["speakers"][0]["n_explicit"] == 0  # carried
     b = client.get("/api/speech/book/0").json()
     assert [c["chapter"] for c in b["chapters"]] == [1, 2]
+    # whom each speaks to (`bsim dialogue`): the divine names are one party
+    assert b["speakers"][0]["to"] == [{"key": "4872", "he": "4872", "n_quotes": 2}]
+    m = client.get("/api/speech/book/1").json()["speakers"][0]
+    assert m["to"] == [{"key": "divine", "he": None, "n_quotes": 1}]
     assert client.get("/api/speech/book/9").status_code == 404
 
 

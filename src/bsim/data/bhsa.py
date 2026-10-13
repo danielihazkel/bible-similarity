@@ -20,7 +20,9 @@ matched (the hidden article, a ketiv / qere difference) to its neighbour's.
 
 `bsim syntax` writes, under `paths.data_processed`:
     syntax_clauses.parquet   clause, verse_id, words (OSHB idx list), typ, kind, domain, txt,
-                             rela, mother (clause or -1), speech (txt has Q), speaker
+                             rela, speech (txt has Q), speaker, speaker_source, quote
+                             (the quotation's first clause or -1), addressee,
+                             addressee_source
     syntax_phrases.parquet   phrase, clause, verse_id, words, typ, function
     syntax_meta.json         counts, alignment check, the speaker rule's coverage
 """
@@ -161,7 +163,9 @@ def load_bhsa(raw: Path, features: Iterable[str]) -> tuple[dict[str, tuple[int, 
 FEATURES = (
     "oslots", "book", "chapter", "verse", "g_cons_utf8", "lex", "sp",
     "typ", "kind", "domain", "txt", "rela", "function", "mother", "ps", "gn", "vt",
+    "nu", "prs", "prs_ps", "prs_gn", "prs_nu",
 )  # fmt: skip
+NO_SUFFIX = ("", "absent", "n/a", "NA")  # `prs` values meaning no pronominal suffix
 
 
 def verse_words(
@@ -186,8 +190,11 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     t0 = time.perf_counter()
     sc = cfg["syntax"]
     raw, proc = resolve_path(cfg, "data_raw") / "bhsa", resolve_path(cfg, "data_processed")
-    if not (raw / "otype.tf").exists():
-        raise RuntimeError(f"{raw} missing; run `bsim download --only syntax` first")
+    missing_tf = [f for f in ("otype", *FEATURES) if not (raw / f"{f}.tf").exists()]
+    if missing_tf:
+        raise RuntimeError(
+            f"{raw}: {', '.join(missing_tf)} missing; run `bsim download --only syntax` first"
+        )
     otype, F = load_bhsa(raw, FEATURES)
     log(f"BHSA: {otype['word'][1]} words, {otype['clause'][1] - otype['clause'][0] + 1} clauses")
     verses = pd.read_parquet(proc / "verses.parquet", columns=["verse_id", "oshb_osis"])
@@ -356,7 +363,7 @@ def _subject_head(slots: list[int], can_speak, lemma, pass_through: set[str]) ->
 
 
 def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
-    """Mark direct speech (`txt` ending in Q) and who speaks it.
+    """Mark direct speech (`txt` ending in Q), who speaks it and to whom.
 
     A quotation starts at a clause whose first clause atom's mother lies in a clause of a shallower
     text level: that clause introduces it (through an infinitive such as לאמר, `infinitive_hop`,
@@ -367,27 +374,57 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     out: collectives such as העם take plural verbs). A quotation with no speaker of its own (a
     first or second person introduction, ואמרת; no introduction found) is inside the nearest
     enclosing quotation that has one (`enclosing`). The speaker holds for the clauses of the
-    quotation at its level.
+    quotation at its level; `quote` is the quotation's first clause (-1 outside speech).
+
+    The addressee (§16.44) of a quotation is, in order: the head of its introduction's first
+    complement opened by one of `addressee_preps` (ויאמר יהוה אל משה) or, after a verb of
+    `addressee_object_verbs` (ויצו), of its object (`explicit`); else a being called by a
+    vocative in the quotation (`vocative`); else the pronoun on that preposition or verb (אליו,
+    ויצוהו), resolved (`pronoun`): "me" in an introduction inside a quotation is that quotation's
+    speaker and "you" its addressee; "him / them" is the other party of the previous quotation at
+    the same level ending at most `addressee_turn_gap` clauses before (its speaker, or its
+    addressee when the same person speaks again), else the nearest being named (subject, object
+    or complement) in the `speaker_lookback` clauses before the introduction at its level that is
+    not the speaker and agrees with the pronoun; else, for an introduction with no complement at
+    all (ויאמר, ויען), that same other party of the previous quotation (`turn`).
     """
     by_clause = {r["clause"]: r for r in clauses}
     pos = {r["clause"]: i for i, r in enumerate(clauses)}
     sp, lex, ps, gn = F["sp"], F["lex"], F["ps"], F["gn"]
+    prs, prs_ps, prs_gn, prs_nu, nu = (F[k] for k in ("prs", "prs_ps", "prs_gn", "prs_nu", "nu"))
+    pass_through = set(sc["pass_through"])
+    preps, obj_verbs = set(sc["addressee_preps"]), set(sc["addressee_object_verbs"])
+    to_through = set(sc["addressee_pass_through"])
     subj: dict[int, int] = {}  # clause -> head word (BHSA) of its subject phrase
     pred_lex: dict[int, str] = {}
     pred_ps: dict[int, str] = {}
     pred_verb: dict[int, int] = {}
+    to: dict[int, list[int]] = {}  # clause -> its first complement opened by a preposition
+    obj: dict[int, list[int]] = {}  # clause -> its first object (a phrase, or a verb's suffix)
+    voct: dict[int, list[int]] = {}  # clause -> its first vocative
+    named: dict[int, list[int]] = {}  # clause -> beings heading its subject, objects, complements
     for p in phrases:
-        c = p["clause"]
-        if p["function"] == "Subj" and c not in subj:
-            head = _subject_head(p["slots"], can_speak, lemma, set(sc["pass_through"]))
+        c, f, slots = p["clause"], p["function"], p["slots"]
+        if f == "Subj" and c not in subj:
+            head = _subject_head(slots, can_speak, lemma, pass_through)
             if head is not None:
                 subj[c] = head
-        if p["function"] in ("Pred", "PreO", "PreS") and c not in pred_lex:
-            verb = next((w for w in p["slots"] if sp.get(w) == "verb"), None)
+        if f in ("Pred", "PreO", "PreS") and c not in pred_lex:
+            verb = next((w for w in slots if sp.get(w) == "verb"), None)
             if verb is not None:
                 pred_lex[c] = lex.get(verb, "")
                 pred_ps[c] = ps.get(verb, "")
                 pred_verb[c] = verb
+        if f == "Cmpl" and c not in to and lex.get(slots[0]) in preps:
+            to[c] = slots
+        if f in ("Objc", "PreO") and c not in obj:
+            obj[c] = slots
+        if f == "Voct" and c not in voct:
+            voct[c] = slots
+        if f in ("Subj", "Objc", "Cmpl"):
+            head = _subject_head(slots, can_speak, lemma, to_through)
+            if head is not None:
+                named.setdefault(c, []).append(head)
 
     def agrees(verb: int | None, noun: int) -> bool:
         """Gender agrees where both are marked (a name is often unmarked)."""
@@ -395,6 +432,15 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
             return True
         a, b = gn.get(verb, ""), gn.get(noun, "")
         return not (a in ("m", "f") and b in ("m", "f") and a != b)
+
+    def agrees_pron(pron: int, noun: int) -> bool:
+        """A pronoun agrees in gender where both are marked; a singular one never stands for a
+        plural noun (a plural one may: collectives)."""
+        a, b = prs_gn.get(pron, ""), gn.get(noun, "")
+        if a in ("m", "f") and b in ("m", "f") and a != b:
+            return False
+        return not (prs_nu.get(pron) == "sg" and nu.get(noun) == "pl")
+
     mother = F["mother"]
 
     def intro_of(r) -> int | None:
@@ -428,29 +474,123 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     def enclosing(levels: dict, depth: int) -> tuple[str | None, str | None]:
         """The speaker of the nearest enclosing quotation, for one without its own (the words
         God gives Moses to say, ואמרת אלהם)."""
-        outer = [d for d, (s, _) in levels.items() if d < depth and s]
+        outer = [d for d, lv in levels.items() if d < depth and lv[0]]
         return (levels[max(outer)][0], "enclosing") if outer else (None, None)
 
-    level_speaker: dict[int, tuple[str | None, str | None]] = {}
+    # speakers, and the quotations in order: (first clause, depth, introduction, the quotation
+    # enclosing it, book)
+    quotes: list[tuple[int, int, int | None, int | None, str | None]] = []
+    levels: dict[int, tuple[str | None, str | None, int]] = {}  # depth -> speaker, source, quote
     book = None
     for r in clauses:
         b = F["book"].get(r["slots"][0])
         if b != book:
-            book, level_speaker = b, {}
+            book, levels = b, {}
         depth = len(r["txt"])
         r["speech"] = r["txt"].endswith("Q")
         # a quotation ends when the text is back at a shallower level
-        level_speaker = {d: s for d, s in level_speaker.items() if d <= depth}
-        r["speaker"], r["speaker_source"] = None, None
+        levels = {d: s for d, s in levels.items() if d <= depth}
+        r["speaker"], r["speaker_source"], r["quote"] = None, None, -1
         if r["speech"]:
             intro = intro_of(r)
-            if intro is not None:
-                head, source = subj.get(intro), "explicit"
-                if head is None:
-                    head, source = carried(intro), "carried"
-                spk = lemma(head) if head is not None else None
-                level_speaker = {d: s for d, s in level_speaker.items() if d < depth}
-                level_speaker[depth] = (spk, source) if spk else enclosing(level_speaker, depth)
-            elif depth not in level_speaker:
-                level_speaker[depth] = enclosing(level_speaker, depth)
-            r["speaker"], r["speaker_source"] = level_speaker[depth]
+            if intro is not None or depth not in levels:
+                if intro is not None:
+                    head, source = subj.get(intro), "explicit"
+                    if head is None:
+                        head, source = carried(intro), "carried"
+                    spk = lemma(head) if head is not None else None
+                    levels = {d: s for d, s in levels.items() if d < depth}
+                    who = (spk, source) if spk else enclosing(levels, depth)
+                else:
+                    who = enclosing(levels, depth)
+                outer = [d for d in levels if d < depth]
+                parent = levels[max(outer)][2] if outer else None
+                quotes.append((r["clause"], depth, intro, parent, book))
+                levels[depth] = (*who, r["clause"])
+            r["speaker"], r["speaker_source"], r["quote"] = levels[depth]
+
+    # addressees, quotation by quotation
+    end: dict[int, int] = {}
+    first_voct: dict[int, int] = {}
+    for i, r in enumerate(clauses):
+        q = r["quote"]
+        if q < 0:
+            continue
+        end[q] = i
+        if q not in first_voct and r["clause"] in voct:
+            head = _subject_head(voct[r["clause"]], can_speak, lemma, to_through)
+            if head is not None:
+                first_voct[q] = head
+    to_whom: dict[int, tuple[str | None, str | None]] = {}
+    last: dict[tuple[str | None, int], int] = {}  # (book, depth) -> the latest quotation
+
+    def other_party(q: int, at: int, depth: int, book: str | None) -> str | None:
+        """The other party of the previous quotation at this level, if it ended near `at`."""
+        prev = last.get((book, depth))
+        if prev is None or at - end[prev] > sc["addressee_turn_gap"]:
+            return None
+        spk = by_clause[q]["speaker"]
+        p_spk, p_to = by_clause[prev]["speaker"], to_whom[prev][0]
+        if not (spk and p_spk):
+            return None
+        return p_spk if p_spk != spk else (p_to if p_to != spk else None)
+
+    def named_before(intro: int, spk: str | None, pron: int, since: int = -1) -> str | None:
+        """The nearest being named before the introduction at its level (after `since`)."""
+        depth, seen = len(by_clause[intro]["txt"]), 0
+        for i in range(pos[intro] - 1, max(pos[intro] - 200, since, -1), -1):
+            c = clauses[i]
+            if len(c["txt"]) != depth:
+                continue
+            for head in named.get(c["clause"], []):
+                lem = lemma(head)
+                if lem and lem != spk and agrees_pron(pron, head):
+                    return lem
+            seen += 1
+            if seen >= sc["speaker_lookback"]:
+                return None
+        return None
+
+    for q, depth, intro, parent, book in quotes:
+        spk = by_clause[q]["speaker"]
+        addr: str | None = None
+        source: str | None = None
+        pron = None
+        phrase = None
+        if intro is not None:
+            phrase = to.get(intro)
+            if phrase is None and pred_lex.get(intro) in obj_verbs:
+                phrase = obj.get(intro)
+        if phrase is not None:
+            head = _subject_head(phrase, can_speak, lemma, to_through)
+            if head is not None:
+                addr, source = lemma(head), "explicit"
+            else:
+                pron = next((w for w in phrase if prs.get(w, "absent") not in NO_SUFFIX), None)
+        if addr is None and q in first_voct:
+            addr, source = lemma(first_voct[q]), "vocative"
+        if addr is None and pron is not None:
+            person = prs_ps.get(pron)
+            if person in ("p1", "p2"):
+                if parent is not None:
+                    addr = by_clause[parent]["speaker"] if person == "p1" else to_whom[parent][0]
+            else:
+                # someone named in the story since the previous quotation (a new scene), else
+                # the other party of that quotation, else anyone named before
+                prev = last.get((book, depth))
+                since = end[prev] if prev is not None else -1
+                addr = (
+                    named_before(intro, spk, pron, since)
+                    or other_party(q, pos[intro], depth, book)
+                    or named_before(intro, spk, pron)
+                )
+            source = "pronoun" if addr else None
+        if addr is None and phrase is None and intro is not None:
+            # a conversation in a story, not a messenger formula (כה אמר יהוה) inside a speech
+            if by_clause[intro]["txt"].endswith("N"):
+                addr = other_party(q, pos[intro], depth, book)
+            source = "turn" if addr else None
+        to_whom[q] = (addr, source)
+        last[(book, depth)] = q
+    for r in clauses:
+        r["addressee"], r["addressee_source"] = to_whom.get(r["quote"], (None, None))

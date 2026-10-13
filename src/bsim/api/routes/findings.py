@@ -321,6 +321,27 @@ def _pentateuch(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, floa
     return build
 
 
+def _dialogue(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Who speaks to whom: "your servant" and נא in speech addressed up (to God or a king), each
+    against the "up" label permuted within books; the last word in exchanges between unequal
+    parties, against the higher one's share of the turns."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        t = ((meta.get("dialogue") or {}).get("tests") or {}).get(test)
+        if not t or t.get("p") is None:
+            return None
+        if test == "last_word":
+            values = {k: t[k] for k in ("observed", "expected", "exchanges", "p")}
+            holds = t["observed"] > t["expected"] and t["p"] <= alpha
+        else:
+            values = {"up": t["up"]["rate"], "rest": t["rest"]["rate"], "p": t["p"],
+                      "up_count": t["up"]["count"], "up_of": t["up"]["of"]}  # fmt: skip
+            holds = t["observed"] > 0 and t["p"] <= alpha
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -346,6 +367,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _pentateuch("pentateuch_split", "kappa"),
     _pentateuch("pentateuch_genesis", "kappa_genesis"),
     _pentateuch("pentateuch_names", "names"),
+    _dialogue("dialogue_deference", "deference"),
+    _dialogue("dialogue_particle", "particle"),
+    _dialogue("dialogue_last_word", "last_word"),
     _allusions,
 ]
 

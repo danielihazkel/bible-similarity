@@ -20,6 +20,7 @@ from pydantic import BaseModel
 
 from bsim.api.routes import (
     core,
+    dialogue,
     meter,
     parallels,
     pentateuch,
@@ -57,6 +58,7 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "refrains": refrains.refrain_list,
     "psalms": psalms.psalm_list,
     "pentateuch": pentateuch.pentateuch_chapters,
+    "exchanges": dialogue.dialogue_exchanges,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",

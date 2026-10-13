@@ -513,7 +513,9 @@ CREATE TABLE clauses (
     txt TEXT NOT NULL,              -- text type with its embedding: N, NQ, ?NQQ, ...
     rela TEXT NOT NULL,             -- relation to another clause (NA: none)
     speaker TEXT,                   -- quotation: speaker lemma
-    speaker_source TEXT             -- explicit | carried
+    speaker_source TEXT,            -- explicit | carried | enclosing
+    addressee TEXT,                 -- quotation: addressee lemma (§16.44)
+    addressee_source TEXT           -- explicit | vocative | pronoun | turn
 );
 
 CREATE TABLE syntax_phrases (
@@ -1017,6 +1019,35 @@ CREATE TABLE dating_books (
     directional_he REAL NOT NULL,
     cohortative_wayyiqtol REAL NOT NULL,
     david_plene REAL NOT NULL
+);
+
+-- Who speaks to whom (`bsim dialogue`, §16.44): per book, speaker -> addressee (the divine names are
+-- one party, `divine`), and exchanges: runs of narrated turns between two parties.
+CREATE TABLE dialogue_pairs (
+    book_id INTEGER NOT NULL,
+    speaker TEXT NOT NULL,          -- lemma, or `divine`
+    addressee TEXT NOT NULL,
+    n_quotes INTEGER NOT NULL,
+    n_words INTEGER NOT NULL,
+    n_reliable INTEGER NOT NULL,    -- quotations whose addressee is explicit or a vocative
+    PRIMARY KEY (book_id, speaker, addressee)
+) WITHOUT ROWID;
+
+CREATE TABLE dialogue_exchanges (
+    exchange INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,      -- first verse
+    last_verse_id INTEGER NOT NULL,
+    a TEXT NOT NULL,                -- who opens (lemma or `divine`)
+    b TEXT NOT NULL,
+    a_rank INTEGER NOT NULL,        -- 2 God, 1 a king, 0 anyone else
+    b_rank INTEGER NOT NULL,
+    turns INTEGER NOT NULL,
+    a_turns INTEGER NOT NULL,
+    a_words INTEGER NOT NULL,
+    b_words INTEGER NOT NULL,
+    last TEXT NOT NULL              -- who speaks last
 );
 
 CREATE TABLE meta (

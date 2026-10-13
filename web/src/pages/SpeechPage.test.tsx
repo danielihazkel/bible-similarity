@@ -10,7 +10,7 @@ import { SpeechPage } from './SpeechPage'
 
 const BOOKS: Book[] = [{ book_id: 2, name: 'Leviticus', he_name: 'ויקרא', osis: 'Lev', section: 'Torah', n_chapters: 27 }]
 const shares = { narration: 0.1, speech: 0.83, discourse: 0, divine: 0.74, attributed: 0.77, n_words: 11938 }
-const GOD = { lemma: '3068', he: 'יהוה', n_words: 8000, n_explicit: 2000, divine: true }
+const GOD = { lemma: '3068', he: 'יהוה', n_words: 8000, n_explicit: 2000, divine: true, to: [] }
 const SPEECH: SpeechResponse = {
   meta: { speaker: { explicit: 17925, carried: 8700, enclosing: 4696, unknown: 21616 } },
   books: [{ book_id: 2, ...shares, speakers: [GOD] }],
@@ -18,7 +18,10 @@ const SPEECH: SpeechResponse = {
 const LEV: SpeechBookResponse = {
   book_id: 2,
   chapters: [{ unit_id: 'c:2:1', chapter: 1, ...shares }],
-  speakers: [GOD, { lemma: '4872', he: 'משה', n_words: 300, n_explicit: 120, divine: false }],
+  speakers: [
+    { ...GOD, to: [{ key: '4872', he: 'משה', n_quotes: 12 }] },
+    { lemma: '4872', he: 'משה', n_words: 300, n_explicit: 120, divine: false, to: [{ key: 'divine', he: null, n_quotes: 3 }] },
+  ],
 }
 const SAMUEL: Book = { book_id: 7, name: 'I Samuel', he_name: 'שמואל א', osis: '1Sam', section: 'Prophets', n_chapters: 31 }
 const CHR: Book = { book_id: 37, name: 'I Chronicles', he_name: 'דברי הימים א', osis: '1Chr', section: 'Writings', n_chapters: 29 }
@@ -64,17 +67,17 @@ const SYNTAX: UnitSyntax = {
       clauses: [
         {
           typ: 'Way0', kind: 'VC', txt: 'N', rela: 'NA', speech: false, speaker: null, speaker_he: null,
-          speaker_source: null, divine: false,
+          speaker_source: null, divine: false, addressee: null, addressee_he: null, addressee_source: null,
           segments: [{ function: 'Pred', typ: 'VP', text: 'וַיִּקְרָא' }, { function: 'Cmpl', typ: 'PP', text: 'אֶל מֹשֶׁה' }],
         },
         {
           typ: 'ZIm0', kind: 'VC', txt: 'NQ', rela: 'NA', speech: true, speaker: '3068', speaker_he: 'יהוה',
-          speaker_source: 'explicit', divine: true,
+          speaker_source: 'explicit', divine: true, addressee: '4872', addressee_he: 'משה', addressee_source: 'explicit',
           segments: [{ function: 'Pred', typ: 'VP', text: 'דַּבֵּר' }],
         },
         {
           typ: 'WQt0', kind: 'VC', txt: 'NQ', rela: 'NA', speech: true, speaker: '3068', speaker_he: 'יהוה',
-          speaker_source: 'explicit', divine: true,
+          speaker_source: 'explicit', divine: true, addressee: '4872', addressee_he: 'משה', addressee_source: 'explicit',
           segments: [{ function: 'Pred', typ: 'VP', text: 'וְאָמַרְתָּ' }],
         },
       ],
@@ -143,6 +146,9 @@ describe('SpeechPage', () => {
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/speech?book=2'))
     expect(await screen.findByRole('link', { name: 'משה' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Leviticus 1' }).getAttribute('href')).toBe('/unit/c%3A2%3A1?syntax=1')
+    // whom each speaks to (God: the divine names together)
+    expect(screen.getByTitle('יהוה → משה: 12 quotations').textContent).toBe('משה')
+    expect(screen.getByTitle('משה → God: 3 quotations').textContent).toBe('God')
   })
 
   it('reads in Hebrew', async () => {
@@ -191,6 +197,9 @@ describe('SyntaxPanel', () => {
     expect(screen.getByText('imperative first')).toBeTruthy()
     expect(screen.getAllByText('predicate')).toHaveLength(3)
     expect(screen.getAllByRole('link', { name: 'spoken by יהוה' })).toHaveLength(1)
+    const to = screen.getAllByRole('link', { name: 'to משה' })
+    expect(to).toHaveLength(1)
+    expect(to[0].getAttribute('title')).toMatch(/right 21 of 21 times/)
     expect(screen.getByRole('link', { name: /^Leviticus 4:1/ }).getAttribute('href')).toBe('/unit/v%3A2700')
   })
 })

@@ -27,6 +27,7 @@ import { metHe } from './pages/meter'
 import { rootHe } from './pages/roots'
 import { readerHe } from './pages/reader'
 import { pentHe } from './pages/pentateuch'
+import { dlgHe } from './pages/dialogue'
 import { psaHe } from './pages/psalms'
 import { refHe } from './pages/refrains'
 import { echoHe } from './pages/echoes'
@@ -429,6 +430,7 @@ export const he: Messages = {
   ref: refHe,
   psa: psaHe,
   pent: pentHe,
+  dlg: dlgHe,
   echo: echoHe,
   find: findHe,
   ov: ovHe,

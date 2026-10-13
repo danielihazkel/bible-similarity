@@ -234,14 +234,17 @@ def write_inputs(cfg, tmp_path):
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):
         for mode, name in final_systems(cfg, unit_type).items():
             write_topk(art, unit_type, name, rows, fused=mode == "fused")
-    # BHSA syntax (`bsim syntax`): Genesis 1:1 narration, 1:2 speech by יהוה, Exodus by משה
+    # BHSA syntax (`bsim syntax`): Genesis 1:1 narration, 1:2 speech by יהוה to משה, Exodus by
+    # משה to יהוה
     pd.DataFrame(
         [
-            (10, 0, [0, 1], "xQtX", "VC", "N", "N", "NA", None, None),
-            (11, 0, [2, 3], "WayX", "VC", "N", "N", "NA", None, None),
-            (12, 1, [0, 1, 2], "NmCl", "NC", "Q", "NQ", "NA", "3068", "explicit"),
-            (13, 3, [0, 1], "NmCl", "NC", "Q", "Q", "NA", None, None),
-            (14, 5, [0, 1], "NmCl", "NC", "Q", "NQ", "NA", "4872", "carried"),
+            (10, 0, [0, 1], "xQtX", "VC", "N", "N", "NA", None, None, -1, None, None),
+            (11, 0, [2, 3], "WayX", "VC", "N", "N", "NA", None, None, -1, None, None),
+            (12, 1, [0, 1, 2], "NmCl", "NC", "Q", "NQ", "NA", "3068", "explicit", 12, "4872",
+             "explicit"),
+            (13, 3, [0, 1], "NmCl", "NC", "Q", "Q", "NA", None, None, 13, None, None),
+            (14, 5, [0, 1], "NmCl", "NC", "Q", "NQ", "NA", "4872", "carried", 14, "3068",
+             "pronoun"),
         ],
         columns=[
             "clause",
@@ -254,6 +257,9 @@ def write_inputs(cfg, tmp_path):
             "rela",
             "speaker",
             "speaker_source",
+            "quote",
+            "addressee",
+            "addressee_source",
         ],
     ).assign(speech=lambda d: d.txt.str.endswith("Q")).to_parquet(proc / "syntax_clauses.parquet")
     pd.DataFrame(
@@ -964,6 +970,60 @@ def write_inputs(cfg, tmp_path):
                           "names": 0.05, "kappa_p": 0.01, "kappa_genesis_p": 0.02,
                           "names_p": 0.3}],
                 "prefixes": {"l": "ל"},
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    # who speaks to whom (`bsim dialogue`): God and Moses in book 0 (one exchange, Moses last),
+    # Moses to God in book 1
+    dl_dir = art / "dialogue"
+    dl_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, "divine", "4872", 2, 9, 1), (0, "4872", "divine", 1, 4, 0),
+         (1, "4872", "divine", 1, 2, 0)],
+        columns=["book_id", "speaker", "addressee", "n_quotes", "n_words", "n_reliable"],
+    ).to_parquet(dl_dir / "pairs.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, 0, 1, 1, 2, "divine", "4872", 2, 0, 3, 2, 9, 4, "4872")],
+        columns=["exchange", "book_id", "chapter", "verse_id", "last_verse_id", "a", "b",
+                 "a_rank", "b_rank", "turns", "a_turns", "a_words", "b_words", "last"],
+    ).to_parquet(dl_dir / "exchanges.parquet")  # fmt: skip
+    (dl_dir / "dialogue.meta.json").write_text(
+        json.dumps(
+            {
+                "quotations": 3, "with_addressee": 2,
+                "addressee": {"explicit": 1, "vocative": 0, "pronoun": 1, "turn": 0},
+                "reliable": ["explicit", "vocative"],
+                "hand_check": {"explicit": [21, 21], "vocative": [11, 11], "turn": [6, 9],
+                               "pronoun": [4, 9]},
+                "pairs": 3, "exchanges": 1, "unequal": 1, "shuffles": 999, "alpha": 0.05,
+                "tests": {
+                    "deference": {"observed": 11.6, "null": 1.1, "p": 0.001, "holds": True,
+                                  "up": {"rate": 13.1, "count": 99, "of": 7548, "quotations": 229},
+                                  "rest": {"rate": 1.5, "count": 108, "of": 70124,
+                                           "quotations": 974}},
+                    "particle": {"observed": 0.098, "null": 0.002, "p": 0.003, "holds": True,
+                                 "up": {"rate": 0.14, "count": 26, "of": 185, "quotations": 229},
+                                 "rest": {"rate": 0.043, "count": 86, "of": 2008,
+                                          "quotations": 974}},
+                    "last_word": {"observed": 96, "expected": 89.42, "exchanges": 170,
+                                  "p": 0.166, "holds": False},
+                },
+                "sensitivity": {
+                    "deference": {"observed": 10.4, "null": 0.4, "p": 0.001,
+                                  "up": {"rate": 11.9, "count": 113, "of": 9507,
+                                         "quotations": 381},
+                                  "rest": {"rate": 1.5, "count": 125, "of": 82452,
+                                           "quotations": 1733}},
+                    "particle": {"observed": 0.081, "null": -0.01, "p": 0.001,
+                                 "up": {"rate": 0.13, "count": 30, "of": 231, "quotations": 381},
+                                 "rest": {"rate": 0.049, "count": 117, "of": 2382,
+                                          "quotations": 1733}},
+                },
+                "opener": {"observed": 84, "expected": 89.42, "exchanges": 170, "p": 0.82},
+                "lengths": {"longer": 75, "shorter": 90, "median_higher": 11.7,
+                            "median_lower": 11.0, "p": 0.28},
             },  # fmt: skip
             ensure_ascii=False,
         ),

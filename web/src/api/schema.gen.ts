@@ -1825,6 +1825,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dialogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dialogue
+         * @description The addressees found and checked by hand, the three checks fixed in advance, and per book
+         *     how much speech has an addressee.
+         */
+        get: operations["dialogue_api_dialogue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dialogue/book/{book_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dialogue Book
+         * @description Who speaks to whom in a book: speaker -> addressee pairs, the most quotations first (empty
+         *     for a book without addressed speech).
+         */
+        get: operations["dialogue_book_api_dialogue_book__book_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dialogue/exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dialogue Exchanges
+         * @description Exchanges in canon order: runs of narrated turns between two parties (`party`: one of them,
+         *     a lemma or `divine`; `unequal`: God or a king with someone of lower rank).
+         */
+        get: operations["dialogue_exchanges_api_dialogue_exchanges_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -2411,6 +2474,12 @@ export interface components {
             speaker_source: ("explicit" | "carried" | "enclosing") | null;
             /** Divine */
             divine: boolean;
+            /** Addressee */
+            addressee: string | null;
+            /** Addressee He */
+            addressee_he: string | null;
+            /** Addressee Source */
+            addressee_source: ("explicit" | "vocative" | "pronoun" | "turn") | null;
             /** Segments */
             segments: components["schemas"]["ClauseSegment"][];
         };
@@ -2573,6 +2642,93 @@ export interface components {
             /** Books */
             books: components["schemas"]["DatingBook"][];
         };
+        /** DialogueBook */
+        DialogueBook: {
+            /** Book Id */
+            book_id: number;
+            /** N Quotes */
+            n_quotes: number;
+            /** N Pairs */
+            n_pairs: number;
+            /** N Exchanges */
+            n_exchanges: number;
+        };
+        /** DialogueBookResponse */
+        DialogueBookResponse: {
+            /** Book Id */
+            book_id: number;
+            /** Pairs */
+            pairs: components["schemas"]["DialoguePair"][];
+        };
+        /** DialogueExchange */
+        DialogueExchange: {
+            /** Exchange */
+            exchange: number;
+            /** Book Id */
+            book_id: number;
+            /** Unit Id */
+            unit_id: string;
+            first: components["schemas"]["VerseLabel"];
+            last_verse: components["schemas"]["VerseLabel"];
+            a: components["schemas"]["DialogueParty"];
+            b: components["schemas"]["DialogueParty"];
+            /** Turns */
+            turns: number;
+            /** A Turns */
+            a_turns: number;
+            /** A Words */
+            a_words: number;
+            /** B Words */
+            b_words: number;
+            /** Last */
+            last: string;
+        };
+        /** DialogueExchangesResponse */
+        DialogueExchangesResponse: {
+            /** Book */
+            book: number | null;
+            /** Party */
+            party: string | null;
+            /** Unequal */
+            unequal: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["DialogueExchange"][];
+        };
+        /** DialoguePair */
+        DialoguePair: {
+            speaker: components["schemas"]["DialogueParty"];
+            addressee: components["schemas"]["DialogueParty"];
+            /** N Quotes */
+            n_quotes: number;
+            /** N Words */
+            n_words: number;
+            /** N Reliable */
+            n_reliable: number;
+        };
+        /** DialogueParty */
+        DialogueParty: {
+            /** Key */
+            key: string;
+            /** He */
+            he: string | null;
+            /** Rank */
+            rank: number;
+        };
+        /** DialogueResponse */
+        DialogueResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Books */
+            books: components["schemas"]["DialogueBook"][];
+        };
         /** DiscoveriesResponse */
         DiscoveriesResponse: {
             /** Unit Type */
@@ -2697,7 +2853,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2949,7 +3105,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word";
             /**
              * Verdict
              * @enum {string}
@@ -4022,6 +4178,8 @@ export interface components {
             divine: boolean;
             /** N Words */
             n_words: number;
+            /** To */
+            to: string[];
         };
         /** ReaderVerse */
         ReaderVerse: {
@@ -4915,6 +5073,20 @@ export interface components {
             n_explicit: number;
             /** Divine */
             divine: boolean;
+            /**
+             * To
+             * @default []
+             */
+            to: components["schemas"]["SpeakerTarget"][];
+        };
+        /** SpeakerTarget */
+        SpeakerTarget: {
+            /** Key */
+            key: string;
+            /** He */
+            he: string | null;
+            /** N Quotes */
+            n_quotes: number;
         };
         /** SpeechBook */
         SpeechBook: {
@@ -8386,6 +8558,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PentateuchChaptersResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dialogue_api_dialogue_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DialogueResponse"];
+                };
+            };
+        };
+    };
+    dialogue_book_api_dialogue_book__book_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DialogueBookResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dialogue_exchanges_api_dialogue_exchanges_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                party?: string | null;
+                unequal?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DialogueExchangesResponse"];
                 };
             };
             /** @description Validation Error */

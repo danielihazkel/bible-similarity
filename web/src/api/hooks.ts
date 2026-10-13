@@ -2,6 +2,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { hasHebrew } from '../lib/hebrew'
 import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
+  DialogueBookResponse,
+  DialogueExchangesResponse,
+  DialogueResponse,
   Acrostic,
   AcrosticsResponse,
   ReaderResponse,
@@ -450,6 +453,36 @@ export const usePentateuchChapters = (book: number | undefined, limit: number, o
   useQuery({
     queryKey: ['pentateuch-chapters', book, limit, offset],
     queryFn: ({ signal }) => getJson<PentateuchChaptersResponse>('/pentateuch/chapters', { book, limit, offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useDialogue = () =>
+  useQuery({
+    queryKey: ['dialogue'],
+    queryFn: ({ signal }) => getJson<DialogueResponse>('/dialogue', {}, signal),
+    ...forever,
+  })
+
+export const useDialogueBook = (bookId: number | undefined) =>
+  useQuery({
+    queryKey: ['dialogue-book', bookId],
+    queryFn: ({ signal }) => getJson<DialogueBookResponse>(`/dialogue/book/${bookId}`, {}, signal),
+    enabled: bookId !== undefined,
+    ...forever,
+  })
+
+export const useDialogueExchanges = (
+  book: number | undefined,
+  party: string | undefined,
+  unequal: boolean,
+  limit: number,
+  offset: number,
+) =>
+  useQuery({
+    queryKey: ['dialogue-exchanges', book, party, unequal, limit, offset],
+    queryFn: ({ signal }) =>
+      getJson<DialogueExchangesResponse>('/dialogue/exchanges', { book, party, unequal: unequal ? 'true' : undefined, limit, offset }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

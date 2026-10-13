@@ -13,6 +13,7 @@ from bsim.api.models import (
     ClauseInfo,
     ClauseSegment,
     SpeakerInfo,
+    SpeakerTarget,
     SpeechBook,
     SpeechBookResponse,
     SpeechChapter,
@@ -90,6 +91,9 @@ def unit_syntax(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             ClauseInfo(
                 **{k: c[k] for k in ("typ", "kind", "txt", "rela", "speaker", "speaker_he")},
                 speaker_source=c["speaker_source"],
+                addressee=c.get("addressee"),
+                addressee_he=c.get("addressee_he"),
+                addressee_source=c.get("addressee_source"),
                 speech=c["txt"].endswith("Q"),
                 divine=_divine(state, c["speaker"]),
                 segments=segments(
@@ -123,14 +127,24 @@ def unit_syntax(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     return {"verses": verses, "neighbors": neighbors}
 
 
-def _speakers(state: State, rows: list[dict[str, Any]]) -> list[SpeakerInfo]:
-    return [
-        SpeakerInfo(
-            **{k: r[k] for k in ("lemma", "he", "n_words", "n_explicit")},
-            divine=_divine(state, r["lemma"]),
-        )
-        for r in rows
-    ]
+def _speakers(
+    state: State, rows: list[dict[str, Any]], targets: dict[str, list[dict[str, Any]]] | None = None
+) -> list[SpeakerInfo]:
+    """Speakers, with whom each speaks to most when `targets` (speaker key -> pairs) is given."""
+    top = state.cfg["syntax"]["speech_speakers"]
+    out = []
+    for r in rows:
+        divine = _divine(state, r["lemma"])
+        to = (targets or {}).get("divine" if divine else r["lemma"], [])[:top]
+        out.append(
+            SpeakerInfo(
+                **{k: r[k] for k in ("lemma", "he", "n_words", "n_explicit")},
+                divine=divine,
+                to=[SpeakerTarget(key=t["addressee"], he=t["he"], n_quotes=t["n_quotes"])
+                    for t in to],
+            )
+        )  # fmt: skip
+    return out
 
 
 @router.get("/speech", response_model=SpeechResponse)
@@ -165,8 +179,21 @@ def speech_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
             SpeechChapter(unit_id=c["unit_id"], chapter=c["chapter"], **{k: c[k] for k in SHARES})
             for c in chapters
         ],
-        "speakers": _speakers(state, queries.speakers(conn, book_id)),
+        "speakers": _speakers(
+            state, queries.speakers(conn, book_id), _targets(conn, book_id)
+        ),
     }
+
+
+def _targets(conn: Any, book_id: int) -> dict[str, list[dict[str, Any]]]:
+    """speaker key -> whom they speak to in the book, with the addressee's Hebrew form."""
+    targets = queries.dialogue_targets(conn, book_id)
+    he = queries.gloss(conn, [t["addressee"] for ts in targets.values() for t in ts])
+
+    def form(key: str) -> str | None:
+        return None if key == "divine" else he.get(key, key)
+
+    return {k: [{**t, "he": form(t["addressee"])} for t in ts] for k, ts in targets.items()}
 
 
 @router.get("/voices", response_model=VoicesResponse)

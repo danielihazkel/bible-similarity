@@ -49,6 +49,7 @@ Derived columns:
 - `psalms`, `psalm_verses` + `meta.psalms`: `bsim psalms` (empty without it).
 - `pentateuch_verses`, `pentateuch_chapters` + `meta.pentateuch`: `bsim pentateuch` (empty
   without it).
+- `dialogue_pairs`, `dialogue_exchanges` + `meta.dialogue`: `bsim dialogue` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -149,6 +150,9 @@ INDEXES = (
     "CREATE INDEX refrain_verses_by_verse ON refrain_verses (verse_id)",
     "CREATE INDEX psalm_verses_by_unit ON psalm_verses (unit_id, verse_id)",
     "CREATE INDEX pentateuch_chapters_by_book ON pentateuch_chapters (book_id, chapter)",
+    "CREATE INDEX dialogue_pairs_by_book ON dialogue_pairs (book_id, n_quotes DESC)",
+    "CREATE INDEX dialogue_exchanges_by_book ON dialogue_exchanges (book_id, verse_id)",
+    "CREATE INDEX dialogue_exchanges_by_verse ON dialogue_exchanges (verse_id, last_verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -363,6 +367,8 @@ TABLE_COLUMNS = {
         "rela",
         "speaker",
         "speaker_source",
+        "addressee",
+        "addressee_source",
     ],
     "syntax_phrases": ["phrase", "clause", "verse_id", "words", "typ", "function"],
     "syntax_neighbors": ["verse_id", "rank", "tgt", "score"],
@@ -527,6 +533,23 @@ TABLE_COLUMNS = {
     ],
     "psalm_verses": ["verse_id", "unit_id", "verse", "words", "distress", "praise"],
     "pentateuch_verses": ["verse_id", "side", "prob", "reference", "core"],
+    "dialogue_pairs": ["book_id", "speaker", "addressee", "n_quotes", "n_words", "n_reliable"],
+    "dialogue_exchanges": [
+        "exchange",
+        "book_id",
+        "chapter",
+        "verse_id",
+        "last_verse_id",
+        "a",
+        "b",
+        "a_rank",
+        "b_rank",
+        "turns",
+        "a_turns",
+        "a_words",
+        "b_words",
+        "last",
+    ],
     "pentateuch_chapters": [
         "unit_id",
         "book_id",
@@ -1061,6 +1084,9 @@ def _syntax_inputs(cfg: dict[str, Any], proc: Path, verses: pd.DataFrame) -> dic
         return {**empty, "syntax_meta": {}}
     sc = cfg["syntax"]
     clauses = pd.read_parquet(path)
+    for col in ("addressee", "addressee_source"):  # from before §16.44
+        if col not in clauses.columns:
+            clauses[col] = None
     phrases = pd.read_parquet(proc / "syntax_phrases.parquet")
     chapters, books, speakers = speech_tables(clauses, verses, sc["divine"])
     topk = resolve_path(cfg, "artifacts") / "topk" / "verse" / f"{sc['system']}.parquet"
@@ -1073,7 +1099,9 @@ def _syntax_inputs(cfg: dict[str, Any], proc: Path, verses: pd.DataFrame) -> dic
         nb = empty["syntax_neighbors"]
     as_json = lambda col: [json.dumps([int(i) for i in w]) for w in col]  # noqa: E731
     return {
-        "clauses": clauses.assign(words=as_json(clauses.words), rela=clauses.rela.fillna("")),
+        "clauses": clauses.assign(words=as_json(clauses.words), rela=clauses.rela.fillna(""))[
+            TABLE_COLUMNS["clauses"]
+        ],
         "syntax_phrases": phrases.assign(words=as_json(phrases.words)),
         "syntax_neighbors": nb[TABLE_COLUMNS["syntax_neighbors"]],
         "speech_chapters": chapters[TABLE_COLUMNS["speech_chapters"]],
@@ -1285,6 +1313,13 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
             core=lambda d: d.core.astype(int)
         )
     out["pentateuch_meta"] = _read_json(src_dir / "pentateuch.meta.json")
+    dl_dir = resolve_path(cfg, "artifacts") / "dialogue"
+    for name, table in (("pairs", "dialogue_pairs"), ("exchanges", "dialogue_exchanges")):
+        path = dl_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        cols = TABLE_COLUMNS[table]
+        out[table] = df[cols] if len(df) else pd.DataFrame(columns=cols)
+    out["dialogue_meta"] = _read_json(dl_dir / "dialogue.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1509,6 +1544,8 @@ def _write_db(
             "psalm_verses": inputs["psalm_verses"],
             "pentateuch_verses": inputs["pentateuch_verses"],
             "pentateuch_chapters": inputs["pentateuch_chapters"],
+            "dialogue_pairs": inputs["dialogue_pairs"],
+            "dialogue_exchanges": inputs["dialogue_exchanges"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1713,6 +1750,26 @@ def _write_db(
                 "known_share",
                 "regular",
                 "turns",
+            )
+        }
+        dlm = inputs["dialogue_meta"]
+        meta["dialogue"] = {
+            k: dlm.get(k)
+            for k in (
+                "quotations",
+                "with_addressee",
+                "addressee",
+                "reliable",
+                "hand_check",
+                "pairs",
+                "exchanges",
+                "unequal",
+                "shuffles",
+                "alpha",
+                "tests",
+                "sensitivity",
+                "opener",
+                "lengths",
             )
         }
         ptm = inputs["pentateuch_meta"]

@@ -8,6 +8,7 @@ import { hebrewNumeral } from '../lib/hebrew'
 import { lemmaLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { DialogueView } from './DialogueView'
 import { VoicesView } from './VoicesView'
 
 const PARTS = ['narration', 'divine', 'other', 'unattributed', 'discourse'] as const
@@ -25,24 +26,25 @@ function parts(s: SpeechShares): Record<Part, number> {
 
 const pct = (x: number) => Math.round(x * 100)
 
-type View = 'books' | 'voices'
+type View = 'books' | 'voices' | 'dialogue'
+const VIEWS: View[] = ['books', 'voices', 'dialogue']
 
 /** Who speaks: narration, direct speech and its speakers per book and chapter (DESIGN.md §16.26),
  * and the speakers' voices (§16.28). */
 export function SpeechPage() {
   const t = useLocale().m.syn
   const [params, update] = useQueryParams()
-  const view: View = params.get('view') === 'voices' ? 'voices' : 'books'
+  const view: View = VIEWS.find((v) => v === params.get('view')) ?? 'books'
   return (
     <div className="page speech-page">
       <h1>{t.title}</h1>
       <Segmented<View>
         label={t.view}
         value={view}
-        onChange={(v) => update({ view: v === 'books' ? null : v, voice: null, book: null })}
-        options={(['books', 'voices'] as const).map((v) => ({ value: v, label: t.tabs[v] }))}
+        onChange={(v) => update({ view: v === 'books' ? null : v, voice: null, book: null, party: null, unequal: null, page: null })}
+        options={VIEWS.map((v) => ({ value: v, label: t.tabs[v] }))}
       />
-      {view === 'voices' ? <VoicesView /> : <SpeechBooks />}
+      {view === 'voices' ? <VoicesView /> : view === 'dialogue' ? <DialogueView /> : <SpeechBooks />}
     </div>
   )
 }
@@ -162,7 +164,8 @@ function BookSpeech({ bookId, name }: { bookId: number; name: string }) {
 }
 
 function Speaker({ s }: { s: SpeakerInfo }) {
-  const t = useLocale().m.syn
+  const { m } = useLocale()
+  const t = m.syn
   return (
     <li>
       <Link to={lemmaLink(s.lemma)} lang="he" dir="rtl">
@@ -171,6 +174,24 @@ function Speaker({ s }: { s: SpeakerInfo }) {
       <span className="muted small" title={t.explicitShare(s.n_explicit, s.n_words)}>
         {t.words(s.n_words)}
       </span>
+      {s.to.length > 0 && (
+        <span className="small speaker-to">
+          {' · '}
+          {t.toWord}{' '}
+          {s.to.map((x, i) => (
+            <span key={x.key} title={m.dlg.pairTitle(s.he, x.he ?? m.dlg.god, x.n_quotes)}>
+              {i > 0 && ', '}
+              {x.he ? (
+                <span lang="he" dir="rtl">
+                  {x.he}
+                </span>
+              ) : (
+                m.dlg.god
+              )}
+            </span>
+          ))}
+        </span>
+      )}
     </li>
   )
 }

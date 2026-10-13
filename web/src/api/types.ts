@@ -1257,6 +1257,8 @@ export interface ClauseSegment {
 }
 
 export type SpeakerSource = 'explicit' | 'carried' | 'enclosing'
+/** how the addressee was found (DESIGN.md §16.44) */
+export type AddresseeSource = 'explicit' | 'vocative' | 'pronoun' | 'turn'
 
 export interface ClauseInfo {
   typ: string
@@ -1269,6 +1271,10 @@ export interface ClauseInfo {
   speaker_he: string | null
   speaker_source: SpeakerSource | null
   divine: boolean
+  /** lemma of whom the quotation is addressed to */
+  addressee: string | null
+  addressee_he: string | null
+  addressee_source: AddresseeSource | null
   segments: ClauseSegment[]
 }
 
@@ -1290,12 +1296,22 @@ export interface UnitSyntax {
   neighbors: SyntaxNeighbor[]
 }
 
+export interface SpeakerTarget {
+  /** addressee lemma, or `divine` (the divine names together) */
+  key: string
+  /** null for `divine` */
+  he: string | null
+  n_quotes: number
+}
+
 export interface SpeakerInfo {
   lemma: string
   he: string
   n_words: number
   n_explicit: number
   divine: boolean
+  /** whom they speak to most (a book's speakers; empty in the book list) */
+  to: SpeakerTarget[]
 }
 
 export interface SpeechShares {
@@ -1359,6 +1375,7 @@ export type DossierKind =
   | 'refrains'
   | 'psalms'
   | 'pentateuch'
+  | 'dialogue'
   | 'labels'
 
 export interface DossierEntry {
@@ -1911,6 +1928,9 @@ export type FindingKey =
   | 'pentateuch_split'
   | 'pentateuch_genesis'
   | 'pentateuch_names'
+  | 'dialogue_deference'
+  | 'dialogue_particle'
+  | 'dialogue_last_word'
 
 export interface Finding {
   key: FindingKey
@@ -2325,6 +2345,8 @@ export interface ReaderSpeaker {
   he: string | null
   divine: boolean
   n_words: number
+  /** Hebrew forms of whom they speak to here, the most words first */
+  to: string[]
 }
 export interface ReaderWordplay {
   display: number
@@ -2476,6 +2498,108 @@ export interface PentateuchChaptersResponse {
   offset: number
   limit: number
   items: SourceChapter[]
+}
+
+// Who speaks to whom (`/dialogue`, DESIGN.md §16.44).
+export interface VerseLabel {
+  verse_id: number
+  label_en: string
+  label_he: string
+}
+export interface DialogueParty {
+  /** lemma, or `divine` (the divine names together) */
+  key: string
+  /** null for `divine` */
+  he: string | null
+  /** 2 God, 1 a king, 0 anyone else */
+  rank: number
+}
+export interface DialogueBook {
+  book_id: number
+  n_quotes: number
+  n_pairs: number
+  n_exchanges: number
+}
+export interface DialogueRate {
+  rate: number
+  count: number
+  of: number
+  quotations: number
+}
+export interface DialogueUpTest {
+  observed: number
+  null: number | null
+  p: number | null
+  up: DialogueRate
+  rest: DialogueRate
+  holds?: boolean | null
+}
+export interface DialogueTurnTest {
+  observed: number
+  expected: number
+  exchanges: number
+  p: number
+  holds?: boolean | null
+}
+export interface DialogueMeta {
+  quotations?: number
+  with_addressee?: number
+  addressee?: Record<AddresseeSource, number>
+  reliable?: AddresseeSource[]
+  /** source -> [right, judged] */
+  hand_check?: Record<AddresseeSource, [number, number]>
+  pairs?: number
+  exchanges?: number
+  unequal?: number
+  shuffles?: number
+  alpha?: number
+  tests?: { deference: DialogueUpTest; particle: DialogueUpTest; last_word: DialogueTurnTest }
+  sensitivity?: { deference: DialogueUpTest; particle: DialogueUpTest }
+  opener?: DialogueTurnTest
+  lengths?: { longer: number; shorter: number; median_higher: number | null; median_lower: number | null; p: number | null }
+}
+export interface DialogueResponse {
+  meta: DialogueMeta & Record<string, unknown>
+  books: DialogueBook[]
+}
+export interface DialoguePair {
+  speaker: DialogueParty
+  addressee: DialogueParty
+  n_quotes: number
+  n_words: number
+  /** quotations whose addressee is explicit or a vocative */
+  n_reliable: number
+}
+export interface DialogueBookResponse {
+  book_id: number
+  /** the most quotations first */
+  pairs: DialoguePair[]
+}
+export interface DialogueExchange {
+  exchange: number
+  book_id: number
+  /** the chapter it starts in */
+  unit_id: string
+  first: VerseLabel
+  last_verse: VerseLabel
+  /** who opens */
+  a: DialogueParty
+  b: DialogueParty
+  turns: number
+  a_turns: number
+  a_words: number
+  b_words: number
+  /** key of who speaks last */
+  last: string
+}
+export interface DialogueExchangesResponse {
+  book: number | null
+  party: string | null
+  unequal: boolean
+  total: number
+  offset: number
+  limit: number
+  items: DialogueExchange[]
 }
 
 // Psalms (`/psalms`, DESIGN.md §16.42): the form of each psalm, Gunkel's genres, the lament's turn.

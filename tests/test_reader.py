@@ -19,7 +19,9 @@ def test_reader_layers(client):
     r = client.get("/api/reader/c:0:1").json()
     assert r["unit"]["unit_id"] == "c:0:1" and r["rare_verses"] == 3
     assert all(r["computed"].values())
-    assert r["speakers"] == [{"lemma": "3068", "he": "יהוה", "divine": True, "n_words": 2}]
+    assert r["speakers"] == [
+        {"lemma": "3068", "he": "יהוה", "divine": True, "n_words": 2, "to": ["4872"]}
+    ]
     v0, v1, v2 = r["verses"]
     # Genesis 1:2 is spoken by יהוה (its last word has no display token)
     assert v0["speech"] == {} and v1["speech"] == {"0": 0, "1": 0}

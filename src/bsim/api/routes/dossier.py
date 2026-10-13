@@ -25,6 +25,7 @@ and what it found:
     refrains                      count = refrains with a verse in the unit
     psalms                        count = psalms the unit overlaps
     pentateuch                    count = verses of the unit on the P-like side of the split
+    dialogue                      count = exchanges between two parties touching the unit
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -243,6 +244,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "pentateuch",
         computed=state.present(conn, "pentateuch_verses"),
         count=queries.p_like_verses(conn, *span),
+    )
+
+    add(
+        "dialogue",
+        computed=state.present(conn, "dialogue_exchanges"),
+        count=queries.dialogue_exchanges_page(conn, None, None, False, 1, 0, span)[0],
     )
 
     add(

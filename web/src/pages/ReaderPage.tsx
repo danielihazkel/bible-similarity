@@ -280,7 +280,17 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
               ) : (
                 t.unknownSpeaker
               )}
-              {s.divine && ` (${t.divine})`} <span className="layer-n">{t.speakerWords(s.n_words)}</span>
+              {s.divine && ` (${t.divine})`}
+              {s.to.length > 0 && (
+                <>
+                  {' '}
+                  {m.syn.toWord}{' '}
+                  <span dir="rtl" lang="he">
+                    {s.to.slice(0, 3).join(', ')}
+                  </span>
+                </>
+              )}{' '}
+              <span className="layer-n">{t.speakerWords(s.n_words)}</span>
             </span>
           ))}
           </>

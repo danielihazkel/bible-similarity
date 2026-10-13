@@ -167,6 +167,7 @@ bible-similarity/
 │   │   ├── refrains.py             # `bsim refrains`: phrases that come back inside a passage, their spacing and turns (§16.40)
 │   │   ├── psalms.py               # `bsim psalms`: the counted form of each psalm against Gunkel's genres, the lament's turn (§16.42)
 │   │   ├── pentateuch.py           # `bsim pentateuch`: an unsupervised P / non-P split of Genesis–Numbers against the critics' P (§16.43)
+│   │   ├── dialogue.py             # `bsim dialogue`: who speaks to whom — pairs, exchanges, deference, נא, the last word (§16.44)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
@@ -183,7 +184,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -259,6 +260,7 @@ bible-similarity/
 | 11e¹⁰ | `bsim refrains` | verses, words, segment gaps | `artifacts/refrains/{refrains,occurrences}.parquet` + `refrains.meta.json` (§16.40) |
 | 11e¹¹ | `bsim psalms` | verses, words, word senses | `artifacts/psalms/{psalms,verses}.parquet` + `psalms.meta.json` (§16.42) |
 | 11e¹² | `bsim pentateuch` | verses, words | `artifacts/pentateuch/{verses,chapters}.parquet` + `pentateuch.meta.json` (§16.43) |
+| 11e¹³ | `bsim dialogue` | syntax clauses (with addressees), verses, words | `artifacts/dialogue/{quotations,pairs,exchanges}.parquet` + `dialogue.meta.json` (§16.44) |
 | 11f' | `bsim eval-etcbc` | ETCBC pairs, final verse top-k, sequences, phrases | `artifacts/eval/etcbc.{json,md}` (§16.34) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |

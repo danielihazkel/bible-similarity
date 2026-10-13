@@ -20,6 +20,7 @@ import { metEn } from './pages/meter'
 import { rootEn } from './pages/roots'
 import { readerEn } from './pages/reader'
 import { pentEn } from './pages/pentateuch'
+import { dlgEn } from './pages/dialogue'
 import { psaEn } from './pages/psalms'
 import { refEn } from './pages/refrains'
 import { echoEn } from './pages/echoes'
@@ -428,6 +429,7 @@ export const en = {
   ref: refEn,
   psa: psaEn,
   pent: pentEn,
+  dlg: dlgEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

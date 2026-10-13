@@ -141,6 +141,21 @@ export const findEn = {
       text: (v: V) =>
         `In Genesis, where both sources tell stories, does the split still find P? Kappa ${x3(n(v, 'observed'))} against ${x3(n(v, 'null'))} (p ${fp(n(v, 'p'))}).`,
     },
+    dialogue_deference: {
+      title: '“Your servant” to God and to kings',
+      text: (v: V) =>
+        `Does speech addressed up, to God or to a king, call the speaker “your servant” (עבדך, אמתך) more than other speech does? ${x2(n(v, 'up'))} times per 1,000 words against ${x2(n(v, 'rest'))} (${numEn(n(v, 'up_count'))} in ${numEn(n(v, 'up_of'))} words; p ${fp(n(v, 'p'))}, the “up” label shuffled within each book).`,
+    },
+    dialogue_particle: {
+      title: 'נא after a command to God or a king',
+      text: (v: V) =>
+        `Is a command to God or a king softened with נא more often than other commands? This is the politeness reading of נא, which is contested. ${pct(n(v, 'up'))} of those imperatives take it, against ${pct(n(v, 'rest'))} of the others (p ${fp(n(v, 'p'))}).`,
+    },
+    dialogue_last_word: {
+      title: 'Who has the last word',
+      text: (v: V) =>
+        `In an exchange between God or a king and someone of lower rank, does the higher one speak last more often than their share of the turns would give? ${numEn(n(v, 'observed'))} of ${numEn(n(v, 'exchanges'))} exchanges, against ${n(v, 'expected').toFixed(1)} expected (p ${fp(n(v, 'p'))}).`,
+    },
     pentateuch_names: {
       title: 'The divine names follow the split',
       text: (v: V) =>
@@ -283,6 +298,21 @@ export const findHe: typeof findEn = {
       title: 'P בתוך בראשית',
       text: (v: V) =>
         `בבראשית, ששני המקורות בה מספרים סיפורים, האם החלוקה עדיין מוצאת את P? קאפה ${x3(n(v, 'observed'))} לעומת ${x3(n(v, 'null'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    dialogue_deference: {
+      title: '„עבדך” אל האל ואל המלך',
+      text: (v: V) =>
+        `האם דיבור המופנה כלפי מעלה, אל האל או אל מלך, מכנה את הדובר „עבדך” (או „אמתך”) יותר משאר הדיבור? ${x2(n(v, 'up'))} פעמים לכל 1,000 מילים לעומת ${x2(n(v, 'rest'))} (${numHe(n(v, 'up_count'))} ב־${numHe(n(v, 'up_of'))} מילים; p ${fp(n(v, 'p'))}, כשהסימון „כלפי מעלה” מעורבב בתוך כל ספר).`,
+    },
+    dialogue_particle: {
+      title: '„נא” אחרי ציווי אל האל או אל מלך',
+      text: (v: V) =>
+        `האם ציווי אל האל או אל מלך מרוכך ב„נא” יותר משאר הציוויים? זו קריאת הנימוס של „נא”, והיא שנויה במחלוקת. ${pct(n(v, 'up'))} מן הציוויים האלה באים עמה, לעומת ${pct(n(v, 'rest'))} מן האחרים (p ${fp(n(v, 'p'))}).`,
+    },
+    dialogue_last_word: {
+      title: 'למי המילה האחרונה',
+      text: (v: V) =>
+        `בשיחה בין האל או מלך לבין מי שמעמדו נמוך ממנו, האם העליון מדבר אחרון יותר ממה שחלקו בתורי הדיבור היה נותן? ${numHe(n(v, 'observed'))} מתוך ${numHe(n(v, 'exchanges'))} שיחות, לעומת ${n(v, 'expected').toFixed(1)} צפויות (p ${fp(n(v, 'p'))}).`,
     },
     pentateuch_names: {
       title: 'שמות האל הולכים אחר החלוקה',

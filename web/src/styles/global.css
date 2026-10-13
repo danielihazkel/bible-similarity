@@ -2455,6 +2455,7 @@ tr.out-of-domain td {
 .speaker-list a,
 .clause .speaker a,
 .same-shape a,
+.dlg-exchange a,
 tr.out-of-domain td a {
   text-decoration: underline;  /* links inside running text (axe link-in-text-block) */
 }
@@ -2838,3 +2839,19 @@ a.dossier-chip:hover {
 .src-bar-ref { position: absolute; inset-block: -3px; width: 2px; background: var(--text); }
 .pent-grid tr.fixed td { font-weight: 700; }
 .pent-words { columns: 2 14rem; padding-inline-start: 1.2rem; }
+
+/* Who speaks → To whom (§16.44) */
+.dlg-checks li { margin-block: 0.45rem; }
+.dlg-verdict { display: inline-block; padding: 0 0.4rem; border-radius: 3px; font-size: 0.85em; font-weight: 600; }
+.dlg-verdict.holds { background: var(--known-soft); color: var(--known); }
+.dlg-verdict.fails { background: var(--surface-2); color: var(--text); }
+.dlg-network { margin: 0.5rem 0 1rem; max-width: 30rem; }
+.dlg-network svg { width: 100%; height: auto; display: block; }
+.dlg-edge { fill: none; stroke: var(--accent); stroke-opacity: 0.55; }
+.dlg-arrow { fill: var(--accent); }
+.dlg-node circle { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
+.dlg-node.rank-1 circle { fill: var(--accent-soft); }
+.dlg-node.rank-2 circle { fill: var(--accent); }
+.dlg-node text { fill: var(--text); font-size: 13px; }
+.dlg-parties { font-weight: 600; }
+.clause .addressee { margin-inline-start: 0.3rem; }

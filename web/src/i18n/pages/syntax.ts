@@ -75,6 +75,7 @@ const FUNCTIONS_HE: Record<string, string> = {
 }  // prettier-ignore
 
 type Source = 'explicit' | 'carried' | 'enclosing'
+type ToSource = 'explicit' | 'vocative' | 'pronoun' | 'turn'
 
 export const synEn = {
   clauseType: (code: string) =>
@@ -106,6 +107,14 @@ export const synEn = {
     enclosing: 'A quotation without its own speaker, inside this one (words to be passed on, a quotation within a quotation)',
   } as Record<Source, string>,
   noSpeaker: 'speaker not found',
+  addressee: (s: ToSource, he: string) => (s === 'explicit' || s === 'vocative' ? `to ${he}` : `to ${he} (inferred)`),
+  addresseeTitle: {
+    explicit: 'The introduction names whom it is said to (ויאמר … אל משה): right 21 of 21 times in a hand check',
+    vocative: 'The quotation calls them by name: right 11 of 11 times',
+    pronoun: '“To him” in the introduction, read as the other party of the conversation: right 4 of 9 times',
+    turn: 'No addressee given: read as an answer to the one who spoke before (right 6 of 9 times)',
+  } as Record<ToSource, string>,
+  toWord: 'to',
   sameShape: 'Built the same way',
   sameShapeLede: 'Verses with the same clause types and phrase functions in the same order, whatever their words (BM25 over clause shapes).',
   noData: 'No syntax data in this build (run `bsim syntax`).',
@@ -130,7 +139,7 @@ export const synEn = {
   share: (label: string, pct: number) => `${label} ${pct}%`,
   chapter: 'Chapter',
   // the Voices tab (DESIGN.md §16.28)
-  tabs: { books: 'Books', voices: 'Voices' } as Record<'books' | 'voices', string>,
+  tabs: { books: 'Books', voices: 'Voices', dialogue: 'To whom' } as Record<'books' | 'voices' | 'dialogue', string>,
   view: 'View',
   voices: {
     lede: "Does a speaker have a style of their own? Each person's direct speech is profiled with the features of the Style page (the most frequent words, verb forms, grammar) and compared with the other attributed speech of the same books, so book and genre are held fixed. A speaker is distinct when the distance (Burrows' Delta) is larger than when the speaker labels are shuffled among the quotations of each book.",
@@ -204,6 +213,14 @@ export const synHe: typeof synEn = {
     enclosing: 'ציטוט בלי דובר משלו, בתוך הציטוט הזה (דברים להעביר, ציטוט בתוך ציטוט)',
   },
   noSpeaker: 'הדובר לא נמצא',
+  addressee: (s: ToSource, he: string) => (s === 'explicit' || s === 'vocative' ? `אל ${he}` : `אל ${he} (משוער)`),
+  addresseeTitle: {
+    explicit: 'הפסוקית המציגה נוקבת במי שאליו נאמרים הדברים (ויאמר … אל משה): נכון ב־21 מתוך 21 בבדיקה ידנית',
+    vocative: 'הציטוט קורא לו בשמו: נכון ב־11 מתוך 11',
+    pronoun: '„אליו” בפסוקית המציגה, מתפרש כצד השני של השיחה: נכון ב־4 מתוך 9',
+    turn: 'הנמען לא נאמר: מתפרש כתשובה למי שדיבר לפני כן (נכון ב־6 מתוך 9)',
+  },
+  toWord: 'אל',
   sameShape: 'בנוי באותה דרך',
   sameShapeLede: 'פסוקים שבהם אותם סוגי פסוקיות ואותם תפקידי צירופים באותו סדר, בלי קשר למילים (BM25 על מבנה הפסוקיות).',
   noData: 'אין נתוני תחביר בבנייה זו (הריצו `bsim syntax`).',
@@ -226,7 +243,7 @@ export const synHe: typeof synEn = {
   explicitShare: (n: number, of: number) => `נקוב בפסוקית המציגה ב־${numHe(n)} מתוך ${numHe(of)} מילים`,
   share: (label: string, pct: number) => `${label} ${pct}%`,
   chapter: 'פרק',
-  tabs: { books: 'ספרים', voices: 'קולות' },
+  tabs: { books: 'ספרים', voices: 'קולות', dialogue: 'אל מי' },
   view: 'תצוגה',
   voices: {
     lede: 'האם לדובר יש סגנון משלו? הדיבור הישיר של כל דמות מתואר בתכונות של עמוד הסגנון (המילים השכיחות, צורות הפועל, הדקדוק) ומושווה לשאר הדיבור המשויך באותם ספרים, כך שהספר והסוגה קבועים. דובר נחשב ייחודי כשהמרחק (Delta של Burrows) גדול מזה שמתקבל כשמערבבים את שמות הדוברים בין הציטוטים של כל ספר.',

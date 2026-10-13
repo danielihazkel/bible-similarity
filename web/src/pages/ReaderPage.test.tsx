@@ -46,7 +46,7 @@ const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
   computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true },
-  speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2 }],
+  speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2, to: ['אדם'] }],
   refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
   verses: [
     {
@@ -183,6 +183,7 @@ describe('ReaderPage', () => {
     expect(container.querySelector('.reader-text .lw-0')?.getAttribute('title')).toBe('Leitwort אלהים: 2 times here, 0.4 expected')
     expect(container.querySelector('.reader-gap.gap-turn')?.textContent).toBe('פturn')
     expect(screen.getByText(/2 words/).closest('.layer-key')?.textContent).toContain('(God)')
+    expect(screen.getByText(/2 words/).closest('.layer-key')?.textContent).toContain('to אדם')
     // layers that are off are neither fetched nor painted
     expect(calls.some((c) => c.includes('/parallelism/'))).toBe(false)
     expect(container.querySelector('.ph, .wp, .w-mark')).toBeNull()
