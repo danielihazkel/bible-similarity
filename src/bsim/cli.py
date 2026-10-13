@@ -133,6 +133,14 @@ def refrains(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def psalms(config: ConfigOpt = None) -> None:
+    """The form of each psalm against Gunkel's genres, and where the laments turn to praise."""
+    from bsim.analysis.psalms import run_psalms
+
+    run_psalms(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

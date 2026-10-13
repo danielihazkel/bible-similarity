@@ -758,6 +758,40 @@ CREATE TABLE refrain_verses (
     PRIMARY KEY (refrain_id, verse_id)
 ) WITHOUT ROWID;
 
+-- The form of each psalm (`bsim psalms`, §16.42): Gunkel's genre (NULL: mixed or disputed, left
+-- out), its Ward cluster of the form features (per word), and its turn: the split where the mood
+-- rate (praise - distress words per word) rises most, with p against shuffled verse orders.
+CREATE TABLE psalms (
+    unit_id TEXT PRIMARY KEY,
+    chapter INTEGER NOT NULL,
+    genre TEXT,
+    cluster INTEGER NOT NULL,
+    words INTEGER NOT NULL,         -- without the superscription
+    first_singular REAL NOT NULL,
+    first_plural REAL NOT NULL,
+    second REAL NOT NULL,
+    imperative REAL NOT NULL,
+    imperative_plural REAL NOT NULL,
+    question REAL NOT NULL,
+    distress REAL NOT NULL,
+    praise REAL NOT NULL,
+    turn_vid INTEGER,               -- first verse after the turn (NULL: too short)
+    turn_verse INTEGER,
+    turn_stat REAL,                 -- mood rate after - before
+    turn_p REAL,
+    before REAL,
+    after REAL
+) WITHOUT ROWID;
+
+CREATE TABLE psalm_verses (
+    verse_id INTEGER PRIMARY KEY,
+    unit_id TEXT NOT NULL,
+    verse INTEGER NOT NULL,
+    words INTEGER NOT NULL,         -- without the superscription
+    distress INTEGER NOT NULL,      -- words in the `psalms.distress` domains
+    praise INTEGER NOT NULL
+);
+
 -- Rare words two passages share over a few verses (`bsim allusions`, §16.32): window pairs with the
 -- null-ratio q of a within-chapter verse shuffle; known = already a fused neighbour or a sequence.
 CREATE TABLE allusions (

@@ -614,6 +614,38 @@ refrains:                     # `bsim refrains`: phrases that come back inside a
     - ["השבעתי אתכם בנות ירושלם", ["Song of Songs 2:7", "Song of Songs 3:5", "Song of Songs 8:4"]]
   seed: 13
 
+psalms:                       # `bsim psalms`: the form of each psalm, Gunkel's genres, the turn of the lament (DESIGN.md §16.42); everything below fixed before the first run
+  book: Psalms
+  # Gunkel-Begrich (1933), the core cases of the standard summaries, entered by hand; a psalm whose genre is mixed or commonly disputed is left out (31 of 150)
+  genres:
+    hymn: [8, 29, 33, 46, 47, 48, 65, 76, 84, 87, 93, 96, 97, 98, 99, 100, 103, 104, 105, 111, 113, 114, 117, 135, 136, 145, 146, 147, 148, 149, 150]   # with the enthronement songs and the songs of Zion
+    lament_individual: [3, 5, 6, 7, 13, 17, 22, 25, 26, 28, 31, 35, 38, 39, 42, 43, 51, 54, 55, 56, 57, 59, 61, 64, 69, 70, 71, 86, 88, 102, 109, 120, 130, 140, 141, 142, 143]
+    lament_communal: [44, 60, 74, 79, 80, 83, 85, 90, 123, 126, 137]
+    royal: [2, 18, 20, 21, 45, 72, 89, 101, 110, 132, 144]
+    thanksgiving: [30, 32, 34, 41, 66, 92, 116, 118, 138]   # of the individual
+    trust: [4, 11, 16, 23, 27, 62, 63, 91, 121, 125, 131]
+    wisdom: [1, 37, 49, 73, 112, 119, 127, 128, 133]
+  # SDBH domains (prefixes of the codes) whose words count as distress / praise
+  distress: ['002001002001', '002001002002', '002001002013', '002001002025', '002001001055', '002001001018', '002001001069', '002003003022', '001001003002', '002003002011', '002004001009002', '002004001009012']   # afraid, angry, grieve, shame, sick, dead, weak, unsafe, enemies, forsake, complain, revile
+  praise: ['002004001009009', '002004001009006', '002001002022', '002003002003', '002003002001', '002001002023', '002003003019', '002004001009013', '001003001001013']   # praise, sing, rejoice, bless, worship, relief, safe, vow, musical instruments
+  # a leading run of these lemmas (Strong's) in a psalm's first verse (and the second, when the first is all title) is its superscription, left out
+  title_lemmas: ['5329', '4210', '7892', '1732', '4905', '4387', '8605', '8416', '7692', '5058', '4609', '1665', '7799', '4257', '5961', '8067', '623', '7141', '3038', '1968', '387', '250', '8010', '4872', '2142', '8426', '3117', '7676', '1121', '5650', '5921', '413']
+  features: [first_singular, first_plural, second, imperative, imperative_plural, question, distress, praise]   # per word; standardized, Ward clusters, k = the number of genres
+  checks:                     # [genre, feature, higher | lower]: the genre's mean against the other labelled psalms (labels permuted), BH over the checks
+    - [lament_individual, first_singular, higher]
+    - [lament_individual, distress, higher]
+    - [lament_communal, first_plural, higher]
+    - [hymn, praise, higher]
+    - [hymn, imperative_plural, higher]
+    - [hymn, first_singular, lower]
+  # the turn: the split of a psalm's verses where the praise - distress rate rises most (at least `min_side` verses each side), against verse orders shuffled within the psalm
+  min_side: 2
+  tolerance: 1                # a named turn is found when the split starts within this many verses of it
+  known_turns: ['Psalms 6:9', 'Psalms 13:6', 'Psalms 22:23', 'Psalms 28:6', 'Psalms 31:20', 'Psalms 54:6', 'Psalms 56:10', 'Psalms 57:8', 'Psalms 69:31', 'Psalms 102:13', 'Psalms 109:30', 'Psalms 140:13']
+  alpha: 0.05
+  draws: 1000                 # label permutations and verse shuffles
+  seed: 13
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)

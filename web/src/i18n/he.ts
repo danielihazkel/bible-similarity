@@ -26,6 +26,7 @@ import { mirHe } from './pages/mirrors'
 import { metHe } from './pages/meter'
 import { rootHe } from './pages/roots'
 import { readerHe } from './pages/reader'
+import { psaHe } from './pages/psalms'
 import { refHe } from './pages/refrains'
 import { echoHe } from './pages/echoes'
 import { findHe } from './pages/findings'
@@ -97,6 +98,7 @@ export const he: Messages = {
     ketiv: { label: 'כתיב וקרי', hint: 'מה שכתוב לעומת מה שנקרא' },
     roots: { label: 'שורשים', hint: 'מילים מאותו שורש זו לצד זו; השורשים המנחים של פרק' },
     refrains: { label: 'פזמונים חוזרים', hint: 'צירופים החוזרים בתוך קטע' },
+    psalms: { label: 'תהלים', hint: 'סוגי גונקל מן הצורה הנמנית; היכן פונות הקינות' },
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
@@ -423,6 +425,7 @@ export const he: Messages = {
   root: rootHe,
   reader: readerHe,
   ref: refHe,
+  psa: psaHe,
   echo: echoHe,
   find: findHe,
   ov: ovHe,

@@ -306,6 +306,12 @@ def stage_refrains(cfg: dict[str, Any], log: Log) -> None:
     run_refrains(cfg, log=log)
 
 
+def stage_psalms(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.psalms import run_psalms
+
+    run_psalms(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -364,6 +370,7 @@ STAGES: dict[str, str] = {
     "meter": "stage_meter",
     "roots": "stage_roots",
     "refrains": "stage_refrains",
+    "psalms": "stage_psalms",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -422,6 +429,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "meter": (*_CORPUS, "parallelism"),
     "roots": (*_CORPUS,),
     "refrains": (*_CORPUS, "segments"),
+    "psalms": (*_CORPUS, "lexicon"),
     "eval-etcbc": (
         *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
     ),

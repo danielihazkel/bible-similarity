@@ -26,6 +26,8 @@ def test_reader_layers(client):
     # v0 words 0-1 share a phrase with v5; יהוה is in two verses, the names are left out
     assert v0["phrases"] == {"0": 1, "1": 1}
     assert v0["rare"] == {"3": 2}
+    # mood (the fixture's domains): ראשית counts as distress, אלהים and יהוה as praise
+    assert v0["mood"] == {"0": "distress", "1": "praise", "3": "praise"}
     # a sound-alike pair inside v0: each word gets the other as its partner
     assert [(w["display"], w["partner_display"], w["partner_form"]) for w in v0["wordplay"]] == [
         (1, 3, "יהוה"),
@@ -60,7 +62,12 @@ def test_reader_without_stages(built):
     with sqlite3.connect(db) as conn:
         for t in ("clauses", "phrases", "wordplay", "kq_pairs", "segment_gaps", "refrains"):
             conn.execute(f"DELETE FROM {t}")
+        conn.execute("DELETE FROM domains")
+        conn.execute("UPDATE words SET domains = NULL")
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()
     assert not any(r["computed"].values()) and r["speakers"] == []
-    assert all(not v["speech"] and not v["wordplay"] and v["gap"] is None for v in r["verses"])
+    assert all(
+        not v["speech"] and not v["wordplay"] and v["gap"] is None and not v["mood"]
+        for v in r["verses"]
+    )

@@ -46,6 +46,7 @@ Derived columns:
 - `lemma_roots`, `root_pairs`, `root_books`, `root_leitworte` + `meta.roots`: `bsim roots` (empty
   without it).
 - `refrains`, `refrain_verses` + `meta.refrains`: `bsim refrains` (empty without it).
+- `psalms`, `psalm_verses` + `meta.psalms`: `bsim psalms` (empty without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -144,6 +145,7 @@ INDEXES = (
     "CREATE INDEX root_leitworte_by_hidden ON root_leitworte (hidden, g2 DESC)",
     "CREATE INDEX refrains_by_book ON refrains (book_id, refrain_id)",
     "CREATE INDEX refrain_verses_by_verse ON refrain_verses (verse_id)",
+    "CREATE INDEX psalm_verses_by_unit ON psalm_verses (unit_id, verse_id)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -499,6 +501,28 @@ TABLE_COLUMNS = {
         "lemmas",
     ],
     "refrain_verses": ["refrain_id", "verse_id", "first", "last"],
+    "psalms": [
+        "unit_id",
+        "chapter",
+        "genre",
+        "cluster",
+        "words",
+        "first_singular",
+        "first_plural",
+        "second",
+        "imperative",
+        "imperative_plural",
+        "question",
+        "distress",
+        "praise",
+        "turn_vid",
+        "turn_verse",
+        "turn_stat",
+        "turn_p",
+        "before",
+        "after",
+    ],
+    "psalm_verses": ["verse_id", "unit_id", "verse", "words", "distress", "praise"],
     "root_leitworte": [
         "unit_id",
         "rank",
@@ -1232,6 +1256,12 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
     if len(out["refrains"]):
         out["refrains"] = out["refrains"].assign(strongest=lambda d: d.strongest.astype(int))
     out["refrains_meta"] = _read_json(ref_dir / "refrains.meta.json")
+    ps_dir = resolve_path(cfg, "artifacts") / "psalms"
+    for name, table in (("psalms", "psalms"), ("verses", "psalm_verses")):
+        path = ps_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        out[table] = df if len(df) else pd.DataFrame(columns=TABLE_COLUMNS[table])
+    out["psalms_meta"] = _read_json(ps_dir / "psalms.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1452,6 +1482,8 @@ def _write_db(
             "root_leitworte": inputs["root_leitworte"],
             "refrains": inputs["refrains"],
             "refrain_verses": inputs["refrain_verses"],
+            "psalms": inputs["psalms"],
+            "psalm_verses": inputs["psalm_verses"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1656,6 +1688,31 @@ def _write_db(
                 "known_share",
                 "regular",
                 "turns",
+            )
+        }
+        pm = inputs["psalms_meta"]
+        meta["psalms"] = {
+            k: pm.get(k)
+            for k in (
+                "psalms",
+                "labelled",
+                "genres",
+                "features",
+                "k",
+                "alpha",
+                "draws",
+                "title_words",
+                "genre_test",
+                "crosstab",
+                "checks",
+                "checks_held",
+                "profiles",
+                "cluster_profiles",
+                "known_turns",
+                "laments_vs_hymns",
+                "tolerance",
+                "min_side",
+                "robustness",
             )
         }
         tm = inputs["meter_meta"]

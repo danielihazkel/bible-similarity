@@ -48,6 +48,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return `/roots?unit=${u}`
     case 'refrains':
       return `/refrains?unit=${u}&all=1`
+    case 'psalms':
+      return `/psalms?unit=${u}`
     case 'meter':
       return unitLink(target, '?halves=1&meter=1')
     case 'speech':

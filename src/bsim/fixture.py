@@ -95,6 +95,8 @@ def fixture_cfg(tmp_path, semantic="sm"):
     }
     cfg["stylometry"] = {**cfg["stylometry"], "min_words": 1}
     cfg["acrostics"] = {**cfg["acrostics"], "null_reps": 99, "null_screen": 19, "known": ["Gen 1"]}
+    # the reader's mood layer: ראשית ("Begin") counts as distress, אלהים / יהוה ("Deities") praise
+    cfg["psalms"] = {**cfg["psalms"], "distress": ["002001001"], "praise": ["001001002"]}
     return cfg
 
 
@@ -852,6 +854,73 @@ def write_inputs(cfg, tmp_path):
                 ],
                 "regular": {"testable": 1, "regular": 1, "share": 1.0, "p": 0.05},
                 "turns": {"n": 3, "observed": 0.7, "expected": 0.6, "p": 0.04},
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    # psalms (`bsim psalms`): chapter 0:1 an individual lament turning at v2 (a named turn, found),
+    # chapter 0:2 a hymn without a turn; a second named turn (v4) is in a psalm too short to test
+    ps_dir = art / "psalms"
+    ps_dir.mkdir(parents=True, exist_ok=True)
+    feats = ["first_singular", "first_plural", "second", "imperative", "imperative_plural",
+             "question", "distress", "praise"]  # fmt: skip
+    pd.DataFrame(
+        [("c:0:1", 1, "lament_individual", 1, 12, 0.3, 0.0, 0.2, 0.05, 0.0, 0.02, 0.2, 0.1,
+          2, 3, 0.5, 0.01, -0.2, 0.3),
+         ("c:0:2", 2, "hymn", 2, 8, 0.0, 0.05, 0.1, 0.1, 0.1, 0.0, 0.0, 0.3,
+          None, None, None, None, None, None)],
+        columns=["unit_id", "chapter", "genre", "cluster", "words", *feats, "turn_vid",
+                 "turn_verse", "turn_stat", "turn_p", "before", "after"],
+    ).astype({"turn_vid": "Int64", "turn_verse": "Int64", "turn_stat": "Float64",
+              "turn_p": "Float64", "before": "Float64", "after": "Float64"}).to_parquet(
+        ps_dir / "psalms.parquet"
+    )  # fmt: skip
+    pd.DataFrame(
+        [(0, "c:0:1", 1, 4, 2, 0), (1, "c:0:1", 2, 4, 1, 0), (2, "c:0:1", 3, 4, 0, 2),
+         (3, "c:0:2", 1, 4, 0, 1), (4, "c:0:2", 2, 4, 0, 1)],
+        columns=["verse_id", "unit_id", "verse", "words", "distress", "praise"],
+    ).to_parquet(ps_dir / "verses.parquet")  # fmt: skip
+    check = {"mean": 0.3, "rest": 0.1, "p": 0.01, "q": 0.02}
+    (ps_dir / "psalms.meta.json").write_text(
+        json.dumps(
+            {
+                "psalms": 2, "labelled": 2, "genres": {"hymn": 1, "lament_individual": 1},
+                "features": feats, "k": 2, "alpha": 0.05, "draws": 1000, "title_words": 3,
+                "genre_test": {"nmi": 0.4, "null": 0.1, "p": 0.002},
+                "crosstab": [{"genre": "hymn", "cluster": 2, "n": 1},
+                             {"genre": "lament_individual", "cluster": 1, "n": 1}],
+                "checks": [
+                    {"genre": "lament_individual", "feature": "first_singular",
+                     "direction": "higher", **check},
+                    {"genre": "hymn", "feature": "praise", "direction": "higher", **check,
+                     "q": 0.3},
+                ],
+                "checks_held": 1,
+                "profiles": {"hymn": dict.fromkeys(feats, 0.1),
+                             "lament_individual": dict.fromkeys(feats, 0.2)},
+                "cluster_profiles": {"1": dict.fromkeys(feats, 0.2),
+                                     "2": dict.fromkeys(feats, 0.1)},
+                "known_turns": {
+                    "found": 1, "n": 2, "expected": 0.4, "p": 0.03,
+                    "rows": [
+                        {"ref": "B0 1:3", "chapter": 1, "verse": 3, "verse_id": 2,
+                         "turn_verse": 3, "turn_vid": 2, "p": 0.01, "found": True,
+                         "chance": 0.4},
+                        {"ref": "B0 2:2", "verse_id": 4, "found": None},
+                    ],
+                },
+                "laments_vs_hymns": {"laments": 1, "n_laments": 1, "hymns": 0, "n_hymns": 1,
+                                     "p": 0.5},
+                "tolerance": 1, "min_side": 2,
+                "robustness": {
+                    "titles_kept": {"nmi": 0.4, "known": 1, "laments_vs_hymns_p": 0.5},
+                    "form_only": {"nmi": 0.3, "null": 0.1, "p": 0.01},
+                    "domains_only": {"nmi": 0.2, "null": 0.1, "p": 0.1},
+                    "tolerance": {"0": {"found": 1, "expected": 0.2, "p": 0.2},
+                                  "1": {"found": 1, "expected": 0.4, "p": 0.03},
+                                  "2": {"found": 1, "expected": 0.6, "p": 0.6}},
+                },
             },  # fmt: skip
             ensure_ascii=False,
         ),

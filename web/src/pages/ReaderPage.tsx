@@ -16,13 +16,14 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'turns']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'turns']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
   phrases: 'phrases',
   wordplay: 'wordplay',
   ketiv: 'ketiv',
+  mood: 'mood',
   turns: 'gaps',
 }
 const LEITWORTE_SHOWN = 6
@@ -120,6 +121,11 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       if (rare !== undefined) {
         marks.push(String(rare))
         titles.push(t.rareTitle(rare))
+      }
+      const md = on('mood') ? r?.mood[i] : undefined
+      if (md) {
+        cls.push('md', `md-${md}`)
+        titles.push(t.moodTitle[md])
       }
       const kq = on('ketiv') ? r?.ketiv.find((k) => k.display.includes(i)) : undefined
       if (kq) {
@@ -325,6 +331,7 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
       {row('rare', reader ? t.rareKey(reader.rare_verses) : '')}
       {row('wordplay', t.wordplayKey)}
       {row('ketiv', t.ketivKey)}
+      {row('mood', t.moodKey)}
       {row('turns', t.turnsKey)}
     </ul>
   )

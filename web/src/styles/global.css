@@ -2613,6 +2613,8 @@ a.dossier-chip:hover {
   --lw-3: #772b88;
   --lw-4: #7f4b00;
   --lw-5: #0b6262;
+  --md-praise: #2c6420;
+  --md-distress: #a1251a;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
@@ -2630,6 +2632,8 @@ a.dossier-chip:hover {
     --lw-3: #e8a9f4;
     --lw-4: #f2c277;
     --lw-5: #8edcdc;
+    --md-praise: #a9dd92;
+    --md-distress: #ffa294;
   }
 }
 .read-link {
@@ -2725,6 +2729,15 @@ a.dossier-chip:hover {
 .ph-1 { text-decoration-thickness: 1px; }
 .ph-2 { text-decoration-thickness: 2px; }
 .ph-3 { text-decoration-thickness: 3px; }
+/* distress and praise (§16.42): a bar under the word, solid for praise, dashed for distress (after
+   the speaker tints, whose `background` shorthand would reset it) */
+.md {
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 100% 3px;
+}
+.md-praise { background-image: linear-gradient(var(--md-praise), var(--md-praise)); }
+.md-distress { background-image: repeating-linear-gradient(to right, var(--md-distress) 0 4px, transparent 4px 7px); }
 .reader-text .wp,
 .reader-text .wp.w-click:hover,
 .reader-text .wp.w-click:focus-visible {
@@ -2793,3 +2806,13 @@ a.dossier-chip:hover {
 .refrain .verse-ref {
   margin-inline-end: 0.4rem;
 }
+
+/* Psalms (DESIGN.md §16.42): praise above the line, distress below, the turn as a rule */
+.psalm-features { margin: 0.2rem 0; }
+.mood-strip { display: block; margin: 0.3rem 0 0.2rem; max-width: 100%; }
+.mood-axis { stroke: var(--muted); stroke-width: 1; }
+.mood-praise { fill: var(--md-praise); }
+.mood-distress { fill: var(--md-distress); }
+.mood-turn { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 2; }
+.psalm-crosstab th[scope='row'],
+.psalm-profiles th[scope='row'] { font-weight: 400; text-align: start; }

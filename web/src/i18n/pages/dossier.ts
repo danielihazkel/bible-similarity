@@ -49,6 +49,7 @@ export const dosEn = {
     meter: (net: number) => `lines fall like a lament (net ${net.toFixed(2)})`,
     roots: (n: number) => countEn(n, 'pair of words of one root', 'pairs of words of one root'),
     refrains: (n: number) => countEn(n, 'refrain', 'refrains'),
+    psalms: (n: number) => countEn(n, 'psalm: its genre, form and turn', 'psalms: their genres, form and turns'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -79,6 +80,7 @@ export const dosEn = {
     meter: 'falling lines',
     roots: 'words of one root',
     refrains: 'refrains',
+    psalms: 'psalm form',
   } as Record<DossierKind, string>,
 }
 
@@ -124,6 +126,7 @@ export const dosHe: typeof dosEn = {
     meter: (net: number) => `שורות יורדות כקינה (נטו ${net.toFixed(2)})`,
     roots: (n: number) => countHe(n, 'זוג מילים אחד מאותו שורש', 'שני זוגות מילים מאותו שורש', 'זוגות מילים מאותו שורש'),
     refrains: (n: number) => countHe(n, 'פזמון חוזר אחד', 'שני פזמונים חוזרים', 'פזמונים חוזרים'),
+    psalms: (n: number) => countHe(n, 'מזמור אחד: סוגו, צורתו ומפנהו', 'שני מזמורים: סוגם, צורתם ומפנם', 'מזמורים: סוגם, צורתם ומפנם'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -153,5 +156,6 @@ export const dosHe: typeof dosEn = {
     meter: 'שורות יורדות',
     roots: 'מילים מאותו שורש',
     refrains: 'פזמונים חוזרים',
+    psalms: 'צורת המזמור',
   },
 }

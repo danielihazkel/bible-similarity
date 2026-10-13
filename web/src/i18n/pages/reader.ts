@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, countHe } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'turns'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'turns'
 
 const pctOf = (x: number) => Math.round(x * 100)
 
@@ -24,6 +24,7 @@ export const readerEn = {
     rare: 'Rare words',
     wordplay: 'Wordplay',
     ketiv: 'Ketiv / qere',
+    mood: 'Distress and praise',
     turns: 'Turns',
   } satisfies Record<Layer, string>,
   hints: {
@@ -35,6 +36,7 @@ export const readerEn = {
     rare: 'Words found in only a few verses of the Bible',
     wordplay: 'Words a few apart that sound alike',
     ketiv: 'Words read otherwise than they are written',
+    mood: 'Words of distress and of praise (SDBH domains): where a lament turns',
     turns: 'Where the text changes sharply between verses, and the paragraph breaks of the tradition',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
@@ -55,6 +57,9 @@ export const readerEn = {
   byRoot: 'By root',
   noLeitworte: 'No Leitworte here.',
   leitwortTitle: (he: string, count: number, expected: string) => `Leitwort ${he}: ${count} times here, ${expected} expected`,
+  // mood
+  moodKey: 'A bar under a word: solid, a word of praise (praise, song, joy, blessing); dashed, a word of distress (fear, grief, shame, sickness, enemies).',
+  moodTitle: { distress: 'a word of distress', praise: 'a word of praise' } as Record<string, string>,
   // refrains
   refrainsKey: 'A line above: a phrase that comes back nearby (a refrain).',
   noRefrains: 'No refrain here.',
@@ -97,6 +102,7 @@ export const readerHe: typeof readerEn = {
     rare: 'מילים נדירות',
     wordplay: 'משחקי מילים',
     ketiv: 'כתיב / קרי',
+    mood: 'מצוקה ושבח',
     turns: 'מפנים',
   },
   hints: {
@@ -108,6 +114,7 @@ export const readerHe: typeof readerEn = {
     rare: 'מילים שנמצאות רק בפסוקים מעטים במקרא',
     wordplay: 'מילים קרובות שנשמעות דומה',
     ketiv: 'מילים שנקראות אחרת משנכתבו',
+    mood: 'מילות מצוקה ומילות שבח (תחומי SDBH): היכן קינה פונה',
     turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
@@ -125,6 +132,8 @@ export const readerHe: typeof readerEn = {
   byRoot: 'לפי שורש',
   noLeitworte: 'אין כאן מילים מנחות.',
   leitwortTitle: (he: string, count: number, expected: string) => `מילה מנחה ${he}: ${count} פעמים כאן, צפוי ${expected}`,
+  moodKey: 'פס מתחת למילה: רציף, מילת שבח (הלל, שיר, שמחה, ברכה); מקווקו, מילת מצוקה (פחד, אבל, בושה, חולי, אויבים).',
+  moodTitle: { distress: 'מילת מצוקה', praise: 'מילת שבח' },
   refrainsKey: 'קו עליון: צירוף החוזר בסמיכות (פזמון חוזר).',
   noRefrains: 'אין כאן פזמון חוזר.',
   refrainTitle: (text: string, k: number) => `פזמון חוזר ${text}: ב־${countHe(k, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}`,

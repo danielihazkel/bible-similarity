@@ -19,6 +19,7 @@ import { mirEn } from './pages/mirrors'
 import { metEn } from './pages/meter'
 import { rootEn } from './pages/roots'
 import { readerEn } from './pages/reader'
+import { psaEn } from './pages/psalms'
 import { refEn } from './pages/refrains'
 import { echoEn } from './pages/echoes'
 import { findEn } from './pages/findings'
@@ -90,6 +91,7 @@ export const en = {
     ketiv: { label: 'Written and read', hint: 'Ketiv and qere: what is written against what is read' },
     roots: { label: 'Roots', hint: 'Words of one root side by side; key roots of a chapter' },
     refrains: { label: 'Refrains', hint: 'Phrases that come back inside a passage' },
+    psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
@@ -422,6 +424,7 @@ export const en = {
   root: rootEn,
   reader: readerEn,
   ref: refEn,
+  psa: psaEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

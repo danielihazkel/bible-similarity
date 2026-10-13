@@ -5,6 +5,8 @@ import type {
   Acrostic,
   AcrosticsResponse,
   ReaderResponse,
+  PsalmsListResponse,
+  PsalmsResponse,
   RefrainsListResponse,
   RefrainsResponse,
   AffinityPair,
@@ -432,6 +434,39 @@ export const useReader = (unitId: string | undefined) =>
     queryKey: ['reader', unitId],
     queryFn: ({ signal }) => getJson<ReaderResponse>(`/reader/${encodeURIComponent(unitId!)}`, {}, signal),
     enabled: !!unitId,
+    ...forever,
+  })
+
+export const usePsalms = () =>
+  useQuery({
+    queryKey: ['psalms'],
+    queryFn: ({ signal }) => getJson<PsalmsResponse>('/psalms', {}, signal),
+    ...forever,
+  })
+
+export interface PsalmQuery {
+  genre?: string
+  cluster?: number
+  turned: boolean
+  unit?: string
+  sort: 'chapter' | 'turn'
+  limit: number
+  offset: number
+}
+
+export const psalmParams = (q: PsalmQuery): Params => ({
+  genre: q.genre,
+  cluster: q.cluster,
+  turned: q.turned ? 1 : undefined,
+  unit: q.unit,
+  sort: q.sort,
+})
+
+export const usePsalmList = (q: PsalmQuery) =>
+  useQuery({
+    queryKey: ['psalm-list', q],
+    queryFn: ({ signal }) => getJson<PsalmsListResponse>('/psalms/list', { ...psalmParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

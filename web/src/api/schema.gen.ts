@@ -1741,6 +1741,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/psalms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Psalms
+         * @description The genre test (clusters of the form against Gunkel's genres), the checks named in
+         *     advance, the turns scholarship names and the laments' turns against the hymns'.
+         */
+        get: operations["psalms_api_psalms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/psalms/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Psalm List
+         * @description Psalms in order (or the clearest turn first) with their form, genre, cluster, turn and the
+         *     mood of each verse; `turned`: only those whose turn is above chance at `psalms.alpha`.
+         */
+        get: operations["psalm_list_api_psalms_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -1751,7 +1793,8 @@ export interface paths {
         /**
          * Reader
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
-         *     pairs, ketiv / qere, refrains and the turns and MAM breaks before each verse.
+         *     pairs, ketiv / qere, refrains, words of distress and praise, and the turns and MAM breaks
+         *     before each verse.
          */
         get: operations["reader_api_reader__unit_id__get"];
         put?: never;
@@ -2612,7 +2655,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -2864,7 +2907,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns";
             /**
              * Verdict
              * @enum {string}
@@ -3718,6 +3761,120 @@ export interface components {
             items: components["schemas"]["PhrasePair"][];
         };
         /**
+         * Psalm
+         * @description One psalm's form (DESIGN.md §16.42).
+         */
+        Psalm: {
+            /** Unit Id */
+            unit_id: string;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Chapter */
+            chapter: number;
+            /** Genre */
+            genre: string | null;
+            /** Cluster */
+            cluster: number;
+            /** Words */
+            words: number;
+            /** Features */
+            features: {
+                [key: string]: number;
+            };
+            turn: components["schemas"]["PsalmTurn"] | null;
+            /** Mood */
+            mood: components["schemas"]["PsalmVerse"][];
+        };
+        /**
+         * PsalmKnownTurn
+         * @description A turn scholarship names, fixed in advance, and the split found.
+         */
+        PsalmKnownTurn: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Turn Vid */
+            turn_vid: number | null;
+            /** Turn Label */
+            turn_label: string | null;
+            /** Turn Label He */
+            turn_label_he: string | null;
+            /** P */
+            p: number | null;
+            /** Found */
+            found: boolean | null;
+            /** Chance */
+            chance: number | null;
+        };
+        /**
+         * PsalmTurn
+         * @description Where a psalm's mood rises most: the first verse after the split.
+         */
+        PsalmTurn: {
+            /** Verse Id */
+            verse_id: number;
+            /** Verse */
+            verse: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+            /** Stat */
+            stat: number;
+            /** P */
+            p: number;
+            /** Before */
+            before: number;
+            /** After */
+            after: number;
+        };
+        /** PsalmVerse */
+        PsalmVerse: {
+            /** Verse */
+            verse: number;
+            /** Words */
+            words: number;
+            /** Distress */
+            distress: number;
+            /** Praise */
+            praise: number;
+        };
+        /** PsalmsListResponse */
+        PsalmsListResponse: {
+            /** Genre */
+            genre: string | null;
+            /** Cluster */
+            cluster: number | null;
+            /** Turned */
+            turned: boolean;
+            /** Unit */
+            unit: string | null;
+            /** Sort */
+            sort: string;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Psalm"][];
+        };
+        /** PsalmsResponse */
+        PsalmsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: components["schemas"]["PsalmKnownTurn"][];
+        };
+        /**
          * ReaderGap
          * @description The gap before a verse (§16.29): its cohesion drop and how the text divides there.
          */
@@ -3793,6 +3950,10 @@ export interface components {
             /** Refrains */
             refrains: {
                 [key: string]: number;
+            };
+            /** Mood */
+            mood: {
+                [key: string]: string;
             };
             /** Speech */
             speech: {
@@ -7991,6 +8152,63 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RefrainsListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    psalms_api_psalms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PsalmsResponse"];
+                };
+            };
+        };
+    };
+    psalm_list_api_psalms_list_get: {
+        parameters: {
+            query?: {
+                genre?: string | null;
+                cluster?: number | null;
+                turned?: boolean;
+                unit?: string | null;
+                sort?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PsalmsListResponse"];
                 };
             };
             /** @description Validation Error */

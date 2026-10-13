@@ -255,6 +255,51 @@ def _refrain_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Findin
     return Finding(key="refrain_turns", verdict="holds" if holds else "fails", values=values)
 
 
+def _psalm_genres(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    p = meta.get("psalms") or {}
+    g = p.get("genre_test")
+    if not g:
+        return None
+    values = {"nmi": g["nmi"], "null": g["null"], "p": g["p"], "labelled": p.get("labelled"),
+              "k": p.get("k")}  # fmt: skip
+    # the claim: clusters of the counted form recover Gunkel's genres beyond shuffled labels
+    holds = g["nmi"] > g["null"] and g["p"] <= alpha
+    return Finding(key="psalm_genres", verdict="holds" if holds else "fails", values=values)
+
+
+def _psalm_forms(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    checks = (meta.get("psalms") or {}).get("checks")
+    if not checks:
+        return None
+    held = sum(c["q"] <= alpha for c in checks)
+    values = {"held": held, "n": len(checks), "max_q": max(c["q"] for c in checks)}
+    # the claim: each genre shows the form named in advance (persons, imperatives, mood)
+    return Finding(
+        key="psalm_forms", verdict="holds" if held == len(checks) else "fails", values=values
+    )
+
+
+def _lament_turn(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    k = (meta.get("psalms") or {}).get("known_turns")
+    if not k:
+        return None
+    values = {key: k.get(key) for key in ("found", "n", "expected", "p")}
+    # the claim: the turn found falls at the turns scholarship names more often than chance
+    holds = k["found"] > k["expected"] and k["p"] <= alpha
+    return Finding(key="lament_turn", verdict="holds" if holds else "fails", values=values)
+
+
+def _lament_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    t = (meta.get("psalms") or {}).get("laments_vs_hymns")
+    if not t:
+        return None
+    values = {key: t.get(key) for key in ("laments", "n_laments", "hymns", "n_hymns", "p")}
+    # the claim: individual laments turn to praise (above chance) more often than hymns
+    return Finding(
+        key="lament_turns", verdict="holds" if t["p"] <= alpha else "fails", values=values
+    )
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -273,6 +318,10 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _refrains,
     _refrain_regular,
     _refrain_turns,
+    _psalm_genres,
+    _psalm_forms,
+    _lament_turn,
+    _lament_turns,
     _allusions,
 ]
 

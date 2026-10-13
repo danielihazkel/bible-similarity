@@ -23,6 +23,7 @@ and what it found:
     echoes                        count = directed cross-book echoes of the unit's chapters
     roots                         count = words of one root side by side in the unit's verses
     refrains                      count = refrains with a verse in the unit
+    psalms                        count = psalms the unit overlaps
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -229,6 +230,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "refrains",
         computed=state.present(conn, "refrains"),
         count=queries.refrains_page(conn, None, span, False, False, 1, 0)[0],
+    )
+
+    add(
+        "psalms",
+        computed=state.present(conn, "psalms"),
+        count=queries.psalms_page(conn, None, None, None, span, "chapter", 1, 0)[0],
     )
 
     add(

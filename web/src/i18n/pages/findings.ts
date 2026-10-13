@@ -9,6 +9,7 @@ type V = Record<string, number | null>
 const n = (v: V, k: string) => v[k] ?? 0
 const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 const x2 = (r: number) => r.toFixed(2)
+const x3 = (r: number) => r.toFixed(3)
 
 export const findEn = {
   title: 'Findings',
@@ -109,6 +110,26 @@ export const findEn = {
       title: 'Refrains at the turns',
       text: (v: V) =>
         `Does a refrain stand where the text turns? The sharper gap next to a refrain's verse scores ${x2(n(v, 'observed'))} against ${x2(n(v, 'expected'))} for other verses of its span (p ${fp(n(v, 'p'))}, ${numEn(n(v, 'n'))} verses).`,
+    },
+    psalm_genres: {
+      title: 'Psalm genres from their form',
+      text: (v: V) =>
+        `Does the counted form of the psalms (persons, imperatives, questions, words of distress and praise) recover Gunkel's genres? Clusters of the counts agree with the genres of ${numEn(n(v, 'labelled'))} psalms by NMI ${x3(n(v, 'nmi'))}, against ${x3(n(v, 'null'))} with the genres shuffled (p ${fp(n(v, 'p'))}).`,
+    },
+    psalm_forms: {
+      title: 'The form of each genre',
+      text: (v: V) =>
+        `Does each genre show the form named in advance — laments "I" and distress, communal laments "we", hymns praise and plural imperatives and little "I"? ${numEn(n(v, 'held'))} of ${numEn(n(v, 'n'))} (largest q ${fp(n(v, 'max_q'))}).`,
+    },
+    lament_turn: {
+      title: 'Where the lament turns',
+      text: (v: V) =>
+        `Does the point where a psalm's mood rises most fall at the turns scholars name (Ps 6:9, 13:6, 22:23 …)? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))} within a verse, against ${n(v, 'expected').toFixed(1)} for a random split (p ${fp(n(v, 'p'))}).`,
+    },
+    lament_turns: {
+      title: 'Laments turn more than hymns',
+      text: (v: V) =>
+        `Do individual laments turn from distress to praise more often than hymns? ${numEn(n(v, 'laments'))} of ${numEn(n(v, 'n_laments'))} laments have a turn above chance, against ${numEn(n(v, 'hymns'))} of ${numEn(n(v, 'n_hymns'))} hymns (p ${fp(n(v, 'p'))}).`,
     },
     allusions: {
       title: 'Rare words over a few verses',
@@ -217,6 +238,26 @@ export const findHe: typeof findEn = {
       title: 'פזמונים במפנים',
       text: (v: V) =>
         `האם פזמון עומד היכן שהטקסט מתחלף? המעבר החד ליד פסוק של פזמון מקבל ${x2(n(v, 'observed'))} לעומת ${x2(n(v, 'expected'))} בפסוקים אחרים בטווח שלו (p ${fp(n(v, 'p'))}, ${numHe(n(v, 'n'))} פסוקים).`,
+    },
+    psalm_genres: {
+      title: 'סוגי המזמורים מן הצורה',
+      text: (v: V) =>
+        `האם הצורה הנמנית של המזמורים (גופים, ציוויים, שאלות, מילות מצוקה ושבח) מחזירה את סוגי גונקל? אשכולות הספירות מתאימים לסוגים של ${numHe(n(v, 'labelled'))} מזמורים במידע הדדי מנורמל ${x3(n(v, 'nmi'))}, לעומת ${x3(n(v, 'null'))} כשהסוגים מעורבבים (p ${fp(n(v, 'p'))}).`,
+    },
+    psalm_forms: {
+      title: 'הצורה של כל סוג',
+      text: (v: V) =>
+        `האם כל סוג מראה את הצורה שנקבעה מראש — בקינות "אני" ומצוקה, בקינות הציבור "אנחנו", במזמורי השבח שבח וציוויים ברבים ומעט "אני"? ${numHe(n(v, 'held'))} מתוך ${numHe(n(v, 'n'))} (ה־q הגדול ${fp(n(v, 'max_q'))}).`,
+    },
+    lament_turn: {
+      title: 'היכן פונה הקינה',
+      text: (v: V) =>
+        `האם הנקודה שבה מצב הרוח של מזמור עולה הכי הרבה נופלת במפנים שהמחקר מונה (תה׳ ו 9, יג 6, כב 23 …)? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))} בטווח פסוק, לעומת ${n(v, 'expected').toFixed(1)} לחלוקה אקראית (p ${fp(n(v, 'p'))}).`,
+    },
+    lament_turns: {
+      title: 'קינות פונות יותר ממזמורי שבח',
+      text: (v: V) =>
+        `האם קינות יחיד פונות מן המצוקה אל השבח יותר ממזמורי שבח? ל־${numHe(n(v, 'laments'))} מתוך ${numHe(n(v, 'n_laments'))} קינות יש מפנה מעל המקרה, לעומת ${numHe(n(v, 'hymns'))} מתוך ${numHe(n(v, 'n_hymns'))} מזמורי שבח (p ${fp(n(v, 'p'))}).`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

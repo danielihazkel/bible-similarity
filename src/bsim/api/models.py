@@ -1336,7 +1336,7 @@ DossierKind = Literal[
     "phrases", "sequences", "changes", "borrowing", "wordplay", "alliteration", "rhymes",
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
-    "meter", "roots", "refrains", "labels",
+    "meter", "roots", "refrains", "psalms", "labels",
 ]  # fmt: skip
 
 
@@ -1613,7 +1613,8 @@ class CitationListResponse(ApiModel):
 FindingKey = Literal[
     "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
     "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
-    "refrain_regular", "refrain_turns",
+    "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
+    "lament_turns",
 ]  # fmt: skip
 
 
@@ -1966,6 +1967,7 @@ class ReaderRefrain(ApiModel):
 class ReaderVerse(ApiModel):
     verse_id: int
     refrains: dict[str, int]  # display token -> index into `refrains`
+    mood: dict[str, str]  # display token -> distress | praise (its SDBH domains, `psalms`)
     speech: dict[str, int]  # display token -> index into `speakers`
     phrases: dict[str, int]  # display token -> other verses sharing a phrase through it
     rare: dict[str, int]  # display token -> verses holding its rarest content word (names out)
@@ -1979,10 +1981,77 @@ class ReaderResponse(ApiModel):
 
     unit: UnitSummary
     rare_verses: int  # a word is rare in at most this many verses
-    computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains)
+    computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains,
+    # mood)
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
     refrains: list[ReaderRefrain]  # strongest first
     verses: list[ReaderVerse]
+
+
+class PsalmVerse(ApiModel):
+    verse: int
+    words: int  # without the superscription
+    distress: int  # words in the `psalms.distress` domains
+    praise: int
+
+
+class PsalmTurn(ApiModel):
+    """Where a psalm's mood rises most: the first verse after the split."""
+
+    verse_id: int
+    verse: int
+    label: str
+    label_he: str
+    stat: float  # mood rate (praise - distress words per word) after - before
+    p: float  # against verse orders shuffled within the psalm
+    before: float
+    after: float
+
+
+class Psalm(ApiModel):
+    """One psalm's form (DESIGN.md §16.42)."""
+
+    unit_id: str
+    label: str
+    label_he: str
+    chapter: int
+    genre: str | None  # Gunkel's (core cases); None: mixed or disputed
+    cluster: int  # Ward cluster of the form features
+    words: int
+    features: dict[str, float]  # per word: persons, imperatives, questions, distress, praise
+    turn: PsalmTurn | None  # None: too short
+    mood: list[PsalmVerse]
+
+
+class PsalmKnownTurn(ApiModel):
+    """A turn scholarship names, fixed in advance, and the split found."""
+
+    verse_id: int
+    label: str
+    label_he: str
+    turn_vid: int | None
+    turn_label: str | None
+    turn_label_he: str | None
+    p: float | None
+    found: bool | None  # None: the psalm is too short
+    chance: float | None  # share of the possible splits within the tolerance
+
+
+class PsalmsResponse(ApiModel):
+    meta: dict[str, Any]  # genre test, crosstab, checks, profiles, laments vs hymns, robustness
+    known: list[PsalmKnownTurn]
+
+
+class PsalmsListResponse(ApiModel):
+    genre: str | None
+    cluster: int | None
+    turned: bool
+    unit: str | None
+    sort: str
+    total: int
+    offset: int
+    limit: int
+    items: list[Psalm]
 
 
 class RefrainVerse(ApiModel):

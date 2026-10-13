@@ -36,6 +36,9 @@ const PAGES = [
   '/refrains',
   '/refrains?all=1&unit=v%3A2&known=1',
   '/read/c%3A0%3A1?layers=refrains',
+  '/psalms',
+  '/psalms?unit=c%3A0%3A1&turned=1&sort=turn',
+  '/read/c%3A0%3A1?layers=mood',
   '/read/c%3A0%3A1?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns',
   '/read/c%3A0%3A2?layers=wordplay%2Cketiv%2Cturns%2Cleitworte&lw=root',
   '/poetry?view=meter&group=pool',
@@ -182,6 +185,19 @@ test('a verse in two refrains links to them, and on to the refrain in its passag
   await page.locator('li.refrain').first().getByRole('link', { name: 'Read in the passage' }).click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=refrains/)
   await expect(page.locator('.reader-text .rf')).toHaveCount(8)
+})
+
+test('a psalm links to its form and turn, and on to its words of distress and praise', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '1 psalm: its genre, form and turn' }).click()
+  await expect(page).toHaveURL(/\/psalms\?unit=c%3A0%3A1/)
+  await expect(page.locator('li.psalm')).toHaveCount(1)
+  await expect(page.getByRole('img', { name: /Mood of/ })).toBeVisible()
+  await page.locator('li.psalm').getByRole('link', { name: 'Read with its mood' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=mood/)
+  await expect(page.locator('.reader-text .md-praise').first()).toBeVisible()
+  await expect(page.locator('.reader-text .md-distress').first()).toBeVisible()
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

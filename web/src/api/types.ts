@@ -1357,6 +1357,7 @@ export type DossierKind =
   | 'meter'
   | 'roots'
   | 'refrains'
+  | 'psalms'
   | 'labels'
 
 export interface DossierEntry {
@@ -1902,6 +1903,10 @@ export type FindingKey =
   | 'refrains'
   | 'refrain_regular'
   | 'refrain_turns'
+  | 'psalm_genres'
+  | 'psalm_forms'
+  | 'lament_turn'
+  | 'lament_turns'
 
 export interface Finding {
   key: FindingKey
@@ -2353,6 +2358,8 @@ export interface ReaderVerse {
   verse_id: number
   /** display token -> index into `refrains` */
   refrains: Record<string, number>
+  /** display token -> distress | praise (its SDBH domains) */
+  mood: Record<string, 'distress' | 'praise'>
   /** display token -> index into `speakers` */
   speech: Record<string, number>
   /** display token -> other verses sharing a phrase through it */
@@ -2372,6 +2379,119 @@ export interface ReaderResponse {
   /** strongest first */
   refrains: ReaderRefrain[]
   verses: ReaderVerse[]
+}
+
+// Psalms (`/psalms`, DESIGN.md §16.42): the form of each psalm, Gunkel's genres, the lament's turn.
+export type PsalmGenre = 'hymn' | 'lament_individual' | 'lament_communal' | 'royal' | 'thanksgiving' | 'trust' | 'wisdom'
+export type PsalmFeature =
+  | 'first_singular'
+  | 'first_plural'
+  | 'second'
+  | 'imperative'
+  | 'imperative_plural'
+  | 'question'
+  | 'distress'
+  | 'praise'
+export interface PsalmVerse {
+  verse: number
+  /** without the superscription */
+  words: number
+  distress: number
+  praise: number
+}
+export interface PsalmTurn {
+  /** the first verse after the split */
+  verse_id: number
+  verse: number
+  label: string
+  label_he: string
+  /** mood rate (praise - distress words per word) after - before */
+  stat: number
+  /** against verse orders shuffled within the psalm */
+  p: number
+  before: number
+  after: number
+}
+export interface Psalm {
+  unit_id: string
+  label: string
+  label_he: string
+  chapter: number
+  /** Gunkel's (core cases); null: mixed or disputed */
+  genre: string | null
+  cluster: number
+  words: number
+  /** per word */
+  features: Record<string, number>
+  turn: PsalmTurn | null
+  mood: PsalmVerse[]
+}
+export interface PsalmKnownTurn {
+  verse_id: number
+  label: string
+  label_he: string
+  turn_vid: number | null
+  turn_label: string | null
+  turn_label_he: string | null
+  p: number | null
+  /** null: the psalm is too short */
+  found: boolean | null
+  chance: number | null
+}
+export interface PsalmTest {
+  nmi: number
+  null: number
+  p: number
+}
+export interface PsalmCheck {
+  genre: string
+  feature: string
+  direction: 'higher' | 'lower'
+  mean: number
+  rest: number
+  p: number
+  q: number
+}
+export interface PsalmsMeta {
+  psalms?: number
+  labelled?: number
+  genres?: Record<string, number>
+  features?: string[]
+  k?: number
+  alpha?: number
+  draws?: number
+  title_words?: number
+  genre_test?: PsalmTest
+  crosstab?: { genre: string; cluster: number; n: number }[]
+  checks?: PsalmCheck[]
+  checks_held?: number
+  profiles?: Record<string, Record<string, number>>
+  cluster_profiles?: Record<string, Record<string, number>>
+  known_turns?: { found: number; n: number; expected: number; p: number }
+  laments_vs_hymns?: { laments: number; n_laments: number; hymns: number; n_hymns: number; p: number }
+  tolerance?: number
+  min_side?: number
+  robustness?: {
+    titles_kept: { nmi: number; known: number; laments_vs_hymns_p: number }
+    form_only: PsalmTest
+    domains_only: PsalmTest
+    tolerance: Record<string, { found: number; expected: number; p: number }>
+  }
+}
+export interface PsalmsResponse {
+  meta: PsalmsMeta & Record<string, unknown>
+  known: PsalmKnownTurn[]
+}
+export interface PsalmsListResponse {
+  genre: string | null
+  cluster: number | null
+  turned: boolean
+  unit: string | null
+  sort: string
+  total: number
+  offset: number
+  limit: number
+  items: Psalm[]
 }
 
 // Refrains (`/refrains`, DESIGN.md §16.40): phrases that come back inside a passage.
