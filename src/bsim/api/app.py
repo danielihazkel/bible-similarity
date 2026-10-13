@@ -300,7 +300,7 @@ def create_app(
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cfg["serve"]["cors_origins"],
-        allow_methods=["GET", "PUT", "DELETE"],  # PUT / DELETE: /labels only
+        allow_methods=["GET", "POST", "PUT", "DELETE"],  # writes: /labels and /notebook only
         allow_headers=["*"],
         expose_headers=["Server-Timing", "X-Total-Count", "Retry-After"],
     )

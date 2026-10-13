@@ -988,6 +988,9 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
   refrain_verses: 3           # /refrains/list: verses shown in full per refrain (the rest as references)
   list_verses: 3              # /forms/lists: a list's first verses shown in full
+  notebook:                   # /notebook: your bookmarks, notes and collections, in the labels file (DESIGN.md §16.47)
+    max_note: 20000           # characters of a note or a collection's description
+    max_name: 80              # characters of a collection's name
   patterns:                   # /patterns: pattern search over the words (DESIGN.md §16.46)
     max_patterns: 8           # word patterns in one query
     max_matches: 2000000      # partial matches at any step; a broader query is refused (too_broad)

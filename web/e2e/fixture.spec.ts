@@ -16,6 +16,7 @@ const PAGES = [
   '/lemma/7225',
   '/discoveries',
   '/labels',
+  '/notebook',
   '/phrases',
   '/sequences',
   '/sequences/1',
@@ -367,6 +368,37 @@ test('a pair is labelled from a list of similar verses and shows on the Labels p
   await expect(page.locator('.labels-list > li')).toHaveCount(1)
   await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
   await expect(page.locator('.labels-list > li')).toHaveCount(0)
+})
+
+test('a verse is kept with a note and a collection, and shows in the notebook', async ({ page }, info) => {
+  // it writes to the server's one labels file: run once, not on every device at the same time
+  test.skip(info.project.name !== 'desktop')
+  await page.goto('/unit/v%3A1')
+  const panel = page.getByRole('region', { name: 'Notebook' })
+  await panel.getByRole('button', { name: /Keep in notebook/ }).click()
+  await expect(panel.getByText('In your notebook')).toBeVisible()
+  await panel.getByPlaceholder('Your note (plain text)').fill('ויאמר: the second time')
+  await panel.getByRole('button', { name: 'Save note' }).click()
+  await expect(panel.getByText('Saved')).toBeVisible()
+  await panel.getByRole('combobox', { name: 'Add to a collection…' }).selectOption('__new__')
+  await panel.getByRole('textbox', { name: 'Name of the new collection' }).fill('Speeches')
+  await panel.getByRole('button', { name: 'Create and add' }).click()
+  await expect(panel.getByRole('button', { name: 'Take it out of “Speeches”' })).toBeVisible()
+  await panel.getByRole('link', { name: 'Open the notebook' }).click()
+  await expect(page).toHaveURL(/\/notebook$/)
+  await expect(page.locator('.notebook-entry')).toHaveCount(1)
+  await expect(page.locator('.notebook-entry textarea')).toHaveValue('ויאמר: the second time')
+  await page.getByRole('button', { name: 'Speeches (1)' }).click()
+  await expect(page).toHaveURL(/\/notebook\?c=\d+$/)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  // clean up: the collection, then the entry
+  await page.getByRole('button', { name: 'Delete collection' }).click()
+  await page.getByRole('button', { name: 'Delete', exact: true }).click()
+  await expect(page.getByText('No collections yet.')).toBeVisible()
+  await page.locator('.notebook-entry').getByRole('button', { name: 'Remove from notebook' }).click()
+  await page.getByRole('button', { name: 'Remove', exact: true }).click()
+  await expect(page.getByText(/Nothing kept yet/)).toBeVisible()
 })
 
 test('the Hebrew interface is right to left and loads every page cleanly', async ({ page }) => {

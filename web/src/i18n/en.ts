@@ -23,6 +23,7 @@ import { pentEn } from './pages/pentateuch'
 import { dlgEn } from './pages/dialogue'
 import { fmEn } from './pages/forms'
 import { qryEn } from './pages/query'
+import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
 import { refEn } from './pages/refrains'
 import { echoEn } from './pages/echoes'
@@ -95,6 +96,7 @@ export const en = {
     ketiv: { label: 'Written and read', hint: 'Ketiv and qere: what is written against what is read' },
     roots: { label: 'Roots', hint: 'Words of one root side by side; key roots of a chapter' },
     refrains: { label: 'Refrains', hint: 'Phrases that come back inside a passage' },
+    notebook: 'Notebook',
     query: { label: 'Pattern search', hint: 'Find a construction: lemma, root, form and syntax, word by word' },
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
@@ -436,6 +438,7 @@ export const en = {
   dlg: dlgEn,
   fm: fmEn,
   qry: qryEn,
+  nb: nbEn,
   echo: echoEn,
   find: findEn,
   ov: ovEn,

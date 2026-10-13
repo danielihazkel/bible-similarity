@@ -706,6 +706,12 @@ Phase 3 (M39c): API and viewer
 
 ✔ A construction can be searched from the viewer: `[form=infabs root=@r] [root=@r form=finite]` lists the 377 verses of מות יומת and its kind, and the query language reproduces the roots stage's count of infinitive-absolute pairs exactly (473).
 
+## M70: Your notebook (§16.47, D83; proposed B3)
+- [x] `store/notebook.py`: entries (a unit with a note), collections, members, in the labels file; adding to a collection keeps the unit, removing an entry takes it out of its collections, deleting a collection keeps its entries
+- [x] API `/notebook` (entries in canon order with a verse's text, collections with counts, `hidden` for units an older build had), entries, collections and members (PUT / POST / DELETE; 403 read-only, 404, 409 for a name taken, 422 for limits `serve.notebook`); CORS allows POST
+- [x] Viewer: a Notebook panel on every unit page (keep, note, collections, create one in place, remove with an in-page confirmation); the Notebook page (collections as filters with create / rename / describe / delete, search over notes, Markdown and CSV export written in the browser); English and Hebrew
+- [x] Tests: the store, the API (order, limits, conflicts, read-only, units of an older build, the file shared with the labels) (pytest); the panel, the page, the Markdown file, against an in-memory server (vitest); e2e: keep a verse with a note and a new collection, see it in the notebook, axe, clean up (fixture, desktop only: one shared file); the page loads on the real build
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -721,7 +727,7 @@ Analyses
 Viewer
 - [x] B1 (done, M62) Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
 - [x] B2 (done, M69) Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
-- B3 Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
+- [x] B3 (done, M70) Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
 
 Backend, models, code health
 - [x] C1 (done, M64) Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched

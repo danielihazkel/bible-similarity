@@ -1970,6 +1970,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notebook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Notebook
+         * @description Every entry in canon order, every collection by name.
+         */
+        get: operations["notebook_api_notebook_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notebook/entries/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Entry
+         * @description Keep a unit, or change its note (`note` null: keep the note it has).
+         */
+        put: operations["put_entry_api_notebook_entries__unit_id__put"];
+        post?: never;
+        /**
+         * Delete Entry
+         * @description Remove an entry (and take it out of its collections).
+         */
+        delete: operations["delete_entry_api_notebook_entries__unit_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notebook/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Collection */
+        post: operations["create_collection_api_notebook_collections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notebook/collections/{collection_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Collection
+         * @description Rename or describe a collection.
+         */
+        put: operations["update_collection_api_notebook_collections__collection_id__put"];
+        post?: never;
+        /**
+         * Delete Collection
+         * @description Remove a collection; its entries stay in the notebook.
+         */
+        delete: operations["delete_collection_api_notebook_collections__collection_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notebook/collections/{collection_id}/entries/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Add Member
+         * @description Put a unit in a collection (kept as an entry if it was not one).
+         */
+        put: operations["add_member_api_notebook_collections__collection_id__entries__unit_id__put"];
+        post?: never;
+        /**
+         * Remove Member
+         * @description Take a unit out of a collection (it stays in the notebook).
+         */
+        delete: operations["remove_member_api_notebook_collections__collection_id__entries__unit_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -2576,6 +2685,16 @@ export interface components {
             typ: string;
             /** Text */
             text: string;
+        };
+        /** CollectionIn */
+        CollectionIn: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
         };
         /** CommunityResponse */
         CommunityResponse: {
@@ -4065,6 +4184,56 @@ export interface components {
             communities: components["schemas"]["NetworkCommunity"][];
             /** Central */
             central: components["schemas"]["NetworkNode"][];
+        };
+        /**
+         * NoteIn
+         * @description The note of an entry (PUT /notebook/entries/{unit_id}); null keeps the note it has.
+         */
+        NoteIn: {
+            /** Note */
+            note?: string | null;
+        };
+        /** NotebookCollection */
+        NotebookCollection: {
+            /** Collection Id */
+            collection_id: number;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** N Entries */
+            n_entries: number;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /**
+         * NotebookEntry
+         * @description A unit you kept, with your note (DESIGN.md §16.47).
+         */
+        NotebookEntry: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Note */
+            note: string;
+            /** Collections */
+            collections: number[];
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            verse: components["schemas"]["Verse"] | null;
+        };
+        /** NotebookResponse */
+        NotebookResponse: {
+            /** Writable */
+            writable: boolean;
+            /** Entries */
+            entries: components["schemas"]["NotebookEntry"][];
+            /** Collections */
+            collections: components["schemas"]["NotebookCollection"][];
+            /** Hidden */
+            hidden: number;
         };
         /** Pair */
         Pair: {
@@ -9072,6 +9241,249 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PatternResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    notebook_api_notebook_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotebookResponse"];
+                };
+            };
+        };
+    };
+    put_entry_api_notebook_entries__unit_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoteIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotebookEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_notebook_entries__unit_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_collection_api_notebook_collections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotebookCollection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_collection_api_notebook_collections__collection_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotebookCollection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_collection_api_notebook_collections__collection_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_member_api_notebook_collections__collection_id__entries__unit_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotebookEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_member_api_notebook_collections__collection_id__entries__unit_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

@@ -24,6 +24,7 @@ import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { DatingLine } from '../components/DatingLine'
 import { DossierBar } from '../components/DossierBar'
+import { NotebookPanel } from '../components/NotebookPanel'
 import { ThemesPanel } from '../components/ThemesPanel'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
@@ -145,6 +146,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h1>
       <DossierBar unit={unit} dossier={dossier.data} error={dossier.error} />
+      <NotebookPanel unitId={unit.unit_id} />
 
       <div className="toolbar halves-bar">
         <Link className="read-link" to={readLink(unit.unit_id)} title={m.reader.openTitle}>

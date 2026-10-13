@@ -12,6 +12,7 @@ const RootsPage = lazy(() => import('./pages/RootsPage').then((m) => ({ default:
 const RootPage = lazy(() => import('./pages/RootPage').then((m) => ({ default: m.RootPage })))
 const ReaderPage = lazy(() => import('./pages/ReaderPage').then((m) => ({ default: m.ReaderPage })))
 const RefrainsPage = lazy(() => import('./pages/RefrainsPage').then((m) => ({ default: m.RefrainsPage })))
+const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ default: m.NotebookPage })))
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
 const FormsPage = lazy(() => import('./pages/FormsPage').then((m) => ({ default: m.FormsPage })))
 const PsalmsPage = lazy(() => import('./pages/PsalmsPage').then((m) => ({ default: m.PsalmsPage })))
@@ -87,6 +88,7 @@ export function App() {
           <Route path="refrains" element={<RefrainsPage />} />
           <Route path="forms" element={<FormsPage />} />
           <Route path="query" element={<QueryPage />} />
+          <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />
           <Route path="citations" element={<CitationsPage />} />

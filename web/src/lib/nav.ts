@@ -21,6 +21,7 @@ export const NAV: NavEntry[] = [
   { to: '/findings', key: 'findings' },
   { to: '/search', key: 'search' },
   { to: '/compare', key: 'compare' },
+  { to: '/notebook', key: 'notebook' },
   {
     key: 'parallels',
     items: [

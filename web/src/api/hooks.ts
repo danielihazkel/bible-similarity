@@ -16,6 +16,9 @@ import type {
   RefrainsResponse,
   FormsListsResponse,
   PatternResponse,
+  NotebookCollection,
+  NotebookEntry,
+  NotebookResponse,
   FormsResponse,
   FormsSayingsResponse,
   AffinityPair,
@@ -362,6 +365,50 @@ export function useSetLabel() {
       void client.invalidateQueries({ queryKey: ['labels'] })
       void client.invalidateQueries({ queryKey: ['labels-eval'] })
     },
+  })
+}
+
+/** Your notebook (DESIGN.md §16.47): like the labels, it changes while the viewer runs. */
+export const useNotebook = () =>
+  useQuery({ queryKey: ['notebook'], queryFn: ({ signal }) => getJson<NotebookResponse>('/notebook', {}, signal) })
+
+const enc = encodeURIComponent
+
+/** One change to the notebook; every kind refetches it when done. */
+export type NotebookChange =
+  | { kind: 'keep'; unit: string; note?: string }
+  | { kind: 'drop'; unit: string }
+  | { kind: 'create'; name: string; description?: string; unit?: string }
+  | { kind: 'rename'; id: number; name: string; description: string }
+  | { kind: 'delete'; id: number }
+  | { kind: 'add'; id: number; unit: string }
+  | { kind: 'remove'; id: number; unit: string }
+
+export function useNotebookChange() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (c: NotebookChange): Promise<unknown> => {
+      switch (c.kind) {
+        case 'keep':
+          return sendJson<NotebookEntry>('PUT', `/notebook/entries/${enc(c.unit)}`, { note: c.note ?? null })
+        case 'drop':
+          return sendJson<null>('DELETE', `/notebook/entries/${enc(c.unit)}`)
+        case 'create': {
+          const made = await sendJson<NotebookCollection>('POST', '/notebook/collections', { name: c.name, description: c.description ?? '' })
+          if (made && c.unit) await sendJson<NotebookEntry>('PUT', `/notebook/collections/${made.collection_id}/entries/${enc(c.unit)}`)
+          return made
+        }
+        case 'rename':
+          return sendJson<NotebookCollection>('PUT', `/notebook/collections/${c.id}`, { name: c.name, description: c.description })
+        case 'delete':
+          return sendJson<null>('DELETE', `/notebook/collections/${c.id}`)
+        case 'add':
+          return sendJson<NotebookEntry>('PUT', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
+        case 'remove':
+          return sendJson<null>('DELETE', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
+      }
+    },
+    onSettled: () => void client.invalidateQueries({ queryKey: ['notebook'] }),
   })
 }
 

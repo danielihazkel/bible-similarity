@@ -2867,3 +2867,29 @@ a.dossier-chip:hover {
 .query-help { margin-block: 1rem; }
 .query-help summary { cursor: pointer; font-weight: 600; }
 .query-help td[dir='ltr'] { text-align: start; }
+
+/* Your notebook (§16.47) */
+.notebook-panel { margin: 0.4rem 0 0.8rem; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.nb-head { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: baseline; }
+.nb-kept { font-weight: 600; color: var(--accent); }
+.nb-note { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: end; margin-top: 0.4rem; }
+.nb-note label { flex: 1 1 18rem; }
+.nb-note textarea, .nb-collection-edit textarea { width: 100%; box-sizing: border-box; font: inherit; }
+.nb-note-text { white-space: pre-wrap; margin: 0.4rem 0; }
+.nb-collections { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-top: 0.4rem; }
+.nb-chip { display: inline-flex; align-items: center; gap: 0.2rem; }
+.nb-chip-x { border: none; background: none; padding: 0 0.15rem; cursor: pointer; color: inherit; font-size: 1.05em; line-height: 1; }
+.nb-new { display: inline-flex; flex-wrap: wrap; gap: 0.35rem; align-items: end; margin-top: 0.4rem; }
+.nb-confirm { display: inline-flex; flex-wrap: wrap; gap: 0.3rem; align-items: baseline; }
+.notebook-panel button:not(.linkish):not(.nb-chip-x),
+.notebook-page button:not(.linkish):not(.chip):not(.nb-chip-x) {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.7rem;
+}
+.notebook-panel button.danger, .notebook-page button.danger { border-color: var(--accent); font-weight: 600; }
+.nb-collections-bar .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.nb-collection-edit { display: grid; gap: 0.4rem; max-width: 34rem; margin-top: 0.5rem; }
+.notebook-entry .nb-entry-editor { margin-top: 0.3rem; }

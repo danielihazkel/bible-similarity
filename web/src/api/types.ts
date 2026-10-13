@@ -2611,6 +2611,45 @@ export interface DialogueExchangesResponse {
   items: DialogueExchange[]
 }
 
+// Your notebook (`/notebook`, DESIGN.md §16.47): units kept with notes, and collections of them.
+export interface NotebookEntry {
+  unit: UnitSummary
+  note: string
+  /** collection ids */
+  collections: number[]
+  created_at: string
+  updated_at: string
+  /** the text, for a verse */
+  verse: Verse | null
+}
+export interface NotebookCollection {
+  collection_id: number
+  name: string
+  description: string
+  /** entries of the current build (an older build's units are left out) */
+  n_entries: number
+  created_at: string
+  updated_at: string
+}
+export interface NotebookResponse {
+  /** serve.labels_writable: the notebook shares the labels file */
+  writable: boolean
+  /** canon order */
+  entries: NotebookEntry[]
+  /** by name */
+  collections: NotebookCollection[]
+  /** entries whose unit this build lacks (kept in the file, not shown) */
+  hidden: number
+}
+export interface NoteIn {
+  /** null keeps the note the entry has */
+  note?: string | null
+}
+export interface CollectionIn {
+  name: string
+  description: string
+}
+
 // Pattern search (`/patterns`, DESIGN.md §16.46).
 export type PatternErrorCode =
   | 'empty'

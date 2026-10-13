@@ -46,8 +46,8 @@ async function apiError(res: Response): Promise<ApiError> {
   return new ApiError(res.status, detail)
 }
 
-/** A write (the labels are the API's only writable data): PUT with a JSON body, or DELETE. */
-export async function sendJson<T>(method: 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T | null> {
+/** A write (the labels and the notebook are the API's only writable data): POST or PUT with a JSON body, or DELETE. */
+export async function sendJson<T>(method: 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T | null> {
   const res = await fetch(`/api${path}`, {
     method,
     headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
