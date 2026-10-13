@@ -14,6 +14,9 @@ import type {
   PsalmsResponse,
   RefrainsListResponse,
   RefrainsResponse,
+  FormsListsResponse,
+  FormsResponse,
+  FormsSayingsResponse,
   AffinityPair,
   AlliterationResponse,
   AffinityResponse,
@@ -548,6 +551,45 @@ export const useRefrainList = (q: RefrainQuery) =>
     queryKey: ['refrain-list', q],
     queryFn: ({ signal }) =>
       getJson<RefrainsListResponse>('/refrains/list', { ...refrainParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useForms = () =>
+  useQuery({ queryKey: ['forms'], queryFn: ({ signal }) => getJson<FormsResponse>('/forms', {}, signal), ...forever })
+
+export interface SayingsQuery {
+  book?: number
+  unit?: string
+  known: boolean
+  limit: number
+  offset: number
+}
+
+export const sayingsParams = (q: SayingsQuery): Params => ({ book: q.book, unit: q.unit, known: q.known ? 'true' : undefined })
+
+export const useSayings = (q: SayingsQuery) =>
+  useQuery({
+    queryKey: ['forms-sayings', q],
+    queryFn: ({ signal }) => getJson<FormsSayingsResponse>('/forms/sayings', { ...sayingsParams(q), limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export interface ListsQuery {
+  book?: number
+  unit?: string
+  kind?: string
+  limit: number
+  offset: number
+}
+
+export const listsParams = (q: ListsQuery): Params => ({ book: q.book, unit: q.unit, kind: q.kind })
+
+export const useLists = (q: ListsQuery) =>
+  useQuery({
+    queryKey: ['forms-lists', q],
+    queryFn: ({ signal }) => getJson<FormsListsResponse>('/forms/lists', { ...listsParams(q), limit: q.limit, offset: q.offset }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

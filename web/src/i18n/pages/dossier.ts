@@ -52,6 +52,7 @@ export const dosEn = {
     psalms: (n: number) => countEn(n, 'psalm: its genre, form and turn', 'psalms: their genres, form and turns'),
     pentateuch: (n: number) => countEn(n, 'verse on the P-like side', 'verses on the P-like side'),
     dialogue: (n: number) => countEn(n, 'exchange between two speakers', 'exchanges between two speakers'),
+    forms: (n: number) => countEn(n, 'graded numerical saying or list', 'graded numerical sayings and lists'),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -85,6 +86,7 @@ export const dosEn = {
     psalms: 'psalm form',
     pentateuch: 'P-like verses',
     dialogue: 'exchanges',
+    forms: 'numerical sayings and lists',
   } as Record<DossierKind, string>,
 }
 
@@ -133,6 +135,7 @@ export const dosHe: typeof dosEn = {
     psalms: (n: number) => countHe(n, 'מזמור אחד: סוגו, צורתו ומפנהו', 'שני מזמורים: סוגם, צורתם ומפנם', 'מזמורים: סוגם, צורתם ומפנם'),
     pentateuch: (n: number) => countHe(n, 'פסוק אחד בצד הדומה ל־P', 'שני פסוקים בצד הדומה ל־P', 'פסוקים בצד הדומה ל־P'),
     dialogue: (n: number) => countHe(n, 'שיחה אחת בין שני דוברים', 'שתי שיחות בין שני דוברים', 'שיחות בין שני דוברים'),
+    forms: (n: number) => countHe(n, 'משל מספרי מדורג או רשימה', 'שני משלים מספריים או רשימות', 'משלים מספריים ורשימות'),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -165,5 +168,6 @@ export const dosHe: typeof dosEn = {
     psalms: 'צורת המזמור',
     pentateuch: 'פסוקים דומים ל־P',
     dialogue: 'שיחות',
+    forms: 'משלים מספריים ורשימות',
   },
 }

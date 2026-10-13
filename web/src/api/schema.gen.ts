@@ -1888,6 +1888,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forms
+         * @description The graded pairs against chance and against parallel lines, the sayings named in advance,
+         *     the lists against shuffled verse orders and the lists named in advance, per book.
+         */
+        get: operations["forms_api_forms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forms/sayings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forms Sayings
+         * @description Verses holding a graded pair, in canon order, with the two numbers marked.
+         */
+        get: operations["forms_sayings_api_forms_sayings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forms/lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forms Lists
+         * @description Runs of verses shaped alike, in canon order, with their first few verses.
+         */
+        get: operations["forms_lists_api_forms_lists_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -2853,7 +2914,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -3105,7 +3166,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists";
             /**
              * Verdict
              * @enum {string}
@@ -3122,6 +3183,155 @@ export interface components {
             alpha: number;
             /** Items */
             items: components["schemas"]["Finding"][];
+        };
+        /** FormsBook */
+        FormsBook: {
+            /** Book Id */
+            book_id: number;
+            /** Numbers */
+            numbers: number;
+            /** Free */
+            free: number;
+            /** Sayings */
+            sayings: number;
+            /** Lists */
+            lists: number;
+            /** List Verses */
+            list_verses: number;
+        };
+        /**
+         * FormsKnownList
+         * @description A list named in advance and how much of it the lists found cover.
+         */
+        FormsKnownList: {
+            /** Name */
+            name: string;
+            first: components["schemas"]["VerseLabel"];
+            last_verse: components["schemas"]["VerseLabel"];
+            /** N Verses */
+            n_verses: number;
+            /** Covered */
+            covered: number;
+            /** Found */
+            found: boolean;
+        };
+        /**
+         * FormsKnownSaying
+         * @description A graded numerical saying named in advance and whether it is found (§16.45).
+         */
+        FormsKnownSaying: {
+            /** Name */
+            name: string;
+            first: components["schemas"]["VerseLabel"];
+            /** N Verses */
+            n_verses: number;
+            /** Hits */
+            hits: number;
+            /** Found */
+            found: boolean;
+        };
+        /**
+         * FormsList
+         * @description A run of verses shaped alike: a genealogy, an itinerary, a roll of names.
+         */
+        FormsList: {
+            /** List Id */
+            list_id: number;
+            /** Book Id */
+            book_id: number;
+            /** Unit Id */
+            unit_id: string;
+            first: components["schemas"]["VerseLabel"];
+            last_verse: components["schemas"]["VerseLabel"];
+            /** N Verses */
+            n_verses: number;
+            /** N Like */
+            n_like: number;
+            /** Likeness */
+            likeness: number;
+            /** Kind */
+            kind: string;
+            /** Known */
+            known: string | null;
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+        };
+        /** FormsListsResponse */
+        FormsListsResponse: {
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Kind */
+            kind: string | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["FormsList"][];
+        };
+        /** FormsPair */
+        FormsPair: {
+            /** A Tok */
+            a_tok: number | null;
+            /** B Tok */
+            b_tok: number | null;
+            /** A Value */
+            a_value: number;
+            /** B Value */
+            b_value: number;
+        };
+        /** FormsResponse */
+        FormsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: components["schemas"]["FormsKnownSaying"][];
+            /** Known Lists */
+            known_lists: components["schemas"]["FormsKnownList"][];
+            /** Books */
+            books: components["schemas"]["FormsBook"][];
+        };
+        /**
+         * FormsSaying
+         * @description A verse with a number and the next a few words on (שלשה … וארבעה).
+         */
+        FormsSaying: {
+            /** Unit Id */
+            unit_id: string;
+            /** N Pairs */
+            n_pairs: number;
+            /** Steps */
+            steps: string;
+            /** Prob */
+            prob: number | null;
+            /** Known */
+            known: string | null;
+            /** Pairs */
+            pairs: components["schemas"]["FormsPair"][];
+            verse: components["schemas"]["Verse"];
+        };
+        /** FormsSayingsResponse */
+        FormsSayingsResponse: {
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Known */
+            known: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["FormsSaying"][];
         };
         /**
          * GoldLink
@@ -3593,6 +3803,8 @@ export interface components {
             y: number;
             /** Cluster */
             cluster: number;
+            /** List Verses */
+            list_verses: number;
         };
         /** MapResponse */
         MapResponse: {
@@ -3602,6 +3814,8 @@ export interface components {
             points: components["schemas"]["MapPoint"][];
             /** Clusters */
             clusters: components["schemas"]["MapCluster"][];
+            /** Lists */
+            lists: boolean;
         };
         /** Meta */
         Meta: {
@@ -8644,6 +8858,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DialogueExchangesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forms_api_forms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormsResponse"];
+                };
+            };
+        };
+    };
+    forms_sayings_api_forms_sayings_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                unit?: string | null;
+                known?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormsSayingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forms_lists_api_forms_lists_get: {
+        parameters: {
+            query?: {
+                book?: number | null;
+                unit?: string | null;
+                kind?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormsListsResponse"];
                 };
             };
             /** @description Validation Error */

@@ -163,6 +163,7 @@ def corpus_map(unit_type: str, state: State, conn: Conn) -> dict[str, Any]:
     return {
         "unit_type": unit_type,
         "points": [MapPoint(**p) for p in queries.map_points(conn, unit_type)],
+        "lists": state.present(conn, "forms_lists"),
         "clusters": [
             MapCluster(
                 cluster=c["cluster"],

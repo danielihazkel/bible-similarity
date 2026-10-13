@@ -50,6 +50,8 @@ Derived columns:
 - `pentateuch_verses`, `pentateuch_chapters` + `meta.pentateuch`: `bsim pentateuch` (empty
   without it).
 - `dialogue_pairs`, `dialogue_exchanges` + `meta.dialogue`: `bsim dialogue` (empty without it).
+- `forms_sayings`, `forms_pairs`, `forms_lists`, `forms_books` + `meta.forms`: `bsim forms` (empty
+  without it).
 - `clauses`, `syntax_phrases` + `meta.syntax`: `bsim syntax`; `speech_chapters`, `speech_books`,
   `speakers` from them (`analysis/speech.py`); `syntax_neighbors`: the top `syntax.neighbors` of
   the `syntax.system` verse list. All empty without `bsim syntax`.
@@ -153,6 +155,10 @@ INDEXES = (
     "CREATE INDEX dialogue_pairs_by_book ON dialogue_pairs (book_id, n_quotes DESC)",
     "CREATE INDEX dialogue_exchanges_by_book ON dialogue_exchanges (book_id, verse_id)",
     "CREATE INDEX dialogue_exchanges_by_verse ON dialogue_exchanges (verse_id, last_verse_id)",
+    "CREATE INDEX forms_sayings_by_book ON forms_sayings (book_id, verse_id)",
+    "CREATE INDEX forms_pairs_by_verse ON forms_pairs (verse_id)",
+    "CREATE INDEX forms_lists_by_book ON forms_lists (book_id, first_vid)",
+    "CREATE INDEX forms_lists_by_verse ON forms_lists (first_vid, last_vid)",
 )
 TABLE_COLUMNS = {
     "books": ["book_id", "name", "he_name", "osis", "section", "n_chapters"],
@@ -534,6 +540,19 @@ TABLE_COLUMNS = {
     "psalm_verses": ["verse_id", "unit_id", "verse", "words", "distress", "praise"],
     "pentateuch_verses": ["verse_id", "side", "prob", "reference", "core"],
     "dialogue_pairs": ["book_id", "speaker", "addressee", "n_quotes", "n_words", "n_reliable"],
+    "forms_sayings": ["verse_id", "book_id", "n_pairs", "steps", "prob", "known"],
+    "forms_pairs": ["verse_id", "a_tok", "b_tok", "a_value", "b_value"],
+    "forms_lists": [
+        "list_id",
+        "book_id",
+        "first_vid",
+        "last_vid",
+        "n_like",
+        "likeness",
+        "kind",
+        "known",
+    ],
+    "forms_books": ["book_id", "numbers", "free", "sayings", "lists", "list_verses"],
     "dialogue_exchanges": [
         "exchange",
         "book_id",
@@ -1320,6 +1339,13 @@ def _load_inputs(cfg: dict[str, Any]) -> dict[str, pd.DataFrame]:
         cols = TABLE_COLUMNS[table]
         out[table] = df[cols] if len(df) else pd.DataFrame(columns=cols)
     out["dialogue_meta"] = _read_json(dl_dir / "dialogue.meta.json")
+    fm_dir = resolve_path(cfg, "artifacts") / "forms"
+    for name in ("sayings", "pairs", "lists", "books"):
+        path = fm_dir / f"{name}.parquet"
+        df = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+        cols = TABLE_COLUMNS[f"forms_{name}"]
+        out[f"forms_{name}"] = df[cols] if len(df) else pd.DataFrame(columns=cols)
+    out["forms_meta"] = _read_json(fm_dir / "forms.meta.json")
     out["entities_meta"] = _read_json(ent_dir / "entities.meta.json")
     seam_dir = resolve_path(cfg, "artifacts") / "seams"
     for name in ("curve", "seams"):
@@ -1546,6 +1572,10 @@ def _write_db(
             "pentateuch_chapters": inputs["pentateuch_chapters"],
             "dialogue_pairs": inputs["dialogue_pairs"],
             "dialogue_exchanges": inputs["dialogue_exchanges"],
+            "forms_sayings": inputs["forms_sayings"],
+            "forms_pairs": inputs["forms_pairs"],
+            "forms_lists": inputs["forms_lists"],
+            "forms_books": inputs["forms_books"],
             "lemma_senses": inputs["lemma_senses"],
             "wordplay": inputs["wordplay"].assign(
                 book_id=lambda d: d.a_vid.map(verses.set_index("verse_id").book_id)
@@ -1750,6 +1780,26 @@ def _write_db(
                 "known_share",
                 "regular",
                 "turns",
+            )
+        }
+        fmm = inputs["forms_meta"]
+        meta["forms"] = {
+            k: fmm.get(k)
+            for k in (
+                "window",
+                "alpha",
+                "shuffles",
+                "numbers",
+                "free",
+                "sayings",
+                "graded_pairs",
+                "steps",
+                "chance",
+                "parallel",
+                "known",
+                "known_found",
+                "known_share",
+                "lists",
             )
         }
         dlm = inputs["dialogue_meta"]

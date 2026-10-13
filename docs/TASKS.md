@@ -687,6 +687,16 @@ Phase 3 (M39c): API and viewer
 
 ✔ Speech to God or a king calls the speaker "your servant" 13.1 times per 1,000 words against 1.5 (p 0.001; 11.7 without Solomon's temple prayer); commands to them take נא 14 % of the time against 4 % (p 0.003), siding with the politeness reading; the higher party does not have the last word more than its share of the turns gives (96 of 170 against 89.4, p 0.17), nor open more, nor speak longer. All 25 earlier findings unchanged. 552 pytest, 183 / 183 vitest, 227 fixture e2e (1 skipped by design; axe first flagged the exchange links as colour-only, underlined like the other running-text links) and 168 / 168 real-data e2e.
 
+## M68: Graded numerical sayings and lists (§16.45, D81; proposed A7)
+- [x] `bsim forms` (`analysis/forms.py`, stage after dialogue, ~6 s): number words from the lemma table `forms.numbers` (cardinals, Hebrew and Aramaic); compound numbers left out; graded pairs within 8 words of one verse (`steps`); lists as runs of verses whose word-shape n-grams match a neighbour up to 3 verses away above the shuffled 0.99 quantile; kinds described
+- [x] Checks fixed in advance (`forms.checks`): the 19 sayings named in advance; graded pairs against the book's number values permuted; sayings against other number pairs by parallelism; the 10 lists named in advance among more lists than shuffled orders give
+- [x] Changed after the first run, stated: a NaN bug in the parallelism check fixed; the `names` kind; the sensitivity without 1 / 2 (described); the lists on their own random stream. No verdict changed
+- [x] DB `forms_sayings`, `forms_pairs`, `forms_lists`, `forms_books` (+ `meta.forms`); API `/forms`, `/forms/sayings`, `/forms/lists`; `list_verses` on map points; dossier `forms`; findings `forms_known`, `forms_chance`, `forms_parallel`, `forms_lists`; CSV `sayings`, `lists`
+- [x] Viewer: Patterns → Numbers and lists (the sayings with both numbers marked, the lists with their first verses, the checks and what was named in advance); the Map coloured by lists; English and Hebrew
+- [x] Tests: number words, compound numbers, candidate pairs and steps, likeness and runs, the stage on a toy text, the API, map, findings, dossier, without the stage (pytest); the page, its checks, filters, Hebrew, the empty state; the map's colour option (vitest); e2e: the page in both languages with axe, from a chapter's dossier, Amos 1 and Genesis 5 on the real build
+
+✔ 18 of the 19 sayings named in advance are found (Deut 32:30's אחד אלף ושנים reads as one number), and a verse with a graded pair is a parallel line more often than one with another pair of numbers (12 % against 5 %, p 0.026); but graded pairs are no more common than the books' numbers placed at random (105 against 96.2, p 0.20): "one … two" in the measurements of the Tabernacle and Temple swamps the sayings (without 1 / 2: 48 against 37.0, p 0.037, described). 69 lists against 0.7 by chance, 8 of the 10 named in advance (Num 7 and Neh 3 missed).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -697,7 +707,7 @@ Analyses
 - [x] A4 (done, M65) Psalm genres and the lament turn: per-psalm address / person / imperatives / SDBH distress vs praise domains, clusters against Gunkel's genres in config (NMI vs shuffled labels); a change point inside laments checked on known turns (Ps 6:9, 13:6, 22:23, 28:6)
 - [x] A5 (done, M66) Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way
 - [x] A6 (done, M67) Who speaks to whom: addressee from the introducing clause's אל-complement and vocatives (hand check of 50, as M43); conversation network per book, turn length, last word; "To whom" on the Speech page
-- A7 Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
+- [x] A7 (done, M68) Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
 
 Viewer
 - [x] B1 (done, M62) Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first

@@ -1050,6 +1050,45 @@ CREATE TABLE dialogue_exchanges (
     last TEXT NOT NULL              -- who speaks last
 );
 
+-- Graded numerical sayings and lists (`bsim forms`, §16.45): a saying is a verse with a number and
+-- the next a few words on (שלשה … וארבעה); a list a run of verses shaped alike.
+CREATE TABLE forms_sayings (
+    verse_id INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    n_pairs INTEGER NOT NULL,       -- graded pairs in the verse
+    steps TEXT NOT NULL,            -- e.g. "3 / 4"
+    prob REAL,                      -- probability of parallel halves (§16.9)
+    known TEXT                      -- the saying of `forms.known` it is
+);
+
+CREATE TABLE forms_pairs (
+    verse_id INTEGER NOT NULL,
+    a_tok INTEGER,                  -- display tokens of the two numbers
+    b_tok INTEGER,
+    a_value INTEGER NOT NULL,
+    b_value INTEGER NOT NULL
+);
+
+CREATE TABLE forms_lists (
+    list_id INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_like INTEGER NOT NULL,        -- list-like verses in the run
+    likeness REAL NOT NULL,         -- mean best cosine of word shapes with a neighbour
+    kind TEXT NOT NULL,             -- genealogy | itinerary | census | offering | kings | names | other
+    known TEXT                      -- the list of `forms.lists.known` it is part of
+);
+
+CREATE TABLE forms_books (
+    book_id INTEGER PRIMARY KEY,
+    numbers INTEGER NOT NULL,       -- number words
+    free INTEGER NOT NULL,          -- ... not part of a compound number
+    sayings INTEGER NOT NULL,
+    lists INTEGER NOT NULL,
+    list_verses INTEGER NOT NULL
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

@@ -15,20 +15,23 @@ import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
-type ColorBy = 'cluster' | 'section'
+type ColorBy = 'cluster' | 'section' | 'lists'
 type Order = 'related' | 'canon'
 
 // Categorical hues (12, colour-blind-aware order), cycled for >12 clusters; sections use the first 3.
 const HUES = [210, 25, 140, 330, 50, 270, 175, 0, 95, 300, 230, 120]
 const color = (i: number, alpha = 1) => `hsla(${HUES[i % HUES.length]}, 62%, ${i >= HUES.length ? 38 : 48}%, ${alpha})`
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
+// the share of a unit's verses in a list (§16.45): one hue, lighter to darker
+const shade = (share: number, alpha = 1) => `hsla(25, 70%, ${Math.round(88 - share * 55)}%, ${alpha})`
 
 export function MapPage() {
   const m = useT()
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
-  const colorBy: ColorBy = params.get('color') === 'section' ? 'section' : 'cluster'
+  const rawColor = params.get('color')
+  const colorBy: ColorBy = rawColor === 'section' || rawColor === 'lists' ? rawColor : 'cluster'
   const order: Order = params.get('order') === 'canon' ? 'canon' : 'related'
   const books = useBooks()
   const map = useCorpusMap(unitType)
@@ -55,6 +58,7 @@ export function MapPage() {
           options={[
             { value: 'cluster', label: m.ov.map.clusters },
             { value: 'section', label: m.ov.map.sections },
+            ...(map.data?.lists ? [{ value: 'lists' as const, label: m.ov.map.lists }] : []),
           ]}
         />
       </div>
@@ -91,6 +95,13 @@ export function MapPage() {
                 </li>
               ))}
             </ul>
+          ) : colorBy === 'lists' ? (
+            <div className="cluster-legend">
+              <p className="small">
+                <span className="swatch" style={{ background: shade(0) }} /> <span className="swatch" style={{ background: shade(0.5) }} />{' '}
+                <span className="swatch" style={{ background: shade(1) }} /> {m.ov.map.listsLegend}
+              </p>
+            </div>
           ) : (
             <ul className="cluster-legend">
               {SECTIONS.map((s, i) => (
@@ -133,12 +144,17 @@ function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; boo
       width={720}
       height={560}
       label={m.ov.map.scatter}
-      fill={(p) => color(colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0), focus !== undefined && p.cluster !== focus ? 0.12 : 0.85)}
+      fill={(p) =>
+        colorBy === 'lists'
+          ? shade(p.list_verses / Math.max(p.n_verses, 1), 0.9)
+          : color(colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0), focus !== undefined && p.cluster !== focus ? 0.12 : 0.85)
+      }
       radius={() => r}
       front={focus === undefined ? undefined : (p) => p.cluster === focus}
       caption={(p) => (
         <>
           <UnitName en={p.label_en} he={p.label_he} spaced /> {m.ov.map.point(p.n_verses)}
+          {colorBy === 'lists' && p.list_verses > 0 && <> {m.ov.map.listShare(p.list_verses, p.n_verses)}</>}
         </>
       )}
       idle={m.ov.map.idle}

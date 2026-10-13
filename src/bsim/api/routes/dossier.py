@@ -26,6 +26,7 @@ and what it found:
     psalms                        count = psalms the unit overlaps
     pentateuch                    count = verses of the unit on the P-like side of the split
     dialogue                      count = exchanges between two parties touching the unit
+    forms                         count = graded numerical sayings + lists touching the unit
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -250,6 +251,13 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         "dialogue",
         computed=state.present(conn, "dialogue_exchanges"),
         count=queries.dialogue_exchanges_page(conn, None, None, False, 1, 0, span)[0],
+    )
+
+    add(
+        "forms",
+        computed=state.present(conn, "forms_lists") or state.present(conn, "forms_sayings"),
+        count=queries.forms_sayings_page(conn, None, span, False, 1, 0)[0]
+        + queries.forms_lists_page(conn, None, span, None, 1, 0)[0],
     )
 
     add(

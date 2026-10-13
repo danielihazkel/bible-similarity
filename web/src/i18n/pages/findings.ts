@@ -161,6 +161,26 @@ export const findEn = {
       text: (v: V) =>
         `Before Exodus 6, does the P-like side avoid יהוה, which it never saw? יהוה is ${Math.round(n(v, 'p_like') * 100)}% of its divine names against ${Math.round(n(v, 'non_p') * 100)}% on the other side (gap ${x3(n(v, 'observed'))} against ${x3(n(v, 'null'))}, p ${fp(n(v, 'p'))}).`,
     },
+    forms_known: {
+      title: 'Graded numerical sayings',
+      text: (v: V) =>
+        `Are the sayings that name a number and then the next (שלשה … וארבעה), as scholars list them, found? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}, among ${numEn(n(v, 'sayings'))} verses with such a pair.`,
+    },
+    forms_chance: {
+      title: 'A number and the next, more than chance?',
+      text: (v: V) =>
+        `Do a number and the next stand a few words apart more often than the book's own numbers placed at random give? ${numEn(n(v, 'observed'))} pairs against ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}); most are “one … two” in measurements. Without “one … two”, described after the first run: ${numEn(n(v, 'without_observed'))} against ${n(v, 'without_expected').toFixed(1)} (p ${fp(n(v, 'without_p'))}).`,
+    },
+    forms_parallel: {
+      title: 'Graded numbers stand in parallel lines',
+      text: (v: V) =>
+        `Is a verse with a number and the next more often a parallel line than one with another pair of numbers? ${pct(n(v, 'saying_parallel'))} of ${numEn(n(v, 'sayings'))} against ${pct(n(v, 'other_parallel'))} of ${numEn(n(v, 'others'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    forms_lists: {
+      title: 'Lists by the shape of their verses',
+      text: (v: V) =>
+        `Are the genealogies, itineraries and rolls named in advance found as runs of verses shaped alike? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}, among ${numEn(n(v, 'lists'))} lists against ${n(v, 'expected').toFixed(1)} with each book's verses shuffled.`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -318,6 +338,26 @@ export const findHe: typeof findEn = {
       title: 'שמות האל הולכים אחר החלוקה',
       text: (v: V) =>
         `לפני שמות ו, האם הצד הדומה ל־P נמנע מיהוה, שלא ראה? יהוה הוא ${Math.round(n(v, 'p_like') * 100)}% משמות האל שבו לעומת ${Math.round(n(v, 'non_p') * 100)}% בצד האחר (פער ${x3(n(v, 'observed'))} לעומת ${x3(n(v, 'null'))}, p ${fp(n(v, 'p'))}).`,
+    },
+    forms_known: {
+      title: 'משלים מספריים מדורגים',
+      text: (v: V) =>
+        `האם המשלים המונים מספר ואחריו את הבא (שלשה … וארבעה), כפי שהמחקר מונה אותם, נמצאים? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}, בין ${numHe(n(v, 'sayings'))} פסוקים שיש בהם זוג כזה.`,
+    },
+    forms_chance: {
+      title: 'מספר והבא אחריו, יותר מן המקרה?',
+      text: (v: V) =>
+        `האם מספר והבא אחריו עומדים במרחק מילים אחדות זה מזה יותר ממה שמספרי הספר עצמו, מפוזרים באקראי, נותנים? ${numHe(n(v, 'observed'))} זוגות לעומת ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}); רובם ”אחד … שנים“ שבמידות. בלי ”אחד … שנים“, תיאור שנוסף אחרי הריצה הראשונה: ${numHe(n(v, 'without_observed'))} לעומת ${n(v, 'without_expected').toFixed(1)} (p ${fp(n(v, 'without_p'))}).`,
+    },
+    forms_parallel: {
+      title: 'מספרים מדורגים עומדים בצלעות מקבילות',
+      text: (v: V) =>
+        `האם פסוק שיש בו מספר והבא אחריו הוא צלע מקבילה יותר מפסוק שיש בו זוג מספרים אחר? ${pct(n(v, 'saying_parallel'))} מתוך ${numHe(n(v, 'sayings'))} לעומת ${pct(n(v, 'other_parallel'))} מתוך ${numHe(n(v, 'others'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    forms_lists: {
+      title: 'רשימות לפי צורת פסוקיהן',
+      text: (v: V) =>
+        `האם היחסים, המסעות והמפקדים שנמנו מראש נמצאים כרצפים של פסוקים דומי צורה? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}, בין ${numHe(n(v, 'lists'))} רשימות לעומת ${n(v, 'expected').toFixed(1)} כשפסוקי כל ספר מעורבבים.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

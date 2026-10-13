@@ -157,6 +157,14 @@ def dialogue(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def forms(config: ConfigOpt = None) -> None:
+    """Graded numerical sayings (three, and four) and lists of verses shaped alike."""
+    from bsim.analysis.forms import run_forms
+
+    run_forms(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

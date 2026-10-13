@@ -168,6 +168,7 @@ bible-similarity/
 │   │   ├── psalms.py               # `bsim psalms`: the counted form of each psalm against Gunkel's genres, the lament's turn (§16.42)
 │   │   ├── pentateuch.py           # `bsim pentateuch`: an unsupervised P / non-P split of Genesis–Numbers against the critics' P (§16.43)
 │   │   ├── dialogue.py             # `bsim dialogue`: who speaks to whom — pairs, exchanges, deference, נא, the last word (§16.44)
+│   │   ├── forms.py                # `bsim forms`: graded numerical sayings (three, and four) and lists of verses shaped alike (§16.45)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
 │   ├── eval/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
@@ -184,7 +185,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models.py               # pydantic response models
 │       ├── queries.py              # read-only SQL helpers over results.sqlite
 │       ├── resolve.py              # reference parsing for /resolve
@@ -199,7 +200,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
 ├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e
@@ -261,11 +262,12 @@ bible-similarity/
 | 11e¹¹ | `bsim psalms` | verses, words, word senses | `artifacts/psalms/{psalms,verses}.parquet` + `psalms.meta.json` (§16.42) |
 | 11e¹² | `bsim pentateuch` | verses, words | `artifacts/pentateuch/{verses,chapters}.parquet` + `pentateuch.meta.json` (§16.43) |
 | 11e¹³ | `bsim dialogue` | syntax clauses (with addressees), verses, words | `artifacts/dialogue/{quotations,pairs,exchanges}.parquet` + `dialogue.meta.json` (§16.44) |
+| 11e¹⁴ | `bsim forms` | verses, words, parallelism verses | `artifacts/forms/{sayings,pairs,lists,books}.parquet` + `forms.meta.json` (§16.45) |
 | 11f' | `bsim eval-etcbc` | ETCBC pairs, final verse top-k, sequences, phrases | `artifacts/eval/etcbc.{json,md}` (§16.34) |
 | 12 | `bsim build-db` | processed (+ `links.parquet`) + final topk + phrases + sequences + diffs + parallelism + acrostics + wordplay + entities + seams + structure + map + network + stylometry | `artifacts/results.sqlite` |
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).

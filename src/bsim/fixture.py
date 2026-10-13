@@ -1029,6 +1029,62 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # graded numerical sayings and lists (`bsim forms`): v0 a saying named in advance (3 / 4), v4
+    # one not named (1 / 2); a genealogy over v1-v3 (named in advance), a list of names in v5
+    fm_dir = art / "forms"
+    fm_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, 0, 1, "3 / 4", 0.8, "שלשה … ארבעה (Amos 1–2)"), (4, 0, 1, "1 / 2", None, None)],
+        columns=["verse_id", "book_id", "n_pairs", "steps", "prob", "known"],
+    ).astype({"prob": "Float64"}).to_parquet(fm_dir / "sayings.parquet")
+    pd.DataFrame(
+        [(0, 1, 3, 3, 4), (4, 0, None, 1, 2)],
+        columns=["verse_id", "a_tok", "b_tok", "a_value", "b_value"],
+    ).astype({"a_tok": "Int64", "b_tok": "Int64"}).to_parquet(fm_dir / "pairs.parquet")
+    pd.DataFrame(
+        [(1, 0, 1, 3, 3, 0.9, "genealogy", "Adam to Noah"), (2, 1, 5, 5, 1, 0.8, "names", None)],
+        columns=["list_id", "book_id", "first_vid", "last_vid", "n_like", "likeness", "kind",
+                 "known"],
+    ).to_parquet(fm_dir / "lists.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(0, 6, 4, 2, 1, 3), (1, 0, 0, 0, 1, 1)],
+        columns=["book_id", "numbers", "free", "sayings", "lists", "list_verses"],
+    ).to_parquet(fm_dir / "books.parquet")
+    (fm_dir / "forms.meta.json").write_text(
+        json.dumps(
+            {
+                "window": 8, "alpha": 0.05, "shuffles": 999, "numbers": 6, "free": 4,
+                "sayings": 2, "graded_pairs": 2, "steps": {"1 / 2": 1, "3 / 4": 1},
+                "chance": {"pairs": 1286, "observed": 105, "expected": 96.2, "p": 0.196,
+                           "without": ["1 / 2"], "without_observed": 48,
+                           "without_expected": 37.0, "without_p": 0.037},
+                "parallel": {"sayings": 91, "others": 511, "saying_prob": 0.19,
+                             "other_prob": 0.15, "saying_parallel": 0.12,
+                             "other_parallel": 0.05, "p": 0.026},
+                "known": [
+                    {"name": "שלשה … ארבעה (Amos 1–2)", "verses": [0, 1], "hits": [0],
+                     "found": True},
+                    {"name": "אחד … ושנים (Deut 32:30)", "verses": [3], "hits": [],
+                     "found": False},
+                ],
+                "known_found": 1, "known_share": 0.67,
+                "lists": {
+                    "threshold": 0.73, "like_verses": 4, "observed": 2, "expected": 0.7,
+                    "verses": 4, "kinds": {"genealogy": 1, "names": 1},
+                    "known": [
+                        {"name": "Adam to Noah", "first_vid": 1, "last_vid": 3, "covered": 3,
+                         "found": True, "list_ids": [1]},
+                        {"name": "the chieftains' offerings", "first_vid": 4, "last_vid": 5,
+                         "covered": 1, "found": True, "list_ids": [2]},
+                    ],
+                    "known_found": 2, "known_share": 0.67, "shuffles": 20, "min_verses": 5,
+                    "quantile": 0.99,
+                },
+            },  # fmt: skip
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     # rare words over a few verses (`bsim allusions`): v0-v1 and v3-v4 (known), v1-v2 and v5 (new)
     allu_dir = art / "allusions"
     allu_dir.mkdir(parents=True, exist_ok=True)

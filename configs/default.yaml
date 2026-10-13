@@ -842,6 +842,103 @@ dialogue:                     # `bsim dialogue`: who speaks to whom (DESIGN.md �
   exchanges_page: 50          # /dialogue/exchanges default page size
   network_nodes: 14           # /dialogue/book: most active parties drawn in a book's network
 
+forms:                        # `bsim forms`: graded numerical sayings and lists (DESIGN.md §16.45); everything below fixed before the first run
+  numbers:                    # lemma -> value: the cardinals (Hebrew and Aramaic) and רבבה / ריבו; ordinals and dual nouns (פעמים, יומים) are not numbers here
+    "259": 1
+    "8147": 2
+    "7969": 3
+    "702": 4
+    "2568": 5
+    "8337": 6
+    "7651": 7
+    "8083": 8
+    "8672": 9
+    "6235": 10
+    "6240": 0                 # עשר of the teens: no value of its own; joins a unit into one number
+    "6249": 1                 # עשתי (עשתי עשר, eleven)
+    "6242": 20
+    "7970": 30
+    "705": 40
+    "2572": 50
+    "8346": 60
+    "7657": 70
+    "8084": 80
+    "8673": 90
+    "3967": 100
+    "505": 1000
+    "7233": 10000             # רבבה (a noun)
+    "7239": 10000             # ריבו
+    "2298": 1                 # Aramaic חד
+    "8648": 2                 # Aramaic תרין
+    "8532": 3                 # Aramaic תלת
+    "703": 4                  # Aramaic ארבע
+    "7655": 7                 # Aramaic שבעה
+    "6236": 10                # Aramaic עשר
+    "8361": 60                # Aramaic שתין
+    "3969": 100               # Aramaic מאה
+    "506": 1000               # Aramaic אלף
+    "7240": 10000             # Aramaic רבו
+  steps: [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 20], [20, 30], [30, 40], [40, 50], [50, 60], [60, 70], [70, 80], [80, 90], [1000, 10000]]   # x then the next: the graded step (x / x+1, the tens, a thousand / ten thousand)
+  window: 8                   # the second number at most this many words after the first, in the same verse
+  # a run of number words side by side is one compound number (שלשים ושנים, שלש מאות, שלש עשרה) and is left out, unless it is just two words a step apart (שנים שלשה, אלף ורבבה)
+  known:                      # [name, verses]: graded numerical sayings named in advance (Roth 1962, VT 12; Haran 1972), cardinals on both sides; found when at least half its verses hold a graded pair
+    - ["שלשה … ארבעה (Amos 1–2)", ["Amos 1:3", "Amos 1:6", "Amos 1:9", "Amos 1:11", "Amos 1:13", "Amos 2:1", "Amos 2:4", "Amos 2:6"]]
+    - ["שלוש … ארבע (Prov 30:15)", ["Proverbs 30:15"]]
+    - ["שלשה … וארבע (Prov 30:18)", ["Proverbs 30:18"]]
+    - ["שלוש … ארבע (Prov 30:21)", ["Proverbs 30:21"]]
+    - ["שלשה … וארבעה (Prov 30:29)", ["Proverbs 30:29"]]
+    - ["שש … ושבע (Prov 6:16)", ["Proverbs 6:16"]]
+    - ["בשש … ובשבע (Job 5:19)", ["Job 5:19"]]
+    - ["שבעה … ושמנה (Mic 5:4)", ["Micah 5:4"]]
+    - ["לשבעה … לשמונה (Eccl 11:2)", ["Ecclesiastes 11:2"]]
+    - ["אחת … שתים (Ps 62:12)", ["Psalms 62:12"]]
+    - ["באחת … ובשתים (Job 33:14)", ["Job 33:14"]]
+    - ["אחת … ושתים (Job 40:5)", ["Job 40:5"]]
+    - ["אחד … ושנים (Deut 32:30)", ["Deuteronomy 32:30"]]
+    - ["אחד … ושנים (Jer 3:14)", ["Jeremiah 3:14"]]
+    - ["שנים שלשה … ארבעה חמשה (Isa 17:6)", ["Isaiah 17:6"]]
+    - ["שתים שלש (Amos 4:8)", ["Amos 4:8"]]
+    - ["באלפו … ברבבתיו (1 Sam 18:7)", ["I Samuel 18:7", "I Samuel 21:12", "I Samuel 29:5"]]
+    - ["אלף ורבבה (Ps 91:7)", ["Psalms 91:7"]]
+    - ["באלפי … ברבבות (Mic 6:7)", ["Micah 6:7"]]
+  known_share: 0.67           # the check of the sayings named in advance holds when at least this share is found
+  lists:                      # runs of verses shaped alike (word-shape n-grams, `lexical.morph`, §16.5)
+    max_n: 3                  # shape n-grams 1..max_n, counted, cosine between verses
+    lags: 3                   # a verse is compared with the verses up to this far before and after it (genealogies repeat every two or three verses)
+    quantile: 0.99            # a verse is list-like when its best match is above this quantile of the best matches with verse orders shuffled within books
+    min_verses: 5             # a list: at least this many list-like verses
+    max_gap: 1                # ... with at most this many other verses between consecutive ones
+    kinds:                    # described, not tested: a list's kind by the lemmas in at least half its verses, first match; else `names`, else other
+      genealogy: ["3205"]     # ילד
+      itinerary: ["5265", "2583"]   # נסע, חנה
+      census: ["6485"]        # פקד
+      offering: ["7133"]      # קרבן
+      kings: ["4428"]         # מלך
+    names_share: 0.3          # a list of names: proper nouns are at least this share of its words (added after the first run: 61 of 69 lists were "other")
+    known:                    # [name, first, last]: lists named in advance; found when at least half their verses are in a list found
+      - ["Adam to Noah", "Genesis 5:6", "Genesis 5:31"]
+      - ["Shem to Terah", "Genesis 11:12", "Genesis 11:25"]
+      - ["the kings of Edom", "Genesis 36:32", "Genesis 36:39"]
+      - ["the census of the tribes", "Numbers 1:20", "Numbers 1:43"]
+      - ["the chieftains' offerings", "Numbers 7:12", "Numbers 7:83"]
+      - ["the stations of the wilderness", "Numbers 33:5", "Numbers 33:49"]
+      - ["the kings Joshua struck", "Joshua 12:9", "Joshua 12:24"]
+      - ["the priestly courses", "I Chronicles 24:7", "I Chronicles 24:18"]
+      - ["the returnees", "Ezra 2:3", "Ezra 2:35"]
+      - ["the builders of the wall", "Nehemiah 3:2", "Nehemiah 3:32"]
+    known_share: 0.67
+  shuffles: 999               # number values permuted over the free number words of each book; graded labels permuted over number-pair verses
+  sensitivity_drop: [[1, 2]]  # described, added after the first run: the chance test without these steps (most "one … two" are האחד … שני, not a saying)
+  list_shuffles: 20           # verse orders shuffled within each book (the lists found by chance)
+  alpha: 0.05
+  seed: 13
+  checks:                     # one-sided, at `alpha`
+    known: found              # the sayings named in advance are found (a known answer)
+    chance: more              # graded pairs are more common than the book's numbers placed at random give
+    parallel: more            # a verse with a graded pair is more often a parallel line (§16.9) than one with another pair of numbers (Roth: a device of parallelism)
+    lists: found              # the lists named in advance are found, among more lists than shuffled verse orders give
+  page: 50                    # /forms/sayings, /forms/lists default page size
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)
@@ -890,6 +987,7 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool
   refrain_verses: 3           # /refrains/list: verses shown in full per refrain (the rest as references)
+  list_verses: 3              # /forms/lists: a list's first verses shown in full
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
     rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)

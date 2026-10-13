@@ -89,6 +89,9 @@ const PAGES = [
   '/speech?view=voices&voice=divine',
   '/speech?view=dialogue',
   '/speech?view=dialogue&book=1&unequal=1',
+  '/forms',
+  '/forms?view=lists&kind=genealogy',
+  '/map?color=lists',
   '/unit/v%3A1?syntax=1',
   '/unit/c%3A0%3A1?syntax=1',
   '/phrases?unit=v%3A0',
@@ -227,6 +230,20 @@ test('a chapter with an exchange links to who speaks to whom, and on to the read
   await page.locator('.dlg-exchange').getByRole('link').click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=speakers/)
   await expect(page.locator('.reader-legend')).toContainText('to 4872')
+})
+
+test('a chapter with a numerical saying and a list links to them on the Numbers and lists page', async ({ page }) => {
+  await page.goto('/unit/c%3A0%3A1')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: '2 graded numerical sayings and lists' }).click()
+  await expect(page).toHaveURL(/\/forms\?unit=c%3A0%3A1$/)
+  await expect(page.locator('.dlg-verdict')).toHaveCount(3)
+  await expect(page.locator('.saying')).toHaveCount(1)
+  await expect(page.locator('.saying .w-shared')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'Lists' }).click()
+  await expect(page).toHaveURL(/\/forms\?view=lists$/)
+  await expect(page.locator('.list')).toHaveCount(2)
+  await expect(page.locator('.list').first()).toContainText('genealogy')
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

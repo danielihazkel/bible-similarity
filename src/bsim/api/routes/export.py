@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from bsim.api.routes import (
     core,
     dialogue,
+    forms,
     meter,
     parallels,
     pentateuch,
@@ -59,6 +60,8 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "psalms": psalms.psalm_list,
     "pentateuch": pentateuch.pentateuch_chapters,
     "exchanges": dialogue.dialogue_exchanges,
+    "sayings": forms.forms_sayings,
+    "lists": forms.forms_lists,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",

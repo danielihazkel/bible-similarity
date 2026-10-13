@@ -342,6 +342,48 @@ def _dialogue(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float]
     return build
 
 
+def _forms(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Graded numerical sayings and lists: the sayings named in advance found; graded pairs
+    against the book's numbers placed at random; sayings in parallel lines against other verses
+    with two numbers; the lists named in advance found among more lists than chance gives."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        f = meta.get("forms") or {}
+        if key == "forms_known":
+            if not f.get("known"):
+                return None
+            n = len(f["known"])
+            values = {"found": f.get("known_found"), "n": n, "sayings": f.get("sayings")}
+            holds = (f.get("known_found") or 0) / n >= f.get("known_share", 2 / 3)
+        elif key == "forms_chance":
+            c = f.get("chance") or {}
+            if c.get("p") is None:
+                return None
+            values = {k: c.get(k) for k in ("observed", "expected", "p", "without_observed",
+                                            "without_expected", "without_p")}  # fmt: skip
+            holds = c["observed"] > c["expected"] and c["p"] <= alpha
+        elif key == "forms_parallel":
+            c = f.get("parallel") or {}
+            if c.get("p") is None:
+                return None
+            values = {k: c.get(k) for k in ("sayings", "others", "saying_parallel",
+                                            "other_parallel", "p")}  # fmt: skip
+            holds = c["saying_prob"] > c["other_prob"] and c["p"] <= alpha
+        else:
+            li = f.get("lists") or {}
+            if not li.get("known"):
+                return None
+            n = len(li["known"])
+            values = {"found": li.get("known_found"), "n": n, "lists": li.get("observed"),
+                      "expected": li.get("expected")}  # fmt: skip
+            holds = (li.get("known_found") or 0) / n >= li.get("known_share", 2 / 3) and (
+                li.get("observed") or 0
+            ) > (li.get("expected") or 0)
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -370,6 +412,10 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _dialogue("dialogue_deference", "deference"),
     _dialogue("dialogue_particle", "particle"),
     _dialogue("dialogue_last_word", "last_word"),
+    _forms("forms_known"),
+    _forms("forms_chance"),
+    _forms("forms_parallel"),
+    _forms("forms_lists"),
     _allusions,
 ]
 

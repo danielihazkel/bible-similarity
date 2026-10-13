@@ -408,6 +408,8 @@ export interface MapPoint {
   x: number
   y: number
   cluster: number
+  /** verses inside a list (`bsim forms`, §16.45) */
+  list_verses: number
 }
 
 export interface MapCluster {
@@ -420,6 +422,8 @@ export interface MapResponse {
   unit_type: UnitType
   points: MapPoint[]
   clusters: MapCluster[]
+  /** lists computed (`bsim forms`): the map can be coloured by them */
+  lists: boolean
 }
 
 export interface AffinityCell {
@@ -1376,6 +1380,7 @@ export type DossierKind =
   | 'psalms'
   | 'pentateuch'
   | 'dialogue'
+  | 'forms'
   | 'labels'
 
 export interface DossierEntry {
@@ -1931,6 +1936,10 @@ export type FindingKey =
   | 'dialogue_deference'
   | 'dialogue_particle'
   | 'dialogue_last_word'
+  | 'forms_known'
+  | 'forms_chance'
+  | 'forms_parallel'
+  | 'forms_lists'
 
 export interface Finding {
   key: FindingKey
@@ -2600,6 +2609,153 @@ export interface DialogueExchangesResponse {
   offset: number
   limit: number
   items: DialogueExchange[]
+}
+
+// Graded numerical sayings and lists (`/forms`, DESIGN.md §16.45).
+export interface FormsKnownSaying {
+  name: string
+  /** its first named verse */
+  first: VerseLabel
+  /** verses named */
+  n_verses: number
+  /** of them holding a graded pair */
+  hits: number
+  /** at least half */
+  found: boolean
+}
+export interface FormsKnownList {
+  name: string
+  first: VerseLabel
+  last_verse: VerseLabel
+  n_verses: number
+  /** its verses inside a list found */
+  covered: number
+  /** at least half */
+  found: boolean
+}
+export interface FormsBook {
+  book_id: number
+  /** number words */
+  numbers: number
+  /** ... not part of a compound number */
+  free: number
+  sayings: number
+  lists: number
+  list_verses: number
+}
+export interface FormsChance {
+  pairs: number
+  observed: number
+  expected: number
+  p: number | null
+  /** described, added after the first run: the test without these steps */
+  without?: string[]
+  without_observed?: number
+  without_expected?: number
+  without_p?: number | null
+}
+export interface FormsParallel {
+  sayings: number
+  others: number
+  saying_prob: number
+  other_prob: number
+  saying_parallel: number
+  other_parallel: number
+  p: number | null
+}
+export type FormsKind = 'genealogy' | 'itinerary' | 'census' | 'offering' | 'kings' | 'names' | 'other'
+export interface FormsListsMeta {
+  threshold?: number
+  like_verses?: number
+  observed?: number
+  expected?: number
+  verses?: number
+  kinds?: Partial<Record<FormsKind, number>>
+  known_found?: number
+  known_share?: number
+  shuffles?: number
+  min_verses?: number
+  quantile?: number
+}
+export interface FormsMeta {
+  window?: number
+  alpha?: number
+  shuffles?: number
+  numbers?: number
+  free?: number
+  sayings?: number
+  graded_pairs?: number
+  /** "3 / 4" -> graded pairs */
+  steps?: Record<string, number>
+  chance?: FormsChance | null
+  parallel?: FormsParallel | null
+  known_found?: number
+  known_share?: number
+  lists: FormsListsMeta
+}
+export interface FormsResponse {
+  meta: FormsMeta & Record<string, unknown>
+  known: FormsKnownSaying[]
+  known_lists: FormsKnownList[]
+  /** canon order, books with a number or a list */
+  books: FormsBook[]
+}
+export interface FormsPair {
+  /** display tokens of the two numbers */
+  a_tok: number | null
+  b_tok: number | null
+  a_value: number
+  b_value: number
+}
+export interface FormsSaying {
+  /** its chapter */
+  unit_id: string
+  n_pairs: number
+  /** e.g. "3 / 4" */
+  steps: string
+  /** probability of parallel halves (§16.9) */
+  prob: number | null
+  /** the saying named in advance it is */
+  known: string | null
+  pairs: FormsPair[]
+  verse: Verse
+}
+export interface FormsSayingsResponse {
+  book: number | null
+  unit: string | null
+  known: boolean
+  total: number
+  offset: number
+  limit: number
+  items: FormsSaying[]
+}
+export interface FormsList {
+  list_id: number
+  book_id: number
+  /** the chapter it starts in */
+  unit_id: string
+  first: VerseLabel
+  last_verse: VerseLabel
+  /** first to last */
+  n_verses: number
+  /** list-like verses */
+  n_like: number
+  /** mean best cosine of word shapes with a neighbour */
+  likeness: number
+  kind: FormsKind
+  /** the list named in advance it is part of */
+  known: string | null
+  /** its first few verses */
+  verses: Verse[]
+}
+export interface FormsListsResponse {
+  book: number | null
+  unit: string | null
+  kind: string | null
+  total: number
+  offset: number
+  limit: number
+  items: FormsList[]
 }
 
 // Psalms (`/psalms`, DESIGN.md §16.42): the form of each psalm, Gunkel's genres, the lament's turn.

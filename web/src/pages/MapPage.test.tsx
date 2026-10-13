@@ -13,13 +13,14 @@ const BOOKS: Book[] = [
 const MAP: MapResponse = {
   unit_type: 'chapter',
   points: [
-    { unit_id: 'c:0:1', label_en: 'Genesis 1', label_he: 'בראשית א', book_id: 0, n_verses: 31, x: 0.1, y: 0.2, cluster: 0 },
-    { unit_id: 'c:1:1', label_en: 'Exodus 1', label_he: 'שמות א', book_id: 1, n_verses: 22, x: 0.8, y: 0.7, cluster: 1 },
+    { unit_id: 'c:0:1', label_en: 'Genesis 1', label_he: 'בראשית א', book_id: 0, n_verses: 31, x: 0.1, y: 0.2, cluster: 0, list_verses: 0 },
+    { unit_id: 'c:1:1', label_en: 'Exodus 1', label_he: 'שמות א', book_id: 1, n_verses: 22, x: 0.8, y: 0.7, cluster: 1, list_verses: 11 },
   ],
   clusters: [
     { cluster: 0, size: 1, lemmas: [{ lemma: '7549', he_lemma: 'רקיע' }] },
     { cluster: 1, size: 1, lemmas: [{ lemma: '6547', he_lemma: 'פרעה' }] },
   ],
+  lists: true,
 }
 const AFF: AffinityResponse = { order: [1, 0], cells: [{ a: 0, b: 1, n_pairs: 12, expected: 3, lift: 4 }] }
 const verse = (id: number) => ({
@@ -86,5 +87,38 @@ describe('MapPage', () => {
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/map?pair=1-0'))
     expect(await screen.findByText('Exodus 1:1')).toBeTruthy()
     expect(calls).toContain('/api/affinity/1/0')
+  })
+
+  it('colours the units by their share of verses in lists, offered only when lists were computed', async () => {
+    const serve = (map: MapResponse) =>
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async (url: string) => {
+          const p = new URL(url, 'http://x').pathname
+          const body = p === '/api/books' ? BOOKS : p === '/api/map/chapter' ? map : p === '/api/affinity' ? AFF : null
+          return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
+        }),
+      )
+    const page = (entry: string) =>
+      render(
+        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+          <MemoryRouter initialEntries={[entry]}>
+            <Routes>
+              <Route path="/map" element={<MapPage />} />
+            </Routes>
+            <Location />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      )
+    serve(MAP)
+    page('/map')
+    fireEvent.click(await screen.findByRole('radio', { name: 'Lists' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/map?color=lists'))
+    expect(await screen.findByText(/Share of the verses in a list/)).toBeTruthy()
+    cleanup()
+    serve({ ...MAP, lists: false })
+    page('/map')
+    await screen.findByLabelText('Clusters')
+    expect(screen.queryByRole('radio', { name: 'Lists' })).toBeNull()
   })
 })
