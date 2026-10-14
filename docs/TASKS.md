@@ -736,6 +736,7 @@ Phase 3 (M39c): API and viewer
 - [x] API `/similar` → `phrases` and `phr_*`; `/eval` → `units`; viewer: a third rank bar (*Phr*) on chapter pages, the Evaluation page's *A third list for chapters and pericopes* (per unit type: the verdict, gains, the lists alone); English and Hebrew
 - [x] Tests: aggregation, ranking, unit gold from verse pairs, scoring, the rule, the report, fusion with the phrase list, the API fields (pytest); the rank bar, the Evaluation section (vitest)
 - [x] Checked with `bsim compare-builds`: only chapter fused matches and what is built on them changed; all 32 findings keep their verdict
+- [x] Fixed: the server's `/search` caches are never stage files (`incremental.Scope` ignores `serve.cache_dir`, the state forgets recorded files it ignores); a viewer session after a rebuild no longer marks `phrases` and everything after it stale (§16.35)
 
 ✔ Shared phrases pass for chapters: cross-fitted +0.0266 on Sefaria dev (CI [+0.0066, +0.0461]), OpenBible +0.0123 and ETCBC +0.0677 (CIs above 0); chapter fused 0.1710 → 0.1976, now above TF-IDF (0.1916). Nothing passes for pericopes: fused verse hits come nearest (cross-fitted +0.0095, CI [−0.0002, +0.0190]). Parallel sequences help little at either level.
 

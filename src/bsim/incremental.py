@@ -333,6 +333,8 @@ class Scope:
         roots = [resolve_path(cfg, k) for k in cfg["pipeline"]["roots"]]
         ignore = [*cfg["pipeline"]["ignore"]]
         ignore += [file_key(resolve_path(cfg, k)) for k in ("pipeline_state", "labels")]
+        # the server's /search caches: rewritten by `bsim serve` after a rebuild, never a stage's
+        ignore.append(file_key(resolve_path(cfg, "artifacts") / cfg["serve"]["cache_dir"]) + "/*")
         return cls(roots, ignore)
 
     def inside(self, abspath: str) -> bool:
@@ -431,6 +433,13 @@ class State:
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(payload, indent=1, sort_keys=True), "utf-8")
         os.replace(tmp, self.path)
+
+    def forget_ignored(self, scope: Scope) -> None:
+        """Drop recorded inputs and outputs the scope now ignores (a file a stage was seen
+        touching that is not its own, e.g. a server cache rewritten during its run)."""
+        for entry in self.stages.values():
+            for part in ("inputs", "outputs"):
+                entry[part] = {k: h for k, h in entry[part].items() if not scope.ignored(k)}
 
     def outputs_of(self, stages: Iterable[str]) -> set[str]:
         return {k for s in stages for k in self.stages.get(s, {}).get("outputs", {})}

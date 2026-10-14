@@ -193,3 +193,21 @@ def test_adopt_takes_a_new_dependency(toy):
     assert run(adopt=True, start="c", stop="c") == []
     assert run() == []
     assert b_out in json.loads(path.read_text("utf-8"))["stages"]["c"]["inputs"]
+
+
+def test_server_cache_is_never_a_stage_file(toy):
+    cfg, run, logs, art = toy
+    run()
+    cache = art / cfg["serve"]["cache_dir"] / "surface_bm25.json"
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text("1", "utf-8")
+    key = inc.file_key(cache)
+    assert inc.Scope.from_config(cfg).ignored(key)
+    path = Path(cfg["paths"]["pipeline_state"])
+    state = json.loads(path.read_text("utf-8"))
+    state["stages"]["a"]["outputs"][key] = "stale"  # as if the server rewrote it during a's run
+    path.write_text(json.dumps(state), "utf-8")
+    cache.write_text("2", "utf-8")  # `bsim serve` after a rebuild
+    assert run() == []  # ignored: nothing is stale
+    assert run(rerun=["a"]) == ["a"]  # and the next record drops it
+    assert key not in json.loads(path.read_text("utf-8"))["stages"]["a"]["outputs"]

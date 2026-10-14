@@ -524,6 +524,7 @@ def run_all(
     order = list(STAGES)
     state = inc.State(resolve_path(cfg, "pipeline_state"))
     scope = inc.Scope.from_config(cfg)
+    state.forget_ignored(scope)
 
     def reason(name: str) -> str | None:
         if force:
