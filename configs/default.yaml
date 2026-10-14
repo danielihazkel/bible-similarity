@@ -974,6 +974,11 @@ store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   discoveries:
     max_rank: 10              # unlinked pair kept when either unit ranks the other within this
 
+compare_builds:               # `bsim compare-builds OLD NEW`: what changed between two results DBs (DESIGN.md §16.49)
+  float_tol: 1.0e-9           # REAL columns: relative difference (absolute below 1) not counted as a change beyond it
+  examples: 5                 # differing keys / meta paths shown per table
+  volatile_meta: [built_at, similar_benchmark]   # meta keys that differ between any two builds (the build time, /similar timings), reported apart
+
 serve:                        # `bsim serve` (DESIGN.md §10)
   domains:                    # /unit-domains: a unit's themes (DESIGN.md §16.22)
     top: 12                   # most over-represented domains listed

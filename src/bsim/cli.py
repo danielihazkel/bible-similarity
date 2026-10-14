@@ -776,6 +776,37 @@ def build_db(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+
+@app.command("compare-builds")
+def compare_builds(
+    old: Annotated[Path, typer.Argument(help="The earlier results DB")],
+    new: Annotated[Path, typer.Argument(help="The later results DB")],
+    json_out: Annotated[
+        Path | None, typer.Option("--json", help="Also write the full comparison as JSON")
+    ] = None,
+    fail_on_diff: Annotated[
+        bool, typer.Option("--fail-on-diff", help="Exit with code 1 when the builds differ")
+    ] = False,
+    config: ConfigOpt = None,
+) -> None:
+    """What changed between two results DBs: tables, rows and meta (DESIGN.md §16.49)."""
+    import json
+
+    from bsim.store import compare
+
+    try:
+        out = compare.compare_builds(load_config(config), old, new)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+    typer.echo(compare.report(out), nl=False)
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
+    if fail_on_diff and not out["identical"]:
+        raise typer.Exit(code=1)
+
+
 @app.command()
 def serve(
     host: Annotated[str | None, typer.Option(help="Bind address (default: serve.host)")] = None,
