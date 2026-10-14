@@ -89,6 +89,44 @@ const RES: EvalResponse = {
       },
     },
   },
+  units: {
+    split: 'dev',
+    metric: 'ndcg@10',
+    baseline: 'fused',
+    unit_types: {
+      chapter: {
+        baseline_scores: { sefaria: 0.171, openbible: 0.148 },
+        queries: { sefaria: 154, openbible: 296 },
+        chosen: 'phrases',
+        families: {
+          phrases: {
+            alone: { phrases: { scores: { sefaria: 0.188, openbible: 0.136 }, units_with_list: 906 } },
+            members: { 'phrases, w=1': { sefaria: 0.198, openbible: 0.16 } },
+            selected: 'phrases, w=1',
+            gains: { sefaria: g(0.027, 0.007, 0.046), openbible: g(0.012, 0.003, 0.022) },
+            cross_fitted_choices: ['phrases, w=1', 'phrases, w=1'],
+            cross_fitted_gain: g(0.027, 0.007, 0.046),
+            adopt: true,
+          },
+          hits: {
+            alone: { 'top 10': { scores: { sefaria: 0.187, openbible: 0.155 }, units_with_list: 929 } },
+            members: { 'top 10, w=1': { sefaria: 0.18, openbible: 0.156 } },
+            selected: 'top 10, w=1',
+            gains: { sefaria: g(0.009, -0.002, 0.02), openbible: g(0.008, 0.003, 0.014) },
+            cross_fitted_choices: ['top 50, w=1', 'top 10, w=1'],
+            cross_fitted_gain: g(0.009, -0.001, 0.019),
+            adopt: false,
+          },
+        },
+      },
+      pericope: {
+        baseline_scores: { sefaria: 0.118, openbible: 0.16 },
+        queries: { sefaria: 348, openbible: 416 },
+        chosen: null,
+        families: {},
+      },
+    },
+  },
   final: { verse: { lexical: 'bm25_lemma', semantic: 'berel_sup_csls', fused: 'fused', structural: 'bm25_morph' } },
 }
 
@@ -139,5 +177,17 @@ describe('EvalPage', () => {
     expect(zero.querySelector('caption')?.textContent).toBe('Zero-shot: the multilingual embedders against bge_m3, the zero-shot system already built (semantic list; bge_m3 Sefaria 0.101, OpenBible 0.082, ETCBC 0.610)')
     expect([...zero.querySelectorAll('tbody tr')].map((r) => r.querySelector('code')?.textContent)).toEqual(['e5_large'])
     expect(zero.querySelectorAll('td.on')).toHaveLength(1)
+    // a third list for chapters and pericopes: the verdict per unit type, gains, the lists alone
+    expect(screen.getByText('chapters: the shared phrases list passed the rule and is now fused.')).toBeTruthy()
+    expect(screen.getByText('pericopes: no list passed.')).toBeTruthy()
+    const third = screen.getByRole('region', { name: 'Chapters · gain over the fused list (Sefaria 0.171, OpenBible 0.148)' })
+    const adopted = third.querySelector('tr.served')!
+    expect(adopted.querySelector('th')?.textContent).toBe('shared phrases')
+    expect([...adopted.querySelectorAll('td')].map((c) => c.textContent)).toEqual(['phrases, w=1', '+0.027 [+0.007, +0.046]', '+0.027 [+0.007, +0.046]', '+0.012 [+0.003, +0.022]', 'yes'])
+    const alone = screen.getByRole('region', { name: 'Chapters · each list alone, not fused' })
+    expect([...alone.querySelectorAll('tbody tr')].map((r) => [...r.querySelectorAll('td')].map((c) => c.textContent))).toEqual([
+      ['phrases', '906', '0.188', '0.136'],
+      ['top 10', '929', '0.187', '0.155'],
+    ])
   })
 })

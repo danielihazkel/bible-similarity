@@ -24,6 +24,7 @@ COMMANDS = [
     "retrieval-exp",
     "supervision-exp",
     "encoder-exp",
+    "unit-exp",
     "compare-builds",
     "senses",
     "build-db",

@@ -729,6 +729,16 @@ Phase 3 (M39c): API and viewer
 
 ✔ The builds before and after M71 are identical in all 85 tables (about 75 s), so rewriting `surface_bm25.json` changed nothing served; only the build time and the `/similar` timings differ, now volatile. A copy with one row deleted, one score moved within the tolerance and one beyond it, and one `meta` count changed is reported as exactly that.
 
+## M73: A third fusion list for chapters and pericopes (§16.50, D86; proposed C3)
+- [x] `retrieve/unit_pairs.py`: unit lists summed from weighted verse pairs; `bsim unit-exp` (`eval/unit_experiments.py`): parallel sequences (every chain / q ≤ 0.2), shared phrases, fused verse hits (top 10 / 50) as a third RRF list at w 0.25 / 0.5 / 1, per unit type on the Sefaria, OpenBible and ETCBC dev unit golds, selected and cross-fitted, paired bootstrap; the two-list baseline rebuilt in memory
+- [x] Rule fixed before the first run: cross-fitted Sefaria CI above 0, no significant loss on OpenBible or ETCBC; the largest passing gain adopted
+- [x] Adopted phrases for chapters (`fusion.unit_phrases: {chapter: 1.0}`): `bsim fuse` writes `topk/chapter/phrases.parquet` and fuses three lists; the phrases stage moved before fuse; `matches.phr_score`, `phr_rank`; training stages adopted, the rest rerun (33 stages, 16 min)
+- [x] API `/similar` → `phrases` and `phr_*`; `/eval` → `units`; viewer: a third rank bar (*Phr*) on chapter pages, the Evaluation page's *A third list for chapters and pericopes* (per unit type: the verdict, gains, the lists alone); English and Hebrew
+- [x] Tests: aggregation, ranking, unit gold from verse pairs, scoring, the rule, the report, fusion with the phrase list, the API fields (pytest); the rank bar, the Evaluation section (vitest)
+- [x] Checked with `bsim compare-builds`: only chapter fused matches and what is built on them changed; all 32 findings keep their verdict
+
+✔ Shared phrases pass for chapters: cross-fitted +0.0266 on Sefaria dev (CI [+0.0066, +0.0461]), OpenBible +0.0123 and ETCBC +0.0677 (CIs above 0); chapter fused 0.1710 → 0.1976, now above TF-IDF (0.1916). Nothing passes for pericopes: fused verse hits come nearest (cross-fitted +0.0095, CI [−0.0002, +0.0190]). Parallel sequences help little at either level.
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -749,7 +759,7 @@ Viewer
 Backend, models, code health
 - [x] C1 (done, M64) Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
 - [x] C2 (done, M71) Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
-- C3 Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
+- [x] C3 (done, M73) Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
 - [x] C4 (done, M72) `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
 - C5 Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
 

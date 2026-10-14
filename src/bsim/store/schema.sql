@@ -65,6 +65,8 @@ CREATE TABLE matches (
     lex_rank INTEGER,
     sem_score REAL,
     sem_rank INTEGER,
+    phr_score REAL,                 -- the phrase list, where a unit type's fusion has it (§16.50)
+    phr_rank INTEGER,
     link_level TEXT,                -- Sefaria gold link: verse (direct) | unit (passage) | NULL
     link_type TEXT,                 -- comma-joined connection types ('' when untyped)
     PRIMARY KEY (unit_type, mode, src_id, rank)

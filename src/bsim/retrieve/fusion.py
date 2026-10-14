@@ -4,12 +4,15 @@
 top-k lists of a unit (a list missing `t` contributes 0); the best `retrieval.k` are kept, ties
 ordered by target position. The lists fused per unit type are `final_lists`: verse =
 `final_systems.lexical` + `final_systems.semantic`; chapter / pericope / parasha =
-`final_systems.unit_lexical` + `{semantic}_{unit_aggregation}`.
+`final_systems.unit_lexical` + `{semantic}_{unit_aggregation}`. For the unit types of
+`fusion.unit_phrases` a third list joins them with that weight: units ranked by the phrases their
+verses share (`retrieve/unit_pairs.py`, chosen by `bsim unit-exp`, §16.50), written beside them as
+`artifacts/topk/{type}/phrases.parquet`.
 
 Writes `artifacts/topk/{type}/{final_systems.fused}.parquet` with `lex_score, lex_rank, sem_score,
-sem_rank` (nullable) next to the usual columns. `bsim fuse --tune` scores `fusion.w_lex_grid` on
-dev in memory (verse + unit levels with gold) and writes `artifacts/eval/fusion_tuning.json`;
-the chosen weight goes into the config by hand.
+sem_rank, phr_score, phr_rank` (nullable) next to the usual columns. `bsim fuse --tune` scores
+`fusion.w_lex_grid` on dev in memory (verse + unit levels with gold) and writes
+`artifacts/eval/fusion_tuning.json`; the chosen weight goes into the config by hand.
 """
 
 from __future__ import annotations
@@ -27,7 +30,7 @@ from bsim.retrieve.topk import Units, load_units, read_topk, verse_ids, write_to
 
 Log = Callable[[str], None]
 
-BREAKDOWN = ("score", "lex_score", "lex_rank", "sem_score", "sem_rank")
+BREAKDOWN = ("score", "lex_score", "lex_rank", "sem_score", "sem_rank", "phr_score", "phr_rank")
 
 
 def final_lists(cfg: dict[str, Any], unit_type: str) -> tuple[str, str]:
@@ -60,11 +63,14 @@ def rrf(
     w_sem: float,
     rrf_k: int,
     k: int,
+    phr: pd.DataFrame | None = None,
+    w_phr: float = 0.0,
 ) -> pd.DataFrame:
-    """Fuse two ranked frames (integer `src`, `tgt`, `rank`, `score`).
+    """Fuse two ranked frames (integer `src`, `tgt`, `rank`, `score`), and a third (the phrase
+    list) when given.
 
-    Returns `src, tgt, rank, score, lex_score, lex_rank, sem_score, sem_rank`, the top `k` per
-    `src`, sorted by src then rank.
+    Returns `src, tgt, rank, score, lex_score, lex_rank, sem_score, sem_rank, phr_score,
+    phr_rank`, the top `k` per `src`, sorted by src then rank.
     """
     cols = ["src", "tgt", "rank", "score"]
     left = lex[cols].rename(columns={"rank": "lex_rank", "score": "lex_score"})
@@ -73,6 +79,12 @@ def rrf(
     m["score"] = (w_lex / (rrf_k + m.lex_rank)).fillna(0.0) + (w_sem / (rrf_k + m.sem_rank)).fillna(
         0.0
     )
+    if phr is None:
+        m["phr_rank"], m["phr_score"] = np.nan, np.nan
+    else:
+        third = phr[cols].rename(columns={"rank": "phr_rank", "score": "phr_score"})
+        m = m.merge(third, on=["src", "tgt"], how="outer")
+        m["score"] = m.score.fillna(0.0) + (w_phr / (rrf_k + m.phr_rank)).fillna(0.0)
     m = m.sort_values(["src", "score", "tgt"], ascending=[True, False, True], kind="stable")
     m["rank"] = m.groupby("src").cumcount() + 1
     m = m[m["rank"] <= k].reset_index(drop=True)
@@ -86,6 +98,8 @@ def rrf(
             "lex_rank": m.lex_rank.astype("Int32"),
             "sem_score": m.sem_score.astype(np.float32),
             "sem_rank": m.sem_rank.astype("Int32"),
+            "phr_score": m.phr_score.astype(np.float32),
+            "phr_rank": m.phr_rank.astype("Int32"),
         }
     )
 
@@ -102,6 +116,23 @@ def to_topk_frame(fused: pd.DataFrame, unit_type: str, units: Units | None) -> p
             **{c: fused[c] for c in BREAKDOWN},
         }
     )
+
+
+def phrase_weight(cfg: dict[str, Any], unit_type: str) -> float | None:
+    """The phrase list's weight in a unit type's fusion, or None when it has none."""
+    w = (cfg["fusion"].get("unit_phrases") or {}).get(unit_type)
+    return None if w is None else float(w)
+
+
+def phrase_frame(cfg: dict[str, Any], unit_type: str, units: Units | None) -> pd.DataFrame | None:
+    """A unit type's phrase list (integer positions) when its fusion has one."""
+    if phrase_weight(cfg, unit_type) is None:
+        return None
+    if units is None:
+        raise RuntimeError("fusion.unit_phrases: verses are fused from two lists only")
+    from bsim.retrieve.unit_pairs import phrase_list
+
+    return phrase_list(cfg, units)
 
 
 def load_lists(
@@ -127,7 +158,8 @@ def run_fuse(cfg: dict[str, Any], log: Log = print) -> None:
     log(f"RRF w_lex={fu['w_lex']} w_sem={fu['w_sem']} rrf_k={fu['rrf_k']}, top-{k}")
     for unit_type in cfg["units"]["types"]:
         lex, sem, units = load_lists(cfg, unit_type)
-        fused = rrf(lex, sem, fu["w_lex"], fu["w_sem"], fu["rrf_k"], k)
+        phr, w_phr = phrase_frame(cfg, unit_type, units), phrase_weight(cfg, unit_type)
+        fused = rrf(lex, sem, fu["w_lex"], fu["w_sem"], fu["rrf_k"], k, phr, w_phr or 0.0)
         lex_name, sem_name = final_lists(cfg, unit_type)
         meta = {
             "kind": "fused",
@@ -139,9 +171,28 @@ def run_fuse(cfg: dict[str, Any], log: Log = print) -> None:
             "config_hash": config_hash(cfg, "retrieval", "fusion", "final_systems"),
             "k": int(k),
         }
+        third = ""
+        if phr is not None and units is not None:
+            from bsim.retrieve.unit_pairs import PHRASES
+
+            frame = pd.DataFrame(
+                {
+                    "unit_type": unit_type,
+                    "src_id": units.ids[phr.src.to_numpy()],
+                    "rank": phr["rank"].to_numpy(np.int32),
+                    "tgt_id": units.ids[phr.tgt.to_numpy()],
+                    "score": phr.score.to_numpy(np.float32),
+                }
+            )
+            write_topk(cfg, unit_type, PHRASES, frame, {"kind": "phrases", "k": int(k)})
+            meta |= {"phrases": PHRASES, "w_phr": w_phr}
+            third = f" + {PHRASES} (w {w_phr:g})"
         path = write_topk(cfg, unit_type, name, to_topk_frame(fused, unit_type, units), meta)
         both = int((fused.lex_rank.notna() & fused.sem_rank.notna()).sum())
-        log(f"  {unit_type}: {lex_name} + {sem_name} -> {path} ({len(fused)} rows, {both} in both)")
+        log(
+            f"  {unit_type}: {lex_name} + {sem_name}{third} -> {path} ({len(fused)} rows, "
+            f"{both} in both)"
+        )
 
 
 def run_fuse_tune(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
@@ -158,14 +209,15 @@ def run_fuse_tune(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         if not gold:
             log(f"  {unit_type}: no {split} gold, skipped")
             continue
-        lex, sem, _ = load_lists(cfg, unit_type)
+        lex, sem, units = load_lists(cfg, unit_type)
+        phr, w_phr = phrase_frame(cfg, unit_type, units), phrase_weight(cfg, unit_type) or 0.0
         lex_name, sem_name = final_lists(cfg, unit_type)
         rows = {
             f"lexical ({lex_name})": ctx.score(unit_type, lex),
             f"semantic ({sem_name})": ctx.score(unit_type, sem),
         }
         for w in fu["w_lex_grid"]:
-            fused = rrf(lex, sem, w, fu["w_sem"], fu["rrf_k"], k)
+            fused = rrf(lex, sem, w, fu["w_sem"], fu["rrf_k"], k, phr, w_phr)
             rows[f"w_lex={w}"] = ctx.score(unit_type, fused)
         results[unit_type] = rows
         log(f"\n### {unit_type} ({split}, w_sem={fu['w_sem']})")

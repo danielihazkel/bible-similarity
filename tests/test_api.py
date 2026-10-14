@@ -72,6 +72,7 @@ def test_similar_verse(client):
     assert body["mode"] == "fused" and body["k"] == 1 and body["exclude"] == []
     hit = body["hits"][0]
     assert hit["rank"] == 1 and hit["lex_rank"] == 1 and hit["sem_score"] is None
+    assert hit["phr_rank"] is None and body["phrases"] is False  # verses: two lists
     assert hit["verse"]["text_display"] == TEXTS[1] and hit["preview"] is None
     semantic = client.get("/api/similar/v:0?mode=semantic&k=1").json()["hits"][0]
     assert semantic["lex_rank"] is None
@@ -81,6 +82,10 @@ def test_similar_chapter_and_errors(client):
     hits = client.get("/api/similar/c:0:1?mode=lexical").json()["hits"]
     assert [h["unit"]["unit_id"] for h in hits] == ["c:0:2", "c:1:1"]
     assert hits[0]["verse"] is None and hits[0]["preview"] == TEXTS[3]
+    assert client.get("/api/similar/c:0:1?mode=lexical").json()["phrases"] is False
+    fused = client.get("/api/similar/c:0:1").json()  # chapters: the phrase list too (§16.50)
+    assert fused["phrases"] is True and fused["hits"][0]["phr_rank"] == 1
+    assert fused["hits"][0]["phr_score"] == 2.0 and fused["hits"][1]["phr_rank"] is None
     assert client.get("/api/similar/c:0:1?exclude=neighbors").status_code == 422
     assert client.get("/api/similar/v:0?exclude=nope").status_code == 422
     assert client.get("/api/similar/v:0?mode=nope").status_code == 422
@@ -720,6 +725,7 @@ def test_eval(client, built):
     cfg, _ = built
     body = client.get("/api/eval").json()
     assert body["splits"] == {} and body["openbible"] is None and body["encoders"] is None
+    assert body["units"] is None
     assert body["final"]["verse"]["fused"] == cfg["final_systems"]["fused"]
     folder = Path(cfg["paths"]["artifacts"]) / "eval"
     folder.mkdir(parents=True, exist_ok=True)

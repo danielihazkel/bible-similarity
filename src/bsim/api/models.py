@@ -59,13 +59,16 @@ class UnitDetail(ApiModel):
 
 
 class Breakdown(ApiModel):
-    """`lex_*` / `sem_*` are set on fused results only (a list missing the target: None)."""
+    """`lex_*` / `sem_*` are set on fused results only (a list missing the target: None); `phr_*`
+    on fused results of a unit type whose fusion has the phrase list (§16.50)."""
 
     score: float
     lex_score: float | None = None
     lex_rank: int | None = None
     sem_score: float | None = None
     sem_rank: int | None = None
+    phr_score: float | None = None
+    phr_rank: int | None = None
 
 
 class GoldLink(ApiModel):
@@ -96,6 +99,7 @@ class SimilarResponse(ApiModel):
     k: int
     exclude: list[str]
     hits: list[Hit]
+    phrases: bool = False  # the fused list has a third list: the phrases the units share (§16.50)
 
 
 class Discovery(ApiModel):
@@ -923,6 +927,7 @@ class EvalResponse(ApiModel):
     etcbc: dict[str, Any] | None  # artifacts/eval/etcbc.json
     supervision: dict[str, Any] | None  # artifacts/eval/supervision_experiments.json
     encoders: dict[str, Any] | None  # artifacts/eval/encoder_experiments.json
+    units: dict[str, Any] | None  # artifacts/eval/unit_experiments.json
     final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it
 
 

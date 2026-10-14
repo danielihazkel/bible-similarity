@@ -119,9 +119,9 @@ The final `semantic` system is chosen on **dev** (not test) by nDCG@10.
 Weighted Reciprocal Rank Fusion over the lexical and semantic top-50 lists:
 `fused(t) = w_lex / (60 + rank_lex(t)) + w_sem / (60 + rank_sem(t))`, missing ranks contribute 0; the best 50 are kept, ties ordered by target. Weights tuned on dev (`bsim fuse --tune`, grid `fusion.w_lex_grid` = {0.25, 0.5, 0.75, 1.0, 1.5, 2.0}, `w_sem = 1`; the grid goes above 1 because lexical beats semantic on dev). Stored with `lex_score, lex_rank, sem_score, sem_rank` for the viewer's score breakdown.
 
-- Fused lists per unit type (`retrieve/fusion.py:final_lists`): verse = `bm25_lemma` + `berel_sup_csls`; chapter / pericope / parasha = `tfidf` + `berel_sup_csls_bma` (§6.2).
+- Fused lists per unit type (`retrieve/fusion.py:final_lists`): verse = `bm25_lemma` + `berel_sup_csls`; chapter / pericope / parasha = `tfidf` + `berel_sup_csls_bma` (§6.2); chapters also the phrase list at w 1 since M73 (`fusion.unit_phrases`, §16.50).
 - One weight for every unit type, chosen on verse dev nDCG@10 (2026-10): `w_lex = 1.0` → **0.189** (recall@50 0.400) vs `bm25_lemma` 0.176 and `berel_sup_csls` 0.150. With `w_lex < 1` the fused top-50 is essentially the semantic list (semantic rank 50 outscores lexical rank 1).
-- At unit level fusion does not beat TF-IDF on dev: chapter fused 0.168 (best grid point 0.171 at 2.0) vs `tfidf` 0.192; pericope fused 0.114 vs `tfidf` 0.112. The viewer keeps all three modes; this is recorded rather than tuned away per unit type, since unit gold is small (154 chapter / 348 pericope dev queries).
+- At unit level fusion does not beat TF-IDF on dev: chapter fused 0.168 (best grid point 0.171 at 2.0) vs `tfidf` 0.192; pericope fused 0.114 vs `tfidf` 0.112. The viewer keeps all three modes; this is recorded rather than tuned away per unit type, since unit gold is small (154 chapter / 348 pericope dev queries). Since M73 chapters fuse a third list, the phrases their verses share, and the fusion beats TF-IDF: 0.1976 vs 0.1916 (§16.50).
 
 ---
 
@@ -217,6 +217,7 @@ CREATE TABLE units   (unit_id TEXT PRIMARY KEY, unit_type TEXT, label_en TEXT, l
 CREATE TABLE unit_members (unit_id TEXT, verse_id INTEGER, PRIMARY KEY (unit_id, verse_id)) WITHOUT ROWID;
 CREATE TABLE matches (unit_type TEXT, mode TEXT, src_id TEXT, rank INTEGER, tgt_id TEXT, score REAL,
                       lex_score REAL, lex_rank INTEGER, sem_score REAL, sem_rank INTEGER,
+                      phr_score REAL, phr_rank INTEGER,          -- the phrase list (chapter fused, §16.50)
                       link_level TEXT, link_type TEXT,           -- Sefaria gold link (verse | unit | NULL)
                       PRIMARY KEY (unit_type, mode, src_id, rank)) WITHOUT ROWID;
 CREATE TABLE discoveries (unit_type TEXT, mode TEXT, a_id TEXT, b_id TEXT, score REAL, tie REAL,
@@ -252,7 +253,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/books` | book list with chapter counts |
 | `GET /api/units/{type}?book=&chapter=` | list units of a type (for navigation); verse units only per book (422 without `book`), optionally per chapter |
 | `GET /api/unit/{unit_id}` | unit metadata + its verses (display text) |
-| `GET /api/similar/{unit_id}?mode=lexical\|semantic\|fused&k=10&exclude=neighbors,chapter,book` | top-k from `matches`, filtered at query time; each hit includes score + lex/sem breakdown + target text (verse) or label/preview (larger units) |
+| `GET /api/similar/{unit_id}?mode=lexical\|semantic\|fused&k=10&exclude=neighbors,chapter,book` | top-k from `matches`, filtered at query time; each hit includes score + lex/sem breakdown (+ the phrase list's `phr_*` where the unit type is fused with it, `phrases`, §16.50) + target text (verse) or label/preview (larger units) |
 | `GET /api/explain?a={verse_id}&b={verse_id}` | shared lemmas with word indices in both verses (for highlighting); formula tokens flagged |
 | `GET /api/compare?a={unit_id}&b={unit_id}` | verse-level alignment of two units: for each verse in A its best match in B (and vice versa) with cosine, computed from the cached verse matrix; plus shared lemmas per pair |
 | `GET /api/search?q=...&mode=&k=&book=` | free-text Hebrew search over verses (§10.1); `k` up to `serve.search.max_k` = 200, `book` ranks only that book's verses |
@@ -289,7 +290,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/domains`, `/api/domain/{code}?book=&limit=&offset=`, `/api/unit-domains/{unit_id}` | semantic domains: the tree with counts; a domain concordance (path, subdomains, verses per book, verses with the words in it); a unit's themes (§16.22) |
 | `GET /api/lemma/{lemma}?book=&limit=&offset=` | concordance: occurrences, verses per book, a page of verses with the lemma's display tokens |
 | `GET /api/meta` | build info; runtime incl. `encoder_ready` / `encoder_error` |
-| `GET /api/eval` | `artifacts/eval/metrics.json` splits, `openbible.json`, `supervision_experiments.json` (→ `supervision`, §16.41), `encoder_experiments.json` (→ `encoders`, §16.48), and the system served per unit type and mode |
+| `GET /api/eval` | `artifacts/eval/metrics.json` splits, `openbible.json`, `supervision_experiments.json` (→ `supervision`, §16.41), `encoder_experiments.json` (→ `encoders`, §16.48), `unit_experiments.json` (→ `units`, §16.50), and the system served per unit type and mode |
 | `GET /api/diff?a=&b=` | word-level changes from verse a to verse b (§16.8) |
 | `GET /api/phrases/{verse_id}?limit=&offset=`, `GET /api/phrases` | phrase partners of a verse (`X-Total-Count` header) / ranking (§16.1) |
 | `GET /api/sequences`, `/api/sequences/{id}`, `/api/changes` | parallel chains (`unit=` filter), one chain as a ladder with diff marks, changes grouped by word (`unit=`: verse pairs with a side in the unit) (§16.7, §16.8) |
@@ -423,6 +424,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D86 | Third list for passages | Units ranked by verse pairs summed over the two units: parallel-sequence pairs, shared phrases, fused verse hits; each tested as a third RRF list for chapters and pericopes on three dev golds with cross-fitting, against a rule fixed before the first run. Phrases pass for chapters (cross-fitted Sefaria +0.0266, CI [+0.0066, +0.0461]; OpenBible and ETCBC up) and are fused at w 1 (`fusion.unit_phrases`); nothing passes for pericopes. The phrases stage now runs before fuse (§16.50) |
 | D85 | Comparing two builds | `bsim compare-builds OLD NEW`: both DBs attached read-only to one SQLite connection; keyed tables joined on their primary key (rows only in one, rows changed exactly and beyond a relative REAL tolerance, example keys), unkeyed tables as multisets of whole rows plus their order, `meta` as flattened JSON paths with the build time and timings apart; Markdown report, JSON, exit 1 on a difference when asked (§16.49) |
 | D84 | Newer encoders | DictaBERT base and large fine-tuned with BEREL's recipe and pairs, multilingual-E5-large and Qwen3-Embedding-0.6B zero-shot with their own instruction, scored on the Sefaria, OpenBible and ETCBC dev golds as the semantic list and its fusion, against a rule fixed before any ran (Sefaria fused gain with CI above 0 and above the reseeded retrain's 0.0009, no significant loss elsewhere). None passes: every candidate loses on Sefaria, so BEREL stays; NeoDictaBERT left out for needing remote code (§16.48) |
 | D83 | Your notebook | Entries (a unit kept with a note) and named collections of them, in the writable labels file beside the pair labels, never in the rebuilt results DB; a unit added to a collection becomes an entry, a deleted collection leaves its entries; export as Markdown or CSV written in the browser from the interface catalogs (§16.47) |
@@ -1045,3 +1047,29 @@ For two passages that run parallel in two books, which one drew on the other? Th
 - **Output:** a Markdown report on stdout (a row per table that differs, the `meta` paths that changed, "Identical." or "Different."), `--json PATH` for the whole comparison, `--fail-on-diff` to exit 1 when the builds differ (for a script or CI). Run by hand, not a pipeline stage.
 - **First use** (2026-10-14, M71): the build before M71 against the one after (phrases, eval-etcbc and build-db rerun after `surface_bm25.json` was rewritten): all 85 tables the same, `meta` the same apart from the build time and the timings, which is why `similar_benchmark` joined `volatile_meta`. On a copy with one discovery deleted, one match score moved by 1e-12 of itself and another by 0.1, and one `meta.syntax` count changed, the report lists exactly those: 1 row only in OLD, 2 changed (1 beyond the tolerance), and the `syntax` path.
 - **Limits:** indexes, views and triggers are not compared, nor the order of rows in a keyed table (the key orders them); an unkeyed table costs a sort of both copies.
+
+### 16.50 A third fusion list for chapters and pericopes (`bsim unit-exp`, `eval/unit_experiments.py`, `retrieve/unit_pairs.py`)
+- **Question:** passages are retrieved by fusing a unit TF-IDF list with the semantic BMA list (§6.2), and that is the weakest level (test nDCG@10: chapter 0.157, pericope 0.068). At chapter level the fusion did not even beat TF-IDF alone on dev (§5.3). The verse-level analyses already know which verses of two passages belong together; does a list built from them help?
+- **Candidates** (`unit_experiments`), each a unit list aggregated from weighted verse pairs: a unit pair scores the sum of the weights of the verse pairs with one verse in each unit, either way round (pairs inside one unit ignored), and each unit keeps its best 50.
+  - *sequences*: the aligned pairs of the parallel sequences (§16.7) with their weights, from every chain or from the chains with q ≤ 0.2;
+  - *phrases*: the verse pairs sharing a phrase (§16.1), weight the alignment score;
+  - *hits*: each verse's fused top 10 or top 50, weight (N + 1 − rank) / N, neighbours dropped.
+
+  Each enters as a third RRF list beside the unit lexical and semantic lists at w 0.25 / 0.5 / 1. None of them reads a gold: phrases come from the lexical lists, sequences and hits from the fused verse lists.
+- **Protocol:** as retrieval-exp (§16.21), per unit type, on three dev golds: Sefaria's unit gold (§8.3) and the same rule applied to OpenBible's and ETCBC's dev verse pairs (unit pairs sharing ≥ 2). *Selected* = the member best on Sefaria; *cross-fitted* = chosen on one half of the queries, scored on the other (2 folds); the selected member's gains on OpenBible and ETCBC, which no choice looks at; paired bootstrap, 10,000 draws. The baseline is the two-list fusion, rebuilt in memory.
+- **Rule, fixed before the first run** (`eval/unit_experiments.py:adoption`): a family passes for a unit type when its cross-fitted Sefaria gain has a CI above 0 and the selected member loses nothing significant on OpenBible or ETCBC (CIs reaching 0); of those passing, the largest cross-fitted gain is adopted.
+- **Results** (2026-10-14), nDCG@10 gain over the two-list fusion (chapter 0.1710 / 0.1483 / 0.6959, pericope 0.1178 / 0.1603 / 0.7851; Sefaria / OpenBible / ETCBC, 154 / 296 / 18 and 348 / 416 / 16 queries), 95 % CI:
+
+  | unit | family | selected | cross-fitted (Sefaria) | OpenBible | ETCBC | passes |
+  |---|---|---|---|---|---|---|
+  | chapter | sequences | all chains, w 0.5 | +0.0085 [−0.0045, +0.0225] | +0.0072 [+0.0008, +0.0145] | −0.0376 [−0.1308, +0.0524] | no |
+  | chapter | **phrases** | w 1 | **+0.0266 [+0.0066, +0.0461]** | +0.0123 [+0.0027, +0.0224] | +0.0677 [+0.0145, +0.1378] | **yes** |
+  | chapter | hits | top 10, w 1 | +0.0087 [−0.0014, +0.0186] | +0.0081 [+0.0026, +0.0139] | +0.0064 [−0.0086, +0.0248] | no |
+  | pericope | sequences | q ≤ 0.2, w 0.25 | +0.0011 [−0.0002, +0.0034] | −0.0004 [−0.0011, +0.0000] | 0 | no |
+  | pericope | phrases | w 0.5 | +0.0054 [−0.0043, +0.0154] | +0.0046 [−0.0045, +0.0137] | −0.0024 [−0.0610, +0.0457] | no |
+  | pericope | hits | top 50, w 1 | +0.0095 [−0.0002, +0.0190] | +0.0165 [+0.0090, +0.0243] | −0.0418 [−0.1153, +0.0087] | no |
+
+  Alone, the chapter phrase list (906 of 929 chapters have one) scores 0.188 on Sefaria and the fused verse hits 0.187, both above the two-list fusion (0.171) and close to TF-IDF (0.192). The best weight is the grid's largest (w 1) at chapter level; the grid was not extended after seeing that. Sequences help little: most chains are chance (median q 0.61), and the strong ones cover few chapters.
+- **Adopted:** phrases for chapters, `fusion.unit_phrases: {chapter: 1.0}`. `bsim fuse` writes the chapter phrase list as `topk/chapter/phrases.parquet` and fuses the three lists; the `phrases` stage now runs before `fuse` (it reads the lexical verse lists only; its old dependency on `fuse` was not needed). Chapter dev nDCG@10, fused: 0.1710 → **0.1976**, now above TF-IDF (0.1916). Pericopes and parashot keep two lists. Rerun after adoption, the experiment gives the same numbers. The test split is not rerun (chapter 0.157 stays the recorded figure).
+- **Effects** (`bsim compare-builds` before / after): only the chapter fused matches changed (38,652 rows; 79 % of each chapter's top 10 kept; 11,887 rows carry a phrase rank), with what is built on them: chapter discoveries, the chapter network and its communities, and the echoes (§16.36) over it (2,454 → 2,638 directed chapter pairs, 366 → 405 dated by language; the echoes finding stays 21 / 21 and holds). All 32 findings keep their verdict.
+- **Served:** `matches.phr_score`, `phr_rank`; `/similar` → `phrases` (the fused list has the third list) and each hit's `phr_*`; the viewer's score breakdown gets a third bar (*Phr*) on chapter pages; `/eval` → `units`, the Evaluation page's *A third list for chapters and pericopes* section.

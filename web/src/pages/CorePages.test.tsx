@@ -52,6 +52,8 @@ const SEARCH: SearchResponse = {
       lex_rank: 1,
       sem_score: 0.4,
       sem_rank: 2,
+      phr_score: null,
+      phr_rank: null,
       verse: verse(1, ['אָמַר', 'נָבָל']),
       label_en: 'Psalms 14:1',
       label_he: 'תהלים יד א',

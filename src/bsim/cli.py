@@ -484,6 +484,18 @@ def maxsim(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("unit-exp")
+def unit_exp(config: ConfigOpt = None) -> None:
+    """Score a third fusion list (sequences, phrases, verse hits) for chapters and pericopes."""
+    from bsim.eval.unit_experiments import run_unit_experiments
+
+    try:
+        run_unit_experiments(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("encoder-exp")
 def encoder_exp(
     retrain: Annotated[

@@ -137,6 +137,8 @@ def similar(
                 lex_rank=r["lex_rank"],
                 sem_score=r["sem_score"],
                 sem_rank=r["sem_rank"],
+                phr_score=r["phr_score"],
+                phr_rank=r["phr_rank"],
                 unit=UnitSummary(**t),
                 verse=verses.get(t["start_verse_id"]),
                 preview=previews.get(t["start_verse_id"]),
@@ -146,7 +148,15 @@ def similar(
                 else PhraseInfo(score=r["phrase_score"], n_tokens=r["phrase_tokens"]),
             )
         )
-    return {"unit": u, "mode": mode, "k": k, "exclude": filters, "hits": hits}
+    phrases = (state.meta.get("fusion") or {}).get("unit_phrases") or {}
+    return {
+        "unit": u,
+        "mode": mode,
+        "k": k,
+        "exclude": filters,
+        "hits": hits,
+        "phrases": mode == "fused" and u["unit_type"] in phrases,
+    }
 
 
 def _texts(
@@ -462,7 +472,7 @@ def meta(state: State, response: Response) -> dict[str, Any]:
 def evaluation(state: State) -> dict[str, Any]:
     """Retrieval metrics against the Sefaria gold (dev, and the one test run), OpenBible and
     ETCBC's parallel passages; the encoder retrained with more supervision and newer encoders
-    against it (dev)."""
+    against it, a third fusion list for chapters and pericopes (dev)."""
     folder = resolve_path(state.cfg, "artifacts") / "eval"
 
     def read(name: str) -> dict[str, Any] | None:
@@ -477,5 +487,6 @@ def evaluation(state: State) -> dict[str, Any]:
         "etcbc": read("etcbc.json"),
         "supervision": read("supervision_experiments.json"),
         "encoders": read("encoder_experiments.json"),
+        "units": read("unit_experiments.json"),
         "final": {t: final_systems(state.cfg, t) for t in types},
     }

@@ -342,6 +342,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                   key={hit.unit.unit_id}
                   hit={hit}
                   mode={similar.data.mode}
+                  phrases={similar.data.phrases}
                   source={unit}
                   active={activeTgt === tgt}
                   pinned={pinned === tgt}

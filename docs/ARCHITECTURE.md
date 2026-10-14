@@ -135,7 +135,8 @@ bible-similarity/
 │   ├── retrieve/
 │   │   ├── topk.py                 # chunked GPU matmul + topk
 │   │   ├── units.py                # mean-pool & best-match-average aggregation
-│   │   ├── fusion.py               # weighted RRF
+│   │   ├── fusion.py               # weighted RRF (+ the phrase list for chapters, §16.50)
+│   │   ├── unit_pairs.py           # unit lists summed from weighted verse pairs: the chapter phrase list (§16.50)
 │   │   ├── maxsim.py               # token late interaction over the fused lists (§16.21)
 │   │   └── filters.py              # self / neighbour / chapter / book exclusion
 │   ├── analysis/
@@ -174,6 +175,7 @@ bible-similarity/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
 │   │   ├── experiments.py          # `bsim retrieval-exp`: dev comparisons with CIs (§16.21)
 │   │   ├── supervision.py          # `bsim supervision-exp`: the encoder retrained with more pairs, rule fixed in advance (§16.41)
+│   │   ├── unit_experiments.py     # `bsim unit-exp`: a third fusion list for chapters and pericopes, rule fixed in advance (§16.50)
 │   │   ├── newer_encoders.py       # `bsim encoder-exp`: DictaBERT fine-tuned, multilingual embedders zero-shot, against BEREL (§16.48)
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
@@ -229,15 +231,16 @@ bible-similarity/
 | 7 | `bsim embed --model X` | verses, model | `artifacts/embeddings/{X}.npy` (float32, L2-normalized, row = verse_id) |
 | 8 | `bsim topk --system X` | embeddings or lexical | `artifacts/topk/verse/{X}.parquet` + `{X}.meta.json` |
 | 9 | `bsim units --system X` | embeddings or unit TF-IDF, units | `artifacts/topk/{chapter,pericope,parasha}/{X}_{bma,mean}.parquet` (dense / `*_csls` X) or `tfidf.parquet` (X = `tfidf`) |
-| 10 | `bsim fuse [--tune]` | final lexical + semantic topk | `artifacts/topk/*/fused.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
+| 9a | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1); runs before fuse (§16.50) |
+| 10 | `bsim fuse [--tune]` | final lexical + semantic topk, phrases (chapters) | `artifacts/topk/*/fused.parquet`, `topk/chapter/phrases.parquet`; `--tune`: `artifacts/eval/fusion_tuning.json` (dev grid) |
 | 11 | `bsim evaluate [--split test]` | topk, links, splits, units | `artifacts/eval/report.md`, `metrics.json` (test: final systems only, once) |
 | — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
 | — | `bsim embed-context`, `bsim maxsim`, `bsim retrieval-exp` | verses, encoders, fused verse topk, dev golds | `artifacts/embeddings/berel_sup_{ctx,late}.npy`, `maxsim/{encoder}.parquet`, `topk/verse/fused_maxsim.parquet`, `eval/retrieval_experiments.{json,md}` (§16.21; manual, not final systems) |
 | — | `bsim supervision-exp [--retrain] [--only NAME]` | verses, links, golds, lexical, `berel_sup` embeddings | `models/berel-sup-{variant}/`, `artifacts/train/hard_negatives_{variant}.parquet`, `eval/supervision_experiments.{json,md}` (§16.41; manual, never edits the config) |
+| — | `bsim unit-exp` | units, links, golds, unit topk, phrases, sequences, fused verse topk | `eval/unit_experiments.{json,md}` (§16.50; manual, never edits the config) |
 | — | `bsim encoder-exp [--retrain] [--only NAME]` | verses, links, golds, lexical, `berel_sup` and `bge_m3` embeddings | `models/{name}-sup/`, `artifacts/train/hard_negatives_{name}.parquet`, `eval/encoder_experiments.{json,md}` (§16.48; manual, never edits the config) |
 | 11a | `bsim eval-openbible` | OpenBible pairs, splits, final verse topk | `artifacts/eval/openbible.{json,md}` (§16.13) |
 | — | `bsim eval-labels` | `paths.labels` (written by the viewer), verses, splits, links, final verse topk | `artifacts/eval/labels.{json,md}` (§16.25; run by hand, not in `bsim all`) |
-| 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |
@@ -273,10 +276,10 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, phrases, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
-`unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank` for `fused`).
+`unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).
 
 A *system* is a named retrieval configuration (e.g. `bm25_lemma`, `berel_mean`, `bge_m3`, `berel_simcse`, `berel_sup`, `berel_sup_csls`, `fused`). Only the chosen `lexical`, `semantic` and `fused` systems go into the SQLite DB; all systems go into the eval report.
 

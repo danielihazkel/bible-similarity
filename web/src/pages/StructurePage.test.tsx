@@ -131,7 +131,7 @@ beforeEach(() => {
         p === '/api/unit/c:26:8'
           ? DETAIL
           : p === '/api/similar/c:26:8'
-            ? { unit: CHAPTER, mode: 'fused', k: 10, exclude: [], hits: [] }
+            ? { unit: CHAPTER, mode: 'fused', k: 10, exclude: [], hits: [], phrases: true }
             : p === '/api/structure/c:26:8'
               ? STRUCTURE
               : p === '/api/structure'

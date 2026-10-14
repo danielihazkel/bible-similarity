@@ -208,6 +208,8 @@ TABLE_COLUMNS = {
         "lex_rank",
         "sem_score",
         "sem_rank",
+        "phr_score",
+        "phr_rank",
         "link_level",
         "link_type",
     ],
@@ -1022,6 +1024,7 @@ def similar(
         where.append("m.link_level IS NULL")
     sql = (
         "SELECT m.rank, m.tgt_id, m.score, m.lex_score, m.lex_rank, m.sem_score, m.sem_rank,"
+        " m.phr_score, m.phr_rank,"
         " m.link_level, m.link_type, p.score AS phrase_score, p.n_tokens AS phrase_tokens,"
         " t.label_en, t.label_he, t.book_id, t.start_verse_id, t.end_verse_id"
         " FROM matches m"
@@ -1404,6 +1407,7 @@ def _meta(
     semantic = cfg["final_systems"]["semantic"]
     base = semantic.removesuffix(CSLS_SUFFIX)
     systems: dict[str, dict[str, Any]] = defaultdict(dict)
+    unit_phrases: dict[str, float] = {}  # unit type -> the phrase list's weight in its fusion
     for unit_type, mode, system, path in files:
         side = _read_json(path.with_suffix(".meta.json"))
         systems[unit_type][mode] = {
@@ -1411,6 +1415,8 @@ def _meta(
             "config_hash": side.get("config_hash"),
             "built_at": side.get("built_at"),
         }
+        if mode == "fused" and side.get("w_phr") is not None:
+            unit_phrases[unit_type] = side["w_phr"]
     return {
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "config_hash": config_hash(cfg, "retrieval", "fusion", "final_systems", "lexical"),
@@ -1419,7 +1425,8 @@ def _meta(
         "text_version": cfg["sources"]["sefaria"]["text_version"],
         "text_license": "CC-BY-SA (Sefaria, Miqra according to the Masorah)",
         "systems": dict(systems),
-        "fusion": {k: cfg["fusion"][k] for k in ("w_lex", "w_sem", "rrf_k")},
+        "fusion": {k: cfg["fusion"][k] for k in ("w_lex", "w_sem", "rrf_k")}
+        | {"unit_phrases": unit_phrases},
         "k": cfg["retrieval"]["k"],
         "neighbor_window": cfg["retrieval"]["neighbor_window"],
         "semantic_system": semantic,
@@ -1603,7 +1610,7 @@ def _write_db(
             df = pd.read_parquet(file).assign(mode=mode)
             if (df.unit_type != unit_type).any():
                 raise RuntimeError(f"{file} holds rows of another unit type")
-            for col in ("lex_score", "lex_rank", "sem_score", "sem_rank"):
+            for col in ("lex_score", "lex_rank", "sem_score", "sem_rank", "phr_score", "phr_rank"):
                 if col not in df:
                     df[col] = None
             df = df.merge(links[unit_type], on=["src_id", "tgt_id"], how="left")

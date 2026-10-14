@@ -254,7 +254,7 @@ export interface paths {
          * Evaluation
          * @description Retrieval metrics against the Sefaria gold (dev, and the one test run), OpenBible and
          *     ETCBC's parallel passages; the encoder retrained with more supervision and newer encoders
-         *     against it (dev).
+         *     against it, a third fusion list for chapters and pericopes (dev).
          */
         get: operations["evaluation_api_eval_get"];
         put?: never;
@@ -3286,6 +3286,10 @@ export interface components {
             encoders: {
                 [key: string]: unknown;
             } | null;
+            /** Units */
+            units: {
+                [key: string]: unknown;
+            } | null;
             /** Final */
             final: {
                 [key: string]: {
@@ -3547,6 +3551,10 @@ export interface components {
             sem_score: number | null;
             /** Sem Rank */
             sem_rank: number | null;
+            /** Phr Score */
+            phr_score: number | null;
+            /** Phr Rank */
+            phr_rank: number | null;
             /** Rank */
             rank: number;
             unit: components["schemas"]["UnitSummary"];
@@ -5184,6 +5192,10 @@ export interface components {
             sem_score: number | null;
             /** Sem Rank */
             sem_rank: number | null;
+            /** Phr Score */
+            phr_score: number | null;
+            /** Phr Rank */
+            phr_rank: number | null;
             /** Rank */
             rank: number;
             verse: components["schemas"]["Verse"];
@@ -5493,6 +5505,11 @@ export interface components {
             exclude: string[];
             /** Hits */
             hits: components["schemas"]["Hit"][];
+            /**
+             * Phrases
+             * @default false
+             */
+            phrases: boolean;
         };
         /** SourceChapter */
         SourceChapter: {

@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -71,12 +73,16 @@ def test_run_fuse_writes_all_unit_types(tmp_path):
     proc.mkdir()
     pd.DataFrame(
         {
-            "unit_id": ["c:0", "c:1"],
+            "unit_id": ["c:0", "c:1", "c:2"],
             "unit_type": "chapter",
-            "start_verse_id": [0, 2],
-            "end_verse_id": [1, 3],
+            "start_verse_id": [0, 2, 4],
+            "end_verse_id": [1, 3, 5],
         }
     ).to_parquet(proc / "units.parquet")
+    # one shared phrase, verse 1 ~ verse 4: c:0 ~ c:2 through the phrase list alone
+    (art / "phrases").mkdir(parents=True)
+    phrases = pd.DataFrame({"a": [1], "b": [4], "score": [20.0]})
+    phrases.to_parquet(art / "phrases" / "verse.parquet")
 
     def write(unit_type: str, name: str, rows: list[tuple[str, str, int]]) -> None:
         d = art / "topk" / unit_type
@@ -100,9 +106,20 @@ def test_run_fuse_writes_all_unit_types(tmp_path):
     v = pd.read_parquet(art / "topk" / "verse" / "fused.parquet")
     assert v.tgt_id.tolist() == ["v:3", "v:2"]  # in both lists beats semantic rank 1 alone
     assert v.lex_rank.tolist()[0] == 1 and pd.isna(v.lex_rank.tolist()[1])
+    assert v.phr_rank.isna().all()  # verses are fused from two lists
     c = pd.read_parquet(art / "topk" / "chapter" / "fused.parquet")
-    assert sorted(zip(c.src_id, c.tgt_id, strict=True)) == [("c:0", "c:1"), ("c:1", "c:0")]
-    assert (art / "topk" / "chapter" / "fused.meta.json").exists()
+    assert sorted(zip(c.src_id, c.tgt_id, strict=True)) == [
+        ("c:0", "c:1"), ("c:0", "c:2"), ("c:1", "c:0"), ("c:2", "c:0")
+    ]
+    via = c[(c.src_id == "c:0") & (c.tgt_id == "c:2")].iloc[0]
+    assert via.phr_rank == 1 and pd.isna(via.lex_rank) and pd.isna(via.sem_rank)
+    assert via.score == pytest.approx(cfg["fusion"]["unit_phrases"]["chapter"] / 61)
+    meta = json.loads((art / "topk" / "chapter" / "fused.meta.json").read_text("utf-8"))
+    assert meta["w_phr"] == cfg["fusion"]["unit_phrases"]["chapter"]
+    phr = pd.read_parquet(art / "topk" / "chapter" / "phrases.parquet")
+    rows = phr[["src_id", "tgt_id", "rank"]].values.tolist()
+    assert rows == [["c:0", "c:2", 1], ["c:2", "c:0", 1]]
+    assert not (art / "topk" / "verse" / "phrases.parquet").exists()
 
     (art / "topk" / "chapter" / "sm_bma.parquet").unlink()
     with pytest.raises(RuntimeError, match="bsim units"):

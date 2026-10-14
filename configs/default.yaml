@@ -149,6 +149,7 @@ fusion:
   w_lex: 1.0                  # chosen on dev from w_lex_grid (`bsim fuse --tune`): verse nDCG@10 0.189
   w_sem: 1.0
   w_lex_grid: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+  unit_phrases: {chapter: 1.0}   # a third list: units ranked by the phrases their verses share, with this weight (chosen by `bsim unit-exp`, DESIGN.md §16.50)
 
 links:
   cartesian_max: 3            # both sides <= this many verses -> Cartesian product (else positional/unit)
@@ -291,6 +292,17 @@ encoder_experiments:          # `bsim encoder-exp`: newer encoders against the m
   noise: seed14               # supervision-exp's reseeded retrain: its largest fused gain over the golds, either way, is the bar
   golds: [sefaria, openbible, etcbc]
   metric: ndcg@10
+  bootstrap_reps: 10000
+  seed: 13
+
+unit_experiments:             # `bsim unit-exp`: a third fusion list for chapters and pericopes, dev only (DESIGN.md §16.50); fixed before the first run
+  unit_types: [chapter, pericope]
+  sequences_max_q: [null, 0.2]   # family "sequences": the aligned verse pairs of every chain (null) or of chains with q <= 0.2, by their weight
+  hits_depth: [10, 50]        # family "hits": each verse's fused top-N verses, weight (N + 1 - rank) / N; neighbours dropped
+  w_grid: [0.25, 0.5, 1.0]    # the family's list as a third RRF list beside the unit lexical and semantic lists
+  golds: [sefaria, openbible, etcbc]   # unit gold of each: unit pairs sharing >= eval.unit_gold_min_links dev verse pairs (Sefaria: + its unit links)
+  metric: ndcg@10
+  folds: 2                    # cross-fitting, as retrieval-exp
   bootstrap_reps: 10000
   seed: 13
 

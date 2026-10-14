@@ -117,8 +117,13 @@ def write_topk(art, unit_type, name, rows, fused=False):
         df["lex_rank"] = pd.array([1] + [None] * (len(df) - 1), dtype="Int32")
         df["sem_score"] = np.float32(np.nan)
         df["sem_rank"] = pd.array([None] * len(df), dtype="Int32")
+    side = {"config_hash": "abc"}
+    if fused and unit_type == "chapter":  # chapters are fused with the phrase list too (§16.50)
+        df["phr_score"] = np.float32(2.0)
+        df["phr_rank"] = pd.array([1] + [None] * (len(df) - 1), dtype="Int32")
+        side["w_phr"] = 1.0
     df.to_parquet(d / f"{name}.parquet")
-    (d / f"{name}.meta.json").write_text(json.dumps({"config_hash": "abc"}), encoding="utf-8")
+    (d / f"{name}.meta.json").write_text(json.dumps(side), encoding="utf-8")
 
 
 def write_inputs(cfg, tmp_path):

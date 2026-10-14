@@ -53,6 +53,9 @@ export interface Breakdown {
   lex_rank: number | null
   sem_score: number | null
   sem_rank: number | null
+  /** the phrase list, on fused results of a unit type fused with it (§16.50) */
+  phr_score: number | null
+  phr_rank: number | null
 }
 
 /** A Sefaria link: `verse` = direct verse-to-verse, `unit` = only a passage-level link covers it. */
@@ -133,6 +136,8 @@ export interface SimilarResponse {
   k: number
   exclude: Exclude[]
   hits: Hit[]
+  /** the fused list has a third list: the phrases the units share (§16.50) */
+  phrases: boolean
 }
 
 export interface WordRef {
@@ -924,12 +929,44 @@ export type EncoderEval = {
   chosen: string | null
 }
 
+/** One third-list family for a unit type (`bsim unit-exp`, §16.50). */
+export type UnitFamilyEval = {
+  /** list variant -> its scores alone (gold -> mean) and how many units have one */
+  alone: Record<string, { scores: Record<string, number>; units_with_list: number }>
+  /** member (variant, weight) -> gold -> mean */
+  members: Record<string, Record<string, number>>
+  selected: string
+  /** gold -> the selected member's gain over the fused list */
+  gains: Record<string, Gain>
+  cross_fitted_choices: string[]
+  cross_fitted_gain: Gain
+  adopt: boolean
+}
+
+export type UnitListEval = {
+  evaluated_at?: string
+  split?: string
+  metric: string
+  baseline: string
+  /** unit type -> its baseline, queries, families and the family chosen (or null) */
+  unit_types: Record<
+    string,
+    {
+      baseline_scores: Record<string, number>
+      queries: Record<string, number>
+      families: Record<string, UnitFamilyEval>
+      chosen: string | null
+    }
+  >
+}
+
 export interface EvalResponse {
   splits: Record<string, EvalSplit>
   openbible: OpenBibleEval | null
   etcbc: EtcbcEval | null
   supervision: SupervisionEval | null
   encoders: EncoderEval | null
+  units: UnitListEval | null
   /** unit type -> mode -> the system served for it */
   final: Record<string, Record<string, string>>
 }

@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { useEval } from '../api/hooks'
-import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval } from '../api/types'
+import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval, UnitListEval } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 
@@ -20,7 +20,7 @@ export function EvalPage() {
   const res = useEval()
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
-  const { splits, openbible, etcbc, supervision, encoders, final } = res.data
+  const { splits, openbible, etcbc, supervision, encoders, units, final } = res.data
   const splitNames = ['dev', 'test'].filter((s) => s in splits).concat(Object.keys(splits).filter((s) => s !== 'dev' && s !== 'test'))
 
   return (
@@ -78,6 +78,7 @@ export function EvalPage() {
       {etcbc && <EtcbcSection etcbc={etcbc} />}
       {supervision && <SupervisionSection sup={supervision} />}
       {encoders && <EncodersSection enc={encoders} />}
+      {units && <UnitListsSection ux={units} />}
     </div>
   )
 }
@@ -263,6 +264,111 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
           </table>
         </div>
       )}
+    </section>
+  )
+}
+
+/** A third fusion list for chapters and pericopes (§16.50): each family's gains, the verdict. */
+function UnitListsSection({ ux }: { ux: UnitListEval }) {
+  const m = useT()
+  const t = m.ov.eval
+  const types = Object.entries(ux.unit_types)
+  const cell = (x: Gain | undefined) => (
+    <td className={`num${x && x.lo > 0 ? ' on' : ''}`} title={x ? t.supCounts(x.better, x.worse, x.queries) : undefined}>
+      {x ? gain(x) : '–'}
+    </td>
+  )
+  const family = (name: string) => t.unitFamilies[name] ?? name
+  return (
+    <section aria-label={t.unitLabel}>
+      <h2>{t.unit(ux.split ?? 'dev')}</h2>
+      <p className="muted small">{t.unitLede(ux.metric)}</p>
+      <ul className="muted small">
+        {types.map(([type, r]) => (
+          <li key={type}>{t.unitVerdict(type, r.chosen ? family(r.chosen) : null)}</li>
+        ))}
+      </ul>
+      {types.map(([type, r]) => {
+        const golds = Object.keys(r.queries)
+        const scores = golds.map((g) => `${t.gold[g] ?? g} ${(r.baseline_scores[g] ?? 0).toFixed(3)}`).join(', ')
+        const families = Object.entries(r.families)
+        return (
+          <Fragment key={type}>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label={t.unitCaption(type, scores)}>
+              <table className="rank-table eval-table">
+                <caption>{t.unitCaption(type, scores)}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{t.unitFamily}</th>
+                    <th scope="col">{t.unitSelected}</th>
+                    <th scope="col" className="num">
+                      {t.unitCrossFitted}
+                    </th>
+                    {golds.map((g) => (
+                      <th key={g} scope="col" className="num">
+                        {t.gold[g] ?? g}
+                      </th>
+                    ))}
+                    <th scope="col">{t.supAdopt}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {families.map(([name, f]) => (
+                    <tr key={name} className={f.adopt ? 'served' : undefined}>
+                      <th scope="row">{family(name)}</th>
+                      <td className="small">
+                        <code>{f.selected}</code>
+                      </td>
+                      {cell(f.cross_fitted_gain)}
+                      {golds.map((g) => (
+                        <Fragment key={g}>{cell(f.gains[g])}</Fragment>
+                      ))}
+                      <td>{f.adopt ? t.supYes : t.supNo}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label={t.unitAloneCaption(type)}>
+              <table className="rank-table eval-table">
+                <caption>{t.unitAloneCaption(type)}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{t.unitFamily}</th>
+                    <th scope="col">{t.unitList}</th>
+                    <th scope="col" className="num">
+                      {t.unitUnits}
+                    </th>
+                    {golds.map((g) => (
+                      <th key={g} scope="col" className="num">
+                        {t.gold[g] ?? g}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {families.flatMap(([name, f]) =>
+                    Object.entries(f.alone).map(([variant, a]) => (
+                      <tr key={`${name}/${variant}`}>
+                        <th scope="row">{family(name)}</th>
+                        <td className="small">
+                          <code>{variant}</code>
+                        </td>
+                        <td className="num">{m.num(a.units_with_list)}</td>
+                        {golds.map((g) => (
+                          <td key={g} className="num">
+                            {(a.scores[g] ?? 0).toFixed(3)}
+                          </td>
+                        ))}
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Fragment>
+        )
+      })}
     </section>
   )
 }

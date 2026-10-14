@@ -188,6 +188,7 @@ export const he: Messages = {
   rank: {
     lex: 'מיל׳',
     sem: 'סמ׳',
+    phr: 'ביט׳',
     notInTop: (label: string, k: number) => `${label}: לא בין ${k} המובילים`,
     rank: (label: string, rank: number, score: string) => `${label}: מקום ${rank}, ציון ${score}`,
   },

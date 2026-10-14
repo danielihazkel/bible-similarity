@@ -52,8 +52,9 @@ const similar = (mode: string): SimilarResponse => ({
   k: 10,
   exclude: ['neighbors'],
   hits: [
-    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null, link: { level: 'verse', types: ['quotation'] }, phrase: { score: 20, n_tokens: 4 } },
+    { rank: 1, score: 0.5, lex_score: null, lex_rank: 1, sem_score: null, sem_rank: null, phr_score: null, phr_rank: null, unit: unit(5, 'Test 1:6'), verse: TGT, preview: null, link: { level: 'verse', types: ['quotation'] }, phrase: { score: 20, n_tokens: 4 } },
   ],
+  phrases: false,
 })
 const EXPLAIN: ExplainResponse = {
   a: 0,

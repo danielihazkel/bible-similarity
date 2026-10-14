@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Verse } from '../api/types'
 import { TextModeProvider } from '../context/TextMode'
 import { ExportCsv } from './ExportCsv'
+import { ScoreBreakdown } from './ScoreBreakdown'
 import { HebrewText } from './HebrewText'
 import { Layout } from './Layout'
 import { EmptyList, Pager } from './Pager'
@@ -102,5 +103,21 @@ describe('Layout accessibility', () => {
     expect(screen.getByRole('link', { name: 'Skip to content' }).getAttribute('href')).toBe('#main')
     await waitFor(() => expect(document.title).toBe('First page · Tanakh Similarity'))
     expect(screen.getByRole('button', { name: /Copy link/ })).toBeTruthy()
+  })
+})
+
+describe('ScoreBreakdown', () => {
+  const hit = { score: 0.05, lex_score: 3, lex_rank: 2, sem_score: null, sem_rank: null, phr_score: 21, phr_rank: 1 }
+
+  it('shows the phrase rank only where the fused list has the phrase list', () => {
+    const { container, rerender } = render(<ScoreBreakdown hit={hit} mode="fused" />)
+    expect(container.querySelectorAll('.rankbar')).toHaveLength(2)
+    rerender(<ScoreBreakdown hit={hit} mode="fused" phrases />)
+    const bars = container.querySelectorAll('.rankbar')
+    expect(bars).toHaveLength(3)
+    expect(bars[2].getAttribute('title')).toBe('Phr: rank 1, score 21.0')
+    expect(bars[1].textContent).toContain('—')
+    rerender(<ScoreBreakdown hit={hit} mode="lexical" phrases />)
+    expect(container.querySelectorAll('.rankbar')).toHaveLength(0)
   })
 })

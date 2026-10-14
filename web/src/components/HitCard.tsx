@@ -15,6 +15,8 @@ interface Props {
   hit: Hit
   mode: Mode
   source: UnitSummary
+  /** The fused list has the phrase list too (§16.50): a third rank bar. */
+  phrases?: boolean
   /** Verse hits: this card is the one being explained (hovered or pinned). */
   active?: boolean
   pinned?: boolean
@@ -57,7 +59,7 @@ export function HitCard(p: Props) {
             {m.hit.phrase(hit.phrase.n_tokens)}
           </span>
         )}
-        <ScoreBreakdown hit={hit} mode={mode} />
+        <ScoreBreakdown hit={hit} mode={mode} phrases={p.phrases} />
         <span className="hit-actions">
           <LabelButtons a={source.unit_id} b={hit.unit.unit_id} mode={mode} score={hit.score} />
           {isVerse && (

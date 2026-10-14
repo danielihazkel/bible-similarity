@@ -186,6 +186,7 @@ export const en = {
   rank: {
     lex: 'Lex',
     sem: 'Sem',
+    phr: 'Phr',
     notInTop: (label: string, k: number) => `${label}: not in the top ${k}`,
     rank: (label: string, rank: number, score: string) => `${label}: rank ${rank}, score ${score}`,
   },
