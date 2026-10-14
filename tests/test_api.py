@@ -719,7 +719,7 @@ def test_eval(client, built):
 
     cfg, _ = built
     body = client.get("/api/eval").json()
-    assert body["splits"] == {} and body["openbible"] is None
+    assert body["splits"] == {} and body["openbible"] is None and body["encoders"] is None
     assert body["final"]["verse"]["fused"] == cfg["final_systems"]["fused"]
     folder = Path(cfg["paths"]["artifacts"]) / "eval"
     folder.mkdir(parents=True, exist_ok=True)

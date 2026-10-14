@@ -23,6 +23,7 @@ COMMANDS = [
     "maxsim",
     "retrieval-exp",
     "supervision-exp",
+    "encoder-exp",
     "senses",
     "build-db",
     "serve",

@@ -886,11 +886,50 @@ export type SupervisionEval = {
   chosen: string | null
 }
 
+/** Newer encoders against the model in use (§16.48). */
+export type EncoderEval = {
+  evaluated_at?: string
+  split?: string
+  metric: string
+  baseline: string
+  /** list (semantic | fused) -> gold -> mean metric of the model in use */
+  baseline_scores: Record<string, Record<string, number>>
+  /** the zero-shot system already built, compared with the zero-shot candidates */
+  reference: string
+  reference_scores: Record<string, Record<string, number>>
+  /** gold -> dev queries */
+  queries: Record<string, number>
+  /** supervision-exp's reseeded retrain, and the gain it sets as the bar */
+  noise: string
+  noise_bar: number
+  results: Record<
+    string,
+    {
+      kind: 'trained' | 'zero_shot'
+      /** the base model trained, or the embedder used as it is */
+      model: string
+      prompt?: string | null
+      dim: number
+      best_epoch?: number | null
+      peak_vram_gb?: number | null
+      /** list -> gold -> mean metric */
+      scores: Record<string, Record<string, number>>
+      /** gold -> list -> gain over the baseline */
+      gains: Record<string, Record<string, Gain>>
+      /** zero-shot only: gold -> semantic gain over the reference */
+      vs_reference?: Record<string, Gain>
+      adopt: boolean
+    }
+  >
+  chosen: string | null
+}
+
 export interface EvalResponse {
   splits: Record<string, EvalSplit>
   openbible: OpenBibleEval | null
   etcbc: EtcbcEval | null
   supervision: SupervisionEval | null
+  encoders: EncoderEval | null
   /** unit type -> mode -> the system served for it */
   final: Record<string, Record<string, string>>
 }

@@ -922,6 +922,7 @@ class EvalResponse(ApiModel):
     openbible: dict[str, Any] | None  # artifacts/eval/openbible.json
     etcbc: dict[str, Any] | None  # artifacts/eval/etcbc.json
     supervision: dict[str, Any] | None  # artifacts/eval/supervision_experiments.json
+    encoders: dict[str, Any] | None  # artifacts/eval/encoder_experiments.json
     final: dict[str, dict[str, str]]  # unit type -> mode -> system served for it
 
 

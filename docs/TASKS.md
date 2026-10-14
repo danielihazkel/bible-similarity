@@ -712,6 +712,15 @@ Phase 3 (M39c): API and viewer
 - [x] Viewer: a Notebook panel on every unit page (keep, note, collections, create one in place, remove with an in-page confirmation); the Notebook page (collections as filters with create / rename / describe / delete, search over notes, Markdown and CSV export written in the browser); English and Hebrew
 - [x] Tests: the store, the API (order, limits, conflicts, read-only, units of an older build, the file shared with the labels) (pytest); the panel, the page, the Markdown file, against an in-memory server (vitest); e2e: keep a verse with a note and a new collection, see it in the notebook, axe, clean up (fixture, desktop only: one shared file); the page loads on the real build
 
+## M71: Newer encoders (§16.48, D84; proposed C2)
+- [x] Availability checked first: DictaBERT base / large, multilingual-E5-large, Qwen3-Embedding-0.6B on the hub, ungated, fast tokenizers, every verse within 128 tokens; NeoDictaBERT left out (`trust_remote_code`)
+- [x] `bsim encoder-exp [--retrain] [--only NAME]` (`eval/newer_encoders.py`): trained candidates through `train-sup` with BEREL's recipe, pairs and seed from their base model (`models/{name}-sup`); zero-shot candidates encoded with their own instruction (`encoders` `prompt`); semantic and fused lists on the Sefaria, OpenBible and ETCBC dev golds with paired bootstrap CIs; zero-shot ones also against BGE-M3; never edits the config
+- [x] Rule fixed before any candidate ran: Sefaria fused gain with CI above 0 and above the reseeded retrain's 0.0009, no significant loss on OpenBible or ETCBC
+- [x] API `/eval` → `encoders`; Evaluation page: *Newer encoders* (fused and semantic tables, the rule, the zero-shot comparison); English and Hebrew
+- [x] Tests: candidate configs, the noise bar, the adoption rule, the report (pytest); the section and its cells (vitest)
+
+✔ None passes, so BEREL stays. Fused Sefaria dev against `berel_sup` (0.1946): DictaBERT base −0.0164, CI [−0.0264, −0.0068], large −0.0213, CI [−0.0320, −0.0110], multilingual-E5 −0.0271, CI [−0.0395, −0.0151], Qwen3 −0.0476, CI [−0.0606, −0.0351]. Every candidate scores higher on ETCBC's near-verbatim parallels, significantly only DictaBERT base (+0.0275, CI [+0.0024, +0.0532]) and E5 (+0.0376, CI [+0.0105, +0.0659]). DictaBERT large trained 3 h 53 min and peaked at step 100 of 755. Zero-shot, multilingual-E5 is level with BGE-M3 and Qwen3 below it.
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -731,7 +740,7 @@ Viewer
 
 Backend, models, code health
 - [x] C1 (done, M64) Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
-- C2 Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
+- [x] C2 (done, M71) Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
 - C3 Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
 - C4 `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
 - C5 Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`

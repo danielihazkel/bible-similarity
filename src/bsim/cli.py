@@ -484,6 +484,26 @@ def maxsim(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("encoder-exp")
+def encoder_exp(
+    retrain: Annotated[
+        bool, typer.Option("--retrain", help="Train every candidate again, even if it exists")
+    ] = False,
+    only: Annotated[
+        list[str] | None, typer.Option(help="Run only this candidate (repeatable)")
+    ] = None,
+    config: ConfigOpt = None,
+) -> None:
+    """Score newer encoders (DictaBERT trained, multilingual embedders zero-shot) on dev."""
+    from bsim.eval.newer_encoders import run_encoder_experiments
+
+    try:
+        run_encoder_experiments(load_config(config), log=typer.echo, retrain=retrain, only=only)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("supervision-exp")
 def supervision_exp(
     retrain: Annotated[

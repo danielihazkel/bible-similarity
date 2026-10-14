@@ -253,7 +253,8 @@ export interface paths {
         /**
          * Evaluation
          * @description Retrieval metrics against the Sefaria gold (dev, and the one test run), OpenBible and
-         *     ETCBC's parallel passages; the encoder retrained with more supervision (dev).
+         *     ETCBC's parallel passages; the encoder retrained with more supervision and newer encoders
+         *     against it (dev).
          */
         get: operations["evaluation_api_eval_get"];
         put?: never;
@@ -3279,6 +3280,10 @@ export interface components {
             } | null;
             /** Supervision */
             supervision: {
+                [key: string]: unknown;
+            } | null;
+            /** Encoders */
+            encoders: {
                 [key: string]: unknown;
             } | null;
             /** Final */

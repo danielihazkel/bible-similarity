@@ -1,5 +1,6 @@
+import { Fragment } from 'react'
 import { useEval } from '../api/hooks'
-import type { EtcbcEval, Gain, MetricSet, SupervisionEval } from '../api/types'
+import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 
@@ -19,7 +20,7 @@ export function EvalPage() {
   const res = useEval()
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
-  const { splits, openbible, etcbc, supervision, final } = res.data
+  const { splits, openbible, etcbc, supervision, encoders, final } = res.data
   const splitNames = ['dev', 'test'].filter((s) => s in splits).concat(Object.keys(splits).filter((s) => s !== 'dev' && s !== 'test'))
 
   return (
@@ -76,6 +77,7 @@ export function EvalPage() {
       )}
       {etcbc && <EtcbcSection etcbc={etcbc} />}
       {supervision && <SupervisionSection sup={supervision} />}
+      {encoders && <EncodersSection enc={encoders} />}
     </div>
   )
 }
@@ -177,6 +179,90 @@ function SupervisionSection({ sup }: { sup: SupervisionEval }) {
           </table>
         </div>
       ))}
+    </section>
+  )
+}
+
+/** Newer encoders against the model in use (§16.48): each candidate's gain, the rule's verdict. */
+function EncodersSection({ enc }: { enc: EncoderEval }) {
+  const t = useT().ov.eval
+  const golds = Object.keys(enc.queries)
+  const candidates = Object.entries(enc.results)
+  const zero = candidates.filter(([, r]) => r.kind === 'zero_shot' && r.vs_reference)
+  const cell = (x: Gain | undefined) => (
+    <td className={`num${x && x.lo > 0 ? ' on' : ''}`} title={x ? t.supCounts(x.better, x.worse, x.queries) : undefined}>
+      {x ? gain(x) : '–'}
+    </td>
+  )
+  const scores = (s: Record<string, number> | undefined) => golds.map((g) => `${t.gold[g] ?? g} ${(s?.[g] ?? 0).toFixed(3)}`).join(', ')
+  const head = (adopt: boolean) => (
+    <thead>
+      <tr>
+        <th scope="col">{t.encCandidate}</th>
+        <th scope="col">{t.encModel}</th>
+        {golds.map((g) => (
+          <th key={g} scope="col" className="num">
+            {t.gold[g] ?? g}
+          </th>
+        ))}
+        {adopt && <th scope="col">{t.supAdopt}</th>}
+      </tr>
+    </thead>
+  )
+  return (
+    <section aria-label={t.encLabel}>
+      <h2>{t.enc(enc.split ?? 'dev')}</h2>
+      <p className="muted small">
+        {t.encLede(enc.metric, `${enc.noise_bar.toFixed(4)}`)}
+        {enc.chosen ? t.encChosen(enc.chosen) : t.encNone}
+      </p>
+      {(['fused', 'semantic'] as const).map((list) => (
+        <div key={list} className="table-wrap" tabIndex={0} role="region" aria-label={t.encList[list]}>
+          <table className="rank-table eval-table">
+            <caption>{t.supCaption(t.encList[list], enc.baseline, scores(enc.baseline_scores[list]))}</caption>
+            {head(list === 'fused')}
+            <tbody>
+              {candidates.map(([name, r]) => (
+                <tr key={name} className={r.adopt ? 'served' : undefined}>
+                  <th scope="row">
+                    <code>{name}</code>
+                  </th>
+                  <td className="small">
+                    <span dir="ltr">{r.model}</span> · {t.encKind[r.kind] ?? r.kind}
+                  </td>
+                  {golds.map((g) => (
+                    <Fragment key={g}>{cell(r.gains[g]?.[list])}</Fragment>
+                  ))}
+                  {list === 'fused' && <td>{r.adopt ? t.supYes : t.supNo}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+      {zero.length > 0 && (
+        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.encZeroLabel}>
+          <table className="rank-table eval-table">
+            <caption>{t.encZero(enc.reference, scores(enc.reference_scores.semantic))}</caption>
+            {head(false)}
+            <tbody>
+              {zero.map(([name, r]) => (
+                <tr key={name}>
+                  <th scope="row">
+                    <code>{name}</code>
+                  </th>
+                  <td className="small" dir="ltr">
+                    {r.model}
+                  </td>
+                  {golds.map((g) => (
+                    <Fragment key={g}>{cell(r.vs_reference?.[g])}</Fragment>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   )
 }

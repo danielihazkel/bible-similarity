@@ -279,6 +279,21 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
   bootstrap_reps: 10000
   seed: 13
 
+encoder_experiments:          # `bsim encoder-exp`: newer encoders against the model in use, dev only (DESIGN.md §16.48)
+  baseline: berel_sup         # the encoders.systems entry in use
+  trained:                    # name -> train-sup overrides: same recipe, pairs and seed from another base; writes models/{name}-sup
+    dictabert: {base: dicta-il/dictabert}          # modern Hebrew BERT-base (Dicta, CC BY 4.0)
+    dictabert_large: {base: dicta-il/dictabert-large, mini_batch_size: 16}   # BERT-large; the CachedMNRL chunk bounds VRAM only
+  zero_shot:                  # name -> encoder spec, inference only (multilingual embedders, never trained here)
+    e5_large: {model: intfloat/multilingual-e5-large, pooling: native, prompt: "query: "}
+    qwen3_06b: {model: Qwen/Qwen3-Embedding-0.6B, pooling: native, prompt: "Instruct: Given a verse of the Hebrew Bible, retrieve other verses related to it\nQuery:"}
+  reference: bge_m3           # the zero-shot system already built: the zero-shot candidates are also compared with it (semantic list)
+  noise: seed14               # supervision-exp's reseeded retrain: its largest fused gain over the golds, either way, is the bar
+  golds: [sefaria, openbible, etcbc]
+  metric: ndcg@10
+  bootstrap_reps: 10000
+  seed: 13
+
 phrases:                      # `bsim phrases`: shared phrases by local alignment (DESIGN.md §16)
   candidate_rank: 50          # align pairs within the final lexical verse top-k
   mismatch: 1.5               # Smith-Waterman penalties; a match scores idf x formula weight

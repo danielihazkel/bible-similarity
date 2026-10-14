@@ -174,6 +174,7 @@ bible-similarity/
 │   │   ├── metrics.py              # recall@k, MRR, nDCG, paired bootstrap
 │   │   ├── experiments.py          # `bsim retrieval-exp`: dev comparisons with CIs (§16.21)
 │   │   ├── supervision.py          # `bsim supervision-exp`: the encoder retrained with more pairs, rule fixed in advance (§16.41)
+│   │   ├── newer_encoders.py       # `bsim encoder-exp`: DictaBERT fine-tuned, multilingual embedders zero-shot, against BEREL (§16.48)
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
@@ -232,6 +233,7 @@ bible-similarity/
 | — | `bsim train-rerank` / `bsim rerank [--tune]` | verses, links, fused verse topk | `models/berel-rerank/`; `artifacts/topk/verse/fused_rerank.parquet`, `eval/rerank_tuning.json` (§16.3; manual, not a final system) |
 | — | `bsim embed-context`, `bsim maxsim`, `bsim retrieval-exp` | verses, encoders, fused verse topk, dev golds | `artifacts/embeddings/berel_sup_{ctx,late}.npy`, `maxsim/{encoder}.parquet`, `topk/verse/fused_maxsim.parquet`, `eval/retrieval_experiments.{json,md}` (§16.21; manual, not final systems) |
 | — | `bsim supervision-exp [--retrain] [--only NAME]` | verses, links, golds, lexical, `berel_sup` embeddings | `models/berel-sup-{variant}/`, `artifacts/train/hard_negatives_{variant}.parquet`, `eval/supervision_experiments.{json,md}` (§16.41; manual, never edits the config) |
+| — | `bsim encoder-exp [--retrain] [--only NAME]` | verses, links, golds, lexical, `berel_sup` and `bge_m3` embeddings | `models/{name}-sup/`, `artifacts/train/hard_negatives_{name}.parquet`, `eval/encoder_experiments.{json,md}` (§16.48; manual, never edits the config) |
 | 11a | `bsim eval-openbible` | OpenBible pairs, splits, final verse topk | `artifacts/eval/openbible.{json,md}` (§16.13) |
 | — | `bsim eval-labels` | `paths.labels` (written by the viewer), verses, splits, links, final verse topk | `artifacts/eval/labels.{json,md}` (§16.25; run by hand, not in `bsim all`) |
 | 11b | `bsim phrases` | words, final lexical verse topk | `artifacts/phrases/verse.parquet` + `.meta.json` (§16.1) |

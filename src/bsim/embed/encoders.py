@@ -4,6 +4,8 @@ Encoders are sentence-transformers models named in `encoders.systems`:
     pooling: mean     a plain HF encoder (BEREL) + mean pooling over the last hidden state
     pooling: native   the model's own ST config (BGE-M3: CLS + normalize = its dense vector;
                       later the fine-tuned checkpoints under `models/`)
+    prompt            optional text put before every verse (an embedder's instruction, e.g. E5's
+                      "query: "); verse similarity is symmetric, so every verse gets the same one
 The tokenizer is always loaded through `AutoTokenizer` (fast); inference is fp32 only.
 
 Writes `artifacts/embeddings/{system}.npy` (float32, L2-normalized, row = verse_id) and
@@ -79,9 +81,10 @@ def token_stats(tokenizer: Any, texts: list[str], max_len: int) -> dict[str, int
     }
 
 
-def encode(model: Any, texts: list[str], batch_size: int) -> np.ndarray:
+def encode(model: Any, texts: list[str], batch_size: int, prompt: str | None = None) -> np.ndarray:
     emb = model.encode(
         texts,
+        prompt=prompt,
         batch_size=batch_size,
         normalize_embeddings=True,
         convert_to_numpy=True,
@@ -133,7 +136,7 @@ def run_embed(cfg: dict[str, Any], system: str, log: Log = print) -> np.ndarray:
     if stats["n_unk_verses"] or stats["n_truncated"]:
         log("  warning: unknown tokens or truncation; check the tokenizer / max_seq_length")
 
-    emb = encode(model, texts, enc["batch_size"])
+    emb = encode(model, texts, enc["batch_size"], spec.get("prompt"))
     out = resolve_path(cfg, "artifacts") / "embeddings"
     out.mkdir(parents=True, exist_ok=True)
     np.save(out / f"{system}.npy", emb)
@@ -141,6 +144,7 @@ def run_embed(cfg: dict[str, Any], system: str, log: Log = print) -> np.ndarray:
         "system": system,
         "model": spec["model"],
         "pooling": spec.get("pooling", "native"),
+        "prompt": spec.get("prompt"),
         "revision": model_revision(model),
         "n": int(emb.shape[0]),
         "dim": int(emb.shape[1]),

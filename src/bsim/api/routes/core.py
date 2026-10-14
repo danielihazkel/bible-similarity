@@ -461,7 +461,8 @@ def meta(state: State, response: Response) -> dict[str, Any]:
 @router.get("/eval", response_model=EvalResponse)
 def evaluation(state: State) -> dict[str, Any]:
     """Retrieval metrics against the Sefaria gold (dev, and the one test run), OpenBible and
-    ETCBC's parallel passages; the encoder retrained with more supervision (dev)."""
+    ETCBC's parallel passages; the encoder retrained with more supervision and newer encoders
+    against it (dev)."""
     folder = resolve_path(state.cfg, "artifacts") / "eval"
 
     def read(name: str) -> dict[str, Any] | None:
@@ -475,5 +476,6 @@ def evaluation(state: State) -> dict[str, Any]:
         "openbible": read("openbible.json"),
         "etcbc": read("etcbc.json"),
         "supervision": read("supervision_experiments.json"),
+        "encoders": read("encoder_experiments.json"),
         "final": {t: final_systems(state.cfg, t) for t in types},
     }

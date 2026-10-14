@@ -57,6 +57,38 @@ const RES: EvalResponse = {
       },
     },
   },
+  encoders: {
+    split: 'dev',
+    metric: 'ndcg@10',
+    baseline: 'berel_sup',
+    baseline_scores: { fused: { sefaria: 0.1946, openbible: 0.1516, etcbc: 0.8325 }, semantic: { sefaria: 0.1561, openbible: 0.1228, etcbc: 0.7649 } },
+    reference: 'bge_m3',
+    reference_scores: { fused: { sefaria: 0.17, openbible: 0.13, etcbc: 0.82 }, semantic: { sefaria: 0.101, openbible: 0.082, etcbc: 0.61 } },
+    queries: { sefaria: 884, openbible: 2541, etcbc: 179 },
+    noise: 'seed14',
+    noise_bar: 0.0009,
+    chosen: 'dictabert',
+    results: {
+      dictabert: {
+        kind: 'trained',
+        model: 'dicta-il/dictabert',
+        dim: 768,
+        scores: {},
+        gains: { sefaria: { fused: g(0.01, 0.004, 0.016), semantic: g(0.02, 0.01, 0.03) }, openbible: { fused: g(0, -0.01, 0.01), semantic: g(0, -0.01, 0.01) }, etcbc: { fused: g(0, -0.01, 0.01), semantic: g(0, -0.01, 0.01) } },
+        adopt: true,
+      },
+      e5_large: {
+        kind: 'zero_shot',
+        model: 'intfloat/multilingual-e5-large',
+        prompt: 'query: ',
+        dim: 1024,
+        scores: {},
+        gains: { sefaria: { fused: g(-0.03, -0.04, -0.02), semantic: g(-0.05, -0.06, -0.04) }, openbible: { fused: g(-0.02, -0.03, -0.01), semantic: g(0, -0.01, 0.01) }, etcbc: { fused: g(0, -0.01, 0.01), semantic: g(0, -0.01, 0.01) } },
+        vs_reference: { sefaria: g(0.012, 0.004, 0.02), openbible: g(0, -0.01, 0.01), etcbc: g(-0.01, -0.02, 0.001) },
+        adopt: false,
+      },
+    },
+  },
   final: { verse: { lexical: 'bm25_lemma', semantic: 'berel_sup_csls', fused: 'fused', structural: 'bm25_morph' } },
 }
 
@@ -96,5 +128,16 @@ describe('EvalPage', () => {
     expect(row.querySelector('td.on')?.getAttribute('title')).toBe('40 queries better, 30 worse, of 884')
     expect(screen.getByText(/No variant passed, so the model in use stays/)).toBeTruthy()
     expect(screen.getByRole('region', { name: 'Semantic list alone' }).querySelector('th:last-child')?.textContent).toBe('ETCBC')
+    // newer encoders: each candidate's gains and kind, the rule's verdict, the zero-shot comparison
+    expect(screen.getByText(/larger than 0\.0009 \(the most a retrain with another seed moved\)/)).toBeTruthy()
+    expect(screen.getByText(/Passed: dictabert\./)).toBeTruthy()
+    const encFused = screen.getByRole('region', { name: 'Newer encoders: fused list' })
+    const passed = encFused.querySelector('tr.served')!
+    expect(passed.querySelector('code')?.textContent).toBe('dictabert')
+    expect([...passed.querySelectorAll('td')].map((c) => c.textContent)).toEqual(['dicta-il/dictabert · fine-tuned here', '+0.010 [+0.004, +0.016]', '+0.000 [−0.010, +0.010]', '+0.000 [−0.010, +0.010]', 'yes'])
+    const zero = screen.getByRole('region', { name: 'Zero-shot embedders against the one already built' })
+    expect(zero.querySelector('caption')?.textContent).toBe('Zero-shot: the multilingual embedders against bge_m3, the zero-shot system already built (semantic list; bge_m3 Sefaria 0.101, OpenBible 0.082, ETCBC 0.610)')
+    expect([...zero.querySelectorAll('tbody tr')].map((r) => r.querySelector('code')?.textContent)).toEqual(['e5_large'])
+    expect(zero.querySelectorAll('td.on')).toHaveLength(1)
   })
 })
