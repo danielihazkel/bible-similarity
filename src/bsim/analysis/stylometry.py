@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.config import config_hash, resolve_path
+from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
 
@@ -156,7 +157,6 @@ def pca2(z: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 def run_stylometry(cfg: dict[str, Any], log: Log = print) -> Path:
     from bsim.data.canon import BOOKS
-    from bsim.store.db import lemma_display_forms
 
     sc = cfg["stylometry"]
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")

@@ -37,6 +37,7 @@ import pandas as pd
 
 from bsim.analysis.sequences import q_values
 from bsim.config import config_hash, resolve_path
+from bsim.store.lexicon import lemma_parts_pos
 
 Log = Callable[[str], None]
 
@@ -47,7 +48,6 @@ def verb_sequences(
     words: pd.DataFrame, units: pd.DataFrame, max_verses: int
 ) -> dict[str, list[Verb]]:
     """Pericope id -> its verbs in order (lemma of the verb morpheme)."""
-    from bsim.store.db import lemma_parts_pos  # store.db imports the analysis modules
 
     by_verse: dict[int, list[str]] = defaultdict(list)
     w = words.sort_values(["verse_id", "idx"], kind="stable")

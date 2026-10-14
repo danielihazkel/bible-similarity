@@ -4,16 +4,9 @@ import sqlite3
 import pandas as pd
 import pytest
 
-from bsim.store.db import (
-    connect_readonly,
-    formula_flags,
-    gold_verse_pairs,
-    lemma_display_forms,
-    lemma_parts_pos,
-    run_build_db,
-    similar,
-    strip_prefixes,
-)
+from bsim.store.db import connect_readonly, run_build_db, similar
+from bsim.store.lexicon import formula_flags, lemma_display_forms, lemma_parts_pos, strip_prefixes
+from bsim.store.links import gold_verse_pairs
 from conftest import TEXTS
 
 

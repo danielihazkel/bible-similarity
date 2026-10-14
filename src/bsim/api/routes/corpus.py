@@ -9,11 +9,11 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import BookCount, LemmaForm, UnitSummary
+from bsim.api.models.corpus import (
     AffinityCell,
     AffinityPair,
     AffinityResponse,
-    BookCount,
     BookStyle,
     CommunityResponse,
     CurvePoint,
@@ -22,7 +22,6 @@ from bsim.api.models import (
     EntityDetail,
     EntityLink,
     EntityPartner,
-    LemmaForm,
     MapCluster,
     MapPoint,
     MapResponse,
@@ -39,7 +38,6 @@ from bsim.api.models import (
     StylometryResponse,
     StyloPoint,
     UnitNetwork,
-    UnitSummary,
 )
 from bsim.api.routes._common import (
     Conn,

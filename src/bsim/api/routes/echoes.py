@@ -8,14 +8,14 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.echoes import (
     EchoBasis,
     EchoBook,
     EchoChapter,
     EchoEdge,
     EchoesResponse,
     EchoListResponse,
-    UnitSummary,
 )
 from bsim.api.routes._common import Conn, State, check_page, unit_span, unprocessable
 

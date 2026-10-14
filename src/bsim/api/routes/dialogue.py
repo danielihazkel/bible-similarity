@@ -9,7 +9,8 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import VerseLabel
+from bsim.api.models.dialogue import (
     DialogueBook,
     DialogueBookResponse,
     DialogueExchange,
@@ -17,7 +18,6 @@ from bsim.api.models import (
     DialoguePair,
     DialogueParty,
     DialogueResponse,
-    VerseLabel,
 )
 from bsim.api.routes._common import Conn, State, check_page, unprocessable
 from bsim.data.lexicon import strong_key

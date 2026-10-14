@@ -740,6 +740,15 @@ Phase 3 (M39c): API and viewer
 
 ✔ Shared phrases pass for chapters: cross-fitted +0.0266 on Sefaria dev (CI [+0.0066, +0.0461]), OpenBible +0.0123 and ETCBC +0.0677 (CIs above 0); chapter fused 0.1710 → 0.1976, now above TF-IDF (0.1916). Nothing passes for pericopes: fused verse hits come nearest (cross-fitted +0.0095, CI [−0.0002, +0.0190]). Parallel sequences help little at either level.
 
+## M74: Code health (§16.51, D87; proposed C5)
+- [x] `api/models/` and `api/queries/`: one module per route module + `common` (routes import their own models; `queries` re-exported); `queries.domains` → `domain_tree`; the OpenAPI schema unchanged
+- [x] `store/analyses.py`: one `Source` per analysis stage (files, tables, fixes, meta keys) in place of the per-analysis read / adapt / insert code; columns from `schema.sql` (`store/schema.py`); `store/lexicon.py`, `store/links.py`; the analysis modules import the lemma helpers at the top; the DB built identical
+- [x] `Literal` fields in pydantic where the viewer narrows a string; `types.ts`: 214 aliases of the schema, 19 responses with open JSON fields written over it; the drift check only for those
+- [x] `components/UnitPanels.tsx`: the unit page's data panels with their unit types, place and dossier gate
+- [x] Checks: ruff, pytest, lint, vitest, fixture and real e2e; `bsim compare-builds` (identical after `bsim build-db`; after `bsim all`, `senses` differs between two runs of unchanged code: open)
+
+✔ Same API, same DB: `models.py` 2,425 / `queries.py` 2,145 / `db.py` 2,031 lines became feature modules (the largest 303 lines), a 526-line `db.py` and the 689-line analyses registry, `types.ts` 3,130 → 1,263, the unit page 557 → 445. Found on the way: `bsim senses` is not deterministic across runs (one example or one clustering of a frequent lemma).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -762,6 +771,6 @@ Backend, models, code health
 - [x] C2 (done, M71) Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
 - [x] C3 (done, M73) Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
 - [x] C4 (done, M72) `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
-- C5 Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
+- [x] C5 (done, M74) Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
 
 Suggested order: A1 → A2 → B1 → A3 → C1 (all done, M60–M64).

@@ -7,10 +7,10 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
+from bsim.analysis.dating import FEATURES as DATING_FEATURES
 from bsim.api import queries
-from bsim.api.models import DatingBook, DatingChapter, DatingResponse, SynopticExample
+from bsim.api.models.dating import DatingBook, DatingChapter, DatingResponse, SynopticExample
 from bsim.api.routes._common import Conn, State, span_label, unit_or_404
-from bsim.store.db import DATING_FEATURES
 
 router = APIRouter()
 

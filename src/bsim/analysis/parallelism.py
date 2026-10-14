@@ -70,6 +70,7 @@ from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
 from bsim.lexical.morph import word_token
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
+from bsim.store.lexicon import lemma_parts_pos
 from bsim.text.accents import clauses, cola, pauses, poetic
 from bsim.text.normalize import consonantal
 
@@ -315,7 +316,6 @@ def verse_features(
 
 def lemma_pos(words: pd.DataFrame) -> dict[str, str]:
     """Each content lemma's most common part of speech (OSHB letter)."""
-    from bsim.store.db import lemma_parts_pos  # store.db imports the analysis modules
 
     pos: dict[str, Counter[str]] = {}
     for lemma, morph in zip(words.lemma, words.morph, strict=True):

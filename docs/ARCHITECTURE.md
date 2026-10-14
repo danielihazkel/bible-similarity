@@ -182,8 +182,12 @@ bible-similarity/
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
-│   │   ├── schema.sql
-│   │   ├── db.py                   # build results.sqlite
+│   │   ├── schema.sql              # every table and column of results.sqlite
+│   │   ├── schema.py               # the column names, read from schema.sql
+│   │   ├── db.py                   # build results.sqlite: corpus, matches, discoveries, meta; `similar()`
+│   │   ├── analyses.py             # each analysis stage's files, tables, fixes and meta keys (one `Source` each)
+│   │   ├── lexicon.py              # lemma display forms, concordance, formula flags, SDBH domains
+│   │   ├── links.py                # Sefaria gold pairs, unit links, sequence gold flags, discoveries
 │   │   ├── compare.py              # `bsim compare-builds`: what changed between two results DBs (§16.49)
 │   │   ├── notebook.py             # your notebook: entries with notes and collections, in the labels file (§16.47)
 │   │   └── labels.py               # your labels: a small writable SQLite file (paths.labels, §16.25)
@@ -191,9 +195,9 @@ bible-similarity/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
 │       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, patterns, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
-│       ├── models.py               # pydantic response models
+│       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
-│       ├── queries.py              # read-only SQL helpers over results.sqlite
+│       ├── queries/                # read-only SQL helpers, one module per route module + common (re-exported: `queries.fn`)
 │       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
@@ -201,11 +205,11 @@ bible-similarity/
 │   │                               #   fixture.spec.ts against `bsim fixture-serve` (`npm run e2e:fixture`, CI)
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   └── src/
-│       ├── api/                    # types mirroring api/models.py (+ generated schema and drift check), fetch client, TanStack Query hooks
+│       ├── api/                    # types (aliases of the generated schema; open JSON fields by hand + drift check), fetch client, TanStack Query hooks
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list (+ vitest)
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
-│       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer
+│       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
 │       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)

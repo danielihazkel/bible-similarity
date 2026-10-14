@@ -12,20 +12,23 @@ from fastapi import APIRouter, HTTPException, Query, Response
 
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import (
+from bsim.api.models.common import (
     Book,
     BookCount,
-    CompareResponse,
     ConcordanceHit,
+    LemmaForm,
+    LemmaStat,
+    UnitSummary,
+)
+from bsim.api.models.core import (
+    CompareResponse,
     ConcordanceResponse,
     DiscoveriesResponse,
     Discovery,
     EvalResponse,
     ExplainResponse,
     Hit,
-    LemmaForm,
     LemmaLookup,
-    LemmaStat,
     Meta,
     Mode,
     Pair,
@@ -38,7 +41,6 @@ from bsim.api.models import (
     SharedLemma,
     SimilarResponse,
     UnitDetail,
-    UnitSummary,
     WordDetail,
     WordRef,
 )

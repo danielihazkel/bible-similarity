@@ -39,6 +39,7 @@ import scipy.sparse as sp
 from bsim.analysis.sequences import q_values
 from bsim.analysis.stats import shuffle_within
 from bsim.config import config_hash, resolve_path
+from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
 
@@ -122,7 +123,6 @@ def suppress(pairs: pd.DataFrame, w: int) -> pd.DataFrame:
 
 
 def run_allusions(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_display_forms
 
     ac = cfg["allusions"]
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")

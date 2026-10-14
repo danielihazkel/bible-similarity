@@ -1,8 +1,10 @@
 // Regenerates the API types from the FastAPI schema (`npm run gen:api`):
 // - src/api/schema.gen.ts: openapi-typescript over `bsim openapi` (the fixture app's schema);
-// - src/api/drift.gen.ts: a compile-time check that every hand-written type in src/api/types.ts
-//   with a schema of the same name has the same fields and fits the schema (it may narrow a
-//   `string` to a union of literals). `tsc -b` then fails when the backend and viewer drift.
+// - src/api/drift.gen.ts: a compile-time check that every type still written by hand in
+//   src/api/types.ts with a schema of the same name (a response with a JSON field typed here) has
+//   the same fields and fits the schema. `tsc -b` then fails when the backend and viewer drift.
+//   Most response types are plain aliases of their schema type (`export type X = S['X']`) and
+//   need no check.
 // `--check` regenerates in memory and fails if the committed files are out of date (CI).
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -50,6 +52,7 @@ try {
 function driftCheck(schemaNames) {
   const hand = readFileSync(join(api, 'types.ts'), 'utf-8')
   const exported = new Set([...hand.matchAll(/^export (?:interface|type) (\w+)/gm)].map((m) => m[1]))
+  for (const m of hand.matchAll(/^export type (\w+) = S\['(\w+)'\]$/gm)) if (m[1] === m[2]) exported.delete(m[1])
   const shared = schemaNames.filter((n) => exported.has(n)).sort()
   const lines = [
     "import type { components } from './schema.gen'",

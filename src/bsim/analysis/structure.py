@@ -46,6 +46,7 @@ import pandas as pd
 from bsim.analysis.stats import bh_q, pct_to_p
 from bsim.config import config_hash, resolve_path
 from bsim.retrieve.topk import CSLS_SUFFIX
+from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
 BASES = ("semantic", "lexical")
@@ -310,7 +311,6 @@ def chapter_leitwort_numbers(
     units: pd.DataFrame, words: pd.DataFrame, bags: list[list[str]], cfg: dict[str, Any]
 ) -> dict[str, Any]:
     """`leitwort_numbers` over all chapters, with the API's Leitwort settings."""
-    from bsim.store.db import lemma_display_forms  # store.db imports this module
 
     c = cfg["structure"]
     gloss = lemma_display_forms(words)

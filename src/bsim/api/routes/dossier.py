@@ -42,7 +42,7 @@ from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import Dossier, DossierEntry
+from bsim.api.models.dossier import Dossier, DossierEntry
 from bsim.api.routes._common import Conn, State, unit_or_404
 from bsim.config import resolve_path
 from bsim.data.lexicon import strong_key

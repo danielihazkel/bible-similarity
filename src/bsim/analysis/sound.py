@@ -37,6 +37,7 @@ import pandas as pd
 
 from bsim.analysis.stats import bh_q
 from bsim.config import config_hash, resolve_path
+from bsim.store.lexicon import lemma_parts_pos, strip_prefixes
 from bsim.text.normalize import consonantal, fold_finals
 
 Log = Callable[[str], None]
@@ -69,8 +70,7 @@ def initial_sound(word: str, skip_letters: int = 0) -> str | None:
 
 
 def prefix_letters(surface: str, lemma: str) -> int:
-    """How many letters the lemma's leading prefix morphemes take (as `store.db.strip_prefixes`)."""
-    from bsim.store.db import strip_prefixes
+    """How many letters the lemma's leading prefix morphemes take (as `strip_prefixes`)."""
     from bsim.text.normalize import consonantal
 
     whole = consonantal(surface).replace(" ", "")
@@ -83,7 +83,6 @@ def content_sounds(
     """(verse_id, display_idx) -> (initial sound, shape, lemma key) of the token's first content
     word, prefixes skipped; tokens without a content word are left out."""
     from bsim.lexical.morph import word_token
-    from bsim.store.db import lemma_parts_pos
 
     out: dict[tuple[int, int], tuple[str, str, str]] = {}
     w = words.dropna(subset=["display_idx"]).sort_values(["verse_id", "idx"], kind="stable")

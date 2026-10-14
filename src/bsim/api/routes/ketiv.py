@@ -9,7 +9,7 @@ from typing import Any, Literal
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import KetivResponse, KqBook, KqLetter, KqPair, KqPairsResponse
+from bsim.api.models.ketiv import KetivResponse, KqBook, KqLetter, KqPair, KqPairsResponse
 from bsim.api.routes._common import Conn, State, check_page, unit_span
 
 router = APIRouter()

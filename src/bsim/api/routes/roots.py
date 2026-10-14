@@ -10,12 +10,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models import (
-    BookCount,
-    ConcordanceHit,
+from bsim.api.models.common import BookCount, ConcordanceHit, LemmaStat, UnitSummary
+from bsim.api.models.roots import (
     HiddenRoot,
     HiddenRootsResponse,
-    LemmaStat,
     RootBook,
     RootFamily,
     RootKnown,
@@ -23,7 +21,6 @@ from bsim.api.models import (
     RootPairKind,
     RootPairsResponse,
     RootsResponse,
-    UnitSummary,
 )
 from bsim.api.routes._common import Conn, State, check_page, unit_or_404, unit_span
 

@@ -42,6 +42,7 @@ import pandas as pd
 from bsim.analysis.stats import g2_table
 from bsim.config import config_hash, resolve_path
 from bsim.data.lexicon import strong_key
+from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
 
@@ -136,7 +137,6 @@ def top_partners(pairs: pd.DataFrame, per_name: int) -> pd.DataFrame:
 
 
 def run_entities(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_display_forms
 
     proc = resolve_path(cfg, "data_processed")
     ec = cfg["entities"]

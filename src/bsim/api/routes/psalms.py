@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.psalms import (
     Psalm,
     PsalmKnownTurn,
     PsalmsListResponse,

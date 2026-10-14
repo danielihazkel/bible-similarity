@@ -8,7 +8,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.segments import (
     SegmentBook,
     SegmentCurve,
     SegmentGap,

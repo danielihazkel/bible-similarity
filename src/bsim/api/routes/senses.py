@@ -10,8 +10,8 @@ from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import (
-    LemmaForm,
+from bsim.api.models.common import LemmaForm
+from bsim.api.models.senses import (
     LemmaSense,
     LemmaSensesResponse,
     LemmaShift,

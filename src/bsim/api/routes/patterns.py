@@ -9,7 +9,7 @@ import numpy as np
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import PatternBook, PatternMatch, PatternResponse, PatternVerse
+from bsim.api.models.patterns import PatternBook, PatternMatch, PatternResponse, PatternVerse
 from bsim.api.patterns import PatternError, normalize, parse
 from bsim.api.routes._common import Conn, State, check_page, unit_span
 

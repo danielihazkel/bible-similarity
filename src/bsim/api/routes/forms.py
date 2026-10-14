@@ -9,7 +9,8 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import VerseLabel
+from bsim.api.models.forms import (
     FormsBook,
     FormsKnownList,
     FormsKnownSaying,
@@ -19,7 +20,6 @@ from bsim.api.models import (
     FormsResponse,
     FormsSaying,
     FormsSayingsResponse,
-    VerseLabel,
 )
 from bsim.api.routes._common import Conn, State, check_page, unit_span
 

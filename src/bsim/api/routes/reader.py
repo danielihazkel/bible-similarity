@@ -11,7 +11,8 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.reader import (
     ReaderGap,
     ReaderKetiv,
     ReaderRefrain,
@@ -20,7 +21,6 @@ from bsim.api.models import (
     ReaderSpeaker,
     ReaderVerse,
     ReaderWordplay,
-    UnitSummary,
 )
 from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
 from bsim.data.lexicon import strong_key

@@ -33,6 +33,7 @@ import pandas as pd
 from bsim.analysis.corpus_map import cluster_labels
 from bsim.config import config_hash, resolve_path
 from bsim.retrieve.fusion import final_systems
+from bsim.store.lexicon import lemma_parts_pos
 
 Log = Callable[[str], None]
 
@@ -116,7 +117,6 @@ def analyse(
 
 
 def run_network(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_parts_pos  # store.db imports the analysis modules
 
     n = cfg["network"]
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")

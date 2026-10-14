@@ -1,0 +1,29 @@
+"""Response models of `api/routes/findings.py` (DESIGN.md §10)."""
+
+from __future__ import annotations
+
+from typing import Literal
+
+from bsim.api.models.common import ApiModel
+
+FindingKey = Literal[
+    "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
+    "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
+    "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
+    "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",
+    "dialogue_deference", "dialogue_particle", "dialogue_last_word", "forms_known", "forms_chance",
+    "forms_parallel", "forms_lists",
+]  # fmt: skip
+
+
+class Finding(ApiModel):
+    """One analysis's tested claim (`/findings`): the deciding numbers and the verdict they give."""
+
+    key: FindingKey
+    verdict: Literal["holds", "fails", "lead"]
+    values: dict[str, float | None]  # which keys depends on `key`
+
+
+class FindingsResponse(ApiModel):
+    alpha: float
+    items: list[Finding]  # in the order the page shows them; analyses not computed are left out

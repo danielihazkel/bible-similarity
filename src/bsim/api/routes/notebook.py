@@ -13,13 +13,13 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.notebook import (
     CollectionIn,
     NotebookCollection,
     NotebookEntry,
     NotebookResponse,
     NoteIn,
-    UnitSummary,
 )
 from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
 from bsim.config import resolve_path

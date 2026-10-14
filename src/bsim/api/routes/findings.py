@@ -18,7 +18,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from bsim.api.models import Finding, FindingsResponse
+from bsim.api.models.findings import Finding, FindingsResponse
 from bsim.api.routes._common import Conn, State
 
 router = APIRouter()

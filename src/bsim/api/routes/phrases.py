@@ -9,13 +9,13 @@ from typing import Any
 from fastapi import APIRouter, Response
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.phrases import (
     Allusion,
     AllusionLemma,
     AllusionsResponse,
     PhrasePair,
     PhrasesResponse,
-    UnitSummary,
 )
 from bsim.api.routes._common import (
     Conn,

@@ -6,7 +6,7 @@ against צְעָקָה ("outcry"): different words, one consonant apart, same vo
 - Words: OSHB words with exactly one content lemma whose part of speech is not a particle,
   preposition, conjunction or pronoun (proper nouns and gentilics too with `skip_proper`:
   genealogies and town lists are full of names built alike). A word is what is heard: its
-  pointed surface without the prefix morphemes (`store.db.strip_prefixes`), reduced to a
+  pointed surface without the prefix morphemes (`store.lexicon.strip_prefixes`), reduced to a
   consonant skeleton (finals folded, ו / י after the first letter dropped) and a vowel pattern
   (the niqqud vowels in order; shureq counts as qubbuts, dagesh / meteg / shin dots ignored).
 - Pairs: two words with different lemmas within `window` words of each other (verse boundaries
@@ -43,6 +43,7 @@ import pandas as pd
 from bsim.analysis.sequences import q_values
 from bsim.analysis.stats import shuffle_within
 from bsim.config import config_hash, resolve_path
+from bsim.store.lexicon import lemma_display_forms, strip_prefixes
 from bsim.text.normalize import consonantal, fold_finals
 
 Log = Callable[[str], None]
@@ -85,7 +86,6 @@ def vowel_pattern(clusters: list[tuple[str, str]]) -> str:
 
 def heard(surface: str, lemma: str) -> tuple[str, str, str]:
     """(consonantal form, skeleton, vowel pattern) of a word without its prefix morphemes."""
-    from bsim.store.db import strip_prefixes
 
     clusters = letters(surface)
     form = strip_prefixes(surface, lemma)
@@ -179,7 +179,6 @@ def is_proper(morph: str | None) -> bool:
 
 
 def run_wordplay(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_display_forms
 
     proc = resolve_path(cfg, "data_processed")
     wc = cfg["wordplay"]

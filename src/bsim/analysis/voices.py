@@ -55,6 +55,7 @@ from bsim.analysis.stylometry import MORPH_LABELS, feature_counts, feature_matri
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BY_OSIS
 from bsim.data.lexicon import strong_key
+from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
 
@@ -223,7 +224,6 @@ def _write(out: Path, speakers: pd.DataFrame, features: pd.DataFrame, pairs: pd.
 
 
 def run_voices(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_display_forms
 
     t0 = time.perf_counter()
     vc, st = cfg["voices"], cfg["stylometry"]

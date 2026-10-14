@@ -9,7 +9,7 @@ from typing import Any, Literal
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.citations import (
     Citation,
     CitationBook,
     CitationCandidate,

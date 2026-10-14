@@ -14,16 +14,14 @@ from fastapi import APIRouter
 from bsim.analysis import structure as st
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import (
+from bsim.api.models.common import Leitwort, LemmaForm, LemmaStat, UnitSummary, VerseLabel
+from bsim.api.models.poetics import (
     Acrostic,
     AcrosticLine,
     AcrosticsResponse,
     Alliteration,
     AlliterationResponse,
     Echo,
-    Leitwort,
-    LemmaForm,
-    LemmaStat,
     ParallelBook,
     ParallelismResponse,
     ParallelUnit,
@@ -37,9 +35,7 @@ from bsim.api.models import (
     StructureResponse,
     StructureScore,
     UnitParallelism,
-    UnitSummary,
     VerseHalves,
-    VerseLabel,
     WordPair,
     WordPairsResponse,
     WordplayPair,

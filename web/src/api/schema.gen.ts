@@ -2152,10 +2152,16 @@ export interface components {
          */
         Acrostic: {
             unit: components["schemas"]["UnitSummary"];
-            /** Granularity */
-            granularity: string;
-            /** Order Name */
-            order_name: string;
+            /**
+             * Granularity
+             * @enum {string}
+             */
+            granularity: "verse" | "colon";
+            /**
+             * Order Name
+             * @enum {string}
+             */
+            order_name: "standard" | "pe-ayin";
             /** Score */
             score: number;
             /** N Letters */
@@ -2699,8 +2705,11 @@ export interface components {
         };
         /** CommunityResponse */
         CommunityResponse: {
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             community: components["schemas"]["NetworkCommunity"];
             /** Nodes */
             nodes: components["schemas"]["NetworkNode"][];
@@ -2933,8 +2942,11 @@ export interface components {
         };
         /** DiscoveriesResponse */
         DiscoveriesResponse: {
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             /**
              * Mode
              * @enum {string}
@@ -3398,8 +3410,11 @@ export interface components {
             n_like: number;
             /** Likeness */
             likeness: number;
-            /** Kind */
-            kind: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "genealogy" | "itinerary" | "census" | "offering" | "kings" | "names" | "other";
             /** Known */
             known: string | null;
             /** Verses */
@@ -3961,8 +3976,11 @@ export interface components {
         };
         /** MapResponse */
         MapResponse: {
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             /** Points */
             points: components["schemas"]["MapPoint"][];
             /** Clusters */
@@ -4191,8 +4209,11 @@ export interface components {
         };
         /** NetworkResponse */
         NetworkResponse: {
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             /** Communities */
             communities: components["schemas"]["NetworkCommunity"][];
             /** Central */
@@ -4288,8 +4309,11 @@ export interface components {
         };
         /** ParallelismResponse */
         ParallelismResponse: {
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             /** Book */
             book: number | null;
             /** Exclude Poetic */
@@ -4675,7 +4699,7 @@ export interface components {
             };
             /** Mood */
             mood: {
-                [key: string]: string;
+                [key: string]: "distress" | "praise";
             };
             source: components["schemas"]["ReaderSource"] | null;
             /** Speech */
@@ -4867,8 +4891,11 @@ export interface components {
             a_book: number;
             /** B Book */
             b_book: number;
-            /** Op */
-            op: string;
+            /**
+             * Op
+             * @enum {string}
+             */
+            op: "substitution" | "omitted" | "added";
             /** A Key */
             a_key: string | null;
             /** B Key */
@@ -4926,7 +4953,7 @@ export interface components {
             /** B Book */
             b_book: number | null;
             /** Op */
-            op: string | null;
+            op: ("substitution" | "omitted" | "added") | null;
             /** Max Q */
             max_q: number | null;
             /** Total */
@@ -5393,8 +5420,9 @@ export interface components {
             /**
              * Direction
              * @default forward
+             * @enum {string}
              */
-            direction: string;
+            direction: "forward" | "reverse" | "mixed";
             /** A Label */
             a_label: string;
             /** B Label */
@@ -5433,7 +5461,7 @@ export interface components {
             /** Unit */
             unit: string | null;
             /** Direction */
-            direction: string | null;
+            direction: ("forward" | "reverse" | "mixed") | null;
             /** Total */
             total: number;
             /** Offset */
@@ -5502,7 +5530,7 @@ export interface components {
             /** K */
             k: number;
             /** Exclude */
-            exclude: string[];
+            exclude: ("neighbors" | "chapter" | "book" | "known")[];
             /** Hits */
             hits: components["schemas"]["Hit"][];
             /**
@@ -5680,10 +5708,16 @@ export interface components {
         };
         /** StructureRankingResponse */
         StructureRankingResponse: {
-            /** Unit Type */
-            unit_type: string;
-            /** By */
-            by: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
+            /**
+             * By
+             * @enum {string}
+             */
+            by: "semantic_chiasm" | "lexical_chiasm" | "semantic_inclusio" | "lexical_inclusio";
             /** Min Verses */
             min_verses: number;
             /** Leitwort Numbers */
@@ -5919,8 +5953,11 @@ export interface components {
         UnitSummary: {
             /** Unit Id */
             unit_id: string;
-            /** Unit Type */
-            unit_type: string;
+            /**
+             * Unit Type
+             * @enum {string}
+             */
+            unit_type: "verse" | "chapter" | "pericope" | "parasha";
             /** Label En */
             label_en: string;
             /** Label He */
@@ -6090,8 +6127,11 @@ export interface components {
         };
         /** VoiceFeature */
         VoiceFeature: {
-            /** Side */
-            side: string;
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "over" | "under";
             /** Rank */
             rank: number;
             /** Feature */

@@ -9,14 +9,14 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.meter import (
     MeterChapter,
     MeterGroup,
     MeterLine,
     MeterResponse,
     MeterVerse,
     UnitMeter,
-    UnitSummary,
 )
 from bsim.api.routes._common import Conn, State, check_page, unit_or_404
 

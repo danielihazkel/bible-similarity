@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter
 
 from bsim.api import queries
-from bsim.api.models import BorrowingBookPair, BorrowingResponse, BorrowingSequence
+from bsim.api.models.borrowing import BorrowingBookPair, BorrowingResponse, BorrowingSequence
 from bsim.api.routes._common import Conn, State, span_label, unit_or_404, unit_span
 
 router = APIRouter()

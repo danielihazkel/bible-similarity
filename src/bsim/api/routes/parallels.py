@@ -14,7 +14,8 @@ from bsim.analysis import diffs as df_
 from bsim.analysis import sequences as sq
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.parallels import (
     AlignedVerb,
     BookSpan,
     ChangeExample,
@@ -30,7 +31,6 @@ from bsim.api.models import (
     SequenceSummary,
     TypeScene,
     TypeScenesResponse,
-    UnitSummary,
     VerseDiff,
 )
 from bsim.api.routes._common import (

@@ -3,46 +3,33 @@ import { Link, useLocation, useParams } from 'react-router'
 import {
   useDossier,
   useExplain,
-  usePhrasesOf,
-  useSequences,
   useSimilar,
   useUnit,
   useUnitAcrostic,
-  useUnitNetwork,
   useVerseDiff,
-  useUnitEntities,
   useUnitMeter,
   useUnitParallelism,
-  useWordplay,
 } from '../api/hooks'
-import type { Acrostic, Leitwort, MeterLine, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
+import type { Acrostic, DossierKind, Leitwort, MeterLine, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
 import { ExcludeFilters, KSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
-import { PhraseCard } from '../components/PhraseCard'
-import { SequenceCard } from '../components/SequenceCard'
 import { StructurePanel } from '../components/StructurePanel'
-import { DatingLine } from '../components/DatingLine'
 import { DossierBar } from '../components/DossierBar'
 import { NotebookPanel } from '../components/NotebookPanel'
-import { ThemesPanel } from '../components/ThemesPanel'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
-import { WordplayCard } from '../components/WordplayCard'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
+import { UnitPanels } from '../components/UnitPanels'
 import { useLocale, useT } from '../context/localeContext'
-import { nameLink, readLink, unitLink } from '../lib/links'
+import { readLink, unitLink } from '../lib/links'
 import { unitLabel, verseRef } from '../lib/names'
 import { clauseBreaks, colonBreaks } from '../lib/cola'
 import { isFound } from '../lib/dossier'
 import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
 
-// Parallel sequences touching this unit: only reasonably strong chains, a few at most.
-const SEQUENCE_MAX_Q = 0.2
-const SEQUENCES_SHOWN = 5
-const WORDPLAY_SHOWN = 5
 const ACROSTIC_MAX_Q = 0.05
 
 export function UnitPage() {
@@ -98,11 +85,10 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   // What every analysis found here; a panel whose analysis found nothing is not fetched at all
   // (if the dossier fails, the panels load as before).
   const dossier = useDossier(unit.unit_id)
-  const has = (kind: 'phrases' | 'wordplay' | 'sequences') => {
+  const has = (kind: DossierKind) => {
     const e = dossier.data?.entries.find((x) => x.kind === kind)
     return dossier.isError || (e !== undefined && isFound(e))
   }
-  const phrases = usePhrasesOf(isVerse && has('phrases') ? unit.start_verse_id : undefined)
   const halvesOn = params.get('halves') === '1'
   const halves = useUnitParallelism(halvesOn ? unit.unit_id : undefined)
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
@@ -115,19 +101,6 @@ function UnitView({ detail }: { detail: UnitDetail }) {
   const linesOf = new Map((meter.data?.verses ?? []).map((v) => [v.verse_id, v.lines]))
   const minorOf = (v: Verse) =>
     clausesOn ? clauseBreaks(halvesOf.get(v.verse_id)) : meterOn ? lineBreaks(linesOf.get(v.verse_id), halvesOf.get(v.verse_id)) : undefined
-  const names = useUnitEntities(isVerse ? undefined : unit.unit_id)
-  const network = useUnitNetwork(isVerse ? undefined : unit.unit_id)
-  const wordplay = useWordplay({ unit: unit.unit_id, limit: WORDPLAY_SHOWN, offset: 0 }, has('wordplay'))
-  const sequences = useSequences(
-    {
-      unit: unit.unit_id,
-      direction: 'forward',
-      maxQ: SEQUENCE_MAX_Q,
-      limit: SEQUENCES_SHOWN,
-      offset: 0,
-    },
-    has('sequences'),
-  )
 
   const onHover = (tgt: number, on: boolean) => {
     window.clearTimeout(hoverTimer.current)
@@ -230,36 +203,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           </ol>
         )}
       </section>
-      {names.error && <PanelError what={m.unit.theNames} error={names.error} />}
-      {names.data && names.data.length > 0 && (
-        <p className="unit-names" id="unit-names" aria-label={m.unit.namesLabel}>
-          <span className="muted small">{m.unit.names}</span>
-          {names.data.map((e) => (
-            <Link key={e.lemma} to={nameLink(e.lemma)} className={`name-chip kind-${e.kind}`} title={m.unit.nameTitle(e.n_here, e.n_mentions)}>
-              <span dir="rtl" lang="he" className="he">
-                {e.he}
-              </span>
-              <span className="muted small">{e.n_here}</span>
-            </Link>
-          ))}
-        </p>
-      )}
-      {network.data && (
-        <p className="muted small unit-network">
-          {m.unit.network(
-            network.data.rank,
-            network.data.of,
-            unit.unit_type,
-            network.data.node.partners,
-            network.data.node.cross_book,
-          )}
-          <Link to={`/network?type=${unit.unit_type}&unit=${encodeURIComponent(unit.unit_id)}`}>
-            {m.unit.community(network.data.community_size)}
-          </Link>
-        </p>
-      )}
-      {!isVerse && <ThemesPanel unitId={unit.unit_id} />}
-      {unit.unit_type === 'chapter' && <DatingLine unitId={unit.unit_id} bookId={unit.book_id} />}
+      <UnitPanels unit={unit} slot="context" has={has} />
       {word ? (
         <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} />
       ) : (
@@ -361,63 +305,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         )}
       </section>
 
-      {isVerse && phrases.error && <PanelError what={m.unit.theSharedPhrases} error={phrases.error} />}
-      {isVerse && phrases.data && phrases.data.total > 0 && (
-        <section className="results" aria-label={m.unit.sharedPhrases}>
-          <h2>
-            {m.unit.sharedPhrases} <span className="muted small">({phrases.data.total})</span>
-          </h2>
-          <p className="muted small">
-            {m.unit.phrasesLede}
-            {phrases.data.total > phrases.data.items.length && m.unit.strongestShown(phrases.data.items.length)}.
-          </p>
-          <ol className="disc-list">
-            {phrases.data.items.map((p) => (
-              <PhraseCard key={p.b.unit_id} p={p} />
-            ))}
-          </ol>
-        </section>
-      )}
-
-      {wordplay.error && <PanelError what={m.unit.theWordplay} error={wordplay.error} />}
-      {wordplay.data && wordplay.data.total > 0 && (
-        <section className="results" aria-label={m.unit.wordplay}>
-          <h2>
-            {m.unit.wordplay} <span className="muted small">({wordplay.data.total})</span>
-          </h2>
-          <p className="muted small">
-            {m.unit.wordplayLede}{' '}
-            <Link to={`/wordplay?unit=${encodeURIComponent(unit.unit_id)}`}>
-              {wordplay.data.total > wordplay.data.items.length ? m.unit.allHere(wordplay.data.total) : m.unit.inWordplay}
-            </Link>
-          </p>
-          <ol className="disc-list">
-            {wordplay.data.items.map((p) => (
-              <WordplayCard key={`${p.a_vid}:${p.a_display}|${p.b_vid}:${p.b_display}`} p={p} />
-            ))}
-          </ol>
-        </section>
-      )}
-
-      {sequences.error && <PanelError what={m.unit.theSequences} error={sequences.error} />}
-      {sequences.data && sequences.data.total > 0 && (
-        <section className="results" aria-label={m.unit.runsLabel}>
-          <h2>
-            {m.unit.runs} <span className="muted small">({sequences.data.total})</span>
-          </h2>
-          <p className="muted small">
-            {m.unit.runsLede(SEQUENCE_MAX_Q)}{' '}
-            <Link to={`/sequences?unit=${encodeURIComponent(unit.unit_id)}&q=${SEQUENCE_MAX_Q}`}>
-              {sequences.data.total > sequences.data.items.length ? m.unit.allHere(sequences.data.total) : m.unit.inSequences}
-            </Link>
-          </p>
-          <ol className="disc-list">
-            {sequences.data.items.map((s) => (
-              <SequenceCard key={s.seq_id} s={s} />
-            ))}
-          </ol>
-        </section>
-      )}
+      <UnitPanels unit={unit} slot="after" has={has} />
     </div>
   )
 }

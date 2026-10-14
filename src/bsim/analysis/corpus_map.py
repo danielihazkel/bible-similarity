@@ -30,6 +30,7 @@ import pandas as pd
 from bsim.analysis.structure import embeddings_path, leitworte
 from bsim.config import config_hash, resolve_path
 from bsim.retrieve.topk import read_topk
+from bsim.store.lexicon import lemma_parts_pos
 
 Log = Callable[[str], None]
 
@@ -124,7 +125,6 @@ def cross_book_pairs(topk: pd.DataFrame, book_id: np.ndarray, max_rank: int) -> 
 
 
 def run_map(cfg: dict[str, Any], log: Log = print) -> Path:
-    from bsim.store.db import lemma_parts_pos
 
     mc = cfg["map"]
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")

@@ -11,9 +11,7 @@ from fastapi import Depends, HTTPException, Request
 
 from bsim.api import queries
 from bsim.api.app import ServeState
-from bsim.api.models import (
-    GoldLink,
-)
+from bsim.api.models.common import GoldLink
 
 
 def get_state(request: Request) -> ServeState:

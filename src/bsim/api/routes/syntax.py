@@ -9,7 +9,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models import (
+from bsim.api.models.common import UnitSummary
+from bsim.api.models.syntax import (
     ClauseInfo,
     ClauseSegment,
     SpeakerInfo,
@@ -19,7 +20,6 @@ from bsim.api.models import (
     SpeechChapter,
     SpeechResponse,
     SyntaxNeighbor,
-    UnitSummary,
     UnitSyntax,
     VerseSyntax,
     VoiceChapter,

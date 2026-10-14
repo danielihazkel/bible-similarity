@@ -10,17 +10,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models import (
-    BookCount,
-    DomainHit,
-    DomainInfo,
-    DomainResponse,
-    DomainShare,
-    UnitDomains,
-    UnitSummary,
-)
+from bsim.api.models.common import BookCount, UnitSummary
+from bsim.api.models.domains import DomainHit, DomainInfo, DomainResponse, DomainShare, UnitDomains
 from bsim.api.routes._common import Conn, State, check_page, unit_or_404
-from bsim.store.db import ancestors
+from bsim.store.lexicon import ancestors
 
 router = APIRouter()
 
@@ -28,7 +21,7 @@ router = APIRouter()
 @router.get("/domains", response_model=list[DomainInfo])
 def domains(conn: Conn) -> list[dict[str, Any]]:
     """Every domain in tree order (by code), with its verse and word counts."""
-    return queries.domains(conn)
+    return queries.domain_tree(conn)
 
 
 @router.get("/domain/{code}", response_model=DomainResponse)
@@ -42,7 +35,7 @@ def domain(
 ) -> dict[str, Any]:
     """Concordance of a domain and its subdomains: the verses whose content words fall in it,
     with per-book counts, its path from the top and its subdomains."""
-    by_code = {d["code"]: d for d in queries.domains(conn)}
+    by_code = {d["code"]: d for d in queries.domain_tree(conn)}
     if code not in by_code:
         raise HTTPException(status_code=404, detail=f"unknown domain {code!r}")
     check_page(state, limit, offset)
@@ -96,7 +89,7 @@ def unit_domains(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     against the whole corpus (G²), and its share of each second-level domain."""
     u = unit_or_404(conn, unit_id)
     sc = state.cfg["serve"]["domains"]
-    by_code = {d["code"]: d for d in queries.domains(conn)}
+    by_code = {d["code"]: d for d in queries.domain_tree(conn)}
     here: dict[str, float] = defaultdict(float)
     for code, w in queries.unit_domain_weights(conn, u["start_verse_id"], u["end_verse_id"]):
         for a in ancestors(code):
