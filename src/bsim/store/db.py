@@ -115,6 +115,12 @@ INDEXES = (
     "CREATE INDEX forms_pairs_by_verse ON forms_pairs (verse_id)",
     "CREATE INDEX forms_lists_by_book ON forms_lists (book_id, first_vid)",
     "CREATE INDEX forms_lists_by_verse ON forms_lists (first_vid, last_vid)",
+    # /gematria: what has a value, in each system
+    *(
+        f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"
+        for t in ("forms", "lemmas", "verses")
+        for s in ("standard", "gadol", "ordinal", "katan")
+    ),
 )
 def _rows(df: pd.DataFrame, cols: list[str], batch: int) -> Iterator[list[tuple[Any, ...]]]:
     """Batches of Python-typed tuples (NaN / NA -> None) for `executemany`."""

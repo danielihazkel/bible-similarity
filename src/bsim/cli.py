@@ -165,6 +165,14 @@ def forms(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def gematria(config: ConfigOpt = None) -> None:
+    """Letter values (gematria) of every word form, lemma and verse, in four systems."""
+    from bsim.analysis.gematria import run_gematria
+
+    run_gematria(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

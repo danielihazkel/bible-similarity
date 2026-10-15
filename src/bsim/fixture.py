@@ -14,6 +14,7 @@ import pandas as pd
 from bsim.analysis.acrostic import run_acrostics
 from bsim.analysis.corpus_map import run_map
 from bsim.analysis.diffs import run_diffs
+from bsim.analysis.gematria import run_gematria
 from bsim.analysis.network import run_network
 from bsim.analysis.sound import run_sound
 from bsim.analysis.structure import run_structure
@@ -70,6 +71,7 @@ def fixture_cfg(tmp_path, semantic="sm"):
         "db": str(art / "results.sqlite"),
         "web_dist": str(tmp_path / "web_dist"),
         "labels": str(tmp_path / "labels.sqlite"),
+        "data_raw": str(tmp_path / "raw"),  # none: no stage reads the real downloads
     }
     cfg["units"] = {**cfg["units"], "types": ["verse", "chapter"]}
     cfg["final_systems"] = {
@@ -1272,6 +1274,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     run_map(cfg, log=lambda _: None)
     run_network(cfg, log=lambda _: None)
     run_stylometry(cfg, log=lambda _: None)
+    run_gematria(cfg, log=lambda _: None)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

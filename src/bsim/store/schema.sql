@@ -1091,6 +1091,40 @@ CREATE TABLE forms_books (
     list_verses INTEGER NOT NULL
 );
 
+-- letter values (`bsim gematria`, §16.53): standard, mispar gadol, ordinal, katan
+CREATE TABLE gematria_forms (
+    form TEXT PRIMARY KEY,          -- a word of the MAM text as shown (qere), consonants only
+    standard INTEGER NOT NULL,
+    gadol INTEGER NOT NULL,
+    ordinal INTEGER NOT NULL,
+    katan INTEGER NOT NULL,
+    n_words INTEGER NOT NULL,
+    n_verses INTEGER NOT NULL,
+    verses TEXT NOT NULL            -- JSON: its first verse ids (`gematria.form_verses`)
+) WITHOUT ROWID;
+
+CREATE TABLE gematria_lemmas (
+    lemma TEXT PRIMARY KEY,
+    he TEXT NOT NULL,               -- the form valued: Strong's headword, else the commonest form
+    source TEXT NOT NULL,           -- strong | form
+    standard INTEGER NOT NULL,
+    gadol INTEGER NOT NULL,
+    ordinal INTEGER NOT NULL,
+    katan INTEGER NOT NULL,
+    n_words INTEGER NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE gematria_verses (
+    verse_id INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    standard INTEGER NOT NULL,
+    gadol INTEGER NOT NULL,
+    ordinal INTEGER NOT NULL,
+    katan INTEGER NOT NULL,
+    n_letters INTEGER NOT NULL,
+    n_words INTEGER NOT NULL
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

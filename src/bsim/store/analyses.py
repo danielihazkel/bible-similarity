@@ -591,6 +591,20 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "gematria",
+        "gematria",
+        (
+            Table("gematria_forms", "forms"),
+            Table("gematria_lemmas", "lemmas"),
+            Table("gematria_verses", "verses"),
+        ),
+        "gematria.meta.json",
+        keys(
+            "gematria", "systems", "forms", "words", "lemmas", "lemmas_by_headword", "verses",
+            "known",
+        ),
+    ),
+    Source(
         "seams",
         "seams",
         (

@@ -22,6 +22,7 @@ import { readerEn } from './pages/reader'
 import { pentEn } from './pages/pentateuch'
 import { dlgEn } from './pages/dialogue'
 import { fmEn } from './pages/forms'
+import { gmEn } from './pages/gematria'
 import { qryEn } from './pages/query'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -99,6 +100,7 @@ export const en = {
     notebook: 'Notebook',
     query: { label: 'Pattern search', hint: 'Find a construction: lemma, root, form and syntax, word by word' },
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
+    gematria: { label: 'Gematria', hint: 'Letter values: what adds up to what' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
@@ -257,12 +259,14 @@ export const en = {
     open: 'Jump to…',
     openTitle: 'Jump to a passage, a word or a page (Ctrl+K)',
     label: 'Jump to a passage, a word or a page',
-    placeholder: 'Gen 1:1 · בראשית א · שלום · 7965 · network',
+    placeholder: 'Gen 1:1 · בראשית א · שלום · 7965 · = 318 · network',
     passage: 'Passage',
     words: 'Words',
     pages: 'Pages',
     search: 'Search the text',
     searchFor: (q: string) => `Search the text for “${q}”`,
+    gematria: 'Gematria',
+    gematriaOf: (q: string) => `Letter value: ${q}`,
     verses: (n: number) => `${n.toLocaleString('en-US')} ${n === 1 ? 'verse' : 'verses'}`,
     keys: '↑ ↓ to move · Enter to open · Esc to close',
   },
@@ -438,6 +442,7 @@ export const en = {
   pent: pentEn,
   dlg: dlgEn,
   fm: fmEn,
+  gm: gmEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

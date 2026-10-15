@@ -330,6 +330,12 @@ def stage_forms(cfg: dict[str, Any], log: Log) -> None:
     run_forms(cfg, log=log)
 
 
+def stage_gematria(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.gematria import run_gematria
+
+    run_gematria(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -392,6 +398,7 @@ STAGES: dict[str, str] = {
     "pentateuch": "stage_pentateuch",
     "dialogue": "stage_dialogue",
     "forms": "stage_forms",
+    "gematria": "stage_gematria",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -454,6 +461,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "pentateuch": (*_CORPUS,),
     "dialogue": (*_CORPUS, "syntax"),
     "forms": (*_CORPUS, "parallelism"),
+    "gematria": (*_CORPUS,),
     "eval-etcbc": (
         *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
     ),

@@ -107,6 +107,16 @@ describe('JumpBox', () => {
     expect(loc()).toBe('/')
   })
 
+  it('opens the letter value of `= …`', async () => {
+    renderAt('/')
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true })
+    fireEvent.change(box(), { target: { value: '= 318' } })
+    const option = await screen.findByRole('option', { name: 'Letter value: 318' })
+    expect(option.getAttribute('aria-selected')).toBe('true')
+    fireEvent.keyDown(box(), { key: 'Enter' })
+    await waitFor(() => expect(loc()).toBe('/gematria?q=318'))
+  })
+
   it('looks the query up at once when Enter beats the typing pause', async () => {
     const calls = renderAt('/')
     fireEvent.keyDown(document, { key: 'K', metaKey: true })

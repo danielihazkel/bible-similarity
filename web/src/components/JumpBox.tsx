@@ -14,7 +14,7 @@ const MAX_WORDS = 6
 const MAX_PAGES = 6
 const DEBOUNCE_MS = 150
 
-type Kind = 'passage' | 'words' | 'pages' | 'search'
+type Kind = 'gematria' | 'passage' | 'words' | 'pages' | 'search'
 interface Option {
   kind: Kind
   to: string
@@ -23,7 +23,11 @@ interface Option {
   hebrew?: boolean
 }
 
-/** Every choice for a query, best first: the passage it names, the words, the pages, a text search. */
+// `= 318`, `=אליעזר`: a letter value (Patterns → Gematria)
+const GEMATRIA = /^=\s*(\S.*)$/
+
+/** Every choice for a query, best first: a letter value (`= …`), the passage it names, the words, the
+ * pages, a text search. */
 function buildOptions(
   m: Messages,
   locale: 'en' | 'he',
@@ -33,7 +37,9 @@ function buildOptions(
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
+  const gm = GEMATRIA.exec(q.trim())?.[1]
   return [
+    ...(gm ? [{ kind: 'gematria' as const, to: `/gematria?q=${encodeURIComponent(gm)}`, label: t.gematriaOf(gm) }] : []),
     ...(unit ? [{ kind: 'passage' as const, to: unitLink(unit.unit_id), label: unitLabel(unit, locale) }] : []),
     ...lemmas.slice(0, MAX_WORDS).map((l) => ({
       kind: 'words' as const,
@@ -111,7 +117,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const groups: Kind[] = ['passage', 'words', 'pages', 'search']
+  const groups: Kind[] = ['gematria', 'passage', 'words', 'pages', 'search']
   const optionId = (i: number) => `${id}-o${i}`
   return (
     <div
@@ -148,7 +154,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
             return (
               <div key={g} role="group" aria-labelledby={`${id}-${g}`}>
                 <div id={`${id}-${g}`} className="jump-heading" role="presentation">
-                  {g === 'passage' ? t.passage : g === 'words' ? t.words : g === 'pages' ? t.pages : t.search}
+                  {g === 'gematria' ? t.gematria : g === 'passage' ? t.passage : g === 'words' ? t.words : g === 'pages' ? t.pages : t.search}
                 </div>
                 {items.map(([o, i]) => (
                   <div

@@ -61,6 +61,7 @@ class ReaderVerse(ApiModel):
     wordplay: list[ReaderWordplay]
     ketiv: list[ReaderKetiv]
     gap: ReaderGap | None  # flagged or a MAM break; None otherwise
+    gematria: list[int]  # each display token's standard letter value (§16.53; 0: no letters)
 
 
 class ReaderResponse(ApiModel):

@@ -24,6 +24,7 @@ from bsim.api.models.reader import (
 )
 from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
 from bsim.data.lexicon import strong_key
+from bsim.text.gematria import value
 
 router = APIRouter()
 
@@ -48,7 +49,7 @@ def _speech(
 def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
-    non-P split, and the turns and MAM breaks before each verse."""
+    non-P split, the turns and MAM breaks before each verse, and each word's letter value."""
     u = unit_or_404(conn, unit_id)
     limit = state.cfg["serve"]["max_compare_verses"]
     if u["n_verses"] > limit:
@@ -171,6 +172,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         )
         for g in queries.gaps_in(conn, first, last)
     }
+    tokens = {v: r["display_tokens"] for v, r in queries.verses_by_id(conn, vids).items()}
 
     return {
         "unit": UnitSummary(**u),
@@ -201,6 +203,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 wordplay=wordplay.get(v, []),
                 ketiv=ketiv.get(v, []),
                 gap=gaps.get(v),
+                gematria=[value(t) for t in tokens.get(v, [])],
             )
             for v in vids
         ],

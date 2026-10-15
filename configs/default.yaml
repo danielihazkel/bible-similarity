@@ -966,6 +966,18 @@ forms:                        # `bsim forms`: graded numerical sayings and lists
     lists: found              # the lists named in advance are found, among more lists than shuffled verse orders give
   page: 50                    # /forms/sayings, /forms/lists default page size
 
+gematria:                     # `bsim gematria`: letter values of words, lemmas and verses (DESIGN.md §16.53); the four systems are in text/gematria.py
+  form_verses: 5              # verses kept per word form (its first occurrences)
+  known:                      # traditional equivalences, each text's standard value: `bsim gematria` stops when one does not hold (a check of the tables)
+    - {text: אליעזר, value: 318}     # Gen 14:14, Abraham's 318 men
+    - {text: נחש, value: 358}
+    - {text: משיח, value: 358}
+    - {text: יבא שילה, value: 358}   # Gen 49:10
+    - {text: יין, value: 70}
+    - {text: סוד, value: 70}
+    - {text: אחד, value: 13}
+    - {text: אהבה, value: 13}
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)

@@ -20,6 +20,12 @@ import type {
   NotebookEntry,
   NotebookResponse,
   FormsResponse,
+  GematriaFormsResponse,
+  GematriaLemmasResponse,
+  GematriaResponse,
+  GematriaSystem,
+  GematriaValueResponse,
+  GematriaVersesResponse,
   FormsSayingsResponse,
   AffinityPair,
   AlliterationResponse,
@@ -660,6 +666,38 @@ export const useLists = (q: ListsQuery) =>
     placeholderData: keepPreviousData,
     ...forever,
   })
+
+export const useGematriaValue = (text: string | undefined) =>
+  useQuery({
+    queryKey: ['gematria-value', text],
+    queryFn: ({ signal }) => getJson<GematriaValueResponse>('/gematria/value', { text }, signal),
+    enabled: !!text,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useGematria = (value: number | undefined, system: GematriaSystem) =>
+  useQuery({
+    queryKey: ['gematria', value, system],
+    queryFn: ({ signal }) => getJson<GematriaResponse>('/gematria', { value, system }, signal),
+    enabled: value !== undefined,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export type GematriaQuery = { value: number; system: GematriaSystem; book?: number; limit: number; offset: number }
+
+const gematriaList = <T,>(path: string, q: GematriaQuery | undefined) => ({
+  queryKey: [path, q],
+  queryFn: ({ signal }: { signal: AbortSignal }) => getJson<T>(path, { ...q }, signal),
+  enabled: q !== undefined,
+  placeholderData: keepPreviousData,
+  ...forever,
+})
+
+export const useGematriaForms = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaFormsResponse>('/gematria/forms', q))
+export const useGematriaLemmas = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaLemmasResponse>('/gematria/lemmas', q))
+export const useGematriaVerses = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaVersesResponse>('/gematria/verses', q))
 
 export const useRoots = () =>
   useQuery({ queryKey: ['roots'], queryFn: ({ signal }) => getJson<RootsResponse>('/roots', {}, signal), ...forever })

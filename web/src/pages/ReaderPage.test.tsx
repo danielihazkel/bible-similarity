@@ -72,6 +72,7 @@ const READER: ReaderResponse = {
       ],
       ketiv: [],
       gap: null,
+      gematria: [913, 203, 86],
     },
     {
       verse_id: 1,
@@ -84,6 +85,7 @@ const READER: ReaderResponse = {
       wordplay: [],
       ketiv: [{ display: [3], ketiv: 'אר', qere: 'אוֹר', cls: 'vowel_letter' }],
       gap: { score: 0.98, kind: 'turn', mam: 'pe', chapter: false },
+      gematria: [257, 86, 25, 207],
     },
   ],
 }
@@ -215,6 +217,17 @@ describe('ReaderPage', () => {
     await waitFor(() => expect(container.querySelectorAll('.wp-partner')).toHaveLength(1))
     expect(container.querySelector('.wp-partner')?.textContent).toContain('אוֹר')
     expect(container.querySelector('.wp-partner')?.getAttribute('title')).toBe('written אר, read אוֹר: A vowel letter')
+  })
+
+  it('adds each word’s letter value and each verse’s total', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=gematria')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .gm-total')).toHaveLength(2))
+    const marks = [...container.querySelectorAll('.w-mark')].map((s) => s.textContent)
+    expect(marks).toEqual(['=913', '=203', '=86', '=257', '=86', '=25', '=207'])
+    const [a] = container.querySelectorAll('.reader-text .gm-total')
+    expect(a.textContent).toBe('=1202')
+    expect(a.getAttribute('href')).toBe('/gematria?q=1202&view=verses')
+    expect(screen.getByText(/=913 after a word: its letter value/)).toBeTruthy()
   })
 
   it('marks the refrains and links to them', async () => {

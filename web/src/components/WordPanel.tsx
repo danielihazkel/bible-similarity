@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { useDomains, useWords } from '../api/hooks'
+import { useDomains, useGematriaValue, useWords } from '../api/hooks'
 import type { Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, rootLink } from '../lib/links'
@@ -14,11 +14,18 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
   const domains = useDomains()
   const domainOf = new Map(domains.data?.map((d) => [d.code, d]) ?? [])
   const here = words.data?.filter((w) => w.display_idx === displayIdx) ?? []
+  const token = verse.display_tokens[displayIdx]
+  const gm = useGematriaValue(/[א-ת]/.test(token) ? token : undefined)
   return (
     <section className="word-panel" aria-label={m.word.panel}>
       <div className="word-head">
-        <HebrewPlain className="word-form" text={verse.display_tokens[displayIdx]} />
+        <HebrewPlain className="word-form" text={token} />
         <span className="muted small">{locale === 'he' ? verse.ref_he : verse.ref}</span>
+        {gm.data?.text === token && (
+          <Link className="chip gm-chip" to={`/gematria?q=${encodeURIComponent(gm.data.letters)}`} title={m.gm.wordValueTitle}>
+            {m.gm.wordValue(gm.data.values.standard)}
+          </Link>
+        )}
         <button type="button" className="linkish" onClick={onClose}>
           {m.word.close}
         </button>

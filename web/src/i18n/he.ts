@@ -29,6 +29,7 @@ import { readerHe } from './pages/reader'
 import { pentHe } from './pages/pentateuch'
 import { dlgHe } from './pages/dialogue'
 import { fmHe } from './pages/forms'
+import { gmHe } from './pages/gematria'
 import { qryHe } from './pages/query'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -106,6 +107,7 @@ export const he: Messages = {
     notebook: 'מחברת',
     query: { label: 'חיפוש תבניות', hint: 'חיפוש מבנה: ערך, שורש, צורה ותחביר, מילה אחר מילה' },
     forms: { label: 'מספרים ורשימות', hint: 'שלשה וארבעה: משלים מספריים מדורגים; יחסים ורשימות אחרות' },
+    gematria: { label: 'גימטריה', hint: 'ערכי אותיות: מה שווה למה' },
     psalms: { label: 'תהלים', hint: 'סוגי גונקל מן הצורה הנמנית; היכן פונות הקינות' },
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
@@ -259,12 +261,14 @@ export const he: Messages = {
     open: 'מעבר אל…',
     openTitle: 'מעבר אל קטע, מילה או עמוד (Ctrl+K)',
     label: 'מעבר אל קטע, מילה או עמוד',
-    placeholder: 'בראשית א · Gen 1:1 · שלום · 7965 · רשת',
+    placeholder: 'בראשית א · Gen 1:1 · שלום · 7965 · = 318 · רשת',
     passage: 'קטע',
     words: 'מילים',
     pages: 'עמודים',
     search: 'חיפוש בטקסט',
     searchFor: (q: string) => `חיפוש בטקסט: „${q}”`,
+    gematria: 'גימטריה',
+    gematriaOf: (q: string) => `ערך האותיות: ${q}`,
     verses: (n: number) => (n === 1 ? 'פסוק אחד' : n === 2 ? 'שני פסוקים' : `${n.toLocaleString('he-IL')} פסוקים`),
     keys: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לסגירה',
   },
@@ -439,6 +443,7 @@ export const he: Messages = {
   pent: pentHe,
   dlg: dlgHe,
   fm: fmHe,
+  gm: gmHe,
   qry: qryHe,
   nb: nbHe,
   echo: echoHe,

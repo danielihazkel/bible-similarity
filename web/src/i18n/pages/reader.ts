@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, countHe } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria'
 
 const pctOf = (x: number) => Math.round(x * 100)
 
@@ -27,6 +27,7 @@ export const readerEn = {
     mood: 'Distress and praise',
     sources: 'P / non-P',
     turns: 'Turns',
+    gematria: 'Gematria',
   } satisfies Record<Layer, string>,
   hints: {
     speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
@@ -40,6 +41,7 @@ export const readerEn = {
     mood: 'Words of distress and of praise (SDBH domains): where a lament turns',
     sources: 'Which side of the unsupervised P / non-P split each verse of Genesis–Numbers falls on',
     turns: 'Where the text changes sharply between verses, and the paragraph breaks of the tradition',
+    gematria: 'Each word’s letter value, and each verse’s total',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
   loading: (layer: string) => `Loading ${layer.toLowerCase()}…`,
@@ -80,6 +82,10 @@ export const readerEn = {
   rareKey: (max: number) =>
     `A small number after a word: its rarest word is in only that many verses of the Bible (at most ${max}; names left out). 1: nowhere else.`,
   rareTitle: (n: number) => (n === 1 ? 'nowhere else in the Bible (hapax legomenon)' : `in ${n} verses of the Bible`),
+  // gematria
+  gematriaKey: '=913 after a word: its letter value (standard gematria). After the verse number, the verse’s total: click it for the verses that add up to the same.',
+  gematriaTitle: (v: number) => `letter value ${v.toLocaleString('en-US')}`,
+  gematriaTotalTitle: (v: number) => `The verse adds up to ${v.toLocaleString('en-US')}: every verse of this value`,
   // wordplay
   wordplayKey: 'Dashed box: sounds like a word nearby. Click a word to mark its partner.',
   wordplayTitle: (partner: string, where: string, kind: string) => `sounds like ${partner} (${where}): ${kind}`,
@@ -113,6 +119,7 @@ export const readerHe: typeof readerEn = {
     mood: 'מצוקה ושבח',
     sources: 'P / לא P',
     turns: 'מפנים',
+    gematria: 'גימטריה',
   },
   hints: {
     speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
@@ -126,6 +133,7 @@ export const readerHe: typeof readerEn = {
     mood: 'מילות מצוקה ומילות שבח (תחומי SDBH): היכן קינה פונה',
     sources: 'באיזה צד של החלוקה הבלתי מונחית ל־P ולא P נופל כל פסוק בבראשית–במדבר',
     turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
+    gematria: 'ערך האותיות של כל מילה, וסכומו של כל פסוק',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
   loading: (layer: string) => `טוען ${layer}…`,
@@ -158,6 +166,9 @@ export const readerHe: typeof readerEn = {
   rareKey: (max: number) =>
     `מספר קטן אחרי מילה: המילה הנדירה שבה נמצאת רק במספר זה של פסוקים במקרא (עד ${max}; שמות לא נכללים). 1: בשום מקום אחר.`,
   rareTitle: (n: number) => (n === 1 ? 'בשום מקום אחר במקרא (מילה יחידאית)' : `ב־${n} פסוקים במקרא`),
+  gematriaKey: '‎=913 אחרי מילה: ערך אותיותיה (גימטריה רגילה). אחרי מספר הפסוק: סכום הפסוק; לחיצה עליו מראה את הפסוקים שמסתכמים באותו ערך.',
+  gematriaTitle: (v: number) => `ערך האותיות ${v.toLocaleString('he-IL')}`,
+  gematriaTotalTitle: (v: number) => `הפסוק מסתכם ב־${v.toLocaleString('he-IL')}: כל הפסוקים בערך זה`,
   wordplayKey: 'מסגרת מקווקוות: נשמעת כמו מילה סמוכה. לחיצה על מילה מסמנת את בת זוגה.',
   wordplayTitle: (partner: string, where: string, kind: string) => `נשמעת כמו ${partner} (${where}): ${kind}`,
   ketivKey: 'ק אחרי מילה: היא נקראת אחרת משנכתבה.',

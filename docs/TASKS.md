@@ -757,6 +757,14 @@ Phase 3 (M39c): API and viewer
 
 ✔ `bsim senses` gives one answer per seed. Against the last run, the use clusters of בֵּן 1121a, כֹּל 3605 and מֶלֶךְ 4428 and one example list of דָּבַר 1696 changed; the counts in the meta and the map did not.
 
+## M76: Gematria (§16.53, D89; proposed G1)
+- [x] `text/gematria.py`: standard, gadol (finals 500–900), ordinal, katan over the consonants; `bsim gematria` (`analysis/gematria.py`, pipeline stage after forms, ~15 s): every written form (MAM display tokens, qere), lemma (Strong's headword, else its commonest form) and verse valued; the equivalences of `gematria.known` checked (the stage stops when one fails)
+- [x] DB `gematria_forms`, `gematria_lemmas`, `gematria_verses` (indexed by each system's value; + `meta.gematria`); API `/gematria/value?text=`, `/gematria?value&system`, `/gematria/{forms,lemmas,verses}`; `gematria` per token on `/reader/{unit}`
+- [x] Viewer: Patterns → Gematria (a word or a number, its four values, forms / lemmas / verses of that value, the equivalences), the word panel's value chip, a Gematria layer in the reader (word values, verse totals linked to their verses), `= 318` in the jump box; English and Hebrew
+- [x] Tests: tables, points and maqaf ignored, Genesis 1:1 = 2701, the known values, the stage, DB and API on the fixture, the reader layer (pytest); the page, its systems, views and equivalences, Hebrew, the empty state, the reader layer, the jump box (vitest); e2e on the fixture and the real build
+
+✔ 39,555 written forms, 9,204 lemmas and 23,206 verses valued; the eight equivalences hold. Seven verses add up to 2701 as Genesis 1:1 does, a reminder of how common equal values are before G2 tests them. 607 pytest, 209 vitest, 249 / 251 fixture e2e (2 skipped by design; one page load failed once under load and passed 12 / 12 on rerun) and 188 / 188 real-data e2e.
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -782,3 +790,25 @@ Backend, models, code health
 - [x] C5 (done, M74) Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
 
 Suggested order: A1 → A2 → B1 → A3 → C1 (all done, M60–M64).
+
+From the 2026-10-15 review: letters and numbers, and geography. Each is a test with a claim fixed in advance and known answers, as before. Gematria and codes are framed like the sevens check (§16.14), whose verdict can come out either way. Places are shown in Hebrew only (D5, D56); English gazetteer names are internal join keys.
+
+Letters and numbers
+- [x] G1 (done, M76) Gematria layer: `text/gematria.py` over the consonantal text in four systems listed in config (standard, mispar gadol with finals 500–900, ordinal, reduced); values per word, verse and lemma in the DB; `/gematria?value=&system=` (words, lemmas, verses, paged); value in the word panel, a reader layer, `= 318` in the jump box, a calculator page. Known values as unit tests: אליעזר 318 (Gen 14:14), נחש = משיח 358, יין = סוד 70
+- [ ] G2 Do equal values link related words? Claim: words of equal standard gematria are no closer in meaning (SDBH domain overlap, root family §16.38, BEREL word vectors as §16.23) than pairs matched on letter count and frequency band; the traditional equivalences in config ranked. Verse check: the numerical properties claimed for Gen 1:1 (2701 = 37 × 73, 7 words, 28 letters) counted over all 23k verses, a look-elsewhere control
+- [ ] G3 Atbash and albam: words whose atbash (א↔ת) or albam (א↔ל) form is a name or lemma elsewhere. Known answers: ששך = בבל (Jer 25:26, 51:41), לב קמי = כשדים (Jer 51:1). Claim: atbash gives more cipher → name hits in Jer 25 and 51 than 999 random involutive letter substitutions, and no more elsewhere. Atbash / albam forms in the word panel (linked when they are words), a Ciphers tab with q
+- [ ] G4 The Masorah's counts: middle letter (the ו of גחון, Lev 11:42), middle words (דרש דרש, Lev 10:16), middle verse (Lev 8:8) of the Torah (Kiddushin 30a) and the Masorah's verse total per book, computed on our text (qere and ketiv apart); how far each lands from the tradition, book counts that differ listed with the reason. A check of our text and versification
+- [ ] G5 (optional) Equidistant letter sequences: terms fixed in config (a rabbis-and-dates list or a smaller list of names), skips up to N over the Torah letter string against Genesis with letters shuffled, with verses shuffled, and a non-Torah block of the same length. Claim: no more hits than the controls; shown as counts against controls, not "codes"
+
+Geography
+- [ ] P1 Gazetteer: download group `geo`, TIPNR (STEPBible, CC BY 4.0: Strong's → place) and OpenBible.info Bible Geocoding (CC BY 4.0: coordinates with confidence); availability and licenses checked first, recorded in DESIGN §1. Place lemma → site(s) → lat / lon, several sites per Strong's number resolved by the verses in `entity_mentions`; SDBH name subdomains split places into town / region / landform / water and peoples from persons; hand check of 50 (as M43); `places.parquet` and a DB table
+- [ ] P2 A real map: offline SVG of the region (Natural Earth coastline, rivers, Dead Sea; public domain), projected by hand like the other charts, no tile server or new dependency; points by mentions and kind, filters by book / chapter / unit; place panel (book strip, co-mentioned places); "where this happens" on chapter and pericope pages; a places layer in the reader
+- [ ] P3 Are place lists ordered on the ground? Claim: consecutive places in boundary and itinerary lists lie closer than in the list shuffled. Known lists in config: Num 33, Num 34, Josh 15:21–62, Josh 19, Gen 10. Second claim: Joshua's town lists cluster by district against a shuffle across districts
+- [ ] P4 The geographic arc: each chapter's centroid weighted by its place mentions. Claims: consecutive chapters lie closer than in a shuffled order; known moves (Gen 11–12 Ur / Haran → Canaan, Gen 46 → Exodus Egypt, Exod 12 → Numbers wilderness, 2 Kgs 25 Babylon); the oracles against the nations (Amos 1–2, Isa 13–23, Jer 46–51, Ezek 25–32) spread wider than other prophetic chapters. The path of the centroids per book on the P2 map
+- [ ] P5 Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")
+
+Viewer
+- [ ] V1 Jump box: `= 318` (gematria), and a place name opens the map at it
+- [ ] V2 Dossier entries: a unit's gematria and cipher hits and its places
+
+Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 (geography needs P1's data first), then G2, P4, P5; G5 last.

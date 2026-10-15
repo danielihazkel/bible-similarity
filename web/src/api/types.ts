@@ -1108,6 +1108,20 @@ export type PatternVerse = S['PatternVerse']
 export type PatternBook = S['PatternBook']
 export type PatternResponse = S['PatternResponse']
 
+// Letter values (`/gematria`, DESIGN.md §16.53).
+export type GematriaSystem = 'standard' | 'gadol' | 'ordinal' | 'katan'
+export type GematriaView = 'forms' | 'lemmas' | 'verses'
+export type GematriaValues = S['GematriaValues']
+export type GematriaValueResponse = S['GematriaValueResponse']
+export type GematriaKnown = S['GematriaKnown']
+export type GematriaResponse = S['GematriaResponse']
+export type GematriaForm = S['GematriaForm']
+export type GematriaFormsResponse = S['GematriaFormsResponse']
+export type GematriaLemma = S['GematriaLemma']
+export type GematriaLemmasResponse = S['GematriaLemmasResponse']
+export type GematriaVerse = S['GematriaVerse']
+export type GematriaVersesResponse = S['GematriaVersesResponse']
+
 // Graded numerical sayings and lists (`/forms`, DESIGN.md §16.45).
 export type FormsKnownSaying = S['FormsKnownSaying']
 export type FormsKnownList = S['FormsKnownList']

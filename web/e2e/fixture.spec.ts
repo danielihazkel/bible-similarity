@@ -91,6 +91,8 @@ const PAGES = [
   '/speech?view=dialogue',
   '/speech?view=dialogue&book=1&unequal=1',
   '/forms',
+  '/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA',
+  '/read/c%3A0%3A1?layers=gematria',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -185,6 +187,20 @@ test('the unit page opens the layered reader, whose layers paint the words', asy
   await expect(page.locator('.reader-text .wp-partner')).toHaveCount(1)
   await page.getByRole('link', { name: /Next/ }).click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A2\?layers=/)
+})
+
+test('gematria: a word in each system, its forms and lemmas, and a verse total from the reader', async ({ page }) => {
+  await page.goto('/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA')
+  await expect(page.getByText(/The value of ראשית in each system/)).toBeVisible()
+  await expect(page.getByText(/911 \(Standard\): 1 written form \(4 words in the text\), 1 lemma and 0 verses\./)).toBeVisible()
+  await expect(page.locator('.gm-forms li')).toHaveCount(1)
+  await page.getByRole('button', { name: /Ordinal/ }).click()
+  await expect(page).toHaveURL(/system=ordinal/)
+  await page.goto('/read/c%3A0%3A1?layers=gematria')
+  await expect(page.locator('.reader-text .w-mark').first()).toHaveText('=913')
+  await page.locator('.gm-total').first().click()
+  await expect(page).toHaveURL(/\/gematria\?q=1282&view=verses$/)
+  await expect(page.locator('.hit')).toHaveCount(1)
 })
 
 test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {

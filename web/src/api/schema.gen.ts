@@ -1950,6 +1950,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/gematria/value": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Value
+         * @description The value of any Hebrew text in each system (points, accents and other characters
+         *     ignored).
+         */
+        get: operations["gematria_value_api_gematria_value_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gematria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria
+         * @description How many word forms, lemmas and verses have this value, and the equivalences of the
+         *     config.
+         */
+        get: operations["gematria_api_gematria_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gematria/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Forms
+         * @description The written word forms of this value, the commonest first, with their first verses.
+         */
+        get: operations["gematria_forms_api_gematria_forms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gematria/lemmas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Lemmas
+         * @description The lemmas of this value (by their Strong's headword), the commonest first.
+         */
+        get: operations["gematria_lemmas_api_gematria_lemmas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gematria/verses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Verses
+         * @description The verses whose words add up to this value, in canon order.
+         */
+        get: operations["gematria_verses_api_gematria_verses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -2091,7 +2193,7 @@ export interface paths {
          * Reader
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
          *     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
-         *     non-P split, and the turns and MAM breaks before each verse.
+         *     non-P split, the turns and MAM breaks before each verse, and each word's letter value.
          */
         get: operations["reader_api_reader__unit_id__get"];
         put?: never;
@@ -3497,6 +3599,154 @@ export interface components {
             /** Items */
             items: components["schemas"]["FormsSaying"][];
         };
+        /** GematriaForm */
+        GematriaForm: {
+            /** Form */
+            form: string;
+            values: components["schemas"]["GematriaValues"];
+            /** N Words */
+            n_words: number;
+            /** N Verses */
+            n_verses: number;
+            /** Verses */
+            verses: components["schemas"]["VerseLabel"][];
+        };
+        /** GematriaFormsResponse */
+        GematriaFormsResponse: {
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaForm"][];
+        };
+        /**
+         * GematriaKnown
+         * @description A traditional equivalence of `gematria.known` and its standard value.
+         */
+        GematriaKnown: {
+            /** Text */
+            text: string;
+            /** Value */
+            value: number;
+        };
+        /** GematriaLemma */
+        GematriaLemma: {
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            values: components["schemas"]["GematriaValues"];
+            /** N Words */
+            n_words: number;
+        };
+        /** GematriaLemmasResponse */
+        GematriaLemmasResponse: {
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaLemma"][];
+        };
+        /**
+         * GematriaResponse
+         * @description How much of the text has one value in one system.
+         */
+        GematriaResponse: {
+            /** Computed */
+            computed: boolean;
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
+            /** Forms */
+            forms: number;
+            /** Words */
+            words: number;
+            /** Lemmas */
+            lemmas: number;
+            /** Verses */
+            verses: number;
+            /** Known */
+            known: components["schemas"]["GematriaKnown"][];
+        };
+        /** GematriaValueResponse */
+        GematriaValueResponse: {
+            /** Text */
+            text: string;
+            /** Letters */
+            letters: string;
+            values: components["schemas"]["GematriaValues"];
+        };
+        /**
+         * GematriaValues
+         * @description A text's value in each system (§16.53).
+         */
+        GematriaValues: {
+            /** Standard */
+            standard: number;
+            /** Gadol */
+            gadol: number;
+            /** Ordinal */
+            ordinal: number;
+            /** Katan */
+            katan: number;
+        };
+        /** GematriaVerse */
+        GematriaVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            values: components["schemas"]["GematriaValues"];
+            /** N Letters */
+            n_letters: number;
+            /** N Words */
+            n_words: number;
+        };
+        /** GematriaVersesResponse */
+        GematriaVersesResponse: {
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaVerse"][];
+        };
         /**
          * GoldLink
          * @description A Sefaria link between the two units: `verse` = a direct verse-to-verse link, `unit` =
@@ -4719,6 +4969,8 @@ export interface components {
             /** Ketiv */
             ketiv: components["schemas"]["ReaderKetiv"][];
             gap: components["schemas"]["ReaderGap"] | null;
+            /** Gematria */
+            gematria: number[];
         };
         /** ReaderWordplay */
         ReaderWordplay: {
@@ -9267,6 +9519,172 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FormsListsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_value_api_gematria_value_get: {
+        parameters: {
+            query: {
+                text: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaValueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_api_gematria_get: {
+        parameters: {
+            query: {
+                value: number;
+                system?: "standard" | "gadol" | "ordinal" | "katan";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_forms_api_gematria_forms_get: {
+        parameters: {
+            query: {
+                value: number;
+                system?: "standard" | "gadol" | "ordinal" | "katan";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaFormsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_lemmas_api_gematria_lemmas_get: {
+        parameters: {
+            query: {
+                value: number;
+                system?: "standard" | "gadol" | "ordinal" | "katan";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaLemmasResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_verses_api_gematria_verses_get: {
+        parameters: {
+            query: {
+                value: number;
+                system?: "standard" | "gadol" | "ordinal" | "katan";
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaVersesResponse"];
                 };
             };
             /** @description Validation Error */

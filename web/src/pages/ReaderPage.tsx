@@ -16,7 +16,7 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -128,6 +128,11 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
         cls.push('md', `md-${md}`)
         titles.push(t.moodTitle[md])
       }
+      const gm = on('gematria') ? r?.gematria[i] : undefined
+      if (gm) {
+        marks.push(`=${gm}`)
+        titles.push(t.gematriaTitle(gm))
+      }
       const kq = on('ketiv') ? r?.ketiv.find((k) => k.display.includes(i)) : undefined
       if (kq) {
         marks.push('ק')
@@ -202,6 +207,7 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
               <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={m.units.similarVerses(verseRef(v, locale))}>
                 {v.verse}
               </Link>
+              {on('gematria') && r && r.gematria.length > 0 && <GematriaTotal value={r.gematria.reduce((a, b) => a + b, 0)} />}
               {on('sources') && r?.source && (
                 <span
                   className={`src-tag src-${r.source.side} ${r.source.reference && r.source.reference !== r.source.side ? 'src-differs' : ''}`}
@@ -224,6 +230,15 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       </ol>
       {word ? <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} /> : <p className="muted small hint">{m.word.clickHint}</p>}
     </div>
+  )
+}
+
+function GematriaTotal({ value }: { value: number }) {
+  const t = useT().reader
+  return (
+    <Link className="gm-total" to={`/gematria?q=${value}&view=verses`} title={t.gematriaTotalTitle(value)}>
+      ={value}
+    </Link>
   )
 }
 
@@ -350,6 +365,7 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
       {row('rare', reader ? t.rareKey(reader.rare_verses) : '')}
       {row('wordplay', t.wordplayKey)}
       {row('ketiv', t.ketivKey)}
+      {row('gematria', t.gematriaKey)}
       {row('mood', t.moodKey)}
       {row(
         'sources',
