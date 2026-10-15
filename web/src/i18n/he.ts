@@ -32,6 +32,7 @@ import { fmHe } from './pages/forms'
 import { gmHe } from './pages/gematria'
 import { cphHe } from './pages/ciphers'
 import { msrHe } from './pages/masorah'
+import { geoHe, plHe } from './pages/places'
 import { qryHe } from './pages/query'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -118,6 +119,7 @@ export const he: Messages = {
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
     domains: { label: 'תחומים', hint: 'מילים לפי משמעות: שדות סמנטיים' },
     map: { label: 'מפה', hint: 'יחידות לפי משמעות, קרבה בין ספרים' },
+    places: { label: 'מקומות על המפה', hint: 'היכן שוכנים המקומות שהכתוב מזכיר' },
     network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר, מי מהדהד את מי' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
@@ -450,6 +452,8 @@ export const he: Messages = {
   gm: gmHe,
   cph: cphHe,
   msr: msrHe,
+  pl: plHe,
+  geo: geoHe,
   qry: qryHe,
   nb: nbHe,
   echo: echoHe,

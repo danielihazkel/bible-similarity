@@ -218,6 +218,19 @@ export type EntityDetail = S['EntityDetail']
 export type PlaceKind = 'town' | 'region' | 'landform' | 'water'
 export type NameKind = 'person' | 'people' | 'location' | 'landform' | 'water'
 export type PlaceSite = S['PlaceSite']
+export type PlacesResponse = Omit<S['PlacesResponse'], 'meta'> & { meta: PlacesMeta & Record<string, unknown> }
+export interface PlacesMeta {
+  places?: number
+  located?: number
+  hand_check?: { site?: [number, number]; low_score?: number }
+}
+export type MapShape = S['MapShape']
+export type BasemapResponse = S['BasemapResponse']
+export type PlaceDetail = S['PlaceDetail']
+export type PlacePartner = S['PlacePartner']
+export type PlaceVerse = S['PlaceVerse']
+export type PlaceVersesResponse = S['PlaceVersesResponse']
+export type ReaderPlace = S['ReaderPlace']
 
 export type SeamFeature = S['SeamFeature']
 

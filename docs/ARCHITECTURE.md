@@ -110,6 +110,7 @@ bible-similarity/
 │   │   ├── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
 │   │   ├── golds.py                # `bsim build-golds`: OpenBible / ETCBC verse pairs, before training (§16.41)
 │   │   ├── geo.py                  # STEPBible TIPNR and OpenBible.info geocoding readers (§16.56)
+│   │   ├── basemap.py              # Natural Earth land / lakes / rivers clipped and simplified, plain Python (§16.57)
 │   │   └── bhsa.py                 # `bsim syntax`: BHSA clauses / phrases on OSHB words, speakers (§16.26)
 │   ├── text/
 │   │   ├── accents.py              # te'amim: main pauses -> verse halves (cola) (§16.9)
@@ -217,7 +218,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, masorah, query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, masorah, places (the map), query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
 ├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e
@@ -260,7 +261,7 @@ bible-similarity/
 | 11b'''''' | `bsim sound` | verses, words, parallelism cola | `artifacts/sound/{alliteration,rhymes}.parquet` + `sound.meta.json` (§16.19) |
 | 11b''''' | `bsim acrostics` | verses, units, parallelism cola | `artifacts/acrostics/units.parquet` + `.meta.json` (§16.15) |
 | 11b⁵ | `bsim entities` | words | `artifacts/entities/{entities,mentions,links}.parquet` + `.meta.json` (§16.11) |
-| 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
+| 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds,basemap}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
 | 11b⁶ | `bsim seams` | verses, words | `artifacts/seams/{curve,seams}.parquet` + `.meta.json` (§16.12) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
 | 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |

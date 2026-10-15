@@ -18,7 +18,8 @@
 
 Writes `artifacts/places/`: `places.parquet` (one row per site the text names), `mentions.parquet`
 (lemma × verse -> site, with how it was matched), `name_kinds.parquet` (every name's subdomain
-shares) and `places.meta.json`.
+shares), `basemap.parquet` (Natural Earth's land, lakes and rivers in `places.map.box`,
+`data/basemap.py`, §16.57) and `places.meta.json`.
 """
 
 from __future__ import annotations
@@ -36,6 +37,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.config import config_hash, resolve_path
+from bsim.data.basemap import shapes
 from bsim.data.geo import AncientPlace, TipnrRecord, read_openbible, read_tipnr
 from bsim.text.normalize import consonantal
 
@@ -155,7 +157,8 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
     t0 = time.perf_counter()
     tipnr_path = raw / Path(cfg["sources"]["tipnr"]["files"][0]).name
     ob_path = raw / Path(cfg["sources"]["openbible_geo"]["files"][0]).name
-    for p in (tipnr_path, ob_path):
+    ne = {Path(f).name: raw / Path(f).name for f in cfg["sources"]["natural_earth"]["files"]}
+    for p in (tipnr_path, ob_path, *ne.values()):
         if not p.exists():
             raise FileNotFoundError(f"{p} is missing: run `bsim download --only geo`")
 
@@ -264,7 +267,29 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
     draw = rng.choice(len(ment), size=min(int(pc["sample"]), len(ment)), replace=False)
     sample = ment.iloc[np.sort(draw)]
 
+    # the base map
+    mc = pc["map"]
+    box = tuple(float(x) for x in mc["box"])
+    layers = [
+        ("ne_10m_land.geojson", "land", None),
+        ("ne_10m_lakes.geojson", "lakes", None),
+        ("ne_10m_rivers_lake_centerlines.geojson", "rivers", int(mc["river_rank"])),
+    ]
+    shape_rows = [
+        s
+        for file, layer, rank in layers
+        for s in shapes(ne[file], layer, box, float(mc["tolerance"]), int(mc["digits"]),  # type: ignore[arg-type]
+                        float(mc["min_area"]), rank)  # fmt: skip
+    ]
+    basemap = pd.DataFrame(
+        [(i + 1, s["layer"], s["name"], s["rank"], json.dumps(s["rings"], separators=(",", ":")))
+         for i, s in enumerate(shape_rows)],
+        columns=["shape_id", "layer", "name", "rank", "rings"],
+    )  # fmt: skip
+    basemap["rank"] = basemap["rank"].astype(float)
+
     out.mkdir(parents=True, exist_ok=True)
+    basemap.to_parquet(out / "basemap.parquet")
     places.to_parquet(out / "places.parquet")
     ment.to_parquet(out / "mentions.parquet")
     name_kinds.to_parquet(out / "name_kinds.parquet")
@@ -292,6 +317,9 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
         "multi_site_strongs": int((multi > 1).sum()),
         "name_kinds": {k: int((name_kinds.kind == k).sum()) for k in NAME_KINDS},
         "hand_check": hc,
+        "map": {"box": list(box), "shapes": {k: int((basemap.layer == k).sum()) for k in
+                                             ("land", "lakes", "rivers")},
+                "points": int(sum(len(r) for s in shape_rows for r in s["rings"]))},  # fmt: skip
         "seconds": round(time.perf_counter() - t0, 1),
     }
     (out / "places.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")

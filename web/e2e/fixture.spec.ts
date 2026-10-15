@@ -97,6 +97,9 @@ const PAGES = [
   '/ciphers?cipher=albam&known=1',
   '/masorah',
   '/masorah?text=qere',
+  '/places',
+  '/places?p=1&book=0',
+  '/read/c%3A0%3A1?layers=places',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -231,6 +234,25 @@ test('the Masorah’s counts: the middles against ours, the totals and their fin
   await page.goto('/findings')
   await page.getByRole('link', { name: /The Masorah’s counts/ }).first().click()
   await expect(page).toHaveURL(/\/masorah/)
+})
+
+test('places on the map: the points, a place panel, the unit page and the reader', async ({ page }) => {
+  await page.goto('/places')
+  await expect(page.locator('.geo-pt')).toHaveCount(2)
+  await expect(page.locator('.geo-land')).toHaveCount(1)
+  await page.locator('.place-list').getByRole('button', { name: 'אמר' }).click()
+  await expect(page).toHaveURL(/\/places\?p=1$/)
+  await expect(page.locator('.place-panel')).toContainText('31.78° N, 35.23° E')
+  await expect(page.locator('.place-verse')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'Regions' }).click()
+  await expect(page.locator('.geo-pt')).toHaveCount(1)
+  await page.goto('/unit/c%3A0%3A1')
+  const where = page.getByRole('region', { name: 'Where this happens' })
+  await expect(where.locator('.geo-pt')).toHaveCount(1)
+  await where.getByRole('link', { name: 'Open on the map' }).click()
+  await expect(page).toHaveURL(/\/places\?unit=c%3A0%3A1$/)
+  await page.goto('/read/c%3A0%3A1?layers=places')
+  await expect(page.locator('.reader-text .pl-town')).toHaveCount(2)
 })
 
 test('a place name shows where it lies: its site, kind and point', async ({ page }) => {

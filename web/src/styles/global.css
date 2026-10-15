@@ -36,6 +36,15 @@
   --sim-2: #c9bf6e;
   --sim-3: #93b25a;
   --sim-4: #4e9a52;
+  /* the places map (§16.57): ground, water and the four kinds of place (≥ 4.5:1 with white) */
+  --geo-land: #efe5cf;
+  --geo-sea: #d6e4ec;
+  --geo-river: #6f9bbb;
+  --geo-town: #a3402a;
+  --geo-region: #6a4c96;
+  --geo-landform: #6e5624;
+  --geo-water: #24638f;
+  --geo-none: #6f6a60;
 
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-he: 'Ezra SIL', 'SBL Hebrew', 'Noto Serif Hebrew', 'Times New Roman', serif;
@@ -78,6 +87,14 @@
     --sim-2: #6a6a2e;
     --sim-3: #4f7a36;
     --sim-4: #3f8f4a;
+    --geo-land: #2c2720;
+    --geo-sea: #142029;
+    --geo-river: #3f6d8c;
+    --geo-town: #e07a5f;
+    --geo-region: #b39ddb;
+    --geo-landform: #c9a96b;
+    --geo-water: #6fb3e0;
+    --geo-none: #a8a196;
     --shadow: none;
     color-scheme: dark;
   }
@@ -2923,3 +2940,52 @@ a.dossier-chip:hover {
 .msr-middle { margin-block: 1rem 1.4rem; }
 .msr-middle p { margin-block: 0.35rem; }
 .msr-totals tr.msr-differs td:first-child { font-weight: 600; }
+
+/* Places on the map (§16.57) */
+.places-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr); gap: 1.5rem; align-items: start; }
+@media (max-width: 860px) { .places-layout { grid-template-columns: minmax(0, 1fr); } }
+.geo-map { margin: 0; position: relative; }
+.geo-map svg { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius); touch-action: none; }
+.geo-map svg.pannable { cursor: grab; }
+.geo-map svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.geo-sea { fill: var(--geo-sea); }
+.geo-land { fill: var(--geo-land); }
+.geo-lake { fill: var(--geo-sea); stroke: var(--geo-river); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }
+.geo-river { fill: none; stroke: var(--geo-river); stroke-width: 1px; }
+.geo-pt { fill: var(--geo-none); fill-opacity: 0.85; stroke: var(--surface); stroke-width: 1px; cursor: pointer; }
+.geo-pt.kind-town { fill: var(--geo-town); }
+.geo-pt.kind-region { fill: var(--geo-region); }
+.geo-pt.kind-landform { fill: var(--geo-landform); }
+.geo-pt.kind-water { fill: var(--geo-water); }
+.geo-pt.selected, .geo-pt.current { stroke: var(--text); stroke-width: 2.5px; fill-opacity: 1; }
+.geo-label { fill: var(--text); font-family: var(--font-he); paint-order: stroke; stroke: var(--geo-land); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }
+.geo-zoom { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.geo-zoom button { width: 2rem; height: 2rem; font-size: 1.1rem; line-height: 1; }
+.geo-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; list-style: none; padding: 0; margin: 0.5rem 0; }
+.geo-key { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; vertical-align: -0.1rem; background: var(--geo-none); }
+.geo-key.kind-town, .type-tag.place-town { background: var(--geo-town); }
+.geo-key.kind-region, .type-tag.place-region { background: var(--geo-region); }
+.geo-key.kind-landform, .type-tag.place-landform { background: var(--geo-landform); }
+.geo-key.kind-water, .type-tag.place-water { background: var(--geo-water); }
+.type-tag.place-town, .type-tag.place-region, .type-tag.place-landform, .type-tag.place-water { color: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .type-tag.place-town,
+  :root:not([data-theme='light']) .type-tag.place-region,
+  :root:not([data-theme='light']) .type-tag.place-landform,
+  :root:not([data-theme='light']) .type-tag.place-water { color: #17140f; }
+}
+.place-list { padding-inline-start: 1.4rem; }
+.place-list li { margin-block: 0.2rem; }
+.place-panel .he, .place-list .he { font-size: 1.15rem; }
+.where-panel .geo-map { max-width: 34rem; }
+/* the reader's places layer: a box in the colour of the place's kind */
+.reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
+.reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }
+.reader-text .pl-region { box-shadow: inset 0 0 0 1.5px var(--geo-region); }
+.reader-text .pl-landform { box-shadow: inset 0 0 0 1.5px var(--geo-landform); }
+.reader-text .pl-water { box-shadow: inset 0 0 0 1.5px var(--geo-water); }
+.layer-key.pl { padding: 0 0.25rem; border-radius: 3px; border: 1.5px solid var(--geo-none); text-decoration: none; }
+.layer-key.pl-town { border-color: var(--geo-town); }
+.layer-key.pl-region { border-color: var(--geo-region); }
+.layer-key.pl-landform { border-color: var(--geo-landform); }
+.layer-key.pl-water { border-color: var(--geo-water); }

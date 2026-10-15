@@ -50,6 +50,14 @@ class ReaderRefrain(ApiModel):
     known: str | None
 
 
+class ReaderPlace(ApiModel):
+    """A place named in the unit (§16.57)."""
+
+    place_id: int
+    he: str
+    kind: str | None  # town | region | landform | water
+
+
 class ReaderVerse(ApiModel):
     verse_id: int
     refrains: dict[str, int]  # display token -> index into `refrains`
@@ -62,6 +70,7 @@ class ReaderVerse(ApiModel):
     ketiv: list[ReaderKetiv]
     gap: ReaderGap | None  # flagged or a MAM break; None otherwise
     gematria: list[int]  # each display token's standard letter value (§16.53; 0: no letters)
+    places: dict[str, int] = {}  # display token -> place_id (§16.57)
 
 
 class ReaderResponse(ApiModel):
@@ -70,9 +79,10 @@ class ReaderResponse(ApiModel):
     unit: UnitSummary
     rare_verses: int  # a word is rare in at most this many verses
     computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains,
-    # mood)
+    # mood, sources, places)
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
     refrains: list[ReaderRefrain]  # strongest first
+    places: list[ReaderPlace] = []  # the places named here, most named first
     verses: list[ReaderVerse]
 
 

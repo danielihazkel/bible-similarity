@@ -287,6 +287,15 @@ CREATE TABLE place_mentions (
     PRIMARY KEY (lemma, verse_id)
 ) WITHOUT ROWID;
 
+-- The base map (§16.57): Natural Earth's land, lakes and rivers in the region, simplified.
+CREATE TABLE map_shapes (
+    shape_id INTEGER PRIMARY KEY,
+    layer TEXT NOT NULL,            -- land | lakes | rivers
+    name TEXT NOT NULL,             -- Natural Earth's (English; never shown)
+    rank REAL,                      -- Natural Earth's scalerank (lower: more important)
+    rings TEXT NOT NULL             -- JSON: [[[lon, lat], ...], ...] (a line's pieces for rivers)
+);
+
 -- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
 CREATE TABLE name_kinds (
     lemma TEXT PRIMARY KEY,

@@ -81,6 +81,9 @@ const PAGES: [string, RegExp][] = [
   ['/ciphers?cipher=albam&book=12', /Atbash and albam/],
   ['/masorah', /The Masorah’s counts/],
   ['/masorah?text=qere', /The Masorah’s counts/],
+  ['/places', /Places on the map/],
+  ['/places?book=5&chapter=15', /Places on the map/],
+  ['/places?view=east&p=12', /Places on the map/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
@@ -150,7 +153,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/ciphers', '/masorah', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/ciphers', '/masorah', '/places', '/places?p=55', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -249,6 +252,20 @@ test('the Masorah: the ו of גחון is 4,829 letters past the middle, Lev 8:8 
   await expect(exodus).toContainText('The Ten Commandments are divided otherwise')
   await exodus.getByRole('link').click()
   await expect(page).toHaveURL(/\/unit\/v%3A2053$/)
+})
+
+test('the map: Jerusalem opens with Judah named with it, Joshua 10 is drawn and read with its places', async ({ page }) => {
+  await page.goto('/places')
+  await expect(page.locator('.geo-pt')).toHaveCount(816)
+  await page.locator('.place-list').getByRole('button', { name: 'ירושלם' }).click()
+  await expect(page).toHaveURL(/\/places\?p=55$/)
+  await expect(page.locator('.place-panel')).toContainText('31.78° N, 35.23° E')
+  await expect(page.locator('.geo-pt.selected')).toHaveCount(1)
+  await page.goto('/unit/c%3A5%3A10')
+  await expect(page.getByRole('region', { name: 'Where this happens' }).locator('.geo-pt')).not.toHaveCount(0)
+  await page.goto('/read/c%3A5%3A10?layers=places')
+  await expect(page.locator('.reader-text .pl').first()).toBeVisible()
+  await expect(page.locator('.legend-places').getByRole('link', { name: 'גבעון' })).toHaveAttribute('href', /p=232/)
 })
 
 test('the gazetteer: Jerusalem is a town at 31.78° N, Abel names two places', async ({ page }) => {

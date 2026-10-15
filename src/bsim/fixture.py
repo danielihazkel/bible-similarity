@@ -497,6 +497,12 @@ def write_inputs(cfg, tmp_path):
           "location", 2), ("7225", 0.0, 0.0, 1.0, 0.0, 0.0, "location", 1)],
         columns=["lemma", "person", "people", "location", "landform", "water", "kind", "n_verses"],
     ).to_parquet(place_dir / "name_kinds.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(1, "land", "Land", 0.0, "[[[34,29],[37,29],[37,34],[34,34],[34,29]]]"),
+         (2, "lakes", "Lake", 5.0, "[[[35.4,31.2],[35.6,31.2],[35.6,31.8],[35.4,31.2]]]"),
+         (3, "rivers", "River", 6.0, "[[[35.5,32.7],[35.55,31.8]]]")],
+        columns=["shape_id", "layer", "name", "rank", "rings"],
+    ).to_parquet(place_dir / "basemap.parquet")  # fmt: skip
     (place_dir / "places.meta.json").write_text(
         json.dumps({
             "max_shift": 3, "tipnr": {"PLACE": 2, "PERSON": 1, "OTHER": 0}, "openbible": 1,
@@ -506,6 +512,8 @@ def write_inputs(cfg, tmp_path):
             "multi_site_strongs": 0, "name_kinds": {"person": 1, "people": 0, "location": 2,
                                                     "landform": 0, "water": 0},
             "hand_check": {"site": [49, 50], "low_score": 4},
+            "map": {"box": [33, 28, 38, 35], "shapes": {"land": 1, "lakes": 1, "rivers": 1},
+                    "points": 11},
         }),
         encoding="utf-8",
     )  # fmt: skip

@@ -59,6 +59,11 @@ sources:
     commit: 7eb18a5ee62f27b9b93bd6689ea272d76dd23b8f   # main @ 2021-11-01
     raw_url: https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/{commit}/{file}
     files: [data/ancient.jsonl]
+  natural_earth:              # Natural Earth vector data, public domain: land, lakes and rivers of the base map (DESIGN.md §16.57)
+    repo: nvkelso/natural-earth-vector
+    commit: ca96624a56bd078437bca8184e78163e5039ad19   # master @ 2022-06-02 (v5.1.2)
+    raw_url: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/{commit}/{file}
+    files: [geojson/ne_10m_land.geojson, geojson/ne_10m_lakes.geojson, geojson/ne_10m_rivers_lake_centerlines.geojson]
 
 lexicon:                      # `bsim lexicon`: SDBH senses and domains per word, Strong's name types (DESIGN.md §16.22)
   search_window: 2            # an SDBH word reference may sit this many morphemes off OSHB's count
@@ -418,6 +423,12 @@ places:                       # `bsim places`: the gazetteer, each place the tex
     region: [region, people group, natural area, field, garden, road]
     landform: [mountain, mountain range, mountain ridge, hill, valley, island, cliff, rock, promontory, mountain pass, forest, tree, stone heap]
     water: [river, body of water, spring, wadi, pool, canal, ford, well]
+  map:                        # the base map: Natural Earth's land, lakes and rivers, clipped and simplified (DESIGN.md §16.57)
+    box: [-10, 5, 70, 47]     # lon_min, lat_min, lon_max, lat_max: from Tarshish to Hodu
+    tolerance: 0.01           # degrees a simplified line may stray from the original (about 1 km)
+    digits: 3                 # decimals kept
+    min_area: 0.005           # square degrees: smaller islands and lakes are left out
+    river_rank: 6             # Natural Earth scalerank of the rivers kept (the Jordan is 6)
   sample: 50                  # mentions drawn for the hand check (`sample.json`)
   seed: 11
   hand_check: {site: [49, 50], low_score: 4}   # the 50 drawn after the rules were set: the site is the place meant (or the land of the people named) in 49; Amos 4:3's הרמונה is no sure place; 4 points have an OpenBible vote below 300
@@ -1135,6 +1146,8 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     max_matches: 2000000      # partial matches at any step; a broader query is refused (too_broad)
     cache: 64                 # queries whose matches are kept
     preload: true             # build the word table in the background when the server starts
+  places:                     # /places/{id}: a place's panel (DESIGN.md §16.57)
+    partners: 15              # places named in the same verses, most shared first
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
     rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)

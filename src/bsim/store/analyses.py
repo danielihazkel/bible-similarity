@@ -220,12 +220,13 @@ SOURCES: tuple[Source, ...] = (
             Table("places", "places"),
             Table("place_mentions", "mentions"),
             Table("name_kinds", "name_kinds"),
+            Table("map_shapes", "basemap"),
         ),
         "places.meta.json",
         keys(
             "places", "max_shift", "tipnr", "openbible", "mentions", "how", "places",
             "placed_names", "located", "located_openbible", "kinds", "unkinded",
-            "multi_site_strongs", "name_kinds", "hand_check",
+            "multi_site_strongs", "name_kinds", "hand_check", "map",
         ),
     ),
     Source(

@@ -15,6 +15,7 @@ Detailed technical design. See [ARCHITECTURE.md](ARCHITECTURE.md) for the system
 | **BEREL 3.0** | base encoder | HF `dicta-il/BEREL_3.0` (BERT, ~0.2B params, fp32 safetensors) | Apache-2.0 |
 | **BGE-M3** | multilingual baseline | HF `BAAI/bge-m3` | MIT |
 | **STEPBible TIPNR** (*Translators Individualised Proper Names with all References*, Tyndale House) | which person or place each proper-name occurrence is: disambiguated Strong's numbers with every reference (§16.56) | `https://raw.githubusercontent.com/STEPBible/STEPBible-Data/{commit}/Proper Nouns/TIPNR … .txt`, pinned commit | **CC BY 4.0** (asks that the file not be redistributed: it is downloaded, never committed) |
+| **Natural Earth** (1:10m land, lakes, rivers and lake centrelines) | the base map under the places (§16.57) | `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/{commit}/geojson/ne_10m_{land,lakes,rivers_lake_centerlines}.geojson`, pinned commit | **public domain** |
 | **OpenBible.info Bible Geocoding Data** | where each place lies: modern identifications with coordinates and votes (§16.56) | `https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/{commit}/data/ancient.jsonl`, pinned commit | **CC BY 4.0** |
 
 Rules:
@@ -303,6 +304,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/structure/{unit_id}`, `/api/structure` | inclusio / chiasm / Leitworte of a unit, ranking (§16.2) |
 | `GET /api/entities`, `/api/entities/{lemma}`, `/api/unit-entities/{unit_id}` | people and places (§16.11); a name's SDBH kind and the sites it is (`name_kind`, `sites`, §16.56) |
 | `GET /api/places?kind=&book=&unit=` | The gazetteer: every place the text names with its kind, point and votes, most named first (in a book or unit: those named there, `n_here`) (§16.56) |
+| `GET /api/places/basemap`, `/api/places/{place_id}`, `/api/places/{place_id}/verses` | The map (§16.57): Natural Earth's land, lakes and rivers of the region; one place's names, verses per book and the places named in the same verses; its verses with the words that name it (paged). `/reader/{unit}` adds `places` (token → place) and the unit's places |
 | `GET /api/map/{type}`, `/api/affinity`, `/api/affinity/{a}/{b}`, `/api/stylometry`, `/api/stylometry/book/{id}`, `/api/seams?book=&limit=&offset=` | corpus map, book affinity, stylometry, style seams (§16.4, §16.6, §16.12) |
 
 ### 10.1 Free-text search
@@ -430,6 +432,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D93 | A real map | An SVG of the region drawn by hand in the viewer (equirectangular at 31.5° N; no tile server, no map library): Natural Earth's 1:10m land, lakes and rivers clipped to −10…70° E, 5…47° N and thinned by Douglas–Peucker at 0.01° in plain Python, 17,689 points (280 KB), stored in the DB and fetched once. Points sized on a fixed log scale (a size means the same in a chapter and in the whole Bible) and coloured by kind; filters by book, chapter, unit and kind; a place panel; "Where this happens" on chapters and pericopes; a places layer in the reader (§16.57) |
 | D92 | Gazetteer | STEPBible's TIPNR says which place (or person) each name occurrence is, by the Strong's number and the nearest of its references (within 3 verses for English numbering); OpenBible.info's best-voted identification locates it, joined by name and TIPNR id and decided by shared verses. SDBH's name subdomains give water, landforms, peoples and persons; OpenBible's types split towns from regions. Both sources CC BY 4.0, downloaded at a pinned commit; English names stay internal keys (places are numbered, shown in Hebrew). 820 sites, 818 located; hand check 49 / 50 (§16.56) |
 | D91 | The Masorah's counts | Two texts from the MAM tokens, written and read, each taking its side of every OSHB ketiv / qere where MAM shows the other; the middles of `masorah.middles` (Kiddushin 30a, the Masorah, Soferim) against ours in letters, words and verses, landing within one unit; the Masorah's verse totals per book (Ginsburg's collation) against ours, a book that differs carrying its reason as a code. The written Torah has 304,801 letters; the ו of גחון is 4,829 letters past the middle, דרש דרש 932 words; Lev 8:8 is the middle verse; 18 of 24 books agree (§16.55) |
 | D90 | Atbash and albam | A swap's hits are the rare words and adjacent word pairs it turns into a name of the text (`Np`), set against 999 random pairings of the 22 letters; checks fixed in advance on the three cases of Jeremiah, Jeremiah 25 + 51, the rest of the Bible and albam. The known cases are found and stand out there (3 vs 0.64, p 0.036); elsewhere neither swap beats chance (§16.54) |
@@ -1225,3 +1228,23 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - A compound name's second word is not its own place.
   - Points are points: a region or a river is placed at one representative point.
   - Israel and Judah are mostly people or person in both TIPNR and SDBH, so the land of Israel has no site of its own.
+
+### 16.57 A real map: the places where they lie (`data/basemap.py`, `/places/basemap`, Places on the map)
+- **Why:** the gazetteer (§16.56) gives each place a point; a reader wants to see them on the ground, a book's or a chapter's together, and to go from a place to its verses and from a passage to its places.
+- **The base map** (`bsim places`, `data/basemap.py`; `places.map`). Natural Earth's 1:10m land, lakes and rivers (public domain; `bsim download --only geo`, pinned commit):
+  - clipped to −10…70° E, 5…47° N (from Tarshish to Hodu), polygons by Sutherland–Hodgman and lines by Liang–Barsky, and thinned by Douglas–Peucker at 0.01° (about 1 km), all in plain Python (no GIS library);
+  - islands and lakes under 0.005 square degrees left out, rivers up to Natural Earth's rank 6 (the Jordan is 6);
+  - 7 land shapes, 61 lakes (the Dead Sea and the Sea of Galilee among them), 85 rivers: 17,689 points, 280 KB as JSON (`map_shapes`, fetched once and cached).
+- **A fix on the way:** TIPNR writes a place without a point as a map link `@0,14z`, its zoom read as a longitude; such links are no point now (Nod, Bithron), so 816 of the 820 sites are located.
+- **Drawing** (viewer, `lib/geo.ts`, `components/GeoMap.tsx`): an SVG projected by hand like the other charts. Equirectangular at 31.5° N, so a degree east and a degree north are the same length around Jerusalem. Land, lakes and rivers under the points:
+  - a point's radius grows with the log of the verses naming it, on one fixed scale, so a size means the same in a chapter as in the whole Bible; its colour is its kind (town, region, landform, water; grey for unknown);
+  - the names of the most named places in view are written beside them, leaving out any label that would overlap one already placed;
+  - drag pans, + / − zoom; with keyboard focus the arrow keys step through the places (most named first) and Enter opens one.
+- **Places on the map** (Overview, `/places`): filters by book, chapter, unit (`?unit=` from other pages) and kind. Three views: the land, the Near East, and these places (fitted to the points; the default when filtered). Beside the map are the most named places or a place's panel: its point and votes, its names (linking to the Names page), its verses per book, the places named in the same verses (`serve.places.partners` = 15), and its verses with the words that name it marked.
+- **Where this happens:** on chapter and pericope pages, a small map fitted to the places the passage names; a point or the link opens the full map on the passage.
+- **The reader's places layer** (§16.39): each word naming a place is boxed in its kind's colour, and its tooltip names the place; the legend lists the passage's places, each opening the map.
+- **Served:** `map_shapes` (+ `meta.places.map`); `/places/basemap`, `/places/{id}`, `/places/{id}/verses`; `places` on `/reader/{unit}`.
+- **Limits:**
+  - A point per place: a region or a river is shown where OpenBible puts its representative point, not its extent.
+  - Votes are not drawn on the map; they are in the place panel.
+  - The rivers and coasts are today's (Natural Earth), not the ancient ones: the Mediterranean coast and the Persian Gulf's head have moved since.

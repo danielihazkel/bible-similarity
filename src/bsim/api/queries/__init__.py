@@ -166,7 +166,18 @@ from bsim.api.queries.phrases import (
     phrases_of,
     phrases_page,
 )
-from bsim.api.queries.places import entity_sites, name_kind, places_list
+from bsim.api.queries.places import (
+    entity_sites,
+    map_shapes,
+    name_kind,
+    place,
+    place_books,
+    place_names,
+    place_partners,
+    place_tokens,
+    place_verses_page,
+    places_list,
+)
 from bsim.api.queries.poetics import (
     PARALLEL_COLS,
     STRUCTURE_SORT,
@@ -330,6 +341,7 @@ __all__ = [
     "lemmas_page",
     "map_clusters",
     "map_points",
+    "map_shapes",
     "masorah_tables",
     "meta",
     "meter_chapters",
@@ -355,6 +367,12 @@ __all__ = [
     "phrases_of",
     "phrases_page",
     "phrases_touching",
+    "place",
+    "place_books",
+    "place_names",
+    "place_partners",
+    "place_tokens",
+    "place_verses_page",
     "places_list",
     "previews",
     "psalm_verses",

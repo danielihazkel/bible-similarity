@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, countHe } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places'
 
 const pctOf = (x: number) => Math.round(x * 100)
 
@@ -28,6 +28,7 @@ export const readerEn = {
     sources: 'P / non-P',
     turns: 'Turns',
     gematria: 'Gematria',
+    places: 'Places',
   } satisfies Record<Layer, string>,
   hints: {
     speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
@@ -42,6 +43,7 @@ export const readerEn = {
     sources: 'Which side of the unsupervised P / non-P split each verse of Genesis–Numbers falls on',
     turns: 'Where the text changes sharply between verses, and the paragraph breaks of the tradition',
     gematria: 'Each word’s letter value, and each verse’s total',
+    places: 'The places named, by kind, each linked to the map',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
   loading: (layer: string) => `Loading ${layer.toLowerCase()}…`,
@@ -98,6 +100,11 @@ export const readerEn = {
   gapKinds: { turn: 'turn', cut: 'chapter in running text', quiet: 'quiet break' } satisfies Record<SegmentKind, string>,
   gapTitle: (score: number) => `The text changes here more than at ${pctOf(score)}% of the book's verse gaps.`,
   paragraphTitle: { pe: 'Open paragraph (MAM)', samekh: 'Closed paragraph (MAM)' } satisfies Record<Paragraph, string>,
+  // places
+  placesKey: 'A place’s name boxed in the colour of its kind (town, region, landform, water); the places here, on the map:',
+  noPlaces: 'No place is named here.',
+  placeTitle: (he: string, kind: string) => `${he}: ${kind}`,
+  allPlaces: 'all on the map',
 }
 
 export const readerHe: typeof readerEn = {
@@ -120,6 +127,7 @@ export const readerHe: typeof readerEn = {
     sources: 'P / לא P',
     turns: 'מפנים',
     gematria: 'גימטריה',
+    places: 'מקומות',
   },
   hints: {
     speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
@@ -134,6 +142,7 @@ export const readerHe: typeof readerEn = {
     sources: 'באיזה צד של החלוקה הבלתי מונחית ל־P ולא P נופל כל פסוק בבראשית–במדבר',
     turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
     gematria: 'ערך האותיות של כל מילה, וסכומו של כל פסוק',
+    places: 'המקומות הנזכרים, לפי סוגם, כל אחד מקושר למפה',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
   loading: (layer: string) => `טוען ${layer}…`,
@@ -178,4 +187,8 @@ export const readerHe: typeof readerEn = {
   gapKinds: { turn: 'מפנה', cut: 'פרק בתוך טקסט רציף', quiet: 'הפסקה שקטה' },
   gapTitle: (score: number) => `הטקסט משתנה כאן יותר מאשר ב־${pctOf(score)}% מן המעברים בין פסוקים בספר.`,
   paragraphTitle: { pe: 'פרשה פתוחה (המסורה)', samekh: 'פרשה סתומה (המסורה)' },
+  placesKey: 'שם מקום במסגרת בצבע סוגו (עיר, אזור, תוואי קרקע, מים); המקומות שכאן, על המפה:',
+  noPlaces: 'אין כאן מקום נזכר.',
+  placeTitle: (he: string, kind: string) => `${he}: ${kind}`,
+  allPlaces: 'כולם על המפה',
 }

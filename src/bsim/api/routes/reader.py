@@ -15,6 +15,7 @@ from bsim.api.models.common import UnitSummary
 from bsim.api.models.reader import (
     ReaderGap,
     ReaderKetiv,
+    ReaderPlace,
     ReaderRefrain,
     ReaderResponse,
     ReaderSource,
@@ -173,6 +174,14 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         for g in queries.gaps_in(conn, first, last)
     }
     tokens = {v: r["display_tokens"] for v, r in queries.verses_by_id(conn, vids).items()}
+    # places (§16.57): each token naming one, and the places, most named first
+    place_at: dict[int, dict[int, int]] = defaultdict(dict)
+    for r in queries.place_tokens(conn, first, last):
+        place_at[r["verse_id"]].setdefault(r["display_idx"], r["place_id"])
+    named = Counter(p for toks in place_at.values() for p in set(toks.values()))
+    sites = {
+        p: queries.place(conn, p) for p in sorted(named, key=lambda p: (-named[p], p))
+    }
 
     return {
         "unit": UnitSummary(**u),
@@ -186,9 +195,13 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "refrains": state.present(conn, "refrains"),
             "mood": state.present(conn, "domains"),
             "sources": state.present(conn, "pentateuch_verses"),
+            "places": state.present(conn, "places"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
+        "places": [
+            ReaderPlace(place_id=p, he=s["he"], kind=s["kind"]) for p, s in sites.items() if s
+        ],
         "verses": [
             ReaderVerse(
                 verse_id=v,
@@ -204,6 +217,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 ketiv=ketiv.get(v, []),
                 gap=gaps.get(v),
                 gematria=[value(t) for t in tokens.get(v, [])],
+                places={str(t): p for t, p in sorted(place_at.get(v, {}).items())},
             )
             for v in vids
         ],

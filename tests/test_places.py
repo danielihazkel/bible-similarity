@@ -187,9 +187,28 @@ def corpus(tmp_path):
                               {"class": "settlement", "score": {"vote_total": 350},
                                "resolutions": [{"lonlat": "35.7,33.2"}]}]}  # fmt: skip
     (raw / "geo" / "ancient.jsonl").write_text(json.dumps(ob), "utf-8")
+    square = [[34, 30], [36, 30], [36, 34], [34, 34], [34, 30]]
+
+    def fc(*features):
+        return json.dumps({"type": "FeatureCollection", "features": list(features)})
+
+    def feature(kind, coords, **props):
+        return {"type": "Feature", "properties": props, "geometry": {"type": kind,
+                                                                     "coordinates": coords}}
+
+    (raw / "geo" / "ne_10m_land.geojson").write_text(fc(feature("Polygon", [square])), "utf-8")
+    (raw / "geo" / "ne_10m_lakes.geojson").write_text(
+        fc(feature("Polygon", [[[35.4, 31.2], [35.6, 31.2], [35.6, 31.8], [35.4, 31.2]]],
+                   name="Dead Sea", scalerank=3)), "utf-8")  # fmt: skip
+    (raw / "geo" / "ne_10m_rivers_lake_centerlines.geojson").write_text(
+        fc(feature("LineString", [[35.5, 32.7], [35.55, 31.8]], name="Jordan", scalerank=6),
+           feature("LineString", [[30, 30], [31, 31]], name="Far", scalerank=1),
+           feature("LineString", [[35, 31], [35.1, 31]], name="Small", scalerank=9)),
+        "utf-8")  # fmt: skip
     cfg["paths"] = {**cfg["paths"], "data_processed": str(proc), "artifacts": str(art),
                     "data_raw": str(raw)}  # fmt: skip
-    cfg["places"] = {**cfg["places"], "sample": 2}
+    cfg["places"] = {**cfg["places"], "sample": 2,
+                     "map": {**cfg["places"]["map"], "box": [33, 29, 37, 35]}}  # fmt: skip
     return cfg
 
 
@@ -213,6 +232,13 @@ def test_run_places(tmp_path):
     meta = json.loads((out / "places.meta.json").read_text("utf-8"))
     assert meta["how"]["person"] == 1 and meta["places"] == 2 and meta["located_openbible"] == 1
     assert len(json.loads((out / "sample.json").read_text("utf-8"))) == 2
+    bm = pd.read_parquet(out / "basemap.parquet")
+    # the river outside the box and the minor one are left out
+    assert bm[["layer", "name"]].values.tolist() == [
+        ["land", ""], ["lakes", "Dead Sea"], ["rivers", "Jordan"],
+    ]  # fmt: skip
+    assert json.loads(bm.rings[2]) == [[[35.5, 32.7], [35.55, 31.8]]]
+    assert meta["map"]["shapes"] == {"land": 1, "lakes": 1, "rivers": 1}
     first = (out / "places.parquet").read_bytes()
     run_places(cfg, log=lambda _: None)
     assert (out / "places.parquet").read_bytes() == first
@@ -252,3 +278,26 @@ def test_entity_sites(client):
     assert [(s["place_id"], s["n_here"], s["kind"]) for s in e["sites"]] == [(1, 2, "town")]
     p = client.get("/api/entities/430").json()
     assert p["name_kind"] == "person" and p["sites"] == []
+
+
+def test_api_basemap_and_place(client):
+    bm = client.get("/api/places/basemap").json()
+    assert bm["box"] == [33, 28, 38, 35]
+    assert [s["layer"] for s in bm["shapes"]] == ["land", "lakes", "rivers"]
+    assert bm["shapes"][2]["rings"] == [[[35.5, 32.7], [35.55, 31.8]]]
+    d = client.get("/api/places/1").json()
+    assert d["place"]["he"] == "אמר" and d["first_label"] == "v:0"
+    assert d["names"] == [{"lemma": "559", "he": "אמר", "n_verses": 2}]
+    assert d["by_book"] == [{"book_id": 0, "n_verses": 2}] and d["partners"] == []
+    assert client.get("/api/places/99").status_code == 404
+    v = client.get("/api/places/1/verses").json()
+    assert v["total"] == 2 and [i["verse"]["verse_id"] for i in v["items"]] == [0, 1]
+    assert v["items"][0]["tokens"] == [2] and v["items"][1]["tokens"] == [1]
+    assert client.get("/api/places/1/verses", params={"limit": 0}).status_code == 422
+
+
+def test_reader_places(client):
+    r = client.get("/api/reader/c:0:1").json()
+    assert r["computed"]["places"] is True
+    assert r["places"] == [{"place_id": 1, "he": "אמר", "kind": "town"}]
+    assert [v["places"] for v in r["verses"]] == [{"2": 1}, {"1": 1}, {}]

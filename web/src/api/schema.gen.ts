@@ -2153,6 +2153,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/places/basemap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Basemap
+         * @description Land, lakes and rivers of the region (Natural Earth), in longitude / latitude.
+         */
+        get: operations["basemap_api_places_basemap_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/places/{place_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Detail
+         * @description One place: the names that are it, its verses per book and the places named with it.
+         */
+        get: operations["place_detail_api_places__place_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/places/{place_id}/verses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Verses
+         * @description The verses naming a place, in canon order, with the words that name it.
+         */
+        get: operations["place_verses_api_places__place_id__verses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -2564,6 +2624,13 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Allusion"][];
+        };
+        /** BasemapResponse */
+        BasemapResponse: {
+            /** Box */
+            box: number[];
+            /** Shapes */
+            shapes: components["schemas"]["MapShape"][];
         };
         /** Book */
         Book: {
@@ -4455,6 +4522,16 @@ export interface components {
             /** Lists */
             lists: boolean;
         };
+        /** MapShape */
+        MapShape: {
+            /**
+             * Layer
+             * @enum {string}
+             */
+            layer: "land" | "lakes" | "rivers";
+            /** Rings */
+            rings: number[][][];
+        };
         /** MasorahBook */
         MasorahBook: {
             /** Book Id */
@@ -5078,6 +5155,40 @@ export interface components {
             /** Items */
             items: components["schemas"]["PhrasePair"][];
         };
+        /** PlaceDetail */
+        PlaceDetail: {
+            place: components["schemas"]["PlaceSite"];
+            /** First Label */
+            first_label: string;
+            /** First Label He */
+            first_label_he: string;
+            /** Names */
+            names: components["schemas"]["PlaceName"][];
+            /** By Book */
+            by_book: components["schemas"]["BookCount"][];
+            /** Partners */
+            partners: components["schemas"]["PlacePartner"][];
+        };
+        /** PlaceName */
+        PlaceName: {
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            /** N Verses */
+            n_verses: number;
+        };
+        /** PlacePartner */
+        PlacePartner: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+            /** N Verses */
+            n_verses: number;
+        };
         /**
          * PlaceSite
          * @description A place the text names and where it lies (§16.56).
@@ -5109,6 +5220,25 @@ export interface components {
             first_vid: number;
             /** Lemmas */
             lemmas: string[];
+        };
+        /** PlaceVerse */
+        PlaceVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Tokens */
+            tokens: number[];
+        };
+        /** PlaceVersesResponse */
+        PlaceVersesResponse: {
+            /** Place Id */
+            place_id: number;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["PlaceVerse"][];
         };
         /** PlacesResponse */
         PlacesResponse: {
@@ -5267,6 +5397,18 @@ export interface components {
              */
             cls: "vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other";
         };
+        /**
+         * ReaderPlace
+         * @description A place named in the unit (§16.57).
+         */
+        ReaderPlace: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: string | null;
+        };
         /** ReaderRefrain */
         ReaderRefrain: {
             /** Refrain Id */
@@ -5294,6 +5436,11 @@ export interface components {
             speakers: components["schemas"]["ReaderSpeaker"][];
             /** Refrains */
             refrains: components["schemas"]["ReaderRefrain"][];
+            /**
+             * Places
+             * @default []
+             */
+            places: components["schemas"]["ReaderPlace"][];
             /** Verses */
             verses: components["schemas"]["ReaderVerse"][];
         };
@@ -5354,6 +5501,13 @@ export interface components {
             gap: components["schemas"]["ReaderGap"] | null;
             /** Gematria */
             gematria: number[];
+            /**
+             * Places
+             * @default {}
+             */
+            places: {
+                [key: string]: number;
+            };
         };
         /** ReaderWordplay */
         ReaderWordplay: {
@@ -10208,6 +10362,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlacesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    basemap_api_places_basemap_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BasemapResponse"];
+                };
+            };
+        };
+    };
+    place_detail_api_places__place_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                place_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_verses_api_places__place_id__verses_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                place_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceVersesResponse"];
                 };
             };
             /** @description Validation Error */

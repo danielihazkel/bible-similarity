@@ -789,7 +789,14 @@ Phase 3 (M39c): API and viewer
 
 ✔ 6,463 name mentions are 820 sites, 818 located (802 by OpenBible); 574 towns, 97 regions, 94 landforms, 41 waters; 92 Strong's numbers name several sites (Abel: a stone, Abel-beth-maacah). Hand check: the site is the place meant in 49 of 50. Votes are often low (363 sites under 300 of 1,000), stated with every point. 630 pytest, 220 vitest, 264 / 266 fixture e2e (2 skipped by design) and 202 / 202 real-data e2e; adding the `geo` download group was adopted for every stage it does not feed (no corpus input changed), and the real DB only gained the three tables.
 
-## Proposed (not started)
+## M80: A real map (§16.57, D93; proposed P2)
+- [x] Natural Earth's 1:10m land, lakes and rivers (public domain) in the `geo` download group; `data/basemap.py` clips (Sutherland–Hodgman, Liang–Barsky) and thins (Douglas–Peucker) them in plain Python; `bsim places` writes the base map (17,689 points, 280 KB); TIPNR's `@0,14z` no longer read as a point
+- [x] DB `map_shapes`; API `/places/basemap`, `/places/{id}` (names, verses per book, places named with it), `/places/{id}/verses`; `places` on `/reader/{unit}`
+- [x] Viewer: Overview → Places on the map (an SVG projected by hand: points sized on a fixed log scale and coloured by kind, labels kept apart, drag and zoom, keyboard; filters by book, chapter, unit and kind; three views; the place panel); "Where this happens" on chapter and pericope pages; a places layer in the reader; English and Hebrew, light and dark
+- [x] Tests: clipping, lines and simplification (pytest); the base map from a small corpus, the place panel, verses, the reader layer (pytest); the page, the panel, filters, keyboard and zoom, Hebrew, the empty state, the reader layer (vitest); e2e on the fixture and the real build
+
+✔ The 816 located places on a map of the region, drawn by hand from Natural Earth (no tiles, no map library), filterable down to a chapter; every place opens to its names, books, companions and verses; chapters and pericopes show where they happen; the reader boxes every place name. 635 pytest, 227 vitest, 272 / 274 fixture e2e (2 skipped by design) and 210 / 210 real-data e2e; the pipeline adopted the stages the new download does not feed, and the real DB gained `map_shapes` only.
+
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
 Analyses
@@ -826,7 +833,7 @@ Letters and numbers
 
 Geography
 - [x] P1 (done, M79) Gazetteer: download group `geo`, TIPNR (STEPBible, CC BY 4.0: Strong's → place) and OpenBible.info Bible Geocoding (CC BY 4.0: coordinates with confidence); availability and licenses checked first, recorded in DESIGN §1. Place lemma → site(s) → lat / lon, several sites per Strong's number resolved by the verses in `entity_mentions`; SDBH name subdomains split places into town / region / landform / water and peoples from persons; hand check of 50 (as M43); `places.parquet` and a DB table
-- [ ] P2 A real map: offline SVG of the region (Natural Earth coastline, rivers, Dead Sea; public domain), projected by hand like the other charts, no tile server or new dependency; points by mentions and kind, filters by book / chapter / unit; place panel (book strip, co-mentioned places); "where this happens" on chapter and pericope pages; a places layer in the reader
+- [x] P2 (done, M80) A real map: offline SVG of the region (Natural Earth coastline, rivers, Dead Sea; public domain), projected by hand like the other charts, no tile server or new dependency; points by mentions and kind, filters by book / chapter / unit; place panel (book strip, co-mentioned places); "where this happens" on chapter and pericope pages; a places layer in the reader
 - [ ] P3 Are place lists ordered on the ground? Claim: consecutive places in boundary and itinerary lists lie closer than in the list shuffled. Known lists in config: Num 33, Num 34, Josh 15:21–62, Josh 19, Gen 10. Second claim: Joshua's town lists cluster by district against a shuffle across districts
 - [ ] P4 The geographic arc: each chapter's centroid weighted by its place mentions. Claims: consecutive chapters lie closer than in a shuffled order; known moves (Gen 11–12 Ur / Haran → Canaan, Gen 46 → Exodus Egypt, Exod 12 → Numbers wilderness, 2 Kgs 25 Babylon); the oracles against the nations (Amos 1–2, Isa 13–23, Jer 46–51, Ezek 25–32) spread wider than other prophetic chapters. The path of the centroids per book on the P2 map
 - [ ] P5 Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")

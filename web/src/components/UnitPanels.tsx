@@ -1,10 +1,12 @@
 import type { ComponentType } from 'react'
-import { Link } from 'react-router'
-import { usePhrasesOf, useSequences, useUnitEntities, useUnitNetwork, useWordplay } from '../api/hooks'
+import { Link, useNavigate } from 'react-router'
+import { useBasemap, usePhrasesOf, usePlaces, useSequences, useUnitEntities, useUnitNetwork, useWordplay } from '../api/hooks'
 import type { DossierKind, UnitSummary } from '../api/types'
 import { useT } from '../context/localeContext'
+import { fitBounds, geoPoints } from '../lib/geo'
 import { nameLink } from '../lib/links'
 import { DatingLine } from './DatingLine'
+import { GeoMap } from './GeoMap'
 import { PhraseCard } from './PhraseCard'
 import { SequenceCard } from './SequenceCard'
 import { PanelError } from './Status'
@@ -40,6 +42,7 @@ const ALL = ['verse', ...PASSAGES] as const
 const UNIT_PANELS: readonly PanelSpec[] = [
   { id: 'names', slot: 'context', types: PASSAGES, Panel: NamesLine },
   { id: 'network', slot: 'context', types: PASSAGES, Panel: NetworkLine },
+  { id: 'where', slot: 'context', types: ['chapter', 'pericope'], Panel: WhereThisHappens },
   { id: 'themes', slot: 'context', types: PASSAGES, Panel: ({ unit }) => <ThemesPanel unitId={unit.unit_id} /> },
   { id: 'dating', slot: 'context', types: ['chapter'], Panel: ({ unit }) => <DatingLine unitId={unit.unit_id} bookId={unit.book_id} /> },
   { id: 'phrases', slot: 'after', types: ['verse'], dossier: 'phrases', Panel: SharedPhrases },
@@ -162,6 +165,30 @@ function Sequences({ unit, enabled }: PanelProps) {
           <SequenceCard key={s.seq_id} s={s} />
         ))}
       </ol>
+    </section>
+  )
+}
+
+/** The places a chapter or pericope names, on a small map fitted to them (§16.57). */
+function WhereThisHappens({ unit }: PanelProps) {
+  const m = useT()
+  const t = m.pl
+  const places = usePlaces({ unit: unit.unit_id })
+  const basemap = useBasemap()
+  const navigate = useNavigate()
+  if (places.error) return <PanelError what={t.whereTitle} error={places.error} />
+  const items = places.data?.items ?? []
+  const points = geoPoints(items)
+  const bounds = fitBounds(points, 1.5)
+  if (!bounds) return null
+  const open = (p?: number) => `/places?unit=${encodeURIComponent(unit.unit_id)}${p === undefined ? '' : `&p=${p}`}`
+  return (
+    <section className="where-panel" aria-label={t.whereTitle}>
+      <h2>{t.whereTitle}</h2>
+      <p className="muted small">
+        {t.wherePlaces(items.length, items.length - points.length)} <Link to={open()}>{t.openMap}</Link>
+      </p>
+      <GeoMap basemap={basemap.data} points={points} bounds={bounds} onSelect={(p) => navigate(open(p))} label={t.whereTitle} labels={8} aspect={1.4} />
     </section>
   )
 }

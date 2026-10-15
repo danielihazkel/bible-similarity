@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router'
 import { useReader, useStructure, useUnit, useUnitParallelism } from '../api/hooks'
-import type { ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
+import type { PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText, type WordLook } from '../components/HebrewText'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -16,7 +16,7 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -26,6 +26,7 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   mood: 'mood',
   sources: 'sources',
   turns: 'gaps',
+  places: 'places',
 }
 const LEITWORTE_SHOWN = 6
 const REFRAINS_SHOWN = 4
@@ -60,6 +61,7 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
 
   const toggle = (l: Layer) => update({ layers: toggleLayer(layers, l) }, false)
   const rv = new Map((reader.data?.verses ?? []).map((v) => [v.verse_id, v]))
+  const placeOf = new Map((reader.data?.places ?? []).map((p) => [p.place_id, p]))
   const speakers = reader.data?.speakers ?? []
   const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
   const leitworte = (
@@ -132,6 +134,12 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       if (gm) {
         marks.push(`=${gm}`)
         titles.push(t.gematriaTitle(gm))
+      }
+      const pl = on('places') ? r?.places[i] : undefined
+      const site = pl === undefined ? undefined : placeOf.get(pl)
+      if (site) {
+        cls.push('pl', `pl-${site.kind ?? 'none'}`)
+        titles.push(t.placeTitle(site.he, site.kind ? m.pl.kindOne[site.kind as PlaceKind] : m.pl.panel))
       }
       const kq = on('ketiv') ? r?.ketiv.find((k) => k.display.includes(i)) : undefined
       if (kq) {
@@ -374,6 +382,24 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
         </>,
       )}
       {row('turns', t.turnsKey)}
+      {row(
+        'places',
+        !reader ? (
+          ''
+        ) : reader.places.length === 0 ? (
+          <span className="muted">{t.noPlaces}</span>
+        ) : (
+          <>
+            {t.placesKey}{' '}
+            {reader.places.map((p) => (
+              <Link key={p.place_id} className={`layer-key pl pl-${p.kind ?? 'none'}`} to={`/places?unit=${encodeURIComponent(reader.unit.unit_id)}&p=${p.place_id}`} dir="rtl" lang="he">
+                {p.he}
+              </Link>
+            ))}{' '}
+            <Link to={`/places?unit=${encodeURIComponent(reader.unit.unit_id)}`}>{t.allPlaces}</Link>
+          </>
+        ),
+      )}
     </ul>
   )
 }

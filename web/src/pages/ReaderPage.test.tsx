@@ -45,9 +45,10 @@ const VERSE_DETAIL: UnitDetail = {
 const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
-  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true },
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true, places: true },
   speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2, to: ['אדם'] }],
   refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
+  places: [{ place_id: 5, he: 'ראשית', kind: 'region' }],
   verses: [
     {
       verse_id: 0,
@@ -73,6 +74,7 @@ const READER: ReaderResponse = {
       ketiv: [],
       gap: null,
       gematria: [913, 203, 86],
+      places: { '0': 5 },
     },
     {
       verse_id: 1,
@@ -86,6 +88,7 @@ const READER: ReaderResponse = {
       ketiv: [{ display: [3], ketiv: 'אר', qere: 'אוֹר', cls: 'vowel_letter' }],
       gap: { score: 0.98, kind: 'turn', mam: 'pe', chapter: false },
       gematria: [257, 86, 25, 207],
+      places: {},
     },
   ],
 }
@@ -228,6 +231,14 @@ describe('ReaderPage', () => {
     expect(a.textContent).toBe('=1202')
     expect(a.getAttribute('href')).toBe('/gematria?q=1202&view=verses')
     expect(screen.getByText(/=913 after a word: its letter value/)).toBeTruthy()
+  })
+
+  it('marks the places named and links them to the map', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=places')
+    await waitFor(() => expect(container.querySelector('.reader-text .pl.pl-region')).not.toBeNull())
+    expect(container.querySelector('.reader-text .pl')?.getAttribute('title')).toContain('ראשית: Region')
+    expect(screen.getByRole('link', { name: 'ראשית' }).getAttribute('href')).toBe('/places?unit=c%3A0%3A1&p=5')
+    expect(screen.getByRole('link', { name: 'all on the map' }).getAttribute('href')).toBe('/places?unit=c%3A0%3A1')
   })
 
   it('marks the refrains and links to them', async () => {

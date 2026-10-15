@@ -35,7 +35,8 @@ STEP_BOOKS = {
     "Zec": "Zech",
 }  # fmt: skip
 _HEAD = re.compile(r"=+\s*(PERSON|PLACE|OTHER)")
-_MAP = re.compile(r"@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)")
+# a map link's `@lat,lon,zoomz` (`@0,14z` has no point: 14 is the zoom)
+_MAP = re.compile(r"@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),\d+z")
 _REF = re.compile(r"^([1-3]?[A-Z][a-z]{1,2})\.(\d+)\.(\d+)$")
 
 

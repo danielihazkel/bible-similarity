@@ -25,6 +25,7 @@ import { fmEn } from './pages/forms'
 import { gmEn } from './pages/gematria'
 import { cphEn } from './pages/ciphers'
 import { msrEn } from './pages/masorah'
+import { geoEn, plEn } from './pages/places'
 import { qryEn } from './pages/query'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -111,6 +112,7 @@ export const en = {
     names: { label: 'Names', hint: 'People and places' },
     domains: { label: 'Domains', hint: 'Words by meaning: semantic fields' },
     map: { label: 'Map', hint: 'Units by meaning, book affinity' },
+    places: { label: 'Places on the map', hint: 'Where the places the text names lie' },
     network: { label: 'Network', hint: 'Echo communities, most echoed passages, who echoes whom' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
@@ -449,6 +451,8 @@ export const en = {
   gm: gmEn,
   cph: cphEn,
   msr: msrEn,
+  pl: plEn,
+  geo: geoEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

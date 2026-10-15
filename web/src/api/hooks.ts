@@ -26,6 +26,11 @@ import type {
   CiphersResponse,
   CipherValueResponse,
   MasorahResponse,
+  BasemapResponse,
+  PlaceDetail,
+  PlaceKind,
+  PlacesResponse,
+  PlaceVersesResponse,
   GematriaLemmasResponse,
   GematriaResponse,
   GematriaSystem,
@@ -723,6 +728,37 @@ export const useCipherValue = (text: string | undefined) =>
     queryKey: ['cipher-value', text],
     queryFn: ({ signal }) => getJson<CipherValueResponse>('/ciphers/value', { text }, signal),
     enabled: !!text,
+    ...forever,
+  })
+
+export const useBasemap = () =>
+  useQuery({ queryKey: ['basemap'], queryFn: ({ signal }) => getJson<BasemapResponse>('/places/basemap', {}, signal), ...forever })
+
+export type PlacesQuery = { kind?: PlaceKind; book?: number; unit?: string }
+
+export const usePlaces = (q: PlacesQuery | undefined) =>
+  useQuery({
+    queryKey: ['places', q],
+    queryFn: ({ signal }) => getJson<PlacesResponse>('/places', { kind: q?.kind, book: q?.book, unit: q?.unit }, signal),
+    enabled: !!q,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePlace = (placeId: number | undefined) =>
+  useQuery({
+    queryKey: ['place', placeId],
+    queryFn: ({ signal }) => getJson<PlaceDetail>(`/places/${placeId}`, {}, signal),
+    enabled: placeId !== undefined,
+    ...forever,
+  })
+
+export const usePlaceVerses = (placeId: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['place-verses', placeId, limit, offset],
+    queryFn: ({ signal }) => getJson<PlaceVersesResponse>(`/places/${placeId}/verses`, { limit, offset }, signal),
+    enabled: placeId !== undefined,
+    placeholderData: keepPreviousData,
     ...forever,
   })
 
