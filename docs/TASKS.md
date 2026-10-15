@@ -745,9 +745,17 @@ Phase 3 (M39c): API and viewer
 - [x] `store/analyses.py`: one `Source` per analysis stage (files, tables, fixes, meta keys) in place of the per-analysis read / adapt / insert code; columns from `schema.sql` (`store/schema.py`); `store/lexicon.py`, `store/links.py`; the analysis modules import the lemma helpers at the top; the DB built identical
 - [x] `Literal` fields in pydantic where the viewer narrows a string; `types.ts`: 214 aliases of the schema, 19 responses with open JSON fields written over it; the drift check only for those
 - [x] `components/UnitPanels.tsx`: the unit page's data panels with their unit types, place and dossier gate
-- [x] Checks: ruff, pytest, lint, vitest, fixture and real e2e; `bsim compare-builds` (identical after `bsim build-db`; after `bsim all`, `senses` differs between two runs of unchanged code: open)
+- [x] Checks: ruff, pytest, lint, vitest, fixture and real e2e; `bsim compare-builds` (identical after `bsim build-db`; after `bsim all`, `senses` differs between two runs of unchanged code: fixed in M75)
 
 ✔ Same API, same DB: `models.py` 2,425 / `queries.py` 2,145 / `db.py` 2,031 lines became feature modules (the largest 303 lines), a 526-line `db.py` and the 689-line analyses registry, `types.ts` 3,130 → 1,263, the unit page 557 → 445. Found on the way: `bsim senses` is not deterministic across runs (one example or one clustering of a frequent lemma).
+
+## M75: Deterministic k-means (§16.52, D88)
+- [x] Found the cause of the senses run-to-run differences. The GPU word vectors are bitwise the same across runs and processes; sklearn's multi-threaded `KMeans` is not (centres in the last bits, and at times the optimum: כֹּל 3605)
+- [x] `stats.kmeans`: one thread via `threadpoolctl`, with sklearn imported first; used by `senses.cluster_uses` and `corpus_map.clusters`
+- [x] Test: four fits of 6,000 random points give one answer, where plain `KMeans` gives one per fit
+- [x] Two runs of `bsim senses` and of `bsim map`: byte-identical files, at the same speed. `bsim all` (31 stages, 12 min 30 s) gave the same senses files a third time; `bsim compare-builds` against the DB before: 82 of 85 tables the same, `lemma_senses` and `lemma_shifts` differ in those lemmas only, `word_pairs` holds the same rows in another order (as in M54)
+
+✔ `bsim senses` gives one answer per seed. Against the last run, the use clusters of בֵּן 1121a, כֹּל 3605 and מֶלֶךְ 4428 and one example list of דָּבַר 1696 changed; the counts in the meta and the map did not.
 
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):

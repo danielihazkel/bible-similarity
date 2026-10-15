@@ -43,7 +43,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import bh_q, g2_table
+from bsim.analysis.stats import bh_q, g2_table, kmeans
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
@@ -109,14 +109,13 @@ def cluster_uses(
     x: np.ndarray, max_k: int, sample: int, seed: int
 ) -> tuple[np.ndarray, np.ndarray, int, float]:
     """K-means labels, centres, k and silhouette, k in 2..max_k by silhouette."""
-    from sklearn.cluster import KMeans
     from sklearn.metrics import silhouette_score
 
     best = None
     for k in range(2, max_k + 1):
         if len(x) <= k:
             break
-        km = KMeans(n_clusters=k, n_init=4, random_state=seed).fit(x)
+        km = kmeans(x, k, 4, seed)
         s = silhouette_score(x, km.labels_, sample_size=min(sample, len(x)), random_state=seed)
         if best is None or s > best[3]:
             best = (km.labels_, km.cluster_centers_, k, float(s))

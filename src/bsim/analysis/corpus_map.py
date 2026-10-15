@@ -27,6 +27,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.stats import kmeans
 from bsim.analysis.structure import embeddings_path, leitworte
 from bsim.config import config_hash, resolve_path
 from bsim.retrieve.topk import read_topk
@@ -54,10 +55,8 @@ def layout(vectors: np.ndarray, perplexity: float, seed: int) -> np.ndarray:
 
 
 def clusters(vectors: np.ndarray, k: int, seed: int) -> np.ndarray:
-    from sklearn.cluster import KMeans
-
     k = min(k, len(vectors))
-    return KMeans(n_clusters=k, n_init=10, random_state=seed).fit_predict(vectors).astype(np.int32)
+    return kmeans(vectors, k, 10, seed).labels_.astype(np.int32)
 
 
 def cluster_labels(

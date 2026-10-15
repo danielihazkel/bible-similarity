@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from scipy.stats import chi2_contingency
 
-from bsim.analysis.stats import bh_q, empirical_p, g2_table, pct_to_p, shuffle_within
+from bsim.analysis.stats import bh_q, empirical_p, g2_table, kmeans, pct_to_p, shuffle_within
 
 
 def test_empirical_p_never_zero():
@@ -36,3 +36,12 @@ def test_shuffle_within_keeps_groups_even_when_split():
     perm = shuffle_within(groups, np.random.default_rng(3))
     assert sorted(perm) == list(range(6))
     assert (groups[perm] == groups).all()
+
+
+def test_kmeans_gives_one_answer_per_seed():
+    # big enough for sklearn to split the points over its threads, where plain KMeans gives
+    # centres that differ in the last bits from fit to fit (§16.52)
+    x = np.random.default_rng(0).normal(size=(6000, 64)).astype(np.float32)
+    fits = [kmeans(x, 3, 2, 0) for _ in range(4)]
+    assert len({f.cluster_centers_.tobytes() for f in fits}) == 1
+    assert len({f.labels_.tobytes() for f in fits}) == 1

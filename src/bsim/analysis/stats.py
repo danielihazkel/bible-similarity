@@ -12,11 +12,14 @@
 - `g2_table`: Dunning's log-likelihood G² of a 2 × 2 table (rewrites, word pairs, name links,
   sense collocates). Keyness against the rest of the corpus (§16.2) and a unit's domains against
   the corpus share keep their own two-cell forms.
+- `kmeans`: sklearn's k-means on one thread, so a seed gives one answer (senses, map clusters;
+  §16.52).
 """
 
 from __future__ import annotations
 
 import math
+from typing import Any
 
 import numpy as np
 
@@ -62,6 +65,18 @@ def shuffle_within(groups: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     for ids in np.split(order, bounds):
         perm[ids] = rng.permutation(ids)
     return perm
+
+
+def kmeans(x: np.ndarray, k: int, n_init: int, seed: int) -> Any:
+    """A fitted `KMeans`, run on one thread. With several, its OpenMP threads add their partial
+    centre sums in the order they finish: the same seed and data give centres that differ in the
+    last bits, and at times another optimum (§16.52). sklearn is imported first, since the thread
+    limit only reaches an OpenMP runtime already loaded."""
+    from sklearn.cluster import KMeans
+    from threadpoolctl import threadpool_limits
+
+    with threadpool_limits(1):
+        return KMeans(n_clusters=k, n_init=n_init, random_state=seed).fit(x)
 
 
 def g2_table(n11: float, row: float, col: float, total: float) -> float:
