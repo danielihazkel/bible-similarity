@@ -25,6 +25,7 @@ import type {
   CipherName,
   CiphersResponse,
   CipherValueResponse,
+  MasorahResponse,
   GematriaLemmasResponse,
   GematriaResponse,
   GematriaSystem,
@@ -724,6 +725,9 @@ export const useCipherValue = (text: string | undefined) =>
     enabled: !!text,
     ...forever,
   })
+
+export const useMasorah = () =>
+  useQuery({ queryKey: ['masorah'], queryFn: ({ signal }) => getJson<MasorahResponse>('/masorah', {}, signal), ...forever })
 
 export const useRoots = () =>
   useQuery({ queryKey: ['roots'], queryFn: ({ signal }) => getJson<RootsResponse>('/roots', {}, signal), ...forever })

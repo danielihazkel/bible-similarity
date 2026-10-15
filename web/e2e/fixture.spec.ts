@@ -95,6 +95,8 @@ const PAGES = [
   '/read/c%3A0%3A1?layers=gematria',
   '/ciphers',
   '/ciphers?cipher=albam&known=1',
+  '/masorah',
+  '/masorah?text=qere',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -216,6 +218,19 @@ test('atbash and albam: the checks, a name read through a swap, and its chapter'
   await page.goto('/findings')
   await page.getByRole('link', { name: /Atbash and albam/ }).first().click()
   await expect(page).toHaveURL(/\/ciphers/)
+})
+
+test('the Masorah’s counts: the middles against ours, the totals and their findings', async ({ page }) => {
+  await page.goto('/masorah')
+  await expect(page.locator('.msr-middle')).toHaveCount(4)
+  await expect(page.locator('.msr-middle .dlg-verdict')).toHaveText(['off', 'lands', 'lands', 'off'])
+  await page.getByRole('radio', { name: 'As read' }).click()
+  await expect(page).toHaveURL(/\/masorah\?text=qere$/)
+  await expect(page.locator('.msr-middle').first()).toContainText('It falls 4 letters after ours')
+  await expect(page.locator('.msr-totals tbody tr')).toHaveCount(2)
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /The Masorah’s counts/ }).first().click()
+  await expect(page).toHaveURL(/\/masorah/)
 })
 
 test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {

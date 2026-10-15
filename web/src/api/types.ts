@@ -786,6 +786,10 @@ export type FindingKey =
   | 'ciphers_jeremiah'
   | 'ciphers_elsewhere'
   | 'ciphers_albam'
+  | 'masorah_letter'
+  | 'masorah_words'
+  | 'masorah_verse'
+  | 'masorah_books'
 
 export type Finding = S['Finding']
 
@@ -1159,6 +1163,43 @@ export type CiphersResponse = Omit<S['CiphersResponse'], 'meta'> & {
 }
 export type CipherHit = S['CipherHit']
 export type CipherHitsResponse = S['CipherHitsResponse']
+
+// The Masorah's counts on our text (`/masorah`, DESIGN.md §16.55).
+export type MasorahText = 'ketiv' | 'qere'
+export type MasorahReason = 'split' | 'decalogue' | 'absent' | 'untraced' | 'witnesses'
+export type MasorahMiddle = S['MasorahMiddle']
+export type MasorahTotal = S['MasorahTotal']
+export type MasorahBook = S['MasorahBook']
+export interface MasorahCheck {
+  ref: string
+  n: number
+  distance: number
+  verses_apart: number
+  holds: boolean
+}
+export interface MasorahCounts {
+  verses: number
+  words_ketiv: number
+  words_qere: number
+  letters_ketiv: number
+  letters_qere: number
+}
+export interface MasorahMeta {
+  tolerance?: number
+  text?: MasorahText
+  kq?: { pairs: number; changed: Record<MasorahText, number>; unaligned: number }
+  torah?: MasorahCounts
+  bible?: MasorahCounts
+  checks?: {
+    letter?: MasorahCheck
+    word?: MasorahCheck
+    verse?: MasorahCheck
+    books?: { n: number; agree: number; max_diff: number; reasoned: number }
+  }
+}
+export type MasorahResponse = Omit<S['MasorahResponse'], 'meta'> & {
+  meta: MasorahMeta & Record<string, unknown>
+}
 
 // Graded numerical sayings and lists (`/forms`, DESIGN.md §16.45).
 export type FormsKnownSaying = S['FormsKnownSaying']

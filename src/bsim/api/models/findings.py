@@ -13,7 +13,7 @@ FindingKey = Literal[
     "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",
     "dialogue_deference", "dialogue_particle", "dialogue_last_word", "forms_known", "forms_chance",
     "forms_parallel", "forms_lists", "ciphers_known", "ciphers_jeremiah", "ciphers_elsewhere",
-    "ciphers_albam",
+    "ciphers_albam", "masorah_letter", "masorah_words", "masorah_verse", "masorah_books",
 ]  # fmt: skip
 
 

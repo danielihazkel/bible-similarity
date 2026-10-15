@@ -114,6 +114,8 @@ p a:not(.hit-ref):not(.name-chip),
 .about-page li a,
 .reader-legend a,
 .refrain-more a,
+.msr-middle p a,
+.msr-totals td a,
 .compare-page .column > h2 a {
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -2917,3 +2919,7 @@ a.dossier-chip:hover {
 .gm-forms { columns: 2 18rem; padding-inline-start: 1.6rem; }
 .gm-forms li { break-inside: avoid; margin-block: 0.2rem; }
 .gm-forms .he-label { font-size: 1.15rem; }
+.msr-middles { list-style: none; padding-inline-start: 0; }
+.msr-middle { margin-block: 1rem 1.4rem; }
+.msr-middle p { margin-block: 0.35rem; }
+.msr-totals tr.msr-differs td:first-child { font-weight: 600; }

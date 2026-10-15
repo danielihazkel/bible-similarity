@@ -131,6 +131,7 @@ from bsim.api.queries.ketiv import (
     kq_letters,
     kq_pairs_page,
 )
+from bsim.api.queries.masorah import masorah_tables
 from bsim.api.queries.meter import (
     meter_chapters,
     meter_chapters_page,
@@ -327,6 +328,7 @@ __all__ = [
     "lemmas_page",
     "map_clusters",
     "map_points",
+    "masorah_tables",
     "meta",
     "meter_chapters",
     "meter_chapters_page",

@@ -2113,6 +2113,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/masorah": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Masorah
+         * @description The middles against ours, the totals against ours and every book's counts.
+         */
+        get: operations["masorah_api_masorah_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -3599,7 +3619,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books";
             /**
              * Verdict
              * @enum {string}
@@ -4407,6 +4427,125 @@ export interface components {
             clusters: components["schemas"]["MapCluster"][];
             /** Lists */
             lists: boolean;
+        };
+        /** MasorahBook */
+        MasorahBook: {
+            /** Book Id */
+            book_id: number;
+            /** Verses */
+            verses: number;
+            /** Words Ketiv */
+            words_ketiv: number;
+            /** Words Qere */
+            words_qere: number;
+            /** Letters Ketiv */
+            letters_ketiv: number;
+            /** Letters Qere */
+            letters_qere: number;
+        };
+        /**
+         * MasorahMiddle
+         * @description The tradition's middle of a span against ours, in one text (§16.55).
+         */
+        MasorahMiddle: {
+            /** Claim */
+            claim: number;
+            /** Span */
+            span: string;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "letter" | "word" | "verse";
+            /** Text */
+            text: ("ketiv" | "qere") | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "masorah" | "talmud" | "soferim";
+            /** Holds */
+            holds: boolean;
+            trad_verse: components["schemas"]["Verse"];
+            /** Trad Tok */
+            trad_tok: number | null;
+            /** Trad Word */
+            trad_word: string | null;
+            /** Trad Letter */
+            trad_letter: number | null;
+            mid_verse: components["schemas"]["Verse"];
+            /** Mid Tok */
+            mid_tok: number | null;
+            /** Mid Word */
+            mid_word: string | null;
+            /** Mid Letter */
+            mid_letter: number | null;
+            /** N */
+            n: number;
+            /** Trad Pos */
+            trad_pos: number;
+            /** Mid Pos */
+            mid_pos: number;
+            /** Distance */
+            distance: number;
+            /** Verses Apart */
+            verses_apart: number;
+        };
+        /** MasorahResponse */
+        MasorahResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Middles */
+            middles: components["schemas"]["MasorahMiddle"][];
+            /** Totals */
+            totals: components["schemas"]["MasorahTotal"][];
+            /** Books */
+            books: components["schemas"]["MasorahBook"][];
+        };
+        /**
+         * MasorahTotal
+         * @description A total of the tradition against ours: a book of the Masorah, a section or the whole.
+         */
+        MasorahTotal: {
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "book" | "section";
+            /** Name */
+            name: string | null;
+            /** First Book */
+            first_book: number;
+            /** Last Book */
+            last_book: number;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "verses" | "words" | "letters";
+            /** Text */
+            text: ("ketiv" | "qere") | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "masorah" | "talmud" | "printed";
+            /** Tradition */
+            tradition: number;
+            /** Ours */
+            ours: number;
+            /** Diff */
+            diff: number;
+            /** Book Sum */
+            book_sum: number | null;
+            /** Reason */
+            reason: ("split" | "decalogue" | "absent" | "untraced" | "witnesses") | null;
+            ref_first: components["schemas"]["VerseLabel"] | null;
+            ref_last: components["schemas"]["VerseLabel"] | null;
+            /** Also */
+            also: number[];
         };
         /** Meta */
         Meta: {
@@ -9951,6 +10090,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    masorah_api_masorah_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasorahResponse"];
                 };
             };
         };

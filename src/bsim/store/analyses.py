@@ -619,6 +619,17 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "masorah",
+        "masorah",
+        (
+            Table("masorah_middles", "middles"),
+            Table("masorah_totals", "totals"),
+            Table("masorah_books", "books"),
+        ),
+        "masorah.meta.json",
+        keys("masorah", "tolerance", "text", "kq", "torah", "bible", "checks"),
+    ),
+    Source(
         "seams",
         "seams",
         (

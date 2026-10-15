@@ -181,6 +181,14 @@ def ciphers(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def masorah(config: ConfigOpt = None) -> None:
+    """The Masorah's counts (middle letter, words and verse; verse totals) on our text."""
+    from bsim.analysis.masorah import run_masorah
+
+    run_masorah(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

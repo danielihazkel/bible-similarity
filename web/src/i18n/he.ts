@@ -31,6 +31,7 @@ import { dlgHe } from './pages/dialogue'
 import { fmHe } from './pages/forms'
 import { gmHe } from './pages/gematria'
 import { cphHe } from './pages/ciphers'
+import { msrHe } from './pages/masorah'
 import { qryHe } from './pages/query'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -110,6 +111,7 @@ export const he: Messages = {
     forms: { label: 'מספרים ורשימות', hint: 'שלשה וארבעה: משלים מספריים מדורגים; יחסים ורשימות אחרות' },
     gematria: { label: 'גימטריה', hint: 'ערכי אותיות: מה שווה למה' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
+    masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
     psalms: { label: 'תהלים', hint: 'סוגי גונקל מן הצורה הנמנית; היכן פונות הקינות' },
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
@@ -447,6 +449,7 @@ export const he: Messages = {
   fm: fmHe,
   gm: gmHe,
   cph: cphHe,
+  msr: msrHe,
   qry: qryHe,
   nb: nbHe,
   echo: echoHe,

@@ -24,6 +24,7 @@ import { dlgEn } from './pages/dialogue'
 import { fmEn } from './pages/forms'
 import { gmEn } from './pages/gematria'
 import { cphEn } from './pages/ciphers'
+import { msrEn } from './pages/masorah'
 import { qryEn } from './pages/query'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -103,6 +104,7 @@ export const en = {
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
     gematria: { label: 'Gematria', hint: 'Letter values: what adds up to what' },
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
+    masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
@@ -446,6 +448,7 @@ export const en = {
   fm: fmEn,
   gm: gmEn,
   cph: cphEn,
+  msr: msrEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

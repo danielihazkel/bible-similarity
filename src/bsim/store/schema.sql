@@ -1151,6 +1151,58 @@ CREATE TABLE cipher_chapters (
     PRIMARY KEY (cipher, unit_id)
 ) WITHOUT ROWID;
 
+-- the Masorah's counts on our text (`bsim masorah`, §16.55)
+CREATE TABLE masorah_middles (
+    claim INTEGER NOT NULL,         -- its place in `masorah.middles`
+    span TEXT NOT NULL,             -- a book, or Torah / Prophets / Writings
+    unit TEXT NOT NULL,             -- letter | word | verse
+    text TEXT,                      -- ketiv | qere (NULL for verses)
+    source TEXT NOT NULL,           -- masorah | talmud | soferim
+    ref TEXT NOT NULL,
+    holds INTEGER NOT NULL,         -- within `masorah.tolerance` units of ours
+    trad_vid INTEGER NOT NULL,
+    trad_tok INTEGER,               -- display token of its word (-1: not shown)
+    trad_word TEXT,                 -- the word(s) as written in this text
+    trad_letter INTEGER,            -- which letter of the word (from 1)
+    mid_tok INTEGER,                -- our middle: display token of its word (-1: not shown)
+    mid_word TEXT,
+    mid_letter INTEGER,
+    n INTEGER NOT NULL,             -- units in the span
+    trad_pos REAL NOT NULL,         -- from 0
+    mid_pos REAL NOT NULL,          -- (n - 1) / 2
+    distance REAL NOT NULL,         -- trad_pos - mid_pos
+    mid_vid INTEGER NOT NULL,       -- the verse of our middle (of its first unit when n is even)
+    verses_apart INTEGER NOT NULL   -- trad_vid - mid_vid
+);
+
+CREATE TABLE masorah_totals (
+    scope TEXT NOT NULL,            -- book (the Masorah's book) | section
+    name TEXT,                      -- a book group or section (NULL: one of our books)
+    first_book INTEGER NOT NULL,
+    last_book INTEGER NOT NULL,
+    unit TEXT NOT NULL,             -- verses | words | letters
+    text TEXT,                      -- ketiv | qere (NULL for verses)
+    source TEXT NOT NULL,           -- masorah | talmud | printed
+    tradition INTEGER NOT NULL,
+    ours INTEGER NOT NULL,
+    diff INTEGER NOT NULL,          -- ours - tradition
+    book_sum INTEGER,               -- sections: the Masorah's totals of its books, added
+    reason TEXT,                    -- why ours differs (a code of `masorah.books`)
+    ref TEXT,                       -- the verses it concerns
+    ref_first INTEGER,
+    ref_last INTEGER,
+    also TEXT NOT NULL              -- JSON: other totals the manuscripts give
+);
+
+CREATE TABLE masorah_books (
+    book_id INTEGER PRIMARY KEY,
+    verses INTEGER NOT NULL,
+    words_ketiv INTEGER NOT NULL,
+    words_qere INTEGER NOT NULL,
+    letters_ketiv INTEGER NOT NULL,
+    letters_qere INTEGER NOT NULL
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

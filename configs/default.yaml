@@ -995,6 +995,57 @@ ciphers:                      # `bsim ciphers`: names hidden by atbash and albam
     elsewhere: more           # ... and in the rest of the Bible (expected not to hold: a device of these oracles, not a code of the whole text)
     albam: more               # albam, the other swap of the tradition, anywhere (expected not to hold; Isa 7:6 טבאל → רמלא, Rashi's Remaliah, is not a name as written: listed, not tested)
 
+masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
+  tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
+  text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)
+  middles:                    # the middle of a span as the tradition gives it: the verse, the word(s) as written there, the letter of that word (from 1)
+    - {span: Torah, unit: letter, ref: "Leviticus 11:42", word: גחון, letter: 3, source: talmud}
+    - {span: Torah, unit: word, ref: "Leviticus 10:16", word: "דרש דרש", source: talmud}   # the Masorah: the first דרש closes the first half
+    - {span: Torah, unit: verse, ref: "Leviticus 8:8", source: masorah}
+    - {span: Torah, unit: verse, ref: "Leviticus 13:33", source: talmud}
+    - {span: Torah, unit: verse, ref: "Leviticus 8:23", source: soferim}   # Tractate Soferim 9:3
+    - {span: Genesis, unit: verse, ref: "Genesis 27:40", source: masorah}
+    - {span: Exodus, unit: verse, ref: "Exodus 22:27", source: masorah}
+    - {span: Leviticus, unit: verse, ref: "Leviticus 15:7", source: masorah}
+    - {span: Numbers, unit: verse, ref: "Numbers 17:20", source: masorah}
+    - {span: Deuteronomy, unit: verse, ref: "Deuteronomy 17:10", source: masorah}
+    - {span: Psalms, unit: letter, ref: "Psalms 80:14", word: מיער, letter: 3, source: talmud}   # the suspended ע
+    - {span: Psalms, unit: verse, ref: "Psalms 78:36", source: masorah}
+    - {span: Psalms, unit: verse, ref: "Psalms 78:38", source: talmud}
+  books:                      # the Masorah's verse total of each of its books (first and last of ours); `also`: other totals the manuscripts give; `reason` (explained by the viewer) and `ref` for a total ours differs from
+    - {books: [Genesis], verses: 1534, reason: split, ref: "Genesis 35:22"}   # counted as two verses
+    - {books: [Exodus], verses: 1209, reason: decalogue, ref: "Exodus 20:2-14"}   # 12 verses there, 13 in MAM
+    - {books: [Leviticus], verses: 859}
+    - {books: [Numbers], verses: 1288}
+    - {books: [Deuteronomy], verses: 955, reason: decalogue, ref: "Deuteronomy 5:6-18"}
+    - {books: [Joshua], verses: 656, reason: absent, ref: "Joshua 21:36-37"}   # left out of the Masorah's sum
+    - {books: [Judges], verses: 618}
+    - {books: [I Samuel, II Samuel], name: samuel, verses: 1506, also: [1504]}
+    - {books: [I Kings, II Kings], name: kings, verses: 1534, reason: untraced}   # the chapters give 1536 (Ginsburg)
+    - {books: [Isaiah], verses: 1291, also: [1295, 1272]}   # 1295 in Or. 2201 and the Rabbinic Bible
+    - {books: [Jeremiah], verses: 1365, also: [1364], reason: witnesses}   # 1364 in the Babylonian Codex (916)
+    - {books: [Ezekiel], verses: 1273, also: [1274]}
+    - {books: [Hosea, Malachi], name: twelve, verses: 1050}
+    - {books: [Psalms], verses: 2527}
+    - {books: [Proverbs], verses: 915}
+    - {books: [Job], verses: 1070, also: [1075]}
+    - {books: [Song of Songs], verses: 117}
+    - {books: [Ruth], verses: 85}
+    - {books: [Lamentations], verses: 154}
+    - {books: [Ecclesiastes], verses: 222}
+    - {books: [Esther], verses: 167}
+    - {books: [Daniel], verses: 357}
+    - {books: [Ezra, Nehemiah], name: ezra, verses: 685, also: [688]}
+    - {books: [I Chronicles, II Chronicles], name: chronicles, verses: 1765}
+  sections:                   # totals of the sections and the whole, with their source; `unit` verses, words or letters
+    - {books: [Genesis, Deuteronomy], name: torah, unit: verses, value: 5845, source: masorah}
+    - {books: [Genesis, Deuteronomy], name: torah, unit: verses, value: 5888, source: talmud}
+    - {books: [Genesis, Deuteronomy], name: torah, unit: words, value: 79856, source: masorah}
+    - {books: [Genesis, Deuteronomy], name: torah, unit: letters, value: 304805, source: printed}   # at the end of Deuteronomy in the Rabbinic Bible
+    - {books: [Joshua, Malachi], name: prophets, unit: verses, value: 9294, source: masorah}
+    - {books: [Psalms, II Chronicles], name: writings, unit: verses, value: 8064, source: masorah}
+    - {books: [Genesis, II Chronicles], name: bible, unit: verses, value: 23203, source: masorah}
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)

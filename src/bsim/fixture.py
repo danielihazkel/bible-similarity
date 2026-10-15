@@ -829,6 +829,72 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )  # fmt: skip
+    # the Masorah's counts (`bsim masorah`), made up: the middle letter off by 4.5, the middle word
+    # and verse landing; book 0 one verse short of its total (a verse split), book 1 agreeing
+    mas_dir = art / "masorah"
+    mas_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, "Torah", "letter", "ketiv", "talmud", "Genesis 1:3", False, 2, 0, "ראשית", 3, 1,
+          "אלהים", 2, 52, 30.0, 25.5, 4.5, 0, 2),
+         (0, "Torah", "letter", "qere", "talmud", "Genesis 1:3", False, 2, 0, "ראשית", 3, 1,
+          "אלהים", 2, 53, 30.0, 26.0, 4.0, 0, 2),
+         (1, "Torah", "word", "ketiv", "talmud", "Genesis 1:2", True, 1, 1, "ויאמר", None, 2,
+          "יהוה", None, 13, 5.0, 6.0, -1.0, 1, 0),
+         (1, "Torah", "word", "qere", "talmud", "Genesis 1:2", True, 1, 1, "ויאמר", None, 2,
+          "יהוה", None, 13, 5.0, 6.0, -1.0, 1, 0),
+         (2, "Torah", "verse", None, "masorah", "Genesis 1:3", True, 2, None, None, None, None,
+          None, None, 5, 2.0, 2.0, 0.0, 2, 0),
+         (3, "Genesis", "verse", None, "talmud", "Genesis 2:2", False, 4, None, None, None, None,
+          None, None, 5, 4.0, 2.0, 2.0, 2, 2)],
+        columns=["claim", "span", "unit", "text", "source", "ref", "holds", "trad_vid", "trad_tok",
+                 "trad_word", "trad_letter", "mid_tok", "mid_word", "mid_letter", "n", "trad_pos",
+                 "mid_pos", "distance", "mid_vid", "verses_apart"],
+    ).astype({c: "Int64" for c in ("trad_tok", "trad_letter", "mid_tok", "mid_letter")}).to_parquet(
+        mas_dir / "middles.parquet"
+    )  # fmt: skip
+    pd.DataFrame(
+        [("book", None, 0, 0, "verses", None, "masorah", 6, 5, -1, None, "split", "Genesis 1:3", 2,
+          2, "[]"),
+         ("book", None, 1, 1, "verses", None, "masorah", 1, 1, 0, None, None, None, None, None,
+          "[2]"),
+         ("section", "torah", 0, 1, "verses", None, "masorah", 7, 6, -1, 7, None, None, None, None,
+          "[]"),
+         ("section", "torah", 0, 1, "words", "ketiv", "masorah", 15, 15, 0, None, None, None, None,
+          None, "[]"),
+         ("section", "torah", 0, 1, "words", "qere", "masorah", 15, 16, 1, None, None, None, None,
+          None, "[]")],
+        columns=["scope", "name", "first_book", "last_book", "unit", "text", "source", "tradition",
+                 "ours", "diff", "book_sum", "reason", "ref", "ref_first", "ref_last", "also"],
+    ).astype({c: "Int64" for c in ("book_sum", "ref_first", "ref_last")}).to_parquet(
+        mas_dir / "totals.parquet"
+    )  # fmt: skip
+    pd.DataFrame(
+        [(0, 5, 13, 13, 52, 53), (1, 1, 2, 2, 9, 9)],
+        columns=["book_id", "verses", "words_ketiv", "words_qere", "letters_ketiv", "letters_qere"],
+    ).to_parquet(mas_dir / "books.parquet")
+    (mas_dir / "masorah.meta.json").write_text(
+        json.dumps(
+            {
+                "tolerance": 1.0, "text": "ketiv",
+                "kq": {"pairs": 3, "changed": {"ketiv": 2, "qere": 0}, "unaligned": 0},
+                "torah": {"verses": 6, "words_ketiv": 15, "words_qere": 15, "letters_ketiv": 61,
+                          "letters_qere": 62},
+                "bible": {"verses": 6, "words_ketiv": 15, "words_qere": 15, "letters_ketiv": 61,
+                          "letters_qere": 62},
+                "checks": {
+                    "letter": {"ref": "Genesis 1:3", "n": 52, "distance": 4.5, "verses_apart": 2,
+                               "holds": False},
+                    "word": {"ref": "Genesis 1:2", "n": 13, "distance": -1.0, "verses_apart": 0,
+                             "holds": True},
+                    "verse": {"ref": "Genesis 1:3", "n": 5, "distance": 0.0, "verses_apart": 0,
+                              "holds": True},
+                    "books": {"n": 2, "agree": 1, "max_diff": 1, "reasoned": 1},
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )  # fmt: skip
     # root families (`bsim roots`): ראשית joins the root ראש; v0 holds a cognate pair, v1 an
     # infinitive absolute; chapter 0:1 has a hidden Leitwort by root
     root_dir = art / "roots"

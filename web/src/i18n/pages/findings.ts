@@ -10,6 +10,11 @@ const n = (v: V, k: string) => v[k] ?? 0
 const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 const x2 = (r: number) => r.toFixed(2)
 const x3 = (r: number) => r.toFixed(3)
+/** How far the tradition's middle falls from ours: "4,829 letters after ours". */
+const away = (d: number, one: string, many: string, after: string, before: string, num: (n: number) => string) =>
+  d === 0 ? 'It is ours exactly' : `It falls ${num(Math.abs(d))} ${Math.abs(d) === 1 ? one : many} ${d > 0 ? after : before} ours`
+const awayHe = (d: number, many: string, after: string, before: string) =>
+  d === 0 ? 'הוא האמצע שלנו בדיוק' : `הוא נופל ${numHe(Math.abs(d))} ${many} ${d > 0 ? after : before} האמצע שלנו`
 
 export const findEn = {
   title: 'Findings',
@@ -200,6 +205,26 @@ export const findEn = {
       title: 'Albam names hidden anywhere?',
       text: (v: V) =>
         `Does albam, the other letter swap of the tradition, turn more words into names than random swaps do? ${numEn(n(v, 'observed'))} against ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
+    },
+    masorah_letter: {
+      title: 'The middle letter of the Torah',
+      text: (v: V) =>
+        `Is the ו of גחון (Leviticus 11:42) the middle of the Torah’s ${numEn(n(v, 'n'))} letters as written, as Kiddushin 30a says? ${away(n(v, 'distance'), 'letter', 'letters', 'after', 'before', numEn)}, ${numEn(Math.abs(n(v, 'verses_apart')))} verses on.`,
+    },
+    masorah_words: {
+      title: 'The middle words of the Torah',
+      text: (v: V) =>
+        `Do דרש דרש (Leviticus 10:16) stand at the middle of the Torah’s ${numEn(n(v, 'n'))} words as written? ${away(n(v, 'distance'), 'word', 'words', 'after', 'before', numEn)}, ${numEn(Math.abs(n(v, 'verses_apart')))} verses on.`,
+    },
+    masorah_verse: {
+      title: 'The middle verse of the Torah',
+      text: (v: V) =>
+        `Is Leviticus 8:8, the Masorah’s middle verse, the middle of the Torah’s ${numEn(n(v, 'n'))} verses here? ${away(n(v, 'distance'), 'verse', 'verses', 'after', 'before', numEn)}.`,
+    },
+    masorah_books: {
+      title: 'The Masorah’s verse totals',
+      text: (v: V) =>
+        `Does each book have as many verses as the Masorah says? ${numEn(n(v, 'agree'))} of ${numEn(n(v, 'n'))}; the others differ by at most ${numEn(n(v, 'max_diff'))}, ${numEn(n(v, 'reasoned'))} of them for a reason the page gives (the Ten Commandments divided otherwise, a verse counted as two, two verses left out).`,
     },
     allusions: {
       title: 'Rare words over a few verses',
@@ -398,6 +423,26 @@ export const findHe: typeof findEn = {
       title: 'שמות באל״ב״ם בכל מקום?',
       text: (v: V) =>
         `האם אל״ב״ם, המרת האותיות האחרת שבמסורת, הופכת יותר מילים לשמות ממה שהמרות אקראיות הופכות? ${numHe(n(v, 'observed'))} לעומת ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
+    },
+    masorah_letter: {
+      title: 'האות שבאמצע התורה',
+      text: (v: V) =>
+        `האם וא״ו דגחון (ויקרא יא:מב) היא האמצע של ${numHe(n(v, 'n'))} אותיות התורה בכתיב, כדברי קידושין ל ע״א? ${awayHe(n(v, 'distance'), 'אותיות', 'אחרי', 'לפני')}, ${numHe(Math.abs(n(v, 'verses_apart')))} פסוקים הלאה.`,
+    },
+    masorah_words: {
+      title: 'התיבות שבאמצע התורה',
+      text: (v: V) =>
+        `האם דרש דרש (ויקרא י:טז) עומדות באמצע ${numHe(n(v, 'n'))} תיבות התורה בכתיב? ${awayHe(n(v, 'distance'), 'תיבות', 'אחרי', 'לפני')}, ${numHe(Math.abs(n(v, 'verses_apart')))} פסוקים הלאה.`,
+    },
+    masorah_verse: {
+      title: 'הפסוק שבאמצע התורה',
+      text: (v: V) =>
+        `האם ויקרא ח:ח, הפסוק שבאמצע לפי המסורה, הוא האמצע של ${numHe(n(v, 'n'))} פסוקי התורה כאן? ${awayHe(n(v, 'distance'), 'פסוקים', 'אחרי', 'לפני')}.`,
+    },
+    masorah_books: {
+      title: 'מניין הפסוקים של המסורה',
+      text: (v: V) =>
+        `האם בכל ספר יש כמספר הפסוקים שהמסורה מוסרת? ${numHe(n(v, 'agree'))} מתוך ${numHe(n(v, 'n'))}; האחרים נבדלים לכל היותר ב־${numHe(n(v, 'max_diff'))}, ${numHe(n(v, 'reasoned'))} מהם מסיבה שהעמוד מביא (עשרת הדברות מחולקים אחרת, פסוק שנמנה כשניים, שני פסוקים שאינם במניין).`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

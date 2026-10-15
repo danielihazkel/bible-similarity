@@ -409,6 +409,28 @@ def _ciphers(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
     return build
 
 
+def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
+    within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
+    of the text, not a test against chance."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        c = ((meta.get("masorah") or {}).get("checks") or {}).get(
+            {"masorah_words": "word"}.get(key, key.removeprefix("masorah_"))
+        )
+        if not c:
+            return None
+        if key == "masorah_books":
+            values = {k: c.get(k) for k in ("n", "agree", "max_diff", "reasoned")}
+            holds = c["agree"] == c["n"]
+        else:
+            values = {k: c.get(k) for k in ("n", "distance", "verses_apart")}
+            holds = bool(c["holds"])
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -445,6 +467,10 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _ciphers("ciphers_jeremiah"),
     _ciphers("ciphers_elsewhere"),
     _ciphers("ciphers_albam"),
+    _masorah("masorah_letter"),
+    _masorah("masorah_words"),
+    _masorah("masorah_verse"),
+    _masorah("masorah_books"),
     _allusions,
 ]
 

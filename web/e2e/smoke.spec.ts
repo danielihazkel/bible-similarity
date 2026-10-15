@@ -79,6 +79,8 @@ const PAGES: [string, RegExp][] = [
   ['/gematria?q=2701&view=verses', /Gematria/],
   ['/ciphers', /Atbash and albam/],
   ['/ciphers?cipher=albam&book=12', /Atbash and albam/],
+  ['/masorah', /The Masorah’s counts/],
+  ['/masorah?text=qere', /The Masorah’s counts/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
@@ -148,7 +150,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/ciphers', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/ciphers', '/masorah', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -235,6 +237,18 @@ test('atbash: the three places in Jeremiah are found, and the word panel reads �
   await expect(swapped).toContainText('בבל')
   await swapped.getByRole('link', { name: 'בבל' }).click()
   await expect(page).toHaveURL(/\/search\?q=%D7%91%D7%91%D7%9C&mode=lexical$/)
+})
+
+test('the Masorah: the ו of גחון is 4,829 letters past the middle, Lev 8:8 is the middle verse', async ({ page }) => {
+  await page.goto('/masorah')
+  const letter = page.locator('.msr-middle').first()
+  await expect(letter).toContainText('the 3rd letter of גחון')
+  await expect(letter).toContainText('It falls 4,829 letters after ours')
+  await expect(page.locator('.msr-middle', { hasText: 'Leviticus 8:8' }).first()).toContainText('lands')
+  const exodus = page.locator('.msr-totals tbody tr', { hasText: 'Exodus' })
+  await expect(exodus).toContainText('The Ten Commandments are divided otherwise')
+  await exodus.getByRole('link').click()
+  await expect(page).toHaveURL(/\/unit\/v%3A2053$/)
 })
 
 test('Ctrl+K jumps to a chapter by reference and to a word by its form', async ({ page }) => {
