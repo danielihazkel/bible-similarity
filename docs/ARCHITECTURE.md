@@ -109,6 +109,7 @@ bible-similarity/
 │   │   ├── refs.py                 # Sefaria citation -> verse range
 │   │   ├── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
 │   │   ├── golds.py                # `bsim build-golds`: OpenBible / ETCBC verse pairs, before training (§16.41)
+│   │   ├── geo.py                  # STEPBible TIPNR and OpenBible.info geocoding readers (§16.56)
 │   │   └── bhsa.py                 # `bsim syntax`: BHSA clauses / phrases on OSHB words, speakers (§16.26)
 │   ├── text/
 │   │   ├── accents.py              # te'amim: main pauses -> verse halves (cola) (§16.9)
@@ -152,6 +153,7 @@ bible-similarity/
 │   │   ├── sound.py                # `bsim sound`: alliteration and rhyme (§16.19)
 │   │   ├── typescenes.py           # `bsim typescenes`: verb-order alignment of pericopes (§16.20)
 │   │   ├── entities.py             # `bsim entities`: people / places, co-occurrence network (§16.11)
+│   │   ├── places.py               # `bsim places`: the gazetteer, which place each name is and where it lies (§16.56)
 │   │   ├── seams.py                # `bsim seams`: where a book's style changes (§16.12)
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
@@ -199,7 +201,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, masorah, patterns, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, masorah, places, patterns, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── queries/                # read-only SQL helpers, one module per route module + common (re-exported: `queries.fn`)
@@ -228,7 +230,7 @@ bible-similarity/
 
 | # | Command | Reads | Writes |
 |---|---|---|---|
-| 1 | `bsim download` | internet | `data/raw/oshb/*.xml`, `data/raw/sefaria/{text,schemas,links}/…`, `data/raw/lexicon/…`, `data/raw/manifest.json` |
+| 1 | `bsim download` | internet | `data/raw/oshb/*.xml`, `data/raw/sefaria/{text,schemas,links}/…`, `data/raw/lexicon/…`, `data/raw/geo/…`, `data/raw/manifest.json` |
 | 2 | `bsim build-corpus` | raw | `data/processed/verses.parquet`, `words.parquet`, `units.parquet`, `unit_members.parquet`, `corpus_report.md` |
 | 3 | `bsim build-links` | raw links, verses | `data/processed/links.parquet`, `splits.json`, `links_report.md` |
 | 3a | `bsim build-golds` | verses, splits, OpenBible file (downloaded once), ETCBC `crossref` + BHSA verse grid | `data/processed/openbible_links.parquet`, `etcbc_links.parquet` (+ `.meta.json`) (§16.13, §16.34, §16.41) |
@@ -258,6 +260,7 @@ bible-similarity/
 | 11b'''''' | `bsim sound` | verses, words, parallelism cola | `artifacts/sound/{alliteration,rhymes}.parquet` + `sound.meta.json` (§16.19) |
 | 11b''''' | `bsim acrostics` | verses, units, parallelism cola | `artifacts/acrostics/units.parquet` + `.meta.json` (§16.15) |
 | 11b⁵ | `bsim entities` | words | `artifacts/entities/{entities,mentions,links}.parquet` + `.meta.json` (§16.11) |
+| 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
 | 11b⁶ | `bsim seams` | verses, words | `artifacts/seams/{curve,seams}.parquet` + `.meta.json` (§16.12) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
 | 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |
@@ -288,7 +291,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, masorah, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, masorah, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

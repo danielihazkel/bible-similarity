@@ -31,8 +31,8 @@ def download(
     only: Annotated[
         list[str] | None,
         typer.Option(
-            help="Restrict to groups: oshb, text, schemas, links, lexicon, syntax, parallels"
-            " (repeatable)"
+            help="Restrict to groups: oshb, text, schemas, links, lexicon, syntax, parallels,"
+            " geo (repeatable)"
         ),
     ] = None,
     workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
@@ -178,6 +178,14 @@ def ciphers(config: ConfigOpt = None) -> None:
     from bsim.analysis.ciphers import run_ciphers
 
     run_ciphers(load_config(config), log=typer.echo)
+
+
+@app.command()
+def places(config: ConfigOpt = None) -> None:
+    """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
+    from bsim.analysis.places import run_places
+
+    run_places(load_config(config), log=typer.echo)
 
 
 @app.command()

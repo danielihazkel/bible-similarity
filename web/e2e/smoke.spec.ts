@@ -251,6 +251,14 @@ test('the Masorah: the ו of גחון is 4,829 letters past the middle, Lev 8:8 
   await expect(page).toHaveURL(/\/unit\/v%3A2053$/)
 })
 
+test('the gazetteer: Jerusalem is a town at 31.78° N, Abel names two places', async ({ page }) => {
+  await page.goto('/names?e=3389')
+  await expect(page.locator('.entity-sites li').first()).toContainText('31.78° N, 35.23° E')
+  await expect(page.locator('.entity-sites li').first()).toContainText('Town')
+  await page.goto('/names?e=59')
+  await expect(page.locator('.entity-sites li')).toHaveCount(2)
+})
+
 test('Ctrl+K jumps to a chapter by reference and to a word by its form', async ({ page }) => {
   await page.goto('/')
   await page.keyboard.press('Control+k')

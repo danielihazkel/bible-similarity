@@ -2133,6 +2133,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Places
+         * @description The places (of a kind), most named first; in a book or unit, those named there.
+         */
+        get: operations["places_api_places_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -3538,6 +3558,13 @@ export interface components {
             partners: components["schemas"]["EntityPartner"][];
             /** Links */
             links: components["schemas"]["EntityLink"][];
+            /** Name Kind */
+            name_kind: ("person" | "people" | "location" | "landform" | "water") | null;
+            /**
+             * Sites
+             * @default []
+             */
+            sites: components["schemas"]["PlaceSite"][];
         };
         /** EntityLink */
         EntityLink: {
@@ -5050,6 +5077,53 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["PhrasePair"][];
+        };
+        /**
+         * PlaceSite
+         * @description A place the text names and where it lies (§16.56).
+         */
+        PlaceSite: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+            /** Lat */
+            lat: number | null;
+            /** Lon */
+            lon: number | null;
+            /** Score */
+            score: number | null;
+            /** Coord Source */
+            coord_source: ("openbible" | "tipnr") | null;
+            /** Runner Up */
+            runner_up: number | null;
+            /** N Identifications */
+            n_identifications: number;
+            /** N Verses */
+            n_verses: number;
+            /** N Here */
+            n_here: number | null;
+            /** First Vid */
+            first_vid: number;
+            /** Lemmas */
+            lemmas: string[];
+        };
+        /** PlacesResponse */
+        PlacesResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Items */
+            items: components["schemas"]["PlaceSite"][];
         };
         /**
          * Psalm
@@ -10110,6 +10184,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MasorahResponse"];
+                };
+            };
+        };
+    };
+    places_api_places_get: {
+        parameters: {
+            query?: {
+                kind?: ("town" | "region" | "landform" | "water") | null;
+                book?: number | null;
+                unit?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -9,6 +9,8 @@ Layout under `paths.data_raw`:
                                        HebrewStrong.xml, each at a pinned commit (§16.22)
     bhsa/{file}                        ETCBC BHSA Text-Fabric features at a pinned commit (§16.26)
     etcbc_parallels/{file}             ETCBC parallels (`crossref`) at a pinned commit (§16.34)
+    geo/{file}                         STEPBible TIPNR and OpenBible.info's geocoding, each at a
+                                       pinned commit (§16.56)
 
 Idempotent: a file is skipped when it is already on disk and still matches its checksum
 (GCS md5 for Sefaria files, the recorded sha256 for files from GitHub).
@@ -36,7 +38,7 @@ from bsim.config import resolve_path
 from bsim.data.canon import BOOKS
 
 MANIFEST = "manifest.json"
-GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels")
+GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels", "geo")
 _CHUNK = 1 << 20
 _TIMEOUT = 60
 
@@ -133,6 +135,13 @@ def plan_targets(
         for file in s["files"]:
             url = s["raw_url"].format(commit=s["commit"], file=file)
             targets.append(Target("parallels", f"etcbc_parallels/{file}", url))
+
+    if "geo" in groups:
+        for key in ("tipnr", "openbible_geo"):
+            s = src[key]
+            for file in s["files"]:
+                url = s["raw_url"].format(commit=s["commit"], file=quote(file))
+                targets.append(Target("geo", f"geo/{Path(file).name}", url))
 
     sef = src["sefaria"]
     if "text" in groups:
@@ -288,6 +297,8 @@ def run_download(
     manifest["hebrew_lexicon_commit"] = cfg["sources"]["hebrew_lexicon"]["commit"]
     manifest["bhsa_commit"] = cfg["sources"]["bhsa"]["commit"]
     manifest["etcbc_parallels_commit"] = cfg["sources"]["etcbc_parallels"]["commit"]
+    manifest["tipnr_commit"] = cfg["sources"]["tipnr"]["commit"]
+    manifest["openbible_geo_commit"] = cfg["sources"]["openbible_geo"]["commit"]
     manifest["sefaria_text_version"] = cfg["sources"]["sefaria"]["text_version"]
     manifest["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     save_manifest(raw_dir, manifest)

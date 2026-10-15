@@ -75,6 +75,8 @@ INDEXES = (
     "CREATE INDEX alliteration_by_verse ON alliteration (verse_id)",
     "CREATE INDEX wordplay_by_vid ON wordplay (a_vid, b_vid)",
     "CREATE INDEX entity_mentions_by_verse ON entity_mentions (verse_id)",
+    "CREATE INDEX place_mentions_by_verse ON place_mentions (verse_id)",
+    "CREATE INDEX place_mentions_by_place ON place_mentions (place_id, verse_id)",
     "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
     "CREATE INDEX network_edges_by_a ON network_edges (unit_type, a)",
     "CREATE INDEX domain_verses_by_verse ON domain_verses (verse_id, code)",

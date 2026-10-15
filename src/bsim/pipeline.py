@@ -204,6 +204,12 @@ def stage_dating(cfg: dict[str, Any], log: Log) -> None:
     run_dating(cfg, log=log)
 
 
+def stage_places(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.places import run_places
+
+    run_places(cfg, log=log)
+
+
 def stage_senses(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.senses import run_senses
 
@@ -388,6 +394,7 @@ STAGES: dict[str, str] = {
     "wordplay": "stage_wordplay",
     "sound": "stage_sound",
     "entities": "stage_entities",
+    "places": "stage_places",
     "senses": "stage_senses",
     "dating": "stage_dating",
     "borrowing": "stage_borrowing",
@@ -453,6 +460,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "wordplay": (*_CORPUS,),
     "sound": (*_CORPUS, "parallelism"),
     "entities": (*_CORPUS, "lexicon"),
+    "places": (*_CORPUS, "lexicon", "entities"),
     "senses": (*_CORPUS, "lexicon", *_MODELS),
     "dating": (*_CORPUS, "parallelism", "sequences"),
     "borrowing": (*_CORPUS, "sequences", "diffs", "dating"),

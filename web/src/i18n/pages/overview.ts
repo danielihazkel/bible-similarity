@@ -1,7 +1,7 @@
 // Interface strings of the Overview pages (map, network, style, evaluation) and Names: English
 // first, Hebrew typed against it (see ../en.ts).
 
-import type { EntityKind } from '../../api/types'
+import type { EntityKind, NameKind, PlaceKind } from '../../api/types'
 import { countEn, countHe, numEn, numHe } from '../fmt'
 
 const typeEn: Record<string, string> = { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }
@@ -210,6 +210,17 @@ export const ovEn = {
     together: (n: number, chance: string) => `${n} verses together (${chance} by chance)`,
     ego: (name: string) => `Names appearing with ${name}`,
     show: (name: string) => `${name}: show this name`,
+    nameKinds: { person: 'a person', people: 'a people', location: 'a place', landform: 'a landform', water: 'water' } satisfies Record<NameKind, string>,
+    sdbhKind: (kind: string) => `In SDBH’s domains, mostly ${kind}.`,
+    sites: 'On the ground',
+    sitesLede: 'Where the places this name stands for lie: each mention matched to a place by STEPBible’s TIPNR, located by OpenBible.info’s best-voted identification. One name may be several places.',
+    placeKinds: { town: 'Town', region: 'Region', landform: 'Landform', water: 'Water' } satisfies Record<PlaceKind, string>,
+    siteVerses: (n: number) => countEn(n, 'verse', 'verses'),
+    coords: (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`,
+    votes: (score: number) => `identification voted ${numEn(score)} / 1,000`,
+    contested: (share: number) => `a second site has ${Math.round(share * 100)}% of its votes`,
+    tipnrPoint: 'TIPNR’s point, not voted on',
+    unlocated: 'not located',
   },
 }
 
@@ -410,5 +421,16 @@ export const ovHe: typeof ovEn = {
     together: (n: number, chance: string) => `${versesHe(n)} יחד (${chance} במקרה)`,
     ego: (name: string) => `שמות המופיעים עם ${name}`,
     show: (name: string) => `${name}: הצגת השם`,
+    nameKinds: { person: 'אדם', people: 'עם', location: 'מקום', landform: 'תוואי קרקע', water: 'מים' },
+    sdbhKind: (kind: string) => `בתחומים של SDBH, על פי רוב: ${kind}.`,
+    sites: 'על פני הארץ',
+    sitesLede: 'היכן שוכנים המקומות שהשם הזה מציין: כל אזכור מותאם למקום לפי TIPNR של STEPBible, וממוקם לפי הזיהוי שקיבל הכי הרבה קולות ב־OpenBible.info. שם אחד יכול לציין כמה מקומות.',
+    placeKinds: { town: 'עיר', region: 'אזור', landform: 'תוואי קרקע', water: 'מים' },
+    siteVerses: (n: number) => versesHe(n),
+    coords: (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'צפון' : 'דרום'}, ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'מזרח' : 'מערב'}`,
+    votes: (score: number) => `הזיהוי קיבל ${numHe(score)} מתוך 1,000 קולות`,
+    contested: (share: number) => `לאתר שני ${Math.round(share * 100)}% מקולותיו`,
+    tipnrPoint: 'הנקודה של TIPNR, בלי הצבעה',
+    unlocated: 'לא ממוקם',
   },
 }

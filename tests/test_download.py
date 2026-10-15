@@ -94,10 +94,10 @@ def session(cfg):
         oshb["raw_url"].format(commit=oshb["commit"], osis=b.osis): f"<osis {b.osis}/>".encode()
         for b in BOOKS
     }
-    for key in ("sdbh", "hebrew_lexicon", "bhsa", "etcbc_parallels"):
+    for key in ("sdbh", "hebrew_lexicon", "bhsa", "etcbc_parallels", "tipnr", "openbible_geo"):
         s = cfg["sources"][key]
         for file in s["files"]:
-            other[s["raw_url"].format(commit=s["commit"], file=file)] = file.encode()
+            other[s["raw_url"].format(commit=s["commit"], file=quote(file))] = file.encode()
     return FakeSession(gcs, other)
 
 
@@ -122,11 +122,18 @@ def test_plan_targets(cfg, session):
         "lexicon/HebrewStrong.xml",
     }
     assert "Song_of_Songs.json" in {t.rel.rsplit("/", 1)[1] for t in by_group["schemas"]}
+    geo = [t for t in targets if t.group == "geo"]
+    assert [t.rel for t in geo] == [
+        "geo/TIPNR - Translators Individualised Proper Names with all References - STEPBible.org"
+        " CC BY.txt",
+        "geo/ancient.jsonl",
+    ]
+    assert "Proper%20Nouns/TIPNR%20-%20" in geo[0].url  # the path quoted
 
 
 def test_run_download_is_idempotent(cfg, session, tmp_path):
     m1 = run_download(cfg, session, raw_dir=tmp_path, log=lambda *_: None)
-    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1
+    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1 + 2
     assert (tmp_path / "oshb" / "Gen.xml").read_bytes() == b"<osis Gen/>"
     assert (tmp_path / "sefaria" / "text" / "Song of Songs.json").exists()
     assert load_manifest(tmp_path)["oshb_commit"] == cfg["sources"]["oshb"]["commit"]

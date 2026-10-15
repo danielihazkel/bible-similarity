@@ -214,6 +214,21 @@ SOURCES: tuple[Source, ...] = (
         keys("entities", "names", "kinds", "pairs", "kind_sources", "lexicon_vs_cues"),
     ),
     Source(
+        "places",
+        "places",
+        (
+            Table("places", "places"),
+            Table("place_mentions", "mentions"),
+            Table("name_kinds", "name_kinds"),
+        ),
+        "places.meta.json",
+        keys(
+            "places", "max_shift", "tipnr", "openbible", "mentions", "how", "places",
+            "placed_names", "located", "located_openbible", "kinds", "unkinded",
+            "multi_site_strongs", "name_kinds", "hand_check",
+        ),
+    ),
+    Source(
         "senses",
         "senses",
         (

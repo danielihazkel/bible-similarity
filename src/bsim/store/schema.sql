@@ -256,6 +256,49 @@ CREATE TABLE entity_links (
     PRIMARY KEY (a, b)
 ) WITHOUT ROWID;
 
+-- The gazetteer (`bsim places`, DESIGN.md §16.56): each place the text names, where it lies.
+CREATE TABLE places (
+    place_id INTEGER PRIMARY KEY,   -- canon order of first mention
+    tipnr TEXT NOT NULL,            -- TIPNR's unique name (an English join key, never shown)
+    he TEXT NOT NULL,               -- its Hebrew name (consonants)
+    lemmas TEXT NOT NULL,           -- JSON: the name lemmas that are this place, most mentioned first
+    n_verses INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    kind TEXT,                      -- town | region | landform | water
+    kind_source TEXT,               -- sdbh | openbible
+    sdbh_kind TEXT,                 -- its mentions' commonest SDBH name subdomain
+    lat REAL,
+    lon REAL,
+    score INTEGER,                  -- OpenBible's votes for the identification, 0..1000
+    coord_source TEXT,              -- openbible | tipnr
+    runner_up REAL,                 -- the second identification's votes as a share of the best
+    n_identifications INTEGER NOT NULL,
+    openbible TEXT,                 -- OpenBible's id
+    ob_types TEXT NOT NULL          -- JSON: OpenBible's types
+);
+
+-- Which place each name mention is (lemma × verse; mentions that are no place are left out).
+CREATE TABLE place_mentions (
+    lemma TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    place_id INTEGER NOT NULL,
+    how TEXT NOT NULL,              -- exact | shifted | only
+    shift INTEGER,                  -- verses to TIPNR's nearest reference
+    PRIMARY KEY (lemma, verse_id)
+) WITHOUT ROWID;
+
+-- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
+CREATE TABLE name_kinds (
+    lemma TEXT PRIMARY KEY,
+    person REAL NOT NULL,
+    people REAL NOT NULL,
+    location REAL NOT NULL,
+    landform REAL NOT NULL,
+    water REAL NOT NULL,
+    kind TEXT,                      -- person | people | location | landform | water
+    n_verses INTEGER NOT NULL
+) WITHOUT ROWID;
+
 -- Where a book's style changes (`bsim seams`, DESIGN.md §16.12): the shift curve at every verse
 -- boundary (verse_id = first verse after it) and its significant peaks.
 CREATE TABLE seam_curve (

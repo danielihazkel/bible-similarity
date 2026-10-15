@@ -13,6 +13,7 @@ from bsim.api.models.common import (
     UnitType,
     Verse,
 )
+from bsim.api.models.places import NameKind, PlaceSite
 
 EntityKind = Literal["person", "place", "mixed", "unclear"]
 
@@ -68,6 +69,8 @@ class EntityDetail(ApiModel):
     by_book: list[BookCount]
     partners: list[EntityPartner]
     links: list[EntityLink]  # links among the partners (for the network drawing)
+    name_kind: NameKind | None = None  # its commonest SDBH name subdomain (`bsim places`)
+    sites: list[PlaceSite] = []  # the places it is, with its verses at each (`n_here`)
 
 
 class SeamFeature(ApiModel):

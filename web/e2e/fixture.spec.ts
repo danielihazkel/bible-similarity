@@ -233,6 +233,15 @@ test('the Masorah’s counts: the middles against ours, the totals and their fin
   await expect(page).toHaveURL(/\/masorah/)
 })
 
+test('a place name shows where it lies: its site, kind and point', async ({ page }) => {
+  await page.goto('/names?e=559')
+  const sites = page.locator('.entity-sites li')
+  await expect(sites).toHaveCount(1)
+  await expect(sites.first()).toContainText('Town')
+  await expect(sites.first()).toContainText('31.78° N, 35.23° E · identification voted 640 / 1,000')
+  await expect(page.getByText('In SDBH’s domains, mostly a place.')).toBeVisible()
+})
+
 test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {
   await page.goto('/unit/v%3A2')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })

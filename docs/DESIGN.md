@@ -14,6 +14,8 @@ Detailed technical design. See [ARCHITECTURE.md](ARCHITECTURE.md) for the system
 | **Sefaria links** | training pairs + evaluation gold | `https://storage.googleapis.com/sefaria-export/links/links{N}.csv`, discovered by listing the bucket (17 files, ~680 MB as of 2026-10) | Sefaria (per-link sources vary; research use) |
 | **BEREL 3.0** | base encoder | HF `dicta-il/BEREL_3.0` (BERT, ~0.2B params, fp32 safetensors) | Apache-2.0 |
 | **BGE-M3** | multilingual baseline | HF `BAAI/bge-m3` | MIT |
+| **STEPBible TIPNR** (*Translators Individualised Proper Names with all References*, Tyndale House) | which person or place each proper-name occurrence is: disambiguated Strong's numbers with every reference (§16.56) | `https://raw.githubusercontent.com/STEPBible/STEPBible-Data/{commit}/Proper Nouns/TIPNR … .txt`, pinned commit | **CC BY 4.0** (asks that the file not be redistributed: it is downloaded, never committed) |
+| **OpenBible.info Bible Geocoding Data** | where each place lies: modern identifications with coordinates and votes (§16.56) | `https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/{commit}/data/ancient.jsonl`, pinned commit | **CC BY 4.0** |
 
 Rules:
 - `bsim download` writes `data/raw/manifest.json` with `{url, sha256, md5, bytes, downloaded_at}` per file. Sefaria files are verified against the GCS `md5Hash` (via the JSON API `storage/v1/b/sefaria-export/o`); OSHB files are pinned by commit (`3d15126`, 2024-08-27) and verified against their recorded sha256.
@@ -299,7 +301,8 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/sequences`, `/api/sequences/{id}`, `/api/changes` | parallel chains (`unit=` filter), one chain as a ladder with diff marks, changes grouped by word (`unit=`: verse pairs with a side in the unit) (§16.7, §16.8) |
 | `GET /api/parallelism/{unit_id}`, `/api/parallelism?sort=prob\|antithetic`, `/api/wordplay` | verse halves (with `relation`, `relation_pairs`), ranking (by antithetic share among units with `typing_min_parallel` parallel verses), sound-alike pairs (`unit=` filter) (§16.9, §16.10, §16.22) |
 | `GET /api/structure/{unit_id}`, `/api/structure` | inclusio / chiasm / Leitworte of a unit, ranking (§16.2) |
-| `GET /api/entities`, `/api/entities/{lemma}`, `/api/unit-entities/{unit_id}` | people and places (§16.11) |
+| `GET /api/entities`, `/api/entities/{lemma}`, `/api/unit-entities/{unit_id}` | people and places (§16.11); a name's SDBH kind and the sites it is (`name_kind`, `sites`, §16.56) |
+| `GET /api/places?kind=&book=&unit=` | The gazetteer: every place the text names with its kind, point and votes, most named first (in a book or unit: those named there, `n_here`) (§16.56) |
 | `GET /api/map/{type}`, `/api/affinity`, `/api/affinity/{a}/{b}`, `/api/stylometry`, `/api/stylometry/book/{id}`, `/api/seams?book=&limit=&offset=` | corpus map, book affinity, stylometry, style seams (§16.4, §16.6, §16.12) |
 
 ### 10.1 Free-text search
@@ -427,6 +430,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D92 | Gazetteer | STEPBible's TIPNR says which place (or person) each name occurrence is, by the Strong's number and the nearest of its references (within 3 verses for English numbering); OpenBible.info's best-voted identification locates it, joined by name and TIPNR id and decided by shared verses. SDBH's name subdomains give water, landforms, peoples and persons; OpenBible's types split towns from regions. Both sources CC BY 4.0, downloaded at a pinned commit; English names stay internal keys (places are numbered, shown in Hebrew). 820 sites, 818 located; hand check 49 / 50 (§16.56) |
 | D91 | The Masorah's counts | Two texts from the MAM tokens, written and read, each taking its side of every OSHB ketiv / qere where MAM shows the other; the middles of `masorah.middles` (Kiddushin 30a, the Masorah, Soferim) against ours in letters, words and verses, landing within one unit; the Masorah's verse totals per book (Ginsburg's collation) against ours, a book that differs carrying its reason as a code. The written Torah has 304,801 letters; the ו of גחון is 4,829 letters past the middle, דרש דרש 932 words; Lev 8:8 is the middle verse; 18 of 24 books agree (§16.55) |
 | D90 | Atbash and albam | A swap's hits are the rare words and adjacent word pairs it turns into a name of the text (`Np`), set against 999 random pairings of the 22 letters; checks fixed in advance on the three cases of Jeremiah, Jeremiah 25 + 51, the rest of the Bible and albam. The known cases are found and stand out there (3 vs 0.64, p 0.036); elsewhere neither swap beats chance (§16.54) |
 | D89 | Gematria | Four systems (standard, gadol, ordinal, katan) over the consonants of the MAM display tokens (qere), defined in code; lemmas by Strong's headword. Values of every written form, lemma and verse in the DB; any text valued on request. The traditional equivalences of the config check the tables. A lookup, not a finding: whether equal values mean anything is tested separately (§16.53) |
@@ -1191,3 +1195,33 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - One text: MAM, with OSHB's Leningrad ketiv / qere. The scrolls' letter traditions (full and defective spellings, the large and small letters) are not modelled.
   - The middle verses of the books of the Prophets and Writings are not checked: the manuscripts mark either the last verse of the first half or the first of the second.
   - The totals come from one collation (Ginsburg). A book's figure varies between manuscripts; the other figures are listed.
+
+### 16.56 The gazetteer: which place, where it lies (`bsim places`, `data/geo.py`, `analysis/places.py`, `/places`)
+- **Why:** the names of §16.11 say person or place but not *which* place, nor where it lies. Geography (P2–P5) needs coordinates, and many names are several places: Abel is a stone in 1 Sam 6:18 and Abel-beth-maacah in 2 Sam 20:18, and Tekoa is a person and a town.
+- **Sources** (`bsim download --only geo`, pinned commits, both CC BY 4.0):
+  - **TIPNR** (STEPBible): 4,238 records (1,007 places, 3,129 persons, 102 others). Each has its names, each name with a disambiguated Strong's number, its Hebrew and every reference (English numbering; a psalm title's verse 0 is read as verse 1).
+  - **OpenBible.info's geocoding** (`ancient.jsonl`): 1,342 ancient places, each with its proposed modern identifications voted 0 to 1,000 and resolved to a point.
+- **Which place a mention is.** A mention is a name lemma in a verse (`entity_mentions`, 24,332). It goes to the TIPNR record of its Strong's number whose references come nearest:
+  - the verse itself (`exact`, 5,786), or within `places.max_shift` = 3 verses where English and Hebrew numbering differ (`shifted`, 457);
+  - failing both, a number with one place and no person takes it (`only`, 220).
+  - Nearer a person: no place (16,886). Nothing near: no place (983). These are mostly the second word of a compound name: the גלעד of יבש גלעד, which TIPNR files under Jabesh alone.
+
+  That gives 6,463 place mentions of 885 name lemmas. 92 Strong's numbers are several sites.
+- **Where it lies.** A TIPNR place joins its OpenBible record by the OpenBible name TIPNR gives (OpenBible numbers a name's places: `Bethel 1`, `Bethel 2`) and by OpenBible's links to TIPNR (an older TIPNR: `Babylon@Gen.10.10` for `Babylon@Gen.10.10-Rev`). Among the candidates the one sharing most verses wins. Its point is the best-voted identification; `runner_up` is the second's votes as a share of the best (how contested the site is). Without a record, TIPNR's own map point (`coord_source = tipnr`).
+  - 820 sites, 818 located, 802 through OpenBible.
+  - Votes run low: 363 sites are voted below 300 of 1,000. For 138, a second identification has at least half the votes of the first.
+- **Kinds.**
+  - Every name occurrence carries SDBH's name subdomain (`places.sdbh`: Locations, Landforms, Waterbodies, Groups, People). A site is water or a landform when its mentions mostly say so; otherwise OpenBible's types (`places.ob_kinds`) decide town or region.
+  - Result: 574 towns, 97 regions, 94 landforms, 41 water, 14 unknown.
+  - The same subdomains give every name its commonest kind (`name_kinds`): 1,587 persons, 65 peoples, 714 locations, 58 landforms, 22 waters. Of the names §16.11 calls persons, 24 are mostly peoples in SDBH and 43 locations (tribes and lands named after a person).
+- **Hand check** (`places.hand_check`): 50 place mentions drawn (seed 11) after the rules were set. In 49 the site is the place the verse means, or the land of the people it names. Some are kept apart correctly: נחל מצרים (Isa 27:12) is the Brook of Egypt, not Egypt, and the Sharon of 1 Chr 5:16 is the one east of the Jordan, not the coastal plain. Amos 4:3's הרמונה is no sure place. 4 of the 50 points have fewer than 300 votes.
+- **Hebrew only** (D5): a site is shown by TIPNR's Hebrew headword (consonants; the first of its spellings); TIPNR's and OpenBible's English names stay internal join keys, and sites are numbered (`place_id`, canon order of first mention).
+- **Served:**
+  - DB: `places`, `place_mentions`, `name_kinds` (+ `meta.places`), empty without the stage.
+  - API: `/places?kind&book&unit` (the sites, most named first; in a book or unit, `n_here`); `name_kind` and `sites` on `/entities/{lemma}`.
+  - Viewer: on the Names page a name's SDBH kind and its sites (kind, point, votes, a contested second site). The map is P2.
+- **Limits:**
+  - One gazetteer (TIPNR's decisions on who is who, OpenBible's votes on where).
+  - A compound name's second word is not its own place.
+  - Points are points: a region or a river is placed at one representative point.
+  - Israel and Judah are mostly people or person in both TIPNR and SDBH, so the land of Israel has no site of its own.

@@ -39,6 +39,7 @@ from bsim.api.models.corpus import (
     StyloPoint,
     UnitNetwork,
 )
+from bsim.api.models.places import PlaceSite
 from bsim.api.routes._common import (
     Conn,
     State,
@@ -107,6 +108,8 @@ def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
         "links": [
             EntityLink(**x) for x in queries.entity_links_among(conn, [p["lemma"] for p in ps])
         ],
+        "name_kind": queries.name_kind(conn, lemma),
+        "sites": [PlaceSite(**s) for s in queries.entity_sites(conn, lemma)],
     }
 
 

@@ -24,6 +24,21 @@ const DETAIL: EntityDetail = {
     { lemma: '4714', he: 'מצרים', kind: 'place', n_verses: 58, expected: 4.5, g2: 120 },
   ],
   links: [{ a: '175', b: '4714', n_verses: 20, g2: 40 }],
+  name_kind: 'person',
+  sites: [],
+}
+const abel = { lemma: '59', he: 'אבל', kind: 'place' as const, n_mentions: 2, n_verses: 2, n_here: null, first_vid: 7000, last_vid: 7600, kind_source: 'lexicon' as const }
+const site = (place_id: number, he: string, extra: object) => ({
+  place_id, he, kind: 'town' as const, lat: 33.27, lon: 35.58, score: 640, coord_source: 'openbible' as const, runner_up: null,
+  n_identifications: 1, n_verses: 6, n_here: 1, first_vid: 7000, lemmas: ['59', '62'], ...extra,
+})
+const ABEL: EntityDetail = {
+  ...DETAIL,
+  entity: abel,
+  partners: [],
+  links: [],
+  name_kind: 'location',
+  sites: [site(1, 'אבל בית מעכה', { runner_up: 0.25 }), site(2, 'אבל', { kind: null, lat: null, lon: null, score: null, coord_source: null, n_identifications: 0 })],
 }
 
 function Location() {
@@ -68,5 +83,33 @@ describe('NamesPage', () => {
     expect(screen.getByText(/141 verses together/)).toBeTruthy()
     fireEvent.click(screen.getByRole('radio', { name: 'Place' }))
     await waitFor(() => expect(calls.some((c) => c.includes('kind=place'))).toBe(true))
+  })
+
+  it('shows where a place name lies: each of its sites with its kind, point and votes', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        const p = new URL(url, 'http://x').pathname
+        const body = p === '/api/books' ? BOOKS : p === '/api/entities' ? { ...LIST, items: [abel] } : p === '/api/entities/59' ? ABEL : null
+        return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
+      }),
+    )
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { container } = render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={['/names?e=59']}>
+          <Routes>
+            <Route path="/names" element={<NamesPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(await screen.findByText('In SDBH’s domains, mostly a place.')).toBeTruthy()
+    const items = container.querySelectorAll('.entity-sites li')
+    expect(items).toHaveLength(2)
+    expect(items[0].textContent).toContain('אבל בית מעכה')
+    expect(items[0].textContent).toContain('Town')
+    expect(items[0].textContent).toContain('33.27° N, 35.58° E · identification voted 640 / 1,000 · a second site has 25% of its votes')
+    expect(items[1].textContent).toContain('not located')
   })
 })

@@ -166,6 +166,7 @@ from bsim.api.queries.phrases import (
     phrases_of,
     phrases_page,
 )
+from bsim.api.queries.places import entity_sites, name_kind, places_list
 from bsim.api.queries.poetics import (
     PARALLEL_COLS,
     STRUCTURE_SORT,
@@ -303,6 +304,7 @@ __all__ = [
     "entity_lemmas",
     "entity_links_among",
     "entity_partners",
+    "entity_sites",
     "form_counts",
     "forms_books",
     "forms_lists_page",
@@ -336,6 +338,7 @@ __all__ = [
     "mirror_clauses_page",
     "mirror_verses_page",
     "n_verses",
+    "name_kind",
     "neighbours",
     "network_communities",
     "network_community",
@@ -352,6 +355,7 @@ __all__ = [
     "phrases_of",
     "phrases_page",
     "phrases_touching",
+    "places_list",
     "previews",
     "psalm_verses",
     "psalms_page",

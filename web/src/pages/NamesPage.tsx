@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useBooks, useEntities, useEntity, entitiesParams } from '../api/hooks'
-import type { Book, EntityDetail, EntityKind } from '../api/types'
+import type { Book, EntityDetail, EntityKind, PlaceSite } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
@@ -151,6 +151,8 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
         <Link to={unitLink(`v:${e.last_vid}`)}>{locale === 'he' ? res.data.last_label_he : res.data.last_label}</Link> ·{' '}
         <Link to={lemmaLink(e.lemma)}>{m.ov.names.allVerses}</Link>
       </p>
+      {res.data.name_kind && <p className="muted small">{m.ov.names.sdbhKind(m.ov.names.nameKinds[res.data.name_kind])}</p>}
+      {res.data.sites.length > 0 && <Sites sites={res.data.sites} />}
       <h3>{m.ov.names.where}</h3>
       {/* canon order runs left to right in either interface language, as its end labels say */}
       <ol className="book-strip" aria-label={m.ov.names.perBook} dir="ltr">
@@ -187,6 +189,33 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
           </ul>
         </>
       )}
+    </section>
+  )
+}
+
+/** The places a name stands for, each with its kind, point and how sure the identification is. */
+function Sites({ sites }: { sites: PlaceSite[] }) {
+  const t = useLocale().m.ov.names
+  return (
+    <section className="entity-sites" aria-label={t.sites}>
+      <h3>{t.sites}</h3>
+      <p className="muted small">{t.sitesLede}</p>
+      <ul>
+        {sites.map((s) => (
+          <li key={s.place_id}>
+            <span dir="rtl" lang="he" className="he">
+              {s.he}
+            </span>{' '}
+            {s.kind && <span className="type-tag">{t.placeKinds[s.kind]}</span>} <span className="muted small">{t.siteVerses(s.n_here ?? s.n_verses)}</span>
+            <br />
+            <span className="small">
+              {s.lat != null && s.lon != null ? t.coords(s.lat, s.lon) : t.unlocated}
+              {s.score != null ? ` · ${t.votes(s.score)}` : s.coord_source === 'tipnr' ? ` · ${t.tipnrPoint}` : ''}
+              {s.runner_up != null ? ` · ${t.contested(s.runner_up)}` : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

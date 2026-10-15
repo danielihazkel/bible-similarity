@@ -214,6 +214,11 @@ export type EntityPartner = S['EntityPartner']
 
 export type EntityDetail = S['EntityDetail']
 
+// The gazetteer (`/places`, `sites` of `/entities/{lemma}`, DESIGN.md §16.56).
+export type PlaceKind = 'town' | 'region' | 'landform' | 'water'
+export type NameKind = 'person' | 'people' | 'location' | 'landform' | 'water'
+export type PlaceSite = S['PlaceSite']
+
 export type SeamFeature = S['SeamFeature']
 
 export type Seam = S['Seam']

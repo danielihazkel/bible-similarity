@@ -49,6 +49,16 @@ sources:
     commit: d0b3b42ab79b35d1ef349bda9dc1e62b2a56486e   # master @ 2023-11-13 (data version 2021)
     raw_url: https://raw.githubusercontent.com/ETCBC/parallels/{commit}/tf/2021/{file}
     files: [crossref.tf]
+  tipnr:                      # STEPBible TIPNR, CC BY 4.0: every proper name with its (disambiguated) Strong's number and references (DESIGN.md §16.56)
+    repo: STEPBible/STEPBible-Data
+    commit: bd09545c7a44b39ace20f16c0359915f2aa23a62   # master @ 2026-10-14
+    raw_url: https://raw.githubusercontent.com/STEPBible/STEPBible-Data/{commit}/{file}
+    files: ["Proper Nouns/TIPNR - Translators Individualised Proper Names with all References - STEPBible.org CC BY.txt"]
+  openbible_geo:              # OpenBible.info Bible Geocoding Data, CC BY 4.0: ancient places, their modern identifications with votes and coordinates
+    repo: openbibleinfo/Bible-Geocoding-Data
+    commit: 7eb18a5ee62f27b9b93bd6689ea272d76dd23b8f   # main @ 2021-11-01
+    raw_url: https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/{commit}/{file}
+    files: [data/ancient.jsonl]
 
 lexicon:                      # `bsim lexicon`: SDBH senses and domains per word, Strong's name types (DESIGN.md §16.22)
   search_window: 2            # an SDBH word reference may sit this many morphemes off OSHB's count
@@ -394,6 +404,23 @@ entities:                     # `bsim entities`: people and places, who appears 
   min_cue: 0.05               # below this for both: unclear
   min_together: 2             # verses two names must share to be linked
   partners: 25                # strongest links kept per name (G²)
+
+places:                       # `bsim places`: the gazetteer, each place the text names and where it lies (DESIGN.md §16.56)
+  max_shift: 3                # verses: a TIPNR reference (English numbering) still matches a Hebrew verse this far off
+  sdbh:                       # SDBH name subdomains -> the kind of a name occurrence
+    "003001010": location     # Names of Locations
+    "003001008": landform     # Names of Landforms
+    "003001015": water        # Names of Waterbodies
+    "003001006": people       # Names of Groups
+    "003001007": person       # Names of People
+  ob_kinds:                   # OpenBible.info place types -> the kind of a location (SDBH does not split town from region)
+    town: [settlement, district in settlement, structure, gate, fortification, hall, room, altar, campsite, mine]
+    region: [region, people group, natural area, field, garden, road]
+    landform: [mountain, mountain range, mountain ridge, hill, valley, island, cliff, rock, promontory, mountain pass, forest, tree, stone heap]
+    water: [river, body of water, spring, wadi, pool, canal, ford, well]
+  sample: 50                  # mentions drawn for the hand check (`sample.json`)
+  seed: 11
+  hand_check: {site: [49, 50], low_score: 4}   # the 50 drawn after the rules were set: the site is the place meant (or the land of the people named) in 49; Amos 4:3's הרמונה is no sure place; 4 points have an OpenBible vote below 300
 
 senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
   encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)

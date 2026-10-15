@@ -476,6 +476,39 @@ def write_inputs(cfg, tmp_path):
         columns=["a", "b", "n_verses", "expected", "g2"],
     ).to_parquet(ent_dir / "links.parquet")
     (ent_dir / "entities.meta.json").write_text(json.dumps({"names": 3}), encoding="utf-8")
+    # the gazetteer (`bsim places`), made up: אמר a town named in v0-v1, ראשית a region in v5
+    place_dir = art / "places"
+    place_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(1, "Amar@Gen.1.1", "אמר", '["559"]', 2, 0, "town", "openbible", "location", 31.78,
+          35.23, 640, "openbible", 0.2, 2, "a000001", '["settlement"]'),
+         (2, "Reshit@Gen.2.2", "ראשית", '["7225"]', 1, 5, "region", "openbible", "location", 30.1,
+          31.3, None, "tipnr", None, 0, None, "[]")],
+        columns=["place_id", "tipnr", "he", "lemmas", "n_verses", "first_vid", "kind",
+                 "kind_source", "sdbh_kind", "lat", "lon", "score", "coord_source", "runner_up",
+                 "n_identifications", "openbible", "ob_types"],
+    ).astype({"score": "Int64"}).to_parquet(place_dir / "places.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("559", 0, 1, "exact", 0), ("559", 1, 1, "shifted", 1), ("7225", 5, 2, "only", None)],
+        columns=["lemma", "verse_id", "place_id", "how", "shift"],
+    ).astype({"shift": "Int64"}).to_parquet(place_dir / "mentions.parquet")
+    pd.DataFrame(
+        [("430", 1.0, 0.0, 0.0, 0.0, 0.0, "person", 2), ("559", 0.0, 0.0, 1.0, 0.0, 0.0,
+          "location", 2), ("7225", 0.0, 0.0, 1.0, 0.0, 0.0, "location", 1)],
+        columns=["lemma", "person", "people", "location", "landform", "water", "kind", "n_verses"],
+    ).to_parquet(place_dir / "name_kinds.parquet")  # fmt: skip
+    (place_dir / "places.meta.json").write_text(
+        json.dumps({
+            "max_shift": 3, "tipnr": {"PLACE": 2, "PERSON": 1, "OTHER": 0}, "openbible": 1,
+            "mentions": 5, "how": {"exact": 1, "shifted": 1, "only": 1, "person": 2, "none": 0},
+            "places": 2, "placed_names": 2, "located": 2, "located_openbible": 1,
+            "kinds": {"town": 1, "region": 1, "landform": 0, "water": 0}, "unkinded": 0,
+            "multi_site_strongs": 0, "name_kinds": {"person": 1, "people": 0, "location": 2,
+                                                    "landform": 0, "water": 0},
+            "hand_check": {"site": [49, 50], "low_score": 4},
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
     sense_dir = art / "senses"
     sense_dir.mkdir(parents=True, exist_ok=True)
