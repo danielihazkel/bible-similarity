@@ -384,6 +384,31 @@ def _forms(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | No
     return build
 
 
+def _ciphers(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Atbash and albam against random pairings of the letters: the cases named in advance found;
+    atbash in the chapters named, atbash elsewhere and albam anywhere reading more names than the
+    random pairings do."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        c = meta.get("ciphers") or {}
+        if key == "ciphers_known":
+            if not c.get("known"):
+                return None
+            n = len(c["known"])
+            values = {"found": c.get("known_found"), "n": n}
+            holds = c.get("known_found") == n
+        else:
+            t = (c.get("tests") or {}).get(key.removeprefix("ciphers_")) or {}
+            if t.get("p") is None:
+                return None
+            values = {k: t.get(k) for k in ("observed", "expected", "p")}
+            values["random_hits"] = c.get("random_hits")
+            holds = t["observed"] > t["expected"] and t["p"] <= alpha
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -416,6 +441,10 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _forms("forms_chance"),
     _forms("forms_parallel"),
     _forms("forms_lists"),
+    _ciphers("ciphers_known"),
+    _ciphers("ciphers_jeremiah"),
+    _ciphers("ciphers_elsewhere"),
+    _ciphers("ciphers_albam"),
     _allusions,
 ]
 

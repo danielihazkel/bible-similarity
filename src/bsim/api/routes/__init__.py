@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from bsim.api.routes import (
     borrowing,
+    ciphers,
     citations,
     core,
     corpus,
@@ -62,6 +63,7 @@ for _module in (
     dialogue,
     forms,
     gematria,
+    ciphers,
     patterns,
     notebook,
     reader,

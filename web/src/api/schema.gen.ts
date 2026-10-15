@@ -2052,6 +2052,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ciphers/value": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cipher Value
+         * @description Any Hebrew text in atbash and in albam, and how often each result is written in the Bible.
+         */
+        get: operations["cipher_value_api_ciphers_value_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ciphers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ciphers
+         * @description The checks against random pairings of the letters, the cases named in advance and the
+         *     chapters with a name read through a swap.
+         */
+        get: operations["ciphers_api_ciphers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ciphers/hits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cipher Hits
+         * @description The names read through a swap, in canon order, with the words that hide them.
+         */
+        get: operations["cipher_hits_api_ciphers_hits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -2664,6 +2725,115 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["ChangeGroup"][];
+        };
+        /** CipherChapter */
+        CipherChapter: {
+            /**
+             * Cipher
+             * @enum {string}
+             */
+            cipher: "atbash" | "albam";
+            /** Unit Id */
+            unit_id: string;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Hits */
+            hits: number;
+            /** Expected */
+            expected: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+        };
+        /** CipherForm */
+        CipherForm: {
+            /** Form */
+            form: string;
+            /** N Words */
+            n_words: number;
+        };
+        /** CipherHit */
+        CipherHit: {
+            /** Hit Id */
+            hit_id: number;
+            /**
+             * Cipher
+             * @enum {string}
+             */
+            cipher: "atbash" | "albam";
+            /** Unit Id */
+            unit_id: string;
+            verse: components["schemas"]["Verse"];
+            /** First Tok */
+            first_tok: number;
+            /** Last Tok */
+            last_tok: number;
+            /** Span */
+            span: string;
+            /** Reads */
+            reads: string;
+            /** Name Lemma */
+            name_lemma: string;
+            /** Known */
+            known: string | null;
+        };
+        /** CipherHitsResponse */
+        CipherHitsResponse: {
+            /** Cipher */
+            cipher: ("atbash" | "albam") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Known */
+            known: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["CipherHit"][];
+        };
+        /**
+         * CipherKnown
+         * @description A case named in advance and whether it is found (§16.54).
+         */
+        CipherKnown: {
+            verse: components["schemas"]["VerseLabel"];
+            /**
+             * Cipher
+             * @enum {string}
+             */
+            cipher: "atbash" | "albam";
+            /** Text */
+            text: string;
+            /** Name */
+            name: string;
+            /** Found */
+            found: boolean;
+        };
+        /** CipherValueResponse */
+        CipherValueResponse: {
+            /** Text */
+            text: string;
+            atbash: components["schemas"]["CipherForm"];
+            albam: components["schemas"]["CipherForm"];
+        };
+        /** CiphersResponse */
+        CiphersResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Known */
+            known: components["schemas"]["CipherKnown"][];
+            /** Chapters */
+            chapters: components["schemas"]["CipherChapter"][];
         };
         /**
          * Citation
@@ -3429,7 +3599,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam";
             /**
              * Verdict
              * @enum {string}
@@ -9685,6 +9855,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GematriaVersesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cipher_value_api_ciphers_value_get: {
+        parameters: {
+            query: {
+                text: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CipherValueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ciphers_api_ciphers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CiphersResponse"];
+                };
+            };
+        };
+    };
+    cipher_hits_api_ciphers_hits_get: {
+        parameters: {
+            query?: {
+                cipher?: ("atbash" | "albam") | null;
+                book?: number | null;
+                unit?: string | null;
+                known?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CipherHitsResponse"];
                 };
             };
             /** @description Validation Error */

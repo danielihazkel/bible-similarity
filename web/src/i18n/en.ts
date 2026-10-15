@@ -23,6 +23,7 @@ import { pentEn } from './pages/pentateuch'
 import { dlgEn } from './pages/dialogue'
 import { fmEn } from './pages/forms'
 import { gmEn } from './pages/gematria'
+import { cphEn } from './pages/ciphers'
 import { qryEn } from './pages/query'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -101,6 +102,7 @@ export const en = {
     query: { label: 'Pattern search', hint: 'Find a construction: lemma, root, form and syntax, word by word' },
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
     gematria: { label: 'Gematria', hint: 'Letter values: what adds up to what' },
+    ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
@@ -443,6 +445,7 @@ export const en = {
   dlg: dlgEn,
   fm: fmEn,
   gm: gmEn,
+  cph: cphEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

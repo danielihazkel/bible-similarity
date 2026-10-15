@@ -271,6 +271,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/pentateuch`, `/api/pentateuch/chapters?book=` | The Pentateuch's sources: the unsupervised P / non-P split's checks against the reference (kappa over Genesis–Numbers and within Genesis, the divine names it never saw), confusion, books, the robustness grid, the words and synonym choices that decide it; each chapter's P-like share against the reference's (§16.43). `/reader/{unit}` adds each verse's `source` |
 | `GET /api/patterns?q=&book=&unit=` | Pattern search: the verses where a query of word patterns matches (paged), each match's words and display tokens, the matches per book; `error` with a code and position when the query cannot run (§16.46) |
 | `GET /api/gematria/value?text=`, `/api/gematria?value=&system=`, `/api/gematria/{forms,lemmas,verses}?value=&system=` (`verses`: `&book=`) | Gematria: any text's value in four systems; the written forms, lemmas and verses of one value (paged), the traditional equivalences of the config; `gematria` per token on `/reader/{unit}` (§16.53) |
+| `GET /api/ciphers`, `/api/ciphers/hits?cipher=&book=&unit=&known=`, `/api/ciphers/value?text=` | Atbash and albam: the checks against random letter pairings, the cases named in advance, the chapters with a hit (p, q); the names read through a swap with the words that hide them (paged); any text in both swaps (§16.54) |
 | `GET /api/forms`, `/api/forms/sayings?book=&unit=&known=`, `/api/forms/lists?book=&unit=&kind=` | Graded numerical sayings and lists: the checks (known, chance, parallelism; the lists named in advance), per book; the sayings with both numbers marked; the lists with their first verses (paged). `list_verses` on every `/map/{unit_type}` point (§16.45) |
 | `GET /api/dialogue`, `/api/dialogue/book/{book_id}`, `/api/dialogue/exchanges?book=&party=&unequal=` | Who speaks to whom: addressees found and checked by hand, the three checks (deference, נא, the last word) with the sensitivity, per book; a book's speaker → addressee pairs; exchanges between two parties (paged). `/syntax/{unit}` clauses carry `addressee`, `/speech/book/{id}` speakers and `/reader/{unit}` speakers `to` (§16.44) |
 | `GET /api/psalms`, `/api/psalms/list?genre=&cluster=&turned=&unit=&sort=chapter\|turn` | Psalms: the genre test (clusters of the counted form against Gunkel's genres), the checks named in advance, the turns scholarship names, laments against hymns; each psalm with its features, cluster, turn and the mood of each verse (§16.42). `/reader/{unit}` adds the `mood` layer |
@@ -425,6 +426,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D90 | Atbash and albam | A swap's hits are the rare words and adjacent word pairs it turns into a name of the text (`Np`), set against 999 random pairings of the 22 letters; checks fixed in advance on the three cases of Jeremiah, Jeremiah 25 + 51, the rest of the Bible and albam. The known cases are found and stand out there (3 vs 0.64, p 0.036); elsewhere neither swap beats chance (§16.54) |
 | D89 | Gematria | Four systems (standard, gadol, ordinal, katan) over the consonants of the MAM display tokens (qere), defined in code; lemmas by Strong's headword. Values of every written form, lemma and verse in the DB; any text valued on request. The traditional equivalences of the config check the tables. A lookup, not a finding: whether equal values mean anything is tested separately (§16.53) |
 | D88 | k-means on one thread | sklearn's `KMeans` sums its partial centres in OpenMP thread order, so a seed gave several answers. `stats.kmeans` fits on one thread for the senses and the map; this was the source of the senses run-to-run differences, not the GPU (§16.52) |
 | D87 | Code health | API models and queries split by route module (+ `common`); every analysis stage's DB tables and meta declared once in `store/analyses.py`, column names read from `schema.sql`; response types of the viewer aliased to the generated schema (fields narrowed with `Literal` in pydantic), hand-written only where a JSON field is left open; the unit page's data panels in a registry. Checked by an identical OpenAPI schema and an identical DB (§16.51) |
@@ -1118,3 +1120,38 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - API: `/gematria/value?text=` (any Hebrew text, computed on request); `/gematria?value&system` (counts, the equivalences, `computed`); `/gematria/forms`, `/gematria/lemmas`, `/gematria/verses?book` (paged); `gematria` (each display token's standard value) on every `/reader/{unit}` verse.
   - Viewer: Patterns → Gematria (a word or a number, its four values, its forms, lemmas and verses, the equivalences); the word panel's value chip; a Gematria layer in the reader (each word's value, each verse's total linked to the verses of that value); `= 318` in the jump box (Ctrl+K).
 - **Limits:** one text, the MAM with the qere; the ketiv's values (G4) and other systems (atbash is a cipher, G3) are not here. Lemma values follow Strong's headword spelling (full or defective as Strong's writes it).
+
+### 16.54 Atbash and albam: names hidden by a letter swap (`bsim ciphers`, `text/ciphers.py`, `analysis/ciphers.py`, `/ciphers`)
+- **Question:** Jeremiah writes Babel as ששך (25:26, 51:41) and the Chaldeans (כשדים) as לב קמי (51:1). That is atbash, the alphabet folded on itself (א↔ת, ב↔ש …). Can a scan find these cases, does atbash stand out there against chance, and does it, or albam (א↔ל, ב↔מ …), hide names anywhere else?
+- **Swaps** (`text/ciphers.py`): both pair the 22 letters, so a word reads back by the same swap. Final forms are read as their letter, and the last letter of each word is written final.
+- **Where a cipher may hide** (the MAM display tokens with the qere read; letters only, finals folded; at least `min_letters` = 3):
+  - one word whose written form occurs at most `rare_form` = 2 times, since a cipher makes an odd word (ששך is written twice);
+  - or two adjacent words read as one (לב קמי).
+
+  That gives 268,699 places (167,785 distinct).
+- **A hit** is a place that a swap turns into a name of the text: the name part of an OSHB word tagged `Np`, with the divine names of `entities.skip_lemmas` left out. There are 2,120 names.
+- **The null:** `shuffles` = 999 random pairings of the 22 letters (eleven swaps, as atbash and albam are), each scored the same way.
+- **Checks fixed in advance** (`ciphers.checks`, one-sided at 0.05):
+  - `known`: the three cases are found.
+  - `jeremiah`: atbash reads more names in Jeremiah 25 and 51 than the random pairings do.
+  - `elsewhere`: atbash reads more names in the rest of the Bible (expected not to hold).
+  - `albam`: albam reads more names anywhere (expected not to hold).
+
+  Per chapter, each swap's hits get p (the share of random pairings that do as well there) and BH q over the 929 chapters.
+- **Results:**
+  - **Known:** all 3 found.
+  - **Jeremiah 25 and 51:** 3 names against 0.64 for a random pairing (p 0.036): holds. These are exactly the three named cases.
+  - **Elsewhere:** atbash reads 78 names against 104.0 (p 0.76): does not hold. A random pairing reads about 105 names over the whole Bible, so outside Jeremiah atbash reads no more than chance gives (fewer was not tested), and its other hits (השמת → צביא) are what chance gives.
+  - **Albam:** 94 against 104.6 (p 0.53): does not hold.
+  - **Per chapter:** no chapter passes after correction (min q 1.0). Jeremiah 51 alone is atbash p 0.066 and Jeremiah 25 p 0.18; the claim was fixed on the two chapters together.
+  - **Reading:** atbash is a device of these oracles against Babylon, not a code running through the text. The run took about 170 s and gives the same files every time (one seed).
+- **Not tested:** Isa 7:6's טבאל, which Rashi reads by albam as רמלא (Remaliah). רמלא is not a name as the text writes it (רמליהו), so it is noted, not tested.
+- **Served:**
+  - DB: `cipher_hits`, `cipher_chapters` (+ `meta.ciphers`), empty without the stage.
+  - API: `/ciphers` (counts, the checks, the cases named in advance, the chapters with a hit); `/ciphers/hits?cipher&book&unit&known` (paged, with the hiding words' display tokens); `/ciphers/value?text=` (any text in both swaps, with how often each result is written: `gematria_forms`).
+  - Findings: `ciphers_known`, `ciphers_jeremiah`, `ciphers_elsewhere`, `ciphers_albam`.
+  - Viewer: Patterns → Atbash and albam (the checks, the cases named in advance, the hits with their words marked, the chapters against random pairings); the word panel's "Swapped" line (each word in both swaps, linked to a text search when the result is written in the Bible).
+- **Limits:**
+  - Only names are targets. A swap into an ordinary word (ששך → בבל is a name) is not sought.
+  - Spans of three or more words are not read.
+  - The rare-form rule leaves out a cipher hidden in a common word.

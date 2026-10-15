@@ -795,6 +795,40 @@ def write_inputs(cfg, tmp_path):
         ),
         encoding="utf-8",
     )
+    # atbash and albam (`bsim ciphers`), made up: v0's יהוה read through atbash (named in
+    # advance) and v5's ראשית through albam; only the plumbing is tested
+    cipher_dir = art / "ciphers"
+    cipher_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [("atbash", 0, 0, 3, 3, "יהוה", "יהוה", "מצפץ", "9999", "Genesis 1:1"),
+         ("albam", 5, 1, 0, 0, "ראשית", "ראשית", "טלגיכ", "9998", None)],
+        columns=["cipher", "verse_id", "book_id", "first_tok", "last_tok", "span", "letters",
+                 "reads", "name_lemma", "known"],
+    ).to_parquet(cipher_dir / "hits.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("atbash", "c:0:1", 0, 1, 0.2, 0.04, 0.12), ("albam", "c:1:1", 1, 1, 0.5, 0.4, 1.0)],
+        columns=["cipher", "unit_id", "book_id", "hits", "expected", "p", "q"],
+    ).to_parquet(cipher_dir / "chapters.parquet")  # fmt: skip
+    (cipher_dir / "ciphers.meta.json").write_text(
+        json.dumps(
+            {
+                "min_letters": 3, "rare_form": 2, "shuffles": 99, "alpha": 0.05, "names": 2,
+                "spans": 9, "single_spans": 3, "distinct_spans": 9, "chapters": ["Genesis 1"],
+                "n_chapters": 3, "hits": {"atbash": 1, "albam": 1}, "random_hits": 0.7,
+                "known": [{"ref": "Genesis 1:1", "verse_id": 0, "cipher": "atbash",
+                           "text": "יהוה", "name": "מצפץ", "found": True}],
+                "known_found": 1,
+                "tests": {
+                    "jeremiah": {"observed": 1, "expected": 0.2, "p": 0.04},
+                    "elsewhere": {"observed": 0, "expected": 0.5, "p": 1.0},
+                    "albam": {"observed": 1, "expected": 0.7, "p": 0.5},
+                },
+                "chapters_q": {"atbash": 0, "albam": 0},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )  # fmt: skip
     # root families (`bsim roots`): ראשית joins the root ראש; v0 holds a cognate pair, v1 an
     # infinitive absolute; chapter 0:1 has a hidden Leitwort by root
     root_dir = art / "roots"

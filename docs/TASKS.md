@@ -765,6 +765,14 @@ Phase 3 (M39c): API and viewer
 
 ✔ 39,555 written forms, 9,204 lemmas and 23,206 verses valued; the eight equivalences hold. Seven verses add up to 2701 as Genesis 1:1 does, a reminder of how common equal values are before G2 tests them. 607 pytest, 209 vitest, 249 / 251 fixture e2e (2 skipped by design; one page load failed once under load and passed 12 / 12 on rerun) and 188 / 188 real-data e2e.
 
+## M77: Atbash and albam (§16.54, D90; proposed G3)
+- [x] `text/ciphers.py`: atbash, albam and random pairings of the 22 letters; `bsim ciphers` (`analysis/ciphers.py`, ~170 s): rare words and adjacent word pairs a swap turns into a name of the text (`Np`), against 999 random pairings; checks fixed in advance in `ciphers.checks` (known, Jeremiah 25 + 51, elsewhere, albam); per chapter p and BH q
+- [x] DB `cipher_hits`, `cipher_chapters` (+ `meta.ciphers`); API `/ciphers`, `/ciphers/hits`, `/ciphers/value`; findings `ciphers_known`, `ciphers_jeremiah`, `ciphers_elsewhere`, `ciphers_albam`
+- [x] Viewer: Patterns → Atbash and albam (the checks, the cases named in advance, the hits with their words marked, the chapters against random pairings), the word panel's "Swapped" line; English and Hebrew
+- [x] Tests: the swaps (pairs, no fixed letter), the known readings, names and spans, the stage on a small corpus (hits, known, checks, the same file twice, a bad reference), the API, findings (pytest); the page, its filters and chapters, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ The three places of Jeremiah are found and stand out there: 3 names against 0.64 for a random pairing (p 0.036). Elsewhere atbash reads 78 names against 104 (p 0.76) and albam 94 against 105 (p 0.53): neither hides names beyond chance; no chapter passes after correction. 615 pytest, 214 vitest, 256 / 258 fixture e2e (2 skipped by design) and 194 / 194 real-data e2e (the word-panel step first looked for the word with its te'amim, which the page does not show by default: fixed and rerun).
+
 ## Proposed (not started)
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
@@ -796,7 +804,7 @@ From the 2026-10-15 review: letters and numbers, and geography. Each is a test w
 Letters and numbers
 - [x] G1 (done, M76) Gematria layer: `text/gematria.py` over the consonantal text in four systems listed in config (standard, mispar gadol with finals 500–900, ordinal, reduced); values per word, verse and lemma in the DB; `/gematria?value=&system=` (words, lemmas, verses, paged); value in the word panel, a reader layer, `= 318` in the jump box, a calculator page. Known values as unit tests: אליעזר 318 (Gen 14:14), נחש = משיח 358, יין = סוד 70
 - [ ] G2 Do equal values link related words? Claim: words of equal standard gematria are no closer in meaning (SDBH domain overlap, root family §16.38, BEREL word vectors as §16.23) than pairs matched on letter count and frequency band; the traditional equivalences in config ranked. Verse check: the numerical properties claimed for Gen 1:1 (2701 = 37 × 73, 7 words, 28 letters) counted over all 23k verses, a look-elsewhere control
-- [ ] G3 Atbash and albam: words whose atbash (א↔ת) or albam (א↔ל) form is a name or lemma elsewhere. Known answers: ששך = בבל (Jer 25:26, 51:41), לב קמי = כשדים (Jer 51:1). Claim: atbash gives more cipher → name hits in Jer 25 and 51 than 999 random involutive letter substitutions, and no more elsewhere. Atbash / albam forms in the word panel (linked when they are words), a Ciphers tab with q
+- [x] G3 (done, M77) Atbash and albam: words whose atbash (א↔ת) or albam (א↔ל) form is a name or lemma elsewhere. Known answers: ששך = בבל (Jer 25:26, 51:41), לב קמי = כשדים (Jer 51:1). Claim: atbash gives more cipher → name hits in Jer 25 and 51 than 999 random involutive letter substitutions, and no more elsewhere. Atbash / albam forms in the word panel (linked when they are words), a Ciphers tab with q
 - [ ] G4 The Masorah's counts: middle letter (the ו of גחון, Lev 11:42), middle words (דרש דרש, Lev 10:16), middle verse (Lev 8:8) of the Torah (Kiddushin 30a) and the Masorah's verse total per book, computed on our text (qere and ketiv apart); how far each lands from the tradition, book counts that differ listed with the reason. A check of our text and versification
 - [ ] G5 (optional) Equidistant letter sequences: terms fixed in config (a rabbis-and-dates list or a smaller list of names), skips up to N over the Torah letter string against Genesis with letters shuffled, with verses shuffled, and a non-Torah block of the same length. Claim: no more hits than the controls; shown as counts against controls, not "codes"
 

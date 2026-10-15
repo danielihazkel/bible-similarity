@@ -1125,6 +1125,32 @@ CREATE TABLE gematria_verses (
     n_words INTEGER NOT NULL
 );
 
+-- names hidden by a letter swap (`bsim ciphers`, §16.54)
+CREATE TABLE cipher_hits (
+    hit_id INTEGER PRIMARY KEY,
+    cipher TEXT NOT NULL,           -- atbash | albam
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    first_tok INTEGER NOT NULL,     -- display tokens of the span (one word, or two read as one)
+    last_tok INTEGER NOT NULL,
+    span TEXT NOT NULL,             -- as written, consonants
+    letters TEXT NOT NULL,          -- the letters swapped (finals folded)
+    reads TEXT NOT NULL,            -- the name it reads as, as the text writes it
+    name_lemma TEXT NOT NULL,
+    known TEXT                      -- the case of `ciphers.known` it is
+);
+
+CREATE TABLE cipher_chapters (
+    cipher TEXT NOT NULL,
+    unit_id TEXT NOT NULL,          -- a chapter with a hit
+    book_id INTEGER NOT NULL,
+    hits INTEGER NOT NULL,
+    expected REAL NOT NULL,         -- mean hits of the random pairings
+    p REAL NOT NULL,                -- share of random pairings with as many
+    q REAL NOT NULL,                -- BH over all chapters
+    PRIMARY KEY (cipher, unit_id)
+) WITHOUT ROWID;
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

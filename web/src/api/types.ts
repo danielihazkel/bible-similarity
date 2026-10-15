@@ -782,6 +782,10 @@ export type FindingKey =
   | 'forms_chance'
   | 'forms_parallel'
   | 'forms_lists'
+  | 'ciphers_known'
+  | 'ciphers_jeremiah'
+  | 'ciphers_elsewhere'
+  | 'ciphers_albam'
 
 export type Finding = S['Finding']
 
@@ -1121,6 +1125,40 @@ export type GematriaLemma = S['GematriaLemma']
 export type GematriaLemmasResponse = S['GematriaLemmasResponse']
 export type GematriaVerse = S['GematriaVerse']
 export type GematriaVersesResponse = S['GematriaVersesResponse']
+
+// Atbash and albam (`/ciphers`, DESIGN.md §16.54).
+export type CipherName = 'atbash' | 'albam'
+export type CipherForm = S['CipherForm']
+export type CipherValueResponse = S['CipherValueResponse']
+export type CipherKnown = S['CipherKnown']
+export type CipherChapter = S['CipherChapter']
+export interface CipherTest {
+  observed: number
+  expected: number
+  p: number
+}
+export interface CiphersMeta {
+  min_letters?: number
+  rare_form?: number
+  shuffles?: number
+  alpha?: number
+  names?: number
+  spans?: number
+  single_spans?: number
+  distinct_spans?: number
+  chapters?: string[]
+  n_chapters?: number
+  hits?: Partial<Record<CipherName, number>>
+  random_hits?: number
+  known_found?: number
+  tests?: { jeremiah?: CipherTest; elsewhere?: CipherTest; albam?: CipherTest; albam_elsewhere?: CipherTest }
+  chapters_q?: Partial<Record<CipherName, number>>
+}
+export type CiphersResponse = Omit<S['CiphersResponse'], 'meta'> & {
+  meta: CiphersMeta & Record<string, unknown>
+}
+export type CipherHit = S['CipherHit']
+export type CipherHitsResponse = S['CipherHitsResponse']
 
 // Graded numerical sayings and lists (`/forms`, DESIGN.md §16.45).
 export type FormsKnownSaying = S['FormsKnownSaying']

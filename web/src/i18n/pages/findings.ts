@@ -181,6 +181,26 @@ export const findEn = {
       text: (v: V) =>
         `Are the genealogies, itineraries and rolls named in advance found as runs of verses shaped alike? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}, among ${numEn(n(v, 'lists'))} lists against ${n(v, 'expected').toFixed(1)} with each book's verses shuffled.`,
     },
+    ciphers_known: {
+      title: 'Atbash in Jeremiah',
+      text: (v: V) =>
+        `Are the places where Jeremiah writes a name in atbash (ששך for בבל in 25:26 and 51:41, לב קמי for כשדים in 51:1) found by reading every unusual word through the swap? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}.`,
+    },
+    ciphers_jeremiah: {
+      title: 'Atbash stands out where it is known',
+      text: (v: V) =>
+        `Does atbash turn more words of Jeremiah 25 and 51 into names than a random swap of the letters does? ${numEn(n(v, 'observed'))} against ${x2(n(v, 'expected'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    ciphers_elsewhere: {
+      title: 'Atbash names hidden in the rest of the Bible?',
+      text: (v: V) =>
+        `Outside those chapters, does atbash turn more words into names than random swaps of the letters? ${numEn(n(v, 'observed'))} against ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
+    },
+    ciphers_albam: {
+      title: 'Albam names hidden anywhere?',
+      text: (v: V) =>
+        `Does albam, the other letter swap of the tradition, turn more words into names than random swaps do? ${numEn(n(v, 'observed'))} against ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -358,6 +378,26 @@ export const findHe: typeof findEn = {
       title: 'רשימות לפי צורת פסוקיהן',
       text: (v: V) =>
         `האם היחסים, המסעות והמפקדים שנמנו מראש נמצאים כרצפים של פסוקים דומי צורה? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}, בין ${numHe(n(v, 'lists'))} רשימות לעומת ${n(v, 'expected').toFixed(1)} כשפסוקי כל ספר מעורבבים.`,
+    },
+    ciphers_known: {
+      title: 'את״ב״ש בירמיהו',
+      text: (v: V) =>
+        `האם המקומות שבהם ירמיהו כותב שם באת״ב״ש (ששך לבבל בכה:כו ובנא:מא, לב קמי לכשדים בנא:א) נמצאים כשקוראים כל מילה חריגה בהמרה? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}.`,
+    },
+    ciphers_jeremiah: {
+      title: 'את״ב״ש בולט במקום שבו הוא ידוע',
+      text: (v: V) =>
+        `האם את״ב״ש הופך יותר מילים בירמיהו כה ונא לשמות ממה שהמרה אקראית של האותיות הופכת? ${numHe(n(v, 'observed'))} לעומת ${x2(n(v, 'expected'))} (p ${fp(n(v, 'p'))}).`,
+    },
+    ciphers_elsewhere: {
+      title: 'שמות באת״ב״ש בשאר המקרא?',
+      text: (v: V) =>
+        `מחוץ לפרקים האלה, האם את״ב״ש הופך יותר מילים לשמות ממה שהמרות אקראיות של האותיות הופכות? ${numHe(n(v, 'observed'))} לעומת ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
+    },
+    ciphers_albam: {
+      title: 'שמות באל״ב״ם בכל מקום?',
+      text: (v: V) =>
+        `האם אל״ב״ם, המרת האותיות האחרת שבמסורת, הופכת יותר מילים לשמות ממה שהמרות אקראיות הופכות? ${numHe(n(v, 'observed'))} לעומת ${n(v, 'expected').toFixed(1)} (p ${fp(n(v, 'p'))}).`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

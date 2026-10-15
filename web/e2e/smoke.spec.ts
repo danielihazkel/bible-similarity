@@ -77,6 +77,8 @@ const PAGES: [string, RegExp][] = [
   ['/forms', /Numbers and lists/],
   ['/gematria?q=%D7%90%D7%9C%D7%99%D7%A2%D7%96%D7%A8', /Gematria/],
   ['/gematria?q=2701&view=verses', /Gematria/],
+  ['/ciphers', /Atbash and albam/],
+  ['/ciphers?cipher=albam&book=12', /Atbash and albam/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
@@ -146,7 +148,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/ciphers', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -218,6 +220,21 @@ test('gematria: Eliezer is 318, Genesis 1:1 adds up to 2701, and the reader link
   await box.press('Enter')
   await expect(page).toHaveURL(/\/gematria\?q=358$/)
   await expect(page.locator('.gm-forms li', { hasText: 'משיח' }).first()).toBeVisible()
+})
+
+test('atbash: the three places in Jeremiah are found, and the word panel reads ששך as בבל', async ({ page }) => {
+  await page.goto('/ciphers')
+  await expect(page.getByText(/The places named in advance are found: 3 of 3\./)).toBeVisible()
+  await page.getByRole('checkbox', { name: 'Only those named in advance' }).check()
+  await expect(page.locator('.cipher-hit')).toHaveCount(3)
+  await expect(page.locator('.cipher-hit').first()).toContainText('בבל')
+  await page.goto('/unit/v%3A12068')
+  // ששך is the verse's 20th word (the text is shown without te'amim by default)
+  await page.locator('[data-word]').nth(19).click()
+  const swapped = page.locator('.word-ciphers')
+  await expect(swapped).toContainText('בבל')
+  await swapped.getByRole('link', { name: 'בבל' }).click()
+  await expect(page).toHaveURL(/\/search\?q=%D7%91%D7%91%D7%9C&mode=lexical$/)
 })
 
 test('Ctrl+K jumps to a chapter by reference and to a word by its form', async ({ page }) => {

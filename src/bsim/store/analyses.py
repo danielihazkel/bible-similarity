@@ -605,6 +605,20 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "ciphers",
+        "ciphers",
+        (
+            Table("cipher_hits", "hits", fix=numbered("hit_id")),
+            Table("cipher_chapters", "chapters"),
+        ),
+        "ciphers.meta.json",
+        keys(
+            "ciphers", "min_letters", "rare_form", "shuffles", "alpha", "names", "spans",
+            "single_spans", "distinct_spans", "chapters", "n_chapters", "hits", "random_hits",
+            "known", "known_found", "tests", "chapters_q",
+        ),
+    ),
+    Source(
         "seams",
         "seams",
         (

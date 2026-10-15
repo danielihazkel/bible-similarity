@@ -1,11 +1,14 @@
 import { Link } from 'react-router'
-import { useDomains, useGematriaValue, useWords } from '../api/hooks'
+import { useCipherValue, useDomains, useGematriaValue, useWords } from '../api/hooks'
+import type { CipherName } from '../api/types'
 import type { Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, rootLink } from '../lib/links'
 import { DomainChip } from './DomainName'
 import { HebrewPlain } from './HebrewText'
 import { ErrorBox, Loading } from './Status'
+
+const CIPHERS: CipherName[] = ['atbash', 'albam']
 
 /** Morphology and lemmas of the OSHB words on one display token, with concordance links. */
 export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displayIdx: number; onClose: () => void }) {
@@ -15,7 +18,10 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
   const domainOf = new Map(domains.data?.map((d) => [d.code, d]) ?? [])
   const here = words.data?.filter((w) => w.display_idx === displayIdx) ?? []
   const token = verse.display_tokens[displayIdx]
-  const gm = useGematriaValue(/[א-ת]/.test(token) ? token : undefined)
+  const hebrew = /[א-ת]/.test(token) ? token : undefined
+  const gm = useGematriaValue(hebrew)
+  const cipherRes = useCipherValue(hebrew)
+  const swapped = cipherRes.data?.text === token ? cipherRes.data : undefined
   return (
     <section className="word-panel" aria-label={m.word.panel}>
       <div className="word-head">
@@ -30,6 +36,29 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
           {m.word.close}
         </button>
       </div>
+      {swapped && (
+        <p className="muted small word-ciphers">
+          {m.cph.wordCiphers}:{' '}
+          {CIPHERS.map((c, i) => {
+            const f = swapped[c]
+            return (
+              <span key={c}>
+                {i > 0 && ' · '}
+                {m.cph.ciphers[c]}{' '}
+                {f.n_words > 0 ? (
+                  <Link to={`/search?q=${encodeURIComponent(f.form)}&mode=lexical`} title={m.cph.wordCipherTitle(f.n_words)} dir="rtl" lang="he">
+                    {f.form}
+                  </Link>
+                ) : (
+                  <span dir="rtl" lang="he" title={m.cph.wordCipherTitle(0)}>
+                    {f.form}
+                  </span>
+                )}
+              </span>
+            )
+          })}
+        </p>
+      )}
       {words.isPending ? (
         <Loading />
       ) : words.error ? (

@@ -10,6 +10,8 @@ type Ok<T extends true> = T
 
 export type AllusionsResponseKeys = Ok<SameKeys<H.AllusionsResponse, S['AllusionsResponse']>>
 export type AllusionsResponseFits = Ok<Fits<H.AllusionsResponse, S['AllusionsResponse']>>
+export type CiphersResponseKeys = Ok<SameKeys<H.CiphersResponse, S['CiphersResponse']>>
+export type CiphersResponseFits = Ok<Fits<H.CiphersResponse, S['CiphersResponse']>>
 export type CitationsResponseKeys = Ok<SameKeys<H.CitationsResponse, S['CitationsResponse']>>
 export type CitationsResponseFits = Ok<Fits<H.CitationsResponse, S['CitationsResponse']>>
 export type DatingResponseKeys = Ok<SameKeys<H.DatingResponse, S['DatingResponse']>>

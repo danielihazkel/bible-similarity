@@ -21,6 +21,10 @@ import type {
   NotebookResponse,
   FormsResponse,
   GematriaFormsResponse,
+  CipherHitsResponse,
+  CipherName,
+  CiphersResponse,
+  CipherValueResponse,
   GematriaLemmasResponse,
   GematriaResponse,
   GematriaSystem,
@@ -698,6 +702,28 @@ const gematriaList = <T,>(path: string, q: GematriaQuery | undefined) => ({
 export const useGematriaForms = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaFormsResponse>('/gematria/forms', q))
 export const useGematriaLemmas = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaLemmasResponse>('/gematria/lemmas', q))
 export const useGematriaVerses = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaVersesResponse>('/gematria/verses', q))
+
+export const useCiphers = () =>
+  useQuery({ queryKey: ['ciphers'], queryFn: ({ signal }) => getJson<CiphersResponse>('/ciphers', {}, signal), ...forever })
+
+export type CipherHitsQuery = { cipher?: CipherName; book?: number; unit?: string; known: boolean; limit: number; offset: number }
+
+export const useCipherHits = (q: CipherHitsQuery) =>
+  useQuery({
+    queryKey: ['cipher-hits', q],
+    queryFn: ({ signal }) =>
+      getJson<CipherHitsResponse>('/ciphers/hits', { cipher: q.cipher, book: q.book, unit: q.unit, known: q.known ? 'true' : undefined, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useCipherValue = (text: string | undefined) =>
+  useQuery({
+    queryKey: ['cipher-value', text],
+    queryFn: ({ signal }) => getJson<CipherValueResponse>('/ciphers/value', { text }, signal),
+    enabled: !!text,
+    ...forever,
+  })
 
 export const useRoots = () =>
   useQuery({ queryKey: ['roots'], queryFn: ({ signal }) => getJson<RootsResponse>('/roots', {}, signal), ...forever })

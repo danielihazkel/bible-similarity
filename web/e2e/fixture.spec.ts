@@ -93,6 +93,8 @@ const PAGES = [
   '/forms',
   '/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA',
   '/read/c%3A0%3A1?layers=gematria',
+  '/ciphers',
+  '/ciphers?cipher=albam&known=1',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -201,6 +203,19 @@ test('gematria: a word in each system, its forms and lemmas, and a verse total f
   await page.locator('.gm-total').first().click()
   await expect(page).toHaveURL(/\/gematria\?q=1282&view=verses$/)
   await expect(page.locator('.hit')).toHaveCount(1)
+})
+
+test('atbash and albam: the checks, a name read through a swap, and its chapter', async ({ page }) => {
+  await page.goto('/ciphers')
+  await expect(page.locator('.dlg-verdict')).toHaveCount(4)
+  await expect(page.locator('.cipher-hit')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'Atbash' }).click()
+  await expect(page).toHaveURL(/\/ciphers\?cipher=atbash$/)
+  await expect(page.locator('.cipher-hit')).toHaveCount(1)
+  await expect(page.locator('.cipher-hit .w-shared')).toHaveCount(1)
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /Atbash and albam/ }).first().click()
+  await expect(page).toHaveURL(/\/ciphers/)
 })
 
 test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {

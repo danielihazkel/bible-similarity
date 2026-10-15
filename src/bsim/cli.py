@@ -173,6 +173,14 @@ def gematria(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def ciphers(config: ConfigOpt = None) -> None:
+    """Names hidden by atbash and albam, against random letter swaps."""
+    from bsim.analysis.ciphers import run_ciphers
+
+    run_ciphers(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

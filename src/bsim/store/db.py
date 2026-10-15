@@ -115,6 +115,8 @@ INDEXES = (
     "CREATE INDEX forms_pairs_by_verse ON forms_pairs (verse_id)",
     "CREATE INDEX forms_lists_by_book ON forms_lists (book_id, first_vid)",
     "CREATE INDEX forms_lists_by_verse ON forms_lists (first_vid, last_vid)",
+    "CREATE INDEX cipher_hits_by_verse ON cipher_hits (verse_id)",
+    "CREATE INDEX cipher_hits_by_cipher ON cipher_hits (cipher, book_id, verse_id)",
     # /gematria: what has a value, in each system
     *(
         f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"

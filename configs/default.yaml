@@ -978,6 +978,23 @@ gematria:                     # `bsim gematria`: letter values of words, lemmas 
     - {text: אחד, value: 13}
     - {text: אהבה, value: 13}
 
+ciphers:                      # `bsim ciphers`: names hidden by atbash and albam (DESIGN.md §16.54); everything below fixed before the first run
+  min_letters: 3              # a span, and the name it reads as, has at least this many letters
+  rare_form: 2                # one word counts only when its written form occurs at most this often (a cipher makes an odd word); two adjacent words read as one always count
+  shuffles: 999               # random pairings of the 22 letters (eleven swaps, as atbash and albam are): the null
+  seed: 23
+  alpha: 0.05
+  known:                      # named in advance: the verse, the cipher, the words as written, the name they read as
+    - {ref: "Jeremiah 25:26", cipher: atbash, text: ששך, name: בבל}
+    - {ref: "Jeremiah 51:41", cipher: atbash, text: ששך, name: בבל}
+    - {ref: "Jeremiah 51:1", cipher: atbash, text: לב קמי, name: כשדים}
+  chapters: ["Jeremiah 25", "Jeremiah 51"]   # where the known atbash stands
+  checks:                     # one-sided, at `alpha`, against the random pairings
+    known: found              # the three are found (a known answer)
+    jeremiah: more            # atbash reads more names in the chapters above than random pairings do
+    elsewhere: more           # ... and in the rest of the Bible (expected not to hold: a device of these oracles, not a code of the whole text)
+    albam: more               # albam, the other swap of the tradition, anywhere (expected not to hold; Isa 7:6 טבאל → רמלא, Rashi's Remaliah, is not a name as written: listed, not tested)
+
 etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a third gold set, dev only (DESIGN.md §16.34)
   bands: [[75, 84], [85, 94], [95, 100]]   # similarity bands (percent) for the fused recall@10
   max_partners: 5             # a pair is a parallel when both verses have at most this many partners (else a formula)

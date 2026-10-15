@@ -12,7 +12,8 @@ FindingKey = Literal[
     "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
     "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",
     "dialogue_deference", "dialogue_particle", "dialogue_last_word", "forms_known", "forms_chance",
-    "forms_parallel", "forms_lists",
+    "forms_parallel", "forms_lists", "ciphers_known", "ciphers_jeremiah", "ciphers_elsewhere",
+    "ciphers_albam",
 ]  # fmt: skip
 
 

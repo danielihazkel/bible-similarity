@@ -10,6 +10,11 @@ from bsim.api.queries.borrowing import (
     borrowing_sequences,
     borrowing_touching,
 )
+from bsim.api.queries.ciphers import (
+    cipher_chapters,
+    cipher_hits_page,
+    form_counts,
+)
 from bsim.api.queries.citations import (
     citation_books,
     citations_page,
@@ -267,6 +272,8 @@ __all__ = [
     "change_examples",
     "change_groups",
     "change_totals",
+    "cipher_chapters",
+    "cipher_hits_page",
     "citation_books",
     "citations_page",
     "clauses_of",
@@ -295,6 +302,7 @@ __all__ = [
     "entity_lemmas",
     "entity_links_among",
     "entity_partners",
+    "form_counts",
     "forms_books",
     "forms_lists_page",
     "forms_pairs",
