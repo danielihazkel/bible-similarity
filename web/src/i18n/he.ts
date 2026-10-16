@@ -30,6 +30,7 @@ import { pentHe } from './pages/pentateuch'
 import { dlgHe } from './pages/dialogue'
 import { fmHe } from './pages/forms'
 import { gmHe } from './pages/gematria'
+import { glHe } from './pages/gematriaLinks'
 import { cphHe } from './pages/ciphers'
 import { msrHe } from './pages/masorah'
 import { plsHe } from './pages/placeLists'
@@ -112,6 +113,7 @@ export const he: Messages = {
     query: { label: 'חיפוש תבניות', hint: 'חיפוש מבנה: ערך, שורש, צורה ותחביר, מילה אחר מילה' },
     forms: { label: 'מספרים ורשימות', hint: 'שלשה וארבעה: משלים מספריים מדורגים; יחסים ורשימות אחרות' },
     gematria: { label: 'גימטריה', hint: 'ערכי אותיות: מה שווה למה' },
+    gematriaLinks: { label: 'שווים במספר, קרובים במשמעות?', hint: 'האם מילים שוות בגימטריה קרובות במשמעותן? המספרים של בראשית א:א' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
     psalms: { label: 'תהלים', hint: 'סוגי גונקל מן הצורה הנמנית; היכן פונות הקינות' },
@@ -452,6 +454,7 @@ export const he: Messages = {
   dlg: dlgHe,
   fm: fmHe,
   gm: gmHe,
+  gl: glHe,
   cph: cphHe,
   msr: msrHe,
   pl: plHe,

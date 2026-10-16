@@ -636,6 +636,17 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "gematria-links",
+        "gematria_links",
+        (Table("gematria_pairs", "pairs"),),
+        "gematria_links.meta.json",
+        keys(
+            "gematria_links", "system", "draws", "alpha", "min_count", "lemmas", "pairs",
+            "same_letters", "tested", "root_pairs", "tests", "equivalences", "verse",
+            "properties",
+        ),
+    ),
+    Source(
         "ciphers",
         "ciphers",
         (

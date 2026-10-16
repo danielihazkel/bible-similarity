@@ -348,6 +348,12 @@ def stage_gematria(cfg: dict[str, Any], log: Log) -> None:
     run_gematria(cfg, log=log)
 
 
+def stage_gematria_links(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.gematria_links import run_gematria_links
+
+    run_gematria_links(cfg, log=log)
+
+
 def stage_ciphers(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.ciphers import run_ciphers
 
@@ -425,6 +431,7 @@ STAGES: dict[str, str] = {
     "dialogue": "stage_dialogue",
     "forms": "stage_forms",
     "gematria": "stage_gematria",
+    "gematria-links": "stage_gematria_links",
     "ciphers": "stage_ciphers",
     "masorah": "stage_masorah",
     "eval-etcbc": "stage_eval_etcbc",
@@ -492,6 +499,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "dialogue": (*_CORPUS, "syntax"),
     "forms": (*_CORPUS, "parallelism"),
     "gematria": (*_CORPUS,),
+    "gematria-links": (*_CORPUS, "lexicon", "gematria", "roots", *_MODELS),
     "ciphers": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

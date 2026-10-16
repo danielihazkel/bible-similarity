@@ -2978,6 +2978,12 @@ a.dossier-chip:hover {
 .place-list li { margin-block: 0.2rem; }
 .place-panel .he, .place-list .he { font-size: 1.15rem; }
 .where-panel .geo-map { max-width: 34rem; }
+/* Equal values, related words? (§16.59) */
+.gl-pairs { padding-inline-start: 2.2rem; }
+.gl-pairs li { margin-block: 0.25rem; }
+.gl-pairs a { text-decoration: underline; text-underline-offset: 0.15em; }
+.gl-pairs .he, .gl-eq .he { font-size: 1.15rem; }
+.gl-tests td:first-child { white-space: nowrap; }
 /* Place lists on the ground (§16.58) */
 .pls-table tr.on td { background: var(--surface-2); font-weight: 600; }
 .pls-detail, .pls-districts { margin-block-start: 2rem; }

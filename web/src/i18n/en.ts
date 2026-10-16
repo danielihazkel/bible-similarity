@@ -23,6 +23,7 @@ import { pentEn } from './pages/pentateuch'
 import { dlgEn } from './pages/dialogue'
 import { fmEn } from './pages/forms'
 import { gmEn } from './pages/gematria'
+import { glEn } from './pages/gematriaLinks'
 import { cphEn } from './pages/ciphers'
 import { msrEn } from './pages/masorah'
 import { plsEn } from './pages/placeLists'
@@ -105,6 +106,7 @@ export const en = {
     query: { label: 'Pattern search', hint: 'Find a construction: lemma, root, form and syntax, word by word' },
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
     gematria: { label: 'Gematria', hint: 'Letter values: what adds up to what' },
+    gematriaLinks: { label: 'Equal values, related words?', hint: 'Do words of equal gematria mean alike? Genesis 1:1’s numbers' },
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
@@ -451,6 +453,7 @@ export const en = {
   dlg: dlgEn,
   fm: fmEn,
   gm: gmEn,
+  gl: glEn,
   cph: cphEn,
   msr: msrEn,
   pl: plEn,

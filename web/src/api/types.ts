@@ -830,6 +830,9 @@ export type FindingKey =
   | 'masorah_words'
   | 'masorah_verse'
   | 'masorah_books'
+  | 'gematria_links'
+  | 'gematria_measures'
+  | 'gematria_genesis'
   | 'place_lists_order'
   | 'place_lists_districts'
 
@@ -1169,6 +1172,28 @@ export type GematriaForm = S['GematriaForm']
 export type GematriaFormsResponse = S['GematriaFormsResponse']
 export type GematriaLemma = S['GematriaLemma']
 export type GematriaLemmasResponse = S['GematriaLemmasResponse']
+// Do equal values link related words? (`/gematria-links`, DESIGN.md §16.59)
+export type LinkMeasure = 'domains' | 'root' | 'vector'
+export type LinkTest = S['LinkTest']
+export type LinkLemma = S['LinkLemma']
+export type LinkEquivalence = S['LinkEquivalence']
+export type LinkProperty = S['LinkProperty']
+export type LinkVerse = S['LinkVerse']
+export interface GematriaLinksMeta {
+  system?: GematriaSystem
+  draws?: number
+  alpha?: number
+  min_count?: number
+  lemmas?: number
+  pairs?: number
+  same_letters?: number
+  tested?: number
+  root_pairs?: number
+}
+export type GematriaLinksResponse = Omit<S['GematriaLinksResponse'], 'meta'> & { meta: GematriaLinksMeta & Record<string, unknown> }
+export type GematriaPair = S['GematriaPair']
+export type GematriaPairsResponse = S['GematriaPairsResponse']
+export type GematriaPairSort = 'vector' | 'domains' | 'value'
 export type GematriaVerse = S['GematriaVerse']
 export type GematriaVersesResponse = S['GematriaVersesResponse']
 

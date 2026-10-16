@@ -16,6 +16,7 @@ const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ de
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
 const FormsPage = lazy(() => import('./pages/FormsPage').then((m) => ({ default: m.FormsPage })))
 const GematriaPage = lazy(() => import('./pages/GematriaPage').then((m) => ({ default: m.GematriaPage })))
+const GematriaLinksPage = lazy(() => import('./pages/GematriaLinksPage').then((m) => ({ default: m.GematriaLinksPage })))
 const PlacesPage = lazy(() => import('./pages/PlacesPage').then((m) => ({ default: m.PlacesPage })))
 const PlaceListsPage = lazy(() => import('./pages/PlaceListsPage').then((m) => ({ default: m.PlaceListsPage })))
 const MasorahPage = lazy(() => import('./pages/MasorahPage').then((m) => ({ default: m.MasorahPage })))
@@ -93,6 +94,7 @@ export function App() {
           <Route path="refrains" element={<RefrainsPage />} />
           <Route path="forms" element={<FormsPage />} />
           <Route path="gematria" element={<GematriaPage />} />
+          <Route path="gematria-links" element={<GematriaLinksPage />} />
           <Route path="ciphers" element={<CiphersPage />} />
           <Route path="masorah" element={<MasorahPage />} />
           <Route path="places" element={<PlacesPage />} />

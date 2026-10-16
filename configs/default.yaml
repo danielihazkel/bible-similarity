@@ -1038,6 +1038,30 @@ gematria:                     # `bsim gematria`: letter values of words, lemmas 
     - {text: אחד, value: 13}
     - {text: אהבה, value: 13}
 
+gematria_links:               # `bsim gematria-links`: do equal letter values link related words? (DESIGN.md §16.59); everything below fixed before the first run
+  system: standard            # the values compared (`gematria` systems: standard, gadol, ordinal, katan)
+  min_count: 3                # a lemma's occurrences (names left out; at least two letters)
+  max_occ: 20                 # occurrences encoded per lemma (a seeded draw); its vector is their mean
+  encoder: berel_mean         # encoders.systems entry for the word vectors (as `senses`)
+  max_seq_length: 128
+  batch_size: 64
+  bands: [3, 5, 10, 25, 100, 500]   # frequency bands (left edges, occurrences): a matched pair replaces a word by one of the same letter count and band
+  draws: 999                  # sets of matched pairs: the null
+  seed: 31
+  alpha: 0.05
+  equivalences:               # the tradition's pairs, ranked among the equal-value pairs
+    - [נחש, משיח]             # 358 (Bereshit Rabbah; the Zohar)
+    - [יין, סוד]              # 70 (Eruvin 65a: נכנס יין יצא סוד)
+    - [אחד, אהבה]             # 13
+  verse:                      # the numbers claimed for Genesis 1:1, counted over every verse
+    ref: "Genesis 1:1"
+    properties:
+      - {key: words7, kind: words, n: 7}
+      - {key: letters28, kind: letters, n: 28}
+      - {key: multiple37, kind: multiple, n: 37}       # 2701 = 37 × 73
+      - {key: two_primes, kind: prime_factors, n: 2}
+      - {key: triangular, kind: triangular}            # 2701 = 1 + 2 + … + 73
+
 ciphers:                      # `bsim ciphers`: names hidden by atbash and albam (DESIGN.md §16.54); everything below fixed before the first run
   min_letters: 3              # a span, and the name it reads as, has at least this many letters
   rare_form: 2                # one word counts only when its written form occurs at most this often (a cipher makes an odd word); two adjacent words read as one always count

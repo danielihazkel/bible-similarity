@@ -48,3 +48,48 @@ def gematria_page(
         [*args, limit, offset],
     )
     return total, _dicts(cur)
+
+
+_PAIR_ORDER = {
+    "vector": "p.vector DESC, p.a, p.b",
+    "domains": "p.domains DESC, p.vector DESC, p.a, p.b",
+    "value": "p.value, p.vector DESC, p.a, p.b",
+}
+
+
+def gematria_pairs_page(
+    conn: sqlite3.Connection,
+    value: int | None,
+    sort: str,
+    same_letters: bool,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """Pairs of lemmas of equal value (§16.59), with both lemmas' headwords."""
+    where, args = ["1"], []
+    if value is not None:
+        where.append("p.value = ?")
+        args.append(value)
+    if not same_letters:
+        where.append("p.same_letters = 0")
+    w = " AND ".join(where)
+    total = count(conn, f"SELECT COUNT(*) FROM gematria_pairs p WHERE {w}", args)
+    cur = conn.execute(
+        "SELECT p.*, la.he AS a_he, la.n_words AS a_n, lb.he AS b_he, lb.n_words AS b_n"
+        " FROM gematria_pairs p JOIN gematria_lemmas la ON la.lemma = p.a"
+        f" JOIN gematria_lemmas lb ON lb.lemma = p.b WHERE {w}"
+        f" ORDER BY {_PAIR_ORDER[sort]} LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def gematria_lemma_heads(conn: sqlite3.Connection, lemmas: list[str]) -> dict[str, dict[str, Any]]:
+    """lemma -> its headword and occurrences (`gematria_lemmas`)."""
+    if not lemmas:
+        return {}
+    marks = ",".join("?" * len(lemmas))
+    cur = conn.execute(
+        f"SELECT lemma, he, n_words FROM gematria_lemmas WHERE lemma IN ({marks})", lemmas
+    )
+    return {r["lemma"]: r for r in _dicts(cur)}

@@ -172,6 +172,14 @@ def gematria(config: ConfigOpt = None) -> None:
     run_gematria(load_config(config), log=typer.echo)
 
 
+@app.command("gematria-links")
+def gematria_links(config: ConfigOpt = None) -> None:
+    """Do equal letter values link related words? Against matched pairs; Gen 1:1's numbers."""
+    from bsim.analysis.gematria_links import run_gematria_links
+
+    run_gematria_links(load_config(config), log=typer.echo)
+
+
 @app.command()
 def ciphers(config: ConfigOpt = None) -> None:
     """Names hidden by atbash and albam, against random letter swaps."""

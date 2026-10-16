@@ -2052,6 +2052,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/gematria-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Links
+         * @description Equal-value pairs against matched pairs on three measures of relatedness, the check of the
+         *     measures, the traditional equivalences ranked, and Gen 1:1's numbers over every verse.
+         */
+        get: operations["gematria_links_api_gematria_links_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gematria-links/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gematria Link Pairs
+         * @description Pairs of lemmas of equal value, the most related first (or by value).
+         */
+        get: operations["gematria_link_pairs_api_gematria_links_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ciphers/value": {
         parameters: {
             query?: never;
@@ -3847,7 +3888,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "place_lists_order" | "place_lists_districts";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts";
             /**
              * Verdict
              * @enum {string}
@@ -4084,6 +4125,59 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["GematriaLemma"][];
+        };
+        /** GematriaLinksResponse */
+        GematriaLinksResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Equal */
+            equal: {
+                [key: string]: components["schemas"]["LinkTest"];
+            };
+            /** Root Family */
+            root_family: {
+                [key: string]: components["schemas"]["LinkTest"];
+            };
+            /** Equivalences */
+            equivalences: components["schemas"]["LinkEquivalence"][];
+            verse: components["schemas"]["LinkVerse"] | null;
+        };
+        /** GematriaPair */
+        GematriaPair: {
+            a: components["schemas"]["LinkLemma"];
+            b: components["schemas"]["LinkLemma"];
+            /** Value */
+            value: number;
+            /** Same Letters */
+            same_letters: boolean;
+            /** Domains */
+            domains: number;
+            /** Root */
+            root: boolean;
+            /** Vector */
+            vector: number;
+        };
+        /** GematriaPairsResponse */
+        GematriaPairsResponse: {
+            /** Value */
+            value: number | null;
+            /**
+             * Sort
+             * @enum {string}
+             */
+            sort: "vector" | "domains" | "value";
+            /** Same Letters */
+            same_letters: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaPair"][];
         };
         /**
          * GematriaResponse
@@ -4611,6 +4705,110 @@ export interface components {
             he_lemma: string;
             /** N Verses */
             n_verses: number;
+        };
+        /**
+         * LinkEquivalence
+         * @description A traditional equivalence: its relatedness and rank among all equal-value pairs.
+         */
+        LinkEquivalence: {
+            /** A Text */
+            a_text: string;
+            /** B Text */
+            b_text: string;
+            /** Found */
+            found: boolean;
+            a: components["schemas"]["LinkLemma"] | null;
+            b: components["schemas"]["LinkLemma"] | null;
+            /** Value */
+            value: number | null;
+            /** Equal */
+            equal: boolean | null;
+            /** Domains */
+            domains: number | null;
+            /** Root */
+            root: number | null;
+            /** Vector */
+            vector: number | null;
+            /** Domains Rank */
+            domains_rank: number | null;
+            /** Root Rank */
+            root_rank: number | null;
+            /** Vector Rank */
+            vector_rank: number | null;
+        };
+        /** LinkLemma */
+        LinkLemma: {
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            /** N Words */
+            n_words: number;
+        };
+        /** LinkProperty */
+        LinkProperty: {
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "words" | "letters" | "multiple" | "triangular" | "prime_factors";
+            /** N */
+            n: number | null;
+            /** Holds Here */
+            holds_here: boolean;
+            /** Verses */
+            verses: number;
+        };
+        /**
+         * LinkTest
+         * @description Equal-value (or one-root) pairs against matched pairs on one measure (§16.59).
+         */
+        LinkTest: {
+            /** N */
+            n: number;
+            /** Observed */
+            observed: number;
+            /** Null Mean */
+            null_mean: number;
+            /** Null Q05 */
+            null_q05: number;
+            /** Null Q95 */
+            null_q95: number;
+            /** P */
+            p: number;
+            /** Unmatched */
+            unmatched: number;
+        };
+        /**
+         * LinkVerse
+         * @description The numbers claimed for one verse (Gen 1:1), counted over every verse.
+         */
+        LinkVerse: {
+            verse: components["schemas"]["VerseLabel"];
+            /** Value */
+            value: number;
+            /** Words */
+            words: number;
+            /** Letters */
+            letters: number;
+            /** Largest Prime */
+            largest_prime: number;
+            /** N Verses */
+            n_verses: number;
+            /** All */
+            all: number;
+            /** Expected All */
+            expected_all: number;
+            /** Unique Here */
+            unique_here: boolean;
+            /** Unique Share */
+            unique_share: number;
+            /** Twins */
+            twins: components["schemas"]["VerseLabel"][];
+            /** Properties */
+            properties: components["schemas"]["LinkProperty"][];
         };
         /** MapCluster */
         MapCluster: {
@@ -10438,6 +10636,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GematriaVersesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gematria_links_api_gematria_links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaLinksResponse"];
+                };
+            };
+        };
+    };
+    gematria_link_pairs_api_gematria_links_pairs_get: {
+        parameters: {
+            query?: {
+                value?: number | null;
+                sort?: "vector" | "domains" | "value";
+                same_letters?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GematriaPairsResponse"];
                 };
             };
             /** @description Validation Error */

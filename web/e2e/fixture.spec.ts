@@ -93,6 +93,8 @@ const PAGES = [
   '/forms',
   '/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA',
   '/read/c%3A0%3A1?layers=gematria',
+  '/gematria-links',
+  '/gematria-links?sort=value&same=1',
   '/ciphers',
   '/ciphers?cipher=albam&known=1',
   '/masorah',
@@ -255,6 +257,21 @@ test('places on the map: the points, a place panel, the unit page and the reader
   await expect(page).toHaveURL(/\/places\?unit=c%3A0%3A1$/)
   await page.goto('/read/c%3A0%3A1?layers=places')
   await expect(page.locator('.reader-text .pl-town')).toHaveCount(2)
+})
+
+test('equal values: the tests, the equivalences, Genesis 1:1 and the pairs', async ({ page }) => {
+  await page.goto('/gematria-links')
+  await expect(page.locator('.gl-tests')).toHaveCount(2)
+  await expect(page.locator('.gl-tests').first().locator('tbody tr')).toHaveCount(3)
+  await expect(page.locator('.gl-eq tbody tr')).toHaveCount(2)
+  await expect(page.locator('.gl-props tbody tr')).toHaveCount(2)
+  await expect(page.getByRole('link', { name: 'v:3' })).toHaveAttribute('href', '/unit/v%3A3')
+  await expect(page.locator('.gl-pairs li')).toHaveCount(1)
+  await page.getByRole('checkbox', { name: 'With pairs spelled alike' }).click()
+  await expect(page.locator('.gl-pairs li')).toHaveCount(2)
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /Equal values, related words\?/ }).first().click()
+  await expect(page).toHaveURL(/\/gematria-links/)
 })
 
 test('place lists: a list against its shuffles, its path on the map, the districts', async ({ page }) => {

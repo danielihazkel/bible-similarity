@@ -1,10 +1,10 @@
 """Letter values (DESIGN.md §16.53): a text's value in each system, and the word forms, lemmas and
-verses of one value."""
+verses of one value; whether equal values link related words, and Gen 1:1's numbers (§16.59)."""
 
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter
 
@@ -16,12 +16,20 @@ from bsim.api.models.gematria import (
     GematriaKnown,
     GematriaLemma,
     GematriaLemmasResponse,
+    GematriaLinksResponse,
+    GematriaPair,
+    GematriaPairsResponse,
     GematriaResponse,
     GematriaSystem,
     GematriaValueResponse,
     GematriaValues,
     GematriaVerse,
     GematriaVersesResponse,
+    LinkEquivalence,
+    LinkLemma,
+    LinkProperty,
+    LinkTest,
+    LinkVerse,
 )
 from bsim.api.routes._common import Conn, State, check_min, check_page, unprocessable
 from bsim.text.gematria import SYSTEMS, letters, values
@@ -147,3 +155,75 @@ def gematria_verses(
     ]
     return {"value": value, "system": system, "book": book, "total": total, "offset": offset,
             "limit": limit, "items": items}  # fmt: skip
+
+
+def _link_lemma(heads: dict[str, dict[str, Any]], lemma: str) -> LinkLemma:
+    h = heads.get(lemma) or {"he": lemma, "n_words": 0}
+    return LinkLemma(lemma=lemma, he=h["he"], n_words=h["n_words"])
+
+
+@router.get("/gematria-links", response_model=GematriaLinksResponse)
+def gematria_links(state: State, conn: Conn) -> dict[str, Any]:
+    """Equal-value pairs against matched pairs on three measures of relatedness, the check of the
+    measures, the traditional equivalences ranked, and Gen 1:1's numbers over every verse."""
+    meta = state.meta.get("gematria_links") or {}
+    tests = meta.get("tests") or {}
+    eqs = meta.get("equivalences") or []
+    heads = queries.gematria_lemma_heads(conn, [e[k] for e in eqs for k in ("a", "b") if e.get(k)])
+    equivalences = [
+        LinkEquivalence(**{k: v for k, v in e.items() if k not in ("a", "b")},
+                        a=_link_lemma(heads, e["a"]) if e.get("a") else None,
+                        b=_link_lemma(heads, e["b"]) if e.get("b") else None)  # fmt: skip
+        for e in eqs
+    ]
+    v = meta.get("verse")
+    verse = None
+    if v:
+        ids = [v["verse_id"], *v.get("twins", [])]
+        labels = queries.verse_labels(conn, ids)
+
+        def label(i: int) -> VerseLabel:
+            return VerseLabel(verse_id=i, label_en=labels[i][0], label_he=labels[i][1])
+
+        verse = LinkVerse(
+            **{k: v[k] for k in ("value", "words", "letters", "largest_prime", "n_verses", "all",
+                                 "expected_all", "unique_here", "unique_share")},  # fmt: skip
+            verse=label(v["verse_id"]),
+            twins=[label(i) for i in v.get("twins", []) if i in labels],
+            properties=[LinkProperty(**p) for p in meta.get("properties") or []],
+        )
+    return {
+        "meta": {k: x for k, x in meta.items()
+                 if k not in ("tests", "equivalences", "verse", "properties")},  # fmt: skip
+        "equal": {m: LinkTest(**t) for m, t in (tests.get("equal") or {}).items()},
+        "root_family": {m: LinkTest(**t) for m, t in (tests.get("root_family") or {}).items()},
+        "equivalences": equivalences,
+        "verse": verse,
+    }
+
+
+@router.get("/gematria-links/pairs", response_model=GematriaPairsResponse)
+def gematria_link_pairs(
+    state: State,
+    conn: Conn,
+    value: int | None = None,
+    sort: Literal["vector", "domains", "value"] = "vector",
+    same_letters: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Pairs of lemmas of equal value, the most related first (or by value)."""
+    check_min(value, "value", 0)
+    check_page(state, limit, offset)
+    total, rows = queries.gematria_pairs_page(conn, value, sort, same_letters, limit, offset)
+    items = [
+        GematriaPair(
+            a=LinkLemma(lemma=r["a"], he=r["a_he"], n_words=r["a_n"]),
+            b=LinkLemma(lemma=r["b"], he=r["b_he"], n_words=r["b_n"]),
+            value=r["value"], same_letters=bool(r["same_letters"]), domains=r["domains"],
+            root=bool(r["root"]), vector=r["vector"],
+        )  # fmt: skip
+        for r in rows
+    ]
+    return {"value": value, "sort": sort, "same_letters": same_letters, "total": total,
+            "offset": offset, "limit": limit, "items": items}  # fmt: skip

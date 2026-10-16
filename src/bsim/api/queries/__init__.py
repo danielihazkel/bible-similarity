@@ -124,7 +124,9 @@ from bsim.api.queries.forms import (
 )
 from bsim.api.queries.gematria import (
     gematria_counts,
+    gematria_lemma_heads,
     gematria_page,
+    gematria_pairs_page,
 )
 from bsim.api.queries.ketiv import (
     kq_books,
@@ -327,7 +329,9 @@ __all__ = [
     "forms_sayings_page",
     "gaps_in",
     "gematria_counts",
+    "gematria_lemma_heads",
     "gematria_page",
+    "gematria_pairs_page",
     "gloss",
     "hidden_roots_page",
     "kq_books",

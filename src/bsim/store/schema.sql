@@ -1234,6 +1234,20 @@ CREATE TABLE gematria_verses (
     n_words INTEGER NOT NULL
 );
 
+-- do equal letter values link related words? (`bsim gematria-links`, §16.59): every pair of
+-- lemmas of equal value with how related they are
+CREATE TABLE gematria_pairs (
+    a TEXT NOT NULL,                -- lemmas (a < b)
+    b TEXT NOT NULL,
+    value INTEGER NOT NULL,         -- `gematria_links.system`
+    same_letters INTEGER NOT NULL,  -- spelled with the same letters (left out of the test)
+    domains REAL NOT NULL,          -- cosine of their SDBH domain profiles
+    root INTEGER NOT NULL,          -- one root family
+    vector REAL NOT NULL,           -- cosine of their BEREL vectors
+    PRIMARY KEY (a, b)
+) WITHOUT ROWID;
+CREATE INDEX gematria_pairs_value ON gematria_pairs (value);
+
 -- names hidden by a letter swap (`bsim ciphers`, §16.54)
 CREATE TABLE cipher_hits (
     hit_id INTEGER PRIMARY KEY,

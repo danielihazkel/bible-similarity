@@ -226,6 +226,21 @@ export const findEn = {
       text: (v: V) =>
         `Does each book have as many verses as the Masorah says? ${numEn(n(v, 'agree'))} of ${numEn(n(v, 'n'))}; the others differ by at most ${numEn(n(v, 'max_diff'))}, ${numEn(n(v, 'reasoned'))} of them for a reason the page gives (the Ten Commandments divided otherwise, a verse counted as two, two verses left out).`,
     },
+    gematria_links: {
+      title: 'Equal values, related words?',
+      text: (v: V) =>
+        `Are words of equal letter value closer in meaning than words matched on length and frequency? Over ${numEn(n(v, 'pairs'))} pairs: semantic domains shared ${x3(n(v, 'domains_observed'))} against ${x3(n(v, 'domains_null'))} (p ${fp(n(v, 'domains_p'))}), one root family ${pct(n(v, 'root_observed'))} against ${pct(n(v, 'root_null'))} (p ${fp(n(v, 'root_p'))}), used alike ${x3(n(v, 'vector_observed'))} against ${x3(n(v, 'vector_null'))} (p ${fp(n(v, 'vector_p'))}).`,
+    },
+    gematria_measures: {
+      title: 'The measures of relatedness see it where it is',
+      text: (v: V) =>
+        `A check: are ${numEn(n(v, 'pairs'))} pairs of one root family closer than matched pairs? Domains shared ${x3(n(v, 'domains_observed'))} against ${x3(n(v, 'domains_null'))} (p ${fp(n(v, 'domains_p'))}), used alike ${x3(n(v, 'vector_observed'))} against ${x3(n(v, 'vector_null'))} (p ${fp(n(v, 'vector_p'))}).`,
+    },
+    gematria_genesis: {
+      title: 'Genesis 1:1 singular by its numbers?',
+      text: (v: V) =>
+        `Is Genesis 1:1 (${numEn(n(v, 'value'))}, 7 words, 28 letters) rarer by its own numbers than verses usually are? ${n(v, 'unique_here') ? 'It is the only verse with its word count, letter count and largest prime factor' : `${numEn(n(v, 'twins'))} other verses share its word count, letter count and largest prime factor`}, while ${pct(n(v, 'unique_share'))} of verses are alone with theirs.`,
+    },
     place_lists_order: {
       title: 'Place lists ordered on the ground',
       text: (v: V) =>
@@ -453,6 +468,21 @@ export const findHe: typeof findEn = {
       title: 'מניין הפסוקים של המסורה',
       text: (v: V) =>
         `האם בכל ספר יש כמספר הפסוקים שהמסורה מוסרת? ${numHe(n(v, 'agree'))} מתוך ${numHe(n(v, 'n'))}; האחרים נבדלים לכל היותר ב־${numHe(n(v, 'max_diff'))}, ${numHe(n(v, 'reasoned'))} מהם מסיבה שהעמוד מביא (עשרת הדברות מחולקים אחרת, פסוק שנמנה כשניים, שני פסוקים שאינם במניין).`,
+    },
+    gematria_links: {
+      title: 'שווים במספר, קרובים במשמעות?',
+      text: (v: V) =>
+        `האם מילים שוות ערך קרובות במשמעותן יותר ממילים מותאמות באורך ובשכיחות? על פני ${numHe(n(v, 'pairs'))} זוגות: תחומי משמעות משותפים ${x3(n(v, 'domains_observed'))} לעומת ${x3(n(v, 'domains_null'))} (p ${fp(n(v, 'domains_p'))}), משפחת שורש אחת ${pct(n(v, 'root_observed'))} לעומת ${pct(n(v, 'root_null'))} (p ${fp(n(v, 'root_p'))}), שימוש דומה ${x3(n(v, 'vector_observed'))} לעומת ${x3(n(v, 'vector_null'))} (p ${fp(n(v, 'vector_p'))}).`,
+    },
+    gematria_measures: {
+      title: 'מדדי הקרבה רואים אותה במקום שבו היא',
+      text: (v: V) =>
+        `בדיקה: האם ${numHe(n(v, 'pairs'))} זוגות ממשפחת שורש אחת קרובים יותר מזוגות מותאמים? תחומים משותפים ${x3(n(v, 'domains_observed'))} לעומת ${x3(n(v, 'domains_null'))} (p ${fp(n(v, 'domains_p'))}), שימוש דומה ${x3(n(v, 'vector_observed'))} לעומת ${x3(n(v, 'vector_null'))} (p ${fp(n(v, 'vector_p'))}).`,
+    },
+    gematria_genesis: {
+      title: 'בראשית א:א יחיד במספריו?',
+      text: (v: V) =>
+        `האם בראשית א:א (${numHe(n(v, 'value'))}, 7 מילים, 28 אותיות) נדיר במספריו שלו יותר משפסוק נדיר בדרך כלל? ${n(v, 'unique_here') ? 'הוא הפסוק היחיד במספר מילותיו, מספר אותיותיו והגורם הראשוני הגדול של ערכו' : `${numHe(n(v, 'twins'))} פסוקים אחרים חולקים עמו את מספר המילים, מספר האותיות והגורם הראשוני הגדול`}, ואילו ${pct(n(v, 'unique_share'))} מהפסוקים יחידים במספריהם.`,
     },
     place_lists_order: {
       title: 'רשימות המקומות מסודרות על פני הארץ',

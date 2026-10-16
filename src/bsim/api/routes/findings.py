@@ -431,6 +431,43 @@ def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
     return build
 
 
+def _gematria_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Do equal letter values link related words (§16.59)? `gematria_links`: equal-value pairs
+    more related than matched pairs on any of the three measures at `alpha` / 3 (Bonferroni);
+    `gematria_measures`: the check, pairs of one root family closer on domains and vectors;
+    `gematria_genesis`: Gen 1:1 singular by its own numbers where few verses are (the share of
+    verses that are the only one with their own word count, letter count and largest prime
+    factor at most `alpha`)."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        g = meta.get("gematria_links") or {}
+        tests = g.get("tests") or {}
+        if key == "gematria_genesis":
+            v = g.get("verse")
+            if not v:
+                return None
+            values = {k: v.get(k) for k in ("value", "all", "expected_all", "unique_share")}
+            values["unique_here"] = float(bool(v.get("unique_here")))
+            values["twins"] = len(v.get("twins") or [])
+            holds = bool(v.get("unique_here")) and v["unique_share"] <= alpha
+            return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+        t = tests.get("equal" if key == "gematria_links" else "root_family") or {}
+        if not t:
+            return None
+        values = {"pairs": next(iter(t.values()))["n"]}
+        for m, r in t.items():
+            values |= {f"{m}_observed": r["observed"], f"{m}_null": r["null_mean"],
+                       f"{m}_p": r["p"]}  # fmt: skip
+        if key == "gematria_links":
+            holds = any(r["observed"] > r["null_mean"] and r["p"] <= alpha / len(t)
+                        for r in t.values())  # fmt: skip
+        else:
+            holds = all(r["observed"] > r["null_mean"] and r["p"] <= alpha for r in t.values())
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _place_lists(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The place lists against shuffles (§16.58): every list's path shorter than random orders of
     its places (`place_lists_order`); every grouping's towns closer within a district than with
@@ -500,6 +537,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _masorah("masorah_words"),
     _masorah("masorah_verse"),
     _masorah("masorah_books"),
+    _gematria_links("gematria_links"),
+    _gematria_links("gematria_measures"),
+    _gematria_links("gematria_genesis"),
     _place_lists("place_lists_order"),
     _place_lists("place_lists_districts"),
     _allusions,

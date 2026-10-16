@@ -20,7 +20,7 @@ from bsim.analysis.sound import run_sound
 from bsim.analysis.structure import run_structure
 from bsim.analysis.stylometry import run_stylometry
 from bsim.analysis.typescenes import run_typescenes
-from bsim.config import load_config
+from bsim.config import load_config, resolve_path
 from bsim.retrieve.fusion import final_systems
 from bsim.store.db import run_build_db
 from bsim.text.normalize import consonantal
@@ -1447,6 +1447,47 @@ def write_inputs(cfg, tmp_path):
     np.save(emb_dir / f"{cfg['final_systems']['semantic'].removesuffix('_csls')}.npy", EMB)
 
 
+def write_gematria_links(cfg):
+    """Do equal values link related words (`bsim gematria-links`), made up over the lemmas
+    `bsim gematria` valued: one pair spelled apart, one alike; v0 as the verse named, v3 its
+    twin."""
+    out = resolve_path(cfg, "artifacts") / "gematria_links"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [("430", "559", 86, False, 0.12, 0, 0.71), ("3068", "7225", 26, True, 0.0, 1, 0.55)],
+        columns=["a", "b", "value", "same_letters", "domains", "root", "vector"],
+    ).to_parquet(out / "pairs.parquet")
+
+    def t(n, obs, null, p):
+        return {"n": n, "observed": obs, "null_mean": null, "null_q05": null - 0.01,
+                "null_q95": null + 0.01, "p": p, "unmatched": 0.0}
+
+    meta = {
+        "system": "standard", "draws": 99, "alpha": 0.05, "min_count": 1, "lemmas": 4,
+        "pairs": 2, "same_letters": 1, "tested": 1, "root_pairs": 3,
+        "tests": {
+            "equal": {"domains": t(1, 0.12, 0.1, 0.4), "root": t(1, 0.0, 0.02, 1.0),
+                      "vector": t(1, 0.71, 0.6, 0.03)},
+            "root_family": {"domains": t(3, 0.3, 0.01, 0.01), "vector": t(3, 0.7, 0.6, 0.01)},
+        },
+        "equivalences": [
+            {"a_text": "אלהים", "b_text": "יאמר", "found": True, "a": "430", "b": "559",
+             "value": 86, "equal": False, "domains": 0.12, "root": 0.0, "vector": 0.71,
+             "domains_rank": 1.0, "root_rank": 0.0, "vector_rank": 1.0},
+            {"a_text": "יין", "b_text": "סוד", "found": False},
+        ],
+        "verse": {"ref": "Genesis 1:1", "verse_id": 0, "value": 2701, "words": 7, "letters": 28,
+                  "largest_prime": 73, "n_verses": 6, "all": 1, "expected_all": 0.02,
+                  "unique_here": False, "unique_share": 0.5, "twins": [3]},
+        "properties": [
+            {"key": "words7", "kind": "words", "n": 7, "holds_here": True, "verses": 2},
+            {"key": "triangular", "kind": "triangular", "n": None, "holds_here": True,
+             "verses": 1},
+        ],
+    }
+    (out / "gematria_links.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1459,6 +1500,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     run_network(cfg, log=lambda _: None)
     run_stylometry(cfg, log=lambda _: None)
     run_gematria(cfg, log=lambda _: None)
+    write_gematria_links(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

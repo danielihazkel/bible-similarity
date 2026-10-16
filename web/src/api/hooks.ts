@@ -39,6 +39,9 @@ import type {
   GematriaSystem,
   GematriaValueResponse,
   GematriaVersesResponse,
+  GematriaLinksResponse,
+  GematriaPairSort,
+  GematriaPairsResponse,
   FormsSayingsResponse,
   AffinityPair,
   AlliterationResponse,
@@ -711,6 +714,20 @@ const gematriaList = <T,>(path: string, q: GematriaQuery | undefined) => ({
 export const useGematriaForms = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaFormsResponse>('/gematria/forms', q))
 export const useGematriaLemmas = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaLemmasResponse>('/gematria/lemmas', q))
 export const useGematriaVerses = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaVersesResponse>('/gematria/verses', q))
+
+export const useGematriaLinks = () =>
+  useQuery({ queryKey: ['gematria-links'], queryFn: ({ signal }) => getJson<GematriaLinksResponse>('/gematria-links', {}, signal), ...forever })
+
+export type GematriaPairsQuery = { value?: number; sort: GematriaPairSort; sameLetters: boolean; limit: number; offset: number }
+
+export const useGematriaPairs = (q: GematriaPairsQuery) =>
+  useQuery({
+    queryKey: ['gematria-pairs', q],
+    queryFn: ({ signal }) =>
+      getJson<GematriaPairsResponse>('/gematria-links/pairs', { value: q.value, sort: q.sort, same_letters: q.sameLetters ? 'true' : undefined, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
 
 export const useCiphers = () =>
   useQuery({ queryKey: ['ciphers'], queryFn: ({ signal }) => getJson<CiphersResponse>('/ciphers', {}, signal), ...forever })
