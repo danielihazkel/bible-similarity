@@ -565,6 +565,36 @@ def _place_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Findin
     return build
 
 
+def _els(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Equidistant letter sequences (§16.62). `els_counts`: the names' hits in the Torah are no
+    more than the controls' (letters shuffled, verses shuffled, blocks of the rest of the Bible)
+    in every scope, none at p <= `alpha`; `els_known`: the tradition's sequences at the start of
+    the books of the Torah are in our letters."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        e = meta.get("els") or {}
+        if key == "els_known":
+            known = e.get("known") or []
+            if not known:
+                return None
+            values = {"n": len(known), "found": sum(bool(k["found"]) for k in known)}
+            holds = all(k["found"] for k in known)
+            return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+        scopes = e.get("scopes") or {}
+        if "torah" not in scopes:
+            return None
+        values: dict[str, float | None] = {"terms": e.get("terms")}
+        for name, s in scopes.items():
+            values[f"{name}_r"] = s["r"]
+            for c, v in (s.get("controls") or {}).items():
+                values[f"{name}_{c}_p"] = v["p"]
+        holds = all(c["p"] > alpha for s in scopes.values()
+                    for c in (s.get("controls") or {}).values())  # fmt: skip
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -615,6 +645,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _place_arc("place_arc_oracles"),
     _place_links("place_links_decay"),
     _place_links("place_links_known"),
+    _els("els_counts"),
+    _els("els_known"),
     _allusions,
 ]
 

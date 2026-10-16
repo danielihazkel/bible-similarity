@@ -378,6 +378,12 @@ def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     run_masorah(cfg, log=log)
 
 
+def stage_els(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.els import run_els
+
+    run_els(cfg, log=log)
+
+
 def stage_eval_etcbc(cfg: dict[str, Any], log: Log) -> None:
     """Third gold set (dev only), after the parallel analyses it also scores."""
     from bsim.eval.etcbc import run_eval_etcbc
@@ -448,6 +454,7 @@ STAGES: dict[str, str] = {
     "gematria-links": "stage_gematria_links",
     "ciphers": "stage_ciphers",
     "masorah": "stage_masorah",
+    "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
     "build-db": "stage_build_db",
 }
@@ -518,6 +525,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "gematria-links": (*_CORPUS, "lexicon", "gematria", "roots", *_MODELS),
     "ciphers": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
+    "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (
         *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
     ),

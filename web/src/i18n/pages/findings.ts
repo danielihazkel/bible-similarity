@@ -276,6 +276,16 @@ export const findEn = {
       text: (v: V) =>
         `Is the land’s length, Dan and Beersheba (${numEn(Math.round(n(v, 'km')))} km apart), among the ${numEn(n(v, 'top'))} most strongly linked far pairs of places? ${v.rank == null ? 'It is not among them.' : `It ranks ${numEn(n(v, 'rank'))}.`}`,
     },
+    els_counts: {
+      title: 'No more names at equal skips than chance',
+      text: (v: V) =>
+        `Does the Torah hold more names at equal skips (${numEn(n(v, 'terms'))} names, skips up to 1,000 either way) than its letters shuffled, its verses shuffled or stretches of the other books as long? Its hits run at ${x3(n(v, 'torah_r'))} on a log scale against the shuffles’ expectation; p ${fp(n(v, 'torah_letters_p'))} against shuffled letters, ${fp(n(v, 'torah_verses_p'))} against shuffled verses, ${fp(n(v, 'torah_blocks_p'))} against the other books; Genesis alone ${x3(n(v, 'genesis_r'))}.`,
+    },
+    els_known: {
+      title: 'The tradition’s sequences in our letters',
+      text: (v: V) =>
+        `Are the sequences read at the start of each book of the Torah (תורה at every 50th letter from Genesis 1:1, and the others) in our letter string? ${numEn(n(v, 'found'))} of ${numEn(n(v, 'n'))}.`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -543,6 +553,16 @@ export const findHe: typeof findEn = {
       title: 'מדן ועד באר שבע',
       text: (v: V) =>
         `האם אורך הארץ, דן ובאר שבע (${numHe(Math.round(n(v, 'km')))} ק״מ ביניהן), נמנה עם ${numHe(n(v, 'top'))} הזוגות הרחוקים הקשורים בחוזק הרב ביותר? ${v.rank == null ? 'אינו ביניהם.' : `הוא במקום ${numHe(n(v, 'rank'))}.`}`,
+    },
+    els_counts: {
+      title: 'לא יותר שמות בדילוג שווה ממה שהמקרה נותן',
+      text: (v: V) =>
+        `האם יש בתורה יותר שמות בדילוג שווה (${numHe(n(v, 'terms'))} שמות, דילוגים עד 1,000 לשני הכיוונים) מאשר באותיותיה מעורבבות, בפסוקיה מעורבבים או בקטעים מן הספרים האחרים באורך שווה? המופעים בה עומדים על ${x3(n(v, 'torah_r'))} בסולם לוגריתמי מול הצפוי בערבוב; p ${fp(n(v, 'torah_letters_p'))} מול אותיות מעורבבות, ${fp(n(v, 'torah_verses_p'))} מול פסוקים מעורבבים, ${fp(n(v, 'torah_blocks_p'))} מול הספרים האחרים; בראשית לבדו ${x3(n(v, 'genesis_r'))}.`,
+    },
+    els_known: {
+      title: 'רצפי המסורת באותיות שלנו',
+      text: (v: V) =>
+        `האם הרצפים שנקראו בראש כל אחד מחומשי התורה (תורה בכל אות חמישים מבראשית א:א, ושאר הרצפים) נמצאים ברצף האותיות שלנו? ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'n'))}.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

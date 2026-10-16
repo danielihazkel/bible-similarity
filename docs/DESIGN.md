@@ -308,6 +308,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/place-lists`, `/api/place-lists/{key}`, `/api/place-districts/{key}` | Are the place lists ordered on the ground? (§16.58): each list's path against random orders of its places (all located, and sure sites alone) with the random paths binned; one list's places in the text's order with the km of each step and the short path's order; one grouping's districts with their tests and towns |
 | `GET /api/place-arc`, `/api/place-arc/{book_id}` | The geographic arc (§16.60): consecutive chapters' centres against shuffled orders over all books and per book, the known moves with their spans' centres, the oracles against the nations against the other prophetic chapters with their chapters; one book's placed chapters in order (centre, spread, reach, the step from the one before, the place named most) |
 | `GET /api/place-links`, `/api/place-links/pairs?place=&sort=&far=` | Do places named together lie together? (§16.61): per variant (every located place, sure sites, without the place lists) rho between the linked pairs' G² and km against shuffled coordinates and the decay by distance; the known far pair and the leads; every linked pair's km and G² (the scatter); the linked pairs (paged; one place's; strongest, farthest or nearest first; far ones only) |
+| `GET /api/els` | Equidistant letter sequences against controls (§16.62): per scope (the Torah, Genesis) the names' hits against their exact expectation, each control's R values (shuffled letters, shuffled verses, blocks of the other books) with mean, range and p, the blocks, every name's counts; the tradition's sequences at the start of each book |
 | `GET /api/gematria-links`, `/api/gematria-links/pairs?value=&sort=&same_letters=` | Do equal letter values link related words? (§16.59): equal-value pairs against matched pairs on three measures, the check on one-root pairs, the tradition's equivalences ranked, Genesis 1:1's numbers over every verse; the pairs of equal value (paged, most related first or by value) |
 | `GET /api/map/{type}`, `/api/affinity`, `/api/affinity/{a}/{b}`, `/api/stylometry`, `/api/stylometry/book/{id}`, `/api/seams?book=&limit=&offset=` | corpus map, book affinity, stylometry, style seams (§16.4, §16.6, §16.12) |
 
@@ -436,6 +437,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D98 | Letters at equal skips | 27 names fixed in config, counted at skips 2–1,000 either way in the written letters (finals folded) of the Torah and of Genesis. A name's hits against its exact expectation under a shuffle of the scope's letters; R = the mean over names of log((hits + 0.5) / (expected + 0.5)). Controls: 199 letter shuffles, 199 verse-order shuffles, and blocks of the same length from the other books in canon order (each against its own expectation). The claim, no more hits than the controls, holds when no control has p ≤ 0.05. The tradition's sequences at the start of each book as known answers (§16.62) |
 | D97 | Named together, near together? | Two located places are linked when at least 2 verses name both, more often than independence expects; the link's strength is Dunning's G² over the verses (as §16.11). Spearman's rho between the linked pairs' G² and their km against 9,999 shuffles of the coordinates among the linked places, one-sided; on every located place (the test), on sure sites (OpenBible vote ≥ 500) and without the verses of the text's place lists. The decay curve by km bins; leads are pairs at least 150 km apart by G², with Dan–Beersheba as a known answer among the first 10 (§16.61) |
 | D96 | The geographic arc | A chapter is placed at the mean on the sphere of the located places it names, one point per (place, verse) mention, when it has at least 2; its spread is their mean km from the centre, its reach the centre's km from Jerusalem. Consecutive placed chapters of a book against 9,999 shuffled orders, per book and summed over the books with 3 placed chapters or more. Four known moves (Gen 11 → 12, Gen 35–37 → 46–47, Exod 1–12 → Num 10–21, 2 Kgs 21–23 → 24–25) hold when the centre after lies nearer the region entered and the centre before nearer the region left (anchor points in config). The oracles against the nations (Amos 1–2, Isa 13–23, Jer 46–51, Ezek 25–32) against the other placed chapters of the prophets on spread or reach, labels shuffled, at α / 2 each (§16.60) |
 | D95 | Equal values, related words? | Content lemmas (≥ 3 occurrences, names left out) with an SDBH domain profile, a root family and a BEREL vector (mean of up to 20 uses in context); every pair of equal standard value, pairs spelled with the same letters left out; relatedness as domain-profile cosine, one root family and vector cosine, against 999 sets of matched pairs (one word kept, the other replaced by one of the same letter count and frequency band and another value). Holds on any measure at α / 3. A check on one-root pairs; the tradition's equivalences ranked; Genesis 1:1's claimed numbers over every verse, and every verse described by its own numbers as the look-elsewhere control (§16.59) |
@@ -1353,3 +1355,55 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - Co-mention in a verse is the only link: a chapter's places are not linked across its verses.
   - A land is a point (§16.56), so its links are measured from one representative site; places at one point (Sodom and Gomorrah, Damascus and Aram) are 0 km apart.
   - Lists are not the only text that names neighbours by design; the no-lists variant leaves out the long ones only.
+
+### 16.62 Letters at equal skips (`bsim els`, `analysis/els.py`, `/els`)
+- **Why:** read every 50th letter from the ת of Genesis 1:1 and you get תורה (Rabbenu Bahya, on Gen 1:1). Since the 1990s "Bible codes" have read names and dates in the Torah's letters at skips in the thousands. Any long text holds such sequences by chance. The question is whether the Torah holds more of them than its controls. Counts against controls, not codes; fixed in `els` before the first run, and the expected answer is no.
+- **The letters:** the written text (`els.text` = ketiv, built as for the Masorah, §16.55), consonants, final forms folded, verse after verse: 304,801 letters in the Torah, 78,063 in Genesis.
+- **Terms** (`els.terms`), 27 names, a list of names rather than the rabbis and dates of Witztum, Rips and Rosenberg:
+  - the fathers and mothers;
+  - Moses, Aaron and Miriam;
+  - kings and prophets;
+  - Ezra, Nehemiah, Mordecai and Esther;
+  - Hillel, Shammai, Akiva, Rashi and Rambam.
+- **Hits:** an occurrence at a skip of `min_skip` = 2 to `max_skip` = 1,000 letters, forwards or backwards (a backward hit is the reversed name forwards; a palindrome counts once). Counted on the GPU: each start at the name's first letter against every skip, then narrowed letter by letter.
+- **Expected:** under a shuffle of the scope's letters the expected count is exact: the placements (Σ over skips of n − (L − 1)·d) times the chance that L given positions spell the name, Π (count of the letter − its earlier uses in the name) / (n − k). Each name's log ratio is log((hits + 0.5) / (expected + 0.5)); a text's statistic R is the mean over the names.
+- **Controls**, for the Torah and for Genesis alone:
+  - the same letters shuffled (199 draws);
+  - the same verses in shuffled order, each verse's letters kept (199 draws);
+  - blocks of the same length cut from the other books in canon order (Joshua on), each against its own expectation: 2 for the Torah, 11 for Genesis.
+
+  One-sided, p is the share of a control's R at least the text's (+1 smoothed). The claim, "no more hits than the controls", holds when no control has p ≤ 0.05.
+- **Known answers** (`els.known`, a check of the letter string): the sequences read at the start of each book.
+  - תורה at 50 from Gen 1:1 and from Exod 1:1;
+  - יהוה at 8 from Lev 1:1;
+  - הרות (backwards) at 50 from Num 1:1, and at 49 from Deut 1:5.
+
+  Each is reported with how often the word occurs at that skip anywhere in the Torah.
+- **Results:** the claim holds.
+
+| Text | Hits | Expected | R | Letters shuffled, p | Verses shuffled, p | Other books, p |
+|---|---|---|---|---|---|---|
+| Torah | 1,428,731 | 1,429,940 | −0.011 | 0.62 | 0.57 | 0.33 |
+| Genesis | 320,646 | 319,141 | −0.009 | 0.47 | 0.45 | 0.25 |
+
+  - **Torah against its controls:** its R sits inside the shuffles' 90% range (letters −0.049 to +0.026, verses −0.049 to +0.033); the two blocks of the other books have −0.030 and −0.049.
+  - **Name by name**, against the letter shuffles:
+    - three short names run high (מרים, דוד, הלל, p 0.005);
+    - five run low (שרה, רחל, אסתר, שמאי, רשי, p 1.0);
+    - both groups are what 27 tests on letters that are not independent give, and they cancel in R.
+  - **The tradition's five are all in our letters**, each starting in the verse named. But they are not rare:
+    - תורה occurs at skip 50 nineteen times in the Torah (about 10 expected);
+    - יהוה at skip 8, 36 times (27 expected);
+    - הרות at skip 49, 4 times (10 expected).
+- **Viewer** (Patterns → Letters at equal skips, `/els`): the Torah or Genesis (`?scope=`). The page shows:
+  - the counts and R against each control, with a verdict;
+  - every control draw as a dot beside the text's R;
+  - the blocks;
+  - name by name: hits each way, expected, ratio, the letter shuffles' 90% range and p, the verse shuffles' mean, the other books' ratio;
+  - the tradition's sequences with how often each recurs.
+- **Served:** `els_terms`, `els_draws` (+ `meta.els`); `/els`; findings `els_counts`, `els_known`.
+- **Limits:**
+  - Counts, not the proximity of pairs: Witztum, Rips and Rosenberg (1994) measured how close a rabbi's name lies to his dates, and McKay, Bar-Natan, Bar-Hillel and Kalai (1999) answered it on War and Peace. Their test needs their list and their spellings and is not run here.
+  - A different list of names, or skips past 1,000, are other tests.
+  - A rare name moves R in steps (יחזקאל is expected about once), so the shuffles' R falls in two clusters.
+  - The letter string is ours: 4 letters fewer than the tradition's 304,805 (§16.55).

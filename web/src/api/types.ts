@@ -295,6 +295,25 @@ export interface PlaceLinksMeta {
 export type PlaceLinksResponse = Omit<S['PlaceLinksResponse'], 'meta'> & { meta: PlaceLinksMeta & Record<string, unknown> }
 export type PlaceLinkPairsResponse = S['PlaceLinkPairsResponse']
 
+// Equidistant letter sequences against controls (`/els`, DESIGN.md §16.62).
+export type ElsControlKey = 'letters' | 'verses' | 'blocks'
+export type ElsControl = S['ElsControl']
+export type ElsBlock = S['ElsBlock']
+export type ElsTerm = S['ElsTerm']
+export type ElsScope = S['ElsScope']
+export type ElsKnown = S['ElsKnown']
+export interface ElsMeta {
+  text?: string
+  min_skip?: number
+  max_skip?: number
+  shuffles?: number
+  alpha?: number
+  smooth?: number
+  terms?: number
+  holds?: boolean
+}
+export type ElsResponse = Omit<S['ElsResponse'], 'meta'> & { meta: ElsMeta & Record<string, unknown> }
+
 export type SeamFeature = S['SeamFeature']
 
 export type Seam = S['Seam']
@@ -881,6 +900,8 @@ export type FindingKey =
   | 'place_arc_oracles'
   | 'place_links_decay'
   | 'place_links_known'
+  | 'els_counts'
+  | 'els_known'
 
 export type Finding = S['Finding']
 

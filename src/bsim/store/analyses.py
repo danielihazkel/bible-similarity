@@ -268,6 +268,16 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "els",
+        "els",
+        (Table("els_terms", "terms"), Table("els_draws", "draws")),
+        "els.meta.json",
+        keys(
+            "els", "text", "min_skip", "max_skip", "shuffles", "alpha", "smooth", "terms",
+            "scopes", "known", "holds",
+        ),
+    ),
+    Source(
         "senses",
         "senses",
         (

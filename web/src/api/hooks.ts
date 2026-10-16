@@ -34,6 +34,7 @@ import type {
   PlaceListsResponse,
   PlaceArcBookResponse,
   PlaceArcResponse,
+  ElsResponse,
   PlaceLinkPairsResponse,
   PlaceLinkSort,
   PlaceLinksResponse,
@@ -830,6 +831,8 @@ export const usePlaceDistricts = (key: string | undefined) =>
     placeholderData: keepPreviousData,
     ...forever,
   })
+
+export const useEls = () => useQuery({ queryKey: ['els'], queryFn: ({ signal }) => getJson<ElsResponse>('/els', {}, signal), ...forever })
 
 export const useMasorah = () =>
   useQuery({ queryKey: ['masorah'], queryFn: ({ signal }) => getJson<MasorahResponse>('/masorah', {}, signal), ...forever })

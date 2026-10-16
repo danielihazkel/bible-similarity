@@ -229,6 +229,14 @@ def masorah(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def els(config: ConfigOpt = None) -> None:
+    """Equidistant letter sequences: names at equal skips against shuffled and other texts."""
+    from bsim.analysis.els import run_els
+
+    run_els(load_config(config), log=typer.echo)
+
+
+@app.command()
 def roots(config: ConfigOpt = None) -> None:
     """Root families from Strong's, words of one root side by side, Leitworte counted by root."""
     from bsim.analysis.roots import run_roots

@@ -2174,6 +2174,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/els": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Els
+         * @description Every scope's hits against its controls, its terms, and the known sequences.
+         */
+        get: operations["els_api_els_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/places": {
         parameters: {
             query?: never;
@@ -4019,6 +4039,122 @@ export interface components {
             /** Sources */
             sources: components["schemas"]["EchoChapter"][];
         };
+        /** ElsBlock */
+        ElsBlock: {
+            /** Block */
+            block: number;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** First Vid */
+            first_vid: number;
+            /** R */
+            r: number;
+        };
+        /**
+         * ElsControl
+         * @description A control's values of R (the mean log ratio of hits to expected) against the text's.
+         */
+        ElsControl: {
+            /** N */
+            n: number;
+            /** Mean */
+            mean: number;
+            /** Q05 */
+            q05: number;
+            /** Q95 */
+            q95: number;
+            /** P */
+            p: number;
+            /** Values */
+            values: number[];
+        };
+        /** ElsKnown */
+        ElsKnown: {
+            verse: components["schemas"]["VerseLabel"];
+            /** Term */
+            term: string;
+            /** Skip */
+            skip: number;
+            /** Found */
+            found: boolean;
+            /** Offset */
+            offset: number | null;
+            /** In Torah */
+            in_torah: number;
+            /** Expected */
+            expected: number;
+        };
+        /** ElsResponse */
+        ElsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Scopes */
+            scopes: components["schemas"]["ElsScope"][];
+            /** Known */
+            known: components["schemas"]["ElsKnown"][];
+        };
+        /** ElsScope */
+        ElsScope: {
+            /** Key */
+            key: string;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Letters */
+            letters: number;
+            /** Verses */
+            verses: number;
+            /** Hits */
+            hits: number;
+            /** Expected */
+            expected: number;
+            /** R */
+            r: number;
+            /** Holds */
+            holds: boolean;
+            /** Controls */
+            controls: {
+                [key: string]: components["schemas"]["ElsControl"];
+            };
+            /** Blocks */
+            blocks: components["schemas"]["ElsBlock"][];
+            /** Terms */
+            terms: components["schemas"]["ElsTerm"][];
+        };
+        /** ElsTerm */
+        ElsTerm: {
+            /** Term */
+            term: string;
+            /** Length */
+            length: number;
+            /** Forward */
+            forward: number;
+            /** Backward */
+            backward: number;
+            /** Hits */
+            hits: number;
+            /** Expected */
+            expected: number;
+            /** Log Ratio */
+            log_ratio: number;
+            /** Letters Mean */
+            letters_mean: number;
+            /** Letters Q05 */
+            letters_q05: number;
+            /** Letters Q95 */
+            letters_q95: number;
+            /** Letters P */
+            letters_p: number;
+            /** Verses Mean */
+            verses_mean: number;
+            /** Blocks Log Ratio */
+            blocks_log_ratio: number | null;
+        };
         /** EntitiesResponse */
         EntitiesResponse: {
             /** Kind */
@@ -4171,7 +4307,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known";
             /**
              * Verdict
              * @enum {string}
@@ -11225,6 +11361,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MasorahResponse"];
+                };
+            };
+        };
+    };
+    els_api_els_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ElsResponse"];
                 };
             };
         };

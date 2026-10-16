@@ -95,6 +95,7 @@ const PAGES = [
   '/read/c%3A0%3A1?layers=gematria',
   '/gematria-links',
   '/gematria-links?sort=value&same=1',
+  '/els',
   '/ciphers',
   '/ciphers?cipher=albam&known=1',
   '/masorah',
@@ -334,6 +335,18 @@ test('places named together: the test, the decay, the leads and the pairs', asyn
   await page.goto('/findings')
   await page.getByRole('link', { name: /Named together, near together/ }).first().click()
   await expect(page).toHaveURL(/\/place-links/)
+})
+
+test('letters at equal skips: the counts against the controls, the names, the tradition', async ({ page }) => {
+  await page.goto('/els')
+  await expect(page.getByText(/2 names at skips of 2 to 1,000 letters/)).toBeVisible()
+  await expect(page.locator('.els-table').first().locator('tbody tr')).toHaveCount(3)
+  await expect(page.locator('.els-dot')).toHaveCount(6)
+  await expect(page.locator('.els-terms tbody tr')).toHaveCount(2)
+  await expect(page.locator('#known tbody tr')).toContainText('from letter 6 of the verse')
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /Letters at equal skips/ }).first().click()
+  await expect(page).toHaveURL(/\/els/)
 })
 
 test('a place name shows where it lies: its site, kind and point', async ({ page }) => {

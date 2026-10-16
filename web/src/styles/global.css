@@ -3044,6 +3044,17 @@ a.dossier-chip:hover {
 @media (max-width: 860px) { .places-layout.plk-leads-layout { grid-template-columns: minmax(0, 1fr); } }
 .plk-pairs li { margin-block: 0.2rem; }
 .plk-pairs .he, .plk-table .he { font-size: 1.1rem; }
+/* Letters at equal skips (§16.62) */
+.els-table td:has(.dlg-verdict) { white-space: nowrap; }
+.els-terms .he { font-size: 1.1rem; }
+.els-strip { margin: 1rem 0 0; max-width: 40rem; }
+.els-strip svg { display: block; width: 100%; height: auto; }
+.els-row, .els-tick { fill: var(--muted); font-size: 11px; font-family: var(--font-ui); }
+.els-axis { stroke: var(--border); }
+.els-dot { fill: var(--geo-none); opacity: 0.55; }
+.els-text { stroke: var(--accent); stroke-width: 2px; }
+.els-text-label { fill: var(--accent); font-size: 11px; font-family: var(--font-ui); }
+.els-blocks li { margin-block: 0.15rem; }
 /* the reader's places layer: a box in the colour of the place's kind */
 .reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
 .reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }

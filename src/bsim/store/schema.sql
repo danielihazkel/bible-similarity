@@ -413,6 +413,35 @@ CREATE TABLE place_link_bins (
     PRIMARY KEY (variant, bin)
 ) WITHOUT ROWID;
 
+-- Equidistant letter sequences (`bsim els`, §16.62): per scope and term, the hits at a skip of
+-- `els.min_skip`..`max_skip` either way against the exact expectation and the controls.
+CREATE TABLE els_terms (
+    scope TEXT NOT NULL,            -- `els.scopes` key: torah | genesis
+    term TEXT NOT NULL,
+    length INTEGER NOT NULL,        -- letters
+    forward INTEGER NOT NULL,
+    backward INTEGER NOT NULL,      -- the term reversed (0 for a palindrome)
+    hits INTEGER NOT NULL,
+    expected REAL NOT NULL,         -- under a shuffle of the scope's letters, exactly
+    log_ratio REAL NOT NULL,        -- log((hits + smooth) / (expected + smooth))
+    letters_mean REAL NOT NULL,     -- hits with the letters shuffled: mean, 5% and 95%
+    letters_q05 REAL NOT NULL,
+    letters_q95 REAL NOT NULL,
+    letters_p REAL NOT NULL,        -- the share of letter shuffles with as many hits
+    verses_mean REAL NOT NULL,      -- hits with the verses shuffled: mean
+    blocks_log_ratio REAL,          -- the blocks of the rest of the Bible: mean log ratio
+    PRIMARY KEY (scope, term)
+);
+
+-- Each control draw's (or block's) R: the mean over terms of the log ratio.
+CREATE TABLE els_draws (
+    scope TEXT NOT NULL,
+    control TEXT NOT NULL,          -- letters | verses | blocks
+    draw INTEGER NOT NULL,          -- from 1
+    r REAL NOT NULL,
+    PRIMARY KEY (scope, control, draw)
+) WITHOUT ROWID;
+
 -- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
 CREATE TABLE name_kinds (
     lemma TEXT PRIMARY KEY,

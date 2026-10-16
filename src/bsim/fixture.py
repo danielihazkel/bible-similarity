@@ -637,6 +637,40 @@ def write_inputs(cfg, tmp_path):
         }),
         encoding="utf-8",
     )  # fmt: skip
+    # equidistant letter sequences (`bsim els`), made up: one scope (v0-v4), two names, the
+    # letters' and verses' shuffles and one block; the known sequence at v0
+    els_dir = art / "els"
+    els_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [("torah", "משה", 3, 40, 38, 78, 80.5, -0.031, 81.0, 70.0, 92.0, 0.6, 79.5, -0.02),
+         ("torah", "אהרן", 4, 3, 1, 4, 3.2, 0.211, 3.1, 1.0, 6.0, 0.35, 3.3, 0.05)],
+        columns=["scope", "term", "length", "forward", "backward", "hits", "expected",
+                 "log_ratio", "letters_mean", "letters_q05", "letters_q95", "letters_p",
+                 "verses_mean", "blocks_log_ratio"],
+    ).to_parquet(els_dir / "terms.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("torah", "letters", 1, -0.05), ("torah", "letters", 2, 0.12), ("torah", "letters", 3,
+          0.01), ("torah", "verses", 1, 0.02), ("torah", "verses", 2, 0.2), ("torah", "blocks",
+          1, 0.04)],
+        columns=["scope", "control", "draw", "r"],
+    ).to_parquet(els_dir / "draws.parquet")  # fmt: skip
+    ctl = {"n": 3, "mean": 0.027, "q05": -0.04, "q95": 0.11, "p": 0.5}
+    (els_dir / "els.meta.json").write_text(
+        json.dumps({
+            "text": "ketiv", "min_skip": 2, "max_skip": 1000, "shuffles": 3, "alpha": 0.05,
+            "smooth": 0.5, "terms": 2, "holds": True,
+            "scopes": {"torah": {
+                "books": ["Gen", "Exod"], "letters": 120, "verses": 5, "first_vid": 0,
+                "last_vid": 4, "hits": 82, "expected": 83.7, "r": 0.09, "holds": True,
+                "controls": {"letters": ctl, "verses": ctl | {"n": 2, "p": 0.67},
+                             "blocks": ctl | {"n": 1, "p": 1.0}},
+                "blocks": [{"block": 1, "first_vid": 5, "last_vid": 5, "r": 0.04}],
+            }},
+            "known": [{"ref": "Genesis 1:1", "verse_id": 0, "term": "תורה", "skip": 50,
+                       "found": True, "offset": 5, "in_torah": 12, "expected": 11.4}],
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
     sense_dir = art / "senses"
     sense_dir.mkdir(parents=True, exist_ok=True)

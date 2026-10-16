@@ -116,6 +116,7 @@ from bsim.api.queries.echoes import (
     echo_sources,
     echoes_page,
 )
+from bsim.api.queries.els import els_tables
 from bsim.api.queries.forms import (
     forms_books,
     forms_lists_page,
@@ -320,6 +321,7 @@ __all__ = [
     "echo_books",
     "echo_sources",
     "echoes_page",
+    "els_tables",
     "entities_page",
     "entity",
     "entity_books",

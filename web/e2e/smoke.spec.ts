@@ -79,6 +79,8 @@ const PAGES: [string, RegExp][] = [
   ['/gematria?q=2701&view=verses', /Gematria/],
   ['/gematria-links', /Equal values, related words/],
   ['/gematria-links?sort=domains&value=358', /Equal values, related words/],
+  ['/els', /Letters at equal skips/],
+  ['/els?scope=genesis', /Letters at equal skips/],
   ['/ciphers', /Atbash and albam/],
   ['/ciphers?cipher=albam&book=12', /Atbash and albam/],
   ['/masorah', /The Masorah’s counts/],
@@ -161,7 +163,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -326,6 +328,17 @@ test('places named together lie together, and Dan and Beersheba are a far pair',
   await expect(page.locator('.plk-leads tbody tr')).toHaveCount(25)
   await page.goto('/place-links?place=52&sort=km')
   await expect(page.locator('.plk-pairs li').first()).toContainText('באר שבע')
+})
+
+test('letters at equal skips: no more names in the Torah than its controls, and תורה at 50 from Genesis 1:1', async ({ page }) => {
+  await page.goto('/els')
+  await expect(page.getByText(/27 names at skips of 2 to 1,000 letters, forwards and backwards: 1,428,731 hits in 304,801 letters/)).toBeVisible()
+  await expect(page.locator('.els-table').first().locator('.dlg-verdict', { hasText: 'does not hold' })).toHaveCount(0)
+  await expect(page.locator('.els-terms tbody tr')).toHaveCount(27)
+  await expect(page.locator('#known .dlg-verdict', { hasText: 'holds' })).toHaveCount(5)
+  await expect(page.locator('#known tbody tr').first()).toContainText('19 times')
+  await page.getByRole('radio', { name: 'Genesis' }).click()
+  await expect(page.getByText(/78,063 letters/)).toBeVisible()
 })
 
 test('the gazetteer: Jerusalem is a town at 31.78° N, Abel names two places', async ({ page }) => {

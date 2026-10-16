@@ -491,6 +491,29 @@ place_links:                  # `bsim place-links`: do places named together lie
   known: [[דן, באר שבע]]      # a known answer ("from Dan to Beersheba"): among the `top` leads
   top: 10
 
+els:                          # `bsim els`: equidistant letter sequences, counted against controls (DESIGN.md §16.62); everything below fixed before the first run
+  text: ketiv                 # the written letters (as `bsim masorah`); final forms folded
+  min_skip: 2                 # skip 1 is the plain text
+  max_skip: 1000              # both directions: a term read backwards is a negative skip
+  shuffles: 199               # draws per shuffle control
+  seed: 41
+  alpha: 0.05
+  device: cuda                # falls back to cpu if unavailable
+  scopes:                     # the texts searched, each against its own controls
+    torah: [Gen, Exod, Lev, Num, Deut]
+    genesis: [Gen]
+  rest: [Josh, Judg, 1Sam, 2Sam, 1Kgs, 2Kgs, Isa, Jer, Ezek, Hos, Joel, Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal, Ps, Prov, Job, Song, Ruth, Lam, Eccl, Esth, Dan, Ezra, Neh, 1Chr, 2Chr]   # cut into blocks of each scope's length, in canon order: the non-Torah control
+  terms:                      # names: the fathers and mothers, Moses' house, kings and prophets, the return, the sages (a list of names, not of rabbis and dates)
+    [אברהם, יצחק, יעקב, שרה, רבקה, רחל, לאה, משה, אהרן, מרים, שאול, דוד, שלמה, שמואל, אליהו, ישעיהו, ירמיהו, יחזקאל, עזרא, נחמיה, מרדכי, אסתר, הלל, שמאי, עקיבא, רשי, רמבם]
+  smooth: 0.5                 # added to hits and to the expected count in a term's log ratio
+  # the claim, one-sided: the scope's mean log ratio of hits to the letter-shuffle expectation is no higher than the controls' (letters shuffled, verses shuffled, non-Torah blocks); holds when no control has p <= alpha
+  known:                      # the tradition's (Rabbenu Bahya on Gen 1:1): an ELS of the term at the skip starting in the verse, a check of the letter string
+    - {ref: "Genesis 1:1", term: תורה, skip: 50}
+    - {ref: "Exodus 1:1", term: תורה, skip: 50}
+    - {ref: "Leviticus 1:1", term: יהוה, skip: 8}
+    - {ref: "Numbers 1:1", term: הרות, skip: 50}
+    - {ref: "Deuteronomy 1:5", term: הרות, skip: 49}
+
 senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
   encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)
   max_seq_length: 128
