@@ -64,6 +64,7 @@ export const NAV: NavEntry[] = [
       { to: '/places', key: 'places' },
       { to: '/place-lists', key: 'placeLists' },
       { to: '/place-arc', key: 'placeArc' },
+      { to: '/place-links', key: 'placeLinks' },
       { to: '/network', key: 'network' },
       { to: '/style', key: 'style' },
       { to: '/shifts', key: 'shifts' },

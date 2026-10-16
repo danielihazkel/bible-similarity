@@ -52,6 +52,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   place_arc_order: { to: '/place-arc', nav: 'placeArc' },
   place_arc_moves: { to: '/place-arc#moves', nav: 'placeArc' },
   place_arc_oracles: { to: '/place-arc#oracles', nav: 'placeArc' },
+  place_links_decay: { to: '/place-links', nav: 'placeLinks' },
+  place_links_known: { to: '/place-links#leads', nav: 'placeLinks' },
   echoes: { to: '/network?view=directions', nav: 'network' },
   sevens: { to: '/structure', nav: 'structure' },
   chiasm: { to: '/structure?view=small', nav: 'structure' },

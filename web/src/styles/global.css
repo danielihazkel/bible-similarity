@@ -3025,6 +3025,25 @@ a.dossier-chip:hover {
 .pa-km.long { font-weight: 600; color: var(--geo-town); }
 .places-layout.pa-moves-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
 @media (max-width: 860px) { .places-layout.pa-moves-layout { grid-template-columns: minmax(0, 1fr); } }
+/* Named together, near together? (§16.61) */
+.plk-table td:has(.dlg-verdict) { white-space: nowrap; }
+.plk-table td a, .plk-pairs a { text-decoration: underline; }
+.plk-chart { margin: 0.5rem 0 0; max-width: 40rem; }
+.plk-chart svg { display: block; width: 100%; height: auto; }
+.plk-tick line { stroke: var(--border); }
+.plk-tick text, .plk-axis { fill: var(--muted); font-size: 11px; font-family: var(--font-ui); }
+.plk-far-line { stroke: var(--muted); stroke-dasharray: 4 3; }
+.plk-dot { fill: var(--geo-none); opacity: 0.6; }
+.plk-dot.far { fill: var(--accent); opacity: 0.9; }
+.plk-key { display: inline-block; inline-size: 0.6rem; block-size: 0.6rem; border-radius: 50%; background: var(--geo-none); }
+.plk-key.far { background: var(--accent); }
+.plk-bar { display: inline-block; block-size: 0.6rem; background: var(--accent); opacity: 0.7; vertical-align: middle; }
+.plk-link { fill: none; stroke: var(--accent); stroke-width: 1.4px; opacity: 0.6; }
+.plk-leads, #pairs { margin-block-start: 2rem; }
+.places-layout.plk-leads-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 860px) { .places-layout.plk-leads-layout { grid-template-columns: minmax(0, 1fr); } }
+.plk-pairs li { margin-block: 0.2rem; }
+.plk-pairs .he, .plk-table .he { font-size: 1.1rem; }
 /* the reader's places layer: a box in the colour of the place's kind */
 .reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
 .reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }

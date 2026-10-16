@@ -293,3 +293,96 @@ class PlaceArcResponse(ApiModel):
 class PlaceArcBookResponse(ApiModel):
     book: ArcBook
     items: list[ArcChapter]  # its placed chapters in order
+
+
+class LinkPlace(ApiModel):
+    place_id: int
+    he: str
+    kind: PlaceKind | None
+    lat: float
+    lon: float
+
+
+class PlaceLinkPair(ApiModel):
+    """Two places named together (§16.61)."""
+
+    a: LinkPlace
+    b: LinkPlace
+    n_together: int  # verses naming both
+    n_a: int
+    n_b: int
+    expected: float
+    g2: float
+    km: float
+    lead_rank: int | None  # among pairs at least `far_km` apart, by G²
+
+
+class DecayTest(ApiModel):
+    """Spearman's rho between linked pairs' G² and km against shuffled coordinates."""
+
+    places: int | None = None
+    pairs: int
+    rho: float | None = None
+    null_mean: float | None = None
+    null_q05: float | None = None
+    null_q95: float | None = None
+    p: float | None = None
+    median_km: float | None = None
+    verses: int | None = None  # verses in scope
+
+
+class DecayBin(ApiModel):
+    bin: int
+    lo_km: float
+    hi_km: float | None
+    pairs: int  # pairs of places named in `min_together` verses or more
+    linked: int
+    share: float | None
+    median_g2: float | None
+
+
+DecayVariant = Literal["all", "sure", "no_lists"]
+
+
+class DecayRow(ApiModel):
+    variant: DecayVariant
+    test: DecayTest
+    bins: list[DecayBin]
+
+
+class KnownLink(ApiModel):
+    a: str  # the Hebrew names in config
+    b: str
+    found: bool
+    pair: PlaceLinkPair | None
+    rank: int | None  # among the far pairs
+    holds: bool
+
+
+class LinkPoint(ApiModel):
+    km: float
+    g2: float
+    far: bool  # at least `far_km` apart
+
+
+class PlaceLinksResponse(ApiModel):
+    meta: dict[str, Any]  # shuffles, alpha, min_together, sure_score, far_km, top, far_pairs
+    lists_en: list[str]  # the `no_lists` variant's spans
+    lists_he: list[str]
+    variants: list[DecayRow]
+    known: list[KnownLink]
+    leads: list[PlaceLinkPair]
+    scatter: list[LinkPoint]  # every linked pair (`all`): its km and G²
+
+
+PlaceLinkSort = Literal["g2", "km", "near"]
+
+
+class PlaceLinkPairsResponse(ApiModel):
+    place: int | None
+    sort: PlaceLinkSort
+    far: bool
+    total: int
+    offset: int
+    limit: int
+    items: list[PlaceLinkPair]

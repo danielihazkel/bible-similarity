@@ -534,6 +534,37 @@ def _place_arc(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding 
     return build
 
 
+def _place_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Do places named together lie together (§16.61)? `place_links_decay`: the linked pairs'
+    G² falls with km, rho below the shuffled coordinates' at `alpha` on every located place (the
+    sure-site and no-lists variants as values); `place_links_known`: every known far pair
+    ("from Dan to Beersheba") among the top leads."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        pl = meta.get("place_links") or {}
+        if key == "place_links_known":
+            known = pl.get("known") or []
+            if not known:
+                return None
+            values = {"n": len(known), "held": sum(bool(k["holds"]) for k in known),
+                      "top": pl.get("top"), "rank": known[0].get("rank"),
+                      "km": known[0].get("km")}  # fmt: skip
+            holds = all(k["holds"] for k in known)
+            return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+        tests = pl.get("tests") or {}
+        a = tests.get("all") or {}
+        if a.get("p") is None:
+            return None
+        values = {k: a.get(k) for k in ("pairs", "places", "rho", "null_mean", "p")}
+        for v in ("sure", "no_lists"):
+            values |= {f"{v}_rho": (tests.get(v) or {}).get("rho"),
+                       f"{v}_p": (tests.get(v) or {}).get("p")}  # fmt: skip
+        holds = a["rho"] < a["null_mean"] and a["p"] <= alpha
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -582,6 +613,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _place_arc("place_arc_order"),
     _place_arc("place_arc_moves"),
     _place_arc("place_arc_oracles"),
+    _place_links("place_links_decay"),
+    _place_links("place_links_known"),
     _allusions,
 ]
 

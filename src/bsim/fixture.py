@@ -607,6 +607,36 @@ def write_inputs(cfg, tmp_path):
         }),
         encoding="utf-8",
     )  # fmt: skip
+    # places named together (`bsim place-links`), made up: אמר and ראשית linked, far apart
+    links_dir = art / "place_links"
+    links_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(1, 2, 2, 2, 3, 0.4, 9.3, 441.2, 1)],
+        columns=["a", "b", "n_together", "n_a", "n_b", "expected", "g2", "km", "lead_rank"],
+    ).astype({"lead_rank": "Int64"}).to_parquet(links_dir / "pairs.parquet")
+    pd.DataFrame(
+        [("all", 1, 0.0, 100.0, 4, 0, 0.0, None), ("all", 2, 100.0, None, 2, 1, 0.5, 9.3),
+         ("no_lists", 1, 0.0, 100.0, 4, 0, 0.0, None), ("no_lists", 2, 100.0, None, 2, 0, 0.0,
+                                                         None)],
+        columns=["variant", "bin", "lo_km", "hi_km", "pairs", "linked", "share", "median_g2"],
+    ).to_parquet(links_dir / "bins.parquet")  # fmt: skip
+    (links_dir / "place_links.meta.json").write_text(
+        json.dumps({
+            "shuffles": 999, "alpha": 0.05, "min_together": 2, "sure_score": 500,
+            "lists": ["Exodus 1"], "far_km": 150.0, "leads": 25, "top": 10, "far_pairs": 1,
+            "tests": {
+                "all": {"places": 2, "pairs": 1, "rho": -0.5, "null_mean": 0.0, "null_q05": -0.4,
+                        "null_q95": 0.4, "p": 0.03, "median_km": 441.2, "verses": 6},
+                "sure": {"pairs": 0},
+                "no_lists": {"places": 2, "pairs": 1, "rho": -0.1, "null_mean": 0.0,
+                             "null_q05": -0.4, "null_q95": 0.4, "p": 0.4, "median_km": 441.2,
+                             "verses": 5},
+            },
+            "known": [{"a": "אמר", "b": "ראשית", "found": True, "a_id": 1, "b_id": 2,
+                       "km": 441.2, "g2": 9.3, "rank": 1, "holds": True}],
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
     sense_dir = art / "senses"
     sense_dir.mkdir(parents=True, exist_ok=True)

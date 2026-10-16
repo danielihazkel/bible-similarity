@@ -27,6 +27,7 @@ import { glEn } from './pages/gematriaLinks'
 import { cphEn } from './pages/ciphers'
 import { msrEn } from './pages/masorah'
 import { paEn } from './pages/placeArc'
+import { plkEn } from './pages/placeLinks'
 import { plsEn } from './pages/placeLists'
 import { geoEn, plEn } from './pages/places'
 import { qryEn } from './pages/query'
@@ -119,6 +120,7 @@ export const en = {
     places: { label: 'Places on the map', hint: 'Where the places the text names lie' },
     placeLists: { label: 'Place lists on the ground', hint: 'Are itineraries, borders and town lists ordered on the map?' },
     placeArc: { label: 'The geographic arc', hint: 'Where each chapter takes place, and how the story moves' },
+    placeLinks: { label: 'Named together, near together?', hint: 'Do places the text names together lie together?' },
     network: { label: 'Network', hint: 'Echo communities, most echoed passages, who echoes whom' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
@@ -462,6 +464,7 @@ export const en = {
   geo: geoEn,
   pls: plsEn,
   pa: paEn,
+  plk: plkEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

@@ -34,6 +34,9 @@ import type {
   PlaceListsResponse,
   PlaceArcBookResponse,
   PlaceArcResponse,
+  PlaceLinkPairsResponse,
+  PlaceLinkSort,
+  PlaceLinksResponse,
   PlacesResponse,
   PlaceVersesResponse,
   GematriaLemmasResponse,
@@ -804,6 +807,17 @@ export const usePlaceArcBook = (bookId: number | undefined) =>
     queryKey: ['place-arc', bookId],
     queryFn: ({ signal }) => getJson<PlaceArcBookResponse>(`/place-arc/${bookId}`, {}, signal),
     enabled: bookId !== undefined,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePlaceLinks = () =>
+  useQuery({ queryKey: ['place-links'], queryFn: ({ signal }) => getJson<PlaceLinksResponse>('/place-links', {}, signal), ...forever })
+
+export const usePlaceLinkPairs = (q: { place?: number; sort: PlaceLinkSort; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['place-link-pairs', q],
+    queryFn: ({ signal }) => getJson<PlaceLinkPairsResponse>('/place-links/pairs', q, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

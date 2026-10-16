@@ -2358,6 +2358,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/place-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Links
+         * @description Do places named together lie together (§16.61)? Per variant, rho between the linked
+         *     pairs' G² and km against shuffled coordinates, and the decay curve; the known answers and
+         *     the leads (far apart, strongly linked).
+         */
+        get: operations["place_links_api_place_links_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/place-links/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Link Pairs
+         * @description Linked pairs of places: all, or one place's; strongest first, farthest or nearest first;
+         *     `far`: pairs at least `far_km` apart (the leads).
+         */
+        get: operations["place_link_pairs_api_place_links_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -3523,6 +3566,58 @@ export interface components {
             /** Books */
             books: components["schemas"]["DatingBook"][];
         };
+        /** DecayBin */
+        DecayBin: {
+            /** Bin */
+            bin: number;
+            /** Lo Km */
+            lo_km: number;
+            /** Hi Km */
+            hi_km: number | null;
+            /** Pairs */
+            pairs: number;
+            /** Linked */
+            linked: number;
+            /** Share */
+            share: number | null;
+            /** Median G2 */
+            median_g2: number | null;
+        };
+        /** DecayRow */
+        DecayRow: {
+            /**
+             * Variant
+             * @enum {string}
+             */
+            variant: "all" | "sure" | "no_lists";
+            test: components["schemas"]["DecayTest"];
+            /** Bins */
+            bins: components["schemas"]["DecayBin"][];
+        };
+        /**
+         * DecayTest
+         * @description Spearman's rho between linked pairs' G² and km against shuffled coordinates.
+         */
+        DecayTest: {
+            /** Places */
+            places: number | null;
+            /** Pairs */
+            pairs: number;
+            /** Rho */
+            rho: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** Null Q05 */
+            null_q05: number | null;
+            /** Null Q95 */
+            null_q95: number | null;
+            /** P */
+            p: number | null;
+            /** Median Km */
+            median_km: number | null;
+            /** Verses */
+            verses: number | null;
+        };
         /** DialogueBook */
         DialogueBook: {
             /** Book Id */
@@ -4076,7 +4171,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known";
             /**
              * Verdict
              * @enum {string}
@@ -4540,6 +4635,20 @@ export interface components {
             /** Letters */
             letters: components["schemas"]["KqLetter"][];
         };
+        /** KnownLink */
+        KnownLink: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /** Found */
+            found: boolean;
+            pair: components["schemas"]["PlaceLinkPair"] | null;
+            /** Rank */
+            rank: number | null;
+            /** Holds */
+            holds: boolean;
+        };
         /** KqBook */
         KqBook: {
             /** Book Id */
@@ -4932,6 +5041,28 @@ export interface components {
             he: string;
             /** N Words */
             n_words: number;
+        };
+        /** LinkPlace */
+        LinkPlace: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+        };
+        /** LinkPoint */
+        LinkPoint: {
+            /** Km */
+            km: number;
+            /** G2 */
+            g2: number;
+            /** Far */
+            far: boolean;
         };
         /** LinkProperty */
         LinkProperty: {
@@ -5735,6 +5866,67 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Partners */
             partners: components["schemas"]["PlacePartner"][];
+        };
+        /**
+         * PlaceLinkPair
+         * @description Two places named together (§16.61).
+         */
+        PlaceLinkPair: {
+            a: components["schemas"]["LinkPlace"];
+            b: components["schemas"]["LinkPlace"];
+            /** N Together */
+            n_together: number;
+            /** N A */
+            n_a: number;
+            /** N B */
+            n_b: number;
+            /** Expected */
+            expected: number;
+            /** G2 */
+            g2: number;
+            /** Km */
+            km: number;
+            /** Lead Rank */
+            lead_rank: number | null;
+        };
+        /** PlaceLinkPairsResponse */
+        PlaceLinkPairsResponse: {
+            /** Place */
+            place: number | null;
+            /**
+             * Sort
+             * @enum {string}
+             */
+            sort: "g2" | "km" | "near";
+            /** Far */
+            far: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["PlaceLinkPair"][];
+        };
+        /** PlaceLinksResponse */
+        PlaceLinksResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Lists En */
+            lists_en: string[];
+            /** Lists He */
+            lists_he: string[];
+            /** Variants */
+            variants: components["schemas"]["DecayRow"][];
+            /** Known */
+            known: components["schemas"]["KnownLink"][];
+            /** Leads */
+            leads: components["schemas"]["PlaceLinkPair"][];
+            /** Scatter */
+            scatter: components["schemas"]["LinkPoint"][];
         };
         /** PlaceList */
         PlaceList: {
@@ -11275,6 +11467,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlaceArcBookResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_links_api_place_links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceLinksResponse"];
+                };
+            };
+        };
+    };
+    place_link_pairs_api_place_links_pairs_get: {
+        parameters: {
+            query?: {
+                place?: number | null;
+                sort?: "g2" | "km" | "near";
+                far?: boolean;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceLinkPairsResponse"];
                 };
             };
             /** @description Validation Error */

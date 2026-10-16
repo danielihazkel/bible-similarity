@@ -385,6 +385,34 @@ CREATE TABLE place_arc_books (
     p REAL                          -- the share of shuffled orders as short
 );
 
+-- Do places named together lie together? (`bsim place-links`, §16.61): every pair of located places
+-- named together in `place_links.min_together` verses or more (more often than independence).
+CREATE TABLE place_links (
+    a INTEGER NOT NULL,             -- place_id, a < b
+    b INTEGER NOT NULL,
+    n_together INTEGER NOT NULL,    -- verses naming both
+    n_a INTEGER NOT NULL,           -- verses naming a
+    n_b INTEGER NOT NULL,
+    expected REAL NOT NULL,         -- n_a * n_b / verses
+    g2 REAL NOT NULL,               -- Dunning's G² against independence
+    km REAL NOT NULL,               -- great-circle km between their points
+    lead_rank INTEGER,              -- among pairs at least `far_km` apart, by G² (NULL: nearer)
+    PRIMARY KEY (a, b)
+) WITHOUT ROWID;
+
+-- The decay curve: pairs of places named in `min_together` verses or more, by km, per variant.
+CREATE TABLE place_link_bins (
+    variant TEXT NOT NULL,          -- all | sure | no_lists
+    bin INTEGER NOT NULL,           -- from 1
+    lo_km REAL NOT NULL,
+    hi_km REAL,                     -- NULL: open-ended
+    pairs INTEGER NOT NULL,
+    linked INTEGER NOT NULL,
+    share REAL,                     -- linked / pairs
+    median_g2 REAL,                 -- the linked pairs' median G²
+    PRIMARY KEY (variant, bin)
+) WITHOUT ROWID;
+
 -- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
 CREATE TABLE name_kinds (
     lemma TEXT PRIMARY KEY,

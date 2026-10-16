@@ -476,6 +476,21 @@ place_arc:                    # `bsim place-arc`: where each chapter takes place
   prophets: [Isa, Jer, Ezek, Hos, Joel, Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal]   # the chapters the oracles are set against (their own included)
   # one-sided: the oracles' chapters are wider than the other prophetic chapters on `spread` (the mean km of a chapter's mentions from its centroid) or `reach` (its centroid's km from the canaan anchor), at alpha / 2 each
 
+place_links:                  # `bsim place-links`: do places named together lie together? (DESIGN.md §16.61); everything below fixed before the first run
+  shuffles: 9999              # coordinates shuffled among the linked places: the null
+  seed: 37
+  alpha: 0.05
+  min_together: 2             # verses two places must share to be linked (as entities.min_together)
+  sure_score: 500             # the `sure` variant: both places sure sites (an OpenBible vote at least this high)
+  lists:                      # the `no_lists` variant leaves out the verses of the text's place and town lists, which name neighbours by design
+    ["Genesis 10", "Numbers 33-34", "Joshua 12-21", "I Chronicles 1-9", "Ezra 2", "Nehemiah 7", "Nehemiah 11"]
+  # one-sided: Spearman's rho between a linked pair's G² and its km is below the same with the coordinates shuffled among the places
+  bins: [0, 10, 25, 50, 100, 200, 400, 800, 1600]   # km: the decay curve's bins (the last open-ended)
+  far_km: 150                 # leads: pairs at least this far apart, most strongly linked first
+  leads: 25
+  known: [[דן, באר שבע]]      # a known answer ("from Dan to Beersheba"): among the `top` leads
+  top: 10
+
 senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
   encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)
   max_seq_length: 128

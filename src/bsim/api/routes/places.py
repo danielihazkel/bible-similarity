@@ -19,17 +19,27 @@ from bsim.api.models.places import (
     ArcPlace,
     ArcTest,
     BasemapResponse,
+    DecayBin,
+    DecayRow,
+    DecayTest,
     District,
     DistrictDetail,
     DistrictGrouping,
     DistrictRow,
     DistrictTest,
     DistrictTown,
+    KnownLink,
+    LinkPlace,
+    LinkPoint,
     MapShape,
     PlaceArcBookResponse,
     PlaceArcResponse,
     PlaceDetail,
     PlaceKind,
+    PlaceLinkPair,
+    PlaceLinkPairsResponse,
+    PlaceLinkSort,
+    PlaceLinksResponse,
     PlaceList,
     PlaceListDetail,
     PlaceListsResponse,
@@ -322,3 +332,65 @@ def place_arc_book(book_id: int, conn: Conn) -> dict[str, Any]:
         "book": _arc_book(book),
         "items": [_arc_chapter(r) for r in queries.place_arc_chapters(conn, book_id)],
     }
+
+
+def _link_pair(r: dict[str, Any]) -> PlaceLinkPair:
+    side = {s: LinkPlace(place_id=r[s], he=r[f"{s}_he"], kind=r[f"{s}_kind"], lat=r[f"{s}_lat"],
+                         lon=r[f"{s}_lon"]) for s in ("a", "b")}  # fmt: skip
+    return PlaceLinkPair(
+        **side, **{k: r[k] for k in ("n_together", "n_a", "n_b", "expected", "g2", "km",
+                                     "lead_rank")},
+    )  # fmt: skip
+
+
+@router.get("/place-links", response_model=PlaceLinksResponse)
+def place_links(state: State, conn: Conn) -> dict[str, Any]:
+    """Do places named together lie together (§16.61)? Per variant, rho between the linked
+    pairs' G² and km against shuffled coordinates, and the decay curve; the known answers and
+    the leads (far apart, strongly linked)."""
+    meta = state.meta.get("place_links") or {}
+    tests = meta.get("tests") or {}
+    bins: dict[str, list[DecayBin]] = {}
+    for r in queries.place_link_bins(conn):
+        bins.setdefault(r.pop("variant"), []).append(DecayBin(**r))
+    variants = [DecayRow(variant=v, test=DecayTest(**tests[v]), bins=bins.get(v, []))
+                for v in ("all", "sure", "no_lists") if v in tests]  # fmt: skip
+    n_leads = meta.get("leads") or 25
+    leads = [_link_pair(r) for r in queries.place_links_page(conn, None, "g2", True, n_leads, 0)[1]]
+    known = []
+    for k in meta.get("known") or []:
+        pair = None
+        if k.get("a_id") is not None:
+            rows = queries.place_links_page(conn, k["a_id"], "g2", False, 1000, 0)[1]
+            pair = next((_link_pair(r) for r in rows if k["b_id"] in (r["a"], r["b"])), None)
+        known.append(KnownLink(a=k["a"], b=k["b"], found=k["found"], pair=pair, rank=k["rank"],
+                               holds=k["holds"]))  # fmt: skip
+    labels = [_ref_labels(conn, ref, [0, 0]) for ref in meta.get("lists") or []]
+    return {
+        "meta": {k: meta.get(k) for k in ("shuffles", "alpha", "min_together", "sure_score",
+                                          "far_km", "top", "far_pairs") if k in meta},  # fmt: skip
+        "lists_en": [x[0] for x in labels],
+        "lists_he": [x[1] for x in labels],
+        "variants": variants,
+        "known": known,
+        "leads": leads,
+        "scatter": [LinkPoint(**r) for r in queries.place_link_points(conn)],
+    }
+
+
+@router.get("/place-links/pairs", response_model=PlaceLinkPairsResponse)
+def place_link_pairs(
+    state: State,
+    conn: Conn,
+    place: int | None = None,
+    sort: PlaceLinkSort = "g2",
+    far: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Linked pairs of places: all, or one place's; strongest first, farthest or nearest first;
+    `far`: pairs at least `far_km` apart (the leads)."""
+    check_page(state, limit, offset)
+    total, rows = queries.place_links_page(conn, place, sort, far, limit, offset)
+    return {"place": place, "sort": sort, "far": far, "total": total, "offset": offset,
+            "limit": limit, "items": [_link_pair(r) for r in rows]}  # fmt: skip

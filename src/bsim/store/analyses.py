@@ -258,6 +258,16 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "place-links",
+        "place_links",
+        (Table("place_links", "pairs"), Table("place_link_bins", "bins")),
+        "place_links.meta.json",
+        keys(
+            "place_links", "shuffles", "alpha", "min_together", "sure_score", "lists", "far_km",
+            "leads", "top", "tests", "known", "far_pairs",
+        ),
+    ),
+    Source(
         "senses",
         "senses",
         (

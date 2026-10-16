@@ -212,6 +212,14 @@ def place_arc(config: ConfigOpt = None) -> None:
     run_place_arc(load_config(config), log=typer.echo)
 
 
+@app.command("place-links")
+def place_links(config: ConfigOpt = None) -> None:
+    """Do places named together lie together? Link strength against distance."""
+    from bsim.analysis.place_links import run_place_links
+
+    run_place_links(load_config(config), log=typer.echo)
+
+
 @app.command()
 def masorah(config: ConfigOpt = None) -> None:
     """The Masorah's counts (middle letter, words and verse; verse totals) on our text."""

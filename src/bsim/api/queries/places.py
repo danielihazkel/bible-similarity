@@ -214,3 +214,43 @@ def place_arc_chapters(
         args,
     )
     return _dicts(cur)
+
+
+_LINK_SORTS = {"g2": "l.g2 DESC, l.a, l.b", "km": "l.km DESC, l.a, l.b",
+               "near": "l.km, l.a, l.b"}  # fmt: skip
+
+
+def place_link_bins(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """The decay curve's bins, per variant (§16.61)."""
+    return _dicts(conn.execute("SELECT * FROM place_link_bins ORDER BY variant, bin"))
+
+
+def place_link_points(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Every linked pair's km and G² (the scatter)."""
+    cur = conn.execute(
+        "SELECT km, g2, lead_rank IS NOT NULL AS far FROM place_links ORDER BY a, b"
+    )
+    return [r | {"far": bool(r["far"])} for r in _dicts(cur)]
+
+
+def place_links_page(
+    conn: sqlite3.Connection, place: int | None, sort: str, far: bool, limit: int, offset: int
+) -> tuple[int, list[dict[str, Any]]]:
+    """Linked pairs of places (one place's, or all; far ones only: leads), with both sites."""
+    where, args = [], []
+    if place is not None:
+        where.append("(l.a = ? OR l.b = ?)")
+        args += [place, place]
+    if far:
+        where.append("l.lead_rank IS NOT NULL")
+    sql_where = f"WHERE {' AND '.join(where)}" if where else ""
+    total = count(conn, f"SELECT COUNT(*) FROM place_links l {sql_where}", args)
+    order = "l.lead_rank" if far and sort == "g2" else _LINK_SORTS[sort]
+    cur = conn.execute(
+        "SELECT l.*, pa.he AS a_he, pa.kind AS a_kind, pa.lat AS a_lat, pa.lon AS a_lon,"
+        " pb.he AS b_he, pb.kind AS b_kind, pb.lat AS b_lat, pb.lon AS b_lon"
+        " FROM place_links l JOIN places pa ON pa.place_id = l.a"
+        f" JOIN places pb ON pb.place_id = l.b {sql_where} ORDER BY {order} LIMIT ? OFFSET ?",
+        [*args, limit, offset],
+    )
+    return total, _dicts(cur)

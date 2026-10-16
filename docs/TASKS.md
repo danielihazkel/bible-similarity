@@ -821,6 +821,14 @@ Phase 3 (M39c): API and viewer
 
 ✔ Consecutive chapters lie closer than shuffled: 223 km against 267 km over 556 placed chapters (p 0.0001), and 9 of 31 books on their own (Genesis 228 against 355 km, 2 Kings 145 against 268, Jeremiah 321 against 436). All four known moves hold (Gen 11's centre 135 km from Babylon, Gen 12's 106 km from Jerusalem). The oracles against the nations do not range wider at α / 2: spread 412 against 296 km (p 0.07), reach 331 against 275 km (p 0.19); an oracle names its nation's own towns, and those against Moab are the tightest chapters of all (Jer 48 26 km). 654 pytest, 243 vitest, 290 / 292 fixture e2e (2 skipped by design) and 228 / 228 real-data e2e: the new page first failed axe's link-in-text-block (the chapter links in its lists, now underlined), and its accessibility tests were rerun on their own.
 
+## M84: Named together, near together? (§16.61, D97; proposed P5)
+- [x] `bsim place-links` (`analysis/place_links.py`, ~6 s): located places linked by the verses they share (≥ 2, above independence), G² as strength; Spearman's rho between G² and km against 9,999 shuffles of the coordinates, on every located place, sure sites and without the place lists; the decay by km bins; far pairs (≥ 150 km) as leads with Dan–Beersheba as a known answer
+- [x] DB `place_links`, `place_link_bins` (+ `meta.place_links`); API `/place-links`, `/place-links/pairs`; findings `place_links_decay`, `place_links_known`
+- [x] Viewer: Overview → Named together, near together? (the test and its variants, the scatter, the decay per variant, the known answer and leads with lines on the map, the linked pairs by place and order); English and Hebrew
+- [x] Tests: links (a place twice in a verse, a pair below independence), rank correlation, the test and the bins on a line of places, the stage on a small corpus (a place without a point, the variants, a list verse, the known pairs found and not), the API, findings (pytest); the page, the variants, the decay switch, the leads and the known answer, the place filter, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
+
 Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
 
 Analyses
@@ -860,7 +868,7 @@ Geography
 - [x] P2 (done, M80) A real map: offline SVG of the region (Natural Earth coastline, rivers, Dead Sea; public domain), projected by hand like the other charts, no tile server or new dependency; points by mentions and kind, filters by book / chapter / unit; place panel (book strip, co-mentioned places); "where this happens" on chapter and pericope pages; a places layer in the reader
 - [x] P3 (done, M81) Are place lists ordered on the ground? Claim: consecutive places in boundary and itinerary lists lie closer than in the list shuffled. Known lists in config: Num 33, Num 34, Josh 15:21–62, Josh 19, Gen 10. Second claim: Joshua's town lists cluster by district against a shuffle across districts
 - [x] P4 (done, M83) The geographic arc: each chapter's centroid weighted by its place mentions. Claims: consecutive chapters lie closer than in a shuffled order; known moves (Gen 11–12 Ur / Haran → Canaan, Gen 46 → Exodus Egypt, Exod 12 → Numbers wilderness, 2 Kgs 25 Babylon); the oracles against the nations (Amos 1–2, Isa 13–23, Jer 46–51, Ezek 25–32) spread wider than other prophetic chapters. The path of the centroids per book on the P2 map
-- [ ] P5 Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")
+- [x] P5 (done, M84) Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")
 
 Viewer
 - [ ] V1 Jump box: `= 318` (gematria), and a place name opens the map at it

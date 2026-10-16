@@ -157,6 +157,7 @@ bible-similarity/
 │   │   ├── places.py               # `bsim places`: the gazetteer, which place each name is and where it lies (§16.56)
 │   │   ├── place_lists.py          # `bsim place-lists`: list paths and districts against shuffles, on all and on sure sites (§16.58)
 │   │   ├── place_arc.py            # `bsim place-arc`: chapter centres, consecutive chapters against shuffles, known moves, the oracles' spread (§16.60)
+│   │   ├── place_links.py          # `bsim place-links`: places named together, link strength against km with shuffled coordinates, far pairs as leads (§16.61)
 │   │   ├── seams.py                # `bsim seams`: where a book's style changes (§16.12)
 │   │   ├── structure.py            # `bsim structure` + /structure: inclusio, chiasm, Leitwort (§16.2)
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
@@ -221,7 +222,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, masorah, equal values, places (the map), place lists, the geographic arc, query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, masorah, equal values, places (the map), place lists, the geographic arc, places named together, query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
 ├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e
@@ -267,6 +268,7 @@ bible-similarity/
 | 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds,basemap}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
 | 11b⁵'' | `bsim place-lists` | places, mentions, words, verses | `artifacts/place_lists/{lists,steps,districts,members}.parquet` + `place_lists.meta.json` (§16.58) |
 | 11b⁵''' | `bsim place-arc` | places, mentions, verses | `artifacts/place_arc/{chapters,books}.parquet` + `place_arc.meta.json` (§16.60) |
+| 11b⁵'''' | `bsim place-links` | places, mentions, verses | `artifacts/place_links/{pairs,bins}.parquet` + `place_links.meta.json` (§16.61) |
 | 11b⁶ | `bsim seams` | verses, words | `artifacts/seams/{curve,seams}.parquet` + `.meta.json` (§16.12) |
 | 11c | `bsim structure` | units, words, final semantic embeddings | `artifacts/structure/units.parquet` + `.meta.json` (§16.2) |
 | 11d | `bsim map` | units, words, final semantic embeddings, fused verse topk | `artifacts/map/{points,clusters,book_affinity,book_examples}.parquet` + `map.meta.json` (§16.4) |
@@ -298,7 +300,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, place-lists, place-arc, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, masorah, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, masorah, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

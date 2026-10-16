@@ -273,6 +273,28 @@ export interface PlaceArcMeta {
 export type PlaceArcResponse = Omit<S['PlaceArcResponse'], 'meta'> & { meta: PlaceArcMeta & Record<string, unknown> }
 export type PlaceArcBookResponse = S['PlaceArcBookResponse']
 
+// Places named together against distance (`/place-links`, `/place-links/pairs`, DESIGN.md §16.61).
+export type DecayVariant = S['DecayRow']['variant']
+export type PlaceLinkSort = 'g2' | 'km' | 'near'
+export type LinkPlace = S['LinkPlace']
+export type PlaceLinkPair = S['PlaceLinkPair']
+export type DecayTest = S['DecayTest']
+export type DecayBin = S['DecayBin']
+export type DecayRow = S['DecayRow']
+export type KnownLink = S['KnownLink']
+export type LinkPoint = S['LinkPoint']
+export interface PlaceLinksMeta {
+  shuffles?: number
+  alpha?: number
+  min_together?: number
+  sure_score?: number
+  far_km?: number
+  top?: number
+  far_pairs?: number
+}
+export type PlaceLinksResponse = Omit<S['PlaceLinksResponse'], 'meta'> & { meta: PlaceLinksMeta & Record<string, unknown> }
+export type PlaceLinkPairsResponse = S['PlaceLinkPairsResponse']
+
 export type SeamFeature = S['SeamFeature']
 
 export type Seam = S['Seam']
@@ -857,6 +879,8 @@ export type FindingKey =
   | 'place_arc_order'
   | 'place_arc_moves'
   | 'place_arc_oracles'
+  | 'place_links_decay'
+  | 'place_links_known'
 
 export type Finding = S['Finding']
 

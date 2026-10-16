@@ -106,6 +106,8 @@ const PAGES = [
   '/place-lists?list=trek&show=short',
   '/place-arc',
   '/place-arc?book=1',
+  '/place-links',
+  '/place-links?place=1&sort=km&bins=no_lists',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -314,6 +316,24 @@ test('the geographic arc: a book’s chapters on the map, a known move, the orac
   await page.goto('/findings')
   await page.getByRole('link', { name: /The geographic arc/ }).first().click()
   await expect(page).toHaveURL(/\/place-arc/)
+})
+
+test('places named together: the test, the decay, the leads and the pairs', async ({ page }) => {
+  await page.goto('/place-links')
+  await expect(page.getByText(/1 pairs of 2 places|1 pair/).first()).toBeVisible()
+  await expect(page.locator('.plk-table').first().locator('tbody tr')).toHaveCount(3)
+  await expect(page.locator('.plk-dot.far')).toHaveCount(1)
+  await expect(page.locator('.plk-bins tbody tr')).toHaveCount(2)
+  await expect(page.locator('.plk-leads .dlg-verdict')).toHaveText('holds')
+  await expect(page.locator('.plk-leads tbody tr')).toHaveCount(1)
+  await expect(page.locator('.plk-leads .plk-link')).toHaveCount(1)
+  await expect(page.locator('.plk-pairs li')).toHaveCount(1)
+  await page.locator('.plk-leads tbody a').first().click()
+  await expect(page).toHaveURL(/place=1/)
+  await expect(page.getByRole('button', { name: 'Show every pair' })).toBeVisible()
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /Named together, near together/ }).first().click()
+  await expect(page).toHaveURL(/\/place-links/)
 })
 
 test('a place name shows where it lies: its site, kind and point', async ({ page }) => {

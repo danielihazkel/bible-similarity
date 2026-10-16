@@ -266,6 +266,16 @@ export const findEn = {
       text: (v: V) =>
         `Do the chapters of the oracles against the nations range wider than the other chapters of the prophets? Spread ${numEn(Math.round(n(v, 'spread_observed')))} km against ${numEn(Math.round(n(v, 'spread_other')))} km (p ${fp(n(v, 'spread_p'))}), reach from Jerusalem ${numEn(Math.round(n(v, 'reach_observed')))} km against ${numEn(Math.round(n(v, 'reach_other')))} km (p ${fp(n(v, 'reach_p'))}), each at α / 2.`,
     },
+    place_links_decay: {
+      title: 'Places named together lie together',
+      text: (v: V) =>
+        `Are places the text names together nearer each other the more strongly they are linked? Over ${numEn(n(v, 'pairs'))} linked pairs of ${numEn(n(v, 'places'))} places, Spearman’s ρ between link strength and distance is ${x2(n(v, 'rho'))} against ${x2(n(v, 'null_mean'))} with the points shuffled (p ${fp(n(v, 'p'))}); on sure sites alone ${x2(n(v, 'sure_rho'))}, without the place lists ${x2(n(v, 'no_lists_rho'))}.`,
+    },
+    place_links_known: {
+      title: 'From Dan to Beersheba',
+      text: (v: V) =>
+        `Is the land’s length, Dan and Beersheba (${numEn(Math.round(n(v, 'km')))} km apart), among the ${numEn(n(v, 'top'))} most strongly linked far pairs of places? ${v.rank == null ? 'It is not among them.' : `It ranks ${numEn(n(v, 'rank'))}.`}`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -523,6 +533,16 @@ export const findHe: typeof findEn = {
       title: 'הנבואות על הגויים משתרעות רחוק יותר',
       text: (v: V) =>
         `האם פרקי הנבואות על הגויים משתרעים על פני שטח רחב משאר פרקי הנביאים? פיזור ${numHe(Math.round(n(v, 'spread_observed')))} ק״מ לעומת ${numHe(Math.round(n(v, 'spread_other')))} ק״מ (p ${fp(n(v, 'spread_p'))}), טווח מירושלים ${numHe(Math.round(n(v, 'reach_observed')))} ק״מ לעומת ${numHe(Math.round(n(v, 'reach_other')))} ק״מ (p ${fp(n(v, 'reach_p'))}), כל אחד ב־α / 2.`,
+    },
+    place_links_decay: {
+      title: 'מקומות שנזכרים יחד שוכנים יחד',
+      text: (v: V) =>
+        `האם מקומות שהכתוב מזכיר יחד קרובים זה לזה ככל שהקשר ביניהם חזק יותר? על פני ${numHe(n(v, 'pairs'))} זוגות קשורים של ${numHe(n(v, 'places'))} מקומות, ρ של ספירמן בין חוזק הקשר למרחק הוא ${x2(n(v, 'rho'))} לעומת ${x2(n(v, 'null_mean'))} כשהנקודות מעורבבות (p ${fp(n(v, 'p'))}); באתרים הוודאיים בלבד ${x2(n(v, 'sure_rho'))}, בלי רשימות המקומות ${x2(n(v, 'no_lists_rho'))}.`,
+    },
+    place_links_known: {
+      title: 'מדן ועד באר שבע',
+      text: (v: V) =>
+        `האם אורך הארץ, דן ובאר שבע (${numHe(Math.round(n(v, 'km')))} ק״מ ביניהן), נמנה עם ${numHe(n(v, 'top'))} הזוגות הרחוקים הקשורים בחוזק הרב ביותר? ${v.rank == null ? 'אינו ביניהם.' : `הוא במקום ${numHe(n(v, 'rank'))}.`}`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',
