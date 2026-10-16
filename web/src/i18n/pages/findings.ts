@@ -251,6 +251,21 @@ export const findEn = {
       text: (v: V) =>
         `Do the towns of one district of Joshua’s lists lie closer together than towns with the districts shuffled over them? ${numEn(n(v, 'held'))} of ${numEn(n(v, 'n'))} groupings (the weakest p ${fp(n(v, 'max_p'))}); on sure sites alone, ${numEn(n(v, 'sure_held'))} of ${numEn(n(v, 'sure_n'))}.`,
     },
+    place_arc_order: {
+      title: 'Consecutive chapters close on the map',
+      text: (v: V) =>
+        `Do consecutive chapters of a book lie closer on the map than its chapters in shuffled order, each chapter placed at the mean of the places it names? ${numEn(n(v, 'placed'))} of ${numEn(n(v, 'chapters'))} chapters placed: ${numEn(Math.round(n(v, 'mean_step')))} km from one to the next against ${numEn(Math.round(n(v, 'null_mean')))} km shuffled (p ${fp(n(v, 'p'))}); ${numEn(n(v, 'books_held'))} of ${numEn(n(v, 'books'))} books on their own.`,
+    },
+    place_arc_moves: {
+      title: 'The story’s known moves',
+      text: (v: V) =>
+        `Does the chapters’ centre move where the story goes: Abram to Canaan, down to Egypt, out into the wilderness, to Babylon? ${numEn(n(v, 'held'))} of ${numEn(n(v, 'n'))} moves go from the region left towards the region entered.`,
+    },
+    place_arc_oracles: {
+      title: 'The oracles against the nations range wider',
+      text: (v: V) =>
+        `Do the chapters of the oracles against the nations range wider than the other chapters of the prophets? Spread ${numEn(Math.round(n(v, 'spread_observed')))} km against ${numEn(Math.round(n(v, 'spread_other')))} km (p ${fp(n(v, 'spread_p'))}), reach from Jerusalem ${numEn(Math.round(n(v, 'reach_observed')))} km against ${numEn(Math.round(n(v, 'reach_other')))} km (p ${fp(n(v, 'reach_p'))}), each at α / 2.`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -493,6 +508,21 @@ export const findHe: typeof findEn = {
       title: 'ערי יהושע לפי מחוזות',
       text: (v: V) =>
         `האם ערי מחוז אחד ברשימות יהושע קרובות זו לזו יותר מערים שהמחוזות מעורבבים ביניהן? ${numHe(n(v, 'held'))} מתוך ${numHe(n(v, 'n'))} חלוקות (ה־p החלש ביותר ${fp(n(v, 'max_p'))}); באתרים הוודאיים בלבד, ${numHe(n(v, 'sure_held'))} מתוך ${numHe(n(v, 'sure_n'))}.`,
+    },
+    place_arc_order: {
+      title: 'פרקים סמוכים קרובים על המפה',
+      text: (v: V) =>
+        `האם פרקים סמוכים בספר קרובים זה לזה על המפה יותר מפרקיו בסדר מעורבב, כשכל פרק ממוקם בממוצע המקומות שהוא מזכיר? ${numHe(n(v, 'placed'))} מתוך ${numHe(n(v, 'chapters'))} פרקים ממוקמים: ${numHe(Math.round(n(v, 'mean_step')))} ק״מ מפרק לפרק לעומת ${numHe(Math.round(n(v, 'null_mean')))} ק״מ במעורבב (p ${fp(n(v, 'p'))}); ${numHe(n(v, 'books_held'))} מתוך ${numHe(n(v, 'books'))} ספרים בפני עצמם.`,
+    },
+    place_arc_moves: {
+      title: 'המעברים הידועים של הסיפור',
+      text: (v: V) =>
+        `האם מרכז הפרקים זז לאן שהסיפור הולך: אברם לכנען, הירידה למצרים, היציאה למדבר, הגלות לבבל? ${numHe(n(v, 'held'))} מתוך ${numHe(n(v, 'n'))} מעברים הולכים מהאזור הנעזב אל האזור שנכנסים אליו.`,
+    },
+    place_arc_oracles: {
+      title: 'הנבואות על הגויים משתרעות רחוק יותר',
+      text: (v: V) =>
+        `האם פרקי הנבואות על הגויים משתרעים על פני שטח רחב משאר פרקי הנביאים? פיזור ${numHe(Math.round(n(v, 'spread_observed')))} ק״מ לעומת ${numHe(Math.round(n(v, 'spread_other')))} ק״מ (p ${fp(n(v, 'spread_p'))}), טווח מירושלים ${numHe(Math.round(n(v, 'reach_observed')))} ק״מ לעומת ${numHe(Math.round(n(v, 'reach_other')))} ק״מ (p ${fp(n(v, 'reach_p'))}), כל אחד ב־α / 2.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

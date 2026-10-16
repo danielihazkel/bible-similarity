@@ -1,6 +1,6 @@
-"""The gazetteer and its map (DESIGN.md §16.56–16.58): every place the text names, its kind and
+"""The gazetteer and its map (DESIGN.md §16.56–16.60): every place the text names, its kind and
 where it lies, in all the text or in a book or unit; one place's panel and verses; the base map;
-the place lists' paths and districts against shuffles."""
+the place lists' paths and districts against shuffles; the geographic arc of the chapters."""
 
 from __future__ import annotations
 
@@ -11,6 +11,13 @@ from fastapi import APIRouter, HTTPException
 from bsim.api import queries
 from bsim.api.models.common import BookCount, VerseLabel
 from bsim.api.models.places import (
+    ArcBook,
+    ArcChapter,
+    ArcMove,
+    ArcMoveEnd,
+    ArcOracles,
+    ArcPlace,
+    ArcTest,
     BasemapResponse,
     District,
     DistrictDetail,
@@ -19,6 +26,8 @@ from bsim.api.models.places import (
     DistrictTest,
     DistrictTown,
     MapShape,
+    PlaceArcBookResponse,
+    PlaceArcResponse,
     PlaceDetail,
     PlaceKind,
     PlaceList,
@@ -34,6 +43,8 @@ from bsim.api.models.places import (
     PlaceVersesResponse,
 )
 from bsim.api.routes._common import Conn, State, check_page, span_label, unit_span
+from bsim.data.canon import BOOKS, hebrew_numeral
+from bsim.data.refs import parse_ref
 
 router = APIRouter()
 
@@ -214,4 +225,100 @@ def place_districts(key: str, state: State, conn: Conn) -> dict[str, Any]:
                          verse=_label(labels, t["verse_id"]), sure=bool(t["sure"]))  # fmt: skip
             for t in towns
         ],
+    }
+
+
+def _top(place_id: int | None, he: str | None, kind: str | None) -> ArcPlace | None:
+    return None if place_id is None else ArcPlace(place_id=place_id, he=he or "", kind=kind)
+
+
+def _arc_chapter(r: dict[str, Any]) -> ArcChapter:
+    b, c = r["book_id"], r["chapter"]
+    return ArcChapter(
+        **{k: r[k] for k in ("book_id", "chapter", "first_vid", "n_mentions", "n_places", "lat",
+                             "lon", "spread_km", "reach_km", "step_km", "prev_chapter")},
+        unit_id=f"c:{b}:{c}",
+        label_en=f"{BOOKS[b].sefaria} {c}",
+        label_he=f"{BOOKS[b].he} {hebrew_numeral(c)}",
+        top_place=_top(r["top_place"], r["top_he"], r["top_kind"]),
+        oracle=bool(r["oracle"]),
+    )  # fmt: skip
+
+
+def _arc_book(r: dict[str, Any]) -> ArcBook:
+    b = BOOKS[r["book_id"]]
+    return ArcBook(**r, name=b.sefaria, he_name=b.he)
+
+
+def _ref_labels(conn: Any, ref: str, vids: list[int]) -> tuple[str, str, str]:
+    """A span's English and Hebrew labels and its unit: "Genesis 35–37" / "בראשית לה–לז" and the
+    first chapter for whole chapters; else the verse range and its first verse."""
+    r = parse_ref(ref)
+    if r.v1 is None:
+        b = r.book
+        tail_en, tail_he = (f"–{r.c2}", f"–{hebrew_numeral(r.c2)}") if r.c2 != r.c1 else ("", "")
+        return (f"{b.sefaria} {r.c1}{tail_en}", f"{b.he} {hebrew_numeral(r.c1)}{tail_he}",
+                f"c:{b.book_id}:{r.c1}")  # fmt: skip
+    labels = queries.verse_labels(conn, vids)
+    first, last = vids
+    return span_label(labels, first, last, 0), span_label(labels, first, last, 1), f"v:{first}"
+
+
+def _move(conn: Any, mv: dict[str, Any]) -> ArcMove:
+    ends = {}
+    for side in ("from", "to"):
+        end = mv.get(side)
+        if end is None:
+            ends[side] = None
+            continue
+        en, he, unit = _ref_labels(conn, mv[f"{side}_ref"], mv[f"{side}_vids"])
+        top = queries.place(conn, end["top_place"]) if end.get("top_place") is not None else None
+        ends[side] = ArcMoveEnd(
+            **{k: end[k] for k in ("n_mentions", "n_places", "lat", "lon", "spread_km",
+                                   "to_from_region", "to_to_region", "nearest")},
+            label_en=en, label_he=he, unit_id=unit,
+            top_place=_top(top["place_id"], top["he"], top["kind"]) if top else None,
+        )  # fmt: skip
+    return ArcMove(
+        key=mv["key"], from_region=mv["from_region"], to_region=mv["to_region"],
+        start=ends["from"], end=ends["to"], km=mv.get("km"), holds=mv.get("holds"),
+    )  # fmt: skip
+
+
+@router.get("/place-arc", response_model=PlaceArcResponse)
+def place_arc(state: State, conn: Conn) -> dict[str, Any]:
+    """The geographic arc (§16.60): consecutive chapters' centres against shuffled orders, per
+    book and over all; the known moves; the oracles against the nations against the other
+    prophetic chapters, with their chapters."""
+    meta = state.meta.get("place_arc") or {}
+    o = meta.get("oracles") or {}
+    oracles = None
+    if o:
+        labels = [_ref_labels(conn, ref, [0, 0]) for ref in o.get("refs") or []]
+        oracles = ArcOracles(
+            labels_en=[x[0] for x in labels], labels_he=[x[1] for x in labels],
+            chapters=o.get("chapters") or 0, placed=o.get("placed") or 0,
+            alpha=o.get("alpha") or 0.025, spread=o.get("spread"), reach=o.get("reach"),
+            holds=o.get("holds"),
+            items=[_arc_chapter(r) for r in queries.place_arc_chapters(conn, oracle=True)],
+        )  # fmt: skip
+    return {
+        "meta": {k: meta.get(k) for k in ("shuffles", "alpha", "min_mentions", "min_chapters",
+                                          "regions") if k in meta},  # fmt: skip
+        "arc": ArcTest(**meta["arc"]) if meta.get("arc") else None,
+        "books": [_arc_book(r) for r in queries.place_arc_books(conn)],
+        "moves": [_move(conn, mv) for mv in meta.get("moves") or []],
+        "oracles": oracles,
+    }
+
+
+@router.get("/place-arc/{book_id}", response_model=PlaceArcBookResponse)
+def place_arc_book(book_id: int, conn: Conn) -> dict[str, Any]:
+    """One book's placed chapters in order: centre, spread and the step from the one before."""
+    book = next((r for r in queries.place_arc_books(conn) if r["book_id"] == book_id), None)
+    if book is None:
+        raise HTTPException(status_code=404, detail=f"no arc for book {book_id}")
+    return {
+        "book": _arc_book(book),
+        "items": [_arc_chapter(r) for r in queries.place_arc_chapters(conn, book_id)],
     }

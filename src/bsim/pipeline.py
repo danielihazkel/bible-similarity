@@ -216,6 +216,12 @@ def stage_place_lists(cfg: dict[str, Any], log: Log) -> None:
     run_place_lists(cfg, log=log)
 
 
+def stage_place_arc(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.place_arc import run_place_arc
+
+    run_place_arc(cfg, log=log)
+
+
 def stage_senses(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.senses import run_senses
 
@@ -408,6 +414,7 @@ STAGES: dict[str, str] = {
     "entities": "stage_entities",
     "places": "stage_places",
     "place-lists": "stage_place_lists",
+    "place-arc": "stage_place_arc",
     "senses": "stage_senses",
     "dating": "stage_dating",
     "borrowing": "stage_borrowing",
@@ -476,6 +483,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "entities": (*_CORPUS, "lexicon"),
     "places": (*_CORPUS, "lexicon", "entities"),
     "place-lists": (*_CORPUS, "places"),
+    "place-arc": (*_CORPUS, "places"),
     "senses": (*_CORPUS, "lexicon", *_MODELS),
     "dating": (*_CORPUS, "parallelism", "sequences"),
     "borrowing": (*_CORPUS, "sequences", "diffs", "dating"),

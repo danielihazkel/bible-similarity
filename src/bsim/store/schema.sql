@@ -353,6 +353,38 @@ CREATE TABLE place_district_towns (
     PRIMARY KEY (grouping, place_id)
 ) WITHOUT ROWID;
 
+-- The geographic arc (`bsim place-arc`, §16.60): every chapter's centre, the mean on the sphere of
+-- the places it names (one point per (place, verse) mention), its spread and reach.
+CREATE TABLE place_arc_chapters (
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_mentions INTEGER NOT NULL,    -- (place, verse) mentions of located places
+    n_places INTEGER,               -- NULL: not placed (fewer than `place_arc.min_mentions`)
+    lat REAL,
+    lon REAL,
+    spread_km REAL,                 -- the mean km of its mentions from its centre
+    reach_km REAL,                  -- its centre's km from the canaan anchor (Jerusalem)
+    top_place INTEGER,              -- the place it names most
+    step_km REAL,                   -- from the centre of the book's placed chapter before
+    prev_chapter INTEGER,           -- ... that chapter
+    oracle INTEGER NOT NULL,        -- in the oracles against the nations
+    prophetic INTEGER NOT NULL,     -- in the books of the prophets
+    PRIMARY KEY (book_id, chapter)
+) WITHOUT ROWID;
+
+-- Per book: consecutive placed chapters against shuffled orders of the same chapters.
+CREATE TABLE place_arc_books (
+    book_id INTEGER PRIMARY KEY,
+    chapters INTEGER NOT NULL,
+    n INTEGER NOT NULL,             -- placed chapters
+    mean_step REAL,                 -- NULL: fewer than `place_arc.min_chapters` placed
+    null_mean REAL,                 -- the shuffled orders' mean step
+    ratio REAL,                     -- the book's path over the shuffles' mean
+    p REAL                          -- the share of shuffled orders as short
+);
+
 -- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
 CREATE TABLE name_kinds (
     lemma TEXT PRIMARY KEY,

@@ -88,6 +88,8 @@ const PAGES: [string, RegExp][] = [
   ['/places?view=east&p=12', /Places on the map/],
   ['/place-lists', /Place lists on the ground/],
   ['/place-lists?list=josh15&show=short&group=tribes', /Place lists on the ground/],
+  ['/place-arc', /The geographic arc/],
+  ['/place-arc?book=12', /The geographic arc/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
@@ -157,7 +159,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -296,6 +298,20 @@ test('place lists: the wilderness stations walk the ground, Judah’s towns clus
   await expect(page.locator('.pls-steps li').first()).toContainText('רעמסס')
   await expect(page.getByText(/Judah’s towns come in districts/)).toBeVisible()
   await expect(page.locator('.pls-districts tbody tr')).toHaveCount(11)
+})
+
+test('the geographic arc: Genesis moves with its chapters, Abram goes from Mesopotamia to Canaan', async ({ page }) => {
+  await page.goto('/place-arc')
+  await expect(page.getByText(/556 of 929 chapters name places enough to be placed/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'The path of Genesis' })).toBeVisible()
+  await expect(page.locator('.pa-book .geo-pt')).toHaveCount(35)
+  await expect(page.locator('.pa-moves tbody tr')).toHaveCount(4)
+  await expect(page.locator('.pa-moves .dlg-verdict', { hasText: 'does not hold' })).toHaveCount(0)
+  await expect(page.locator('.pa-moves tbody tr').first()).toContainText('Genesis 11')
+  await expect(page.locator('.pa-oracle-chapters tbody tr')).toHaveCount(27)
+  await page.getByRole('combobox', { name: 'Book' }).selectOption('12')
+  await expect(page.getByRole('heading', { name: 'The path of Jeremiah' })).toBeVisible()
+  await expect(page.locator('.pa-book .geo-pt')).toHaveCount(47)
 })
 
 test('the gazetteer: Jerusalem is a town at 31.78° N, Abel names two places', async ({ page }) => {

@@ -204,6 +204,14 @@ def place_lists(config: ConfigOpt = None) -> None:
     run_place_lists(load_config(config), log=typer.echo)
 
 
+@app.command("place-arc")
+def place_arc(config: ConfigOpt = None) -> None:
+    """Where each chapter takes place: the arc, the known moves, the oracles' reach."""
+    from bsim.analysis.place_arc import run_place_arc
+
+    run_place_arc(load_config(config), log=typer.echo)
+
+
 @app.command()
 def masorah(config: ConfigOpt = None) -> None:
     """The Masorah's counts (middle letter, words and verse; verse totals) on our text."""

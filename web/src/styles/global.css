@@ -3008,6 +3008,23 @@ a.dossier-chip:hover {
 .pls-steps .he { font-size: 1.1rem; }
 .pls-steps li.on { background: var(--surface-2); }
 .pls-km.long { font-weight: 600; color: var(--geo-town); }
+/* The geographic arc (§16.60) */
+.pa-book, .pa-moves, .pa-oracles { margin-block-start: 2rem; }
+.pa-table tr.on td { background: var(--surface-2); font-weight: 600; }
+.pa-table tr.on .muted { color: var(--text); }
+.pa-table td:has(.dlg-verdict) { white-space: nowrap; }
+.pa-path { fill: none; stroke: var(--accent); stroke-width: 1.4px; stroke-linejoin: round; opacity: 0.7; }
+.pa-path.move { stroke-width: 2.2px; opacity: 0.9; }
+.pa-chapters { padding-inline-start: 0.5rem; list-style: none; max-height: 34rem; overflow-y: auto; }
+.pa-chapters li { margin-block: 0.2rem; }
+/* links inside a line of text are underlined (axe: link-in-text-block) */
+.pa-chapters a, .pa-table td a { text-decoration: underline; }
+.pa-chapters .he { font-size: 1.1rem; }
+.pa-chapters li.on { background: var(--surface-2); }
+.pa-chapters li.on .muted { color: var(--text); }
+.pa-km.long { font-weight: 600; color: var(--geo-town); }
+.places-layout.pa-moves-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+@media (max-width: 860px) { .places-layout.pa-moves-layout { grid-template-columns: minmax(0, 1fr); } }
 /* the reader's places layer: a box in the colour of the place's kind */
 .reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
 .reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }

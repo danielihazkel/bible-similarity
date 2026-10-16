@@ -32,6 +32,8 @@ import type {
   DistrictDetail,
   PlaceListDetail,
   PlaceListsResponse,
+  PlaceArcBookResponse,
+  PlaceArcResponse,
   PlacesResponse,
   PlaceVersesResponse,
   GematriaLemmasResponse,
@@ -790,6 +792,18 @@ export const usePlaceList = (key: string | undefined) =>
     queryKey: ['place-list', key],
     queryFn: ({ signal }) => getJson<PlaceListDetail>(`/place-lists/${encodeURIComponent(key ?? '')}`, {}, signal),
     enabled: !!key,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePlaceArc = () =>
+  useQuery({ queryKey: ['place-arc'], queryFn: ({ signal }) => getJson<PlaceArcResponse>('/place-arc', {}, signal), ...forever })
+
+export const usePlaceArcBook = (bookId: number | undefined) =>
+  useQuery({
+    queryKey: ['place-arc', bookId],
+    queryFn: ({ signal }) => getJson<PlaceArcBookResponse>(`/place-arc/${bookId}`, {}, signal),
+    enabled: bookId !== undefined,
     placeholderData: keepPreviousData,
     ...forever,
   })

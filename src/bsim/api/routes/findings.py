@@ -497,6 +497,43 @@ def _place_lists(key: str) -> Callable[[Meta, sqlite3.Connection, float], Findin
     return build
 
 
+def _place_arc(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The geographic arc (§16.60): consecutive placed chapters closer than in shuffled orders,
+    over all books (`place_arc_order`); every known move goes from its region towards the next
+    (`place_arc_moves`); the oracles against the nations wider than the other prophetic chapters
+    on spread or reach at `alpha` / 2 (`place_arc_oracles`)."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        pa = meta.get("place_arc") or {}
+        if key == "place_arc_order":
+            a = pa.get("arc") or {}
+            if a.get("p") is None:
+                return None
+            values = {k: a.get(k) for k in ("placed", "chapters", "mean_step", "null_mean", "p",
+                                            "books", "books_held")}  # fmt: skip
+            holds = a["mean_step"] < a["null_mean"] and a["p"] <= alpha
+            return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+        if key == "place_arc_moves":
+            moves = [m for m in pa.get("moves") or [] if m.get("holds") is not None]
+            if not moves:
+                return None
+            values = {"n": len(moves), "held": sum(m["holds"] for m in moves)}
+            values |= {f"{m['key']}_km": m.get("km") for m in moves}
+            holds = all(m["holds"] for m in moves)
+            return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+        o = pa.get("oracles") or {}
+        if not o.get("spread"):
+            return None
+        values = {"n": o["spread"]["n"], "n_other": o["spread"]["n_other"]}
+        for m in ("spread", "reach"):
+            r = o[m]
+            values |= {f"{m}_observed": r["observed"], f"{m}_other": r["other"], f"{m}_p": r["p"]}
+        holds = any(o[m]["p"] <= alpha / 2 for m in ("spread", "reach"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -542,6 +579,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _gematria_links("gematria_genesis"),
     _place_lists("place_lists_order"),
     _place_lists("place_lists_districts"),
+    _place_arc("place_arc_order"),
+    _place_arc("place_arc_moves"),
+    _place_arc("place_arc_oracles"),
     _allusions,
 ]
 

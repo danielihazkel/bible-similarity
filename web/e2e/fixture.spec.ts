@@ -104,6 +104,8 @@ const PAGES = [
   '/read/c%3A0%3A1?layers=places',
   '/place-lists',
   '/place-lists?list=trek&show=short',
+  '/place-arc',
+  '/place-arc?book=1',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -292,6 +294,26 @@ test('place lists: a list against its shuffles, its path on the map, the distric
   await page.goto('/findings')
   await page.getByRole('link', { name: /Place lists on the ground/ }).first().click()
   await expect(page).toHaveURL(/\/place-lists/)
+})
+
+test('the geographic arc: a book’s chapters on the map, a known move, the oracles', async ({ page }) => {
+  await page.goto('/place-arc')
+  await expect(page.getByRole('heading', { name: 'The path of Genesis' })).toBeVisible()
+  await expect(page.locator('.pa-book .geo-pt')).toHaveCount(2)
+  await expect(page.locator('.pa-book .pa-path')).toHaveCount(1)
+  await expect(page.locator('.pa-chapters li')).toHaveCount(2)
+  await expect(page.locator('.pa-chapters li').nth(1)).toContainText('270 km')
+  await page.getByRole('button', { name: 'Show Exodus on the map' }).click()
+  await expect(page).toHaveURL(/book=1/)
+  await expect(page.getByRole('heading', { name: 'The path of Exodus' })).toBeVisible()
+  await expect(page.locator('.pa-chapters .type-tag')).toHaveCount(1)
+  await expect(page.locator('.pa-moves tbody tr')).toHaveCount(1)
+  await expect(page.locator('.pa-moves .dlg-verdict')).toHaveText('holds')
+  await expect(page.locator('.pa-moves .geo-pt')).toHaveCount(2)
+  await expect(page.locator('.pa-oracle-chapters tbody tr')).toHaveCount(1)
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /The geographic arc/ }).first().click()
+  await expect(page).toHaveURL(/\/place-arc/)
 })
 
 test('a place name shows where it lies: its site, kind and point', async ({ page }) => {

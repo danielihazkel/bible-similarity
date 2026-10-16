@@ -245,6 +245,19 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "place-arc",
+        "place_arc",
+        (
+            Table("place_arc_chapters", "chapters"),
+            Table("place_arc_books", "books"),
+        ),
+        "place_arc.meta.json",
+        keys(
+            "place_arc", "shuffles", "alpha", "min_mentions", "min_chapters", "regions", "arc",
+            "moves", "oracles",
+        ),
+    ),
+    Source(
         "senses",
         "senses",
         (

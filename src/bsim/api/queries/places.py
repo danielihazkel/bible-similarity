@@ -184,3 +184,33 @@ def place_district_towns(conn: sqlite3.Connection, grouping: str) -> list[dict[s
         (grouping,),
     )
     return _sites(_dicts(cur))
+
+
+_ARC = (
+    "c.book_id, c.chapter, c.first_vid, c.last_vid, c.n_mentions, c.n_places, c.lat, c.lon,"
+    " c.spread_km, c.reach_km, c.step_km, c.prev_chapter, c.oracle, c.top_place,"
+    " p.he AS top_he, p.kind AS top_kind"
+)
+
+
+def place_arc_books(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Per book: its placed chapters' steps against shuffled orders (§16.60), in canon order."""
+    return _dicts(conn.execute("SELECT * FROM place_arc_books ORDER BY book_id"))
+
+
+def place_arc_chapters(
+    conn: sqlite3.Connection, book_id: int | None = None, oracle: bool = False
+) -> list[dict[str, Any]]:
+    """The placed chapters of a book (or the oracles against the nations), in canon order."""
+    where, args = ["c.n_places IS NOT NULL"], []
+    if book_id is not None:
+        where.append("c.book_id = ?")
+        args.append(book_id)
+    if oracle:
+        where.append("c.oracle = 1")
+    cur = conn.execute(
+        f"SELECT {_ARC} FROM place_arc_chapters c LEFT JOIN places p ON p.place_id = c.top_place"
+        f" WHERE {' AND '.join(where)} ORDER BY c.book_id, c.chapter",
+        args,
+    )
+    return _dicts(cur)

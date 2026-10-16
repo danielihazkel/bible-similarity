@@ -2316,6 +2316,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/place-arc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Arc
+         * @description The geographic arc (§16.60): consecutive chapters' centres against shuffled orders, per
+         *     book and over all; the known moves; the oracles against the nations against the other
+         *     prophetic chapters, with their chapters.
+         */
+        get: operations["place_arc_api_place_arc_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/place-arc/{book_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Arc Book
+         * @description One book's placed chapters in order: centre, spread and the step from the one before.
+         */
+        get: operations["place_arc_book_api_place_arc__book_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -2727,6 +2769,152 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Allusion"][];
+        };
+        /** ArcBook */
+        ArcBook: {
+            /** Book Id */
+            book_id: number;
+            /** Name */
+            name: string;
+            /** He Name */
+            he_name: string;
+            /** Chapters */
+            chapters: number;
+            /** N */
+            n: number;
+            /** Mean Step */
+            mean_step: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** Ratio */
+            ratio: number | null;
+            /** P */
+            p: number | null;
+        };
+        /**
+         * ArcChapter
+         * @description A chapter's centre: the mean on the sphere of the places it names (§16.60).
+         */
+        ArcChapter: {
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** First Vid */
+            first_vid: number;
+            /** N Mentions */
+            n_mentions: number;
+            /** N Places */
+            n_places: number;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+            /** Spread Km */
+            spread_km: number;
+            /** Reach Km */
+            reach_km: number;
+            /** Step Km */
+            step_km: number | null;
+            /** Prev Chapter */
+            prev_chapter: number | null;
+            top_place: components["schemas"]["ArcPlace"] | null;
+            /** Oracle */
+            oracle: boolean;
+        };
+        /** ArcMove */
+        ArcMove: {
+            /** Key */
+            key: string;
+            /** From Region */
+            from_region: string;
+            /** To Region */
+            to_region: string;
+            start: components["schemas"]["ArcMoveEnd"] | null;
+            end: components["schemas"]["ArcMoveEnd"] | null;
+            /** Km */
+            km: number | null;
+            /** Holds */
+            holds: boolean | null;
+        };
+        /** ArcMoveEnd */
+        ArcMoveEnd: {
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Unit Id */
+            unit_id: string;
+            /** N Mentions */
+            n_mentions: number;
+            /** N Places */
+            n_places: number;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+            /** Spread Km */
+            spread_km: number;
+            top_place: components["schemas"]["ArcPlace"] | null;
+            /** To From Region */
+            to_from_region: number;
+            /** To To Region */
+            to_to_region: number;
+            /** Nearest */
+            nearest: string;
+        };
+        /** ArcOracles */
+        ArcOracles: {
+            /** Labels En */
+            labels_en: string[];
+            /** Labels He */
+            labels_he: string[];
+            /** Chapters */
+            chapters: number;
+            /** Placed */
+            placed: number;
+            /** Alpha */
+            alpha: number;
+            spread: components["schemas"]["OracleTest"] | null;
+            reach: components["schemas"]["OracleTest"] | null;
+            /** Holds */
+            holds: boolean | null;
+            /** Items */
+            items: components["schemas"]["ArcChapter"][];
+        };
+        /** ArcPlace */
+        ArcPlace: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+        };
+        /** ArcTest */
+        ArcTest: {
+            /** Chapters */
+            chapters: number;
+            /** Placed */
+            placed: number;
+            /** Books */
+            books: number;
+            /** Steps */
+            steps: number;
+            /** Mean Step */
+            mean_step: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** P */
+            p: number | null;
+            /** Books Held */
+            books_held: number;
         };
         /** BasemapResponse */
         BasemapResponse: {
@@ -3888,7 +4076,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles";
             /**
              * Verdict
              * @enum {string}
@@ -5273,6 +5461,25 @@ export interface components {
             /** Counts */
             counts: number[];
         };
+        /** OracleTest */
+        OracleTest: {
+            /** N */
+            n: number;
+            /** N Other */
+            n_other: number;
+            /** Observed */
+            observed: number;
+            /** Other */
+            other: number;
+            /** Median */
+            median: number;
+            /** Other Median */
+            other_median: number;
+            /** Null Mean */
+            null_mean: number;
+            /** P */
+            p: number;
+        };
         /** Pair */
         Pair: {
             /** Src */
@@ -5495,6 +5702,25 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["PhrasePair"][];
+        };
+        /** PlaceArcBookResponse */
+        PlaceArcBookResponse: {
+            book: components["schemas"]["ArcBook"];
+            /** Items */
+            items: components["schemas"]["ArcChapter"][];
+        };
+        /** PlaceArcResponse */
+        PlaceArcResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            arc: components["schemas"]["ArcTest"] | null;
+            /** Books */
+            books: components["schemas"]["ArcBook"][];
+            /** Moves */
+            moves: components["schemas"]["ArcMove"][];
+            oracles: components["schemas"]["ArcOracles"] | null;
         };
         /** PlaceDetail */
         PlaceDetail: {
@@ -10998,6 +11224,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DistrictDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_arc_api_place_arc_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceArcResponse"];
+                };
+            };
+        };
+    };
+    place_arc_book_api_place_arc__book_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceArcBookResponse"];
                 };
             };
             /** @description Validation Error */

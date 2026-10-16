@@ -254,6 +254,25 @@ export type PlaceListDetail = S['PlaceListDetail']
 export type DistrictTown = S['DistrictTown']
 export type DistrictDetail = S['DistrictDetail']
 
+// The geographic arc (`/place-arc`, `/place-arc/{book_id}`, DESIGN.md §16.60).
+export type ArcPlace = S['ArcPlace']
+export type ArcChapter = S['ArcChapter']
+export type ArcBook = S['ArcBook']
+export type ArcTest = S['ArcTest']
+export type ArcMoveEnd = S['ArcMoveEnd']
+export type ArcMove = S['ArcMove']
+export type OracleTest = S['OracleTest']
+export type ArcOracles = S['ArcOracles']
+export interface PlaceArcMeta {
+  shuffles?: number
+  alpha?: number
+  min_mentions?: number
+  min_chapters?: number
+  regions?: Record<string, { lat: number; lon: number }>
+}
+export type PlaceArcResponse = Omit<S['PlaceArcResponse'], 'meta'> & { meta: PlaceArcMeta & Record<string, unknown> }
+export type PlaceArcBookResponse = S['PlaceArcBookResponse']
+
 export type SeamFeature = S['SeamFeature']
 
 export type Seam = S['Seam']
@@ -835,6 +854,9 @@ export type FindingKey =
   | 'gematria_genesis'
   | 'place_lists_order'
   | 'place_lists_districts'
+  | 'place_arc_order'
+  | 'place_arc_moves'
+  | 'place_arc_oracles'
 
 export type Finding = S['Finding']
 

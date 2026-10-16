@@ -21,6 +21,8 @@ interface Props {
   fillOf?: (p: GeoPoint) => string | undefined
   /** The name written beside a point (default: its Hebrew name). */
   labelOf?: (p: GeoPoint) => string
+  /** A point's tooltip and caption (default: its name and verses). */
+  titleOf?: (p: GeoPoint) => string
 }
 
 const R_MIN = 3 // point radius in CSS pixels: R_MIN + R_LOG × log2(1 + verses), at most R_MAX
@@ -36,9 +38,10 @@ const ZOOM = 1.6
  * buttons (or + / −) to zoom; with keyboard focus, ←/→ step through the places, most named first,
  * and Enter opens the current one.
  */
-export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = (p) => p.he }: Props) {
+export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = (p) => p.he, titleOf }: Props) {
   const m = useT()
   const t = m.geo
+  const title = titleOf ?? ((p: GeoPoint) => t.pointTitle(p.he, p.n))
   const ref = useRef<SVGSVGElement>(null)
   const [width, setWidth] = useState(640)
   const [cur, setCur] = useState<number>()
@@ -154,7 +157,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
             vectorEffect="non-scaling-stroke"
             onClick={() => pick(p)}
           >
-            <title>{t.pointTitle(p.he, p.n)}</title>
+            <title>{title(p)}</title>
           </circle>
         ))}
         {order
@@ -176,7 +179,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
         </div>
       )}
       <figcaption className="muted small" aria-live="polite" dir="auto">
-        {current ? t.pointTitle(current.he, current.n) : t.idle}
+        {current ? title(current) : t.idle}
       </figcaption>
     </figure>
   )

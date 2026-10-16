@@ -182,3 +182,114 @@ class DistrictTown(ApiModel):
 class DistrictDetail(ApiModel):
     grouping: DistrictGrouping
     towns: list[DistrictTown]
+
+
+class ArcPlace(ApiModel):
+    place_id: int
+    he: str
+    kind: PlaceKind | None
+
+
+class ArcChapter(ApiModel):
+    """A chapter's centre: the mean on the sphere of the places it names (§16.60)."""
+
+    book_id: int
+    chapter: int
+    unit_id: str  # c:{book_id}:{chapter}
+    label_en: str
+    label_he: str
+    first_vid: int
+    n_mentions: int  # (place, verse) mentions
+    n_places: int
+    lat: float
+    lon: float
+    spread_km: float  # mean km of its mentions from its centre
+    reach_km: float  # its centre's km from Jerusalem
+    step_km: float | None  # from the book's placed chapter before
+    prev_chapter: int | None
+    top_place: ArcPlace | None  # the place it names most
+    oracle: bool
+
+
+class ArcBook(ApiModel):
+    book_id: int
+    name: str
+    he_name: str
+    chapters: int
+    n: int  # placed chapters
+    mean_step: float | None  # km between consecutive placed chapters (None: too few to test)
+    null_mean: float | None  # ... in shuffled orders
+    ratio: float | None
+    p: float | None
+
+
+class ArcTest(ApiModel):
+    chapters: int
+    placed: int
+    books: int  # books tested
+    steps: int
+    mean_step: float | None
+    null_mean: float | None
+    p: float | None
+    books_held: int
+
+
+class ArcMoveEnd(ApiModel):
+    label_en: str
+    label_he: str
+    unit_id: str
+    n_mentions: int
+    n_places: int
+    lat: float
+    lon: float
+    spread_km: float
+    top_place: ArcPlace | None
+    to_from_region: float  # km from the region the text leaves
+    to_to_region: float  # km from the region it goes to
+    nearest: str  # the nearest of the regions
+
+
+class ArcMove(ApiModel):
+    key: str
+    from_region: str
+    to_region: str
+    start: ArcMoveEnd | None  # the span before
+    end: ArcMoveEnd | None  # the span after
+    km: float | None  # between their centres
+    holds: bool | None
+
+
+class OracleTest(ApiModel):
+    n: int
+    n_other: int
+    observed: float  # the oracles' mean km
+    other: float  # the other prophetic chapters' mean
+    median: float
+    other_median: float
+    null_mean: float  # the mean with labels shuffled
+    p: float
+
+
+class ArcOracles(ApiModel):
+    labels_en: list[str]
+    labels_he: list[str]
+    chapters: int
+    placed: int
+    alpha: float  # each measure's level (alpha / 2)
+    spread: OracleTest | None
+    reach: OracleTest | None
+    holds: bool | None
+    items: list[ArcChapter]  # the oracles' placed chapters
+
+
+class PlaceArcResponse(ApiModel):
+    meta: dict[str, Any]  # shuffles, alpha, min_mentions, min_chapters, the regions' points
+    arc: ArcTest | None
+    books: list[ArcBook]
+    moves: list[ArcMove]
+    oracles: ArcOracles | None
+
+
+class PlaceArcBookResponse(ApiModel):
+    book: ArcBook
+    items: list[ArcChapter]  # its placed chapters in order

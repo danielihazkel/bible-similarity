@@ -560,6 +560,53 @@ def write_inputs(cfg, tmp_path):
         }),
         encoding="utf-8",
     )  # fmt: skip
+    # the geographic arc (`bsim place-arc`), made up: Genesis 1 at אמר, Genesis 2 by ראשית in
+    # Egypt, Exodus 1 an "oracle" at ראשית; Genesis tested, one known move (Genesis 1 -> 2)
+    arc_dir = art / "place_arc"
+    arc_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(0, 1, 0, 2, 2, 1, 31.78, 35.23, 0.0, 0.0, 1, None, None, False, False),
+         (0, 2, 3, 4, 3, 2, 30.6, 32.6, 120.5, 270.2, 2, 270.2, 1, False, False),
+         (1, 1, 5, 5, 2, 1, 30.1, 31.3, 0.0, 410.4, 2, None, None, True, True)],
+        columns=["book_id", "chapter", "first_vid", "last_vid", "n_mentions", "n_places", "lat",
+                 "lon", "spread_km", "reach_km", "top_place", "step_km", "prev_chapter", "oracle",
+                 "prophetic"],
+    ).astype({"step_km": float, "prev_chapter": "Int64"}).to_parquet(
+        arc_dir / "chapters.parquet"
+    )  # fmt: skip
+    pd.DataFrame(
+        [(0, "Gen", 2, 2, 270.2, 300.0, 0.9, 0.5), (1, "Exod", 1, 1, None, None, None, None)],
+        columns=["book_id", "abbr", "chapters", "n", "mean_step", "null_mean", "ratio", "p"],
+    ).to_parquet(arc_dir / "books.parquet")
+    end = {"n_places": 1, "spread_km": 0.0, "top_place": 1}
+    (arc_dir / "place_arc.meta.json").write_text(
+        json.dumps({
+            "shuffles": 999, "alpha": 0.05, "min_mentions": 2, "min_chapters": 2,
+            "regions": {"canaan": {"lat": 31.78, "lon": 35.23},
+                        "egypt": {"lat": 30.13, "lon": 31.31}},
+            "arc": {"chapters": 3, "placed": 3, "books": 1, "steps": 1, "mean_step": 270.2,
+                    "null_mean": 300.0, "p": 0.5, "books_held": 0},
+            "moves": [{
+                "key": "descent", "from_ref": "Genesis 1", "to_ref": "Genesis 2",
+                "from_region": "canaan", "to_region": "egypt", "from_vids": [0, 2],
+                "to_vids": [3, 4], "km": 270.2, "holds": True,
+                "from": end | {"n_mentions": 2, "lat": 31.78, "lon": 35.23, "to_from_region": 0.0,
+                               "to_to_region": 384.0, "nearest": "canaan"},
+                "to": end | {"n_mentions": 3, "n_places": 2, "lat": 30.6, "lon": 32.6,
+                             "spread_km": 120.5, "top_place": 2, "to_from_region": 270.2,
+                             "to_to_region": 127.5, "nearest": "egypt"},
+            }],
+            "oracles": {
+                "refs": ["Exodus 1"], "chapters": 1, "placed": 1, "alpha": 0.025,
+                "spread": {"n": 1, "n_other": 0, "observed": 0.0, "other": 0.0, "median": 0.0,
+                           "other_median": 0.0, "null_mean": 0.0, "p": 1.0},
+                "reach": {"n": 1, "n_other": 0, "observed": 410.4, "other": 0.0, "median": 410.4,
+                          "other_median": 0.0, "null_mean": 410.4, "p": 0.01},
+                "holds": True,
+            },
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
     sense_dir = art / "senses"
     sense_dir.mkdir(parents=True, exist_ok=True)

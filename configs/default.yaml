@@ -455,6 +455,27 @@ place_lists:                  # `bsim place-lists`: are the place lists of the t
       places: [town]
       groups: ["Joshua 18:21-28", "Joshua 19:1-9", "Joshua 19:10-16", "Joshua 19:17-23", "Joshua 19:24-31", "Joshua 19:32-39", "Joshua 19:40-48"]
 
+place_arc:                    # `bsim place-arc`: where each chapter takes place, and how the text moves (DESIGN.md §16.60); everything below fixed before the first run
+  shuffles: 9999              # random orders of a book's placed chapters, and random labels over the prophetic chapters: the null
+  seed: 31
+  alpha: 0.05
+  min_mentions: 2             # a chapter (or a move's span) is placed when it names places in this many (place, verse) mentions
+  min_chapters: 3             # a book is tested when this many of its chapters are placed
+  kinds: [town, region, landform, water]   # every located kind: a land (Egypt, Moab) says where as much as a town
+  regions:                    # anchors for the known moves (a point each)
+    mesopotamia: {lat: 32.54, lon: 44.42}  # Babylon
+    canaan: {lat: 31.78, lon: 35.23}       # Jerusalem
+    egypt: {lat: 30.13, lon: 31.31}        # OpenBible's point for Egypt
+    wilderness: {lat: 30.61, lon: 34.42}   # Kadesh-barnea
+  moves:                      # known answers: the text moves from `from_region` to `to_region` when the centroid of `to` lies nearer `to_region` than the centroid of `from` does, and the centroid of `from` nearer `from_region` than the centroid of `to` does
+    - {key: abram, from: "Genesis 11", to: "Genesis 12", from_region: mesopotamia, to_region: canaan}       # from Ur and Haran to Canaan
+    - {key: descent, from: "Genesis 35-37", to: "Genesis 46-47", from_region: canaan, to_region: egypt}     # Jacob's house goes down to Egypt
+    - {key: exodus, from: "Exodus 1-12", to: "Numbers 10-21", from_region: egypt, to_region: wilderness}    # out of Egypt into the wilderness
+    - {key: exile, from: "II Kings 21-23", to: "II Kings 24-25", from_region: canaan, to_region: mesopotamia} # Judah carried to Babylon
+  oracles: ["Amos 1-2", "Isaiah 13-23", "Jeremiah 46-51", "Ezekiel 25-32"]   # the oracles against the nations
+  prophets: [Isa, Jer, Ezek, Hos, Joel, Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal]   # the chapters the oracles are set against (their own included)
+  # one-sided: the oracles' chapters are wider than the other prophetic chapters on `spread` (the mean km of a chapter's mentions from its centroid) or `reach` (its centroid's km from the canaan anchor), at alpha / 2 each
+
 senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
   encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)
   max_seq_length: 128
