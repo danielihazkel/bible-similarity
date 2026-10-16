@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, BookCount, Verse
+from bsim.api.models.common import ApiModel, BookCount, Verse, VerseLabel
 
 PlaceKind = Literal["town", "region", "landform", "water"]
 NameKind = Literal["person", "people", "location", "landform", "water"]
@@ -79,3 +79,106 @@ class PlaceVersesResponse(ApiModel):
     offset: int
     limit: int
     items: list[PlaceVerse]  # canon order
+
+
+PlaceListKind = Literal["itinerary", "boundary", "towns", "nations"]
+
+
+class NullHistogram(ApiModel):
+    lo: float  # km: the first bin's left edge
+    hi: float  # ... the last bin's right edge
+    counts: list[int]  # random orders per bin
+
+
+class PlaceListTest(ApiModel):
+    """A list's path in the text's order against random orders of its places (§16.58)."""
+
+    n: int  # places tested (located; sure sites only, for `sure`)
+    path_km: float | None  # None: too few places to test
+    null_mean: float | None
+    null_sd: float | None
+    p: float | None  # the share of random orders as short
+    short_km: float | None  # a short path through the same places (nearest neighbour + 2-opt)
+    order_score: float | None  # 0: no shorter than random; 1: as short as the short path
+    hist: NullHistogram | None
+
+
+class PlaceList(ApiModel):
+    key: str
+    kind: PlaceListKind
+    label_en: str
+    label_he: str
+    first_vid: int
+    last_vid: int
+    n_named: int  # places of the kinds counted that the verses name
+    all: PlaceListTest
+    sure: PlaceListTest
+
+
+class DistrictTest(ApiModel):
+    """Mean km between two towns of one district against shuffled labels."""
+
+    n: int
+    districts: int | None = None
+    within_km: float | None = None
+    null_mean: float | None = None
+    p: float | None = None
+    all_km: float | None = None  # mean km between any two towns of the grouping
+    nearest_same: float | None = None  # share of towns whose nearest town is of their district
+
+
+class DistrictRow(ApiModel):
+    n: int
+    within_km: float | None  # None: a single town
+    null_mean: float | None
+    p: float | None
+
+
+class District(ApiModel):
+    district: int  # from 1
+    label_en: str
+    label_he: str
+    first_vid: int
+    last_vid: int
+    all: DistrictRow | None
+    sure: DistrictRow | None
+
+
+class DistrictGrouping(ApiModel):
+    key: str
+    n_named: int
+    all: DistrictTest
+    sure: DistrictTest
+    districts: list[District]
+
+
+class PlaceListsResponse(ApiModel):
+    meta: dict[str, Any]  # shuffles, alpha, sure_score, how many lists hold
+    lists: list[PlaceList]
+    groupings: list[DistrictGrouping]
+
+
+class PlaceListStep(ApiModel):
+    pos: int  # from 1
+    place: PlaceSite
+    verse: VerseLabel  # where the list first names it
+    km: float | None  # from the place before
+    sure: bool
+    short_pos: int  # its place on the short path
+
+
+class PlaceListDetail(ApiModel):
+    list: PlaceList
+    steps: list[PlaceListStep]
+
+
+class DistrictTown(ApiModel):
+    district: int
+    place: PlaceSite
+    verse: VerseLabel
+    sure: bool
+
+
+class DistrictDetail(ApiModel):
+    grouping: DistrictGrouping
+    towns: list[DistrictTown]

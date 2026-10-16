@@ -44,6 +44,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   masorah_words: { to: '/masorah', nav: 'masorah' },
   masorah_verse: { to: '/masorah', nav: 'masorah' },
   masorah_books: { to: '/masorah#totals', nav: 'masorah' },
+  place_lists_order: { to: '/place-lists', nav: 'placeLists' },
+  place_lists_districts: { to: '/place-lists#districts', nav: 'placeLists' },
   echoes: { to: '/network?view=directions', nav: 'network' },
   sevens: { to: '/structure', nav: 'structure' },
   chiasm: { to: '/structure?view=small', nav: 'structure' },

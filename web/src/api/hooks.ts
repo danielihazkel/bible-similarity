@@ -29,6 +29,9 @@ import type {
   BasemapResponse,
   PlaceDetail,
   PlaceKind,
+  DistrictDetail,
+  PlaceListDetail,
+  PlaceListsResponse,
   PlacesResponse,
   PlaceVersesResponse,
   GematriaLemmasResponse,
@@ -758,6 +761,27 @@ export const usePlaceVerses = (placeId: number | undefined, limit: number, offse
     queryKey: ['place-verses', placeId, limit, offset],
     queryFn: ({ signal }) => getJson<PlaceVersesResponse>(`/places/${placeId}/verses`, { limit, offset }, signal),
     enabled: placeId !== undefined,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePlaceLists = () =>
+  useQuery({ queryKey: ['place-lists'], queryFn: ({ signal }) => getJson<PlaceListsResponse>('/place-lists', {}, signal), ...forever })
+
+export const usePlaceList = (key: string | undefined) =>
+  useQuery({
+    queryKey: ['place-list', key],
+    queryFn: ({ signal }) => getJson<PlaceListDetail>(`/place-lists/${encodeURIComponent(key ?? '')}`, {}, signal),
+    enabled: !!key,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const usePlaceDistricts = (key: string | undefined) =>
+  useQuery({
+    queryKey: ['place-districts', key],
+    queryFn: ({ signal }) => getJson<DistrictDetail>(`/place-districts/${encodeURIComponent(key ?? '')}`, {}, signal),
+    enabled: !!key,
     placeholderData: keepPreviousData,
     ...forever,
   })

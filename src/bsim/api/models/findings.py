@@ -14,6 +14,7 @@ FindingKey = Literal[
     "dialogue_deference", "dialogue_particle", "dialogue_last_word", "forms_known", "forms_chance",
     "forms_parallel", "forms_lists", "ciphers_known", "ciphers_jeremiah", "ciphers_elsewhere",
     "ciphers_albam", "masorah_letter", "masorah_words", "masorah_verse", "masorah_books",
+    "place_lists_order", "place_lists_districts",
 ]  # fmt: skip
 
 

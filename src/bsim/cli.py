@@ -188,6 +188,14 @@ def places(config: ConfigOpt = None) -> None:
     run_places(load_config(config), log=typer.echo)
 
 
+@app.command("place-lists")
+def place_lists(config: ConfigOpt = None) -> None:
+    """Are the place lists ordered on the ground? Paths and districts against shuffles."""
+    from bsim.analysis.place_lists import run_place_lists
+
+    run_place_lists(load_config(config), log=typer.echo)
+
+
 @app.command()
 def masorah(config: ConfigOpt = None) -> None:
     """The Masorah's counts (middle letter, words and verse; verse totals) on our text."""

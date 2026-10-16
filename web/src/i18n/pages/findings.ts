@@ -226,6 +226,16 @@ export const findEn = {
       text: (v: V) =>
         `Does each book have as many verses as the Masorah says? ${numEn(n(v, 'agree'))} of ${numEn(n(v, 'n'))}; the others differ by at most ${numEn(n(v, 'max_diff'))}, ${numEn(n(v, 'reasoned'))} of them for a reason the page gives (the Ten Commandments divided otherwise, a verse counted as two, two verses left out).`,
     },
+    place_lists_order: {
+      title: 'Place lists ordered on the ground',
+      text: (v: V) =>
+        `Do the itineraries, borders and town lists name their places in an order that walks the ground, a shorter path than random orders of the same places? ${numEn(n(v, 'held'))} of ${numEn(n(v, 'n'))} lists (the weakest p ${fp(n(v, 'max_p'))}); on sure sites alone, ${numEn(n(v, 'sure_held'))} of ${numEn(n(v, 'sure_n'))}.`,
+    },
+    place_lists_districts: {
+      title: 'Joshua’s towns by district',
+      text: (v: V) =>
+        `Do the towns of one district of Joshua’s lists lie closer together than towns with the districts shuffled over them? ${numEn(n(v, 'held'))} of ${numEn(n(v, 'n'))} groupings (the weakest p ${fp(n(v, 'max_p'))}); on sure sites alone, ${numEn(n(v, 'sure_held'))} of ${numEn(n(v, 'sure_n'))}.`,
+    },
     allusions: {
       title: 'Rare words over a few verses',
       text: (v: V) =>
@@ -443,6 +453,16 @@ export const findHe: typeof findEn = {
       title: 'מניין הפסוקים של המסורה',
       text: (v: V) =>
         `האם בכל ספר יש כמספר הפסוקים שהמסורה מוסרת? ${numHe(n(v, 'agree'))} מתוך ${numHe(n(v, 'n'))}; האחרים נבדלים לכל היותר ב־${numHe(n(v, 'max_diff'))}, ${numHe(n(v, 'reasoned'))} מהם מסיבה שהעמוד מביא (עשרת הדברות מחולקים אחרת, פסוק שנמנה כשניים, שני פסוקים שאינם במניין).`,
+    },
+    place_lists_order: {
+      title: 'רשימות המקומות מסודרות על פני הארץ',
+      text: (v: V) =>
+        `האם המסעות, הגבולות ורשימות הערים מונים את מקומותיהם בסדר שהולך על פני הארץ, במסלול קצר משל סדרים אקראיים של אותם המקומות? ${numHe(n(v, 'held'))} מתוך ${numHe(n(v, 'n'))} רשימות (ה־p החלש ביותר ${fp(n(v, 'max_p'))}); באתרים הוודאיים בלבד, ${numHe(n(v, 'sure_held'))} מתוך ${numHe(n(v, 'sure_n'))}.`,
+    },
+    place_lists_districts: {
+      title: 'ערי יהושע לפי מחוזות',
+      text: (v: V) =>
+        `האם ערי מחוז אחד ברשימות יהושע קרובות זו לזו יותר מערים שהמחוזות מעורבבים ביניהן? ${numHe(n(v, 'held'))} מתוך ${numHe(n(v, 'n'))} חלוקות (ה־p החלש ביותר ${fp(n(v, 'max_p'))}); באתרים הוודאיים בלבד, ${numHe(n(v, 'sure_held'))} מתוך ${numHe(n(v, 'sure_n'))}.`,
     },
     allusions: {
       title: 'מילים נדירות על פני פסוקים אחדים',

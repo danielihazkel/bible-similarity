@@ -100,6 +100,8 @@ const PAGES = [
   '/places',
   '/places?p=1&book=0',
   '/read/c%3A0%3A1?layers=places',
+  '/place-lists',
+  '/place-lists?list=trek&show=short',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -253,6 +255,26 @@ test('places on the map: the points, a place panel, the unit page and the reader
   await expect(page).toHaveURL(/\/places\?unit=c%3A0%3A1$/)
   await page.goto('/read/c%3A0%3A1?layers=places')
   await expect(page.locator('.reader-text .pl-town')).toHaveCount(2)
+})
+
+test('place lists: a list against its shuffles, its path on the map, the districts', async ({ page }) => {
+  await page.goto('/place-lists')
+  const lists = page.locator('.pls-table').first().locator('tbody tr')
+  await expect(lists).toHaveCount(1)
+  await expect(lists.first()).toContainText('441 km')
+  await expect(lists.first().locator('.dlg-verdict')).toHaveText('holds')
+  await expect(page.locator('.pls-detail .geo-pt')).toHaveCount(2)
+  await expect(page.locator('.pls-path.text')).toHaveCount(1)
+  await expect(page.locator('.pls-bar')).toHaveCount(4)
+  await expect(page.locator('.pls-steps li')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'A short path' }).click()
+  await expect(page).toHaveURL(/show=short/)
+  await expect(page.locator('.pls-path.short')).toHaveCount(1)
+  await expect(page.locator('.pls-districts .geo-pt')).toHaveCount(2)
+  await expect(page.locator('.pls-districts tbody tr')).toHaveCount(2)
+  await page.goto('/findings')
+  await page.getByRole('link', { name: /Place lists on the ground/ }).first().click()
+  await expect(page).toHaveURL(/\/place-lists/)
 })
 
 test('a place name shows where it lies: its site, kind and point', async ({ page }) => {

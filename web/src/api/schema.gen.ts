@@ -2213,6 +2213,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/place-lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Lists
+         * @description The place lists' paths against random orders and the town lists' districts against
+         *     shuffled labels, each on every located place and on sure sites alone.
+         */
+        get: operations["place_lists_api_place_lists_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/place-lists/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place List
+         * @description One list: its located places in the text's order, the km of each step and the short
+         *     path's order.
+         */
+        get: operations["place_list_api_place_lists__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/place-districts/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Districts
+         * @description One grouping of town lists: its districts' tests and towns.
+         */
+        get: operations["place_districts_api_place_districts__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -3368,6 +3430,78 @@ export interface components {
             /** B Preview */
             b_preview: string | null;
         };
+        /** District */
+        District: {
+            /** District */
+            district: number;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            all: components["schemas"]["DistrictRow"] | null;
+            sure: components["schemas"]["DistrictRow"] | null;
+        };
+        /** DistrictDetail */
+        DistrictDetail: {
+            grouping: components["schemas"]["DistrictGrouping"];
+            /** Towns */
+            towns: components["schemas"]["DistrictTown"][];
+        };
+        /** DistrictGrouping */
+        DistrictGrouping: {
+            /** Key */
+            key: string;
+            /** N Named */
+            n_named: number;
+            all: components["schemas"]["DistrictTest"];
+            sure: components["schemas"]["DistrictTest"];
+            /** Districts */
+            districts: components["schemas"]["District"][];
+        };
+        /** DistrictRow */
+        DistrictRow: {
+            /** N */
+            n: number;
+            /** Within Km */
+            within_km: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** P */
+            p: number | null;
+        };
+        /**
+         * DistrictTest
+         * @description Mean km between two towns of one district against shuffled labels.
+         */
+        DistrictTest: {
+            /** N */
+            n: number;
+            /** Districts */
+            districts: number | null;
+            /** Within Km */
+            within_km: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** P */
+            p: number | null;
+            /** All Km */
+            all_km: number | null;
+            /** Nearest Same */
+            nearest_same: number | null;
+        };
+        /** DistrictTown */
+        DistrictTown: {
+            /** District */
+            district: number;
+            place: components["schemas"]["PlaceSite"];
+            verse: components["schemas"]["VerseLabel"];
+            /** Sure */
+            sure: boolean;
+        };
         /** DomainHit */
         DomainHit: {
             verse: components["schemas"]["Verse"];
@@ -3713,7 +3847,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "place_lists_order" | "place_lists_districts";
             /**
              * Verdict
              * @enum {string}
@@ -4932,6 +5066,15 @@ export interface components {
             /** Hidden */
             hidden: number;
         };
+        /** NullHistogram */
+        NullHistogram: {
+            /** Lo */
+            lo: number;
+            /** Hi */
+            hi: number;
+            /** Counts */
+            counts: number[];
+        };
         /** Pair */
         Pair: {
             /** Src */
@@ -5168,6 +5311,79 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Partners */
             partners: components["schemas"]["PlacePartner"][];
+        };
+        /** PlaceList */
+        PlaceList: {
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "itinerary" | "boundary" | "towns" | "nations";
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            /** N Named */
+            n_named: number;
+            all: components["schemas"]["PlaceListTest"];
+            sure: components["schemas"]["PlaceListTest"];
+        };
+        /** PlaceListDetail */
+        PlaceListDetail: {
+            list: components["schemas"]["PlaceList"];
+            /** Steps */
+            steps: components["schemas"]["PlaceListStep"][];
+        };
+        /** PlaceListStep */
+        PlaceListStep: {
+            /** Pos */
+            pos: number;
+            place: components["schemas"]["PlaceSite"];
+            verse: components["schemas"]["VerseLabel"];
+            /** Km */
+            km: number | null;
+            /** Sure */
+            sure: boolean;
+            /** Short Pos */
+            short_pos: number;
+        };
+        /**
+         * PlaceListTest
+         * @description A list's path in the text's order against random orders of its places (§16.58).
+         */
+        PlaceListTest: {
+            /** N */
+            n: number;
+            /** Path Km */
+            path_km: number | null;
+            /** Null Mean */
+            null_mean: number | null;
+            /** Null Sd */
+            null_sd: number | null;
+            /** P */
+            p: number | null;
+            /** Short Km */
+            short_km: number | null;
+            /** Order Score */
+            order_score: number | null;
+            hist: components["schemas"]["NullHistogram"] | null;
+        };
+        /** PlaceListsResponse */
+        PlaceListsResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Lists */
+            lists: components["schemas"]["PlaceList"][];
+            /** Groupings */
+            groupings: components["schemas"]["DistrictGrouping"][];
         };
         /** PlaceName */
         PlaceName: {
@@ -10447,6 +10663,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlaceVersesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_lists_api_place_lists_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceListsResponse"];
+                };
+            };
+        };
+    };
+    place_list_api_place_lists__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceListDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_districts_api_place_districts__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DistrictDetail"];
                 };
             };
             /** @description Validation Error */

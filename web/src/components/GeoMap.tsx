@@ -15,6 +15,12 @@ interface Props {
   /** Names written beside the most named points. */
   labels?: number
   aspect?: number
+  /** Lines under the points, as [lon, lat] (a list's path). */
+  paths?: { key: string; className: string; coords: [number, number][] }[]
+  /** A point's fill in place of its kind's colour (a district's). */
+  fillOf?: (p: GeoPoint) => string | undefined
+  /** The name written beside a point (default: its Hebrew name). */
+  labelOf?: (p: GeoPoint) => string
 }
 
 const R_MIN = 3 // point radius in CSS pixels: R_MIN + R_LOG × log2(1 + verses), at most R_MAX
@@ -30,7 +36,7 @@ const ZOOM = 1.6
  * buttons (or + / −) to zoom; with keyboard focus, ←/→ step through the places, most named first,
  * and Enter opens the current one.
  */
-export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85 }: Props) {
+export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = (p) => p.he }: Props) {
   const m = useT()
   const t = m.geo
   const ref = useRef<SVGSVGElement>(null)
@@ -68,7 +74,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
   for (const p of candidates) {
     if (named.size >= labels + (selected === undefined ? 0 : 1) || !inView(p)) continue
     const x0 = projectX(p.lon) + radius(p) + 2 * k
-    const box: [number, number, number, number] = [x0, projectY(p.lat) - 0.6 * FONT * k, x0 + p.he.length * CHAR * FONT * k, projectY(p.lat) + 0.6 * FONT * k]
+    const box: [number, number, number, number] = [x0, projectY(p.lat) - 0.6 * FONT * k, x0 + labelOf(p).length * CHAR * FONT * k, projectY(p.lat) + 0.6 * FONT * k]
     if (boxes.some((b) => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue
     boxes.push(box)
     named.add(p.place_id)
@@ -134,6 +140,9 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
         {rivers.map((d, i) => (
           <path key={`r${i}`} className="geo-river" d={d} vectorEffect="non-scaling-stroke" />
         ))}
+        {paths.map((l) => (
+          <path key={l.key} className={l.className} d={ringsPath([l.coords], false)} vectorEffect="non-scaling-stroke" />
+        ))}
         {order.map((p) => (
           <circle
             key={p.place_id}
@@ -141,6 +150,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
             cx={projectX(p.lon)}
             cy={projectY(p.lat)}
             r={radius(p)}
+            style={fillOf ? { fill: fillOf(p) } : undefined}
             vectorEffect="non-scaling-stroke"
             onClick={() => pick(p)}
           >
@@ -151,7 +161,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
           .filter((p) => named.has(p.place_id))
           .map((p) => (
             <text key={`t${p.place_id}`} className="geo-label" x={projectX(p.lon) + radius(p) + 2 * k} y={projectY(p.lat) + 0.35 * FONT * k} fontSize={FONT * k} lang="he">
-              {p.he}
+              {labelOf(p)}
             </text>
           ))}
       </svg>

@@ -433,6 +433,28 @@ places:                       # `bsim places`: the gazetteer, each place the tex
   seed: 11
   hand_check: {site: [49, 50], low_score: 4}   # the 50 drawn after the rules were set: the site is the place meant (or the land of the people named) in 49; Amos 4:3's הרמונה is no sure place; 4 points have an OpenBible vote below 300
 
+place_lists:                  # `bsim place-lists`: are the place lists of the text ordered on the ground? (DESIGN.md §16.58); everything below fixed before the first run
+  shuffles: 9999              # random orders of a list's places, and random district labels over a grouping's towns: the null
+  seed: 29
+  alpha: 0.05
+  sure_score: 500             # sure sites: an OpenBible vote at least this high (each test is repeated on these alone, since an obscure town is often placed by its company in the list)
+  min_places: 4               # a list or grouping with fewer located places is not tested
+  bins: 40                    # histogram bins of the random orders' path lengths (the viewer)
+  lists:                      # one-sided: the text's order makes a shorter path than random orders of the same places. `places`: the kinds counted (regions have no single site)
+    - {key: num33, ref: "Numbers 33:3-49", kind: itinerary, places: [town, landform, water]}      # the stations of the wilderness
+    - {key: num34, ref: "Numbers 34:3-12", kind: boundary, places: [town, landform, water]}       # the borders of the land
+    - {key: josh15_border, ref: "Joshua 15:1-12", kind: boundary, places: [town, landform, water]} # Judah's border
+    - {key: josh15, ref: "Joshua 15:21-62", kind: towns, places: [town]}                          # the towns of Judah
+    - {key: josh19, ref: "Joshua 19:1-48", kind: towns, places: [town]}                           # the lots of six tribes (towns and borders)
+    - {key: gen10, ref: "Genesis 10:1-32", kind: nations, places: [town]}                         # the cities of the table of nations
+  districts:                  # one-sided: two towns of one district lie closer than two towns of the grouping with the labels shuffled
+    - key: judah              # Judah's districts, each closed by "ערים ... וחצריהן"
+      places: [town]
+      groups: ["Joshua 15:21-32", "Joshua 15:33-36", "Joshua 15:37-41", "Joshua 15:42-44", "Joshua 15:45-47", "Joshua 15:48-51", "Joshua 15:52-54", "Joshua 15:55-57", "Joshua 15:58-59", "Joshua 15:60", "Joshua 15:61-62"]
+    - key: tribes             # the towns of Benjamin and of the six tribes of Josh 19 (a known answer: tribes hold land together)
+      places: [town]
+      groups: ["Joshua 18:21-28", "Joshua 19:1-9", "Joshua 19:10-16", "Joshua 19:17-23", "Joshua 19:24-31", "Joshua 19:32-39", "Joshua 19:40-48"]
+
 senses:                       # `bsim senses`: a word's senses and uses across the canon (DESIGN.md §16.23)
   encoder: berel_mean         # encoders.systems entry for the word vectors (pretrained BEREL: not tuned to verse similarity)
   max_seq_length: 128

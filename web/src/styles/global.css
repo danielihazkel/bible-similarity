@@ -2978,6 +2978,30 @@ a.dossier-chip:hover {
 .place-list li { margin-block: 0.2rem; }
 .place-panel .he, .place-list .he { font-size: 1.15rem; }
 .where-panel .geo-map { max-width: 34rem; }
+/* Place lists on the ground (§16.58) */
+.pls-table tr.on td { background: var(--surface-2); font-weight: 600; }
+.pls-detail, .pls-districts { margin-block-start: 2rem; }
+.pls-table td:has(.dlg-verdict) { white-space: nowrap; }
+/* muted text falls under 4.5:1 on --surface-2 */
+.pls-table tr.on .muted, .pls-steps li.on .muted { color: var(--text); }
+.places-layout.pls-district-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 860px) { .places-layout.pls-district-layout { grid-template-columns: minmax(0, 1fr); } }
+.pls-path { fill: none; stroke: var(--accent); stroke-width: 1.6px; stroke-linejoin: round; opacity: 0.8; }
+.pls-path.short { stroke: var(--muted); stroke-dasharray: 4 3; }
+.pls-hist { margin: 1rem 0 0; max-width: 26rem; }
+.pls-hist svg { display: block; width: 100%; height: auto; }
+.pls-bar { fill: var(--geo-none); opacity: 0.55; }
+.pls-axis { stroke: var(--border); }
+.pls-tick, .pls-mark text { fill: var(--muted); font-size: 10px; font-family: var(--font-ui); }
+.pls-mark line { stroke-width: 2px; }
+.pls-mark.text line { stroke: var(--accent); }
+.pls-mark.text text { fill: var(--accent); }
+.pls-mark.short line { stroke: var(--muted); stroke-dasharray: 3 2; }
+.pls-steps { padding-inline-start: 2.2rem; max-height: 34rem; overflow-y: auto; }
+.pls-steps li { margin-block: 0.15rem; }
+.pls-steps .he { font-size: 1.1rem; }
+.pls-steps li.on { background: var(--surface-2); }
+.pls-km.long { font-weight: 600; color: var(--geo-town); }
 /* the reader's places layer: a box in the colour of the place's kind */
 .reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
 .reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }

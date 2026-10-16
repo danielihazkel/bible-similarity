@@ -517,6 +517,49 @@ def write_inputs(cfg, tmp_path):
         }),
         encoding="utf-8",
     )  # fmt: skip
+    # place lists (`bsim place-lists`), made up: one list over v0-v5 naming אמר then ראשית, and a
+    # grouping of two districts (v0-v2, v3-v5) of one town each
+    pl_dir = art / "place_lists"
+    pl_dir.mkdir(parents=True, exist_ok=True)
+    hist = json.dumps({"lo": 400.0, "hi": 900.0, "counts": [1, 3, 5, 2]})
+    pd.DataFrame(
+        [("trek", "all", "Genesis 1:1-Exodus 1:1", "itinerary", 0, 5, 2, 2, 441.2, 700.0, 80.0,
+          0.002, 441.2, 1.0, hist),
+         ("trek", "sure", "Genesis 1:1-Exodus 1:1", "itinerary", 0, 5, 2, 1, None, None, None,
+          None, None, None, None)],
+        columns=["list_key", "variant", "ref", "kind", "first_vid", "last_vid", "n_named", "n",
+                 "path_km", "null_mean", "null_sd", "p", "short_km", "order_score", "hist"],
+    ).to_parquet(pl_dir / "lists.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("trek", 1, 1, 0, None, True, 1), ("trek", 2, 2, 5, 441.2, False, 2)],
+        columns=["list_key", "pos", "place_id", "verse_id", "km", "sure", "short_pos"],
+    ).to_parquet(pl_dir / "steps.parquet")
+    pd.DataFrame(
+        [("halves", "all", 1, "Genesis 1:1-3", 0, 2, 1, None, None, None),
+         ("halves", "all", 2, "Genesis 2:1-Exodus 1:1", 3, 5, 1, None, None, None),
+         ("halves", "sure", 1, "Genesis 1:1-3", 0, 2, 1, None, None, None)],
+        columns=["grouping", "variant", "district", "ref", "first_vid", "last_vid", "n",
+                 "within_km", "null_mean", "p"],
+    ).to_parquet(pl_dir / "districts.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("halves", 1, 1, 0, True), ("halves", 2, 2, 5, False)],
+        columns=["grouping", "district", "place_id", "verse_id", "sure"],
+    ).to_parquet(pl_dir / "members.parquet")
+    (pl_dir / "place_lists.meta.json").write_text(
+        json.dumps({
+            "shuffles": 999, "alpha": 0.05, "sure_score": 500, "min_places": 2,
+            "lists": {"trek": {"n": 2, "path_km": 441.2, "null_mean": 700.0, "p": 0.002,
+                               "short_km": 441.2, "order_score": 1.0}},
+            "order": {"all": {"n": 1, "held": 1}, "sure": {"n": 0, "held": 0}},
+            "districts": {"halves": {
+                "groups": ["Genesis 1:1-3", "Genesis 2:1-Exodus 1:1"], "n_named": 2,
+                "all": {"n": 2, "districts": 2, "within_km": 0.0, "null_mean": 220.6, "p": 0.5,
+                        "all_km": 441.2, "nearest_same": 0.0},
+                "sure": {"n": 1},
+            }},
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # senses (`bsim senses`): ראשית in two uses (v0 / v2 against v3-v5) and one SDBH meaning
     sense_dir = art / "senses"
     sense_dir.mkdir(parents=True, exist_ok=True)

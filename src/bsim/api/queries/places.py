@@ -145,3 +145,42 @@ def map_shapes(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     order = "CASE layer WHEN 'land' THEN 0 WHEN 'lakes' THEN 1 ELSE 2 END"
     cur = conn.execute(f"SELECT layer, rings FROM map_shapes ORDER BY {order}, shape_id")
     return [{"layer": r["layer"], "rings": json.loads(r["rings"])} for r in _dicts(cur)]
+
+
+def place_lists(conn: sqlite3.Connection, key: str | None = None) -> list[dict[str, Any]]:
+    """The place lists' tests (both variants), in canon order (§16.58)."""
+    where, args = ("WHERE list_key = ?", [key]) if key is not None else ("", [])
+    cur = conn.execute(
+        f"SELECT * FROM place_lists {where} ORDER BY first_vid, list_key, variant", args
+    )
+    return [r | {"hist": json.loads(r["hist"]) if r["hist"] else None} for r in _dicts(cur)]
+
+
+def place_list_steps(conn: sqlite3.Connection, key: str) -> list[dict[str, Any]]:
+    """A list's located places in the text's order, with the sites."""
+    cur = conn.execute(
+        f"SELECT s.pos, s.verse_id, s.km, s.sure, s.short_pos, {_COLS}, NULL AS n_here"
+        " FROM place_list_steps s JOIN places p ON p.place_id = s.place_id"
+        " WHERE s.list_key = ? ORDER BY s.pos",
+        (key,),
+    )
+    return _sites(_dicts(cur))
+
+
+def place_districts(conn: sqlite3.Connection, grouping: str | None = None) -> list[dict[str, Any]]:
+    where, args = ("WHERE grouping = ?", [grouping]) if grouping is not None else ("", [])
+    cur = conn.execute(
+        f"SELECT * FROM place_districts {where} ORDER BY grouping, district, variant", args
+    )
+    return _dicts(cur)
+
+
+def place_district_towns(conn: sqlite3.Connection, grouping: str) -> list[dict[str, Any]]:
+    """A grouping's located towns by district, in the text's order."""
+    cur = conn.execute(
+        f"SELECT t.district, t.verse_id, t.sure, {_COLS}, NULL AS n_here"
+        " FROM place_district_towns t JOIN places p ON p.place_id = t.place_id"
+        " WHERE t.grouping = ? ORDER BY t.district, t.verse_id, p.place_id",
+        (grouping,),
+    )
+    return _sites(_dicts(cur))

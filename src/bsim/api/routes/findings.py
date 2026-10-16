@@ -431,6 +431,35 @@ def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
     return build
 
 
+def _place_lists(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The place lists against shuffles (§16.58): every list's path shorter than random orders of
+    its places (`place_lists_order`); every grouping's towns closer within a district than with
+    the labels shuffled (`place_lists_districts`). Holds when all do on every located place; how
+    many still do on sure sites alone is a value."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        pl = meta.get("place_lists") or {}
+        if key == "place_lists_order":
+            o = pl.get("order") or {}
+            a, s = o.get("all") or {}, o.get("sure") or {}
+            ps = [li["p"] for li in (pl.get("lists") or {}).values() if li.get("p") is not None]
+        else:
+            groups = list((pl.get("districts") or {}).values())
+            tested = {v: [g[v]["p"] for g in groups if (g.get(v) or {}).get("p") is not None]
+                      for v in ("all", "sure")}  # fmt: skip
+            a = {"n": len(tested["all"]), "held": sum(p <= alpha for p in tested["all"])}
+            s = {"n": len(tested["sure"]), "held": sum(p <= alpha for p in tested["sure"])}
+            ps = tested["all"]
+        if not a.get("n"):
+            return None
+        values = {"n": a["n"], "held": a.get("held"), "sure_n": s.get("n"),
+                  "sure_held": s.get("held"), "max_p": max(ps) if ps else None}  # fmt: skip
+        holds = a.get("held") == a["n"]
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _acrostics,
     _divisions,
@@ -471,6 +500,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _masorah("masorah_words"),
     _masorah("masorah_verse"),
     _masorah("masorah_books"),
+    _place_lists("place_lists_order"),
+    _place_lists("place_lists_districts"),
     _allusions,
 ]
 

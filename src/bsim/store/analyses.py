@@ -230,6 +230,21 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "place-lists",
+        "place_lists",
+        (
+            Table("place_lists", "lists"),
+            Table("place_list_steps", "steps"),
+            Table("place_districts", "districts"),
+            Table("place_district_towns", "members"),
+        ),
+        "place_lists.meta.json",
+        keys(
+            "place_lists", "shuffles", "alpha", "sure_score", "min_places", "lists", "order",
+            "districts",
+        ),
+    ),
+    Source(
         "senses",
         "senses",
         (

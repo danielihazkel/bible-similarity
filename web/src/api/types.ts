@@ -232,6 +232,28 @@ export type PlaceVerse = S['PlaceVerse']
 export type PlaceVersesResponse = S['PlaceVersesResponse']
 export type ReaderPlace = S['ReaderPlace']
 
+// The place lists against shuffles (`/place-lists`, `/place-districts/{key}`, DESIGN.md §16.58).
+export type PlaceListKind = 'itinerary' | 'boundary' | 'towns' | 'nations'
+export type NullHistogram = S['NullHistogram']
+export type PlaceListTest = S['PlaceListTest']
+export type PlaceList = S['PlaceList']
+export type DistrictTest = S['DistrictTest']
+export type DistrictRow = S['DistrictRow']
+export type District = S['District']
+export type DistrictGrouping = S['DistrictGrouping']
+export interface PlaceListsMeta {
+  shuffles?: number
+  alpha?: number
+  sure_score?: number
+  min_places?: number
+  order?: { all?: { n: number; held: number }; sure?: { n: number; held: number } }
+}
+export type PlaceListsResponse = Omit<S['PlaceListsResponse'], 'meta'> & { meta: PlaceListsMeta & Record<string, unknown> }
+export type PlaceListStep = S['PlaceListStep']
+export type PlaceListDetail = S['PlaceListDetail']
+export type DistrictTown = S['DistrictTown']
+export type DistrictDetail = S['DistrictDetail']
+
 export type SeamFeature = S['SeamFeature']
 
 export type Seam = S['Seam']
@@ -808,6 +830,8 @@ export type FindingKey =
   | 'masorah_words'
   | 'masorah_verse'
   | 'masorah_books'
+  | 'place_lists_order'
+  | 'place_lists_districts'
 
 export type Finding = S['Finding']
 

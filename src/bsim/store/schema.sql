@@ -296,6 +296,63 @@ CREATE TABLE map_shapes (
     rings TEXT NOT NULL             -- JSON: [[[lon, lat], ...], ...] (a line's pieces for rivers)
 );
 
+-- Are the place lists ordered on the ground? (`bsim place-lists`, §16.58): each list's path in the
+-- text's order against random orders of the same places, per variant (all located | sure sites).
+CREATE TABLE place_lists (
+    list_key TEXT NOT NULL,         -- `place_lists.lists` key
+    variant TEXT NOT NULL,          -- all | sure
+    ref TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- itinerary | boundary | towns | nations
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_named INTEGER NOT NULL,       -- places of the kinds counted that the verses name
+    n INTEGER NOT NULL,             -- ... located (and sure, for `sure`)
+    path_km REAL,                   -- NULL: too few places to test
+    null_mean REAL,                 -- the random orders' mean path
+    null_sd REAL,
+    p REAL,                         -- the share of random orders as short
+    short_km REAL,                  -- a short path through the same places (nearest neighbour + 2-opt)
+    order_score REAL,               -- (null_mean - path_km) / (null_mean - short_km): 0 random, 1 as short
+    hist TEXT,                      -- JSON {lo, hi, counts}: the random orders' paths binned
+    PRIMARY KEY (list_key, variant)
+) WITHOUT ROWID;
+
+-- A list's located places in the text's order.
+CREATE TABLE place_list_steps (
+    list_key TEXT NOT NULL,
+    pos INTEGER NOT NULL,           -- from 1
+    place_id INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,      -- where the list first names it
+    km REAL,                        -- from the place before (NULL for the first)
+    sure INTEGER NOT NULL,          -- a sure site (`place_lists.sure_score`)
+    short_pos INTEGER NOT NULL,     -- its place on the short path
+    PRIMARY KEY (list_key, pos)
+) WITHOUT ROWID;
+
+-- Town lists by district: mean km between two towns of one district against shuffled labels.
+CREATE TABLE place_districts (
+    grouping TEXT NOT NULL,         -- `place_lists.districts` key
+    variant TEXT NOT NULL,
+    district INTEGER NOT NULL,      -- from 1, in the order of `groups`
+    ref TEXT NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n INTEGER NOT NULL,
+    within_km REAL,                 -- NULL: a single town
+    null_mean REAL,
+    p REAL,
+    PRIMARY KEY (grouping, variant, district)
+) WITHOUT ROWID;
+
+CREATE TABLE place_district_towns (
+    grouping TEXT NOT NULL,
+    district INTEGER NOT NULL,
+    place_id INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    sure INTEGER NOT NULL,
+    PRIMARY KEY (grouping, place_id)
+) WITHOUT ROWID;
+
 -- Every name's SDBH name subdomains (shares of its occurrences) and the commonest.
 CREATE TABLE name_kinds (
     lemma TEXT PRIMARY KEY,

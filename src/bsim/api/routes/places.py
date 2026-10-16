@@ -1,5 +1,6 @@
-"""The gazetteer and its map (DESIGN.md §16.56–16.57): every place the text names, its kind and
-where it lies, in all the text or in a book or unit; one place's panel and verses; the base map."""
+"""The gazetteer and its map (DESIGN.md §16.56–16.58): every place the text names, its kind and
+where it lies, in all the text or in a book or unit; one place's panel and verses; the base map;
+the place lists' paths and districts against shuffles."""
 
 from __future__ import annotations
 
@@ -8,12 +9,23 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from bsim.api import queries
-from bsim.api.models.common import BookCount
+from bsim.api.models.common import BookCount, VerseLabel
 from bsim.api.models.places import (
     BasemapResponse,
+    District,
+    DistrictDetail,
+    DistrictGrouping,
+    DistrictRow,
+    DistrictTest,
+    DistrictTown,
     MapShape,
     PlaceDetail,
     PlaceKind,
+    PlaceList,
+    PlaceListDetail,
+    PlaceListsResponse,
+    PlaceListStep,
+    PlaceListTest,
     PlaceName,
     PlacePartner,
     PlaceSite,
@@ -21,7 +33,7 @@ from bsim.api.models.places import (
     PlaceVerse,
     PlaceVersesResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import Conn, State, check_page, span_label, unit_span
 
 router = APIRouter()
 
@@ -100,4 +112,106 @@ def place_verses(
         "offset": offset,
         "limit": limit,
         "items": [PlaceVerse(verse=verses[v], tokens=sorted(tokens[v])) for v in vids],
+    }
+
+
+def _label(labels: dict[int, tuple[str, str]], vid: int) -> VerseLabel:
+    return VerseLabel(verse_id=vid, label_en=labels[vid][0], label_he=labels[vid][1])
+
+
+def _place_lists(conn: Any, rows: list[dict[str, Any]]) -> list[PlaceList]:
+    """The tests' rows (both variants per list) as one entry per list."""
+    labels = queries.verse_labels(conn, [v for r in rows for v in (r["first_vid"], r["last_vid"])])
+    by_key: dict[str, dict[str, dict[str, Any]]] = {}
+    for r in rows:
+        by_key.setdefault(r["list_key"], {})[r["variant"]] = r
+    out = []
+    for key, v in by_key.items():
+        a = v["all"]
+        out.append(PlaceList(
+            key=key, kind=a["kind"],
+            label_en=span_label(labels, a["first_vid"], a["last_vid"], 0),
+            label_he=span_label(labels, a["first_vid"], a["last_vid"], 1),
+            first_vid=a["first_vid"], last_vid=a["last_vid"], n_named=a["n_named"],
+            all=PlaceListTest(**a), sure=PlaceListTest(**v.get("sure", {"n": 0})),
+        ))  # fmt: skip
+    return out
+
+
+def _groupings(conn: Any, meta: dict[str, Any], only: str | None = None) -> list[DistrictGrouping]:
+    groups = {k: g for k, g in (meta.get("districts") or {}).items() if only in (None, k)}
+    rows = queries.place_districts(conn, only)
+    labels = queries.verse_labels(conn, [v for r in rows for v in (r["first_vid"], r["last_vid"])])
+    out = []
+    for key, g in groups.items():
+        by_d: dict[int, dict[str, dict[str, Any]]] = {}
+        for r in rows:
+            if r["grouping"] == key:
+                by_d.setdefault(r["district"], {})[r["variant"]] = r
+        districts = []
+        for d, v in sorted(by_d.items()):
+            r = v.get("all") or v["sure"]
+            districts.append(District(
+                district=d,
+                label_en=span_label(labels, r["first_vid"], r["last_vid"], 0),
+                label_he=span_label(labels, r["first_vid"], r["last_vid"], 1),
+                first_vid=r["first_vid"], last_vid=r["last_vid"],
+                all=DistrictRow(**v["all"]) if "all" in v else None,
+                sure=DistrictRow(**v["sure"]) if "sure" in v else None,
+            ))  # fmt: skip
+        out.append(DistrictGrouping(
+            key=key, n_named=g.get("n_named") or 0,
+            all=DistrictTest(**(g.get("all") or {"n": 0})),
+            sure=DistrictTest(**(g.get("sure") or {"n": 0})),
+            districts=districts,
+        ))  # fmt: skip
+    return out
+
+
+@router.get("/place-lists", response_model=PlaceListsResponse)
+def place_lists(state: State, conn: Conn) -> dict[str, Any]:
+    """The place lists' paths against random orders and the town lists' districts against
+    shuffled labels, each on every located place and on sure sites alone."""
+    meta = state.meta.get("place_lists") or {}
+    return {
+        "meta": {k: v for k, v in meta.items() if k not in ("lists", "districts")},
+        "lists": _place_lists(conn, queries.place_lists(conn)),
+        "groupings": _groupings(conn, meta),
+    }
+
+
+@router.get("/place-lists/{key}", response_model=PlaceListDetail)
+def place_list(key: str, conn: Conn) -> dict[str, Any]:
+    """One list: its located places in the text's order, the km of each step and the short
+    path's order."""
+    rows = queries.place_lists(conn, key)
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"unknown place list {key!r}")
+    steps = queries.place_list_steps(conn, key)
+    labels = queries.verse_labels(conn, [s["verse_id"] for s in steps])
+    return {
+        "list": _place_lists(conn, rows)[0],
+        "steps": [
+            PlaceListStep(pos=s["pos"], place=PlaceSite(**s), verse=_label(labels, s["verse_id"]),
+                          km=s["km"], sure=bool(s["sure"]), short_pos=s["short_pos"])  # fmt: skip
+            for s in steps
+        ],
+    }
+
+
+@router.get("/place-districts/{key}", response_model=DistrictDetail)
+def place_districts(key: str, state: State, conn: Conn) -> dict[str, Any]:
+    """One grouping of town lists: its districts' tests and towns."""
+    grouping = _groupings(conn, state.meta.get("place_lists") or {}, key)
+    if not grouping:
+        raise HTTPException(status_code=404, detail=f"unknown district grouping {key!r}")
+    towns = queries.place_district_towns(conn, key)
+    labels = queries.verse_labels(conn, [t["verse_id"] for t in towns])
+    return {
+        "grouping": grouping[0],
+        "towns": [
+            DistrictTown(district=t["district"], place=PlaceSite(**t),
+                         verse=_label(labels, t["verse_id"]), sure=bool(t["sure"]))  # fmt: skip
+            for t in towns
+        ],
     }
