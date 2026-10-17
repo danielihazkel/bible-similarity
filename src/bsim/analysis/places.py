@@ -38,10 +38,69 @@ import pandas as pd
 
 from bsim.config import config_hash, resolve_path
 from bsim.data.basemap import shapes
-from bsim.data.geo import AncientPlace, TipnrRecord, read_openbible, read_tipnr
+from bsim.data.geo import AncientPlace, TipnrName, TipnrRecord, read_openbible, read_tipnr
 from bsim.text.normalize import consonantal
 
 _NUM = re.compile(r"\d+")
+# OSHB prefixes written as a letter of their own: and, in, as, to, from, that, whether
+_PREFIX_LETTERS = set("cbklmsi")
+_COMMON_NOUN = {"n", "n-m", "n-f"}
+
+
+def _final(word: str) -> str:
+    return word[:-1] + {"כ": "ך", "מ": "ם", "נ": "ן", "פ": "ף", "צ": "ץ"}.get(word[-1], word[-1])
+
+
+def compound_name(
+    parts: list[tuple[int, str]],
+    refs: list[int],
+    words: dict[int, list[tuple[str, str, str]]],
+    pos: dict[int, str],
+) -> str:
+    """A name of several words as the text writes it (consonants). TIPNR gives the name and then the
+    words added to it (חברון + עמק), while Hebrew puts a construct noun first (עמק חברון) and an
+    adjective after (בית חורן תחתון), and the text inflects (ערבות מואב, not ערבה + מואב). So: the
+    consecutive words of a verse naming it (`refs`, nearest first) whose lemmas are all the parts,
+    without the first word's prefix letters (ו ב כ ל מ ש) or a directional ה; a run needing neither
+    is preferred. A name of one number keeps TIPNR's spelling, without a ה of direction the text
+    marks (עלמן דבלתימה, Num 33:46). Else TIPNR's forms, a common noun (Strong's part of speech)
+    moved first. `words`: verse_id -> (consonantal surface, OSHB lemma, morph) in order."""
+    want = {s for s, _ in parts}
+    size = sum(len(form.replace("־", " ").split()) for _, form in parts)
+    plain = len(parts) == 1
+    tipnr = consonantal(parts[0][1]).split() if plain else []
+    found = []
+    for vid in refs:
+        ws = words.get(vid, [])
+        for i in range(len(ws) - size + 1):
+            run = ws[i : i + size]
+            lemmas = [{int(x) for x in _NUM.findall(lem)} for _, lem, _ in run]
+            if not lemmas[0] & want or not want <= set().union(*lemmas):
+                continue
+            # a name of one number (עלמן דבלתימה) has it on every word
+            if plain and not all(x & want for x in lemmas):
+                continue
+            prefix = sum(1 for x in run[0][1].split("/")[:-1] if x in _PREFIX_LETTERS)
+            toks = [w for w, _, _ in run]
+            toks[0] = toks[0][prefix:]
+            directional = [k for k, (_, _, m) in enumerate(run) if m.endswith("/Sd")]
+            if plain and toks != tipnr:
+                continue  # a name of one number keeps TIPNR's spelling, its ה of direction apart
+            for k in directional:
+                toks[k] = _final(toks[k][:-1])
+            found.append((bool(prefix or directional), " ".join(toks)))
+            break
+        if found and not found[-1][0]:
+            break
+    if found:
+        return min(found, key=lambda f: f[0])[1]
+    if plain:
+        return " ".join(tipnr)
+    forms = [(s, consonantal(form)) for s, form in parts]
+    head, rest = forms[0], forms[1:]
+    nouns = [f for s, f in rest if pos.get(s, "").split()[:1] and pos[s].split()[0] in _COMMON_NOUN]
+    others = [f for s, f in rest if f not in nouns]
+    return " ".join([*nouns, head[1], *others])
 Log = Callable[[str], None]
 
 KINDS = ("town", "region", "landform", "water")
@@ -176,6 +235,28 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
     mentions = pd.read_parquet(art / "entities" / "mentions.parquet", columns=["lemma", "verse_id"])
     records = read_tipnr(tipnr_path)
     ancient = read_openbible(ob_path)
+    # compound names as the text writes them: its words, and Strong's parts of speech
+    wdf = pd.read_parquet(proc / "words.parquet", columns=["verse_id", "idx", "surface", "lemma",
+                                                           "morph"])  # fmt: skip
+    words: dict[int, list[tuple[str, str, str]]] = defaultdict(list)
+    for vid, surface, lem, morph in zip(wdf.verse_id, wdf.surface, wdf.lemma, wdf.morph,
+                                        strict=True):  # fmt: skip
+        words[int(vid)].append((consonantal(surface), lem, morph))
+    lex = pd.read_parquet(proc / "lexicon_lemmas.parquet", columns=["strong", "pos"])
+    pos = {int(s): p for s, p in zip(lex.strong, lex.pos, strict=True) if str(s).isdigit()}
+    shift = int(pc["max_shift"])
+
+    def near(refs: list[tuple[int, int, int]]) -> list[int]:
+        """The verses of TIPNR's references, then those up to `max_shift` away (numbering)."""
+        exact = [vid_of[r] for r in refs if r in vid_of]
+        around = [v + s for d in range(1, shift + 1) for v in exact for s in (d, -d)]
+        return list(dict.fromkeys([*exact, *around]))
+
+    def spoken(n: TipnrName) -> str:
+        if not n.parts and " " not in n.hebrew:
+            return consonantal(n.hebrew)
+        return compound_name(n.parts or [(n.strong, n.hebrew)], near(n.refs), words, pos)
+
     log(f"TIPNR: {len(records):,} records; OpenBible: {len(ancient):,} ancient places")
 
     # which place each mention is
@@ -218,12 +299,12 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
         lemma_counts = g.lemma.value_counts()
         # its Hebrew name: TIPNR's headword (בית אל, where the name's lemma is בית)
         head = rec.names[0].hebrew if rec.names else ""
-        he = consonantal(head) if head else he_of.get(lemma_counts.index[0], "")
+        he = spoken(rec.names[0]) if head else he_of.get(lemma_counts.index[0], "")
         # every Hebrew name TIPNR gives it whose Strong's number the text uses for it here
         # (ציון for Jerusalem, לוז for Bethel; not its epithets), its own name first
         used = {int(m.group()) for lem in lemma_counts.index if (m := _NUM.match(lem))}
         names = list(dict.fromkeys(
-            [he, *(consonantal(n.hebrew) for n in rec.names if n.strong in used and n.hebrew)]
+            [he, *(spoken(n) for n in rec.names if n.strong in used and n.hebrew)]
         ))  # fmt: skip
         sd = g[list(NAME_KINDS)].sum()
         sd_kind = sd.idxmax() if sd.sum() > 0 else None

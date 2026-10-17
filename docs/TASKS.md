@@ -836,6 +836,8 @@ Phase 3 (M39c): API and viewer
 - [x] Map: `?p=` outside the view moves the view to centre on it (the jump box, a partner picked)
 - [x] Tests: the names kept and dropped, the lookup (pytest); places first and after, Enter before the pause, Hebrew, the map moved and left (vitest); e2e on the fixture (both languages) and the real build (Babylon in view, ציון to Jerusalem)
 
+- [x] Follow-up: names of several words as the text writes them (§16.56): TIPNR's compounds had run together (חברוןעמק), now from the verses that name them (עמק חברון, בית חורן תחתון, ערבת מואב); 33 headwords changed, downstream place stages adopted (they keep ids, not names)
+
 ✔ A place's name opens the map at it: בבל moves the map to Babylon, ציון and ירושלים find Jerusalem, עין the eye comes before עין the town. 669 pytest, 258 vitest, 300 / 302 fixture e2e (2 skipped by design) and 242 / 242 real-data e2e; axe clean on the jump box and the map in both languages (the detail line on the highlighted option was too faint, 3.99:1, and is darker now).
 
 ## M85: Letters at equal skips (§16.62, D98; proposed G5)

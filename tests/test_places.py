@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from bsim.analysis.places import (
+    compound_name,
     ob_base,
     openbible_match,
     resolve_mentions,
@@ -39,6 +40,8 @@ TIPNR = "\t".join(["TIPNR header", "", ">"]) + "\n" + "\n".join(
         "2Sa.20.14; 2Sa.20.15; 1Ki.15.20\t\t",
         "– Named\tAbel|Abel-beth-maacah@2Sa.20.14-2Ch\tH0059H«H0059=אָבֵל\tAbel\t2Sa.20.18\t",
         "– Named\tAram-zobah|Abel@x\tH0760«H0760=אֲרַם צוֹבָה\tAram-zobah\tPsa.60.0; LXX.Num.1.1\t",
+        "– Named\tHebron_Valley@Gen.37.14\tH2275H«H2275=חֶבְרוֹן+H6010K«H6010=עֵ֫מֶק"
+        "\tvalley\tGen.37.14\t",
         "$========== PERSON(s)\t",
         "Tekoa@1Ch.2.24=H8620\tson of Ashhur\t\t",
         "– Named\tTekoa@1Ch.2.24\tH8620«H8620=תְּקוֹעַ\tTekoa\t1Ch.2.24\t",
@@ -62,8 +65,38 @@ def test_read_tipnr(tmp_path):
         (62, "H0062", [(8, 20, 14), (8, 20, 15), (9, 15, 20)]),
         (59, "H0059H", [(8, 20, 18)]),
         (760, "H0760", [(26, 60, 1)]),  # a psalm title's verse 0; the Septuagint left out
+        (2275, "H2275H", [(0, 37, 14)]),
     ]
-    assert abm.names[0].hebrew == "אָבֵל בֵּית מַעֲכָה"
+    assert abm.names[0].hebrew == "אָבֵל בֵּית מַעֲכָה" and abm.names[0].parts == []
+    # a compound: its parts in TIPNR's order, the markup gone
+    assert abm.names[3].hebrew == "חֶבְרוֹן עֵ֫מֶק"
+    assert abm.names[3].parts == [(2275, "חֶבְרוֹן"), (6010, "עֵ֫מֶק")]
+
+
+def test_compound_name():
+    words = {
+        # מֵעֵמֶק חֶבְרוֹן (Gen 37:14): the valley first, its מ dropped
+        1: [("וישלחהו", "c/7971", "HC/Vqw3ms"), ("מעמק", "m/6010", "HR/Ncmsc"),
+            ("חברון", "2275 a", "HNp")],
+        # בְּעַלְמֹן דִּבְלָתָיְמָה: the ב and the ה of direction dropped
+        2: [("ויסעו", "c/5265", "HC/Vqw3mp"), ("בעלמן", "b/5963", "HR/Np"),
+            ("דבלתימה", "5963", "HNp/Sd")],
+        # בֵּית חוֹרֹן תַּחְתּוֹן, an adjective after
+        3: [("בית", "1032+", "HNp"), ("חורן", "1032", "HNp"), ("תחתון", "8481", "HAamsa")],
+    }  # fmt: skip
+    pos = {6010: "n-m", 2275: "n-pr-loc", 8481: "a", 1516: "n"}
+    assert compound_name([(2275, "חֶבְרוֹן"), (6010, "עֵמֶק")], [1], words, pos) == "עמק חברון"
+    assert compound_name([(1032, "בֵּית חוֹרֹן"), (8481, "תַּחְתּוֹן")], [3], words, pos) == (
+        "בית חורן תחתון"
+    )
+    assert compound_name([(5963, "עַלְמֹן דִּבְלָתָיְמָה")], [2], words, pos) == "עלמן דבלתים"
+    # not in the verses given: TIPNR's forms, the common noun first
+    assert compound_name([(2275, "חֶבְרוֹן"), (6010, "עֵמֶק")], [9], words, pos) == "עמק חברון"
+    assert compound_name([(1032, "בֵּית חוֹרֹן"), (8481, "תַּחְתּוֹן")], [9], words, pos) == (
+        "בית חורן תחתון"
+    )
+    # a name of one number elsewhere spelt otherwise keeps TIPNR's spelling
+    assert compound_name([(5963, "עַלְמוֹן דִּבְלָתַיִם")], [2], words, pos) == "עלמון דבלתים"
 
 
 def test_step_ref():
@@ -153,6 +186,13 @@ def corpus(tmp_path):
         [(0, 0, 1, 1), (1, 0, 1, 2), (2, 0, 1, 3)],
         columns=["verse_id", "book_id", "chapter", "verse"],
     ).to_parquet(proc / "verses.parquet")
+    pd.DataFrame(
+        [(0, 0, "אָבֵל", "59", "HNp"), (1, 0, "בְּאָבֵל", "b/59", "HR/Np"),
+         (1, 1, "תְּקוֹעַ", "8620", "HNp"), (2, 0, "הַיָּם", "d/3220", "HTd/Ncmsa")],
+        columns=["verse_id", "idx", "surface", "lemma", "morph"],
+    ).to_parquet(proc / "words.parquet")  # fmt: skip
+    pd.DataFrame([("59", "n-pr-loc"), ("3220", "n-m"), ("8620", "n-pr-m")],
+                 columns=["strong", "pos"]).to_parquet(proc / "lexicon_lemmas.parquet")
     pd.DataFrame(
         [("59", "אבל"), ("8620", "תקוע"), ("3220", "ים")], columns=["lemma", "he"]
     ).to_parquet(art / "entities" / "entities.parquet")

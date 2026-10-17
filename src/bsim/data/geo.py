@@ -37,6 +37,8 @@ STEP_BOOKS = {
 _HEAD = re.compile(r"=+\s*(PERSON|PLACE|OTHER)")
 # a map link's `@lat,lon,zoomz` (`@0,14z` has no point: 14 is the zoom)
 _MAP = re.compile(r"@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),\d+z")
+# a compound name's later part: `H6010K«H6010=עֵמֶק` (the Strong's number, the form)
+_PART = re.compile(r"H(\d+)[A-Za-z]?=([^=]*)$")
 _REF = re.compile(r"^([1-3]?[A-Z][a-z]{1,2})\.(\d+)\.(\d+)$")
 
 
@@ -44,8 +46,11 @@ _REF = re.compile(r"^([1-3]?[A-Z][a-z]{1,2})\.(\d+)\.(\d+)$")
 class TipnrName:
     strong: int  # base Strong's number (`H0059H` -> 59)
     dstrong: str  # as written, disambiguated
-    hebrew: str  # pointed (the first spelling given)
+    hebrew: str  # pointed (the first spelling given; a compound's parts in TIPNR's order)
     refs: list[tuple[int, int, int]]  # (book_id, chapter, verse), English numbering
+    # a compound name's parts, (base Strong's number, pointed form), as TIPNR gives them:
+    # the name, then the words added to it (`חֶבְרוֹן+H6010K«H6010=עֵמֶק`, the valley of Hebron)
+    parts: list[tuple[int, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -97,9 +102,17 @@ def read_tipnr(path: Path) -> list[TipnrRecord]:
             if not digits:
                 continue
             refs = [r for x in f[4].split(";") if (r := step_ref(x)) is not None]
-            # the first of its spellings (`יְרוּשָׁלִַם, יְרוּשְׁלֵם`)
-            hebrew = f[2].split("=", 1)[1].split(",")[0].strip() if "=" in f[2] else ""
-            rec.names.append(TipnrName(int(digits.group(1)), dstrong, hebrew, refs))
+            # the first of its spellings (`יְרוּשָׁלִַם, יְרוּשְׁלֵם`); a compound's later parts
+            # are written `+H6010K«H6010=עֵמֶק`
+            raw = f[2].split("=", 1)[1].split("+") if "=" in f[2] else [""]
+            parts = [(int(digits.group(1)), raw[0].split(",")[0].strip())]
+            for x in raw[1:]:
+                m = _PART.search(x)
+                if m:
+                    parts.append((int(m.group(1)), m.group(2).split(",")[0].strip()))
+            hebrew = " ".join(form for _, form in parts if form)
+            rec.names.append(TipnrName(int(digits.group(1)), dstrong, hebrew, refs,
+                                       parts if len(parts) > 1 else []))  # fmt: skip
         out.append(rec)
     return out
 
