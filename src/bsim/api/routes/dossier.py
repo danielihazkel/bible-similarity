@@ -27,6 +27,13 @@ and what it found:
     pentateuch                    count = verses of the unit on the P-like side of the split
     dialogue                      count = exchanges between two parties touching the unit
     forms                         count = graded numerical sayings + lists touching the unit
+    places                        count = places named in the unit's verses; key / label = the
+                                  most named one's id / Hebrew name
+    ciphers                       count = names read through atbash or albam in the unit's
+                                  verses; key / label = the first one's words / the name
+    gematria                      count = the tradition's valued texts (`gematria.known`) among
+                                  the unit's words, label = those texts; a verse: value = its
+                                  standard value, total = the other verses of that value
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -258,6 +265,50 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         computed=state.present(conn, "forms_lists") or state.present(conn, "forms_sayings"),
         count=queries.forms_sayings_page(conn, None, span, False, 1, 0)[0]
         + queries.forms_lists_page(conn, None, span, None, 1, 0)[0],
+    )
+
+    places = conn.execute(
+        "SELECT p.place_id, p.he FROM place_mentions m JOIN places p ON p.place_id = m.place_id"
+        " WHERE m.verse_id BETWEEN ? AND ? GROUP BY p.place_id"
+        " ORDER BY COUNT(DISTINCT m.verse_id) DESC, p.place_id",
+        span,
+    ).fetchall()
+    add(
+        "places",
+        computed=state.present(conn, "place_mentions"),
+        count=len(places),
+        key=str(places[0][0]) if places else None,
+        label=places[0][1] if places else None,
+    )
+
+    n_hits, hits = queries.cipher_hits_page(conn, None, None, span, False, 1, 0)
+    add(
+        "ciphers",
+        computed=state.present(conn, "cipher_hits"),
+        count=n_hits,
+        key=hits[0]["span"] if hits else None,
+        label=hits[0]["reads"] if hits else None,
+    )
+
+    texts = [k["text"] for k in (state.meta.get("gematria") or {}).get("known") or []]
+    found = queries.known_texts_in(conn, first, last, texts)
+    value = other = None
+    if u["unit_type"] == "verse":
+        row = conn.execute(
+            "SELECT standard FROM gematria_verses WHERE verse_id = ?", (first,)
+        ).fetchone()
+        if row is not None:
+            value = row[0]
+            other = _count(
+                conn, "SELECT COUNT(*) - 1 FROM gematria_verses WHERE standard = ?", (value,)
+            )
+    add(
+        "gematria",
+        computed=state.present(conn, "gematria_verses"),
+        count=len(found),
+        label=" · ".join(dict.fromkeys(t for t, _ in found)) or None,
+        value=value,
+        total=other,
     )
 
     add(

@@ -590,40 +590,10 @@ export type SpeechBookResponse = S['SpeechBookResponse']
 
 // --- dossier: every analysis on one unit (DESIGN.md §10) ---
 
-export type DossierKind =
-  | 'phrases'
-  | 'sequences'
-  | 'changes'
-  | 'borrowing'
-  | 'wordplay'
-  | 'alliteration'
-  | 'rhymes'
-  | 'typescenes'
-  | 'discoveries'
-  | 'seams'
-  | 'names'
-  | 'acrostic'
-  | 'dating'
-  | 'structure'
-  | 'speech'
-  | 'voices'
-  | 'network'
-  | 'divisions'
-  | 'ketiv'
-  | 'citations'
-  | 'allusions'
-  | 'mirrors'
-  | 'echoes'
-  | 'meter'
-  | 'roots'
-  | 'refrains'
-  | 'psalms'
-  | 'pentateuch'
-  | 'dialogue'
-  | 'forms'
-  | 'labels'
-
 export type DossierEntry = S['DossierEntry']
+
+// every analysis the dossier reports (the API's `DossierKind`)
+export type DossierKind = DossierEntry['kind']
 
 export type Dossier = S['Dossier']
 

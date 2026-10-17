@@ -53,6 +53,16 @@ export const dosEn = {
     pentateuch: (n: number) => countEn(n, 'verse on the P-like side', 'verses on the P-like side'),
     dialogue: (n: number) => countEn(n, 'exchange between two speakers', 'exchanges between two speakers'),
     forms: (n: number) => countEn(n, 'graded numerical saying or list', 'graded numerical sayings and lists'),
+    places: (n: number, top: string | null) => `${countEn(n, 'place', 'places')} on the map${top ? `, most named ${top}` : ''}`,
+    ciphers: (n: number, words: string | null, name: string | null) =>
+      `${countEn(n, 'name read through atbash or albam', 'names read through atbash or albam')}${words && name ? ` (${words} read as ${name})` : ''}`,
+    gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
+      [
+        value === null ? null : `letter value ${numEn(value)}${others ? `, as in ${countEn(others, 'other verse', 'other verses')}` : ', in no other verse'}`,
+        n > 0 && texts ? `the tradition's values: ${texts}` : null,
+      ]
+        .filter(Boolean)
+        .join(' · '),
   },
   /** the analysis's name, in the "nothing found" / "not computed" lines */
   kinds: {
@@ -87,6 +97,9 @@ export const dosEn = {
     pentateuch: 'P-like verses',
     dialogue: 'exchanges',
     forms: 'numerical sayings and lists',
+    places: 'places on the map',
+    ciphers: 'atbash and albam',
+    gematria: 'letter values',
   } as Record<DossierKind, string>,
 }
 
@@ -136,6 +149,16 @@ export const dosHe: typeof dosEn = {
     pentateuch: (n: number) => countHe(n, 'פסוק אחד בצד הדומה ל־P', 'שני פסוקים בצד הדומה ל־P', 'פסוקים בצד הדומה ל־P'),
     dialogue: (n: number) => countHe(n, 'שיחה אחת בין שני דוברים', 'שתי שיחות בין שני דוברים', 'שיחות בין שני דוברים'),
     forms: (n: number) => countHe(n, 'משל מספרי מדורג או רשימה', 'שני משלים מספריים או רשימות', 'משלים מספריים ורשימות'),
+    places: (n: number, top: string | null) => `${countHe(n, 'מקום אחד', 'שני מקומות', 'מקומות')} במפה${top ? `, הנזכר ביותר ${top}` : ''}`,
+    ciphers: (n: number, words: string | null, name: string | null) =>
+      `${countHe(n, 'שם אחד הנקרא באת״ב״ש או באל״ב״ם', 'שני שמות הנקראים באת״ב״ש או באל״ב״ם', 'שמות הנקראים באת״ב״ש או באל״ב״ם')}${words && name ? ` (${words} נקרא ${name})` : ''}`,
+    gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
+      [
+        value === null ? null : `ערך האותיות ${numHe(value)}${others ? `, כמו ב${others > 2 ? '־' : ''}${countHe(others, 'פסוק אחר', 'שני פסוקים אחרים', 'פסוקים אחרים')}` : ', ואין עוד פסוק כזה'}`,
+        n > 0 && texts ? `ערכי המסורת: ${texts}` : null,
+      ]
+        .filter(Boolean)
+        .join(' · '),
   },
   kinds: {
     phrases: 'צירופים משותפים',
@@ -169,5 +192,8 @@ export const dosHe: typeof dosEn = {
     pentateuch: 'פסוקים דומים ל־P',
     dialogue: 'שיחות',
     forms: 'משלים מספריים ורשימות',
+    places: 'מקומות במפה',
+    ciphers: 'את״ב״ש ואל״ב״ם',
+    gematria: 'ערכי אותיות',
   },
 }

@@ -8,6 +8,7 @@ export function isFound(e: DossierEntry): boolean {
   if (!e.computed) return false
   if (e.kind === 'voices') return e.key !== null
   if (e.kind === 'network') return e.count !== null
+  if (e.kind === 'gematria') return (e.count ?? 0) > 0 || e.value !== null
   return (e.count ?? 0) > 0
 }
 
@@ -56,6 +57,13 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return `/speech?view=dialogue&book=${unit.book_id}`
     case 'forms':
       return `/forms?unit=${u}`
+    case 'places':
+      return `/places?unit=${u}`
+    case 'ciphers':
+      return `/ciphers?unit=${u}`
+    case 'gematria':
+      // a verse: the verses of its value; a passage: its words' values in the reader
+      return unit.unit_type === 'verse' && e.value !== null ? `/gematria?q=${e.value}&view=verses` : readLink(unit.unit_id, '?layers=gematria')
     case 'meter':
       return unitLink(target, '?halves=1&meter=1')
     case 'speech':

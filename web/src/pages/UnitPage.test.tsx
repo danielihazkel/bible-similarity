@@ -167,6 +167,9 @@ const DOSSIER: Dossier = {
     entry({ kind: 'echoes', count: 2 }),
     entry({ kind: 'meter', scope: 'chapter', target_unit: 'c:25:118', value: 0.61, count: 1 }),
     entry({ kind: 'roots', count: 2 }),
+    entry({ kind: 'places', count: 2, key: '1', label: 'ירושלם' }),
+    entry({ kind: 'ciphers', count: 1, key: 'ששך', label: 'בבל' }),
+    entry({ kind: 'gematria', count: 1, label: 'אליעזר', value: 2701, total: 4 }),
   ],
 }
 
@@ -287,6 +290,9 @@ describe('UnitPage', () => {
     expect(link('2 directed echoes with other books')).toBe('/network?view=directions&unit=v%3A0')
     expect(link('lines fall like a lament (net 0.61) (chapter)')).toBe('/unit/c%3A25%3A118?halves=1&meter=1')
     expect(link('2 pairs of words of one root')).toBe('/roots?unit=v%3A0')
+    expect(link('2 places on the map, most named ירושלם')).toBe('/places?unit=v%3A0')
+    expect(link('1 name read through atbash or albam (ששך read as בבל)')).toBe('/ciphers?unit=v%3A0')
+    expect(link("letter value 2,701, as in 4 other verses · the tradition's values: אליעזר")).toBe('/gematria?q=2701&view=verses')
     expect(bar.textContent).toContain('Nothing found: parallel runs · wordplay · inclusio / chiasm')
     expect(bar.textContent).toContain('Not computed in this build: who borrowed')
     await screen.findByLabelText('Shared phrases')
@@ -299,6 +305,8 @@ describe('UnitPage', () => {
     const bar = await screen.findByRole('navigation', { name: 'מה מצאו הניתוחים כאן' })
     expect(screen.getByRole('link', { name: 'צירוף משותף אחד' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'תחילת פרק בתוך טקסט רציף' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'שני מקומות במפה, הנזכר ביותר ירושלם' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'ערך האותיות 2,701, כמו ב־4 פסוקים אחרים · ערכי המסורת: אליעזר' })).toBeTruthy()
     expect(bar.textContent).toContain('לא חושב בבנייה זו: מי שאל')
   })
 

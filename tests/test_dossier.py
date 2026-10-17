@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from bsim.api.app import create_app
+from bsim.api.queries import known_texts_in
 from bsim.fixture import fixture_encoder
 
 
@@ -58,6 +59,39 @@ def test_dossier_of_a_chapter(client):
     assert client.get("/api/dossier/c:9:9").status_code == 404
 
 
+def test_dossier_places_ciphers_gematria(client, built):
+    d = entries(client, "v:0")
+    # the place named in v0, the name read through atbash there, the verse's letter value
+    assert (d["places"]["count"], d["places"]["key"], d["places"]["label"]) == (1, "1", "אמר")
+    cph = d["ciphers"]
+    assert (cph["count"], cph["key"], cph["label"]) == (1, "יהוה", "מצפץ")
+    g = d["gematria"]
+    _, db = built
+    conn = sqlite3.connect(db)
+    values = dict(conn.execute("SELECT verse_id, standard FROM gematria_verses"))
+    assert g["computed"] and g["value"] == values[0]
+    assert g["total"] == sum(v == values[0] for v in values.values()) - 1
+    assert g["count"] == 0 and g["label"] is None  # none of the tradition's texts in the fixture
+    # a chapter: as many as its lists say, and no verse value
+    c = entries(client, "c:0:1")
+    assert c["places"]["count"] == len(client.get("/api/places?unit=c:0:1").json()["items"])
+    assert c["ciphers"]["count"] == client.get("/api/ciphers/hits?unit=c:0:1").json()["total"]
+    assert c["gematria"]["value"] is None and c["gematria"]["total"] is None
+    assert entries(client, "v:2")["places"]["count"] == 0
+
+
+def test_known_texts_in(built):
+    _, db = built
+    conn = sqlite3.connect(db)
+    # whole words, the first with up to two prefix letters (בראשית, השנה, ויאמר)
+    assert [v for t, v in known_texts_in(conn, 0, 5, ["ראשית"])] == [0, 2, 3, 4, 5]
+    assert known_texts_in(conn, 0, 5, ["יֹאמֶר יְהוָה"]) == [("יֹאמֶר יְהוָה", 0),
+                                                           ("יֹאמֶר יְהוָה", 1)]  # fmt: skip
+    assert known_texts_in(conn, 0, 5, ["שנה"]) == [("שנה", 2)]
+    assert known_texts_in(conn, 0, 5, ["ית", "אמר", ""]) == []  # not inside a word
+    assert known_texts_in(conn, 2, 3, ["ראשית"]) == [("ראשית", 2), ("ראשית", 3)]
+
+
 def test_dossier_labels_are_live(client):
     put = {"a_id": "v:0", "b_id": "v:3", "label": "real"}
     assert client.put("/api/labels", json=put).status_code == 200
@@ -71,9 +105,11 @@ def test_dossier_not_computed(built):
     with conn:
         conn.execute("DELETE FROM voice_speakers")
         conn.execute("DELETE FROM borrowing_sequences")
+        conn.execute("DELETE FROM cipher_hits")
     conn.close()
     d = entries(_client(cfg), "v:1")
     assert not d["voices"]["computed"] and not d["borrowing"]["computed"]
+    assert not d["ciphers"]["computed"] and d["places"]["computed"]
     assert d["phrases"]["computed"]
 
 

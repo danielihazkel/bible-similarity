@@ -156,7 +156,7 @@ test('navigation menus work at the current width', async ({ page }, info) => {
 
 for (const scheme of ['light', 'dark'] as const) {
   test(`main pages have no serious accessibility violations (${scheme})`, async ({ page }) => {
-    test.setTimeout(240_000) // axe on every listed page
+    test.setTimeout(480_000) // axe on every listed page: about 4 s each, 60 pages
     await page.emulateMedia({ colorScheme: scheme })
     await checkA11y(page)
   })
@@ -364,6 +364,18 @@ test('Ctrl+K jumps to a chapter by reference and to a word by its form', async (
   await expect(page).toHaveURL(/\/lemma\/7965$/)
 })
 
+test('Jeremiah 25 names its places, hides Babylon in ששך, and Genesis 49 holds יבא שילה', async ({ page }) => {
+  await page.goto('/unit/c%3A12%3A25')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await expect(bar.getByRole('link', { name: /places on the map, most named/ })).toHaveAttribute('href', '/places?unit=c%3A12%3A25')
+  await bar.getByRole('link', { name: /read through atbash or albam/ }).click()
+  await expect(page).toHaveURL(/\/ciphers\?unit=c%3A12%3A25/)
+  await expect(page.locator('.cipher-hit').filter({ hasText: 'ששך' }).first()).toBeVisible()
+  await page.goto('/unit/c%3A0%3A49')
+  const gm = page.getByRole('navigation', { name: 'What the analyses found here' }).getByRole('link', { name: /the tradition.s values: .*יבא שילה/ })
+  await expect(gm).toHaveAttribute('href', '/read/c%3A0%3A49?layers=gematria')
+})
+
 test('Ctrl+K opens the map at a place: Babylon, far off the land, and Zion as Jerusalem', async ({ page }) => {
   await page.goto('/')
   await page.keyboard.press('Control+k')
@@ -406,7 +418,7 @@ test('the Hebrew interface is right to left, persists and loads every page clean
 })
 
 test('the Hebrew interface has no serious accessibility violations', async ({ page }) => {
-  test.setTimeout(240_000)
+  test.setTimeout(480_000) // axe on every listed page
   await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
   await checkA11y(page)
 })

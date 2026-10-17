@@ -128,6 +128,7 @@ from bsim.api.queries.gematria import (
     gematria_lemma_heads,
     gematria_page,
     gematria_pairs_page,
+    known_texts_in,
 )
 from bsim.api.queries.ketiv import (
     kq_books,
@@ -340,6 +341,7 @@ __all__ = [
     "gematria_lemma_heads",
     "gematria_page",
     "gematria_pairs_page",
+    "known_texts_in",
     "gloss",
     "hidden_roots_page",
     "kq_books",

@@ -829,6 +829,13 @@ Phase 3 (M39c): API and viewer
 
 ✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
 
+## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
+- [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
+- [x] Viewer: three dossier chips on unit pages, linking to the map of the unit, the cipher hits of the unit, and the verses of a verse's value or the reader's letter-value layer; English and Hebrew. `DossierKind` now comes from the API schema
+- [x] Tests: the three entries on a verse and a chapter against the list endpoints, "not computed", the text matching (pytest); the chips, their links and the found rule (vitest); e2e on the fixture (each chip to its page) and the real build (Jeremiah 25's ששך, Genesis 49's יבא שילה)
+
+✔ A unit page now says which places it names, which names hide in a letter swap, and its letter values: Jeremiah 25 names 21 places (most often בבל) and hides בבל in ששך; Genesis 15:2 is worth 3,858, as are 6 other verses, and holds אליעזר. 672 pytest, 260 vitest, 302 / 304 fixture e2e (2 skipped by design) and 244 / 244 real-data e2e. Two needed a second look: the six whole-site accessibility runs had outgrown their 240 s budget (60 pages at about 4 s each: 250 s; now 480 s; no violations), and /phrases failed to load once on the phone and passed when rerun.
+
 ## M86: Places in the jump box (§16.57, D99; proposed V1)
 - [x] `places.names`: the headword and TIPNR's other Hebrew names whose Strong's number the text uses for the site (ציון for Jerusalem, לוז for Bethel), from `bsim places`; downstream place stages adopted (unchanged)
 - [x] API `/places/lookup?q=`: a Hebrew name (pointing ignored, prefixes dropped, ו and י ignored as a last resort) or a Strong's number; its own name, another name, then a prefix; the lemma lookup's prefix drops shared (`form_keys`)
@@ -891,6 +898,6 @@ Geography
 
 Viewer
 - [x] V1 (done, M86; `= 318` in M76) Jump box: `= 318` (gematria), and a place name opens the map at it
-- [ ] V2 Dossier entries: a unit's gematria and cipher hits and its places
+- [x] V2 (done, M87) Dossier entries: a unit's gematria and cipher hits and its places
 
 Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 (geography needs P1's data first), then G2, P4, P5; G5 last.

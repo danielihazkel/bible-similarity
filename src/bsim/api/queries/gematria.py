@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from typing import Any
 
 from bsim.api.queries.common import _dicts, count
+from bsim.api.queries.core import _PREFIXES
+from bsim.text.normalize import match_key
 
 _ORDER = {"forms": "n_words DESC, form", "lemmas": "n_words DESC, lemma", "verses": "verse_id"}
 
@@ -93,3 +96,32 @@ def gematria_lemma_heads(conn: sqlite3.Connection, lemmas: list[str]) -> dict[st
         f"SELECT lemma, he, n_words FROM gematria_lemmas WHERE lemma IN ({marks})", lemmas
     )
     return {r["lemma"]: r for r in _dicts(cur)}
+
+
+def known_texts_in(
+    conn: sqlite3.Connection, first: int, last: int, texts: list[str]
+) -> list[tuple[str, int]]:
+    """Where texts stand in a verse span, as whole words of the text (display tokens, consonants,
+    finals folded), the first word with up to two prefix letters (ו ה ב כ ל מ ש): (text, verse id)
+    per occurrence, in canon order. For the tradition's values (`gematria.known`) in a unit."""
+    keys = [(t, [match_key(w) for w in t.split()]) for t in texts]
+    keys = [(t, k) for t, k in keys if k and all(k)]
+    out: list[tuple[str, int]] = []
+    cur = conn.execute(
+        "SELECT verse_id, display_tokens FROM verses WHERE verse_id BETWEEN ? AND ?"
+        " ORDER BY verse_id",
+        (first, last),
+    )
+    for vid, tokens in cur:
+        toks = [match_key(x) for x in json.loads(tokens)]
+        for i, tok in enumerate(toks):
+            for text, k in keys:
+                head = tok[: len(tok) - len(k[0])]
+                if (
+                    tok.endswith(k[0])
+                    and len(head) <= 2
+                    and set(head) <= _PREFIXES
+                    and toks[i + 1 : i + len(k)] == k[1:]
+                ):
+                    out.append((text, vid))
+    return out

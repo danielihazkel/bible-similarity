@@ -168,6 +168,21 @@ test('a verse page says what the analyses found and links to the filtered lists'
   await expect(page.locator('.borrow-pair')).toHaveCount(1)
 })
 
+test('a verse page names its places, its hidden names and its letter value', async ({ page }) => {
+  await page.goto('/unit/v%3A0')
+  const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
+  await bar.getByRole('link', { name: /1 place on the map, most named אמר/ }).click()
+  await expect(page).toHaveURL(/\/places\?unit=v%3A0/)
+  await expect(page.locator('.geo-pt')).toHaveCount(1)
+  await page.goBack()
+  await bar.getByRole('link', { name: /name read through atbash or albam \(יהוה read as מצפץ\)/ }).click()
+  await expect(page).toHaveURL(/\/ciphers\?unit=v%3A0/)
+  await expect(page.locator('.cipher-hit')).toHaveCount(1)
+  await page.goBack()
+  await bar.getByRole('link', { name: /^letter value / }).click()
+  await expect(page).toHaveURL(/\/gematria\?q=\d+&view=verses/)
+})
+
 test('a chapter whose lines fall like a lament links to the stresses of its lines', async ({ page }) => {
   await page.goto('/unit/v%3A1')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
