@@ -96,6 +96,18 @@ _STRONG = re.compile(r"[Hh]?(\d+)([a-z]?)")
 _PREFIXES = set("והבכלמש")
 
 
+def form_keys(q: str) -> list[str]:
+    """A Hebrew form's match key, then the key with one and with two prefix letters dropped
+    (בראשית, והמלך), as long as each dropped letter is a prefix and two letters are left."""
+    key = match_key(q)
+    keys = []
+    for drop in range(3):
+        if len(key) - drop < 2 or (drop and key[drop - 1] not in _PREFIXES):
+            break
+        keys.append(key[drop:])
+    return keys
+
+
 def lemma_lookup(conn: sqlite3.Connection, q: str, limit: int) -> list[dict[str, Any]]:
     """Lemmas named by a Strong's number (`7965`, `H1350a`) or a Hebrew form (consonants, finals
     folded; one or two prefix letters dropped when the whole form matches nothing): exact matches
@@ -118,13 +130,9 @@ def lemma_lookup(conn: sqlite3.Connection, q: str, limit: int) -> list[dict[str,
             if loose.fullmatch(lem)
         ]
     else:
-        key = match_key(q)
         ranked = []
         # a form with prefixes (בראשית, והמלך): drop up to two prefix letters until one matches
-        for drop in range(3):
-            if len(key) - drop < 2 or (drop and key[drop - 1] not in _PREFIXES):
-                break
-            k0 = key[drop:]
+        for k0 in form_keys(q):
             ranked = [
                 (0 if k == k0 else 1, -n, lem, he) for lem, he, k, n in index if k.startswith(k0)
             ]

@@ -2234,6 +2234,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/places/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Place Lookup
+         * @description Places by a Hebrew name (pointing ignored, prefixes dropped as for `/lemmas`) or a name's
+         *     Strong's number, for the jump box: exact matches first, the most named first.
+         */
+        get: operations["place_lookup_api_places_lookup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/places/{place_id}": {
         parameters: {
             query?: never;
@@ -6136,6 +6157,51 @@ export interface components {
             lists: components["schemas"]["PlaceList"][];
             /** Groupings */
             groupings: components["schemas"]["DistrictGrouping"][];
+        };
+        /** PlaceLookup */
+        PlaceLookup: {
+            /** Query */
+            query: string;
+            /** Items */
+            items: components["schemas"]["PlaceMatch"][];
+        };
+        /**
+         * PlaceMatch
+         * @description A place the jump box found by a name (§16.57).
+         */
+        PlaceMatch: {
+            /** Place Id */
+            place_id: number;
+            /** He */
+            he: string;
+            /** Kind */
+            kind: ("town" | "region" | "landform" | "water") | null;
+            /** Lat */
+            lat: number | null;
+            /** Lon */
+            lon: number | null;
+            /** Score */
+            score: number | null;
+            /** Coord Source */
+            coord_source: ("openbible" | "tipnr") | null;
+            /** Runner Up */
+            runner_up: number | null;
+            /** N Identifications */
+            n_identifications: number;
+            /** N Verses */
+            n_verses: number;
+            /** N Here */
+            n_here: number | null;
+            /** First Vid */
+            first_vid: number;
+            /** Lemmas */
+            lemmas: string[];
+            /** Exact */
+            exact: boolean;
+            /** First Label */
+            first_label: string;
+            /** First Label He */
+            first_label_he: string;
         };
         /** PlaceName */
         PlaceName: {
@@ -11434,6 +11500,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BasemapResponse"];
+                };
+            };
+        };
+    };
+    place_lookup_api_places_lookup_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceLookup"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

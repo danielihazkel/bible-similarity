@@ -45,6 +45,8 @@ from bsim.api.models.places import (
     PlaceListsResponse,
     PlaceListStep,
     PlaceListTest,
+    PlaceLookup,
+    PlaceMatch,
     PlaceName,
     PlacePartner,
     PlaceSite,
@@ -52,7 +54,14 @@ from bsim.api.models.places import (
     PlaceVerse,
     PlaceVersesResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, span_label, unit_span
+from bsim.api.routes._common import (
+    Conn,
+    State,
+    check_page,
+    span_label,
+    unit_span,
+    unprocessable,
+)
 from bsim.data.canon import BOOKS, hebrew_numeral
 from bsim.data.refs import parse_ref
 
@@ -85,6 +94,24 @@ def basemap(state: State, conn: Conn) -> dict[str, Any]:
     return {
         "box": (meta.get("map") or {}).get("box") or [],
         "shapes": [MapShape(**s) for s in queries.map_shapes(conn)],
+    }
+
+
+@router.get("/places/lookup", response_model=PlaceLookup)
+def place_lookup(q: str, conn: Conn, limit: int = 6) -> dict[str, Any]:
+    """Places by a Hebrew name (pointing ignored, prefixes dropped as for `/lemmas`) or a name's
+    Strong's number, for the jump box: exact matches first, the most named first."""
+    if not 1 <= limit <= 50:
+        raise unprocessable("limit must be between 1 and 50")
+    rows = queries.place_lookup(conn, q, limit)
+    labels = queries.verse_labels(conn, [r["first_vid"] for r in rows])
+    return {
+        "query": q,
+        "items": [
+            PlaceMatch(**r, first_label=labels[r["first_vid"]][0],
+                       first_label_he=labels[r["first_vid"]][1])  # fmt: skip
+            for r in rows
+        ],
     }
 
 

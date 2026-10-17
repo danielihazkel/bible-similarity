@@ -829,6 +829,15 @@ Phase 3 (M39c): API and viewer
 
 ✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
 
+## M86: Places in the jump box (§16.57, D99; proposed V1)
+- [x] `places.names`: the headword and TIPNR's other Hebrew names whose Strong's number the text uses for the site (ציון for Jerusalem, לוז for Bethel), from `bsim places`; downstream place stages adopted (unchanged)
+- [x] API `/places/lookup?q=`: a Hebrew name (pointing ignored, prefixes dropped, ו and י ignored as a last resort) or a Strong's number; its own name, another name, then a prefix; the lemma lookup's prefix drops shared (`form_keys`)
+- [x] Jump box: a Places group (kind, verses, first verse) before the words when a place is named by the whole query and no other word is commoner, else after them; Enter before the pause looks places up too. `= 318` was done in M76
+- [x] Map: `?p=` outside the view moves the view to centre on it (the jump box, a partner picked)
+- [x] Tests: the names kept and dropped, the lookup (pytest); places first and after, Enter before the pause, Hebrew, the map moved and left (vitest); e2e on the fixture (both languages) and the real build (Babylon in view, ציון to Jerusalem)
+
+✔ A place's name opens the map at it: בבל moves the map to Babylon, ציון and ירושלים find Jerusalem, עין the eye comes before עין the town. 669 pytest, 258 vitest, 300 / 302 fixture e2e (2 skipped by design) and 242 / 242 real-data e2e; axe clean on the jump box and the map in both languages (the detail line on the highlighted option was too faint, 3.99:1, and is darker now).
+
 ## M85: Letters at equal skips (§16.62, D98; proposed G5)
 - [x] `bsim els` (`analysis/els.py`, ~5 min with the GPU): 27 names fixed in config at skips 2–1,000 either way in the written letters of the Torah and of Genesis; each against its exact expectation under a letter shuffle; R against 199 letter shuffles, 199 verse shuffles and blocks of the other books; the tradition's five sequences at the start of the books as known answers
 - [x] DB `els_terms`, `els_draws` (+ `meta.els`); API `/els`; findings `els_counts`, `els_known`
@@ -879,7 +888,7 @@ Geography
 - [x] P5 (done, M84) Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")
 
 Viewer
-- [ ] V1 Jump box: `= 318` (gematria), and a place name opens the map at it
+- [x] V1 (done, M86; `= 318` in M76) Jump box: `= 318` (gematria), and a place name opens the map at it
 - [ ] V2 Dossier entries: a unit's gematria and cipher hits and its places
 
 Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 (geography needs P1's data first), then G2, P4, P5; G5 last.

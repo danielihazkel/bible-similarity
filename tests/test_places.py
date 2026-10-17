@@ -170,9 +170,11 @@ def corpus(tmp_path):
         "$========== PLACE\t",
         "Abel@Gen.1.1=H0059\tAbel 1\t\t\thttps://www.google.com/maps/@33.0,35.5,14z",
         "– Named\tAbel@Gen.1.1\tH0059«H0059=אָבֵל\tAbel\tGen.1.1; Gen.1.2\t",
+        "– Named\tAbel@Gen.1.1\tH0063«H0063=אָבֵל הַשִּׁטִּים\tAbel-shittim\tGen.1.2\t",
         "$========== PLACE\t",
         "Sea@Gen.1.3=H3220\tGreat Sea\t\t\thttps://www.google.com/maps/@32.0,34.0,14z",
         "– Named\tSea@Gen.1.3\tH3220«H3220=הַיָּם\tSea\tGen.1.3\t",
+        "– Named\tSea@Gen.1.3\tH3220«H3220=יָם\tSea\tGen.1.3\t",
         "$========== PERSON(s)\t",
         "Tekoa@Gen.1.2=H8620\tson\t\t",
         "– Named\tTekoa@Gen.1.2\tH8620«H8620=תְּקוֹעַ\tTekoa\tGen.1.2\t",
@@ -221,6 +223,8 @@ def test_run_places(tmp_path):
         [2, "Sea@Gen.1.3", "הים", "water", 1],  # SDBH's waterbody, though OpenBible has none
     ]
     abel, sea = p.to_dict("records")
+    # the names the text uses for it, its own first: not Abel-shittim, whose number it never uses
+    assert (json.loads(abel["names"]), json.loads(sea["names"])) == (["אבל"], ["הים", "ים"])
     assert (abel["lat"], abel["lon"], abel["score"], abel["runner_up"]) == (33.1, 35.6, 700, 0.5)
     assert (sea["coord_source"], sea["lat"], sea["score"]) == ("tipnr", 32.0, None)
     m = pd.read_parquet(out / "mentions.parquet")
@@ -294,6 +298,23 @@ def test_api_basemap_and_place(client):
     assert v["total"] == 2 and [i["verse"]["verse_id"] for i in v["items"]] == [0, 1]
     assert v["items"][0]["tokens"] == [2] and v["items"][1]["tokens"] == [1]
     assert client.get("/api/places/1/verses", params={"limit": 0}).status_code == 422
+
+
+def test_api_lookup(client):
+    def look(q):
+        r = client.get("/api/places/lookup", params={"q": q}).json()
+        assert r["query"] == q
+        return [(p["place_id"], p["exact"]) for p in r["items"]]
+
+    assert look("אמר") == [(1, True)]
+    assert look("וְאָמַר") == [(1, True)]  # pointing ignored, a prefix dropped
+    assert look("אמרה") == [(1, True)]  # another of its names
+    assert look("אמ") == [(1, False)]  # a name starts with it
+    assert look("ראשיתה") == [] and look("ראשת") == [(2, True)]  # ו and י ignored
+    assert look("H7225") == [(2, True)] and look("9999") == []
+    one = client.get("/api/places/lookup", params={"q": "אמר"}).json()["items"][0]
+    assert (one["he"], one["first_label"], one["kind"]) == ("אמר", "v:0", "town")
+    assert client.get("/api/places/lookup", params={"q": "אמר", "limit": 0}).status_code == 422
 
 
 def test_reader_places(client):

@@ -483,7 +483,7 @@ test('a verse in a chapter echoed by another book links to its directed echoes',
 })
 
 for (const locale of ['en', 'he'] as const) {
-  test(`Ctrl+K jumps to a passage, a word or a page (${locale})`, async ({ page }) => {
+  test(`Ctrl+K jumps to a passage, a word, a place or a page (${locale})`, async ({ page }) => {
     await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
     await page.goto('/map')
     await page.keyboard.press('Control+k')
@@ -500,6 +500,13 @@ for (const locale of ['en', 'he'] as const) {
     await box.fill('ראשית')
     await page.getByRole('option', { name: /ראשית.*7225/ }).click()
     await expect(page).toHaveURL(/\/lemma\/7225$/)
+    // a place named by its name opens the map at it
+    await page.keyboard.press('Control+k')
+    await box.fill('אמר')
+    await expect(page.getByRole('option').first()).toContainText(locale === 'en' ? 'Town' : 'עיר')
+    await box.press('Enter')
+    await expect(page).toHaveURL(/\/places\?p=1$/)
+    await expect(page.locator('.geo-pt.selected')).toHaveCount(1)
     await page.keyboard.press('Control+k')
     await box.fill(locale === 'en' ? 'netw' : 'רשת')
     await box.press('Enter')

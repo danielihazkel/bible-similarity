@@ -70,6 +70,16 @@ export function zoomBounds(b: Bounds, factor: number): Bounds {
   return { lon0: cx - hw, lat0: cy - hh, lon1: cx + hw, lat1: cy + hh }
 }
 
+/** Whether a point lies inside bounds. */
+export function inBounds(b: Bounds, p: { lat: number; lon: number }): boolean {
+  return p.lon >= b.lon0 && p.lon <= b.lon1 && p.lat >= b.lat0 && p.lat <= b.lat1
+}
+
+/** Bounds of the same size, centred on a point. */
+export function centreOn(b: Bounds, p: { lat: number; lon: number }): Bounds {
+  return panBounds(b, p.lon - (b.lon0 + b.lon1) / 2, p.lat - (b.lat0 + b.lat1) / 2)
+}
+
 export function panBounds(b: Bounds, dLon: number, dLat: number): Bounds {
   return { lon0: b.lon0 + dLon, lat0: b.lat0 + dLat, lon1: b.lon1 + dLon, lat1: b.lat1 + dLat }
 }

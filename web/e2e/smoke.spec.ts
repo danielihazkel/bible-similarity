@@ -364,6 +364,26 @@ test('Ctrl+K jumps to a chapter by reference and to a word by its form', async (
   await expect(page).toHaveURL(/\/lemma\/7965$/)
 })
 
+test('Ctrl+K opens the map at a place: Babylon, far off the land, and Zion as Jerusalem', async ({ page }) => {
+  await page.goto('/')
+  await page.keyboard.press('Control+k')
+  const box = page.getByRole('dialog').getByRole('combobox')
+  await box.fill('בבל')
+  await expect(page.getByRole('option').first()).toContainText('Town')
+  await box.press('Enter')
+  await expect(page).toHaveURL(/\/places\?p=\d+$/)
+  // the map has moved to it: its point inside the map
+  const map = await page.getByRole('img', { name: /Places of the Bible on a map/ }).boundingBox()
+  const pt = await page.locator('.geo-pt.selected').boundingBox()
+  expect(pt!.x).toBeGreaterThan(map!.x)
+  expect(pt!.x + pt!.width).toBeLessThan(map!.x + map!.width)
+  expect(pt!.y).toBeGreaterThan(map!.y)
+  expect(pt!.y + pt!.height).toBeLessThan(map!.y + map!.height)
+  await page.keyboard.press('Control+k')
+  await box.fill('ציון')
+  await expect(page.getByRole('option', { name: /ירושלם.*Town/ })).toBeVisible()
+})
+
 test('the Hebrew interface is right to left, persists and loads every page cleanly', async ({ page }) => {
   test.setTimeout(120_000)
   const errors = collectErrors(page)

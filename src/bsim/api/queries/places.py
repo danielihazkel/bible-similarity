@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from typing import Any
 
 from bsim.api.queries.common import _dicts, count
+from bsim.api.queries.core import form_keys
+from bsim.text.normalize import match_key
 
 _COLS = (
     "p.place_id, p.he, p.kind, p.lat, p.lon, p.score, p.coord_source, p.runner_up,"
@@ -76,6 +79,59 @@ def place(conn: sqlite3.Connection, place_id: int) -> dict[str, Any] | None:
                        (place_id,))  # fmt: skip
     rows = _sites(_dicts(cur))
     return rows[0] if rows else None
+
+
+_PLACE_INDEX: dict[str, list[tuple[int, tuple[str, ...], list[str]]]] = {}
+_STRONG = re.compile(r"[Hh]?(\d+)[a-z]?")
+
+
+def _plain(key: str) -> str:
+    """A key without its vowel letters after the first letter: ירושלים and ירושלם alike."""
+    return key[:1] + key[1:].replace("ו", "").replace("י", "")
+
+
+def place_lookup(conn: sqlite3.Connection, q: str, limit: int) -> list[dict[str, Any]]:
+    """Places named by a Hebrew form or by a name's Strong's number. A form is matched against
+    the place's names (its own, then the others the text uses for it: ציון for Jerusalem) as
+    match keys (consonants, finals folded, spaces dropped), with one or two prefix letters dropped
+    when the whole form matches nothing and, failing that, ו and י ignored (ירושלים finds
+    ירושלם). Its own name first, then another of its names, then names starting with the form;
+    the most named first. `exact` says the whole name matched. The names are read once per DB."""
+    db = conn.execute("PRAGMA database_list").fetchone()[2]
+    index = _PLACE_INDEX.get(db)
+    if index is None:
+        index = [
+            (pid, tuple(dict.fromkeys(match_key(n) for n in json.loads(names))), json.loads(lems))
+            for pid, names, lems in conn.execute(
+                "SELECT place_id, names, lemmas FROM places ORDER BY place_id"
+            )
+        ]
+        _PLACE_INDEX[db] = index
+    q = q.strip()
+    strong = _STRONG.fullmatch(q)
+    rank: dict[int, int] = {}  # 0 its own name, 1 another of its names, 2 a name starts with it
+    if strong:
+        loose = re.compile(rf"{strong.group(1)}[a-z]?")
+        rank = {pid: 0 for pid, _, lems in index if any(loose.fullmatch(lem) for lem in lems)}
+    else:
+        keys = form_keys(q)
+        for k0, plain in [*((k, False) for k in keys), *((_plain(k), True) for k in keys[:1])]:
+            for pid, ks, _ in index:
+                ks = tuple(_plain(k) for k in ks) if plain else ks
+                if k0 in ks:
+                    rank[pid] = 0 if ks[0] == k0 else 1
+                elif any(k.startswith(k0) for k in ks):
+                    rank[pid] = 2
+            if rank:
+                break
+    if not rank:
+        return []
+    marks = ",".join("?" * len(rank))
+    cur = conn.execute(
+        f"SELECT {_COLS}, NULL AS n_here FROM places p WHERE p.place_id IN ({marks})", list(rank)
+    )
+    rows = sorted(_sites(_dicts(cur)), key=lambda r: (rank[r["place_id"]], -r["n_verses"]))
+    return [r | {"exact": rank[r["place_id"]] < 2} for r in rows[:limit]]
 
 
 def place_names(conn: sqlite3.Connection, place_id: int) -> list[dict[str, Any]]:

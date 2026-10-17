@@ -28,6 +28,19 @@ class PlaceSite(ApiModel):
     lemmas: list[str]  # the name lemmas that are this place
 
 
+class PlaceMatch(PlaceSite):
+    """A place the jump box found by a name (§16.57)."""
+
+    exact: bool  # a name of it is the form asked for (else a name starts with it)
+    first_label: str
+    first_label_he: str
+
+
+class PlaceLookup(ApiModel):
+    query: str
+    items: list[PlaceMatch]  # exact matches first, then prefixes; the most named first
+
+
 class PlacesResponse(ApiModel):
     meta: dict[str, Any]  # counts, how mentions were matched, kinds, the hand check
     kind: PlaceKind | None

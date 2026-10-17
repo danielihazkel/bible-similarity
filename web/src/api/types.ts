@@ -218,6 +218,8 @@ export type EntityDetail = S['EntityDetail']
 export type PlaceKind = 'town' | 'region' | 'landform' | 'water'
 export type NameKind = 'person' | 'people' | 'location' | 'landform' | 'water'
 export type PlaceSite = S['PlaceSite']
+export type PlaceMatch = S['PlaceMatch']
+export type PlaceLookup = S['PlaceLookup']
 export type PlacesResponse = Omit<S['PlacesResponse'], 'meta'> & { meta: PlacesMeta & Record<string, unknown> }
 export interface PlacesMeta {
   places?: number

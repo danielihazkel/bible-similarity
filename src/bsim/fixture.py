@@ -480,11 +480,11 @@ def write_inputs(cfg, tmp_path):
     place_dir = art / "places"
     place_dir.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(
-        [(1, "Amar@Gen.1.1", "אמר", '["559"]', 2, 0, "town", "openbible", "location", 31.78,
-          35.23, 640, "openbible", 0.2, 2, "a000001", '["settlement"]'),
-         (2, "Reshit@Gen.2.2", "ראשית", '["7225"]', 1, 5, "region", "openbible", "location", 30.1,
-          31.3, None, "tipnr", None, 0, None, "[]")],
-        columns=["place_id", "tipnr", "he", "lemmas", "n_verses", "first_vid", "kind",
+        [(1, "Amar@Gen.1.1", "אמר", '["559"]', '["אמר", "אמרה"]', 2, 0, "town", "openbible",
+          "location", 31.78, 35.23, 640, "openbible", 0.2, 2, "a000001", '["settlement"]'),
+         (2, "Reshit@Gen.2.2", "ראשית", '["7225"]', '["ראשית"]', 1, 5, "region", "openbible",
+          "location", 30.1, 31.3, None, "tipnr", None, 0, None, "[]")],
+        columns=["place_id", "tipnr", "he", "lemmas", "names", "n_verses", "first_vid", "kind",
                  "kind_source", "sdbh_kind", "lat", "lon", "score", "coord_source", "runner_up",
                  "n_identifications", "openbible", "ob_types"],
     ).astype({"score": "Int64"}).to_parquet(place_dir / "places.parquet")  # fmt: skip

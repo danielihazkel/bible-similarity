@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { LemmaLookup, ResolveResponse, UnitSummary } from '../api/types'
+import type { LemmaLookup, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { LocaleProvider } from '../context/Locale'
 import { TextModeProvider } from '../context/TextMode'
 import { Layout } from './Layout'
@@ -20,6 +20,35 @@ const GEN: UnitSummary = {
   marker: null,
 }
 
+const place = (place_id: number, he: string, lemma: string, n_verses: number, exact = true): PlaceMatch => ({
+  place_id,
+  he,
+  kind: 'town',
+  lat: 31.5,
+  lon: 35.1,
+  score: 900,
+  coord_source: 'openbible',
+  runner_up: null,
+  n_identifications: 1,
+  n_verses,
+  n_here: null,
+  first_vid: 300,
+  lemmas: [lemma],
+  exact,
+  first_label: 'Genesis 13:18',
+  first_label_he: 'בראשית יג:יח',
+})
+// חברון the town and its name; עין the town, and עין the eye, commoner
+const PLACES: Record<string, PlaceMatch[]> = { חברון: [place(31, 'חברון', '2275', 54)], עין: [place(80, 'עין', '5871', 5)] }
+const LEMMAS: Record<string, LemmaLookup['items']> = {
+  שלום: [{ lemma: '7965', he_lemma: 'שלום', n_verses: 209 }],
+  חברון: [{ lemma: '2275', he_lemma: 'חברון', n_verses: 62 }],
+  עין: [
+    { lemma: '5869', he_lemma: 'עין', n_verses: 800 },
+    { lemma: '5871', he_lemma: 'עין', n_verses: 5 },
+  ],
+}
+
 function Location() {
   const l = useLocation()
   return <output data-testid="loc">{l.pathname + l.search}</output>
@@ -33,12 +62,14 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en') {
       calls.push(url)
       const u = new URL(url, 'http://x')
       const q = u.searchParams.get('q') ?? ''
-      const body: ResolveResponse | LemmaLookup | null =
+      const body: ResolveResponse | LemmaLookup | PlaceLookup | null =
         u.pathname === '/api/resolve'
           ? { query: q, unit: /^(gen 1:1|בראשית א א)$/i.test(q) ? GEN : null }
           : u.pathname === '/api/lemmas'
-            ? { query: q, items: q === 'שלום' ? [{ lemma: '7965', he_lemma: 'שלום', n_verses: 209 }] : [] }
-            : null
+            ? { query: q, items: LEMMAS[q] ?? [] }
+            : u.pathname === '/api/places/lookup'
+              ? { query: q, items: PLACES[q] ?? [] }
+              : null
       return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
     }),
   )
@@ -117,6 +148,36 @@ describe('JumpBox', () => {
     await waitFor(() => expect(loc()).toBe('/gematria?q=318'))
   })
 
+  it('opens the map at a place its name names, before the words', async () => {
+    renderAt('/')
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true })
+    fireEvent.change(box(), { target: { value: 'חברון' } })
+    const option = await screen.findByRole('option', { name: /חברון.*Town · 54 verses · first in Genesis 13:18/ })
+    expect(option.getAttribute('aria-selected')).toBe('true')
+    const groups = screen.getAllByRole('group').map((g) => g.getAttribute('aria-labelledby'))
+    expect(groups.map((id) => document.getElementById(id!)?.textContent)).toEqual(['Places on the map', 'Words', 'Search the text'])
+    fireEvent.keyDown(box(), { key: 'Enter' })
+    await waitFor(() => expect(loc()).toBe('/places?p=31'))
+  })
+
+  it('puts a commoner word before a place of the same name', async () => {
+    renderAt('/')
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true })
+    fireEvent.change(box(), { target: { value: 'עין' } })
+    await screen.findByRole('option', { name: /עין.*Town/ })
+    expect(screen.getAllByRole('option')[0].textContent).toContain('5869 · 800 verses')
+    fireEvent.keyDown(box(), { key: 'Enter' })
+    await waitFor(() => expect(loc()).toBe('/lemma/5869'))
+  })
+
+  it('opens the place at once when Enter beats the typing pause', async () => {
+    renderAt('/')
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true })
+    fireEvent.change(box(), { target: { value: 'חברון' } })
+    fireEvent.keyDown(box(), { key: 'Enter' })
+    await waitFor(() => expect(loc()).toBe('/places?p=31'))
+  })
+
   it('looks the query up at once when Enter beats the typing pause', async () => {
     const calls = renderAt('/')
     fireEvent.keyDown(document, { key: 'K', metaKey: true })
@@ -132,5 +193,9 @@ describe('JumpBox', () => {
     fireEvent.change(box(), { target: { value: 'בראשית א א' } })
     fireEvent.click(await screen.findByRole('option', { name: 'בראשית א:א' }))
     await waitFor(() => expect(loc()).toBe('/unit/v%3A0'))
+    fireEvent.click(screen.getByRole('button', { name: /מעבר אל/ }))
+    fireEvent.change(box(), { target: { value: 'חברון' } })
+    expect(await screen.findByRole('option', { name: /חברון.*עיר · 54 פסוקים · לראשונה ב־בראשית יג:יח/ })).toBeTruthy()
+    expect(screen.getByText('מקומות במפה')).toBeTruthy()
   })
 })

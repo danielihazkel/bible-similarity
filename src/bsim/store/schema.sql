@@ -262,6 +262,7 @@ CREATE TABLE places (
     tipnr TEXT NOT NULL,            -- TIPNR's unique name (an English join key, never shown)
     he TEXT NOT NULL,               -- its Hebrew name (consonants)
     lemmas TEXT NOT NULL,           -- JSON: the name lemmas that are this place, most mentioned first
+    names TEXT NOT NULL,            -- JSON: its Hebrew names (TIPNR's, of those lemmas), its own first
     n_verses INTEGER NOT NULL,
     first_vid INTEGER NOT NULL,
     kind TEXT,                      -- town | region | landform | water

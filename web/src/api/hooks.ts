@@ -28,6 +28,7 @@ import type {
   MasorahResponse,
   BasemapResponse,
   PlaceDetail,
+  PlaceLookup,
   PlaceKind,
   DistrictDetail,
   PlaceListDetail,
@@ -264,6 +265,16 @@ export const useLemmaLookup = (q: string) =>
   useQuery({
     queryKey: ['lemma-lookup', q],
     queryFn: ({ signal }) => getJson<LemmaLookup>('/lemmas', { q }, signal),
+    enabled: q.trim().length > 0,
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Places by a Hebrew name or a name's Strong's number, for the jump box. */
+export const usePlaceLookup = (q: string) =>
+  useQuery({
+    queryKey: ['place-lookup', q],
+    queryFn: ({ signal }) => getJson<PlaceLookup>('/places/lookup', { q }, signal),
     enabled: q.trim().length > 0,
     placeholderData: keepPreviousData,
     ...forever,

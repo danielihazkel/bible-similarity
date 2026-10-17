@@ -2117,6 +2117,10 @@ svg[tabindex]:focus-visible {
 :root[dir='rtl'] .jump-option[aria-selected='true'] {
   box-shadow: inset -3px 0 var(--accent);
 }
+/* the grey of a detail is too faint on the highlight */
+.jump-option[aria-selected='true'] .muted {
+  color: var(--text);
+}
 .jump-option .he {
   font-size: 1.15rem;
 }

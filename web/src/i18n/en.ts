@@ -273,10 +273,12 @@ export const en = {
 
   jump: {
     open: 'Jump to…',
-    openTitle: 'Jump to a passage, a word or a page (Ctrl+K)',
-    label: 'Jump to a passage, a word or a page',
-    placeholder: 'Gen 1:1 · בראשית א · שלום · 7965 · = 318 · network',
+    openTitle: 'Jump to a passage, a word, a place or a page (Ctrl+K)',
+    label: 'Jump to a passage, a word, a place or a page',
+    placeholder: 'Gen 1:1 · בראשית א · שלום · 7965 · = 318 · חברון · network',
     passage: 'Passage',
+    places: 'Places on the map',
+    place: (kind: string | null, verses: string, first: string) => `${kind ? `${kind} · ` : ''}${verses} · first in ${first}`,
     words: 'Words',
     pages: 'Pages',
     search: 'Search the text',

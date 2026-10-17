@@ -2,8 +2,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getJson } from '../api/client'
-import { useLemmaLookup, useResolve } from '../api/hooks'
-import type { LemmaLookup, LemmaStat, ResolveResponse, UnitSummary } from '../api/types'
+import { useLemmaLookup, usePlaceLookup, useResolve } from '../api/hooks'
+import type { LemmaLookup, LemmaStat, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
 import { unitLink } from '../lib/links'
@@ -11,10 +11,11 @@ import { matchPages } from '../lib/nav'
 import { unitLabel } from '../lib/names'
 
 const MAX_WORDS = 6
+const MAX_PLACES = 4
 const MAX_PAGES = 6
 const DEBOUNCE_MS = 150
 
-type Kind = 'gematria' | 'passage' | 'words' | 'pages' | 'search'
+type Kind = 'gematria' | 'passage' | 'places' | 'words' | 'pages' | 'search'
 interface Option {
   kind: Kind
   to: string
@@ -26,35 +27,53 @@ interface Option {
 // `= 318`, `=אליעזר`: a letter value (Patterns → Gematria)
 const GEMATRIA = /^=\s*(\S.*)$/
 
-/** Every choice for a query, best first: a letter value (`= …`), the passage it names, the words, the
- * pages, a text search. */
+/** A place named by the whole query comes before the words, unless a word that is not one of its
+ * names is commoner (עין the eye before עין the town; ירושלם the city before its name). */
+function placesFirst(places: PlaceMatch[], lemmas: LemmaStat[]): boolean {
+  const top = places[0]
+  if (!top?.exact) return false
+  const other = lemmas.find((l) => !top.lemmas.includes(l.lemma))
+  return !other || other.n_verses <= top.n_verses
+}
+
+/** Every choice for a query, best first: a letter value (`= …`), the passage it names, the places and
+ * the words (a place named exactly first, to the map), the pages, a text search. */
 function buildOptions(
   m: Messages,
   locale: 'en' | 'he',
   q: string,
   unit: UnitSummary | null | undefined,
   lemmas: LemmaStat[],
+  places: PlaceMatch[],
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
   const gm = GEMATRIA.exec(q.trim())?.[1]
+  const words = lemmas.slice(0, MAX_WORDS).map((l) => ({
+    kind: 'words' as const,
+    to: `/lemma/${encodeURIComponent(l.lemma)}`,
+    label: l.he_lemma,
+    detail: `${l.lemma} · ${t.verses(l.n_verses)}`,
+    hebrew: true,
+  }))
+  const sites = places.slice(0, MAX_PLACES).map((p) => ({
+    kind: 'places' as const,
+    to: `/places?p=${p.place_id}`,
+    label: p.he,
+    detail: t.place(p.kind ? m.pl.kindOne[p.kind] : null, t.verses(p.n_verses), locale === 'he' ? p.first_label_he : p.first_label),
+    hebrew: true,
+  }))
   return [
     ...(gm ? [{ kind: 'gematria' as const, to: `/gematria?q=${encodeURIComponent(gm)}`, label: t.gematriaOf(gm) }] : []),
     ...(unit ? [{ kind: 'passage' as const, to: unitLink(unit.unit_id), label: unitLabel(unit, locale) }] : []),
-    ...lemmas.slice(0, MAX_WORDS).map((l) => ({
-      kind: 'words' as const,
-      to: `/lemma/${encodeURIComponent(l.lemma)}`,
-      label: l.he_lemma,
-      detail: `${l.lemma} · ${t.verses(l.n_verses)}`,
-      hebrew: true,
-    })),
+    ...(placesFirst(places, lemmas) ? [...sites, ...words] : [...words, ...sites]),
     ...matchPages(m, q, MAX_PAGES).map((p) => ({ kind: 'pages' as const, to: p.to, label: p.label, detail: p.hint })),
     { kind: 'search', to: `/search?q=${encodeURIComponent(q.trim())}`, label: t.searchFor(q.trim()) },
   ]
 }
 
-/** Ctrl+K: a passage by its reference, a word by its form or Strong's number, a page by its name, or
- * else a search of the text. A modal combobox: arrows move, Enter opens, Escape closes. */
+/** Ctrl+K: a passage by its reference, a word by its form or Strong's number, a place by its name (to
+ * the map), a page by its name, or else a search of the text. A modal combobox: arrows move, Enter opens, Escape closes. */
 export function JumpBox({ onClose }: { onClose: () => void }) {
   const { m, locale } = useLocale()
   const t = m.jump
@@ -78,10 +97,12 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
 
   const resolve = useResolve(settled)
   const lemmas = useLemmaLookup(settled)
+  const places = usePlaceLookup(settled)
   const unit = resolve.data?.query === settled ? resolve.data.unit : undefined
   const words = lemmas.data?.query === settled ? lemmas.data.items : []
-  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words)
-  const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [])
+  const sites = places.data?.query === settled ? places.data.items : []
+  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites)
+  const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [], [])
   const current = Math.min(active, shown.length - 1)
 
   const go = (o: Option | undefined) => {
@@ -93,11 +114,12 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const goNow = async () => {
     const s = q.trim()
     if (!s) return
-    const [r, l] = await Promise.all([
+    const [r, l, p] = await Promise.all([
       client.fetchQuery({ queryKey: ['resolve', s], queryFn: ({ signal }) => getJson<ResolveResponse>('/resolve', { q: s }, signal) }),
       client.fetchQuery({ queryKey: ['lemma-lookup', s], queryFn: ({ signal }) => getJson<LemmaLookup>('/lemmas', { q: s }, signal) }),
-    ]).catch(() => [undefined, undefined] as const)
-    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [])[0])
+      client.fetchQuery({ queryKey: ['place-lookup', s], queryFn: ({ signal }) => getJson<PlaceLookup>('/places/lookup', { q: s }, signal) }),
+    ]).catch(() => [undefined, undefined, undefined] as const)
+    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [])[0])
   }
 
   const onKey = (e: KeyboardEvent) => {
@@ -110,14 +132,16 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
       if (n) setActive((current + (e.key === 'ArrowDown' ? 1 : n - 1)) % n)
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      if (settled === q.trim() && !resolve.isFetching && !lemmas.isFetching) go(shown[current])
+      if (settled === q.trim() && !resolve.isFetching && !lemmas.isFetching && !places.isFetching) go(shown[current])
       else void goNow()
     } else if (e.key === 'Tab') {
       e.preventDefault() // the input is the dialog's one stop; the list is reached with the arrows
     }
   }
 
-  const groups: Kind[] = ['gematria', 'passage', 'words', 'pages', 'search']
+  // the groups in the order of their options (places before or after the words)
+  const groups = [...new Set(shown.map((o) => o.kind))]
+  const heading: Record<Kind, string> = { gematria: t.gematria, passage: t.passage, places: t.places, words: t.words, pages: t.pages, search: t.search }
   const optionId = (i: number) => `${id}-o${i}`
   return (
     <div
@@ -154,7 +178,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
             return (
               <div key={g} role="group" aria-labelledby={`${id}-${g}`}>
                 <div id={`${id}-${g}`} className="jump-heading" role="presentation">
-                  {g === 'gematria' ? t.gematria : g === 'passage' ? t.passage : g === 'words' ? t.words : g === 'pages' ? t.pages : t.search}
+                  {heading[g]}
                 </div>
                 {items.map(([o, i]) => (
                   <div

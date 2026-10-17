@@ -41,6 +41,7 @@ from bsim.data.basemap import shapes
 from bsim.data.geo import AncientPlace, TipnrRecord, read_openbible, read_tipnr
 from bsim.text.normalize import consonantal
 
+_NUM = re.compile(r"\d+")
 Log = Callable[[str], None]
 
 KINDS = ("town", "region", "landform", "water")
@@ -218,6 +219,12 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
         # its Hebrew name: TIPNR's headword (בית אל, where the name's lemma is בית)
         head = rec.names[0].hebrew if rec.names else ""
         he = consonantal(head) if head else he_of.get(lemma_counts.index[0], "")
+        # every Hebrew name TIPNR gives it whose Strong's number the text uses for it here
+        # (ציון for Jerusalem, לוז for Bethel; not its epithets), its own name first
+        used = {int(m.group()) for lem in lemma_counts.index if (m := _NUM.match(lem))}
+        names = list(dict.fromkeys(
+            [he, *(consonantal(n.hebrew) for n in rec.names if n.strong in used and n.hebrew)]
+        ))  # fmt: skip
         sd = g[list(NAME_KINDS)].sum()
         sd_kind = sd.idxmax() if sd.sum() > 0 else None
         types = ob.types if ob else []
@@ -242,6 +249,7 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
         site_rows.append({
             "tipnr": uid, "he": he,
             "lemmas": json.dumps(lemma_counts.index.tolist()),
+            "names": json.dumps([n for n in names if n], ensure_ascii=False),
             "n_verses": int(g.verse_id.nunique()),
             "first_vid": int(g.verse_id.min()), "kind": kind, "kind_source": source,
             "sdbh_kind": sd_kind, "lat": lat, "lon": lon, "score": score, "coord_source": src,

@@ -9,7 +9,7 @@ import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
-import { type Bounds, fitBounds, geoPoints, VIEWS, type ViewName } from '../lib/geo'
+import { type Bounds, centreOn, fitBounds, geoPoints, inBounds, VIEWS, type ViewName } from '../lib/geo'
 import type { Highlight } from '../lib/highlight'
 import { hebrewNumeral } from '../lib/hebrew'
 import { nameLink, unitLink } from '../lib/links'
@@ -22,7 +22,7 @@ const LIST_SHOWN = 20
 const VERSES_PAGE = 10
 
 /** Places on the map (§16.57): every place the text names, filtered by book, chapter, unit and
- * kind, with a panel for one place. */
+ * kind, with a panel for one place (`?p=`, the jump box's way in), the map moved to it. */
 export function PlacesPage() {
   const { m, locale } = useLocale()
   const t = m.pl
@@ -50,8 +50,19 @@ export function PlacesPage() {
   const points = useMemo(() => geoPoints(places.data?.items ?? []), [places.data])
   const scopeKey = `${view}|${book}|${unit}|${kind}|${points.length}`
   const [moved, setMoved] = useState<{ key: string; bounds: Bounds }>()
-  const standing = view === 'fit' ? (fitBounds(points) ?? VIEWS.land) : VIEWS[view]
-  const bounds = moved && moved.key === scopeKey ? moved.bounds : standing
+  // the place chosen (from the jump box, a panel's partners): the map moves to it when it lies
+  // outside the view, at the same size
+  const picked = usePlace(selected).data?.place
+  const at = picked?.place_id === selected && picked?.lat != null && picked?.lon != null ? { lat: picked.lat, lon: picked.lon } : undefined
+  const base = view === 'fit' ? (fitBounds(points) ?? VIEWS.land) : VIEWS[view]
+  const standing = at && !inBounds(base, at) ? centreOn(base, at) : base
+  const current = moved && moved.key === scopeKey ? moved.bounds : undefined
+  const [centred, setCentred] = useState<number>()
+  if (at && centred !== selected) {
+    setCentred(selected)
+    if (current && !inBounds(current, at)) setMoved({ key: scopeKey, bounds: centreOn(current, at) })
+  }
+  const bounds = current ?? standing
   const bk = books.data?.find((b) => b.book_id === book)
 
   return (

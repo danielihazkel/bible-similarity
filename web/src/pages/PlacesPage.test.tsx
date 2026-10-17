@@ -50,6 +50,8 @@ const DETAIL: PlaceDetail = {
   by_book: [{ book_id: 1, n_verses: 3 }],
   partners: [{ place_id: 2, he: 'ירדן', kind: 'water', n_verses: 4 }],
 }
+// Babylon, outside the land's standing view
+const BABEL: PlaceDetail = { ...DETAIL, place: site(4, 'בבל', 'town', 32.54, 44.42, 263), names: [{ lemma: '894', he: 'בבל', n_verses: 263 }], partners: [] }
 const VERSES: PlaceVersesResponse = { place_id: 1, total: 1, offset: 0, limit: 10, items: [{ verse, tokens: [1] }] }
 
 function Location() {
@@ -73,6 +75,8 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en', places: PlacesRespon
               ? BASEMAP
               : p === '/api/places/1'
                 ? DETAIL
+                : p === '/api/places/4'
+                  ? BABEL
                 : p === '/api/places/1/verses'
                   ? VERSES
                   : null
@@ -148,6 +152,24 @@ describe('PlacesPage', () => {
     expect(container.querySelector('.geo-map figcaption')?.textContent).toBe('ירושלם: 600 verses')
     fireEvent.keyDown(map, { key: 'Enter' })
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/places?p=1'))
+  })
+
+  it('moves the map to a place outside the view (the jump box opens `?p=`)', async () => {
+    const places = { ...PLACES, items: [...PLACES.items, site(4, 'בבל', 'town', 32.54, 44.42, 263)] }
+    const cos = Math.cos((31.5 * Math.PI) / 180)
+    const centre = async () => {
+      const map = await screen.findByRole('img', { name: /Places of the Bible on a map/ })
+      const [x, , w] = map.getAttribute('viewBox')!.split(' ').map(Number)
+      return x + w / 2
+    }
+    const { container } = renderAt('/places?p=4', 'en', places)
+    await waitFor(async () => expect(await centre()).toBeCloseTo(44.42 * cos, 3))
+    expect(container.querySelector('.geo-pt.selected')).not.toBeNull()
+    cleanup()
+    // a place already in view leaves the map on the land
+    renderAt('/places?p=1', 'en', places)
+    await screen.findAllByRole('link', { name: 'Joshua 10:1' })
+    expect(await centre()).toBeCloseTo(((33.9 + 36.8) / 2) * cos, 3)
   })
 
   it('reads in Hebrew', async () => {
