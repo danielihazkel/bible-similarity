@@ -56,6 +56,12 @@ describe('Layout navigation', () => {
     expect(patterns.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('lays out big groups in two columns', () => {
+    const { container } = renderAt('/')
+    expect(container.querySelector('#menu-patterns')?.classList.contains('wide')).toBe(true)
+    expect(container.querySelector('#menu-parallels')?.classList.contains('wide')).toBe(false)
+  })
+
   it('toggles the narrow-screen menu', () => {
     const { container } = renderAt('/map')
     const toggle = screen.getByRole('button', { name: /Menu/ })

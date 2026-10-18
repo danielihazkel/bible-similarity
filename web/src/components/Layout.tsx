@@ -1,4 +1,4 @@
-import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
+import { type RefObject, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
 import { isGroup, NAV, type NavGroup, navText } from '../lib/nav'
@@ -99,14 +99,16 @@ export function Layout() {
   )
 }
 
-/** A dropdown of related pages: opens on click, closes on Escape, outside click or navigation. On
- * narrow screens (inside the open mobile menu) the group is shown as a plain labelled list. */
+/** A dropdown of related pages: opens on click, closes on Escape, outside click or navigation. A
+ * big group is laid out in two columns so it fits under the sticky top bar. On narrow screens
+ * (inside the open mobile menu) the group is shown as a plain labelled list. */
 function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
   const m = useT()
   const label = m.nav[group.key]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLUListElement>(null)
   const active = group.items.some((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
   const [seenPath, setSeenPath] = useState(pathname)
   if (seenPath !== pathname) {
@@ -133,6 +135,24 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
     }
   }, [open])
 
+  // an open menu that would spill past the window's edge is slid back inside it
+  useLayoutEffect(() => {
+    const menu = menuRef.current
+    if (!menu) return
+    const fit = () => {
+      menu.style.setProperty('--menu-shift', '0px')
+      if (!open) return
+      const { left, right } = menu.getBoundingClientRect()
+      const edge = document.documentElement.clientWidth - 8
+      const shift = right > edge ? edge - right : left < 8 ? 8 - left : 0
+      menu.style.setProperty('--menu-shift', `${Math.round(shift)}px`)
+    }
+    fit()
+    if (!open) return
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [open])
+
   const id = `menu-${group.key}`
   return (
     <div className={`nav-group ${open ? 'open' : ''}`} ref={ref}>
@@ -146,7 +166,7 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
       >
         {label} <span aria-hidden="true">▾</span>
       </button>
-      <ul id={id} className="nav-menu" aria-label={label}>
+      <ul id={id} ref={menuRef} className={`nav-menu ${group.items.length > 10 ? 'wide' : ''}`} aria-label={label}>
         {group.items.map((i) => {
           const { label, hint } = navText(m, i.key)
           return (

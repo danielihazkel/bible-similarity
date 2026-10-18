@@ -296,9 +296,22 @@ h2 {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   z-index: 20;
+  /* the top bar is sticky, so a menu taller than the window could never be scrolled into view */
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* set by NavMenu to keep the open menu inside the window */
+  transform: translateX(var(--menu-shift, 0px));
 }
 .nav-group.open .nav-menu {
   display: block;
+}
+.nav-group.open .nav-menu.wide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(14rem, 19rem));
+  column-gap: 0.3rem;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
 }
 .nav-menu a {
   display: flex;
@@ -342,6 +355,14 @@ h2 {
   .nav.open {
     display: flex;
   }
+  /* the expanded list lives in the sticky top bar, whose height varies with how its buttons
+     wrap: let the whole bar scroll while the menu is open */
+  .topbar:has(.nav.open) {
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   .nav-group-button {
     display: block;
     width: 100%;
@@ -366,6 +387,14 @@ h2 {
     border: 0;
     box-shadow: none;
     background: none;
+    max-height: none;
+    overflow: visible;
+    transform: none;
+  }
+  .nav-group.open .nav-menu.wide {
+    display: block;
+    width: auto;
+    max-width: none;
   }
   .nav-item-hint {
     display: none;
