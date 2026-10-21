@@ -1,0 +1,271 @@
+# Block 13: Ezra-Nehemiah (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b13-ezra-nehemiah
+status: reviewed
+links:
+  - {child: "Jeshua@Ezr.2.6-Neh", parent: "Pahath-moab@Ezr.2.6-Neh", status: rejected}
+  - {child: "Joab@Ezr.2.6-Neh", parent: "Pahath-moab@Ezr.2.6-Neh", status: rejected}
+  - "Seraiah@2Ki.25.18-Jer <- Azariah@1Ch.6.13-Ezr"
+  - "Azariah@1Ch.6.13-Ezr <- Hilkiah@2Ki.22.4-Jer"
+  - "Shallum@1Ch.6.12-Neh <- Zadok@1Ch.6.12-Neh"
+  - "Zadok@1Ch.6.12-Neh <- Ahitub@1Ch.6.11-Ezr"
+  - "Amariah@1Ch.6.11-Ezr <- Azariah@1Ch.6.10-Ezr"
+  - "Uzzi@1Ch.6.5-Ezr <- Bukki@1Ch.6.5-Ezr"
+  - "Zerahiah@1Ch.6.6-Neh <- Uzzi@1Ch.6.5-Ezr"
+  - "Abishua@1Ch.6.4-Ezr <- Phinehas@Exo.6.25-Psa"
+  - "Eliehoenai@Ezr.8.4 <- Zerahiah@Ezr.8.4"
+  - "Ebed@Ezr.8.6 <- Jonathan@Ezr.8.6"
+  - "Jeshaiah@Ezr.8.7 <- Athaliah@Ezr.8.7"
+  - "Zebadiah@Ezr.8.8 <- Michael@Ezr.8.8"
+  - "Obadiah@Ezr.8.9 <- Jehiel@Ezr.8.9"
+  - "Shelomith@Ezr.8.10 <- Josiphiah@Ezr.8.10"
+  - "Zechariah@Ezr.8.11 <- Bebai@Ezr.8.11"
+  - "Johanan@Ezr.8.12 <- Hakkatan@Ezr.8.12"
+  - "Eleazar@Ezr.8.33 <- Phinehas@Ezr.8.33"
+  - "Jozabad@Ezr.8.33 <- Jeshua@Ezr.8.33"
+  - "Meremoth@Ezr.8.33-Neh <- Uriah@Ezr.8.33-Neh"
+  - "Noadiah@Ezr.8.33 <- Binnui@Ezr.8.33"
+  - "Shecaniah@Ezr.10.2-Neh <- Jehiel@Ezr.10.2"
+  - "Jehohanan@Ezr.10.6 <- Eliashib@Ezr.10.6"
+  - "Jahzeiah@Ezr.10.15 <- Tikvah@Ezr.10.15"
+  - "Jonathan@Ezr.10.15 <- Asahel@Ezr.10.15"
+  - {child: "Jeshua@1Ch.24.11-Neh", parent: "Jozadak@Ezr.10.18", status: rejected}
+  - "Nehemiah@Neh.1.1- <- Hacaliah@Neh.1.1-"
+  - {child: "Hanani@Neh.1.2-", parent: "Hacaliah@Neh.1.1-", status: confirmed, proof: [Nehemiah 1:1, Nehemiah 1:2, Nehemiah 7:2]}
+  - "Zaccur@Neh.3.2 <- Imri@Neh.3.2"
+  - "Uriah@Ezr.8.33-Neh <- Hakkoz@Neh.3.4-"
+  - "Berechiah@Neh.3.4- <- Meshezabel@Neh.3.4"
+  - "Meshullam@Neh.3.4- <- Berechiah@Neh.3.4-"
+  - "Zadok@Neh.3.4 <- Baana@Neh.3.4"
+  - "Joiada@Neh.3.6 <- Paseah@Neh.3.6"
+  - "Meshullam@Neh.3.6 <- Besodeiah@Neh.3.6"
+  - "Uzziel@Neh.3.8 <- Harhaiah@Neh.3.8"
+  - "Rephaiah@Neh.3.9 <- Hur@Neh.3.9"
+  - "Hattush@Neh.3.10 <- Hashabneiah@Neh.3.10"
+  - "Jedaiah@Neh.3.10 <- Harumaph@Neh.3.10"
+  - "Hasshub@Neh.3.11 <- Pahath-moab@Neh.3.11"
+  - "Malchijah@Neh.3.11 <- Harim@Neh.3.11"
+  - "Shallum@Neh.3.12 <- Hallohesh@Neh.3.12-"
+  - "Malchijah@Neh.3.14 <- Rechab@Neh.3.14"
+  - "Shallum@Neh.3.15 <- Col-hozeh@Neh.3.15"
+  - "Nehemiah@Neh.3.16 <- Azbuk@Neh.3.16"
+  - "Rehum@Neh.3.17 <- Bani@Neh.3.17"
+  - "Bavvai@Neh.3.18 <- Henadad@Neh.3.18"
+  - "Ezer@Neh.3.19 <- Jeshua@Neh.3.19"
+  - "Baruch@Neh.3.20 <- Zabbai@Neh.3.20"
+  - "Azariah@Neh.3.23- <- Maaseiah@Neh.3.23"
+  - "Maaseiah@Neh.3.23 <- Ananiah@Neh.3.23"
+  - "Binnui@Neh.3.24 <- Henadad@Neh.3.24"
+  - "Palal@Neh.3.25 <- Uzai@Neh.3.25"
+  - "Pedaiah@Neh.3.25 <- Parosh@Neh.3.25"
+  - "Shemaiah@Neh.3.29 <- Shecaniah@Ezr.10.2-Neh"
+  - "Zadok@Neh.3.29 <- Immer@Neh.3.29"
+  - "Hananiah@Neh.3.30 <- Shelemiah@Neh.3.30"
+  - "Hanun@Neh.3.30 <- Zalaph@Neh.3.30"
+  - "Delaiah@Neh.6.10 <- Mehetabel@Neh.6.10"
+  - "Shemaiah@Neh.6.10 <- Delaiah@Neh.6.10"
+  - "Jehohanan@Neh.6.18 <- Tobiah@Neh.2.10-"
+  - {child: "Jehohanan@Neh.6.18", parent: "daughter_of_Shecaniah@Neh.6.18", status: rejected}
+  - "Shecaniah@Neh.6.18 <- Arah@Neh.6.18"
+  - "daughter_of_Meshullam@Neh.6.18 <- Meshullam@Neh.3.4-"
+  - "daughter_of_Meshullam@Neh.6.18 <- Jehohanan@Neh.6.18"
+  - "daughter_of_Shecaniah@Neh.6.18 <- Shecaniah@Neh.6.18"
+  - "daughter_of_Shecaniah@Neh.6.18 <- Tobiah@Neh.2.10-"
+  - {child: "Hezekiah@Ezr.2.16-Neh", parent: "Ater@Ezr.2.16-Neh", status: rejected}
+  - "Jeshua@Ezr.2.40-Neh <- Azaniah@Neh.10.9"
+  - "Amariah@Neh.11.4 <- Shephatiah@Neh.11.4"
+  - "Athaiah@Neh.11.4 <- Uzziah@Neh.11.4"
+  - "Shephatiah@Neh.11.4 <- Mahalalel@Neh.11.4"
+  - "Uzziah@Neh.11.4 <- Zechariah@Neh.11.4"
+  - "Zechariah@Neh.11.4 <- Amariah@Neh.11.4"
+  - "Adaiah@Neh.11.5 <- Joiarib@Neh.11.5"
+  - "Baruch@Neh.11.5 <- Col-hozeh@Neh.11.5"
+  - "Col-hozeh@Neh.11.5 <- Hazaiah@Neh.11.5"
+  - "Hazaiah@Neh.11.5 <- Adaiah@Neh.11.5"
+  - "Joiarib@Neh.11.5 <- Zechariah@Neh.11.5"
+  - "Maaseiah@Neh.11.5 <- Baruch@Neh.11.5"
+  - {child: "Zechariah@Neh.11.5", parent: "Shilonites@Neh.11.5", kind: descendant, status: fixed, proof: [Nehemiah 11:5]}
+  - "Ithiel@Neh.11.7 <- Jeshaiah@Neh.11.7"
+  - "Joed@Neh.11.7 <- Pedaiah@Neh.11.7"
+  - "Kolaiah@Neh.11.7 <- Maaseiah@Neh.11.7"
+  - "Maaseiah@Neh.11.7 <- Ithiel@Neh.11.7"
+  - "Meshullam@Neh.11.7 <- Joed@Neh.11.7"
+  - "Pedaiah@Neh.11.7 <- Kolaiah@Neh.11.7"
+  - "Sallu@Neh.11.7 <- Meshullam@Neh.11.7"
+  - "Joel@Neh.11.9 <- Zichri@Neh.11.9"
+  - "Judah@Neh.11.9 <- Senaah@1Ch.9.7-Neh"
+  - "Jedaiah@1Ch.9.10-Neh <- Joiarib@1Ch.9.10-Neh"
+  - "Hilkiah@2Ki.22.4-Jer <- Shallum@1Ch.6.12-Neh"
+  - {child: "Meraioth@1Ch.6.6-Neh", parent: "Zerahiah@1Ch.6.6-Neh", status: confirmed, proof: [Ezra 7:3, Ezra 7:4, I Chronicles 5:32]}
+  - "Pashhur@1Ch.9.12-Neh <- Malchijah@1Ch.9.12-Neh"
+  - "Adaiah@1Ch.9.12-Neh <- Jeroham@1Ch.9.12-Neh"
+  - "Amzi@Neh.11.12 <- Zechariah@Neh.11.12"
+  - "Pelaliah@Neh.11.12 <- Amzi@Neh.11.12"
+  - "Zechariah@Neh.11.12 <- Pashhur@1Ch.9.12-Neh"
+  - "Maasai@1Ch.9.12-Neh <- Adiel@1Ch.9.12-Neh"
+  - "Meshillemith@1Ch.9.12-Neh <- Immer@1Ch.9.12-Neh"
+  - {child: "Meshullam@1Ch.9.12-Neh", parent: "Meshillemith@1Ch.9.12-Neh", status: confirmed, proof: [I Chronicles 9:12]}
+  - "Zabdiel@Neh.11.14 <- Haggedolim@Neh.11.14"
+  - "Azrikam@1Ch.9.14-Neh <- Hashabiah@1Ch.9.14-Neh"
+  - "Hashabiah@1Ch.9.14-Neh <- Bunni@Neh.11.15"
+  - "Hasshub@1Ch.9.14-Neh <- Azrikam@1Ch.9.14-Neh"
+  - "Shemaiah@1Ch.9.14-Neh <- Hasshub@1Ch.9.14-Neh"
+  - "Galal@1Ch.9.16-Neh <- Jeduthun@1Ch.9.16-Neh"
+  - "Mattaniah@1Ch.9.15-Neh <- Mica@1Ch.9.15-Neh"
+  - "Mica@1Ch.9.15-Neh <- Zichri@1Ch.9.15-Neh"
+  - "Obadiah@1Ch.9.16-Neh <- Shemaiah@1Ch.9.16-Neh"
+  - "Shemaiah@1Ch.9.16-Neh <- Galal@1Ch.9.16-Neh"
+  - "Zichri@1Ch.9.15-Neh <- Asaph@1Ch.9.15-Neh"
+  - "Bani@Neh.11.22 <- Hashabiah@Neh.11.22"
+  - "Hashabiah@Neh.11.22 <- Mattaniah@Neh.11.22-"
+  - "Mattaniah@Neh.11.22- <- Mica@Neh.11.22-"
+  - "Uzzi@Neh.11.22 <- Bani@Neh.11.22"
+  - "Pethahiah@Neh.11.24 <- Meshezabel@Neh.11.24"
+  - "Eliashib@Neh.12.10- <- Joiakim@Neh.12.10-"
+  - "Jaddua@Neh.12.11- <- Johanan@Neh.12.11-"
+  - "Jeshua@Neh.12.24 <- Kadmiel@Ezr.2.40-Neh"
+  - "Joiakim@Neh.12.10- <- Joshua@Ezr.2.2-Zec"
+  - "Jonathan@Neh.12.35 <- Shemaiah@Neh.12.35"
+  - "Shemaiah@Neh.12.35 <- Mattaniah@Neh.11.22-"
+  - "Zaccur@1Ch.25.2-Neh <- Asaph@1Ch.6.39-Psa"
+  - "Zechariah@Neh.12.35 <- Jonathan@Neh.12.35"
+  - {child: "Azarel@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Gilalai@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Milalai@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - {child: "Shemaiah@Neh.12.36", parent: "Jonathan@Neh.12.35", status: rejected}
+  - "Hanan@Neh.13.13 <- Zaccur@Neh.13.13"
+  - "Zaccur@Neh.13.13 <- Mattaniah@Neh.13.13"
+  - "Joiada@Neh.12.10- <- Eliashib@Neh.12.10-"
+  - "daughter_of_Sanballat@Neh.13.28 <- Sanballat@Neh.2.10-"
+  - "son_of_Joiada@Neh.13.28 <- Joiada@Neh.12.10-"
+  - "son_of_Joiada@Neh.13.28 <- daughter_of_Sanballat@Neh.13.28"
+  # Shecaniah son of Jahaziel; Micaiah son of Zaccur
+  - {child: "Shecaniah@Ezr.8.5", parent: "Jahaziel@Ezr.8.5", role: father, status: added, proof: [Ezra 8:5]}
+  - {child: "Mica@Neh.11.22-", parent: "Zaccur@1Ch.25.2-Neh", role: father, status: added, proof: [Nehemiah 12:35]}
+conflicts:
+  - kind: descendant
+    child: "Ezra@Ezr.7.1-Neh"
+    readings:
+      - {parent: "Seraiah@2Ki.25.18-Jer", kind: descendant, proof: [Ezra 7:1]}
+    note:
+      en: "\"עזרא בן שריה\" (Ezra 7:1). Seraiah the chief priest was put to death at Riblah (II Kings 25:18-21) and his son Jehozadak went into exile (I Chronicles 5:40-41); Ezra went up in the seventh year of Artaxerxes (Ezra 7:7-8), after Jehozadak's son Jeshua had returned (Ezra 3:2)."
+      he: "„עזרא בן שריה” (עזרא ז:א). שריה כהן הראש הומת ברבלה (מלכים ב כה:יח–כא) ובנו יהוצדק הלך בגולה (דברי הימים א ה:מ–מא); עזרא עלה בשנת שבע לארתחשסתא (עזרא ז:ז–ח), אחרי שעלה ישוע בן יוצדק (עזרא ג:ב)."
+  - kind: descendant
+    child: "Azariah@1Ch.6.10-Ezr"
+    readings:
+      - {parent: "Johanan@1Ch.6.9-", proof: [I Chronicles 5:36]}
+      - {parent: "Meraioth@1Ch.6.6-Neh", kind: descendant, proof: [Ezra 7:3]}
+    note:
+      en: "\"ויוחנן הוליד את עזריה\" (I Chronicles 5:36); \"בן אמריה בן עזריה בן מריות\" (Ezra 7:3), which leaves out the six names from Amariah to Johanan of I Chronicles 5:33-36."
+      he: "„ויוחנן הוליד את עזריה” (דברי הימים א ה:לו); „בן אמריה בן עזריה בן מריות” (עזרא ז:ג), בלי ששת השמות מאמריה עד יוחנן שבדברי הימים א ה:לג–לו."
+  - kind: descendant
+    child: "Mahli@Exo.6.19-Ezr"
+    readings:
+      - {parent: "Merari@Gen.46.11-Ezr", proof: [Exodus 6:19, Numbers 3:20, I Chronicles 6:4]}
+      - {parent: "Levi@Gen.29.34-Rev", kind: descendant, proof: [Ezra 8:18]}
+    note:
+      en: "\"ובני מררי מחלי ומושי\" (Exodus 6:19); \"מבני מחלי בן לוי בן ישראל\" (Ezra 8:18)."
+      he: "„ובני מררי מחלי ומושי” (שמות ו:יט); „מבני מחלי בן לוי בן ישראל” (עזרא ח:יח)."
+  - kind: descendant
+    child: "Johanan@Neh.12.11-"
+    readings:
+      - {parent: "Joiada@Neh.12.10-", proof: [Nehemiah 12:11, Nehemiah 12:22]}
+      - {parent: "Eliashib@Neh.12.10-", kind: descendant, proof: [Nehemiah 12:23]}
+    note:
+      en: "\"ויוידע הוליד את יונתן ויונתן הוליד את ידוע\" (Nehemiah 12:11) and \"אלישיב יוידע ויוחנן וידוע\" (12:22) put him between Joiada and Jaddua; \"יוחנן בן אלישיב\" (12:23), his grandfather."
+      he: "„ויוידע הוליד את יונתן ויונתן הוליד את ידוע” (נחמיה יב:יא) ו„אלישיב יוידע ויוחנן וידוע” (יב:כב) שמים אותו בין יוידע לידוע; „יוחנן בן אלישיב” (יב:כג), אבי אביו."
+  - kind: descendant
+    child: "Jeroham@1Ch.9.12-Neh"
+    readings:
+      - {parent: "Pelaliah@Neh.11.12", proof: [Nehemiah 11:12]}
+      - {parent: "Pashhur@1Ch.9.12-Neh", kind: descendant, proof: [I Chronicles 9:12]}
+    note:
+      en: "\"ועדיה בן ירחם בן פלליה בן אמצי בן זכריה בן פשחור בן מלכיה\" (Nehemiah 11:12); \"ועדיה בן ירחם בן פשחור בן מלכיה\" (I Chronicles 9:12)."
+      he: "„ועדיה בן ירחם בן פלליה בן אמצי בן זכריה בן פשחור בן מלכיה” (נחמיה יא:יב); „ועדיה בן ירחם בן פשחור בן מלכיה” (דברי הימים א ט:יב)."
+missed:
+  - {ref: Ezra 2:21, reason: "בני + a town: its men in the list of those who returned"}
+  - {ref: Ezra 2:25, reason: "בני + a town: its men in the list of those who returned"}
+  - {ref: Ezra 2:26, reason: "בני + a town: its men in the list of those who returned"}
+  - {ref: Ezra 2:33, reason: "בני + a town: its men in the list of those who returned"}
+  - {ref: Ezra 2:36, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:40, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:42, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:43, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:44, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:45, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:46, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:47, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:48, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:49, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:51, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:52, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:53, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:54, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:55, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:56, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:57, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:60, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Ezra 2:61, reason: "a priest who took a wife of the daughters of Barzillai the Gileadite and was called by their name; neither is named"}
+  - {ref: Ezra 3:1, reason: "בני ישראל: the people"}
+  - {ref: Ezra 3:8, reason: "Zerubbabel son of Shealtiel, Jeshua son of Jozadak: proved on Ezra 3:2 and Haggai 1:1 (block 10)"}
+  - {ref: Ezra 3:9, reason: "the Levite families of Jeshua, Kadmiel and Henadad at the work; no father named"}
+  - {ref: Ezra 3:10, reason: "בני אסף: the singers of Asaph's family"}
+  - {ref: Ezra 6:21, reason: "בני ישראל: the people"}
+  - {ref: Ezra 7:7, reason: "בני ישראל: the people"}
+  - {ref: Ezra 8:2, reason: "family heads by their houses (Phinehas, Ithamar, David); the line is not traced"}
+  - {ref: Ezra 8:3, reason: "מבני שכניה מבני פרעש: families; Zechariah's father is not named"}
+  - {ref: Ezra 8:13, reason: "מבני אדניקם: a family; the men's father is not named"}
+  - {ref: Ezra 8:14, reason: "מבני בגוי: a family; the men's father is not named"}
+  - {ref: Ezra 8:15, reason: "בני לוי: the Levites"}
+  - {ref: Ezra 8:19, reason: "מבני מררי: of Merari's family; no father named"}
+  - {ref: Ezra 10:20, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:21, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:22, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:25, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:26, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:27, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:28, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:29, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:30, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:31, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:33, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:34, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Ezra 10:43, reason: "a family of those who had married foreign wives; no father named"}
+  - {ref: Nehemiah 1:6, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 2:10, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 7:37, reason: "בני + a town: its men in the list of those who returned"}
+  - {ref: Nehemiah 7:39, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:43, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:45, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:46, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:47, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:48, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:49, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:50, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:51, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:53, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:54, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:55, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:56, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:57, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:58, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:59, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:62, reason: "בני X: families in the list of those who returned; no father named"}
+  - {ref: Nehemiah 7:63, reason: "a priest who took a wife of the daughters of Barzillai the Gileadite and was called by their name; neither is named"}
+  - {ref: Nehemiah 7:72, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 8:14, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 8:17, reason: "Joshua son of Nun: proved in block 05"}
+  - {ref: Nehemiah 9:1, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 10:40, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 11:6, reason: "בני פרץ: the family of Perez"}
+  - {ref: Nehemiah 11:25, reason: "מבני יהודה: the tribe, and the towns' villages"}
+  - {ref: Nehemiah 11:28, reason: "בנתיה: a town's villages"}
+  - {ref: Nehemiah 11:30, reason: "בנתיה: a town's villages; גיא הנם, a place"}
+  - {ref: Nehemiah 11:31, reason: "בני בנימן: the tribe, and the towns' villages"}
+  - {ref: Nehemiah 12:45, reason: "Solomon son of David: proved in block 08"}
+  - {ref: Nehemiah 12:47, reason: "בני אהרן: the priests"}
+  - {ref: Nehemiah 13:2, reason: "בני ישראל: the people"}
+  - {ref: Nehemiah 13:16, reason: "לבני יהודה: the people"}

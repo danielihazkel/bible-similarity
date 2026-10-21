@@ -81,7 +81,7 @@ Review blocks (M90), in Jewish canon order:
 | 10 | b10-latter-prophets | Isaiah–Malachi | reviewed | 68 | 2 |
 | 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | reviewed | 25 | 0 |
 | 12 | b12-esth-dan | Esther, Daniel | reviewed | 35 | 0 |
-| 13 | b13-ezra-nehemiah | Ezra–Nehemiah | todo | | |
+| 13 | b13-ezra-nehemiah | Ezra–Nehemiah | reviewed | 142 | 5 |
 | 14 | b14-1chr-1 | 1 Chr 1 | todo | | |
 | 15 | b15-1chr-2-4 | 1 Chr 2–4 | todo | | |
 | 16 | b16-1chr-5-6 | 1 Chr 5–6 | todo | | |
@@ -90,17 +90,15 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 13: `b13-ezra-nehemiah` (Ezra–Nehemiah).** Follow **How to resume** step 2. This block has many "X בן Y" lists; check the sheet's size first, and split it here (Ezra / Nehemiah) if it is too big for one session.
+**M90, block 14: `b14-1chr-1` (I Chr 1).** Follow **How to resume** step 2.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Ezra's line** (Ezra 7:1–5) back to Aaron, against I Chr 5:29–41: "עזרא בן שריה" skips the generations after Seraiah, who was killed in Nebuchadnezzar's days (II Kgs 25:18–21), a `descendant` conflict. Ezra 7:3 also leaves out the six names between Azariah and Meraioth of I Chr 5:33–37 (block 16).
-- **The returned leaders:** Jeshua son of Jozadak (Ezra 3:2, written ישוע / יוצדק), Zerubbabel (block 10's conflict), Nehemiah son of Hacaliah (Neh 1:1); the high priests Jeshua, Joiakim, Eliashib, Joiada, Jonathan, Jaddua (Neh 12:10–11, 22).
-- **"בני X" in the lists of Ezra 2, 8, 10 and Neh 7, 10–12** are mostly families or clans, not sons; dismiss them as such unless a link is meant.
-- **Marriages:** Tobiah, son-in-law of Shecaniah son of Arah, and his son Jehohanan married Meshullam son of Berechiah's daughter (Neh 6:18); a grandson of Eliashib, son-in-law of Sanballat (13:28); Barzillai's descendants by "מבנות ברזלי הגלעדי" (Ezra 2:61, Neh 7:63).
-- **Zechariah** "לעדיא זכריה" (Neh 12:16), the head of Iddo's family: see block 10's conflict.
-- Ahasuerus <- Darius and Artaxerxes <- Ahasuerus and Vashti (Ezra 4:5–7) are already rejected in block 12.
+- **I Chr 1 repeats** Gen 5, 10, 11:10–26, 25 and 36 in short, so most links are already confirmed in blocks 01–03: confirm them with the I Chr verse rather than deciding them again. The conflicts on Uz, Hul, Gether, Mash (1:17) and Timna (1:36) are already recorded.
+- **Spellings that differ from Genesis**, which TIPNR keeps on one key or splits: דיפת / ריפת (1:6), רודנים / דדנים (1:7), משך / מש (1:17), עלין / עלון and שפי / שפו (1:40), חמרן / חמדן (1:41), הדד / הדר and פעי / פעו (1:50).
+- **Keturah** is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1.
+- **Hadad's wife** Mehetabel, daughter of Matred, daughter of Me-zahab (1:50, Gen 36:39), and the kings of Edom (1:43–51), with the tribe attachments of the open question below (M91).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -121,6 +119,11 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Azariah the priest** (b09, `descendant`): "עזריהו בן צדוק הכהן" (I Kgs 4:2); "ואחימעץ הוליד את עזריה" (I Chr 5:35), as TIPNR identifies him. Ahimaaz drawn; that link is confirmed early, on block 16's verse.
 - **Zerubbabel** (b10): "זרבבל בן שאלתיאל" (Hag 1:1, 12, 14, 2:2, 23, Ezra 3:2, Neh 12:1); "ובני פדיה זרבבל ושמעי" (I Chr 3:19), where Pedaiah is listed with Shealtiel among Jeconiah's sons (3:17–18). Shealtiel drawn; the link Zerubbabel <- Pedaiah is confirmed early, on block 15's verse.
 - **Zechariah the prophet** (b10, `descendant`): "זכריה בן ברכיה בן עדו" (Zech 1:1, 7); "זכריה בר עדוא" (Ezra 5:1, 6:14). Berechiah drawn.
+- **Ezra** (b13, `descendant`, one reading): "עזרא בן שריה" (Ezra 7:1). Seraiah the chief priest was put to death at Riblah (II Kgs 25:18–21) and his son Jehozadak went into exile (I Chr 5:40–41); Ezra went up in Artaxerxes' seventh year (Ezra 7:7–8). Seraiah drawn as a `descendant`.
+- **Azariah son of Johanan** (b13, `descendant`): "ויוחנן הוליד את עזריה" (I Chr 5:36); "בן עזריה בן מריות" (Ezra 7:3), which leaves out the six names from Amariah to Johanan of I Chr 5:33–36. Johanan drawn; that link is confirmed early, on block 16's verse.
+- **Mahli** (b13, `descendant`): Merari's son (Ex 6:19, Num 3:20, I Chr 6:4); "מחלי בן לוי בן ישראל" (Ezra 8:18). Merari drawn.
+- **Johanan the high priest** (b13, `descendant`): between Joiada and Jaddua, "ויוידע הוליד את יונתן" (Neh 12:11) and "אלישיב יוידע ויוחנן וידוע" (12:22); "יוחנן בן אלישיב" (12:23). Joiada drawn.
+- **Jeroham** (b13, `descendant`): "ירחם בן פלליה בן אמצי בן זכריה בן פשחור" (Neh 11:12); "ירחם בן פשחור" (I Chr 9:12). Pelaliah drawn.
 ## Open questions
 - **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
 - **More tribe attachments of TIPNR's** (for M91), found in block 06:
@@ -210,6 +213,25 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Belshazzar is kept as Nebuchadnezzar's son: "נבוכדנצר אבוהי" (Dan 5:2, 11, 18), "ואנת ברה" (5:22). No other father is named, so no conflict.
   - "דריוש בן אחשורוש מזרע מדי" (Dan 9:1) is kept on TIPNR's one Ahasuerus, who is also Esther's king; an identification of TIPNR's.
   - Daniel and his companions are "מבני יהודה" (Dan 1:6) but attached only to the book (M91).
+- **Ezra–Nehemiah** (b13):
+  - **Family lists:** "בני פחת מואב לבני ישוע יואב" and "בני אטר ליחזקיה" (Ezra 2:6, 16; Neh 7:11, 21) group families and name no father. TIPNR's Jeshua and Joab <- Pahath-moab and Hezekiah <- Ater are rejected, like the other "בני X" of the lists.
+  - **Family names after "בן"** in Neh 3 are kept as fathers, as written, though several are also family names in Ezra 2: Pahath-moab and Harim (3:11), Hakkoz (3:4), Bani (3:17), Henadad (3:18, 24), Parosh (3:25), Immer (3:29). Only "בן השלני" (Neh 11:5) is made a `descendant`, of the Shelanite family (Num 26:20). "יהודה בן הסנואה" (11:9) and "זבדיאל בן הגדולים" (11:14) are kept as TIPNR names them.
+  - **Jeshua son of Jozadak** (Ezra 10:18) is the high priest of Ezra 3:2 and 5:2. TIPNR files the verse under the course Jeshua of David's time (I Chr 24:11; also Ezra 2:36, Neh 7:39) with a Jozadak of its own; that link is rejected. The high priest's link is confirmed in block 10.
+  - **The high priest Eliashib** is three TIPNR keys: Neh 3:1, 20–21 ("אלישיב הכהן הגדול"); Neh 12:10, 22–23 and 13:28; Neh 13:4, 7 (over the chambers, "קרוב לטוביה"). "יהוחנן בן אלישיב" (Ezra 10:6) is another pair of keys, perhaps the Johanan of Neh 12:23 (M91).
+  - **Hanani** is Hacaliah's son by "חנני אחי" (Neh 7:2; "אחד מאחי", 1:2); אח can also mean a kinsman.
+  - **Tobiah** (Neh 6:18): his wife, Shecaniah's daughter, is not said to be Jehohanan's mother, so that mother link is rejected.
+  - **Neh 12:36:** "ואחיו שמעיה ועזראל ..." are Zechariah's fellow musicians. TIPNR's eight sons of Jonathan are rejected.
+  - **Added:** Shecaniah <- Jahaziel, "מבני שכניה בן יחזיאל" (Ezra 8:5), read like "ומבני שלומית בן יוספיה" (8:10), which TIPNR links; Micaiah <- Zaccur (Neh 12:35). TIPNR's Zaccur there is Asaph's son of David's time (I Chr 25:2), so the line Asaph, Zaccur, Micaiah, Mattaniah, Shemaiah, Jonathan, Zechariah spans David to Nehemiah in six generations and skips where the text does not show.
+  - **Neh 11:11 / I Chr 9:11** put a Meraioth between Zadok and Ahitub ("צדוק בן מריות בן אחיטוב"), against "ואחיטוב הוליד את צדוק" (I Chr 5:38, Ezra 7:2). TIPNR merges that Meraioth with Zerahiah's son and has no Meraioth <- Ahitub link (blocks 16–17).
+  - **Neh 11:13 / I Chr 9:12:** "עמשסי בן עזראל בן אחזי בן משלמות בן אמר" against "מעשי בן עדיאל בן יחזרה בן משלם בן משלמית בן אמר". TIPNR takes Ahzai for Meshullam, though the name is nearer Jahzerah; Meshullam <- Meshillemith is proved on I Chr 9:12 alone (block 17).
+  - **Neh 11:10** "ידעיה בן יויריב יכין" against I Chr 9:10 "ידעיה ויהויריב ויכין", three priests; TIPNR's link is kept (block 17). **Neh 12:24** "וישוע בן קדמיאל" against "ישוע בנוי קדמיאל" (12:8, 10:10); kept as written.
+  - Ezra 7:2–5's "אחיטוב בן אמריה" and "בקי בן אבישוע" run across verse ends, so Ahitub <- Amariah and Bukki <- Abishua are left to block 16 (I Chr 5:31, 37).
+  - The priest who took a wife of the daughters of Barzillai the Gileadite (Ezra 2:61, Neh 7:63) is not named; nothing is added.
+  - **For M91:**
+    - TIPNR keeps one man under two keys: Mattaniah son of Mica of Neh 11:17 (= I Chr 9:15), and of 11:22 and 12:35. If they are one man, Mica's father is Zabdi / Zichri (Neh 11:17, I Chr 9:15) or Zaccur (Neh 12:35). Likewise Asaph@1Ch.9.15-Neh stands beside Asaph@1Ch.6.39-Psa.
+    - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book.
+    - TIPNR's Shilonites ("People from Shelah(?)") have no link to Shelah.
+    - TIPNR makes the father of Shemaiah, keeper of the East Gate (Neh 3:29), the same man as Shecaniah son of Jehiel (Ezra 10:2); the text does not say so.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -344,3 +366,10 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Confirmed:** Mordecai's line to Kish (Est 2:5); Esther <- Abihail; Ahasuerus and Vashti (1:9, 19); Haman <- Hammedatha, Zeresh his wife, his ten sons (9:7–10); Belshazzar <- Nebuchadnezzar (Dan 5); Darius <- Ahasuerus (Dan 9:1).
   - **Rejected** (TIPNR, no verse): Zeresh as the mother of Haman's ten sons (marked doubtful); Vashti as the mother of Darius the Mede and of Artaxerxes; Ahasuerus <- Darius and Artaxerxes <- Ahasuerus (Ezra 4:5–7 is a succession of kings).
   - **Added:** Esther as Ahasuerus's wife (2:16–17), and Esther <- Mordecai, `adopted` ("לקחה מרדכי לו לבת", 2:7, 15); Abihail stays her drawn father.
+- 2026-10-21, M90 block 13 (Ezra–Nehemiah): `curation/genealogy/13-b13-ezra-nehemiah.yaml`, reviewed. The sheet had 148 links beside 483 book attachments (M91), so the block was not split.
+  - **Counts:** 142 links checked (126 confirmed, 1 fixed, 13 rejected, 2 added), 5 conflicts, 83 cue verses dismissed; the other 3 cue verses are proofs of a conflict or an added link. No cue verse is left unhandled.
+  - **Confirmed:** Ezra's line to Aaron (Ezra 7:1–5); the leaders and builders "X בן Y" of Ezra 8, 10 and Neh 3, 6, 10–13; Nehemiah and Hanani <- Hacaliah; the high priests Jeshua, Joiakim, Eliashib, Joiada, Jaddua (Neh 12:10–11, 26); Tobiah's marriage to Shecaniah's daughter and Jehohanan's to Meshullam's (Neh 6:18); Joiada's son, Sanballat's son-in-law (13:28); the lines of Neh 11:4–17, 22 and 12:35.
+  - **Fixed:** Zechariah <- the Shelanites (Neh 11:5), as a `descendant`.
+  - **Rejected:** Jeshua and Joab <- Pahath-moab, Hezekiah <- Ater (family lists); TIPNR's Jeshua <- Jozadak of Ezra 10:18 (the high priest, filed under the course of I Chr 24:11); Shecaniah's daughter as Jehohanan's mother; the eight "brothers" of Neh 12:36 as Jonathan's sons.
+  - **Conflicts:** Ezra <- Seraiah, Azariah <- Meraioth (Ezra 7:3), Mahli <- Levi (Ezra 8:18), Johanan <- Eliashib (Neh 12:23), Jeroham <- Pashhur (I Chr 9:12), all `descendant`.
+  - **Added:** Shecaniah <- Jahaziel (Ezra 8:5); Micaiah <- Zaccur (Neh 12:35).
