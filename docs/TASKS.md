@@ -829,6 +829,44 @@ Phase 3 (M39c): API and viewer
 
 ✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
 
+## M88: The family tree, data (§16.63, D101; proposed F1)
+- [ ] `read_tipnr()` reads the family columns of a PERSON record (parents, siblings, partners, offspring, tribe, type, the `(?)` / `(a)` / `(d)` / `(f)` markers); places unchanged
+- [ ] `bsim genealogy` (`analysis/genealogy.py`): people with Hebrew Bible references, links from TIPNR, proof verses by cue, the curated files of `curation/genealogy/` applied with strict validation, one primary parent each, fragments attached to their tribe; `bsim genealogy-review <block>` writes the review sheet
+- [ ] DB `genealogy_persons`, `genealogy_links`, `genealogy_proofs`, `genealogy_conflicts` (+ `meta.genealogy`)
+- [ ] Tests: the family columns, proof ranking (Gen 21:3 for Isaac), curated overrides and conflicts, validation errors, no cycles (pytest); counts on the real build
+
+## M89: The family tree, viewer (§16.63, D101; proposed F2)
+- [ ] API `/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup?q=`
+- [ ] Viewer: Overview → Family tree (the tree with `d3-hierarchy`, collapse and expand anywhere, children by mother, cross-links, the markers and their legend, the side panel with proof verses, search, a bottom sheet on a phone, pinch and pan via a `usePanZoom` shared with the map); English and Hebrew
+- [ ] Tests: the API (pytest); the tree, collapsing, the panel, search, Hebrew (vitest); e2e on the fixture and the real build, axe
+
+## M90: The family tree, review block by block (§16.63; proposed F3)
+Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curation/genealogy/NN-<block>.yaml`, rebuild, `docs/genealogy/PROGRESS.md` updated.
+- [ ] 01 Gen 1–11
+- [ ] 02 Gen 12–25:18
+- [ ] 03 Gen 25:19–36
+- [ ] 04 Gen 37–50
+- [ ] 05 Exodus–Leviticus
+- [ ] 06 Numbers–Deuteronomy
+- [ ] 07 Joshua–Judges
+- [ ] 08 1–2 Samuel
+- [ ] 09 1–2 Kings
+- [ ] 10 Isaiah–Malachi
+- [ ] 11 Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes
+- [ ] 12 Esther, Daniel
+- [ ] 13 Ezra–Nehemiah
+- [ ] 14 1 Chr 1
+- [ ] 15 1 Chr 2–4
+- [ ] 16 1 Chr 5–6
+- [ ] 17 1 Chr 7–9
+- [ ] 18 1 Chr 10–29
+- [ ] 19 2 Chronicles
+
+## M91: The family tree, across books (§16.63; proposed F4)
+- [ ] The parallel genealogies against each other: Gen 36 / 1 Chr 1, Gen 46 / Num 26 / 1 Chr 2–8, Ezra 7 / 1 Chr 5:27–41, Samuel–Kings / Chronicles
+- [ ] Every tribe attachment checked; "Unattached" kept to the fragments with no known tribe
+- [ ] A People group in the jump box and a dossier entry for the people of a unit (the D99 / D100 pattern)
+
 ## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
 - [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
 - [x] Viewer: three dossier chips on unit pages, linking to the map of the unit, the cipher hits of the unit, and the verses of a verse's value or the reader's letter-value layer; English and Hebrew. `DossierKind` now comes from the API schema
@@ -901,3 +939,14 @@ Viewer
 - [x] V2 (done, M87) Dossier entries: a unit's gematria and cipher hits and its places
 
 Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 (geography needs P1's data first), then G2, P4, P5; G5 last.
+
+From the 2026-10-21 request: a family tree of everyone in the Hebrew Bible. Every link has its verse, conflicts in the text are marked, and the tree collapses at any node. The work is reviewed block by block and handed off in `docs/genealogy/PROGRESS.md`. Names are shown in Hebrew only (D5, D92).
+
+Family tree
+- [ ] F1 (M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
+- [ ] F2 (M89) Viewer: the collapsible tree, side panel, markers, search, responsive
+- [ ] F3 (M90) The review in 19 blocks, in canon order
+- [ ] F4 (M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
+- [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
+
+Suggested order: F1 → F2 → F3 → F4; F5 when asked.

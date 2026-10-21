@@ -438,6 +438,7 @@ The `pipeline` section drives `bsim all` (`bsim/pipeline.py`): the lexical verse
 | D52 | Serving and viewer 4 | List totals cached per (DB file, query) — indexes on the book columns made counts slower and pages no faster; full CSV export by paging the list handlers; search past `retrieval.k` and per book; verse picker per chapter; viewer: page jump and past-the-end recovery, per-route titles, focus reset and skip link, one tab stop per verse, keyboard heatmap / name graph, reduced motion, j / k between hits, copy link, word changes on verse hits, two-layer scatter |
 | D49 | Finer accents | Full disjunctive hierarchy (prose / poetic tables) for clause spans; cross-verse bicola scored with the halves model; parallelism typing by negation dropped (fails on Prov 10–15) for G² word pairs across parallel members (§16.18) |
 | D50 | Sound | Phoneme-level sounds (begadkefat merged, shin / sin apart); alliteration over content words with shape-conditioned chance and BH; rhyme as runs of distinct words ending alike (§16.19) |
+| D101 | Family tree | One tree of the Hebrew Bible's people from TIPNR's family columns. Each link carries proof verses found by cue (בן / בת in construct, ילד / הוליד, אבי / אם) and is reviewed block by block in committed `curation/genealogy/*.yaml` files (keys and references only). Bible-vs-Bible and "בן = descendant" conflicts are kept as readings, the first drawn; rabbinic identifications are deferred. One primary parent per person; fragments attach to their tribe by an unstated link. A collapsible tree (`d3-hierarchy`, the first visualization dependency) with a side panel; Hebrew names only (§16.63) |
 | D100 | Dossier: places, ciphers, letter values | Three dossier entries (D64). `places`: the places named in the unit's verses, the most named first, linking to the map of the unit. `ciphers`: the atbash / albam hits in its verses, linking to the hit list of the unit. `gematria`: letter values are a lookup, not a test (§16.53), so the entry reports what a reader of gematria looks for. These are the tradition's texts of `gematria.known` among the unit's words (whole words, the first with up to two prefix letters) and, for a verse, its value and how many other verses share it. It links a verse to the verses of its value, a longer unit to the reader's letter-value layer. אחד (13, of אחד = אהבה) stands in 694 verses, so many chapters show it |
 | D99 | Places in the jump box | A place's name in the jump box opens the map at it, the view moved to centre on it when it lies outside. Names are the headword and TIPNR's other Hebrew names whose Strong's number the text uses for that site (not its epithets, not the lemma's first word of a compound). A whole-name match comes before the words, unless a word that is not one of its names is in more verses; a prefix match comes after them (§16.57) |
 | D98 | Letters at equal skips | 27 names fixed in config, counted at skips 2–1,000 either way in the written letters (finals folded) of the Torah and of Genesis. A name's hits against its exact expectation under a shuffle of the scope's letters; R = the mean over names of log((hits + 0.5) / (expected + 0.5)). Controls: 199 letter shuffles, 199 verse-order shuffles, and blocks of the same length from the other books in canon order (each against its own expectation). The claim, no more hits than the controls, holds when no control has p ≤ 0.05. The tradition's sequences at the start of each book as known answers (§16.62) |
@@ -1418,3 +1419,45 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - A different list of names, or skips past 1,000, are other tests.
   - A rare name moves R in steps (יחזקאל is expected about once), so the shuffles' R falls in two clusters.
   - The letter string is ours: 4 letters fewer than the tradition's 304,805 (§16.55).
+
+### 16.63 The family tree (`bsim genealogy`, `analysis/genealogy.py`, `/genealogy`)
+Status: designed (F0); built in M88–M91. Progress and hand-off: `docs/genealogy/PROGRESS.md`.
+- **Why:** one tree of everyone the Hebrew Bible names, where each parent → child link is backed by the verse(s) that state it, can be collapsed at any node, and marks where the text disagrees with itself.
+- **The backbone:** TIPNR's PERSON records (already downloaded with `geo`, §16.56). Each record has these columns: parents (father + mother), siblings, partners, offspring, tribe or nation, and type (Male / Female / Group).
+  - Markers on the links: `(?)` an ambiguity decided by STEPBible, `(a)` an ancestor rather than the parent, `(d)` a group descended from them, `(f)` the founder of a place.
+  - Only people with Hebrew Bible references are kept.
+  - TIPNR gives no verse per link, and settles each conflict into one choice, so both of those come from here.
+- **Who is in the tree:**
+  - people;
+  - nations and clans (Gen 10, the tribes, founders), as group nodes;
+  - unnamed people needed as links (אשת חצרון, Lot's daughters), as `anon:` nodes;
+  - spouses and concubines, so each child sits under its mother.
+- **Proof verses, found automatically:**
+  - **candidates:** the verses where the mentions of both people fall, using TIPNR's references tied to the text by `resolve_mentions` (§16.56);
+  - **ranking by cues:** בן / בת in construct between the two names first, then the verbs ילד / הוליד / ותלד, then אבי / אם;
+  - **kept:** the top `genealogy.proof_k`, with the tokens of both names;
+  - a link with no candidate is `unproved`.
+- **The review:** block by block in Jewish canon order (19 blocks, `PROGRESS.md`), each checked against the Hebrew and kept in `curation/genealogy/NN-<block>.yaml`.
+  - The files hold person keys and Sefaria-style references in Hebrew numbering, never scripture text.
+  - A link is confirmed, fixed, added or rejected. Its kind is son, descendant, adopted, levirate, founder or unstated.
+  - A conflict lists its readings, each a parent and its verses, and the first reading is the one the tree draws.
+  - Conflicts in this round:
+    - `bible`: two passages disagree, e.g. Zerubbabel son of Shealtiel (Ezra 3:2) or of Pedaiah (1 Chr 3:19);
+    - `descendant`: בן spans generations, e.g. Jehu son of Nimshi (2 Kgs 9:2, 9:20).
+  - Rabbinic identifications are deferred.
+  - A key or reference that does not resolve stops the build.
+- **Placement:**
+  - Each person has one primary parent: the father if known, else the mother. Other parents and other readings are cross-links.
+  - A fragment that does not reach Adam is attached to its tribe or nation by an `unstated` link; with no known tribe it goes under "Unattached".
+  - A cycle, or two primary parents, is an error.
+- **Viewer** (Overview → Family tree, `/genealogy?p=`):
+  - **Layout:** a tidy tree laid out by `d3-hierarchy` over the expanded part only. Nodes are HTML buttons over an SVG edge layer, and nodes off screen are not drawn.
+  - **Collapsing:** any node collapses or expands, showing a count of the descendants it hides. Search opens the path to a person.
+  - **Children by mother** are grouped under mother headers.
+  - **Markers**, each a colour token plus a second cue:
+    - a conflict is amber with ⚠;
+    - a descendant link is violet and dashed;
+    - an unstated link is grey and dotted;
+    - a link not yet reviewed has a faint outline.
+  - **Side panel:** parents, spouses, children, siblings, the proof verses in Hebrew with both names marked, and the readings of a conflict.
+  - On a phone the panel becomes a bottom sheet. Names are shown in Hebrew only (D5, D92).
