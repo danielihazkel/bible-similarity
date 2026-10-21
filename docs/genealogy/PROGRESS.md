@@ -62,14 +62,14 @@ A person counts as reviewed when every parent link of theirs is checked.
 | F0 | Hand-off file, DESIGN §16.63 / D101, TASKS milestones | done |
 | M88 (F1) | Data: TIPNR family columns, `bsim genealogy`, automatic proofs, curated loader, `genealogy-review`, DB tables | done |
 | M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
-| M90 (F3) | Review block by block (below) | todo |
+| M90 (F3) | Review block by block (below) | in progress |
 | M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry | todo |
 
 Review blocks (M90), in Jewish canon order:
 
 | # | Block | Range | Status | Links checked | Conflicts |
 |---|---|---|---|---|---|
-| 01 | b01-gen-1-11 | Gen 1–11 | todo | | |
+| 01 | b01-gen-1-11 | Gen 1–11 | reviewed | 116 | 5 |
 | 02 | b02-gen-12-25 | Gen 12–25:18 | todo | | |
 | 03 | b03-gen-25-36 | Gen 25:19–36 | todo | | |
 | 04 | b04-gen-37-50 | Gen 37–50 | todo | | |
@@ -90,17 +90,17 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 01: `b01-gen-1-11` (Gen 1–11).** Follow **How to resume** step 2:
-- `uv run bsim genealogy-review b01-gen-1-11`, then read Gen 1–11 against the sheet (Gen 4, 5, 10, 11 are the genealogies);
-- write `curation/genealogy/01-b01-gen-1-11.yaml`;
-- rebuild, and check the block's people at `/genealogy` (Adam's line opens by default; the reviewed ones lose the dashed outline).
+**M90, block 02: `b02-gen-12-25` (Gen 12–25:18).** Follow **How to resume** step 2.
 
 Things to look at in this block:
-- Gen 10's nations are TIPNR groups (`kind: group`): confirm them as `founder` or `son` links as the text has them.
-- Cain's line (Gen 4) and Seth's (Gen 5) both have a Lamech and an Enoch: check the keys keep them apart.
+- Abraham's wives: Sarah, Hagar (Ishmael), Keturah (Gen 25:1–4) and the sons of the concubines (25:6); Lot's daughters and their sons Moab and Ben-ammi (19:36–38).
+- Nahor's sons by Milcah and by Reumah his concubine (22:20–24), and Bethuel's line to Rebekah and Laban.
+- Gen 20:12 (Sarai "בת אבי") is already the proof of Sarah ← Terah (block 01).
 
 ## Conflicts found
-None yet. Each entry: the child, the readings with their verses, the block that found it.
+Each entry: the child, the readings with their verses, the block that found it.
+- **Uz, Hul, Gether, Mash** (b01): sons of Aram (Gen 10:23), or listed with the sons of Shem (I Chr 1:17, which writes Mash as משך). Aram drawn.
+- **The Philistines** (b01): out of the Casluhim as Gen 10:14 runs, or from Caphtor (Amos 9:7, Jer 47:4). Casluhim drawn, both as `descendant`.
 
 ## Open questions
 - **Names TIPNR gives in another form than the reader expects:** Jacob's node reads ישראל (TIPNR's record is "Israel"). The review can set `he` in `people:` (block 03, Gen 25:19–36), or leave it and let the panel show both; decide there.
@@ -123,3 +123,12 @@ None yet. Each entry: the child, the readings with their verses, the block that 
   - **Pan and zoom:** `lib/panZoom.ts` (drag, pinch, Ctrl + wheel), shared with `GeoMap`, which gains pinch and Ctrl + wheel.
   - **Panel:** parents, spouses, children by mother, siblings, the people attached, each link's verses with both names marked, a conflict's readings; it can open or close everything below. On a phone it is a bottom sheet, and the search sits above it.
   - **Checked** on the real data in both languages, light and dark, desktop and phone: Jacob's sons under Leah, Bilhah, Zilpah and Rachel, with verses.
+- 2026-10-21, M90 block 01 (Gen 1–11): `curation/genealogy/01-b01-gen-1-11.yaml`, reviewed.
+  - 116 links checked: 104 confirmed (proofs chosen by hand where the sentence runs on: Gen 4:19–22, 10:13–18, 10:26–29), 7 fixed, 1 added, 4 rejected; 5 conflicts; 2 cue verses dismissed. No cue verse is left unhandled.
+  - **Added:** Shelah ← Arpachshad (Gen 10:24, 11:12–13); TIPNR had Shelah with no parent, under "unattached".
+  - **Rejected:** Naamah as Noah's wife and the mother of Shem, Ham and Japheth (TIPNR's `(?)`): Genesis Rabbah 23:3, not the text. Rabbinic identifications are deferred.
+  - **Fixed:** seven peoples of Gen 10 TIPNR marks as descended groups (Dodanim, Anamim, Casluhim, Caphtorim, Amorites, Arkites, Arvadites) are sons in the text (בני, ילד).
+  - **Kept, on one verse:** Sarah ← Terah rests on Abraham's "בת אבי היא" (Gen 20:12) alone; Gen 11:31 calls her Terah's כלה.
+  - **Names:** Dedan was רדן in TIPNR (now דדן); Dodanim had the Chronicles spelling (now דדנים).
+  - Cain's and Seth's lines keep their two Lamechs and two Enochs apart (separate TIPNR keys).
+

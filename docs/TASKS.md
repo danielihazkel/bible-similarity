@@ -847,7 +847,7 @@ Phase 3 (M39c): API and viewer
 
 ## M90: The family tree, review block by block (§16.63; proposed F3)
 Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curation/genealogy/NN-<block>.yaml`, rebuild, `docs/genealogy/PROGRESS.md` updated.
-- [ ] 01 Gen 1–11
+- [x] 01 Gen 1–11
 - [ ] 02 Gen 12–25:18
 - [ ] 03 Gen 25:19–36
 - [ ] 04 Gen 37–50

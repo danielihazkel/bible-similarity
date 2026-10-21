@@ -1,0 +1,173 @@
+# Block 01: Genesis 1-11 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b01-gen-1-11
+status: reviewed
+people:
+  # TIPNR's Hebrew: a typo, and the Chronicles spelling for a key of Genesis
+  - {key: "Dedan@Gen.10.7-1Ch", he: "דדן"}
+  - {key: "Dodanim@Gen.10.4-1Ch", he: "דדנים"}
+links:
+  - "Eve@Gen.3.20-1Ti <- Adam@Gen.2.19-Jud"
+  - "Cain@Gen.4.1-Jud <- Adam@Gen.2.19-Jud"
+  - "Cain@Gen.4.1-Jud <- Eve@Gen.3.20-1Ti"
+  - {child: "Abel@Gen.4.2-Heb", parent: "Eve@Gen.3.20-1Ti", status: confirmed, proof: [Genesis 4:1, Genesis 4:2]}
+  - "Enoch@Gen.4.17- <- Cain@Gen.4.1-Jud"
+  - "Irad@Gen.4.18 <- Enoch@Gen.4.17-"
+  - "Lamech@Gen.4.18- <- Methushael@Gen.4.18"
+  - "Mehujael@Gen.4.18 <- Irad@Gen.4.18"
+  - "Methushael@Gen.4.18 <- Mehujael@Gen.4.18"
+  - {child: "Jabal@Gen.4.20", parent: "Lamech@Gen.4.18-", status: confirmed, proof: [Genesis 4:19, Genesis 4:20]}
+  - "Jabal@Gen.4.20 <- Adah@Gen.4.19-"
+  - {child: "Jubal@Gen.4.21", parent: "Lamech@Gen.4.18-", status: confirmed, proof: [Genesis 4:19, Genesis 4:21]}
+  - {child: "Jubal@Gen.4.21", parent: "Adah@Gen.4.19-", status: confirmed, proof: [Genesis 4:20, Genesis 4:21]}
+  - {child: "Naamah@Gen.4.22", parent: "Lamech@Gen.4.18-", status: confirmed, proof: [Genesis 4:19, Genesis 4:22]}
+  - "Naamah@Gen.4.22 <- Zillah@Gen.4.19-"
+  - {child: "Tubal-cain@Gen.4.22", parent: "Lamech@Gen.4.18-", status: confirmed, proof: [Genesis 4:19, Genesis 4:22]}
+  - "Tubal-cain@Gen.4.22 <- Zillah@Gen.4.19-"
+  - "Lamech@Gen.4.18- <- Adah@Gen.4.19-"
+  - "Zillah@Gen.4.19- <- Lamech@Gen.4.18-"
+  - {child: "Abel@Gen.4.2-Heb", parent: "Adam@Gen.2.19-Jud", status: confirmed, proof: [Genesis 4:2, Genesis 4:25]}
+  - {child: "Seth@Gen.4.25-Luk", parent: "Eve@Gen.3.20-1Ti", status: confirmed, proof: [Genesis 4:25]}
+  - "Seth@Gen.4.25-Luk <- Adam@Gen.2.19-Jud"
+  - "Enosh@Gen.4.26-Luk <- Seth@Gen.4.25-Luk"
+  - "Kenan@Gen.5.9-Luk <- Enosh@Gen.4.26-Luk"
+  - "Mahalalel@Gen.5.12-Luk <- Kenan@Gen.5.9-Luk"
+  - "Jared@Gen.5.15-Luk <- Mahalalel@Gen.5.12-Luk"
+  - "Enoch@Gen.5.18-Jud <- Jared@Gen.5.15-Luk"
+  - "Methuselah@Gen.5.21-Luk <- Enoch@Gen.5.18-Jud"
+  - "Lamech@Gen.5.25-Luk <- Methuselah@Gen.5.21-Luk"
+  # Naamah as Noah's wife and the mother of his sons is midrash (Genesis Rabbah 23:3), not the text
+  - {child: "Noah@Gen.5.29-2Pe", parent: "Naamah@Gen.4.22", status: rejected}
+  - "Noah@Gen.5.29-2Pe <- Lamech@Gen.5.25-Luk"
+  - {child: "Ham@Gen.5.32-1Ch", parent: "Naamah@Gen.4.22", status: rejected}
+  - {child: "Japheth@Gen.5.32-1Ch", parent: "Naamah@Gen.4.22", status: rejected}
+  - {child: "Shem@Gen.5.32-Luk", parent: "Naamah@Gen.4.22", status: rejected}
+  - {child: "Ham@Gen.5.32-1Ch", parent: "Noah@Gen.5.29-2Pe", status: confirmed, proof: [Genesis 5:32, Genesis 6:10, Genesis 7:13, Genesis 9:18, Genesis 10:1]}
+  - {child: "Japheth@Gen.5.32-1Ch", parent: "Noah@Gen.5.29-2Pe", status: confirmed, proof: [Genesis 5:32, Genesis 6:10, Genesis 7:13, Genesis 9:18, Genesis 10:1]}
+  - {child: "Shem@Gen.5.32-Luk", parent: "Noah@Gen.5.29-2Pe", status: confirmed, proof: [Genesis 5:32, Genesis 6:10, Genesis 7:13, Genesis 9:18, Genesis 10:1]}
+  - "Gomer@Gen.10.2-Ezk <- Japheth@Gen.5.32-1Ch"
+  - "Javan@Gen.10.2-Col <- Japheth@Gen.5.32-1Ch"
+  - "Madai@Gen.10.2-1Ch <- Japheth@Gen.5.32-1Ch"
+  - "Magog@Gen.10.2-1Ch <- Japheth@Gen.5.32-1Ch"
+  - "Meshech@Gen.10.2-1Ch <- Japheth@Gen.5.32-1Ch"
+  - "Tiras@Gen.10.2-1Ch <- Japheth@Gen.5.32-1Ch"
+  - "Tubal@Gen.10.2-1Ch <- Japheth@Gen.5.32-1Ch"
+  - "Ashkenaz@Gen.10.3-1Ch <- Gomer@Gen.10.2-Ezk"
+  - "Riphath@Gen.10.3-1Ch <- Gomer@Gen.10.2-Ezk"
+  - "Togarmah@Gen.10.3-1Ch <- Gomer@Gen.10.2-Ezk"
+  # the table of nations: TIPNR's "descended group" is, in the text, a son (בני, ילד)
+  - {child: "Dodanim@Gen.10.4-1Ch", parent: "Javan@Gen.10.2-Col", kind: son, status: fixed, proof: [Genesis 10:4, I Chronicles 1:7]}
+  - "Elishah@Gen.10.4-1Ch <- Javan@Gen.10.2-Col"
+  - "Kittim@Gen.10.4-1Ch <- Javan@Gen.10.2-Col"
+  - "Tarshish@Gen.10.4-1Ch <- Javan@Gen.10.2-Col"
+  - {child: "Canaan@Gen.9.18-1Ch", parent: "Ham@Gen.5.32-1Ch", status: confirmed, proof: [Genesis 9:18, Genesis 9:22, Genesis 10:6]}
+  - "Cush@Gen.10.6-1Ch <- Ham@Gen.5.32-1Ch"
+  - "Egypt@Gen.10.6-1Ch <- Ham@Gen.5.32-1Ch"
+  - "Put@Gen.10.6-1Ch <- Ham@Gen.5.32-1Ch"
+  - "Dedan@Gen.10.7-1Ch <- Raamah@Gen.10.7-1Ch"
+  - "Havilah@Gen.10.7-1Ch <- Cush@Gen.10.6-1Ch"
+  - "Raamah@Gen.10.7-1Ch <- Cush@Gen.10.6-1Ch"
+  - "Sabtah@Gen.10.7-1Ch <- Cush@Gen.10.6-1Ch"
+  - "Sabteca@Gen.10.7-1Ch <- Cush@Gen.10.6-1Ch"
+  - "Seba@Gen.10.7-1Ch <- Cush@Gen.10.6-1Ch"
+  - "Sheba@Gen.10.7-Jol <- Raamah@Gen.10.7-1Ch"
+  - "Nimrod@Gen.10.8-Mic <- Cush@Gen.10.6-1Ch"
+  - {child: "Anamim@Gen.10.13-1Ch", parent: "Egypt@Gen.10.6-1Ch", kind: son, status: fixed, proof: [Genesis 10:13]}
+  - "Lehabim@Gen.10.13-1Ch <- Egypt@Gen.10.6-1Ch"
+  - "Ludim@Gen.10.13-1Ch <- Egypt@Gen.10.6-1Ch"
+  - "Naphtuhim@Gen.10.13-1Ch <- Egypt@Gen.10.6-1Ch"
+  - {child: "Caphtorim@Gen.10.14-1Ch", parent: "Egypt@Gen.10.6-1Ch", kind: son, status: fixed, proof: [Genesis 10:13, Genesis 10:14]}
+  - {child: "Casluhim@Gen.10.14-1Ch", parent: "Egypt@Gen.10.6-1Ch", kind: son, status: fixed, proof: [Genesis 10:13, Genesis 10:14]}
+  - {child: "Pathrusim@Gen.10.14-1Ch", parent: "Egypt@Gen.10.6-1Ch", status: confirmed, proof: [Genesis 10:13, Genesis 10:14]}
+  - "Heth@Gen.10.15-Ezk <- Canaan@Gen.9.18-1Ch"
+  - "Sidon@Gen.10.15-1Ch <- Canaan@Gen.9.18-1Ch"
+  - {child: "Amorites@Gen.10.16-Amo", parent: "Canaan@Gen.9.18-1Ch", kind: son, status: fixed, proof: [Genesis 10:15, Genesis 10:16]}
+  - {child: "Girgashite@Gen.10.16-Neh", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:16]}
+  - {child: "Jebusites@Gen.10.16-Zec", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:16]}
+  - {child: "Arkites@Gen.10.17-1Ch", parent: "Canaan@Gen.9.18-1Ch", kind: son, status: fixed, proof: [Genesis 10:15, Genesis 10:17]}
+  - {child: "Hivites@Gen.10.17-2Ch", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:17]}
+  - {child: "Sinites@Gen.10.17-1Ch", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:17]}
+  - {child: "Arvadites@Gen.10.18-1Ch", parent: "Canaan@Gen.9.18-1Ch", kind: son, status: fixed, proof: [Genesis 10:15, Genesis 10:18]}
+  - {child: "Hamathites@Gen.10.18-1Ch", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:18]}
+  - {child: "Zemarites@Gen.10.18-1Ch", parent: "Canaan@Gen.9.18-1Ch", status: confirmed, proof: [Genesis 10:15, Genesis 10:18]}
+  - "Aram@Gen.10.22-1Ch <- Shem@Gen.5.32-Luk"
+  - {child: "Arpachshad@Gen.10.22-Luk", parent: "Shem@Gen.5.32-Luk", status: confirmed, proof: [Genesis 10:22, Genesis 11:10, Genesis 11:11]}
+  - "Asshur@Gen.10.22-1Ch <- Shem@Gen.5.32-Luk"
+  - "Elam@Gen.10.22-1Ch <- Shem@Gen.5.32-Luk"
+  - "Lud@Gen.10.22-Ezk <- Shem@Gen.5.32-Luk"
+  - {child: "Eber@Gen.10.21-Luk", parent: "Shelah@Gen.10.24-Luk", status: confirmed, proof: [Genesis 10:24, Genesis 11:14, Genesis 11:15]}
+  - "Joktan@Gen.10.25-1Ch <- Eber@Gen.10.21-Luk"
+  - "Almodad@Gen.10.26-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Hazarmaveth@Gen.10.26-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Jerah@Gen.10.26-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Sheleph@Gen.10.26-1Ch <- Joktan@Gen.10.25-1Ch"
+  - {child: "Diklah@Gen.10.27-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:27]}
+  - {child: "Hadoram@Gen.10.27-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:27]}
+  - {child: "Uzal@Gen.10.27-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:27]}
+  - {child: "Abimael@Gen.10.28-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:28]}
+  - {child: "Obal@Gen.10.28-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:28]}
+  - {child: "Sheba@Gen.10.28-1Ch", parent: "Joktan@Gen.10.25-1Ch", status: confirmed, proof: [Genesis 10:26, Genesis 10:28]}
+  - "Havilah@Gen.10.29-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Jobab@Gen.10.29-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Ophir@Gen.10.29-1Ch <- Joktan@Gen.10.25-1Ch"
+  - "Peleg@Gen.10.25-Luk <- Eber@Gen.10.21-Luk"
+  - "Reu@Gen.11.18-Luk <- Peleg@Gen.10.25-Luk"
+  - "Serug@Gen.11.20-Luk <- Reu@Gen.11.18-Luk"
+  - "Nahor@Gen.11.22-Luk <- Serug@Gen.11.20-Luk"
+  - "Terah@Gen.11.24-Luk <- Nahor@Gen.11.22-Luk"
+  - "Abraham@Gen.11.26-1Pe <- Terah@Gen.11.24-Luk"
+  - "Haran@Gen.11.26- <- Terah@Gen.11.24-Luk"
+  - "Nahor@Gen.11.26- <- Terah@Gen.11.24-Luk"
+  - "Nahor@Gen.11.26- <- Milcah@Gen.11.29-"
+  - "Iscah@Gen.11.29 <- Haran@Gen.11.26-"
+  - "Milcah@Gen.11.29- <- Haran@Gen.11.26-"
+  - "Sarah@Gen.11.29-1Pe <- Abraham@Gen.11.26-1Pe"
+  - "Lot@Gen.11.27-2Pe <- Haran@Gen.11.26-"
+  # Sarai, Terah's daughter, on Abraham's word alone: "בת אבי היא אך לא בת אמי"
+  - {child: "Sarah@Gen.11.29-1Pe", parent: "Terah@Gen.11.24-Luk", status: confirmed, proof: [Genesis 20:12]}
+  # TIPNR has no parent for Shelah
+  - {child: "Shelah@Gen.10.24-Luk", parent: "Arpachshad@Gen.10.22-Luk", kind: son, status: added, proof: [Genesis 10:24, Genesis 11:12, Genesis 11:13]}
+conflicts:
+  - kind: bible
+    child: "Uz@Gen.10.23-1Ch"
+    readings:
+      - {parent: "Aram@Gen.10.22-1Ch", proof: [Genesis 10:23]}
+      - {parent: "Shem@Gen.5.32-Luk", proof: [I Chronicles 1:17]}
+    note:
+      en: "Genesis 10:23 makes them the sons of Aram; I Chronicles 1:17 lists them with the sons of Shem."
+      he: "בראשית י:כג: בני ארם; דברי הימים א א:יז מונה אותם בבני שם."
+  - kind: bible
+    child: "Hul@Gen.10.23-1Ch"
+    readings:
+      - {parent: "Aram@Gen.10.22-1Ch", proof: [Genesis 10:23]}
+      - {parent: "Shem@Gen.5.32-Luk", proof: [I Chronicles 1:17]}
+    note:
+      en: "Genesis 10:23 makes them the sons of Aram; I Chronicles 1:17 lists them with the sons of Shem."
+      he: "בראשית י:כג: בני ארם; דברי הימים א א:יז מונה אותם בבני שם."
+  - kind: bible
+    child: "Gether@Gen.10.23-1Ch"
+    readings:
+      - {parent: "Aram@Gen.10.22-1Ch", proof: [Genesis 10:23]}
+      - {parent: "Shem@Gen.5.32-Luk", proof: [I Chronicles 1:17]}
+    note:
+      en: "Genesis 10:23 makes them the sons of Aram; I Chronicles 1:17 lists them with the sons of Shem."
+      he: "בראשית י:כג: בני ארם; דברי הימים א א:יז מונה אותם בבני שם."
+  - kind: bible
+    child: "Mash@Gen.10.23-1Ch"
+    readings:
+      - {parent: "Aram@Gen.10.22-1Ch", proof: [Genesis 10:23]}
+      - {parent: "Shem@Gen.5.32-Luk", proof: [I Chronicles 1:17]}
+    note:
+      en: "Genesis 10:23 makes them the sons of Aram; I Chronicles 1:17 lists them with the sons of Shem, and writes Mash as משך."
+      he: "בראשית י:כג: בני ארם; דברי הימים א א:יז מונה אותם בבני שם, וכותב משך במקום מש."
+  - kind: bible
+    child: "Philistine@Gen.10.14-1Ch"
+    readings:
+      - {parent: "Casluhim@Gen.10.14-1Ch", kind: descendant, proof: [Genesis 10:14]}
+      - {parent: "Caphtorim@Gen.10.14-1Ch", kind: descendant, proof: [Amos 9:7, Jeremiah 47:4]}
+    note:
+      en: "Genesis 10:14, as the verse runs, brings the Philistines out of the Casluhim; Amos 9:7 and Jeremiah 47:4 bring them from Caphtor."
+      he: "בראשית י:יד, כסדר הפסוק: הפלשתים יצאו מן הכסלחים; עמוס ט:ז וירמיהו מז:ד: מכפתור."
+missed:
+  # Gen 7:13, 9:18, 11:11 and 11:15 are proofs above
+  - {ref: Genesis 10:21, reason: "Shem as the forefather of all the sons of Eber, and Japheth's brother: no parent link"}
+  - {ref: Genesis 10:32, reason: "the closing line of the table of nations"}
