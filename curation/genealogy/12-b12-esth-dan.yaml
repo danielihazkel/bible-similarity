@@ -1,0 +1,49 @@
+# Block 12: Esther, Daniel (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b12-esth-dan
+status: reviewed
+links:
+  - {child: "Vashti@Est.1.9-", parent: "Ahasuerus@Ezr.4.6-Dan", role: spouse, status: confirmed, proof: [Esther 1:9, Esther 1:19]}
+  - "Jair@Est.2.5 <- Shimei@Est.2.5"
+  - "Mordecai@Est.2.5- <- Jair@Est.2.5"
+  - "Shimei@Est.2.5 <- Kish@Est.2.5"
+  - "Esther@Est.2.7- <- Abihail@Est.2.15-"
+  - "Haman@Est.3.1- <- Hammedatha@Est.3.1-"
+  - "Zeresh@Est.5.10- <- Haman@Est.3.1-"
+  - {child: "Aspatha@Est.9.7", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:7, Esther 9:10]}
+  - {child: "Aspatha@Est.9.7", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Dalphon@Est.9.7", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:7, Esther 9:10]}
+  - {child: "Dalphon@Est.9.7", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Parshandatha@Est.9.7", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:7, Esther 9:10]}
+  - {child: "Parshandatha@Est.9.7", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Adalia@Est.9.8", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:8, Esther 9:10]}
+  - {child: "Adalia@Est.9.8", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Aridatha@Est.9.8", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:8, Esther 9:10]}
+  - {child: "Aridatha@Est.9.8", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Poratha@Est.9.8", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:8, Esther 9:10]}
+  - {child: "Poratha@Est.9.8", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Aridai@Est.9.9", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:9, Esther 9:10]}
+  - {child: "Aridai@Est.9.9", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Arisai@Est.9.9", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:9, Esther 9:10]}
+  - {child: "Arisai@Est.9.9", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Parmashta@Est.9.9", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:9, Esther 9:10]}
+  - {child: "Parmashta@Est.9.9", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Vaizatha@Est.9.9", parent: "Haman@Est.3.1-", status: confirmed, proof: [Esther 9:9, Esther 9:10]}
+  - {child: "Vaizatha@Est.9.9", parent: "Zeresh@Est.5.10-", status: rejected}
+  - {child: "Belshazzar@Dan.5.1-", parent: "Nebuchadnezzar@2Ki.24.1-Dan", status: confirmed, proof: [Daniel 5:2, Daniel 5:11, Daniel 5:18, Daniel 5:22]}
+  - {child: "Darius@Dan.5.31-", parent: "Vashti@Est.1.9-", status: rejected}
+  - "Darius@Dan.5.31- <- Ahasuerus@Ezr.4.6-Dan"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Ahasuerus@Ezr.4.6-Dan", parent: "Darius@Ezr.4.5-Zec", status: rejected}
+  - {child: "Artaxerxes@Ezr.4.7-Neh", parent: "Ahasuerus@Ezr.4.6-Dan", status: rejected}
+  - {child: "Artaxerxes@Ezr.4.7-Neh", parent: "Vashti@Est.1.9-", status: rejected}
+  # Esther, Ahasuerus's wife and Mordecai's adopted daughter
+  - {child: "Esther@Est.2.7-", parent: "Ahasuerus@Ezr.4.6-Dan", role: spouse, status: added, proof: [Esther 2:16, Esther 2:17]}
+  - {child: "Esther@Est.2.7-", parent: "Mordecai@Est.2.5-", role: father, kind: adopted, status: added, proof: [Esther 2:7, Esther 2:15]}
+missed:
+  - {ref: Esther 9:12, reason: "Haman's ten sons: proved on 9:7-10"}
+  - {ref: Esther 9:13, reason: "Haman's ten sons: proved on 9:7-10"}
+  - {ref: Esther 9:14, reason: "Haman's ten sons: proved on 9:7-10"}
+  - {ref: Esther 9:24, reason: "Haman son of Hammedatha: proved on 3:1"}
+  - {ref: Daniel 1:3, reason: "מבני ישראל ומזרע המלוכה: the people"}
+  - {ref: Daniel 1:6, reason: "מבני יהודה: Daniel and his companions, of Judah; no parents named"}
+  - {ref: Daniel 11:41, reason: "בני עמון: a people"}

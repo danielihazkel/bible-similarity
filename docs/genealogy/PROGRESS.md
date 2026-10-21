@@ -80,7 +80,7 @@ Review blocks (M90), in Jewish canon order:
 | 09 | b09-kings | 1–2 Kings | reviewed | 169 | 4 |
 | 10 | b10-latter-prophets | Isaiah–Malachi | reviewed | 68 | 2 |
 | 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | reviewed | 25 | 0 |
-| 12 | b12-esth-dan | Esther, Daniel | todo | | |
+| 12 | b12-esth-dan | Esther, Daniel | reviewed | 35 | 0 |
 | 13 | b13-ezra-nehemiah | Ezra–Nehemiah | todo | | |
 | 14 | b14-1chr-1 | 1 Chr 1 | todo | | |
 | 15 | b15-1chr-2-4 | 1 Chr 2–4 | todo | | |
@@ -90,19 +90,17 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 12: `b12-esth-dan` (Esther, Daniel).** Follow **How to resume** step 2.
+**M90, block 13: `b13-ezra-nehemiah` (Ezra–Nehemiah).** Follow **How to resume** step 2. This block has many "X בן Y" lists; check the sheet's size first, and split it here (Ezra / Nehemiah) if it is too big for one session.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Esther:**
-  - Mordecai "בן יאיר בן שמעי בן קיש איש ימיני" (2:5). TIPNR's Kish here is his own key, not Saul's father; the text does not say.
-  - Esther "בת אביחיל דד מרדכי" (2:15, 9:29), and "לקחה מרדכי לו לבת" (2:7): an `adopted` link to Mordecai beside her father (as Moses in block 05).
-  - Ahasuerus's wives Vashti and Esther (2:17); Haman "בן המדתא האגגי" (3:1), his wife Zeresh (5:10, 14, 6:13) and his ten sons (9:7–10). "האגגי": whether Agag of I Sam 15 is meant is not stated.
-- **Daniel:**
-  - Belshazzar and Nebuchadnezzar "אביך" (5:2, 11, 13, 18, 22): TIPNR makes him a son. Perhaps `descendant`; the text gives no other father.
-  - "דריוש בן אחשורוש מזרע מדי" (9:1). TIPNR gives Darius the Mede the parents Ahasuerus and **Vashti**, which no verse says, and makes Ahasuerus the son of the Darius of Ezra 4:5 (Ezra 4:6 names no parent). Both are likely rejections; the Ezra one is block 13's.
-  - Daniel, Hananiah, Mishael and Azariah "מבני יהודה" (1:6): no parents.
+- **Ezra's line** (Ezra 7:1–5) back to Aaron, against I Chr 5:29–41: "עזרא בן שריה" skips the generations after Seraiah, who was killed in Nebuchadnezzar's days (II Kgs 25:18–21), a `descendant` conflict. Ezra 7:3 also leaves out the six names between Azariah and Meraioth of I Chr 5:33–37 (block 16).
+- **The returned leaders:** Jeshua son of Jozadak (Ezra 3:2, written ישוע / יוצדק), Zerubbabel (block 10's conflict), Nehemiah son of Hacaliah (Neh 1:1); the high priests Jeshua, Joiakim, Eliashib, Joiada, Jonathan, Jaddua (Neh 12:10–11, 22).
+- **"בני X" in the lists of Ezra 2, 8, 10 and Neh 7, 10–12** are mostly families or clans, not sons; dismiss them as such unless a link is meant.
+- **Marriages:** Tobiah, son-in-law of Shecaniah son of Arah, and his son Jehohanan married Meshullam son of Berechiah's daughter (Neh 6:18); a grandson of Eliashib, son-in-law of Sanballat (13:28); Barzillai's descendants by "מבנות ברזלי הגלעדי" (Ezra 2:61, Neh 7:63).
+- **Zechariah** "לעדיא זכריה" (Neh 12:16), the head of Iddo's family: see block 10's conflict.
+- Ahasuerus <- Darius and Artaxerxes <- Ahasuerus and Vashti (Ezra 4:5–7) are already rejected in block 12.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -205,6 +203,13 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Salmon is "שלמה" (4:20), "שלמון" (4:21) and "שלמא" (I Chr 2:11), one key.
 - **Added** (b11): Job's wife (2:9, 19:17) as a spouse only, since the mother of his children is not named; Lemuel's mother, "אשר יסרתו אמו" (Prov 31:1). Job's seven sons are not named.
 - **For M91** (b11): Cush "בן ימיני" (Ps 7:1) is of Benjamin, but is attached only to the book. TIPNR's Buzites <- Ram (Job 32:2, "הבוזי ממשפחת רם") is kept as a `descendant`; Buz son of Nahor (Gen 22:21) is not linked. "קהלת בן דוד" (Eccl 1:1) has no key.
+- **Esther and Daniel** (b12):
+  - Esther is "בת אביחיל דד מרדכי" (2:15) and "בת דדו" (2:7): Abihail is Mordecai's uncle, but no link from Abihail to Shimei or Kish is recorded, as "דוד" does not say on which side.
+  - Mordecai's forefather Kish (2:5) is TIPNR's own key, not Saul's father; the text does not say.
+  - Haman "האגגי" (3:1): whether Agag of I Sam 15 is meant is not stated, and nothing is linked.
+  - Belshazzar is kept as Nebuchadnezzar's son: "נבוכדנצר אבוהי" (Dan 5:2, 11, 18), "ואנת ברה" (5:22). No other father is named, so no conflict.
+  - "דריוש בן אחשורוש מזרע מדי" (Dan 9:1) is kept on TIPNR's one Ahasuerus, who is also Esther's king; an identification of TIPNR's.
+  - Daniel and his companions are "מבני יהודה" (Dan 1:6) but attached only to the book (M91).
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -334,3 +339,8 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Rejected:** Elimelech <- Salma, Ram <- Ephrathah (TIPNR, no verse).
   - **Added:** Job's wife, Lemuel's mother.
   - The two Rahab links on the sheet stay rejected, as block 07 decided.
+- 2026-10-21, M90 block 12 (Esther, Daniel): `curation/genealogy/12-b12-esth-dan.yaml`, reviewed.
+  - **Counts:** 35 links checked (19 confirmed, 14 rejected, 2 added), no conflicts, 7 cue verses dismissed. No cue verse is left unhandled.
+  - **Confirmed:** Mordecai's line to Kish (Est 2:5); Esther <- Abihail; Ahasuerus and Vashti (1:9, 19); Haman <- Hammedatha, Zeresh his wife, his ten sons (9:7–10); Belshazzar <- Nebuchadnezzar (Dan 5); Darius <- Ahasuerus (Dan 9:1).
+  - **Rejected** (TIPNR, no verse): Zeresh as the mother of Haman's ten sons (marked doubtful); Vashti as the mother of Darius the Mede and of Artaxerxes; Ahasuerus <- Darius and Artaxerxes <- Ahasuerus (Ezra 4:5–7 is a succession of kings).
+  - **Added:** Esther as Ahasuerus's wife (2:16–17), and Esther <- Mordecai, `adopted` ("לקחה מרדכי לו לבת", 2:7, 15); Abihail stays her drawn father.

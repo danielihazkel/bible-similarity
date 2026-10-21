@@ -858,7 +858,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 09 1–2 Kings
 - [x] 10 Isaiah–Malachi
 - [x] 11 Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes
-- [ ] 12 Esther, Daniel
+- [x] 12 Esther, Daniel
 - [ ] 13 Ezra–Nehemiah
 - [ ] 14 1 Chr 1
 - [ ] 15 1 Chr 2–4
