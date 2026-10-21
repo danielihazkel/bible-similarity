@@ -850,7 +850,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 01 Gen 1–11
 - [x] 02 Gen 12–25:18
 - [x] 03 Gen 25:19–36
-- [ ] 04 Gen 37–50
+- [x] 04 Gen 37–50
 - [ ] 05 Exodus–Leviticus
 - [ ] 06 Numbers–Deuteronomy
 - [ ] 07 Joshua–Judges

@@ -72,7 +72,7 @@ Review blocks (M90), in Jewish canon order:
 | 01 | b01-gen-1-11 | Gen 1–11 | reviewed | 116 | 5 |
 | 02 | b02-gen-12-25 | Gen 12–25:18 | reviewed | 84 | 0 |
 | 03 | b03-gen-25-36 | Gen 25:19–36 | reviewed | 108 | 3 |
-| 04 | b04-gen-37-50 | Gen 37–50 | todo | | |
+| 04 | b04-gen-37-50 | Gen 37–50 | reviewed | 81 | 0 |
 | 05 | b05-exod-lev | Exodus–Leviticus | todo | | |
 | 06 | b06-num-deut | Numbers–Deuteronomy | todo | | |
 | 07 | b07-josh-judg | Joshua–Judges | todo | | |
@@ -90,15 +90,13 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 04: `b04-gen-37-50` (Gen 37–50).** Follow **How to resume** step 2.
+**M90, block 05: `b05-exod-lev` (Exodus–Leviticus).** Follow **How to resume** step 2.
 
 Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file.** Once a file proves links with this block's verses, the regenerated sheet lists them too, and a generator run on it doubles them (block 03 hit this).
-- The block's people's links on later sheets (1 Chronicles, Numbers 26): check them here as before.
-- Gen 38: Judah, Bath-shua (an unnamed `anon` in TIPNR? check), Er, Onan, Shelah, Tamar, Perez and Zerah.
-- Gen 41:45–52: Asenath daughter of Potiphera; Manasseh and Ephraim.
-- Gen 46:8–27, the seventy: the grandsons of Jacob, and where Numbers 26 and 1 Chronicles 4–8 name them differently (Jemuel / Nemuel, Ohad, Jachin / Jarib, Zohar / Zerah; Benjamin's ten sons against Num 26:38–40 and 1 Chr 7:6, 8:1–2) — `bible` conflicts or one person with several names. Hezron and Hamul, Perez's sons, born in Canaan's reckoning.
-- Simeon's Canaanite wife (46:10) and Joseph's Egyptian line.
+- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
+- Exodus 6:14–25: the genealogy of Reuben, Simeon and Levi down to Aaron's and Korah's sons, which repeats Gen 46 (Ohad again, Zohar) and adds Levi's grandsons: Gershon, Kohath and Merari's sons, Amram and Jochebed (his father's sister, 6:20), Aaron and Elisheba, Nadab, Abihu, Eleazar, Ithamar, Phinehas.
+- Moses: Zipporah daughter of Jethro / Reuel (Exod 2:18, 3:1; Num 10:29 "חבב בן רעואל"): a `bible` conflict or one man with two names; Gershom and Eliezer (2:22, 18:3–4).
+- Bezalel son of Uri son of Hur (31:2), Oholiab son of Ahisamach (31:6); Nadab and Abihu, Mishael and Elzaphan (Lev 10:4); Shelomith daughter of Dibri (Lev 24:11).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -111,6 +109,8 @@ Each entry: the child, the readings with their verses, the block that found it.
 ## Open questions
 - **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
 - **Esau's wives** follow TIPNR's identifications: Basemath daughter of Elon (Gen 26:34) is Adah (36:2), Mahalath (28:9) is Basemath daughter of Ishmael (36:3). The fathers agree, the names differ; no conflict recorded, only noted in the review file.
+- **One person in one list, two in another** (no conflict recordable): Gen 46:21 gives Naaman and Ard as Benjamin's sons, Num 26:40 as Bela's sons, and TIPNR has two people each (`Naaman@Gen.46.21-1Ch` / `Naaman@Num.26.40-1Ch`). A conflict needs one key with two parents; merging TIPNR keys is not supported. Revisit in M91, with Benjamin's sons in Num 26:38–40 and 1 Chr 7:6, 8:1–5.
+- **Adoption** (for M91): Jacob takes Ephraim and Manasseh as his own (Gen 48:5). An `adopted` father link beside Joseph would compete with him for the drawn parent; decide how adoption shows in the tree.
 - The skeleton is ~650 KB of JSON (gzipped in transit), fetched once per visit. Fine now; if M91 adds fields, consider a compact array form.
 - `bsim places` drops TIPNR's references marked by their occurrence (`Exo.7.10a`, 15% of all) and doesn't map English numbering (`data/kjv.py`). Fixing both might improve the gazetteer, but it is outside this series: raise it with the user, don't just do it.
 - 1,055 people are "unattached", mostly people with no family in the text. Most become reachable through search; the reviews may attach some.
@@ -151,4 +151,12 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Rejected:** TIPNR's husband of Matred, and Mehetabel <- him: "מהיטבאל בת מטרד" names a mother only.
   - **Names:** Jacob now reads יעקב (TIPNR's record is "Israel"; search finds him as יעקב). Hadad of Gen 36:39 reads הדר, as Genesis writes it.
   - Kept: TIPNR's unnamed wife of Eliphaz, the mother of his sons other than Amalek (Timna was his concubine, 36:12).
+- 2026-10-21, M90 block 04 (Gen 37–50): `curation/genealogy/04-b04-gen-37-50.yaml`, reviewed.
+  - 81 links checked: 79 confirmed, 1 added, 1 rejected; 22 cue verses dismissed (Jacob's sons together, the counts of the seventy, links checked in block 03). No cue verse is left unhandled.
+  - **Picked up from later sheets:** Gen 38 (Bath-shua <- Shua, her three sons, Shelah <- Judah, Perez and Zerah <- Judah and Tamar), Manasseh and Ephraim <- Joseph (41:50–52, 46:20, 48:5), and the Gen 46 sons whose best verse was in Exodus, Numbers or 1 Chronicles (Carmi, Simeon's Jachin, Zohar and Shaul, Levi's three, Asher's Imnah and Serah).
+  - **Rejected:** Tamar as Judah's wife: she bore his sons, but "ולא יסף עוד לדעתה" (38:26).
+  - **Added:** Tamar and Onan, the levirate (38:8–9).
+  - **Names:** Simeon's Zohar reads צחר (TIPNR had זרח from Numbers and Chronicles), Benjamin's Ehi אחי (TIPNR had אחירם from Numbers), Simeon's unnamed wife הכנענית.
+  - Kept: TIPNR's unnamed wife of Simeon, the mother of his sons other than Shaul "בן הכנענית" (46:10).
+  - Left open: Machir's mother, the Aramitess (I Chr 7:14), for block 17.
 

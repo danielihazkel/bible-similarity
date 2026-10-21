@@ -1,0 +1,114 @@
+# Block 04: Genesis 37-50 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b04-gen-37-50
+status: reviewed
+people:
+  - {key: "Zerah@Gen.46.10-1Ch", he: "צחר"}  # Genesis 46:10 (Numbers 26:13, I Chronicles 4:24 זרח)
+  - {key: "Ahiram@Gen.46.21-1Ch", he: "אחי"}  # Genesis 46:21 (Numbers 26:38 אחירם)
+  - {key: "Canaanite_woman@Gen.46.10-Exo", he: "הכנענית"}  # "שאול בן הכנענית": not named
+links:
+  - {child: "Judah@Gen.29.35-Rev", parent: "Bath-shua@Gen.38.2-1Ch", role: spouse, status: confirmed, proof: [Genesis 38:2, Genesis 38:12]}
+  - {child: "Tamar@Gen.38.6-Mat", parent: "Judah@Gen.29.35-Rev", role: spouse, status: rejected}
+  - {child: "Tamar@Gen.38.6-Mat", parent: "Er@Gen.38.3-1Ch", role: spouse, status: confirmed, proof: [Genesis 38:6]}
+  - {child: "Joseph@Gen.30.24-Rev", parent: "Asenath@Gen.41.45-", role: spouse, status: confirmed, proof: [Genesis 41:45, Genesis 41:50]}
+  - "Asenath@Gen.41.45- <- Potiphera@Gen.41.45-"
+  - "Hanoch@Gen.46.9-1Ch <- Reuben@Gen.29.32-Rev"
+  - "Hezron@Gen.46.9-1Ch <- Reuben@Gen.29.32-Rev"
+  - "Pallu@Gen.46.9-1Ch <- Reuben@Gen.29.32-Rev"
+  - {child: "Jachin@Gen.46.10-1Ch", parent: "a_wife_of_Simeon@Gen.46.10", status: confirmed, proof: [Genesis 46:10]}
+  - "Jamin@Gen.46.10-1Ch <- Simeon@Gen.29.33-Rev"
+  - {child: "Jamin@Gen.46.10-1Ch", parent: "a_wife_of_Simeon@Gen.46.10", status: confirmed, proof: [Genesis 46:10]}
+  - "Jemuel@Gen.46.10-1Ch <- Simeon@Gen.29.33-Rev"
+  - {child: "Jemuel@Gen.46.10-1Ch", parent: "a_wife_of_Simeon@Gen.46.10", status: confirmed, proof: [Genesis 46:10]}
+  - "Ohad@Gen.46.10-Exo <- Simeon@Gen.29.33-Rev"
+  - {child: "Ohad@Gen.46.10-Exo", parent: "a_wife_of_Simeon@Gen.46.10", status: confirmed, proof: [Genesis 46:10]}
+  - "Shaul@Gen.46.10-1Ch <- Canaanite_woman@Gen.46.10-Exo"
+  - {child: "Zerah@Gen.46.10-1Ch", parent: "a_wife_of_Simeon@Gen.46.10", status: confirmed, proof: [Genesis 46:10]}
+  - "a_wife_of_Simeon@Gen.46.10 <- Simeon@Gen.29.33-Rev"
+  - {child: "Er@Gen.38.3-1Ch", parent: "Judah@Gen.29.35-Rev", status: confirmed, proof: [Genesis 38:3, Genesis 38:6, Genesis 38:7, Genesis 46:12]}
+  - {child: "Onan@Gen.38.4-1Ch", parent: "Judah@Gen.29.35-Rev", status: confirmed, proof: [Genesis 38:4, Genesis 38:8, Genesis 46:12]}
+  - "Hamul@Gen.46.12-1Ch <- Perez@Gen.38.29-Luk"
+  - "Hezron@Gen.46.12-Luk <- Perez@Gen.38.29-Luk"
+  - "Jashub@Gen.46.13-1Ch <- Issachar@Gen.30.18-Rev"
+  - "Puah@Gen.46.13-1Ch <- Issachar@Gen.30.18-Rev"
+  - "Shimron@Gen.46.13-1Ch <- Issachar@Gen.30.18-Rev"
+  - "Tola@Gen.46.13-1Ch <- Issachar@Gen.30.18-Rev"
+  - "Elon@Gen.46.14-Num <- Zebulun@Gen.30.20-Rev"
+  - "Jahleel@Gen.46.14-Num <- Zebulun@Gen.30.20-Rev"
+  - "Sered@Gen.46.14-Num <- Zebulun@Gen.30.20-Rev"
+  - "Areli@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Arod@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Eri@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Ezbon@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Haggi@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Shuni@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Ziphion@Gen.46.16-Num <- Gad@Gen.30.11-Rev"
+  - "Beriah@Gen.46.17-1Ch <- Asher@Gen.30.13-Rev"
+  - "Heber@Gen.46.17-1Ch <- Beriah@Gen.46.17-1Ch"
+  - "Ishvah@Gen.46.17-1Ch <- Asher@Gen.30.13-Rev"
+  - "Ishvi@Gen.46.17-1Ch <- Asher@Gen.30.13-Rev"
+  - "Malchiel@Gen.46.17-1Ch <- Beriah@Gen.46.17-1Ch"
+  - {child: "Manasseh@Gen.41.51-Rev", parent: "Asenath@Gen.41.45-", status: confirmed, proof: [Genesis 41:50, Genesis 41:51, Genesis 46:20]}
+  - {child: "Ephraim@Gen.41.52-Zec", parent: "Asenath@Gen.41.45-", status: confirmed, proof: [Genesis 41:50, Genesis 41:52, Genesis 46:20]}
+  - "Ahiram@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Ard@Gen.46.21 <- Benjamin@Gen.35.18-Rev"
+  - "Ashbel@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Becher@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Bela@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Gera@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Huppim@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Muppim@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Naaman@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Rosh@Gen.46.21-1Ch <- Benjamin@Gen.35.18-Rev"
+  - "Hushim@Gen.46.23-Num <- Dan@Gen.30.6-1Ch"
+  - "Guni@Gen.46.24-1Ch <- Naphtali@Gen.30.8-Rev"
+  - "Jahzeel@Gen.46.24-1Ch <- Naphtali@Gen.30.8-Rev"
+  - "Jezer@Gen.46.24-1Ch <- Naphtali@Gen.30.8-Rev"
+  - "Shillem@Gen.46.24-1Ch <- Naphtali@Gen.30.8-Rev"
+  - {child: "Machir@Gen.50.23-1Ch", parent: "Manasseh@Gen.41.51-Rev", status: confirmed, proof: [Genesis 50:23]}
+  # the block's links whose best verse lies on a later sheet, checked on these chapters
+  - {child: "Bath-shua@Gen.38.2-1Ch", parent: "Shua@Gen.38.2-1Ch", status: confirmed, proof: [Genesis 38:2, Genesis 38:12]}
+  - {child: "Er@Gen.38.3-1Ch", parent: "Bath-shua@Gen.38.2-1Ch", status: confirmed, proof: [Genesis 38:2, Genesis 38:3]}
+  - {child: "Onan@Gen.38.4-1Ch", parent: "Bath-shua@Gen.38.2-1Ch", status: confirmed, proof: [Genesis 38:2, Genesis 38:4]}
+  - {child: "Shelah@Gen.38.5-1Ch", parent: "Bath-shua@Gen.38.2-1Ch", status: confirmed, proof: [Genesis 38:2, Genesis 38:5]}
+  - {child: "Shelah@Gen.38.5-1Ch", parent: "Judah@Gen.29.35-Rev", status: confirmed, proof: [Genesis 38:5, Genesis 38:11, Genesis 46:12]}
+  - {child: "Perez@Gen.38.29-Luk", parent: "Judah@Gen.29.35-Rev", status: confirmed, proof: [Genesis 38:18, Genesis 38:29, Genesis 46:12]}
+  - {child: "Zerah@Gen.38.30-Mat", parent: "Judah@Gen.29.35-Rev", status: confirmed, proof: [Genesis 38:18, Genesis 38:30, Genesis 46:12]}
+  - {child: "Perez@Gen.38.29-Luk", parent: "Tamar@Gen.38.6-Mat", status: confirmed, proof: [Genesis 38:27, Genesis 38:29, Ruth 4:12]}
+  - {child: "Zerah@Gen.38.30-Mat", parent: "Tamar@Gen.38.6-Mat", status: confirmed, proof: [Genesis 38:27, Genesis 38:30]}
+  - {child: "Manasseh@Gen.41.51-Rev", parent: "Joseph@Gen.30.24-Rev", status: confirmed, proof: [Genesis 41:50, Genesis 41:51, Genesis 46:20, Genesis 48:5]}
+  - {child: "Ephraim@Gen.41.52-Zec", parent: "Joseph@Gen.30.24-Rev", status: confirmed, proof: [Genesis 41:50, Genesis 41:52, Genesis 46:20, Genesis 48:5]}
+  - {child: "Carmi@Gen.46.9-1Ch", parent: "Reuben@Gen.29.32-Rev", status: confirmed, proof: [Genesis 46:9]}
+  - {child: "Jachin@Gen.46.10-1Ch", parent: "Simeon@Gen.29.33-Rev", status: confirmed, proof: [Genesis 46:10]}
+  - {child: "Zerah@Gen.46.10-1Ch", parent: "Simeon@Gen.29.33-Rev", status: confirmed, proof: [Genesis 46:10]}
+  - {child: "Shaul@Gen.46.10-1Ch", parent: "Simeon@Gen.29.33-Rev", status: confirmed, proof: [Genesis 46:10]}
+  - {child: "Simeon@Gen.29.33-Rev", parent: "Canaanite_woman@Gen.46.10-Exo", role: spouse, status: confirmed, proof: [Genesis 46:10]}
+  - {child: "Gershon@Gen.46.11-2Ch", parent: "Levi@Gen.29.34-Rev", status: confirmed, proof: [Genesis 46:11]}
+  - {child: "Kohath@Gen.46.11-2Ch", parent: "Levi@Gen.29.34-Rev", status: confirmed, proof: [Genesis 46:11]}
+  - {child: "Merari@Gen.46.11-Ezr", parent: "Levi@Gen.29.34-Rev", status: confirmed, proof: [Genesis 46:11]}
+  - {child: "Imnah@Gen.46.17-1Ch", parent: "Asher@Gen.30.13-Rev", status: confirmed, proof: [Genesis 46:17]}
+  - {child: "Serah@Gen.46.17-1Ch", parent: "Asher@Gen.30.13-Rev", status: confirmed, proof: [Genesis 46:17]}
+  # the levirate (38:8-9): Onan takes his brother's wife
+  - {child: "Tamar@Gen.38.6-Mat", parent: "Onan@Gen.38.4-1Ch", role: spouse, status: added, proof: [Genesis 38:8, Genesis 38:9]}
+missed:
+  - {ref: Genesis 38:26, reason: "Judah lies with Tamar no more, and has not given her to Shelah: no marriage"}
+  - {ref: Genesis 41:46, reason: "בן as Joseph's age"}
+  - {ref: Genesis 42:1, reason: "Jacob's sons together: each is linked by name"}
+  - {ref: Genesis 42:5, reason: "בני ישראל: Jacob's sons together"}
+  - {ref: Genesis 45:9, reason: "Joseph, Jacob's son: checked in block 03"}
+  - {ref: Genesis 45:21, reason: "בני ישראל: Jacob's sons together"}
+  - {ref: Genesis 45:28, reason: "Joseph, Jacob's son: checked in block 03"}
+  - {ref: Genesis 46:5, reason: "בני ישראל: Jacob's sons together"}
+  - {ref: Genesis 46:8, reason: "the heading of the seventy; Reuben <- Jacob is block 03"}
+  - {ref: Genesis 46:15, reason: "Leah's sons and Dinah: checked in block 03"}
+  - {ref: Genesis 46:18, reason: "Zilpah's sons: checked in block 03"}
+  - {ref: Genesis 46:19, reason: "Rachel's sons: checked in block 03"}
+  - {ref: Genesis 46:22, reason: "Rachel's sons: checked in block 03"}
+  - {ref: Genesis 46:25, reason: "Bilhah's sons: checked in block 03"}
+  - {ref: Genesis 46:26, reason: "the count of the seventy"}
+  - {ref: Genesis 46:27, reason: "the count of the seventy"}
+  - {ref: Genesis 47:29, reason: "Joseph, Jacob's son: checked in block 03"}
+  - {ref: Genesis 48:2, reason: "Joseph, Jacob's son: checked in block 03"}
+  - {ref: Genesis 48:8, reason: "Joseph's sons, not named here"}
+  - {ref: Genesis 49:2, reason: "בני יעקב: Jacob's sons together"}
+  - {ref: Genesis 50:25, reason: "בני ישראל: the people"}
+  - {ref: Genesis 50:26, reason: "בן as Joseph's age"}
