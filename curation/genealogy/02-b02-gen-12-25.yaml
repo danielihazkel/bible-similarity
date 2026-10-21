@@ -1,0 +1,114 @@
+# Block 02: Genesis 12-25:18 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b02-gen-12-25
+status: reviewed
+links:
+  # Mamre, Eshcol and Aner are brothers (14:13): TIPNR's unnamed father joins them
+  - {child: "Aner@Gen.14.13-", parent: "father_of_Mamre@Gen.14.13", status: confirmed, proof: [Genesis 14:13]}
+  - {child: "Eshcol@Gen.14.13-", parent: "father_of_Mamre@Gen.14.13", status: confirmed, proof: [Genesis 14:13]}
+  - {child: "Mamre@Gen.14.13", parent: "father_of_Mamre@Gen.14.13", status: confirmed, proof: [Genesis 14:13]}
+  - "Hagar@Gen.16.1-Gal <- Abraham@Gen.11.26-1Pe"
+  - {child: "Ishmael@Gen.16.11-Psa", parent: "Hagar@Gen.16.1-Gal", status: confirmed, proof: [Genesis 16:11, Genesis 16:15, Genesis 16:16, Genesis 21:9, Genesis 25:12]}
+  - {child: "a_wife_of_Lot@Gen.19.15-", parent: "Lot@Gen.11.27-2Pe", role: spouse, status: confirmed, proof: [Genesis 19:15, Genesis 19:26]}
+  - {child: "Moab@Gen.19.37a", parent: "Lot@Gen.11.27-2Pe", status: confirmed, proof: [Genesis 19:36, Genesis 19:37]}
+  - "Moab@Gen.19.37a <- daughter1_of_Lot@Gen.19.37"
+  - {child: "daughter1_of_Lot@Gen.19.37", parent: "Lot@Gen.11.27-2Pe", status: confirmed, proof: [Genesis 19:15, Genesis 19:36]}
+  - {child: "daughter1_of_Lot@Gen.19.37", parent: "a_wife_of_Lot@Gen.19.15-", status: confirmed, proof: [Genesis 19:15]}
+  # Lot's daughters bore his sons (19:31-36); the text tells of no marriage
+  - {child: "daughter1_of_Lot@Gen.19.37", parent: "Lot@Gen.11.27-2Pe", role: spouse, status: rejected}
+  - {child: "Ben-ammi@Gen.19.38", parent: "Lot@Gen.11.27-2Pe", status: confirmed, proof: [Genesis 19:36, Genesis 19:38]}
+  - "Ben-ammi@Gen.19.38 <- daughter2_of_Lot@Gen.19.38"
+  - {child: "daughter2_of_Lot@Gen.19.38", parent: "Lot@Gen.11.27-2Pe", status: confirmed, proof: [Genesis 19:15, Genesis 19:36]}
+  - {child: "daughter2_of_Lot@Gen.19.38", parent: "a_wife_of_Lot@Gen.19.15-", status: confirmed, proof: [Genesis 19:15]}
+  - {child: "daughter2_of_Lot@Gen.19.38", parent: "Lot@Gen.11.27-2Pe", role: spouse, status: rejected}
+  - {child: "Isaac@Gen.17.19-Jas", parent: "Sarah@Gen.11.29-1Pe", status: confirmed, proof: [Genesis 17:19, Genesis 17:21, Genesis 21:2, Genesis 21:3, Genesis 21:7]}
+  - "Aram@Gen.22.21 <- Kemuel@Gen.22.21"
+  - {child: "Buz@Gen.22.21", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Buz@Gen.22.21", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Kemuel@Gen.22.21", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Kemuel@Gen.22.21", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Uz@Gen.22.21", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Uz@Gen.22.21", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:21, Genesis 22:23]}
+  - {child: "Chesed@Gen.22.22", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Chesed@Gen.22.22", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Hazo@Gen.22.22", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Hazo@Gen.22.22", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Jidlaph@Gen.22.22", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Jidlaph@Gen.22.22", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Pildash@Gen.22.22", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Pildash@Gen.22.22", parent: "Milcah@Gen.11.29-", status: confirmed, proof: [Genesis 22:20, Genesis 22:22, Genesis 22:23]}
+  - {child: "Gaham@Gen.22.24", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Gaham@Gen.22.24", parent: "Reumah@Gen.22.24", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Maacah@Gen.22.24", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Maacah@Gen.22.24", parent: "Reumah@Gen.22.24", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Reumah@Gen.22.24", parent: "Nahor@Gen.11.26-", role: spouse, status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Tahash@Gen.22.24", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Tahash@Gen.22.24", parent: "Reumah@Gen.22.24", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Tebah@Gen.22.24", parent: "Nahor@Gen.11.26-", status: confirmed, proof: [Genesis 22:24]}
+  - {child: "Tebah@Gen.22.24", parent: "Reumah@Gen.22.24", status: confirmed, proof: [Genesis 22:24]}
+  - "Ephron@Gen.23.8- <- Zohar@Gen.23.8-"
+  - "Bethuel@Gen.22.22- <- Milcah@Gen.11.29-"
+  - "Bethuel@Gen.22.22- <- Nahor@Gen.11.26-"
+  # "ובני דדן היו": sons, not TIPNR's descended group
+  - {child: "Asshurim@Gen.25.3", parent: "Dedan@Gen.25.3-1Ch", kind: son, status: fixed, proof: [Genesis 25:3]}
+  - {child: "Letushim@Gen.25.3", parent: "Dedan@Gen.25.3-1Ch", status: confirmed, proof: [Genesis 25:3]}
+  - {child: "Leummim@Gen.25.3", parent: "Dedan@Gen.25.3-1Ch", status: confirmed, proof: [Genesis 25:3]}
+  - "Abida@Gen.25.4-1Ch <- Midian@Gen.25.2-1Ch"
+  - "Eldaah@Gen.25.4-1Ch <- Midian@Gen.25.2-1Ch"
+  - "Ephah@Gen.25.4-1Ch <- Midian@Gen.25.2-1Ch"
+  - "Epher@Gen.25.4-1Ch <- Midian@Gen.25.2-1Ch"
+  - "Hanoch@Gen.25.4-1Ch <- Midian@Gen.25.2-1Ch"
+  - {child: "Ishmael@Gen.16.11-Psa", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 16:15, Genesis 17:23, Genesis 17:26, Genesis 25:12]}
+  - "Adbeel@Gen.25.13-1Ch <- Ishmael@Gen.16.11-Psa"
+  - "Kedar@Gen.25.13-Ezk <- Ishmael@Gen.16.11-Psa"
+  - "Mibsam@Gen.25.13-1Ch <- Ishmael@Gen.16.11-Psa"
+  - "Nebaioth@Gen.25.13-Isa <- Ishmael@Gen.16.11-Psa"
+  - {child: "Dumah@Gen.25.14-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:14, Genesis 25:16]}
+  - {child: "Massa@Gen.25.14-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:14, Genesis 25:16]}
+  - {child: "Mishma@Gen.25.14-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:14, Genesis 25:16]}
+  # the block's links whose best verse is in 1 Chronicles, checked on the Genesis text
+  - {child: "Isaac@Gen.17.19-Jas", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 21:2, Genesis 21:3, Genesis 21:4, Genesis 21:5]}
+  - {child: "Rebekah@Gen.22.23-Rom", parent: "Bethuel@Gen.22.22-", status: confirmed, proof: [Genesis 22:23, Genesis 24:15, Genesis 24:24, Genesis 24:47]}
+  - {child: "Rebekah@Gen.22.23-Rom", parent: "Isaac@Gen.17.19-Jas", role: spouse, status: confirmed, proof: [Genesis 24:67]}
+  - {child: "Laban@Gen.24.29-", parent: "Bethuel@Gen.22.22-", status: confirmed, proof: [Genesis 24:29, Genesis 28:5]}
+  - {child: "Keturah@Gen.25.1-1Ch", parent: "Abraham@Gen.11.26-1Pe", role: spouse, status: confirmed, proof: [Genesis 25:1]}
+  - {child: "Sheba@Gen.25.3-1Ch", parent: "Jokshan@Gen.25.2-1Ch", status: confirmed, proof: [Genesis 25:3]}
+  - {child: "Dedan@Gen.25.3-1Ch", parent: "Jokshan@Gen.25.2-1Ch", status: confirmed, proof: [Genesis 25:3]}
+  - {child: "Zimran@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Zimran@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Jokshan@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Jokshan@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Medan@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Medan@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Midian@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Midian@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Ishbak@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Ishbak@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Shuah@Gen.25.2-1Ch", parent: "Abraham@Gen.11.26-1Pe", status: confirmed, proof: [Genesis 25:1, Genesis 25:2]}
+  - {child: "Shuah@Gen.25.2-1Ch", parent: "Keturah@Gen.25.1-1Ch", status: confirmed, proof: [Genesis 25:1, Genesis 25:2, Genesis 25:4]}
+  - {child: "Hadad@Gen.25.15-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:15, Genesis 25:16]}
+  - {child: "Tema@Gen.25.15-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:15, Genesis 25:16]}
+  - {child: "Jetur@Gen.25.15-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:15, Genesis 25:16]}
+  - {child: "Naphish@Gen.25.15-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:15, Genesis 25:16]}
+  - {child: "Kedemah@Gen.25.15-1Ch", parent: "Ishmael@Gen.16.11-Psa", status: confirmed, proof: [Genesis 25:13, Genesis 25:15, Genesis 25:16]}
+missed:
+  - {ref: Genesis 12:4, reason: "בן as Abram's age"}
+  - {ref: Genesis 12:5, reason: "Lot as Abram's nephew; Lot <- Haran is block 01"}
+  - {ref: Genesis 16:2, reason: "Sarai gives Abram her maid: no parent link"}
+  - {ref: Genesis 17:1, reason: "בן as Abram's age"}
+  - {ref: Genesis 17:17, reason: "Abraham's ages and Sarah's: no parent link"}
+  - {ref: Genesis 18:10, reason: "the promise of a son to Sarah, not yet named; Isaac <- Sarah is proved by 17:19 and 21:2-3"}
+  - {ref: Genesis 18:13, reason: "Sarah's laugh: no parent link"}
+  - {ref: Genesis 18:14, reason: "the promise of a son to Sarah, not yet named"}
+  - {ref: Genesis 20:17, reason: "Abimelech's household healed: no parent link"}
+  - {ref: Genesis 22:3, reason: "Isaac בנו at the binding; Isaac <- Abraham is proved by 21:2-5"}
+  - {ref: Genesis 22:6, reason: "Isaac בנו at the binding; Isaac <- Abraham is proved by 21:2-5"}
+  - {ref: Genesis 22:9, reason: "Isaac בנו at the binding; Isaac <- Abraham is proved by 21:2-5"}
+  - {ref: Genesis 25:6, reason: "the sons of the concubines, not named"}
+  - {ref: Genesis 25:11, reason: "Isaac בנו after Abraham's death; Isaac <- Abraham is proved by 21:2-5"}
+  - {ref: Genesis 23:3, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:5, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:7, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:10, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:16, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:18, reason: "בני חת: the Hittites as a people"}
+  - {ref: Genesis 23:20, reason: "בני חת: the Hittites as a people"}

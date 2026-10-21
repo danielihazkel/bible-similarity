@@ -70,7 +70,7 @@ Review blocks (M90), in Jewish canon order:
 | # | Block | Range | Status | Links checked | Conflicts |
 |---|---|---|---|---|---|
 | 01 | b01-gen-1-11 | Gen 1–11 | reviewed | 116 | 5 |
-| 02 | b02-gen-12-25 | Gen 12–25:18 | todo | | |
+| 02 | b02-gen-12-25 | Gen 12–25:18 | reviewed | 84 | 0 |
 | 03 | b03-gen-25-36 | Gen 25:19–36 | todo | | |
 | 04 | b04-gen-37-50 | Gen 37–50 | todo | | |
 | 05 | b05-exod-lev | Exodus–Leviticus | todo | | |
@@ -90,12 +90,14 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 02: `b02-gen-12-25` (Gen 12–25:18).** Follow **How to resume** step 2.
+**M90, block 03: `b03-gen-25-36` (Gen 25:19–36).** Follow **How to resume** step 2.
 
 Things to look at in this block:
-- Abraham's wives: Sarah, Hagar (Ishmael), Keturah (Gen 25:1–4) and the sons of the concubines (25:6); Lot's daughters and their sons Moab and Ben-ammi (19:36–38).
-- Nahor's sons by Milcah and by Reumah his concubine (22:20–24), and Bethuel's line to Rebekah and Laban.
-- Gen 20:12 (Sarai "בת אבי") is already the proof of Sarah ← Terah (block 01).
+- **The sheet lists a link by its best verse only.** A link the block states may sit on a later sheet because 1 Chronicles states it more strongly; the unused cue verses point to them. Check the block's people's links too: block 02 picked up Isaac <- Abraham, Keturah's sons and Ishmael's younger sons that way.
+- Jacob's node reads ישראל (TIPNR's "Israel"): decide here whether to set `he: יעקב` in `people:` (Open questions).
+- Esau's wives: the names differ between Gen 26:34, 28:9 and 36:2–3 (Basemath / Adah, Mahalath / Basemath, Judith / Oholibamah): a `bible` conflict at least for their fathers, or one person with several names.
+- Gen 36: Esau's line, the chiefs, Seir the Horite's line (Hori <- Lotan, left open by block 02) and the kings of Edom (no parent links, a list).
+- Timna, Lotan's sister and Eliphaz's concubine (36:12, 36:22); Amalek <- Eliphaz by Timna.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -131,4 +133,11 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Kept, on one verse:** Sarah ← Terah rests on Abraham's "בת אבי היא" (Gen 20:12) alone; Gen 11:31 calls her Terah's כלה.
   - **Names:** Dedan was רדן in TIPNR (now דדן); Dodanim had the Chronicles spelling (now דדנים).
   - Cain's and Seth's lines keep their two Lamechs and two Enochs apart (separate TIPNR keys).
+- 2026-10-21, M90 block 02 (Gen 12–25:18): `curation/genealogy/02-b02-gen-12-25.yaml`, reviewed.
+  - 84 links checked: 81 confirmed, 1 fixed, 2 rejected; 21 cue verses dismissed (בן as an age, "the sons of Heth", the promise of a son, Isaac called בנו again). No cue verse is left unhandled.
+  - **Picked up from later sheets:** 24 links of the block's people whose best verse was in 1 Chronicles, now proved on Genesis: Isaac <- Abraham (21:2–5), Rebekah <- Bethuel (22:23), Isaac and Rebekah (24:67), Laban <- Bethuel (24:29, 28:5), Abraham and Keturah and her six sons (25:1–4), Jokshan's two (25:3), Ishmael's five younger sons (25:13–16).
+  - **Rejected:** Lot's daughters as his spouses (TIPNR): they bore his sons (19:31–36), the text tells of no marriage. Moab and Ben-ammi stay under Lot, their mothers named.
+  - **Kept:** TIPNR's unnamed father of Mamre, Eshcol and Aner, who are brothers (14:13).
+  - **Fixed:** Asshurim, a son of Dedan in the text (25:3), not a descended group.
+  - Left for block 03: Hori <- Lotan (Gen 36).
 
