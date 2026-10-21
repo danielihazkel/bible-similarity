@@ -82,7 +82,7 @@ Review blocks (M90), in Jewish canon order:
 | 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | reviewed | 25 | 0 |
 | 12 | b12-esth-dan | Esther, Daniel | reviewed | 35 | 0 |
 | 13 | b13-ezra-nehemiah | Ezra–Nehemiah | reviewed | 142 | 5 |
-| 14 | b14-1chr-1 | 1 Chr 1 | todo | | |
+| 14 | b14-1chr-1 | 1 Chr 1 | reviewed | 0 | 0 |
 | 15 | b15-1chr-2-4 | 1 Chr 2–4 | todo | | |
 | 16 | b16-1chr-5-6 | 1 Chr 5–6 | todo | | |
 | 17 | b17-1chr-7-9 | 1 Chr 7–9 | todo | | |
@@ -90,15 +90,33 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 14: `b14-1chr-1` (I Chr 1).** Follow **How to resume** step 2.
+**M90, block 15: `b15-1chr-2-4` (I Chr 2–4).** Follow **How to resume** step 2, but **split the block first**. Its sheet has 301 links besides 28 book attachments: 129 in I Chr 2, 46 in I Chr 3 and 105 in I Chr 4, about twice blocks 08 and 09. Split it at I Chr 3:1 into `b15-1chr-2` and `b15b-1chr-3-4`:
+- change `genealogy.blocks` in `configs/default.yaml`;
+- add the row to the table above, and the box in `docs/TASKS.md`;
+- review `b15-1chr-2` in that session, and leave I Chr 3–4 for the next.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **I Chr 1 repeats** Gen 5, 10, 11:10–26, 25 and 36 in short, so most links are already confirmed in blocks 01–03: confirm them with the I Chr verse rather than deciding them again. The conflicts on Uz, Hul, Gether, Mash (1:17) and Timna (1:36) are already recorded.
-- **Spellings that differ from Genesis**, which TIPNR keeps on one key or splits: דיפת / ריפת (1:6), רודנים / דדנים (1:7), משך / מש (1:17), עלין / עלון and שפי / שפו (1:40), חמרן / חמדן (1:41), הדד / הדר and פעי / פעו (1:50).
-- **Keturah** is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1.
-- **Hadad's wife** Mehetabel, daughter of Matred, daughter of Me-zahab (1:50, Gen 36:39), and the kings of Edom (1:43–51), with the tribe attachments of the open question below (M91).
+- **Links confirmed early, on this block's verses:** Jair <- Segub (2:21–22, block 06) and Zerubbabel <- Pedaiah (3:19, block 10).
+- **Judah's line** (2:3–55):
+  - Tamar and Bath-shua (2:3–4);
+  - Zerah's sons Ethan, Heman, Calcol, Dara (2:6), against the Ezrahite sages of I Kgs 5:11;
+  - "עכר עוכר ישראל" (2:7), Achan, against block 07's conflict;
+  - Ram's line down to David (2:10–15): Jesse's seven sons against the eight of I Sam 16:10–11 and 17:12;
+  - Caleb son of Hezron, his wives Azubah, Jerioth and Ephrath, and his concubines Ephah and Maacah (2:18–19, 46, 48);
+  - Hezron's late wife, Machir's daughter (2:21, 24);
+  - Sheshan's daughter given to his servant Jarha (2:34–35);
+  - Salma "אבי בית לחם" (2:51), rejected as Elimelech's father in block 11;
+  - TIPNR's Ephrathah as Hezron's wife (2:24, block 11's open question).
+- **"אבי X" with a town** (2:42–55, 4:3–23): founders of towns, not fathers. Use `founder` where TIPNR links the town as a person.
+- **David's sons and the kings** (3:1–24) against II Sam 3:2–5 and 5:14–16, and I Kgs:
+  - Kileab and Daniel (3:1);
+  - "בת שוע בת עמיאל" (3:5), Bathsheba daughter of Eliam in II Sam 11:3;
+  - the second Eliphelet and Nogah (3:6–8);
+  - Josiah's sons Johanan and Shallum (3:15), against Jer 22:11 (block 10's open question);
+  - Jeconiah's sons and Zerubbabel (3:17–19);
+  - Shecaniah's line (3:21–24).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -232,6 +250,7 @@ Each entry: the child, the readings with their verses, the block that found it.
     - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book.
     - TIPNR's Shilonites ("People from Shelah(?)") have no link to Shelah.
     - TIPNR makes the father of Shemaiah, keeper of the East Gate (Neh 3:29), the same man as Shecaniah son of Jehiel (Ezra 10:2); the text does not say so.
+- **I Chronicles 1** (b14): Keturah is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1; Gen 25:6 speaks of Abraham's "פילגשים". The tree keeps her as a spouse, as it has no separate role for a concubine.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -373,3 +392,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Rejected:** Jeshua and Joab <- Pahath-moab, Hezekiah <- Ater (family lists); TIPNR's Jeshua <- Jozadak of Ezra 10:18 (the high priest, filed under the course of I Chr 24:11); Shecaniah's daughter as Jehohanan's mother; the eight "brothers" of Neh 12:36 as Jonathan's sons.
   - **Conflicts:** Ezra <- Seraiah, Azariah <- Meraioth (Ezra 7:3), Mahli <- Levi (Ezra 8:18), Johanan <- Eliashib (Neh 12:23), Jeroham <- Pashhur (I Chr 9:12), all `descendant`.
   - **Added:** Shecaniah <- Jahaziel (Ezra 8:5); Micaiah <- Zaccur (Neh 12:35).
+- 2026-10-21, M90 block 14 (I Chr 1): `curation/genealogy/14-b14-1chr-1.yaml`, reviewed, with no links of its own.
+  - **Counts:** no new links and no new conflicts; 6 cue verses are dismissed (1:18, 28, 31, 32, 34, 38), all proved in Genesis.
+  - **Why so small:** I Chr 1 repeats Genesis 5, 10, 11:10–26, 25 and 36. Its 93 links with a proof here were all proved first in Genesis and are decided in blocks 01–03 (92 confirmed, Dodanim fixed). The 5 lines of the sheet are readings of the conflicts on Uz, Hul, Gether, Mash (1:17) and Timna (1:36). No person's TIPNR key starts in I Chr 1.
+  - **Spellings:** the names spelled differently from Genesis (דיפת / ריפת, רודנים / דדנים, משך / מש, עלין / עלון, שפי / שפו, חמרן / חמדן, הדד / הדר, פעי / פעו) are on the Genesis keys, so none adds a link. Hadad / Hadar (1:50) was given "הדר" in block 03.

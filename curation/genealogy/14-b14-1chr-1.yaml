@@ -1,0 +1,14 @@
+# Block 14: I Chronicles 1 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b14-1chr-1
+status: reviewed
+# I Chronicles 1 repeats Genesis 5, 10, 11:10-26, 25 and 36. Every link it states is decided in
+# blocks 01-03: the five lines of this block's sheet are readings of the conflicts on Uz, Hul,
+# Gether, Mash (1:17) and Timna (1:36), and the 93 links proved here are proved first in Genesis.
+links: []
+missed:
+  - {ref: I Chronicles 1:18, reason: "Shelah son of Arpachshad, Eber son of Shelah: proved on Genesis 10:24, 11:12-15 (block 01)"}
+  - {ref: I Chronicles 1:28, reason: "Isaac and Ishmael, Abraham's sons: proved on Genesis 16:15, 21:2-5 (block 02)"}
+  - {ref: I Chronicles 1:31, reason: "Ishmael's sons: proved on Genesis 25:13-16 (block 02)"}
+  - {ref: I Chronicles 1:32, reason: "Keturah's sons and Jokshan's: proved on Genesis 25:1-3 (block 02)"}
+  - {ref: I Chronicles 1:34, reason: "Isaac son of Abraham, Esau and Israel sons of Isaac: proved on Genesis 21:2-5 (block 02), 25:26 (block 03)"}
+  - {ref: I Chronicles 1:38, reason: "Seir's sons: proved on Genesis 36:20-21 (block 03); Anah's father is a conflict of block 03"}

@@ -860,7 +860,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 11 Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes
 - [x] 12 Esther, Daniel
 - [x] 13 Ezra–Nehemiah
-- [ ] 14 1 Chr 1
+- [x] 14 1 Chr 1
 - [ ] 15 1 Chr 2–4
 - [ ] 16 1 Chr 5–6
 - [ ] 17 1 Chr 7–9
