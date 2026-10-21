@@ -73,7 +73,7 @@ Review blocks (M90), in Jewish canon order:
 | 02 | b02-gen-12-25 | Gen 12–25:18 | reviewed | 84 | 0 |
 | 03 | b03-gen-25-36 | Gen 25:19–36 | reviewed | 108 | 3 |
 | 04 | b04-gen-37-50 | Gen 37–50 | reviewed | 81 | 0 |
-| 05 | b05-exod-lev | Exodus–Leviticus | todo | | |
+| 05 | b05-exod-lev | Exodus–Leviticus | reviewed | 49 | 0 |
 | 06 | b06-num-deut | Numbers–Deuteronomy | todo | | |
 | 07 | b07-josh-judg | Joshua–Judges | todo | | |
 | 08 | b08-samuel | 1–2 Samuel | todo | | |
@@ -90,13 +90,15 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 05: `b05-exod-lev` (Exodus–Leviticus).** Follow **How to resume** step 2.
+**M90, block 06: `b06-num-deut` (Numbers–Deuteronomy).** Follow **How to resume** step 2.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
-- Exodus 6:14–25: the genealogy of Reuben, Simeon and Levi down to Aaron's and Korah's sons, which repeats Gen 46 (Ohad again, Zohar) and adds Levi's grandsons: Gershon, Kohath and Merari's sons, Amram and Jochebed (his father's sister, 6:20), Aaron and Elisheba, Nadab, Abihu, Eleazar, Ithamar, Phinehas.
-- Moses: Zipporah daughter of Jethro / Reuel (Exod 2:18, 3:1; Num 10:29 "חבב בן רעואל"): a `bible` conflict or one man with two names; Gershom and Eliezer (2:22, 18:3–4).
-- Bezalel son of Uri son of Hur (31:2), Oholiab son of Ahisamach (31:6); Nadab and Abihu, Mishael and Elzaphan (Lev 10:4); Shelomith daughter of Dibri (Lev 24:11).
+- Left open by block 05, stated in Numbers: Jochebed <- Levi and Miriam <- Amram, Jochebed (26:59), Nahshon <- Amminadab (1:7), Hobab <- Jethro / Reuel (10:29, "חבב בן רעואל": Jethro and Reuel as one man is TIPNR's, block 05).
+- The census of Num 26: the clans of each tribe against Gen 46 (Nemuel / Jemuel, Jashub / Iob, Shuham / Hushim, Benjamin's sons and Bela's), Zelophehad's daughters (26:33, 27:1), Korah's sons who did not die (26:11), Dathan and Abiram (16:1, 26:9).
+- The chieftains of Num 1–2, 7, 10, 13 and 34 ("X son of Y"): many fathers named once; Caleb son of Jephunneh, Joshua son of Nun.
+- Phinehas (25:7), Zimri son of Salu and Cozbi daughter of Zur (25:14–15), Balaam son of Beor (22:5), Og and Sihon (no parents).
+- Many "בני ישראל" and "בני אהרן" cue verses: the generator of block 05 dismisses them by pattern (`make_b05.py`'s `reason`).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -159,4 +161,10 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Names:** Simeon's Zohar reads צחר (TIPNR had זרח from Numbers and Chronicles), Benjamin's Ehi אחי (TIPNR had אחירם from Numbers), Simeon's unnamed wife הכנענית.
   - Kept: TIPNR's unnamed wife of Simeon, the mother of his sons other than Shaul "בן הכנענית" (46:10).
   - Left open: Machir's mother, the Aramitess (I Chr 7:14), for block 17.
+- 2026-10-21, M90 block 05 (Exodus–Leviticus): `curation/genealogy/05-b05-exod-lev.yaml`, reviewed.
+  - 49 links checked: 48 confirmed, 1 added; 147 cue verses dismissed, nearly all "בני ישראל" (the people) or Aaron's unnamed sons (the priests). No cue verse is left unhandled.
+  - **Picked up from later sheets:** Amram and Jochebed, Moses and Aaron <- Amram (Exod 6:20), Libni, Izhar, Mushi, Korah <- Izhar, Ebiasaph, Phinehas <- Eleazar (6:17–25), Gershom and Eliezer <- Moses (2:22, 18:3–5).
+  - **Added:** Moses <- Pharaoh's daughter, `adopted` (2:10, "ויהי לה לבן"); his father Amram stays the drawn parent, Jochebed his mother.
+  - Kept: TIPNR's Jethro as Zipporah's father, the man 2:18 calls רעואל.
+  - Left open for later blocks: Jochebed, Miriam and Nahshon (Numbers); Amminadab <- Ram, Hur <- Caleb and Ephrathah, Nun <- Elishama (Ruth, 1 Chronicles; Nun's is only a `nearby` hint, I Chr 7:27).
 

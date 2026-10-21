@@ -1,0 +1,203 @@
+# Block 05: Exodus-Leviticus (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b05-exod-lev
+status: reviewed
+links:
+  - {child: "daughter_of_Pharaoh@Exo.2.5", parent: "Pharaoh@Exo.1.11-Heb", status: confirmed, proof: [Exodus 2:5]}
+  - {child: "Gershom@Exo.2.22-1Ch", parent: "Zipporah@Exo.2.21-", status: confirmed, proof: [Exodus 2:21, Exodus 2:22, Exodus 18:3]}
+  - "Shimei@Exo.6.17-Zec <- Gershon@Gen.46.11-2Ch"
+  - "Amram@Exo.6.18-1Ch <- Kohath@Gen.46.11-2Ch"
+  - "Hebron@Exo.6.18-1Ch <- Kohath@Gen.46.11-2Ch"
+  - "Uzziel@Exo.6.18-1Ch <- Kohath@Gen.46.11-2Ch"
+  - "Mahli@Exo.6.19-Ezr <- Merari@Gen.46.11-Ezr"
+  - "Moses@Exo.2.10-Rev <- Jochebed@Exo.6.20-Num"
+  - "Aaron@Exo.4.14-Heb <- Jochebed@Exo.6.20-Num"
+  - "Nepheg@Exo.6.21 <- Izhar@Exo.6.18-1Ch"
+  - "Zichri@Exo.6.21 <- Izhar@Exo.6.18-1Ch"
+  - "Mishael@Exo.6.22-Lev <- Uzziel@Exo.6.18-1Ch"
+  - "Sithri@Exo.6.22 <- Uzziel@Exo.6.18-1Ch"
+  - "Abihu@Exo.6.23-1Ch <- Elisheba@Exo.6.23"
+  - "Eleazar@Exo.6.23-Ezr <- Elisheba@Exo.6.23"
+  - "Elisheba@Exo.6.23 <- Amminadab@Exo.6.23-Luk"
+  - "Elisheba@Exo.6.23 <- Aaron@Exo.4.14-Heb"
+  - "Ithamar@Exo.6.23-Ezr <- Elisheba@Exo.6.23"
+  - "Nadab@Exo.6.23-1Ch <- Elisheba@Exo.6.23"
+  - "Assir@Exo.6.24-1Ch <- Korah@Exo.6.21-Jud"
+  - "Elkanah@Exo.6.24-1Ch <- Korah@Exo.6.21-Jud"
+  - {child: "Eleazar@Exo.6.23-Ezr", parent: "Aaron@Exo.4.14-Heb", status: confirmed, proof: [Exodus 6:23, Exodus 6:25, Exodus 28:1, Leviticus 10:6, Leviticus 10:12]}
+  - "Phinehas@Exo.6.25-Psa <- daughter_of_Putiel@Exo.6.25"
+  - "daughter_of_Putiel@Exo.6.25 <- Putiel@Exo.6.25"
+  - "daughter_of_Putiel@Exo.6.25 <- Eleazar@Exo.6.23-Ezr"
+  - {child: "Zipporah@Exo.2.21-", parent: "Jethro@Exo.2.18-Num", status: confirmed, proof: [Exodus 2:16, Exodus 2:18, Exodus 2:21, Exodus 18:2]}
+  - {child: "Zipporah@Exo.2.21-", parent: "Moses@Exo.2.10-Rev", role: spouse, status: confirmed, proof: [Exodus 2:21, Exodus 18:2]}
+  - {child: "Eliezer@Exo.18.4-1Ch", parent: "Zipporah@Exo.2.21-", status: confirmed, proof: [Exodus 18:2, Exodus 18:3, Exodus 18:4]}
+  - {child: "Ithamar@Exo.6.23-Ezr", parent: "Aaron@Exo.4.14-Heb", status: confirmed, proof: [Exodus 6:23, Exodus 28:1, Exodus 38:21, Leviticus 10:6, Leviticus 10:12, Leviticus 10:16]}
+  - "Bezalel@Exo.31.2-2Ch <- Uri@Exo.31.2-2Ch"
+  - "Uri@Exo.31.2-2Ch <- Hur@Exo.17.10-2Ch"
+  - "Oholiab@Exo.31.6- <- Ahisamach@Exo.31.6-"
+  - "Joshua@Exo.17.9-Heb <- Nun@Exo.33.11-Neh"
+  - {child: "Abihu@Exo.6.23-1Ch", parent: "Aaron@Exo.4.14-Heb", status: confirmed, proof: [Exodus 6:23, Exodus 28:1, Leviticus 10:1]}
+  - {child: "Nadab@Exo.6.23-1Ch", parent: "Aaron@Exo.4.14-Heb", status: confirmed, proof: [Exodus 6:23, Exodus 28:1, Leviticus 10:1]}
+  - {child: "Elizaphan@Exo.6.22-2Ch", parent: "Uzziel@Exo.6.18-1Ch", status: confirmed, proof: [Exodus 6:22, Leviticus 10:4]}
+  - "Shelomith@Lev.24.11 <- Dibri@Lev.24.11"
+  # the block's links whose best verse lies on a later sheet, checked on Exodus
+  - {child: "Jochebed@Exo.6.20-Num", parent: "Amram@Exo.6.18-1Ch", role: spouse, status: confirmed, proof: [Exodus 6:20]}
+  - {child: "Moses@Exo.2.10-Rev", parent: "Amram@Exo.6.18-1Ch", status: confirmed, proof: [Exodus 6:20]}
+  - {child: "Aaron@Exo.4.14-Heb", parent: "Amram@Exo.6.18-1Ch", status: confirmed, proof: [Exodus 6:20]}
+  - {child: "Libni@Exo.6.17-1Ch", parent: "Gershon@Gen.46.11-2Ch", status: confirmed, proof: [Exodus 6:17]}
+  - {child: "Izhar@Exo.6.18-1Ch", parent: "Kohath@Gen.46.11-2Ch", status: confirmed, proof: [Exodus 6:18]}
+  - {child: "Mushi@Exo.6.19-1Ch", parent: "Merari@Gen.46.11-Ezr", status: confirmed, proof: [Exodus 6:19]}
+  - {child: "Korah@Exo.6.21-Jud", parent: "Izhar@Exo.6.18-1Ch", status: confirmed, proof: [Exodus 6:21]}
+  - {child: "Ebiasaph@Exo.6.24-1Ch", parent: "Korah@Exo.6.21-Jud", status: confirmed, proof: [Exodus 6:24]}
+  - {child: "Phinehas@Exo.6.25-Psa", parent: "Eleazar@Exo.6.23-Ezr", status: confirmed, proof: [Exodus 6:25]}
+  - {child: "Gershom@Exo.2.22-1Ch", parent: "Moses@Exo.2.10-Rev", status: confirmed, proof: [Exodus 2:22, Exodus 18:3, Exodus 18:5]}
+  - {child: "Eliezer@Exo.18.4-1Ch", parent: "Moses@Exo.2.10-Rev", status: confirmed, proof: [Exodus 18:4, Exodus 18:5]}
+  # Pharaoh's daughter takes Moses as her son (2:10)
+  - {child: "Moses@Exo.2.10-Rev", parent: "daughter_of_Pharaoh@Exo.2.5", role: mother, kind: adopted, status: added, proof: [Exodus 2:10]}
+missed:
+  - {ref: Exodus 1:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 1:13, reason: "בני ישראל: the people"}
+  - {ref: Exodus 1:15, reason: "the Hebrew midwives: no parent link"}
+  - {ref: Exodus 2:1, reason: "Moses' parents, not named here (Exodus 6:20)"}
+  - {ref: Exodus 2:23, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:9, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:10, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:11, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:13, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:14, reason: "בני ישראל: the people"}
+  - {ref: Exodus 3:15, reason: "בני ישראל: the people"}
+  - {ref: Exodus 4:22, reason: "Israel as God's firstborn son: a figure"}
+  - {ref: Exodus 4:29, reason: "בני ישראל: the people"}
+  - {ref: Exodus 4:31, reason: "בני ישראל: the people"}
+  - {ref: Exodus 5:14, reason: "בני ישראל: the people"}
+  - {ref: Exodus 5:15, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:5, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:6, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:9, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:11, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:12, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:13, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:16, reason: "Levi's sons: checked in block 04"}
+  - {ref: Exodus 6:26, reason: "בני ישראל: the people"}
+  - {ref: Exodus 6:27, reason: "בני ישראל: the people"}
+  - {ref: Exodus 7:2, reason: "בני ישראל: the people"}
+  - {ref: Exodus 7:4, reason: "בני ישראל: the people"}
+  - {ref: Exodus 7:5, reason: "בני ישראל: the people"}
+  - {ref: Exodus 7:7, reason: "בן as the ages of Moses and Aaron"}
+  - {ref: Exodus 9:4, reason: "בני ישראל: the people"}
+  - {ref: Exodus 9:6, reason: "בני ישראל: the people"}
+  - {ref: Exodus 9:26, reason: "בני ישראל: the people"}
+  - {ref: Exodus 9:35, reason: "בני ישראל: the people"}
+  - {ref: Exodus 10:20, reason: "בני ישראל: the people"}
+  - {ref: Exodus 11:7, reason: "בני ישראל: the people"}
+  - {ref: Exodus 11:10, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:27, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:28, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:31, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:35, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:37, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:40, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:42, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:50, reason: "בני ישראל: the people"}
+  - {ref: Exodus 12:51, reason: "בני ישראל: the people"}
+  - {ref: Exodus 13:18, reason: "בני ישראל: the people"}
+  - {ref: Exodus 13:19, reason: "בני ישראל: the people"}
+  - {ref: Exodus 14:2, reason: "בני ישראל: the people"}
+  - {ref: Exodus 14:3, reason: "בני ישראל: the people"}
+  - {ref: Exodus 14:8, reason: "בני ישראל: the people"}
+  - {ref: Exodus 14:10, reason: "בני ישראל: the people"}
+  - {ref: Exodus 14:15, reason: "בני ישראל: the people"}
+  - {ref: Exodus 15:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 15:19, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:2, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:3, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:6, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:9, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:10, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:12, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:15, reason: "בני ישראל: the people"}
+  - {ref: Exodus 16:35, reason: "בני ישראל: the people"}
+  - {ref: Exodus 17:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 17:7, reason: "בני ישראל: the people"}
+  - {ref: Exodus 19:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 19:3, reason: "בני ישראל: the people"}
+  - {ref: Exodus 20:19, reason: "בני ישראל: the people"}
+  - {ref: Exodus 24:5, reason: "בני ישראל: the people"}
+  - {ref: Exodus 24:17, reason: "בני ישראל: the people"}
+  - {ref: Exodus 27:21, reason: "בני ישראל: the people"}
+  - {ref: Exodus 28:12, reason: "בני ישראל: the people"}
+  - {ref: Exodus 28:29, reason: "בני ישראל: the people"}
+  - {ref: Exodus 28:30, reason: "בני ישראל: the people"}
+  - {ref: Exodus 28:38, reason: "בני ישראל: the people"}
+  - {ref: Exodus 29:9, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Exodus 29:28, reason: "בני ישראל: the people"}
+  - {ref: Exodus 30:12, reason: "בני ישראל: the people"}
+  - {ref: Exodus 30:16, reason: "בני ישראל: the people"}
+  - {ref: Exodus 31:13, reason: "בני ישראל: the people"}
+  - {ref: Exodus 31:17, reason: "בני ישראל: the people"}
+  - {ref: Exodus 32:26, reason: "בני לוי: the Levites"}
+  - {ref: Exodus 32:28, reason: "בני לוי: the Levites"}
+  - {ref: Exodus 33:5, reason: "בני ישראל: the people"}
+  - {ref: Exodus 33:6, reason: "בני ישראל: the people"}
+  - {ref: Exodus 34:30, reason: "בני ישראל: the people"}
+  - {ref: Exodus 34:32, reason: "בני ישראל: the people"}
+  - {ref: Exodus 34:34, reason: "בני ישראל: the people"}
+  - {ref: Exodus 34:35, reason: "בני ישראל: the people"}
+  - {ref: Exodus 35:1, reason: "בני ישראל: the people"}
+  - {ref: Exodus 35:4, reason: "בני ישראל: the people"}
+  - {ref: Exodus 35:20, reason: "בני ישראל: the people"}
+  - {ref: Exodus 35:29, reason: "בני ישראל: the people"}
+  - {ref: Exodus 36:3, reason: "בני ישראל: the people"}
+  - {ref: Exodus 39:7, reason: "בני ישראל: the people"}
+  - {ref: Exodus 39:32, reason: "בני ישראל: the people"}
+  - {ref: Exodus 39:42, reason: "בני ישראל: the people"}
+  - {ref: Exodus 40:31, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 1:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 1:5, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 1:11, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 2:2, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 2:3, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 2:10, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 3:5, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 4:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 6:7, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 6:11, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 6:13, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 7:29, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 7:34, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 7:36, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 7:38, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 8:13, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 8:24, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 8:31, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 8:36, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 9:1, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 10:11, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 10:14, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 16:1, reason: "Aaron's two sons who died, not named here (Leviticus 10:1)"}
+  - {ref: Leviticus 16:21, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 16:34, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 17:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 17:5, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 18:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 19:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 20:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 21:1, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 21:24, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 22:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 22:3, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 22:15, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 22:18, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 22:32, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 23:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 23:34, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 23:43, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 23:44, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 24:8, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 24:9, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Leviticus 24:23, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 25:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 25:55, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 26:46, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 27:2, reason: "בני ישראל: the people"}
+  - {ref: Leviticus 27:34, reason: "בני ישראל: the people"}
