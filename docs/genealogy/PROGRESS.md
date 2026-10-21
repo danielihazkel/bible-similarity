@@ -79,7 +79,7 @@ Review blocks (M90), in Jewish canon order:
 | 08 | b08-samuel | 1–2 Samuel | reviewed | 163 | 3 |
 | 09 | b09-kings | 1–2 Kings | reviewed | 169 | 4 |
 | 10 | b10-latter-prophets | Isaiah–Malachi | reviewed | 68 | 2 |
-| 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | todo | | |
+| 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | reviewed | 25 | 0 |
 | 12 | b12-esth-dan | Esther, Daniel | todo | | |
 | 13 | b13-ezra-nehemiah | Ezra–Nehemiah | todo | | |
 | 14 | b14-1chr-1 | 1 Chr 1 | todo | | |
@@ -90,20 +90,19 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 11: `b11-ps-to-eccl` (Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes).** Follow **How to resume** step 2. Seven books, few genealogies; check the sheet's size first.
+**M90, block 12: `b12-esth-dan` (Esther, Daniel).** Follow **How to resume** step 2.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Ruth:**
-  - Elimelech and Naomi, Mahlon and Chilion (1:1–5), and their wives Orpah and Ruth (1:4, 4:10), unnamed in 1:4 as to which married whom.
-  - Boaz and Ruth (4:13), and Obed: "ילד לנעמי" (4:17). Naomi is not his mother.
-  - The line from Perez to David (4:18–22): Hezron, Ram, Amminadab, Nahshon, "שלמה" (4:20) / "שלמון" (4:21), Boaz, Obed, Jesse. Left open from block 05: Amminadab <- Ram, Nahshon.
-- **Job's family:** his sons and daughters, Jemimah, Keziah and Keren-happuch (42:13–14, TIPNR links still open). His wife (2:9) is unnamed. Elihu "בן ברכאל הבוזי ממשפחת רם" (32:2).
-- **Headings:**
-  - Psalms: the sons of Korah, Asaph, "הימן האזרחי", "איתן האזרחי" (88:1, 89:1; see block 09's Mahol), "דוד בן ישי" (72:20).
-  - Proverbs: "שלמה בן דוד" (1:1), "אגור בן יקה" (30:1), "למואל מלך משא אשר יסרתו אמו" (31:1), whose mother is not named.
-  - Ecclesiastes: "קהלת בן דוד מלך בירושלם" (1:1). The text does not name him Solomon.
+- **Esther:**
+  - Mordecai "בן יאיר בן שמעי בן קיש איש ימיני" (2:5). TIPNR's Kish here is his own key, not Saul's father; the text does not say.
+  - Esther "בת אביחיל דד מרדכי" (2:15, 9:29), and "לקחה מרדכי לו לבת" (2:7): an `adopted` link to Mordecai beside her father (as Moses in block 05).
+  - Ahasuerus's wives Vashti and Esther (2:17); Haman "בן המדתא האגגי" (3:1), his wife Zeresh (5:10, 14, 6:13) and his ten sons (9:7–10). "האגגי": whether Agag of I Sam 15 is meant is not stated.
+- **Daniel:**
+  - Belshazzar and Nebuchadnezzar "אביך" (5:2, 11, 13, 18, 22): TIPNR makes him a son. Perhaps `descendant`; the text gives no other father.
+  - "דריוש בן אחשורוש מזרע מדי" (9:1). TIPNR gives Darius the Mede the parents Ahasuerus and **Vashti**, which no verse says, and makes Ahasuerus the son of the Darius of Ezra 4:5 (Ezra 4:6 names no parent). Both are likely rejections; the Ezra one is block 13's.
+  - Daniel, Hananiah, Mishael and Azariah "מבני יהודה" (1:6): no parents.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -198,6 +197,14 @@ Each entry: the child, the readings with their verses, the block that found it.
   - The Rechabites (Jer 35) hang from Habazziniah with no link to Jonadab son of Rechab, "אבינו" (35:6). I Chr 2:55 makes them Kenites (block 15).
 - **Zedekiah** (b10): "צדקיהו בן יאשיהו" (Jer 1:3, 37:1) agrees with "דדו" (II Kgs 24:17), Jehoiachin's uncle; II Chr 36:10 has "אחיו" (block 19).
 - **Zerubbabel's conflict** (b10): TIPNR's Pedaiah <- Shealtiel (block 15) would make Shealtiel his grandfather, a `descendant` reading. Block 15 decides how to read I Chr 3:17–19.
+- **Ruth** (b11):
+  - TIPNR's Salma "אבי בית לחם" (I Chr 2:51) as Elimelech's father, marked doubtful: rejected, no verse. Elimelech now sits under his tribe.
+  - TIPNR's Ephrathah as Ram's mother: rejected, no verse. TIPNR makes her Hezron's wife (I Chr 2:24), Caleb's wife and Hur's mother; for block 15.
+  - Orpah is Chilion's wife only by elimination: 1:4 does not pair them, and Ruth is "אשת מחלון" (4:10).
+  - Obed: "ילד בן לנעמי" (4:17), but Ruth bore him (4:13); Boaz takes her "להקים שם המת על נחלתו" (4:10). Boaz stays his father (4:21); no `levirate` link to Mahlon is recorded.
+  - Salmon is "שלמה" (4:20), "שלמון" (4:21) and "שלמא" (I Chr 2:11), one key.
+- **Added** (b11): Job's wife (2:9, 19:17) as a spouse only, since the mother of his children is not named; Lemuel's mother, "אשר יסרתו אמו" (Prov 31:1). Job's seven sons are not named.
+- **For M91** (b11): Cush "בן ימיני" (Ps 7:1) is of Benjamin, but is attached only to the book. TIPNR's Buzites <- Ram (Job 32:2, "הבוזי ממשפחת רם") is kept as a `descendant`; Buz son of Nahor (Gen 22:21) is not linked. "קהלת בן דוד" (Eccl 1:1) has no key.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -321,3 +328,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Fixed:** Lo-ruhamah and Lo-ammi <- Hosea are `unstated`.
   - **Rejected:** Malchijah of I Chr 9:12 <- Hammelech (no verse).
   - **Added:** Isaiah's prophetess as Maher-shalal-hash-baz's mother; Pashhur <- Immer (`descendant`); Malchiah <- Hammelech (Jer 38:6).
+- 2026-10-21, M90 block 11 (Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes): `curation/genealogy/11-b11-ps-to-eccl.yaml`, reviewed.
+  - **Counts:** 25 links checked (21 confirmed, 2 rejected, 2 added), no conflicts, 27 cue verses dismissed ("בת ציון", "בנות ירושלם", "בני אלים", "בני ישראל"). No cue verse is left unhandled.
+  - **Confirmed:** Ruth's family: Elimelech and Naomi, Mahlon and Chilion, Ruth and Orpah, Boaz and Ruth, Obed <- Ruth (4:13, 17); the line from Perez to David (4:18–22), with Ram <- Hezron picked up from block 15's sheet (4:19, I Chr 2:9). Job's daughters (42:13–15); Elihu <- Barachel; Agur <- Jakeh.
+  - **Rejected:** Elimelech <- Salma, Ram <- Ephrathah (TIPNR, no verse).
+  - **Added:** Job's wife, Lemuel's mother.
+  - The two Rahab links on the sheet stay rejected, as block 07 decided.

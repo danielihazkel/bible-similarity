@@ -1,0 +1,62 @@
+# Block 11: Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b11-ps-to-eccl
+status: reviewed
+people:
+  - {key: "anon:wife-of-job", he: "אשת איוב", sex: f, kind: anon}  # Job 2:9
+  - {key: "anon:mother-of-lemuel", he: "אם למואל", sex: f, kind: anon}  # Proverbs 31:1
+links:
+  - "Agur@Pro.30.1 <- Jakeh@Pro.30.1"
+  - "Buzites@Job.32.2- <- Ram@Job.32.2"
+  - "Elihu@Job.32.2- <- Barachel@Job.32.2-"
+  - {child: "Jemimah@Job.42.14", parent: "Job@Job.1.1-Jas", status: confirmed, proof: [Job 42:13, Job 42:14, Job 42:15]}
+  - {child: "Keren-happuch@Job.42.14", parent: "Job@Job.1.1-Jas", status: confirmed, proof: [Job 42:13, Job 42:14, Job 42:15]}
+  - {child: "Keziah@Job.42.14", parent: "Job@Job.1.1-Jas", status: confirmed, proof: [Job 42:13, Job 42:14, Job 42:15]}
+  - "Chilion@Rut.1.2- <- Elimelech@Rut.1.2-"
+  - "Chilion@Rut.1.2- <- Naomi@Rut.1.2-"
+  - {child: "Elimelech@Rut.1.2-", parent: "Salma@1Ch.2.51-", status: rejected}
+  - "Mahlon@Rut.1.2- <- Elimelech@Rut.1.2-"
+  - "Mahlon@Rut.1.2- <- Naomi@Rut.1.2-"
+  - "Naomi@Rut.1.2- <- Elimelech@Rut.1.2-"
+  - {child: "Orpah@Rut.1.4-", parent: "Chilion@Rut.1.2-", role: spouse, status: confirmed, proof: [Ruth 1:4, Ruth 4:10]}
+  - {child: "Ruth@Rut.1.4-Mat", parent: "Boaz@Rut.2.1-Luk", role: spouse, status: confirmed, proof: [Ruth 4:10, Ruth 4:13]}
+  - {child: "Ruth@Rut.1.4-Mat", parent: "Mahlon@Rut.1.2-", role: spouse, status: confirmed, proof: [Ruth 1:4, Ruth 4:10]}
+  - "Jesse@Rut.4.17-Rom <- Obed@Rut.4.17-Luk"
+  - {child: "Obed@Rut.4.17-Luk", parent: "Ruth@Rut.1.4-Mat", status: confirmed, proof: [Ruth 4:13, Ruth 4:17]}
+  - "Amminadab@Exo.6.23-Luk <- Ram@Rut.4.19-Luk"
+  - {child: "Ram@Rut.4.19-Luk", parent: "Ephrathah@Rut.1.2-1Ch", status: rejected}
+  - "Salmon@Rut.4.20-Luk <- Nahshon@Exo.6.23-Luk"
+  - "Boaz@Rut.2.1-Luk <- Salmon@Rut.4.20-Luk"
+  - "Obed@Rut.4.17-Luk <- Boaz@Rut.2.1-Luk"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Ram@Rut.4.19-Luk", parent: "Hezron@Gen.46.12-Luk", status: confirmed, proof: [Ruth 4:19, I Chronicles 2:9]}
+  # Job's wife and Lemuel's mother
+  - {child: "anon:wife-of-job", parent: "Job@Job.1.1-Jas", role: spouse, status: added, proof: [Job 2:9, Job 19:17]}
+  - {child: "Lemuel@Pro.31.1-", parent: "anon:mother-of-lemuel", role: mother, status: added, proof: [Proverbs 31:1]}
+missed:
+  - {ref: Psalms 29:1, reason: "בני אלים: a figure"}
+  - {ref: Psalms 48:12, reason: "בנות ציון, בנות יהודה: the women or towns"}
+  - {ref: Psalms 77:16, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Psalms 83:9, reason: "בני לוט: Moab and Ammon, the peoples"}
+  - {ref: Psalms 87:4, reason: "זה ילד שם: a figure"}
+  - {ref: Psalms 88:1, reason: "בני קרח: the singers of Korah's line; Heman the Ezrahite (see block 09)"}
+  - {ref: Psalms 89:7, reason: "בני אלים: a figure"}
+  - {ref: Psalms 97:8, reason: "בנות ציון, בנות יהודה: the women or towns"}
+  - {ref: Psalms 103:7, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Psalms 105:6, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Psalms 137:7, reason: "בני אדום: a people"}
+  - {ref: Psalms 148:14, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Psalms 149:2, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Proverbs 1:1, reason: "Solomon son of David: proved in block 08"}
+  - {ref: Song of Songs 1:5, reason: "בנות ציון, בנות יהודה: the women or towns"}
+  - {ref: Song of Songs 3:11, reason: "Solomon's mother, not named here: proved in block 08"}
+  - {ref: Ruth 4:18, reason: "Hezron son of Perez: proved in block 04"}
+  - {ref: Lamentations 2:1, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 2:2, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 2:5, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 2:8, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 2:10, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 2:13, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 4:2, reason: "בני ישראל, בני ציון: the people"}
+  - {ref: Lamentations 4:21, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Lamentations 4:22, reason: "בת ציון, בת אדום: a figure for the city or the land"}
+  - {ref: Ecclesiastes 1:1, reason: "קהלת בן דוד: the text does not name him, and he has no key"}
