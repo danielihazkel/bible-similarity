@@ -312,6 +312,16 @@ def test_review_errors(tmp_path):
         assert want in msg
 
 
+def test_fixed_changes_the_role(tmp_path):
+    cfg = corpus(tmp_path, 'block: b1\nlinks:\n  - {child: "Seth@Gen.1.1", parent: "Eve@Gen.1.1",'
+                           ' role: father, status: fixed}\n')  # fmt: skip
+    out = run_genealogy(cfg, log=lambda _: None)
+    pid = pd.read_parquet(out / "persons.parquet").set_index("key").person_id
+    links = pd.read_parquet(out / "links.parquet")
+    eve = links[(links.child_id == pid["Seth@Gen.1.1"]) & (links.parent_id == pid["Eve@Gen.1.1"])]
+    assert eve[["role", "status"]].values.tolist() == [["father", "fixed"]]
+
+
 def test_cycle_is_an_error(tmp_path):
     cfg = corpus(tmp_path, 'block: b1\nlinks:\n  - {child: "Adam@Gen.1.1", parent: "Seth@Gen.1.1",'
                            ' status: added}\n')  # fmt: skip

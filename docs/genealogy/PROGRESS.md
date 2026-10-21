@@ -76,7 +76,7 @@ Review blocks (M90), in Jewish canon order:
 | 05 | b05-exod-lev | Exodus–Leviticus | reviewed | 49 | 0 |
 | 06 | b06-num-deut | Numbers–Deuteronomy | reviewed | 67 | 2 |
 | 07 | b07-josh-judg | Joshua–Judges | reviewed | 37 | 1 |
-| 08 | b08-samuel | 1–2 Samuel | todo | | |
+| 08 | b08-samuel | 1–2 Samuel | reviewed | 163 | 3 |
 | 09 | b09-kings | 1–2 Kings | todo | | |
 | 10 | b10-latter-prophets | Isaiah–Malachi | todo | | |
 | 11 | b11-ps-to-eccl | Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes | todo | | |
@@ -90,23 +90,20 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 08: `b08-samuel` (1–2 Samuel).** Follow **How to resume** step 2. The block is large; if the sheet is too big for one session, split it here first (1 Samuel / 2 Samuel).
+**M90, block 09: `b09-kings` (1–2 Kings).** Follow **How to resume** step 2.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Elkanah's line** (1 Sam 1:1: Jeroham, Elihu, Tohu, Zuph, "אפרתי"), Hannah and Peninnah, Samuel's sons Joel and Abijah (8:2). 1 Chr 6 is a Levite line with other spellings: note it for block 16.
-- **Eli's house:** Hophni and Phinehas, Ichabod (4:21), Ahitub (14:3), Ahimelech son of Ahitub, Abiathar.
-- **Saul's line:**
-  - Kish son of Abiel (9:1, 14:51), and Ner the father of Abner (14:50–51). Against 1 Chr 8:33 / 9:39 "ונר הוליד את קיש", this may be a Bible conflict.
-  - Saul's sons and daughters (14:49, 31:2), Ahinoam daughter of Ahimaaz, and Rizpah's sons (2 Sam 21:8).
-  - Merab or Michal as Adriel's wife (21:8); Mephibosheth and Mica.
-- **David's family:**
-  - Jesse's sons (1 Sam 16:6–10, 17:13), and David's wives and sons (2 Sam 3:2–5, 5:13–16).
-  - Zeruiah's sons (Joab, Abishai, Asahel). Amasa son of Ithra and "אביגל בת נחש אחות צרויה" (2 Sam 17:25), against 1 Chr 2:16–17, where Abigail is Jesse's daughter and Jether is an Ishmaelite.
-  - Bathsheba daughter of Eliam (2 Sam 11:3), against Bath-shua daughter of Ammiel (1 Chr 3:5).
-  - Absalom's three sons and Tamar (14:27), against "אין לי בן" (18:18).
-- Jesse <- Obed is in Ruth (block 11), not on this sheet.
+- **Eli's forefather:** TIPNR gives Eli a father `Unnamed#4@1Ki.2.27` ("בית עלי", 1 Kgs 2:27). See whether the text names any parent.
+- **Solomon's house:** Naamah the Ammonite, Rehoboam's mother (1 Kgs 14:21, 31); Pharaoh's daughter; Solomon's sons-in-law (4:11, 15).
+- **The kings' mothers**, named at each accession. Things to check:
+  - Maacah daughter of Abishalom is Abijam's mother (1 Kgs 15:2) and Asa's mother (15:10). Against "מיכיהו בת אוריאל" (2 Chr 13:2), this may be a Bible conflict.
+  - Athaliah is "בת אחאב" (2 Kgs 8:18) and "בת עמרי" (8:26). If the second means granddaughter, it is a `descendant` conflict.
+  - Jehu is "בן יהושפט בן נמשי" (2 Kgs 9:2, 14) and "בן נמשי" (9:20, 1 Kgs 19:16), another `descendant` conflict.
+  - Zedekiah: "מתניה דדו" (2 Kgs 24:17) against "צדקיהו אחיו" (2 Chr 36:10). Note it for block 19.
+- **Hiram the craftsman:** his mother is "אשה אלמנה ממטה נפתלי" (1 Kgs 7:14), but "מן בנות דן" in 2 Chr 2:13. No parent is named, so it is at most a note.
+- **Name variants:** Abijam / Abijah, Azariah / Uzziah, Jehoahaz / Shallum. TIPNR keeps one key each; note them, no conflict.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -118,6 +115,9 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Eliab** (b06, `descendant`): Pallu's son (Num 26:5, 8), "אליאב בן ראובן" (Deut 11:6). Pallu drawn.
 - **Achan** (b07, `descendant`): "עכן בן כרמי בן זבדי בן זרח" (Josh 7:1, 18), "עכן בן זרח" (7:24, 22:20). Carmi drawn.
 - **Jair** (b06, `descendant`): Segub's son, whose mother was Machir's daughter (I Chr 2:21–22); "יאיר בן מנשה" (Num 32:41, Deut 3:14). Segub drawn; the link Jair <- Segub is confirmed early, on block 15's verses.
+- **Kish** (b08): "קיש בן אביאל" (I Sam 9:1, 14:51); "ונר הוליד את קיש" (I Chr 8:33, 9:39). Abiel drawn. TIPNR takes Abiel for Jeiel of Gibeon (I Chr 9:35), whose sons include a Kish and a Ner (8:30, 9:36).
+- **Abigail, Zeruiah's sister** (b08): "אביגל בת נחש" (II Sam 17:25); a sister of Jesse's sons (I Chr 2:16). Jesse drawn. Her husband is "יתרא הישראלי" in Samuel and "יתר הישמעאלי" in I Chr 2:17.
+- **Mephibosheth** (b08, `descendant`): Jonathan's son (II Sam 4:4, 9:6); "מפבשת בן שאול" (19:25), and Saul "אביך" (9:7). Jonathan drawn.
 
 ## Open questions
 - **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
@@ -132,6 +132,27 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Kenaz <- Jephunneh** (b07) is kept as `unstated`. It rests only on reading "עתניאל בן קנז אחי כלב (הקטן ממנו)" (Josh 15:17, Judg 1:13, 3:9) as Kenaz being Caleb's brother. "כלב בן יפנה הקנזי" (Num 32:12, Josh 14:6, 14) makes Caleb a Kenizzite instead.
 - **Hobab** (b07): Num 10:29 has "חבב בן רעואל המדיני חתן משה", Judg 4:11 "חבב חתן משה". If חתן there means father-in-law, Hobab is Zipporah's father, against Exod 2:18–21 (Reuel). No conflict is recorded, since the word can mean any in-law; the tree follows Num 10:29.
 - **Jonathan son of Gershom** (Judg 18:30) writes "בן מנשה" with a suspended nun; without it, it reads משה. TIPNR's Gershom is Moses' son (marked doubtful), and the link is kept.
+- **Absalom's sons** (b08): "ויולדו לאבשלום שלושה בנים ובת אחת" (II Sam 14:27) against "אין לי בן" (18:18). The sons are not named and have no key, so no conflict can be recorded; only Tamar is in the tree.
+- **Adriel's wife** (b08): Merab is given to Adriel (I Sam 18:19), but II Sam 21:8 has "חמשת בני מיכל בת שאול אשר ילדה לעדריאל", and Michal had no child (6:23). The five sons are not named, so nothing can be recorded. The tree keeps Merab as Adriel's wife and no Michal–Adriel link.
+- **Nahash of II Sam 17:25** is made a man (`sex: m`): "אביגל בת נחש" names a parent, and the text does not say Nahash was Jesse's wife, as TIPNR has it. Her mother links to all of Jesse's children are rejected, including the ones in I Chr 2:14–15 and 27:18 (blocks 15, 18).
+- **Mothers not stated** (b08), kept as `unstated`:
+  - Ahinoam daughter of Ahimaaz for Saul's children: her name follows the list of 14:49, but the text does not say she bore them. Ish-bosheth, not on the list, is rejected.
+  - Maacah for Tamar: "אחות אבשלם" (13:4) marks a full sister.
+- **TIPNR identifications kept** (b08), one key for two names:
+  - Ahijah son of Ahitub (I Sam 14:3, 18) is Ahimelech son of Ahitub.
+  - Ishvi (14:49) is Abinadab.
+  - Jonathan son of Shimea (II Sam 21:21, I Chr 20:7) is Jonadab (II Sam 13:3).
+  - Abiel (I Sam 9:1) is Jeiel of Gibeon.
+  - Merib-baal and Eshbaal (I Chr 8:33–34) are Mephibosheth and Ish-bosheth.
+- **Name variants on one key** (b08):
+  - Eliam / Ammiel and Bathsheba / Bath-shua (II Sam 11:3 / I Chr 3:5);
+  - Chileab / Daniel (II Sam 3:3 / I Chr 3:1);
+  - Maoch / Maacah, Achish's father (I Sam 27:2 / I Kgs 2:39);
+  - Jaare-oregim / Jair, Elhanan's father (II Sam 21:19 / I Chr 20:5), where Samuel has Goliath and Chronicles "לחמי אחי גלית";
+  - Palti / Paltiel, Toi / Tou, Joram / Hadoram, Sharar / Sachar.
+- **Ahimelech and Abiathar** (b08): "אחימלך בן אביתר" (II Sam 8:17, I Chr 18:16, 24:6) against "אביתר בן אחימלך" (I Sam 22:20, 23:6). TIPNR has two Ahimelechs, so the tree keeps both links as written.
+- **Jesse's sons:** eight (I Sam 17:12), seven named in I Chr 2:13–15. For block 15.
+- **The Rapha's offspring** (b08): Ishbi-benob, Saph, Goliath, the man of 21:20 and Lahmi are `descendant`s of הרפה ("בילידי הרפה", "ילדו להרפה", II Sam 21:16–22). With the article, it reads as the eponym of the Rephaim, not a father. Rapha is unattached.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -217,3 +238,21 @@ Each entry: the child, the readings with their verses, the block that found it.
     - Samson's Timnite wife (14:2, 20, 15:6).
     - Bohan <- Reuben as a `descendant` ("אבן בהן בן ראובן", Josh 15:6, 18:17).
   - **Checked in the API, after `bsim build-db`:** Gideon's children grouped by mother, Samson with his Timnite wife only, and the conflict on Achan.
+- 2026-10-21, M90 block 08 (1–2 Samuel): `curation/genealogy/08-b08-samuel.yaml`, reviewed.
+  - **Counts:** 163 links checked (138 confirmed, 12 fixed, 11 rejected, 2 added), 3 conflicts, 93 cue verses dismissed. Most cues are "בני ישראל", "בני עמון", or "בן ישי", "בן צרויה" and "יונתן בנו" repeated. No cue verse is left unhandled. The block fits one session; no split was needed.
+  - **Confirmed:**
+    - Elkanah's line to Zuph (I Sam 1:1); Hannah and Peninnah; Samuel <- Elkanah and Hannah; Joel and Abijah <- Samuel (8:1–2).
+    - Eli's house: Hophni and Phinehas, Ichabod and Ahitub, Ahimelech son of Ahitub (proved on 22:9–20, not 14:3), Abiathar, Jonathan son of Abiathar.
+    - Saul's line from Aphiah to Kish, and Ner <- Abiel (14:51). Saul's children, Rizpah's Armoni and Mephibosheth, and Michal's husbands David and Palti; Merab and Adriel; Mephibosheth and Micah.
+    - David: Jesse's sons, Zeruiah and her three sons, whose father is not named but has a tomb in Bethlehem (II Sam 2:32). Amasa <- Jether and Abigail.
+    - David's wives and the sons of Hebron and Jerusalem (3:2–5, 5:13–16); Solomon <- Bathsheba; Tamar; Jonadab <- Shimeah.
+    - The officials and heroes with their fathers (8:16–18, 23:8–39).
+  - **Fixed:**
+    - Ahinoam's five children and Tamar <- Maacah are `unstated`.
+    - Abigail <- Nahash is a father link.
+    - The Rapha's five offspring are `descendant`s.
+  - **Rejected:**
+    - Ish-bosheth <- Ahinoam.
+    - TIPNR's Nahash as Jesse's wife, with her nine mother links (five here, four on later sheets).
+  - **Added:** Phinehas's wife, Ichabod's mother (4:19–21).
+  - **Code:** a `fixed` link with a new parent `role` (mother to father) used to fail, because the lookup filtered by the new role. It now falls back to the pair's other parent link (`apply_curation`). New test: `test_fixed_changes_the_role`.

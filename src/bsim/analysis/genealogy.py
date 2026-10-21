@@ -340,9 +340,10 @@ def apply_curation(
             if kind is not None and kind not in LINK_KINDS:
                 err(where, f"kind {kind!r}")
                 continue
-            have = parent_links(child, parent)
-            if role is not None:
-                have = [lk for lk in have if lk.role == role]
+            pair = parent_links(child, parent)
+            have = pair if role is None else [lk for lk in pair if lk.role == role]
+            if not have and st == "fixed" and role in PARENT_ROLES:  # fixed to the other role
+                have = [lk for lk in pair if lk.role in PARENT_ROLES]
             proof = refs(where, item.get("proof"))
             if st == "added":
                 if have:

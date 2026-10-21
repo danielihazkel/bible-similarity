@@ -854,7 +854,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 05 Exodus–Leviticus
 - [x] 06 Numbers–Deuteronomy
 - [x] 07 Joshua–Judges
-- [ ] 08 1–2 Samuel
+- [x] 08 1–2 Samuel
 - [ ] 09 1–2 Kings
 - [ ] 10 Isaiah–Malachi
 - [ ] 11 Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes

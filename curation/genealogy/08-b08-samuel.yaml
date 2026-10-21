@@ -1,0 +1,292 @@
+# Block 08: 1-2 Samuel (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b08-samuel
+status: reviewed
+people:
+  - {key: "anon:wife-of-phinehas", he: "אשת פינחס", sex: f, kind: anon}  # I Samuel 4:19
+  # "אביגל בת נחש" (II Samuel 17:25) names Nahash as a parent; TIPNR's "Jesse's wife" is not in the text
+  - {key: "Nahash@2Sa.17.25", sex: m}
+links:
+  - "Elihu@1Sa.1.1-1Ch <- Tohu@1Sa.1.1-1Ch"
+  - "Elkanah@1Sa.1.1-1Ch <- Jeroham@1Sa.1.1-1Ch"
+  - "Jeroham@1Sa.1.1-1Ch <- Elihu@1Sa.1.1-1Ch"
+  - "Tohu@1Sa.1.1-1Ch <- Zuph@1Sa.1.1-1Ch"
+  - "Hophni@1Sa.1.3- <- Eli@1Sa.1.3-1Ki"
+  - "Peninnah@1Sa.1.2- <- Elkanah@1Sa.1.1-1Ch"
+  - "Hannah@1Sa.1.2- <- Elkanah@1Sa.1.1-1Ch"
+  - {child: "Samuel@1Sa.1.20-Heb", parent: "Elkanah@1Sa.1.1-1Ch", status: confirmed, proof: [I Samuel 1:19, I Samuel 1:20]}
+  - "Samuel@1Sa.1.20-Heb <- Hannah@1Sa.1.2-"
+  - "Eleazar@1Sa.7.1 <- Abinadab@1Sa.7.1-1Ch"
+  - "Abiel@1Sa.9.1-1Ch <- Zeror@1Sa.9.1"
+  - "Becorath@1Sa.9.1 <- Aphiah@1Sa.9.1"
+  - "Kish@1Sa.9.1-Act <- Abiel@1Sa.9.1-1Ch"
+  - "Zeror@1Sa.9.1 <- Becorath@1Sa.9.1"
+  - {child: "Saul@1Sa.9.2-Act", parent: "Kish@1Sa.9.1-Act", status: confirmed, proof: [I Samuel 9:1, I Samuel 9:2, I Samuel 9:3, I Samuel 10:21, II Samuel 21:14]}
+  - {child: "Jonathan@1Sa.13.2-1Ch", parent: "Ahinoam@1Sa.14.50", kind: unstated, status: fixed, proof: [I Samuel 14:49, I Samuel 14:50]}
+  - "Phinehas@1Sa.1.3- <- Eli@1Sa.1.3-1Ki"
+  - "Ichabod@1Sa.4.21- <- Phinehas@1Sa.1.3-"
+  - {child: "Ahimelech@1Sa.14.3-Psa", parent: "Ahitub@1Sa.14.3-", status: confirmed, proof: [I Samuel 22:9, I Samuel 22:11, I Samuel 22:20]}
+  - "Ahitub@1Sa.14.3- <- Phinehas@1Sa.1.3-"
+  - {child: "Abinadab@1Sa.14.49-1Ch", parent: "Saul@1Sa.9.2-Act", status: confirmed, proof: [I Samuel 31:2, I Chronicles 8:33, I Chronicles 10:2]}
+  - {child: "Abinadab@1Sa.14.49-1Ch", parent: "Ahinoam@1Sa.14.50", kind: unstated, status: fixed, proof: [I Samuel 14:49, I Samuel 14:50]}
+  - {child: "Malchi-shua@1Sa.14.49-1Ch", parent: "Ahinoam@1Sa.14.50", kind: unstated, status: fixed, proof: [I Samuel 14:49, I Samuel 14:50]}
+  - {child: "Merab@1Sa.14.49-2Sa", parent: "Ahinoam@1Sa.14.50", kind: unstated, status: fixed, proof: [I Samuel 14:49, I Samuel 14:50]}
+  - {child: "Michal@1Sa.14.49-1Ch", parent: "Ahinoam@1Sa.14.50", kind: unstated, status: fixed, proof: [I Samuel 14:49, I Samuel 14:50]}
+  - "Saul@1Sa.9.2-Act <- Ahinoam@1Sa.14.50"
+  - "Abner@1Sa.14.50-1Ch <- Ner@1Sa.14.50-1Ch"
+  - "Ahinoam@1Sa.14.50 <- Ahimaaz@1Sa.14.50"
+  - "Ner@1Sa.14.50-1Ch <- Abiel@1Sa.9.1-1Ch"
+  - {child: "Eliab@1Sa.16.6-2Ch", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Abinadab@1Sa.16.8-1Ch", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Shimeah@1Sa.16.9-1Ch", parent: "Nahash@2Sa.17.25", status: rejected}
+  - "Abinadab@1Sa.16.8-1Ch <- Jesse@Rut.4.17-Rom"
+  - "Shimeah@1Sa.16.9-1Ch <- Jesse@Rut.4.17-Rom"
+  - "Merab@1Sa.14.49-2Sa <- Saul@1Sa.9.2-Act"
+  - "Michal@1Sa.14.49-1Ch <- Saul@1Sa.9.2-Act"
+  - {child: "Michal@1Sa.14.49-1Ch", parent: "David@Rut.4.17-Rev", role: spouse, status: confirmed, proof: [I Samuel 18:27, I Samuel 19:11, I Samuel 25:44]}
+  - "Abiathar@1Sa.22.20-Mrk <- Ahimelech@1Sa.14.3-Psa"
+  - "Nabal@1Sa.25.3-2Sa <- Abigail@1Sa.25.3-1Ch"
+  - "Palti@1Sa.25.44-2Sa <- Laish@1Sa.25.44-2Sa"
+  - "Palti@1Sa.25.44-2Sa <- Michal@1Sa.14.49-1Ch"
+  - {child: "Abishai@1Sa.26.6-1Ch", parent: "husband_of_Zeruiah@1Sa.26.6", status: confirmed, proof: [II Samuel 2:18, II Samuel 2:32]}
+  - "Abishai@1Sa.26.6-1Ch <- Zeruiah@1Sa.26.6-1Ch"
+  - {child: "Joab@1Sa.26.6-Psa", parent: "husband_of_Zeruiah@1Sa.26.6", status: confirmed, proof: [II Samuel 2:18, II Samuel 2:32]}
+  - {child: "Zeruiah@1Sa.26.6-1Ch", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 2:13, I Chronicles 2:16]}
+  - "husband_of_Zeruiah@1Sa.26.6 <- Zeruiah@1Sa.26.6-1Ch"
+  - "Achish@1Sa.21.10-Psa <- Maoch@1Sa.27.2-1Ki"
+  - "David@Rut.4.17-Rev <- Abigail@1Sa.25.3-1Ch"
+  - "David@Rut.4.17-Rev <- Ahinoam@1Sa.25.43-1Ch"
+  - "Malchi-shua@1Sa.14.49-1Ch <- Saul@1Sa.9.2-Act"
+  - "Ish-bosheth@2Sa.2.8-1Ch <- Saul@1Sa.9.2-Act"
+  - {child: "Ish-bosheth@2Sa.2.8-1Ch", parent: "Ahinoam@1Sa.14.50", status: rejected}
+  - "Joab@1Sa.26.6-Psa <- Zeruiah@1Sa.26.6-1Ch"
+  - {child: "Asahel@2Sa.2.18-1Ch", parent: "husband_of_Zeruiah@1Sa.26.6", status: confirmed, proof: [II Samuel 2:18, II Samuel 2:32]}
+  - "Asahel@2Sa.2.18-1Ch <- Zeruiah@1Sa.26.6-1Ch"
+  - "Amnon@2Sa.3.2-1Ch <- Ahinoam@1Sa.25.43-1Ch"
+  - "Absalom@2Sa.3.3-Psa <- Maacah@2Sa.3.3-1Ch"
+  - "Maacah@2Sa.3.3-1Ch <- Talmai@2Sa.3.3-1Ch"
+  - {child: "Maacah@2Sa.3.3-1Ch", parent: "David@Rut.4.17-Rev", role: spouse, status: confirmed, proof: [II Samuel 3:2, II Samuel 3:3]}
+  - "Adonijah@2Sa.3.4-1Ch <- Haggith@2Sa.3.4-1Ch"
+  - {child: "Shephatiah@2Sa.3.4-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 3:2, II Samuel 3:4]}
+  - "Shephatiah@2Sa.3.4-1Ch <- Abital@2Sa.3.4-1Ch"
+  - {child: "David@Rut.4.17-Rev", parent: "Abital@2Sa.3.4-1Ch", role: spouse, status: confirmed, proof: [II Samuel 3:2, II Samuel 3:4]}
+  - "Eglah@2Sa.3.5-1Ch <- David@Rut.4.17-Rev"
+  - "Ithream@2Sa.3.5-1Ch <- David@Rut.4.17-Rev"
+  - "Ithream@2Sa.3.5-1Ch <- Eglah@2Sa.3.5-1Ch"
+  - "Saul@1Sa.9.2-Act <- Rizpah@2Sa.3.7-"
+  - "Rizpah@2Sa.3.7- <- Aiah@2Sa.3.7-"
+  - "Rechab@2Sa.4.2- <- Rimmon@2Sa.4.2-"
+  - "Jonathan@1Sa.13.2-1Ch <- Saul@1Sa.9.2-Act"
+  - "Baanah@2Sa.4.2- <- Rimmon@2Sa.4.2-"
+  - "Jerusalem_wives@2Sa.5.13 <- David@Rut.4.17-Rev"
+  - {child: "Shammua@2Sa.5.14-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:14]}
+  - {child: "Shobab@2Sa.5.14-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:14]}
+  - {child: "Elishua@2Sa.5.15-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Elishua@2Sa.5.15-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Ibhar@2Sa.5.15-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Ibhar@2Sa.5.15-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Japhia@2Sa.5.15-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Japhia@2Sa.5.15-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Nepheg@2Sa.5.15-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Nepheg@2Sa.5.15-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:15]}
+  - {child: "Eliada@2Sa.5.16-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - {child: "Eliada@2Sa.5.16-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - {child: "Eliphelet@2Sa.5.16-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - {child: "Eliphelet@2Sa.5.16-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - {child: "Elishama@2Sa.5.16-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - {child: "Elishama@2Sa.5.16-1Ch", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:16]}
+  - "Ahio@2Sa.6.3-1Ch <- Abinadab@1Sa.7.1-1Ch"
+  - "Uzzah@2Sa.6.3-1Ch <- Abinadab@1Sa.7.1-1Ch"
+  - "Hadadezer@2Sa.8.3-1Ch <- Rehob@2Sa.8.3-"
+  - "Joram@2Sa.8.10-1Ch <- Toi@2Sa.8.9-1Ch"
+  - "Jehoshaphat@2Sa.8.16-1Ch <- Ahilud@2Sa.8.16-1Ch"
+  - "Ahimelech@2Sa.8.17-1Ch <- Abiathar@1Sa.22.20-Mrk"
+  - "Zadok@2Sa.8.17-Ezk <- Ahitub@2Sa.8.17-1Ch"
+  - "Benaiah@2Sa.8.18-1Ch <- Jehoiada@2Sa.8.18-1Ch"
+  - "Machir@2Sa.9.4- <- Ammiel@2Sa.9.4-"
+  - "Mephibosheth@2Sa.4.4-1Ch <- Jonathan@1Sa.13.2-1Ch"
+  - "Hanun@2Sa.10.1-1Ch <- Nahash@2Sa.10.2-1Ch"
+  - "Bathsheba@2Sa.11.3-Psa <- Eliam@2Sa.11.3-1Ch"
+  - "Uriah@2Sa.11.3-Mat <- Bathsheba@2Sa.11.3-Psa"
+  - "David@Rut.4.17-Rev <- Bathsheba@2Sa.11.3-Psa"
+  - "Amnon@2Sa.3.2-1Ch <- David@Rut.4.17-Rev"
+  - "Absalom@2Sa.3.3-Psa <- David@Rut.4.17-Rev"
+  - "Tamar@2Sa.13.1-1Ch <- David@Rut.4.17-Rev"
+  - {child: "Tamar@2Sa.13.1-1Ch", parent: "Maacah@2Sa.3.3-1Ch", kind: unstated, status: fixed, proof: [II Samuel 13:1, II Samuel 13:4, II Samuel 13:20]}
+  - {child: "Jonadab@2Sa.13.3-1Ch", parent: "Shimeah@1Sa.16.9-1Ch", status: confirmed, proof: [II Samuel 13:3, II Samuel 13:32, II Samuel 21:21]}
+  - "Talmai@2Sa.3.3-1Ch <- Ammihud@2Sa.13.37"
+  - "Tamar@2Sa.14.27 <- Absalom@2Sa.3.3-Psa"
+  - "Jonathan@2Sa.15.27-1Ki <- Abiathar@1Sa.22.20-Mrk"
+  - "Shimei@2Sa.16.5-1Ki <- Gera@2Sa.16.5-1Ki"
+  - {child: "Zeruiah@1Sa.26.6-1Ch", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Abigail@2Sa.17.25-1Ch", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 2:13, I Chronicles 2:16]}
+  - {child: "Abigail@2Sa.17.25-1Ch", parent: "Nahash@2Sa.17.25", role: father, status: fixed, proof: [II Samuel 17:25]}
+  - "Jether@2Sa.17.25-1Ch <- Abigail@2Sa.17.25-1Ch"
+  - {child: "Nahash@2Sa.17.25", parent: "Jesse@Rut.4.17-Rom", role: spouse, status: rejected}
+  - {child: "David@Rut.4.17-Rev", parent: "Nahash@2Sa.17.25", status: rejected}
+  - "Shobi@2Sa.17.27 <- Nahash@2Sa.17.27"
+  - "Ahimaaz@2Sa.15.27-1Ch <- Zadok@2Sa.8.17-Ezk"
+  - "Sheba@2Sa.20.1- <- Bichri@2Sa.20.1-"
+  - "Merab@1Sa.14.49-2Sa <- Adriel@1Sa.18.19-2Sa"
+  - "Adriel@1Sa.18.19-2Sa <- Barzillai@2Sa.21.8"
+  - "Armoni@2Sa.21.8 <- Saul@1Sa.9.2-Act"
+  - "Armoni@2Sa.21.8 <- Rizpah@2Sa.3.7-"
+  - "Mephibosheth@2Sa.21.8 <- Saul@1Sa.9.2-Act"
+  - "Mephibosheth@2Sa.21.8 <- Rizpah@2Sa.3.7-"
+  - {child: "Ishbi-benob@2Sa.21.16", parent: "Rapha@2Sa.21.16-1Ch", kind: descendant, status: fixed, proof: [II Samuel 21:16, II Samuel 21:22]}
+  - {child: "Goliath@1Sa.17.4-1Ch", parent: "Rapha@2Sa.21.16-1Ch", kind: descendant, status: fixed, proof: [II Samuel 21:19, II Samuel 21:22]}
+  - "Elhanan@2Sa.21.19-1Ch <- Jaare-oregim@2Sa.21.19-1Ch"
+  - {child: "Lahmi@2Sa.21.16-1Ch", parent: "Rapha@2Sa.21.16-1Ch", kind: descendant, status: fixed, proof: [I Chronicles 20:5, I Chronicles 20:8]}
+  - "David@Rut.4.17-Rev <- Jesse@Rut.4.17-Rom"
+  - "Eleazar@2Sa.23.9-1Ch <- Dodo@2Sa.23.9-1Ch"
+  - "Shammah@2Sa.23.11 <- Agee@2Sa.23.11"
+  - "Elhanan@2Sa.23.24-1Ch <- Dodo@2Sa.23.24-1Ch"
+  - "Ira@2Sa.23.26-1Ch <- Ikkesh@2Sa.23.26-1Ch"
+  - "Heleb@2Sa.23.29-1Ch <- Baanah@2Sa.23.29-1Ch"
+  - "Ittai@2Sa.23.29-1Ch <- Ribai@2Sa.23.29-1Ch"
+  - "son_of_Jashen@2Sa.23.32 <- Jashen@2Sa.23.32-1Ch"
+  - "Ahiam@2Sa.23.33-1Ch <- Sharar@2Sa.23.33-1Ch"
+  - "Eliam@2Sa.23.34 <- Ahithophel@2Sa.15.12-1Ch"
+  - "Eliphelet@2Sa.23.34 <- Ahasbai@2Sa.23.34"
+  - "Igal@2Sa.23.36 <- Nathan@2Sa.23.36-1Ch"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Joel@1Sa.8.2-1Ch", parent: "Samuel@1Sa.1.20-Heb", status: confirmed, proof: [I Samuel 8:1, I Samuel 8:2]}
+  - {child: "Abijah@1Sa.8.2-1Ch", parent: "Samuel@1Sa.1.20-Heb", status: confirmed, proof: [I Samuel 8:1, I Samuel 8:2]}
+  - {child: "Eliab@1Sa.16.6-2Ch", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Samuel 17:13, I Chronicles 2:13]}
+  - {child: "Chileab@2Sa.3.3-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 3:2, II Samuel 3:3]}
+  - {child: "Chileab@2Sa.3.3-1Ch", parent: "Abigail@1Sa.25.3-1Ch", status: confirmed, proof: [II Samuel 3:3, I Chronicles 3:1]}
+  - {child: "Haggith@2Sa.3.4-1Ch", parent: "David@Rut.4.17-Rev", role: spouse, status: confirmed, proof: [II Samuel 3:2, II Samuel 3:4]}
+  - {child: "Adonijah@2Sa.3.4-1Ch", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 3:2, II Samuel 3:4]}
+  - {child: "Solomon@2Sa.5.14-Act", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:14, II Samuel 12:24]}
+  - {child: "Solomon@2Sa.5.14-Act", parent: "Bathsheba@2Sa.11.3-Psa", status: confirmed, proof: [II Samuel 12:24, I Chronicles 3:5]}
+  - {child: "Nathan@2Sa.5.14-Luk", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [II Samuel 5:13, II Samuel 5:14]}
+  - {child: "Micah@2Sa.9.12-1Ch", parent: "Mephibosheth@2Sa.4.4-1Ch", status: confirmed, proof: [II Samuel 9:12, I Chronicles 8:34]}
+  - {child: "Amasa@2Sa.17.25-1Ch", parent: "Jether@2Sa.17.25-1Ch", status: confirmed, proof: [II Samuel 17:25, I Chronicles 2:17]}
+  - {child: "Amasa@2Sa.17.25-1Ch", parent: "Abigail@2Sa.17.25-1Ch", status: confirmed, proof: [II Samuel 17:25, I Chronicles 2:17]}
+  - {child: "Saph@2Sa.21.18-1Ch", parent: "Rapha@2Sa.21.16-1Ch", kind: descendant, status: fixed, proof: [II Samuel 21:18, II Samuel 21:22]}
+  - {child: "huge_man@2Sa.21.20-1Ch", parent: "Rapha@2Sa.21.16-1Ch", kind: descendant, status: fixed, proof: [II Samuel 21:20, II Samuel 21:22]}
+  - {child: "Nethanel@1Ch.2.14", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Raddai@1Ch.2.14", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Ozem@1Ch.2.15", parent: "Nahash@2Sa.17.25", status: rejected}
+  - {child: "Elihu@1Ch.27.18", parent: "Nahash@2Sa.17.25", status: rejected}
+  # Phinehas's wife, Ichabod's mother
+  - {child: "anon:wife-of-phinehas", parent: "Phinehas@1Sa.1.3-", role: spouse, status: added, proof: [I Samuel 4:19]}
+  - {child: "Ichabod@1Sa.4.21-", parent: "anon:wife-of-phinehas", role: mother, status: added, proof: [I Samuel 4:19, I Samuel 4:21]}
+conflicts:
+  - kind: bible
+    child: "Kish@1Sa.9.1-Act"
+    readings:
+      - {parent: "Abiel@1Sa.9.1-1Ch", proof: [I Samuel 9:1, I Samuel 14:51]}
+      - {parent: "Ner@1Sa.14.50-1Ch", proof: [I Chronicles 8:33, I Chronicles 9:39]}
+    note:
+      en: "\"קיש בן אביאל\" (I Samuel 9:1, 14:51); \"ונר הוליד את קיש\" (I Chronicles 8:33, 9:39). I Chronicles 8:30 and 9:36 also list a Kish and a Ner among the sons of Jeiel of Gibeon, whom TIPNR takes for Abiel."
+      he: "„קיש בן אביאל” (שמואל א ט:א, יד:נא); „ונר הוליד את קיש” (דברי הימים א ח:לג, ט:לט). בדה״א ח:ל ובט:לו נמנים קיש ונר בין בני יעיאל אבי גבעון, ש־TIPNR מזהה עם אביאל."
+  - kind: bible
+    child: "Abigail@2Sa.17.25-1Ch"
+    readings:
+      - {parent: "Jesse@Rut.4.17-Rom", proof: [I Chronicles 2:13, I Chronicles 2:16]}
+      - {parent: "Nahash@2Sa.17.25", proof: [II Samuel 17:25]}
+    note:
+      en: "Amasa's mother is \"אביגל בת נחש אחות צרויה\", her husband \"יתרא הישראלי\" (II Samuel 17:25); I Chronicles 2:16-17 counts Zeruiah and Abigail as sisters of Jesse's sons and calls Amasa's father \"יתר הישמעאלי\". TIPNR makes Nahash Jesse's wife; the text does not say so."
+      he: "„אביגל בת נחש אחות צרויה”, ובעלה „יתרא הישראלי” (שמואל ב יז:כה); בדה״א ב:טז–יז צרויה ואביגיל אחיות בני ישי, ואבי עמשא „יתר הישמעאלי”. ב־TIPNR נחש היא אשת ישי, והכתוב אינו אומר זאת."
+  - kind: descendant
+    child: "Mephibosheth@2Sa.4.4-1Ch"
+    readings:
+      - {parent: "Jonathan@1Sa.13.2-1Ch", proof: [II Samuel 4:4, II Samuel 9:6]}
+      - {parent: "Saul@1Sa.9.2-Act", kind: descendant, proof: [II Samuel 9:7, II Samuel 19:25]}
+    note:
+      en: "Mephibosheth is Jonathan's son (II Samuel 4:4, 9:6); 19:25 calls him \"מפבשת בן שאול\", and 9:7 calls Saul \"אביך\", his grandfather."
+      he: "מפיבשת בן יהונתן (שמואל ב ד:ד, ט:ו); ביט:כה „מפבשת בן שאול”, ובט:ז שאול „אביך”, אבי אביו."
+missed:
+  - {ref: I Samuel 2:12, reason: "Eli's sons, not named here; בני בליעל a figure"}
+  - {ref: I Samuel 2:28, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 3:16, reason: "Eli calls Samuel בני: a figure"}
+  - {ref: I Samuel 7:4, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 7:6, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 7:7, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 7:8, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 10:11, reason: "Saul son of Kish: proved on 9:1-3"}
+  - {ref: I Samuel 10:18, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 11:8, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 12:12, reason: "בני עמון: the people"}
+  - {ref: I Samuel 13:16, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 13:22, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 14:18, reason: "בני ישראל: the people; Ahijah the priest (14:3)"}
+  - {ref: I Samuel 14:39, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 14:40, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 14:42, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 14:47, reason: "בני עמון: the people"}
+  - {ref: I Samuel 15:6, reason: "בני ישראל: the people"}
+  - {ref: I Samuel 16:18, reason: "בן לישי בית הלחמי: David, proved on II Samuel 23:1"}
+  - {ref: I Samuel 16:19, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 16:20, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 17:12, reason: "Jesse has eight sons (I Chronicles 2:13-15 names seven); David <- Jesse proved on II Samuel 23:1"}
+  - {ref: I Samuel 17:17, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 17:58, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 20:27, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 20:30, reason: "Saul to Jonathan; בן נעות המרדות a figure, בן ישי David"}
+  - {ref: I Samuel 22:7, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 22:12, reason: "Ahimelech son of Ahitub: proved on 22:9, 11"}
+  - {ref: I Samuel 22:13, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 23:16, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: I Samuel 24:17, reason: "Saul calls David בני: a figure"}
+  - {ref: I Samuel 25:10, reason: "David, Jesse's son: proved on II Samuel 23:1"}
+  - {ref: I Samuel 26:17, reason: "Saul calls David בני: a figure"}
+  - {ref: I Samuel 26:21, reason: "Saul calls David בני: a figure"}
+  - {ref: I Samuel 26:25, reason: "Saul calls David בני: a figure"}
+  - {ref: I Samuel 30:3, reason: "the wives, sons and daughters of David's men"}
+  - {ref: I Samuel 31:7, reason: "Saul and his sons: proved on 31:2"}
+  - {ref: II Samuel 1:4, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: II Samuel 1:5, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: II Samuel 1:12, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: II Samuel 1:17, reason: "Jonathan son of Saul: proved on I Samuel 14:1 and II Samuel 4:4"}
+  - {ref: II Samuel 1:24, reason: "בני ישראל: the people"}
+  - {ref: II Samuel 2:15, reason: "Ish-bosheth son of Saul: proved on 2:8, 10"}
+  - {ref: II Samuel 2:25, reason: "the tribe, בני בנימן"}
+  - {ref: II Samuel 3:14, reason: "Ish-bosheth son of Saul: proved on 2:8, 10"}
+  - {ref: II Samuel 3:23, reason: "Abner son of Ner: proved on I Samuel 14:50"}
+  - {ref: II Samuel 3:25, reason: "Abner son of Ner: proved on I Samuel 14:50"}
+  - {ref: II Samuel 3:28, reason: "Abner son of Ner: proved on I Samuel 14:50"}
+  - {ref: II Samuel 3:37, reason: "Abner son of Ner: proved on I Samuel 14:50"}
+  - {ref: II Samuel 3:39, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 4:1, reason: "Ish-bosheth, Saul's son, not named here: proved on 2:8"}
+  - {ref: II Samuel 4:8, reason: "Ish-bosheth son of Saul: proved on 2:8, 10"}
+  - {ref: II Samuel 6:16, reason: "Michal daughter of Saul: proved on I Samuel 18:20"}
+  - {ref: II Samuel 6:20, reason: "Michal daughter of Saul: proved on I Samuel 18:20"}
+  - {ref: II Samuel 6:23, reason: "Michal had no child: see 21:8 in the open questions"}
+  - {ref: II Samuel 7:6, reason: "בני ישראל: the people"}
+  - {ref: II Samuel 7:7, reason: "בני ישראל: the people"}
+  - {ref: II Samuel 9:3, reason: "Jonathan's son, not named here: Mephibosheth, proved on 9:6"}
+  - {ref: II Samuel 9:10, reason: "Mephibosheth בן אדניך, Saul's grandson (9:6); Ziba's fifteen sons, not named"}
+  - {ref: II Samuel 10:1, reason: "Hanun son of the king of Ammon: proved on 10:2"}
+  - {ref: II Samuel 10:3, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:6, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:8, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:10, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:11, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:14, reason: "בני עמון: the people"}
+  - {ref: II Samuel 10:19, reason: "בני עמון: the people"}
+  - {ref: II Samuel 11:1, reason: "בני עמון: the people"}
+  - {ref: II Samuel 11:21, reason: "Abimelech son of Jerubbaal: checked in block 07"}
+  - {ref: II Samuel 11:27, reason: "Bathsheba's first child, not named; he dies (12:18)"}
+  - {ref: II Samuel 12:9, reason: "בני עמון: the people"}
+  - {ref: II Samuel 12:15, reason: "Bathsheba's first child, not named; he dies (12:18)"}
+  - {ref: II Samuel 12:26, reason: "בני עמון: the people"}
+  - {ref: II Samuel 12:31, reason: "בני עמון: the people"}
+  - {ref: II Samuel 16:8, reason: "Absalom, David's son: proved on 13:1"}
+  - {ref: II Samuel 16:10, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 19:1, reason: "Absalom, David's son: proved on 13:1"}
+  - {ref: II Samuel 19:5, reason: "Absalom, David's son: proved on 13:1"}
+  - {ref: II Samuel 19:22, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 19:23, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 20:7, reason: "Sheba son of Bichri: proved on 20:1"}
+  - {ref: II Samuel 20:10, reason: "Sheba son of Bichri: proved on 20:1"}
+  - {ref: II Samuel 20:13, reason: "Sheba son of Bichri: proved on 20:1"}
+  - {ref: II Samuel 20:21, reason: "Sheba son of Bichri: proved on 20:1"}
+  - {ref: II Samuel 20:22, reason: "Sheba son of Bichri: proved on 20:1"}
+  - {ref: II Samuel 21:2, reason: "בני ישראל: the people"}
+  - {ref: II Samuel 21:12, reason: "Jonathan, Saul's son: proved on 4:4"}
+  - {ref: II Samuel 21:13, reason: "Jonathan, Saul's son: proved on 4:4"}
+  - {ref: II Samuel 21:17, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 23:18, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
+  - {ref: II Samuel 23:22, reason: "Benaiah son of Jehoiada: proved on 8:18"}
+  - {ref: II Samuel 23:37, reason: "Zeruiah's sons: proved on I Samuel 26:6 and II Samuel 2:13, 18"}
