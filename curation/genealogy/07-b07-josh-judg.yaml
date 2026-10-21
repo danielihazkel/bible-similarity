@@ -1,0 +1,281 @@
+# Block 07: Joshua-Judges (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b07-josh-judg
+status: reviewed
+people:
+  - {key: "anon:concubine-of-gideon", he: "פילגש גדעון", sex: f, kind: anon}  # Judges 8:31
+  - {key: "anon:wife-of-manoah", he: "אשת מנוח", sex: f, kind: anon}  # Judges 13:2
+  - {key: "anon:mother-of-jephthah", he: "אם יפתח", sex: f, kind: anon}  # Judges 11:1
+  - {key: "anon:timnite-wife-of-samson", he: "האשה מתמנתה", sex: f, kind: anon}  # Judges 14:1-2
+links:
+  - "Achan@Jos.7.1-1Ch <- Carmi@Jos.7.1-1Ch"
+  - "Carmi@Jos.7.1-1Ch <- Zabdi@Jos.7.1-1Ch"
+  - "Zabdi@Jos.7.1-1Ch <- Zerah@Gen.38.30-Mat"
+  - {child: "Anak@Num.13.22-Jdg", parent: "Arba@Jos.14.15-", status: confirmed, proof: [Joshua 15:13, Joshua 21:11]}
+  - "Ahiman@Num.13.22-Jdg <- Anak@Num.13.22-Jdg"
+  - "Sheshai@Num.13.22-Jdg <- Anak@Num.13.22-Jdg"
+  - "Talmai@Num.13.22-Jdg <- Anak@Num.13.22-Jdg"
+  - {child: "Achsah@Jos.15.16-Jdg", parent: "Caleb@Num.13.6-1Ch", status: confirmed, proof: [Joshua 15:16, Joshua 15:17, Judges 1:12, Judges 1:13]}
+  - "Othniel@Jos.15.17-1Ch <- Kenaz@Num.32.12-1Ch"
+  - {child: "Othniel@Jos.15.17-1Ch", parent: "Achsah@Jos.15.16-Jdg", role: spouse, status: confirmed, proof: [Joshua 15:16, Joshua 15:17, Judges 1:12, Judges 1:13]}
+  - {child: "Ehud@Jdg.3.15-1Ch", parent: "Gera@Gen.46.21-1Ch", kind: descendant, status: fixed, proof: [Judges 3:15]}
+  - "Shamgar@Jdg.3.31- <- Anath@Jdg.3.31-"
+  - "Lappidoth@Jdg.4.4 <- Deborah@Jdg.4.4-"
+  - "Barak@Jdg.4.6-Heb <- Abinoam@Jdg.4.6-"
+  - "Jael@Jdg.4.17- <- Heber@Jdg.4.11-"
+  - {child: "Gideon@Jdg.6.11-Heb", parent: "Joash@Jdg.6.11-", status: confirmed, proof: [Judges 6:11, Judges 6:29, Judges 8:29, Judges 8:32]}
+  - {child: "Jether@Jdg.8.20", parent: "Gideon@Jdg.6.11-Heb", status: confirmed, proof: [Judges 8:20]}
+  - {child: "Abimelech@Jdg.8.31-2Sa", parent: "Gideon@Jdg.6.11-Heb", status: confirmed, proof: [Judges 8:31, Judges 9:1, Judges 9:18]}
+  - "Jotham@Jdg.9.5- <- Gideon@Jdg.6.11-Heb"
+  - "Gaal@Jdg.9.26- <- Ebed@Jdg.9.26-"
+  - "Puah@Jdg.10.1 <- Dodo@Jdg.10.1"
+  - "Tola@Jdg.10.1 <- Puah@Jdg.10.1"
+  - "Jephthah@Jdg.11.1-Heb <- Gilead@Jdg.11.1-"
+  - "Abdon@Jdg.12.13- <- Hillel@Jdg.12.13-"
+  - {child: "Samson@Jdg.13.24-Heb", parent: "Manoah@Jdg.13.2-", status: confirmed, proof: [Judges 13:2, Judges 13:24, Judges 16:31]}
+  - {child: "Samson@Jdg.13.24-Heb", parent: "Delilah@Jdg.16.4-", role: spouse, status: rejected}
+  - "Jonathan@Jdg.18.30 <- Gershom@Exo.2.22-1Ch"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Kenaz@Num.32.12-1Ch", parent: "Jephunneh@Num.13.6-1Ch", kind: unstated, status: fixed, proof: [Joshua 15:17, Judges 1:13]}
+  - {child: "Salmon@Rut.4.20-Luk", parent: "Rahab@Jos.2.1-Jas", role: spouse, status: rejected}
+  - {child: "Boaz@Rut.2.1-Luk", parent: "Rahab@Jos.2.1-Jas", role: mother, status: rejected}
+  # the unnamed women of Judges, and Bohan
+  - {child: "anon:concubine-of-gideon", parent: "Gideon@Jdg.6.11-Heb", role: spouse, status: added, proof: [Judges 8:31]}
+  - {child: "Abimelech@Jdg.8.31-2Sa", parent: "anon:concubine-of-gideon", role: mother, status: added, proof: [Judges 8:31, Judges 9:18]}
+  - {child: "anon:wife-of-manoah", parent: "Manoah@Jdg.13.2-", role: spouse, status: added, proof: [Judges 13:2, Judges 13:11]}
+  - {child: "Samson@Jdg.13.24-Heb", parent: "anon:wife-of-manoah", role: mother, status: added, proof: [Judges 13:24]}
+  - {child: "Jephthah@Jdg.11.1-Heb", parent: "anon:mother-of-jephthah", role: mother, status: added, proof: [Judges 11:1, Judges 11:2]}
+  - {child: "anon:timnite-wife-of-samson", parent: "Samson@Jdg.13.24-Heb", role: spouse, status: added, proof: [Judges 14:2, Judges 14:20, Judges 15:6]}
+  - {child: "Bohan@Jos.15.6-", parent: "Reuben@Gen.29.32-Rev", role: father, kind: descendant, status: added, proof: [Joshua 15:6, Joshua 18:17]}
+conflicts:
+  - kind: descendant
+    child: "Achan@Jos.7.1-1Ch"
+    readings:
+      - {parent: "Carmi@Jos.7.1-1Ch", proof: [Joshua 7:1, Joshua 7:18]}
+      - {parent: "Zerah@Gen.38.30-Mat", kind: descendant, proof: [Joshua 7:24, Joshua 22:20]}
+    note:
+      en: "Achan is \"son of Carmi son of Zabdi son of Zerah\" (Joshua 7:1, 18); 7:24 and 22:20 call him \"Achan son of Zerah\", his forefather."
+      he: "„עכן בן כרמי בן זבדי בן זרח” (יהושע ז:א, יח); בז:כד ובכב:כ „עכן בן זרח”, אבי אבותיו."
+missed:
+  - {ref: Joshua 1:1, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 1:2, reason: "בני ישראל: the people"}
+  - {ref: Joshua 2:1, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 2:2, reason: "בני ישראל: the people"}
+  - {ref: Joshua 2:23, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 3:1, reason: "בני ישראל: the people"}
+  - {ref: Joshua 3:9, reason: "בני ישראל: the people"}
+  - {ref: Joshua 4:4, reason: "בני ישראל: the people"}
+  - {ref: Joshua 4:5, reason: "בני ישראל: the people"}
+  - {ref: Joshua 4:7, reason: "בני ישראל: the people"}
+  - {ref: Joshua 4:8, reason: "בני ישראל: the people"}
+  - {ref: Joshua 4:12, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:1, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:2, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:3, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:6, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:10, reason: "בני ישראל: the people"}
+  - {ref: Joshua 5:12, reason: "בני ישראל: the people"}
+  - {ref: Joshua 6:1, reason: "בני ישראל: the people"}
+  - {ref: Joshua 6:6, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 7:19, reason: "Joshua calls Achan בני: a figure"}
+  - {ref: Joshua 7:23, reason: "בני ישראל: the people"}
+  - {ref: Joshua 8:31, reason: "בני ישראל: the people"}
+  - {ref: Joshua 8:32, reason: "בני ישראל: the people"}
+  - {ref: Joshua 9:17, reason: "בני ישראל: the people"}
+  - {ref: Joshua 9:18, reason: "בני ישראל: the people"}
+  - {ref: Joshua 10:4, reason: "בני ישראל: the people"}
+  - {ref: Joshua 10:11, reason: "בני ישראל: the people"}
+  - {ref: Joshua 10:12, reason: "בני ישראל: the people"}
+  - {ref: Joshua 10:20, reason: "בני ישראל: the people"}
+  - {ref: Joshua 10:21, reason: "בני ישראל: the people"}
+  - {ref: Joshua 11:19, reason: "בני ישראל: the people"}
+  - {ref: Joshua 11:22, reason: "בני ישראל: the people"}
+  - {ref: Joshua 12:1, reason: "בני ישראל: the people"}
+  - {ref: Joshua 12:2, reason: "בני עמון: the people"}
+  - {ref: Joshua 12:6, reason: "בני ישראל: the people"}
+  - {ref: Joshua 12:7, reason: "בני ישראל: the people"}
+  - {ref: Joshua 13:6, reason: "בני ישראל: the people"}
+  - {ref: Joshua 13:10, reason: "בני עמון: the people"}
+  - {ref: Joshua 13:13, reason: "בני ישראל: the people"}
+  - {ref: Joshua 13:15, reason: "the tribes"}
+  - {ref: Joshua 13:22, reason: "Balaam son of Beor, Balak son of Zippor: proved on Numbers 22"}
+  - {ref: Joshua 13:23, reason: "the tribes"}
+  - {ref: Joshua 13:24, reason: "the tribes"}
+  - {ref: Joshua 13:25, reason: "בני עמון: the people"}
+  - {ref: Joshua 13:29, reason: "the tribes"}
+  - {ref: Joshua 13:31, reason: "Machir son of Manasseh: checked in block 04"}
+  - {ref: Joshua 14:1, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 14:4, reason: "Joseph's two tribes, Manasseh and Ephraim (block 04)"}
+  - {ref: Joshua 14:5, reason: "בני ישראל: the people"}
+  - {ref: Joshua 14:13, reason: "Caleb son of Jephunneh: proved on Numbers 13:6"}
+  - {ref: Joshua 15:1, reason: "the tribes"}
+  - {ref: Joshua 15:8, reason: "גי בן הנם: a place"}
+  - {ref: Joshua 15:21, reason: "the tribes"}
+  - {ref: Joshua 15:47, reason: "בנותיה: the towns"}
+  - {ref: Joshua 15:63, reason: "the tribes"}
+  - {ref: Joshua 16:1, reason: "the tribes"}
+  - {ref: Joshua 16:4, reason: "Joseph's two tribes, Manasseh and Ephraim (block 04)"}
+  - {ref: Joshua 16:5, reason: "the tribes"}
+  - {ref: Joshua 16:8, reason: "the tribes"}
+  - {ref: Joshua 16:9, reason: "the tribes"}
+  - {ref: Joshua 17:2, reason: "the clans of Manasseh's tribe, הזכרים; Gilead's sons in Numbers 26:30-32 (block 06)"}
+  - {ref: Joshua 17:4, reason: "Zelophehad's daughters, not named here; אחי אביהן the kin"}
+  - {ref: Joshua 17:6, reason: "Manasseh's daughters and sons: the tribe"}
+  - {ref: Joshua 17:8, reason: "the tribes"}
+  - {ref: Joshua 17:11, reason: "בנותיה: the towns"}
+  - {ref: Joshua 17:14, reason: "the tribes"}
+  - {ref: Joshua 17:16, reason: "the tribes"}
+  - {ref: Joshua 18:1, reason: "בני ישראל: the people"}
+  - {ref: Joshua 18:3, reason: "בני ישראל: the people"}
+  - {ref: Joshua 18:10, reason: "בני ישראל: the people"}
+  - {ref: Joshua 18:11, reason: "the tribes"}
+  - {ref: Joshua 18:14, reason: "the tribes"}
+  - {ref: Joshua 18:16, reason: "גי בן הנם: a place"}
+  - {ref: Joshua 18:20, reason: "the tribes"}
+  - {ref: Joshua 18:21, reason: "the tribes"}
+  - {ref: Joshua 18:28, reason: "the tribes"}
+  - {ref: Joshua 19:1, reason: "the tribes"}
+  - {ref: Joshua 19:8, reason: "the tribes"}
+  - {ref: Joshua 19:9, reason: "the tribes"}
+  - {ref: Joshua 19:10, reason: "the tribes"}
+  - {ref: Joshua 19:17, reason: "the tribes"}
+  - {ref: Joshua 19:32, reason: "the tribes"}
+  - {ref: Joshua 19:47, reason: "דן אביהם: the tribe's father"}
+  - {ref: Joshua 19:49, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 19:51, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 20:2, reason: "בני ישראל: the people"}
+  - {ref: Joshua 21:1, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 21:3, reason: "בני ישראל: the people"}
+  - {ref: Joshua 21:4, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:5, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:6, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:7, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:8, reason: "בני ישראל: the people"}
+  - {ref: Joshua 21:9, reason: "the tribes"}
+  - {ref: Joshua 21:10, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:12, reason: "Caleb son of Jephunneh: proved on Numbers 13:6"}
+  - {ref: Joshua 21:13, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:20, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:27, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 21:34, reason: "the priests and the Levite clans"}
+  - {ref: Joshua 22:9, reason: "בני ישראל: the people"}
+  - {ref: Joshua 22:10, reason: "the tribes"}
+  - {ref: Joshua 22:11, reason: "בני ישראל: the people"}
+  - {ref: Joshua 22:12, reason: "בני ישראל: the people"}
+  - {ref: Joshua 22:13, reason: "Phinehas son of Eleazar: checked in block 05"}
+  - {ref: Joshua 22:15, reason: "the tribes"}
+  - {ref: Joshua 22:21, reason: "the tribes"}
+  - {ref: Joshua 22:25, reason: "the tribes"}
+  - {ref: Joshua 22:30, reason: "the tribes"}
+  - {ref: Joshua 22:31, reason: "Phinehas son of Eleazar: checked in block 05"}
+  - {ref: Joshua 22:32, reason: "Phinehas son of Eleazar: checked in block 05"}
+  - {ref: Joshua 22:33, reason: "בני ישראל: the people"}
+  - {ref: Joshua 22:34, reason: "the tribes"}
+  - {ref: Joshua 24:4, reason: "Jacob and Esau <- Isaac: checked in block 03"}
+  - {ref: Joshua 24:9, reason: "Balaam son of Beor, Balak son of Zippor: proved on Numbers 22"}
+  - {ref: Joshua 24:29, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Joshua 24:32, reason: "בני ישראל: the people"}
+  - {ref: Joshua 24:33, reason: "Phinehas, Eleazar's son: checked in block 05"}
+  - {ref: Judges 1:1, reason: "בני ישראל: the people"}
+  - {ref: Judges 1:8, reason: "the tribes"}
+  - {ref: Judges 1:16, reason: "the Kenite, Moses' חתן, not named: the people"}
+  - {ref: Judges 1:20, reason: "Anak's three sons, not named here (Joshua 15:14)"}
+  - {ref: Judges 1:21, reason: "the tribes"}
+  - {ref: Judges 2:4, reason: "בני ישראל: the people"}
+  - {ref: Judges 2:6, reason: "בני ישראל: the people"}
+  - {ref: Judges 2:8, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Judges 2:11, reason: "בני ישראל: the people"}
+  - {ref: Judges 3:7, reason: "בני ישראל: the people"}
+  - {ref: Judges 3:8, reason: "בני ישראל: the people"}
+  - {ref: Judges 3:11, reason: "Othniel son of Kenaz: proved on Joshua 15:17"}
+  - {ref: Judges 3:12, reason: "בני ישראל: the people"}
+  - {ref: Judges 3:13, reason: "בני עמון: the people"}
+  - {ref: Judges 3:14, reason: "בני ישראל: the people"}
+  - {ref: Judges 3:27, reason: "בני ישראל: the people"}
+  - {ref: Judges 4:1, reason: "בני ישראל: the people"}
+  - {ref: Judges 4:3, reason: "בני ישראל: the people"}
+  - {ref: Judges 4:5, reason: "בני ישראל: the people"}
+  - {ref: Judges 4:11, reason: "Heber the Kenite split from the Kenites, Hobab's people: no parent named"}
+  - {ref: Judges 4:23, reason: "בני ישראל: the people"}
+  - {ref: Judges 4:24, reason: "בני ישראל: the people"}
+  - {ref: Judges 5:12, reason: "Barak son of Abinoam: proved on 4:6"}
+  - {ref: Judges 6:1, reason: "בני ישראל: the people"}
+  - {ref: Judges 6:2, reason: "בני ישראל: the people"}
+  - {ref: Judges 6:3, reason: "בני קדם: the people"}
+  - {ref: Judges 6:6, reason: "בני ישראל: the people"}
+  - {ref: Judges 6:7, reason: "בני ישראל: the people"}
+  - {ref: Judges 6:8, reason: "בני ישראל: the people"}
+  - {ref: Judges 6:33, reason: "בני קדם: the people"}
+  - {ref: Judges 8:28, reason: "בני ישראל: the people"}
+  - {ref: Judges 8:33, reason: "בני ישראל: the people"}
+  - {ref: Judges 8:34, reason: "בני ישראל: the people"}
+  - {ref: Judges 9:2, reason: "Jerubbaal's seventy sons, not named"}
+  - {ref: Judges 9:31, reason: "Gaal son of Ebed: proved on 9:26"}
+  - {ref: Judges 9:35, reason: "Gaal son of Ebed: proved on 9:26"}
+  - {ref: Judges 10:6, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:7, reason: "בני עמון: the people"}
+  - {ref: Judges 10:8, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:9, reason: "בני עמון: the people"}
+  - {ref: Judges 10:10, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:11, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:15, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:17, reason: "בני ישראל: the people"}
+  - {ref: Judges 10:18, reason: "בני עמון: the people"}
+  - {ref: Judges 11:4, reason: "בני עמון: the people"}
+  - {ref: Judges 11:5, reason: "בני עמון: the people"}
+  - {ref: Judges 11:6, reason: "בני עמון: the people"}
+  - {ref: Judges 11:8, reason: "בני עמון: the people"}
+  - {ref: Judges 11:9, reason: "בני עמון: the people"}
+  - {ref: Judges 11:12, reason: "בני עמון: the people"}
+  - {ref: Judges 11:13, reason: "בני עמון: the people"}
+  - {ref: Judges 11:14, reason: "בני עמון: the people"}
+  - {ref: Judges 11:15, reason: "בני עמון: the people"}
+  - {ref: Judges 11:25, reason: "Balaam son of Beor, Balak son of Zippor: proved on Numbers 22"}
+  - {ref: Judges 11:26, reason: "בנותיה: the towns"}
+  - {ref: Judges 11:27, reason: "בני ישראל: the people"}
+  - {ref: Judges 11:28, reason: "בני עמון: the people"}
+  - {ref: Judges 11:29, reason: "בני עמון: the people"}
+  - {ref: Judges 11:30, reason: "בני עמון: the people"}
+  - {ref: Judges 11:31, reason: "בני עמון: the people"}
+  - {ref: Judges 11:32, reason: "בני עמון: the people"}
+  - {ref: Judges 11:33, reason: "בני ישראל: the people"}
+  - {ref: Judges 11:36, reason: "Jephthah's daughter, not named"}
+  - {ref: Judges 11:40, reason: "בני ישראל: the people"}
+  - {ref: Judges 12:1, reason: "בני עמון: the people"}
+  - {ref: Judges 12:2, reason: "בני עמון: the people"}
+  - {ref: Judges 12:3, reason: "בני עמון: the people"}
+  - {ref: Judges 13:1, reason: "בני ישראל: the people"}
+  - {ref: Judges 13:8, reason: "the boy to be born, not named"}
+  - {ref: Judges 14:1, reason: "a woman of Timnah, of the Philistines: Samson's wife, proved on 14:2"}
+  - {ref: Judges 18:2, reason: "the tribes"}
+  - {ref: Judges 18:22, reason: "the tribes"}
+  - {ref: Judges 18:23, reason: "the tribes"}
+  - {ref: Judges 18:26, reason: "the tribes"}
+  - {ref: Judges 18:29, reason: "דן אביהם: the tribe's father"}
+  - {ref: Judges 19:12, reason: "בני ישראל: the people"}
+  - {ref: Judges 19:30, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:1, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:3, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:13, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:14, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:15, reason: "the tribes"}
+  - {ref: Judges 20:18, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:19, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:21, reason: "the tribes"}
+  - {ref: Judges 20:23, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:24, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:25, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:26, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:27, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:28, reason: "Phinehas son of Eleazar: checked in block 05"}
+  - {ref: Judges 20:30, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:31, reason: "the tribes"}
+  - {ref: Judges 20:32, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:35, reason: "בני ישראל: the people"}
+  - {ref: Judges 20:36, reason: "the tribes"}
+  - {ref: Judges 20:48, reason: "the tribes"}
+  - {ref: Judges 21:1, reason: "Benjamin, the tribe"}
+  - {ref: Judges 21:5, reason: "בני ישראל: the people"}
+  - {ref: Judges 21:6, reason: "בני ישראל: the people"}
+  - {ref: Judges 21:13, reason: "the tribes"}
+  - {ref: Judges 21:18, reason: "בני ישראל: the people"}
+  - {ref: Judges 21:21, reason: "בנות שילו: the women of Shiloh"}

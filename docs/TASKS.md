@@ -853,7 +853,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 04 Gen 37–50
 - [x] 05 Exodus–Leviticus
 - [x] 06 Numbers–Deuteronomy
-- [ ] 07 Joshua–Judges
+- [x] 07 Joshua–Judges
 - [ ] 08 1–2 Samuel
 - [ ] 09 1–2 Kings
 - [ ] 10 Isaiah–Malachi

@@ -75,7 +75,7 @@ Review blocks (M90), in Jewish canon order:
 | 04 | b04-gen-37-50 | Gen 37–50 | reviewed | 81 | 0 |
 | 05 | b05-exod-lev | Exodus–Leviticus | reviewed | 49 | 0 |
 | 06 | b06-num-deut | Numbers–Deuteronomy | reviewed | 67 | 2 |
-| 07 | b07-josh-judg | Joshua–Judges | todo | | |
+| 07 | b07-josh-judg | Joshua–Judges | reviewed | 37 | 1 |
 | 08 | b08-samuel | 1–2 Samuel | todo | | |
 | 09 | b09-kings | 1–2 Kings | todo | | |
 | 10 | b10-latter-prophets | Isaiah–Malachi | todo | | |
@@ -90,15 +90,23 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 07: `b07-josh-judg` (Joshua–Judges).** Follow **How to resume** step 2.
+**M90, block 08: `b08-samuel` (1–2 Samuel).** Follow **How to resume** step 2. The block is large; if the sheet is too big for one session, split it here first (1 Samuel / 2 Samuel).
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
-- **Left open by block 06:** TIPNR's Kenaz <- Jephunneh. It rests on reading "עתניאל בן קנז אחי כלב" (Josh 15:17, Judg 1:13 "הקטן ממנו") as Kenaz being Caleb's brother, not on "כלב בן יפנה הקנזי" (Num 32:12, a gentilic). Decide it here with Othniel <- Kenaz. The link's best verse is Num 32:12, so it is **not on this sheet**: write it in by hand.
-- Hobab: Num 10:29 has "חבב בן רעואל המדיני חתן משה" (confirmed in block 06 as TIPNR's Hobab <- Jethro). Judg 4:11 has "חבב חתן משה" and Judg 1:16 "קיני חתן משה". Is Hobab the father-in-law? That may be a Bible conflict.
-- Anak and his sons: Num 13:22 has "אחימן ששי ותלמי ילידי הענק", Josh 15:13–14 "ארבע אבי הענק", "בני הענק". Is ענק a man or a people?
-- Josh 17:2 calls Gilead's sons (Abiezer, Helek, Asriel, Shechem, Hepher, Shemida) "בני מנשה בן יוסף". They are Gilead's sons in Num 26:30–32, which block 06 confirmed: a `descendant` link if the sheet offers one. Josh 17:3 repeats Zelophehad's line.
-- Caleb's daughter Achsah, given to Othniel (Josh 15:16–17, Judg 1:12–13); Phinehas son of Eleazar (Josh 22:13, 24:33, Judg 20:28); the judges' fathers.
+- **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
+- **Elkanah's line** (1 Sam 1:1: Jeroham, Elihu, Tohu, Zuph, "אפרתי"), Hannah and Peninnah, Samuel's sons Joel and Abijah (8:2). 1 Chr 6 is a Levite line with other spellings: note it for block 16.
+- **Eli's house:** Hophni and Phinehas, Ichabod (4:21), Ahitub (14:3), Ahimelech son of Ahitub, Abiathar.
+- **Saul's line:**
+  - Kish son of Abiel (9:1, 14:51), and Ner the father of Abner (14:50–51). Against 1 Chr 8:33 / 9:39 "ונר הוליד את קיש", this may be a Bible conflict.
+  - Saul's sons and daughters (14:49, 31:2), Ahinoam daughter of Ahimaaz, and Rizpah's sons (2 Sam 21:8).
+  - Merab or Michal as Adriel's wife (21:8); Mephibosheth and Mica.
+- **David's family:**
+  - Jesse's sons (1 Sam 16:6–10, 17:13), and David's wives and sons (2 Sam 3:2–5, 5:13–16).
+  - Zeruiah's sons (Joab, Abishai, Asahel). Amasa son of Ithra and "אביגל בת נחש אחות צרויה" (2 Sam 17:25), against 1 Chr 2:16–17, where Abigail is Jesse's daughter and Jether is an Ishmaelite.
+  - Bathsheba daughter of Eliam (2 Sam 11:3), against Bath-shua daughter of Ammiel (1 Chr 3:5).
+  - Absalom's three sons and Tamar (14:27), against "אין לי בן" (18:18).
+- Jesse <- Obed is in Ruth (block 11), not on this sheet.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -108,6 +116,7 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Timna** (b03): daughter of Seir, Lotan's sister (Gen 36:20, 22), or among Eliphaz's sons (I Chr 1:36). Seir drawn.
 - **Anah** (b03): son of Zibeon (Gen 36:2, 24) or of Seir (36:20, 29); perhaps two men, one TIPNR record. Zibeon drawn.
 - **Eliab** (b06, `descendant`): Pallu's son (Num 26:5, 8), "אליאב בן ראובן" (Deut 11:6). Pallu drawn.
+- **Achan** (b07, `descendant`): "עכן בן כרמי בן זבדי בן זרח" (Josh 7:1, 18), "עכן בן זרח" (7:24, 22:20). Carmi drawn.
 - **Jair** (b06, `descendant`): Segub's son, whose mother was Machir's daughter (I Chr 2:21–22); "יאיר בן מנשה" (Num 32:41, Deut 3:14). Segub drawn; the link Jair <- Segub is confirmed early, on block 15's verses.
 
 ## Open questions
@@ -116,6 +125,13 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
   - Og is filed under Ben-ammi (tribe "Ammon"), but he is king of Bashan "מיתר הרפאים" (Deut 3:11).
   - Zippor is filed under Moab: his son Balak is king of Moab (Num 22:4), and his descent is not stated.
+- **More TIPNR people filed under a tribe or unattached** (for M91), found in block 07:
+  - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1); the Levite is the young man of Bethlehem (17:7).
+  - Jephunneh has no tribe, so Caleb, Kenaz and Othniel sit under "Unattached". Caleb is of Judah (Num 13:6, 34:19). 1 Chr 2:9, 18, 42 and 4:15 have Calebs of Hezron's line; block 15 decides how they relate.
+  - Joash, Gideon's father, is "אבי העזרי" (Judg 6:11, 24), of Abiezer, Gilead's son (Num 26:30, Josh 17:2), but he has no tribe.
+- **Kenaz <- Jephunneh** (b07) is kept as `unstated`. It rests only on reading "עתניאל בן קנז אחי כלב (הקטן ממנו)" (Josh 15:17, Judg 1:13, 3:9) as Kenaz being Caleb's brother. "כלב בן יפנה הקנזי" (Num 32:12, Josh 14:6, 14) makes Caleb a Kenizzite instead.
+- **Hobab** (b07): Num 10:29 has "חבב בן רעואל המדיני חתן משה", Judg 4:11 "חבב חתן משה". If חתן there means father-in-law, Hobab is Zipporah's father, against Exod 2:18–21 (Reuel). No conflict is recorded, since the word can mean any in-law; the tree follows Num 10:29.
+- **Jonathan son of Gershom** (Judg 18:30) writes "בן מנשה" with a suspended nun; without it, it reads משה. TIPNR's Gershom is Moses' son (marked doubtful), and the link is kept.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -185,3 +201,19 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Names:** Issachar's Jashub reads יוב and Puah פוה, as Genesis 46:13 writes them (block 04's rule for צחר).
   - **Left for block 07:** Kenaz <- Jephunneh (TIPNR), Anak's sons, Hobab as Moses' חתן.
   - Checked in the API: Moses with two wives, Gilead's six sons, Eliab's and Jair's conflicts with both readings.
+- 2026-10-21, M90 block 07 (Joshua–Judges): `curation/genealogy/07-b07-josh-judg.yaml`, reviewed.
+  - **Counts:** 37 links checked (25 confirmed, 2 fixed, 3 rejected, 7 added), 1 conflict, 223 cue verses dismissed. Nearly all the cues are "בני ישראל", the tribes, Ammon, or Joshua son of Nun. No cue verse is left unhandled.
+  - **Confirmed:** Achan <- Carmi <- Zabdi <- Zerah (Josh 7:1, 18); Anak <- Arba ("ארבע אבי הענק", 15:13) and Anak's three sons, taking ענק as a man, as TIPNR does; Achsah <- Caleb and Othniel her husband; Othniel <- Kenaz; the judges' fathers (Shamgar, Barak, Gideon, Tola, Jephthah, Abdon, Samson); Deborah and Lappidoth, Jael and Heber; Gideon's sons Jether, Abimelech and Jotham; Gaal <- Ebed; Jonathan <- Gershom (Judg 18:30).
+  - **Fixed:**
+    - Ehud <- Gera is a `descendant`: TIPNR's Gera is Benjamin's son.
+    - Kenaz <- Jephunneh is `unstated` (left open by block 06).
+  - **Rejected:**
+    - Delilah as Samson's wife: 16:4 tells of love, no marriage.
+    - Rahab as Salmon's wife and Boaz's mother: that is Matthew 1:5.
+  - **Added:**
+    - Gideon's concubine in Shechem, Abimelech's mother (8:31, 9:18).
+    - Manoah's wife, Samson's mother (13:2, 24).
+    - Jephthah's mother (11:1–2).
+    - Samson's Timnite wife (14:2, 20, 15:6).
+    - Bohan <- Reuben as a `descendant` ("אבן בהן בן ראובן", Josh 15:6, 18:17).
+  - **Checked in the API, after `bsim build-db`:** Gideon's children grouped by mother, Samson with his Timnite wife only, and the conflict on Achan.
