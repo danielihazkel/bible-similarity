@@ -9,6 +9,7 @@ paths:
   models: models
   artifacts: artifacts
   db: artifacts/results.sqlite
+  curation: curation          # hand-made review files, committed (DESIGN.md §16.63: curation/genealogy/)
   labels: data/labels.sqlite  # your judgements of pairs, written by the viewer (DESIGN.md §16.25)
   pipeline_state: artifacts/pipeline_state.json   # `bsim all`: each stage's code, config, input and output hashes (DESIGN.md §16.35)
   web_dist: web/dist          # production viewer build (`npm run build` in web/), served by `bsim serve`
@@ -432,6 +433,65 @@ places:                       # `bsim places`: the gazetteer, each place the tex
   sample: 50                  # mentions drawn for the hand check (`sample.json`)
   seed: 11
   hand_check: {site: [49, 50], low_score: 4}   # the 50 drawn after the rules were set: the site is the place meant (or the land of the people named) in 49; Amos 4:3's הרמונה is no sure place; 4 points have an OpenBible vote below 300
+
+genealogy:                    # `bsim genealogy`: the family tree, every link with its verses, reviewed block by block (DESIGN.md §16.63)
+  max_shift: 3                # verses: a TIPNR reference (moved to Hebrew numbering, data/kjv.py) snaps to the nearest verse naming the person this far off
+  construct_span: 3           # words: "child בן parent" counts as `construct` when the two names are at most this far apart
+  proof_k: 3                  # automatic proof verses kept per link (the review's own are all kept)
+  near_verses: 2              # a link with no verse naming both: the child's verse with the parent named this many verses before is a `nearby` hint (a list's heading)
+  cues:                       # a proof verse's strength, by its strongest cue (ties: the nearer names, then canon order)
+    construct: 5              # child, בן / בת, parent in that order (יהושע בן נון)
+    sons_of: 4                # בני / בנות right before the parent, the child after (בני לאה ראובן)
+    wife: 4                   # spouses: אשה next to either name (שרי אשת אברם)
+    begot: 3                  # a form of ילד (הוליד, ותלד, ילדה)
+    kin: 2                    # a son, daughter, father or mother word
+    together: 1               # both named, no cue
+    nearby: 0                 # not proof: the parent named a verse or two before (`near_verses`), a hint for the review
+  root: Adam@Gen.2.19-Jud     # the head of the tree (TIPNR key)
+  tribes:                     # TIPNR's tribe / nation of the father -> its eponym: a person without a parent link hangs under it by an `unstated` link ((?) kept as doubt); other labels go under "unattached"
+    Tribe of Judah: Judah@Gen.29.35-Rev
+    Tribe of Levi: Levi@Gen.29.34-Rev
+    Tribe of Benjamin: Benjamin@Gen.35.18-Rev
+    Tribe of Asher: Asher@Gen.30.13-Rev
+    Tribe of Simeon: Simeon@Gen.29.33-Rev
+    Tribe of Manasseh: Manasseh@Gen.41.51-Rev
+    Tribe of Gad: Gad@Gen.30.11-Rev
+    Tribe of Reuben: Reuben@Gen.29.32-Rev
+    Tribe of Ephraim: Ephraim@Gen.41.52-Zec
+    Tribe of Issachar: Issachar@Gen.30.18-Rev
+    Tribe of Naphtali: Naphtali@Gen.30.8-Rev
+    Tribe of Zebulun: Zebulun@Gen.30.20-Rev
+    Tribe of Dan: Dan@Gen.30.6-1Ch
+    Israel: Israel@Gen.25.26-Rev
+    Edom: Esau@Gen.25.25-Heb
+    Canaan: Canaan@Gen.9.18-1Ch
+    Egypt: Egypt@Gen.10.6-1Ch
+    Ammon: Ben-ammi@Gen.19.38
+    Moab: Moab@Gen.19.37a
+    Midian: Midian@Gen.25.2-1Ch
+    Syria: Aram@Gen.10.22-1Ch
+    Assyria: Asshur@Gen.10.22-1Ch
+    Cush: Cush@Gen.10.6-1Ch
+  blocks:                     # the review, block by block in canon order (docs/genealogy/PROGRESS.md): first and last verse
+    b01-gen-1-11: [Genesis 1:1, Genesis 11:32]
+    b02-gen-12-25: [Genesis 12:1, Genesis 25:18]
+    b03-gen-25-36: [Genesis 25:19, Genesis 36:43]
+    b04-gen-37-50: [Genesis 37:1, Genesis 50:26]
+    b05-exod-lev: [Exodus 1:1, Leviticus 27:34]
+    b06-num-deut: [Numbers 1:1, Deuteronomy 34:12]
+    b07-josh-judg: [Joshua 1:1, Judges 21:25]
+    b08-samuel: [I Samuel 1:1, II Samuel 24:25]
+    b09-kings: [I Kings 1:1, II Kings 25:30]
+    b10-latter-prophets: [Isaiah 1:1, Malachi 3:24]
+    b11-ps-to-eccl: [Psalms 1:1, Ecclesiastes 12:14]
+    b12-esth-dan: [Esther 1:1, Daniel 12:13]
+    b13-ezra-nehemiah: [Ezra 1:1, Nehemiah 13:31]
+    b14-1chr-1: [I Chronicles 1:1, I Chronicles 1:54]
+    b15-1chr-2-4: [I Chronicles 2:1, I Chronicles 4:43]
+    b16-1chr-5-6: [I Chronicles 5:1, I Chronicles 6:66]
+    b17-1chr-7-9: [I Chronicles 7:1, I Chronicles 9:44]
+    b18-1chr-10-29: [I Chronicles 10:1, I Chronicles 29:30]
+    b19-2chr: [II Chronicles 1:1, II Chronicles 36:23]
 
 place_lists:                  # `bsim place-lists`: are the place lists of the text ordered on the ground? (DESIGN.md §16.58); everything below fixed before the first run
   shuffles: 9999              # random orders of a list's places, and random district labels over a grouping's towns: the null

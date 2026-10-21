@@ -196,6 +196,33 @@ def places(config: ConfigOpt = None) -> None:
     run_places(load_config(config), log=typer.echo)
 
 
+@app.command()
+def genealogy(config: ConfigOpt = None) -> None:
+    """The family tree: TIPNR's families with proof verses, and the reviewed blocks applied."""
+    from bsim.analysis.genealogy import run_genealogy
+
+    try:
+        run_genealogy(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("genealogy-review")
+def genealogy_review(
+    block: Annotated[str, typer.Argument(help="a block of genealogy.blocks, e.g. b01-gen-1-11")],
+    config: ConfigOpt = None,
+) -> None:
+    """Write a block's review sheet: its links and verses, and the cue verses no link uses."""
+    from bsim.analysis.genealogy import run_genealogy_review
+
+    try:
+        run_genealogy_review(load_config(config), block, log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("place-lists")
 def place_lists(config: ConfigOpt = None) -> None:
     """Are the place lists ordered on the ground? Paths and districts against shuffles."""

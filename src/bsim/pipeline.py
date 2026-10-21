@@ -210,6 +210,12 @@ def stage_places(cfg: dict[str, Any], log: Log) -> None:
     run_places(cfg, log=log)
 
 
+def stage_genealogy(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.genealogy import run_genealogy
+
+    run_genealogy(cfg, log=log)
+
+
 def stage_place_lists(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.place_lists import run_place_lists
 
@@ -425,6 +431,7 @@ STAGES: dict[str, str] = {
     "sound": "stage_sound",
     "entities": "stage_entities",
     "places": "stage_places",
+    "genealogy": "stage_genealogy",
     "place-lists": "stage_place_lists",
     "place-arc": "stage_place_arc",
     "place-links": "stage_place_links",
@@ -496,6 +503,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "sound": (*_CORPUS, "parallelism"),
     "entities": (*_CORPUS, "lexicon"),
     "places": (*_CORPUS, "lexicon", "entities"),
+    "genealogy": (*_CORPUS,),
     "place-lists": (*_CORPUS, "places"),
     "place-arc": (*_CORPUS, "places"),
     "place-links": (*_CORPUS, "places"),

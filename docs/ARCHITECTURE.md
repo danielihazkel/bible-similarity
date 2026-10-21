@@ -89,7 +89,8 @@ bible-similarity/
 ├── README.md
 ├── CLAUDE.md
 ├── pyproject.toml / uv.lock        # uv-managed; torch from the cu126 index
-├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only)
+├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only); genealogy/PROGRESS.md (the family tree's hand-off)
+├── curation/genealogy/             # the family tree's review files, one per block (keys and references only; §16.63)
 ├── configs/
 │   └── default.yaml                # all paths, hyperparameters, k, seeds
 ├── src/bsim/
@@ -109,7 +110,8 @@ bible-similarity/
 │   │   ├── refs.py                 # Sefaria citation -> verse range
 │   │   ├── links.py                # Sefaria links: filter, parse, expand, symmetrize, split
 │   │   ├── golds.py                # `bsim build-golds`: OpenBible / ETCBC verse pairs, before training (§16.41)
-│   │   ├── geo.py                  # STEPBible TIPNR and OpenBible.info geocoding readers (§16.56)
+│   │   ├── geo.py                  # STEPBible TIPNR (names, families) and OpenBible.info geocoding readers (§16.56, §16.63)
+│   │   ├── kjv.py                  # English (KJV) verse numbers -> ours, for TIPNR's references (§16.63)
 │   │   ├── basemap.py              # Natural Earth land / lakes / rivers clipped and simplified, plain Python (§16.57)
 │   │   └── bhsa.py                 # `bsim syntax`: BHSA clauses / phrases on OSHB words, speakers (§16.26)
 │   ├── text/
@@ -155,6 +157,7 @@ bible-similarity/
 │   │   ├── typescenes.py           # `bsim typescenes`: verb-order alignment of pericopes (§16.20)
 │   │   ├── entities.py             # `bsim entities`: people / places, co-occurrence network (§16.11)
 │   │   ├── places.py               # `bsim places`: the gazetteer, which place each name is and where it lies (§16.56)
+│   │   ├── genealogy.py            # `bsim genealogy`: the family tree from TIPNR's families, proof verses by cue, the reviewed blocks applied; `bsim genealogy-review` (§16.63)
 │   │   ├── place_lists.py          # `bsim place-lists`: list paths and districts against shuffles, on all and on sure sites (§16.58)
 │   │   ├── place_arc.py            # `bsim place-arc`: chapter centres, consecutive chapters against shuffles, known moves, the oracles' spread (§16.60)
 │   │   ├── place_links.py          # `bsim place-links`: places named together, link strength against km with shuffled coordinates, far pairs as leads (§16.61)
@@ -267,6 +270,8 @@ bible-similarity/
 | 11b''''' | `bsim acrostics` | verses, units, parallelism cola | `artifacts/acrostics/units.parquet` + `.meta.json` (§16.15) |
 | 11b⁵ | `bsim entities` | words | `artifacts/entities/{entities,mentions,links}.parquet` + `.meta.json` (§16.11) |
 | 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds,basemap}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
+| 11b⁵ᵍ | `bsim genealogy` | words, verses, `data/raw/geo` (TIPNR), `curation/genealogy/*.yaml` | `artifacts/genealogy/{persons,links,proofs,conflicts,blocks}.parquet` + `genealogy.meta.json` (§16.63) |
+| — | `bsim genealogy-review <block>` | genealogy, words, verses, `curation/genealogy` | `artifacts/genealogy/review/<block>.md`: a block's review sheet (§16.63) |
 | 11b⁵'' | `bsim place-lists` | places, mentions, words, verses | `artifacts/place_lists/{lists,steps,districts,members}.parquet` + `place_lists.meta.json` (§16.58) |
 | 11b⁵''' | `bsim place-arc` | places, mentions, verses | `artifacts/place_arc/{chapters,books}.parquet` + `place_arc.meta.json` (§16.60) |
 | 11b⁵'''' | `bsim place-links` | places, mentions, verses | `artifacts/place_links/{pairs,bins}.parquet` + `place_links.meta.json` (§16.61) |
@@ -302,7 +307,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, masorah, els, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, masorah, els, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

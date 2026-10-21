@@ -288,6 +288,77 @@ CREATE TABLE place_mentions (
     PRIMARY KEY (lemma, verse_id)
 ) WITHOUT ROWID;
 
+-- The family tree (`bsim genealogy`, §16.63): TIPNR's people, numbered in canon order of first
+-- verse, with the virtual nodes the tree needs ("unattached" and its books).
+CREATE TABLE genealogy_persons (
+    person_id INTEGER PRIMARY KEY,
+    key TEXT NOT NULL,              -- TIPNR's unique name or a review's anon: key (never shown)
+    he TEXT NOT NULL,               -- Hebrew name, consonants ('' for the unnamed and virtual nodes)
+    sex TEXT,                       -- m | f
+    kind TEXT NOT NULL,             -- person | group | anon | virtual
+    tribe TEXT,                     -- TIPNR's tribe / nation of the father (English; never shown)
+    first_vid INTEGER,
+    n_verses INTEGER NOT NULL,
+    reviewed INTEGER NOT NULL,      -- 1: every parent link checked in a review file
+    placement TEXT NOT NULL,        -- root | tree | tribe | spouse | unattached | virtual
+    book_id INTEGER,                -- a virtual book node under "unattached": its book
+    founded TEXT NOT NULL           -- JSON: TIPNR keys of the places they founded
+);
+
+-- Links between people: parents (father | mother), spouse and sibling pairs, and the unstated
+-- links that hang a person on its tribe or on "unattached".
+CREATE TABLE genealogy_links (
+    link_id INTEGER PRIMARY KEY,
+    parent_id INTEGER NOT NULL,     -- spouse / sibling: the one first in key order
+    child_id INTEGER NOT NULL,
+    role TEXT NOT NULL,             -- father | mother | spouse | sibling | unstated
+    kind TEXT NOT NULL,             -- son | descendant | adopted | levirate | founder | unstated (spouse, sibling: the role)
+    drawn INTEGER NOT NULL,         -- 1: the link the tree draws (the primary parent)
+    doubt INTEGER NOT NULL,         -- TIPNR's (?) on it
+    marker TEXT NOT NULL,           -- TIPNR's markers (a d ?)
+    status TEXT NOT NULL,           -- tipnr | confirmed | fixed | added | rejected | reading
+    source TEXT NOT NULL,           -- tipnr | curated | tribe
+    block TEXT,                     -- the review block that checked it
+    conflict_id INTEGER,
+    seq INTEGER,                    -- the child's place in the parent's offspring (TIPNR)
+    n_candidates INTEGER NOT NULL,  -- verses that could prove it
+    cue TEXT                        -- the best proof's cue
+);
+
+-- The proof verses of each link, best first (`source`: auto | curated).
+CREATE TABLE genealogy_proofs (
+    link_id INTEGER NOT NULL,
+    rank INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    cue TEXT NOT NULL,              -- construct | sons_of | wife | begot | kin | together | nearby
+    tokens TEXT NOT NULL,           -- JSON: the display tokens of both names
+    source TEXT NOT NULL,
+    PRIMARY KEY (link_id, rank)
+) WITHOUT ROWID;
+
+-- Where the text disagrees with itself: a person's readings (link ids, the first drawn).
+CREATE TABLE genealogy_conflicts (
+    conflict_id INTEGER PRIMARY KEY,
+    kind TEXT NOT NULL,             -- bible | descendant
+    child_id INTEGER NOT NULL,
+    block TEXT,
+    readings TEXT NOT NULL,         -- JSON: link ids
+    note_en TEXT,
+    note_he TEXT
+);
+
+-- The review blocks (`genealogy.blocks`) and how far each has got.
+CREATE TABLE genealogy_blocks (
+    block TEXT PRIMARY KEY,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    status TEXT NOT NULL,           -- todo | draft | reviewed
+    n_links INTEGER NOT NULL,
+    n_conflicts INTEGER NOT NULL,
+    n_missed INTEGER NOT NULL,
+    file TEXT
+);
+
 -- The base map (§16.57): Natural Earth's land, lakes and rivers in the region, simplified.
 CREATE TABLE map_shapes (
     shape_id INTEGER PRIMARY KEY,

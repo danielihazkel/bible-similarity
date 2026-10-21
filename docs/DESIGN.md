@@ -1421,22 +1421,36 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - The letter string is ours: 4 letters fewer than the tradition's 304,805 (§16.55).
 
 ### 16.63 The family tree (`bsim genealogy`, `analysis/genealogy.py`, `/genealogy`)
-Status: designed (F0); built in M88–M91. Progress and hand-off: `docs/genealogy/PROGRESS.md`.
+Status: data built (M88); viewer M89, review M90–M91. Progress and hand-off: `docs/genealogy/PROGRESS.md`.
 - **Why:** one tree of everyone the Hebrew Bible names, where each parent → child link is backed by the verse(s) that state it, can be collapsed at any node, and marks where the text disagrees with itself.
 - **The backbone:** TIPNR's PERSON records (already downloaded with `geo`, §16.56). Each record has these columns: parents (father + mother), siblings, partners, offspring, tribe or nation, and type (Male / Female / Group).
   - Markers on the links: `(?)` an ambiguity decided by STEPBible, `(a)` an ancestor rather than the parent, `(d)` a group descended from them, `(f)` the founder of a place.
   - Only people with Hebrew Bible references are kept.
   - TIPNR gives no verse per link, and settles each conflict into one choice, so both of those come from here.
+  - Its parents and offspring columns agree in every case but one, and no parent field names two people.
+- **A person's verses:** TIPNR's references are in English (KJV) numbering.
+  - `data/kjv.py` moves them to ours with 39 rules, one per chapter whose break falls elsewhere in the Hebrew (Exod 8:1 = 7:26, 1 Chr 6:1–15 = 5:27–41, Joel 3 = 4). Each rule gives where an English run of verses starts; the verses after it follow in canon order.
+  - Without the rules, 1 Chr 6, the Levites' genealogy, is 15 verses off throughout.
+  - With them, 98.3% of TIPNR's 29,782 Hebrew Bible references name the person in that very verse; the Psalm titles and the Decalogue's merged verses are what is left.
+  - Each reference then snaps to the nearest verse within `max_shift` that names the person, and the name's words there are its tokens.
+  - References marked by their occurrence in the verse (`Exo.7.10a`, 15% of all) are read too. `bsim places` still drops them, and its output is unchanged.
 - **Who is in the tree:**
   - people;
   - nations and clans (Gen 10, the tribes, founders), as group nodes;
   - unnamed people needed as links (אשת חצרון, Lot's daughters), as `anon:` nodes;
   - spouses and concubines, so each child sits under its mother.
 - **Proof verses, found automatically:**
-  - **candidates:** the verses where the mentions of both people fall, using TIPNR's references tied to the text by `resolve_mentions` (§16.56);
-  - **ranking by cues:** בן / בת in construct between the two names first, then the verbs ילד / הוליד / ותלד, then אבי / אם;
-  - **kept:** the top `genealogy.proof_k`, with the tokens of both names;
-  - a link with no candidate is `unproved`.
+  - **candidates:** the verses naming both people;
+  - **ranking by cues**, strongest first (`genealogy.cues`):
+    - `construct`: child, בן / בת, parent within `construct_span` words (יצחק בן אברהם);
+    - `sons_of`: בני / בנות right before the parent, the child after (ובני יצחק יהודה);
+    - `begot`: a form of ילד;
+    - `kin`: any son, daughter, father or mother word;
+    - `together`: both named, no cue;
+    - spouses: `wife`, אשה next to either name.
+
+    Ties go to the nearer names, then canon order. The first `proof_k` are kept, with the display tokens of both names.
+  - **a hint, not a proof:** a link with no verse naming both gets the child's verse whose previous `near_verses` name the parent (`nearby`: a list's heading, "ובני אלפעל" then the sons). With neither, the link is unproved.
 - **The review:** block by block in Jewish canon order (19 blocks, `PROGRESS.md`), each checked against the Hebrew and kept in `curation/genealogy/NN-<block>.yaml`.
   - The files hold person keys and Sefaria-style references in Hebrew numbering, never scripture text.
   - A link is confirmed, fixed, added or rejected. Its kind is son, descendant, adopted, levirate, founder or unstated.
@@ -1447,9 +1461,21 @@ Status: designed (F0); built in M88–M91. Progress and hand-off: `docs/genealog
   - Rabbinic identifications are deferred.
   - A key or reference that does not resolve stops the build.
 - **Placement:**
-  - Each person has one primary parent: the father if known, else the mother. Other parents and other readings are cross-links.
-  - A fragment that does not reach Adam is attached to its tribe or nation by an `unstated` link; with no known tribe it goes under "Unattached".
-  - A cycle, or two primary parents, is an error.
+  - Each person has one primary parent: a conflict's first reading, else the father, else the mother. Other parents and other readings are cross-links (`drawn` = 0).
+  - Someone without a parent who married in is drawn beside the spouse rather than as a node: a spouse, or a parent only of children drawn under the other parent (Eve, Sarah, Keturah). Of a couple neither of whom has a parent, the husband is placed and the wife is beside him.
+  - Anyone else without a parent hangs on the eponym of TIPNR's tribe or nation of the father (`genealogy.tribes`: the twelve tribes, Israel, Edom → Esau, Canaan, Egypt, Ammon, Moab, Midian, Aram, Asshur, Cush) by an `unstated` link. Otherwise they go under "unattached", grouped by the book that first names them.
+  - A cycle is an error.
+- **The review sheet** (`bsim genealogy-review <block>`, `artifacts/genealogy/review/<block>.md`):
+  - every link whose best verse is in the block (an unproved one by its child's first verse), as a `child <- parent` line with its verses and the names marked;
+  - the people first named there without a parent;
+  - the cue verses (בן / בת next to a name, or ילד, with two names or more) that no link uses as proof and no review file has dismissed.
+- **Results (M88, before any review):**
+  - 2,845 people: 2,737 persons, 73 groups, 35 unnamed.
+  - 1,818 parent links (1,553 father, 265 mother), 128 spouse pairs, 2,603 sibling pairs.
+  - 1,463 parent links (80%) have a verse naming both; by best cue: construct 616, sons of 461, begot 217, kin 146, together 23. Another 218 have a `nearby` hint and 137 have nothing.
+  - 12 links are TIPNR's "ancestor" or "descended group", and 71 carry its `(?)`.
+  - Placement: Adam at the root, 1,553 under a parent, 169 on a tribe's eponym, 67 beside a spouse, 1,055 under "unattached". Most of those 1,055 have no family in the text at all (officials, eunuchs, Esther's courtiers).
+  - The stage runs in about 3 s.
 - **Viewer** (Overview → Family tree, `/genealogy?p=`):
   - **Layout:** a tidy tree laid out by `d3-hierarchy` over the expanded part only. Nodes are HTML buttons over an SVG edge layer, and nodes off screen are not drawn.
   - **Collapsing:** any node collapses or expands, showing a count of the descendants it hides. Search opens the path to a person.

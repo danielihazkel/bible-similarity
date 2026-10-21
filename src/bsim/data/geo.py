@@ -7,7 +7,11 @@
   `– Named` line under it gives one name: its disambiguated Strong's number (`H0059H`), the
   Hebrew and every reference (English versification, STEP book abbreviations). One Strong's
   number may belong to several records (the Abel of 1 Sam 6:18 and the Abel of 2 Sam 20:18),
-  told apart by their references.
+  told apart by their references. A PERSON record's first line also gives the family: parents
+  (`father + mother`), siblings, partners, offspring, the tribe or nation of the father and the
+  type (Male, Female, Group), each relative by unique name with a marker: `(?)` a choice made
+  where the text is ambiguous, `(a)` an ancestor rather than the parent, `(d)` a group descended
+  from them, `(f)` a place they founded (`TipnrFamily`, read for `bsim genealogy`, §16.63).
 - **OpenBible.info Bible Geocoding** (`ancient.jsonl`, CC BY 4.0): one record per ancient place
   (`friendly_id`, types, the TIPNR ids it links to) with its proposed modern identifications, each
   voted on (`score.vote_total`, 0 to 1000) and resolved to a point (`lonlat`).
@@ -40,6 +44,10 @@ _MAP = re.compile(r"@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),\d+z")
 # a compound name's later part: `H6010K«H6010=עֵמֶק` (the Strong's number, the form)
 _PART = re.compile(r"H(\d+)[A-Za-z]?=([^=]*)$")
 _REF = re.compile(r"^([1-3]?[A-Z][a-z]{1,2})\.(\d+)\.(\d+)$")
+# a reference with the letter of its occurrence in the verse (`Exo.7.10a`, `Exo.7.10b`)
+_REF_ANY = re.compile(r"^([1-3]?[A-Z][a-z]{1,2})\.(\d+)\.(\d+)[a-z]?$")
+# a relative: `Zerah@Gen.38.30-Mat(a)`, `Tehinnah@1Ch.4.12=H8468`, `Jahdai@1Ch.2.47(?)`
+_RELATIVE = re.compile(r"^(?P<uid>[^@]+@[^=()\s]+)(?:=[HG]\w+)?(?:\((?P<marker>[a-z?]+)\))?$")
 
 
 @dataclass
@@ -51,6 +59,30 @@ class TipnrName:
     # a compound name's parts, (base Strong's number, pointed form), as TIPNR gives them:
     # the name, then the words added to it (`חֶבְרוֹן+H6010K«H6010=עֵמֶק`, the valley of Hebron)
     parts: list[tuple[int, str]] = field(default_factory=list)
+    kind: str = "Named"  # the line's significance: Named, Spelled, Group, Mentioned, Aramaic, ...
+    # every reference as given (book_id, chapter, verse), English numbering: with those marked by
+    # their occurrence (`Exo.7.10a`) and a psalm title's verse 0, which `refs` leaves out / moves
+    eng_refs: list[tuple[int, int, int]] = field(default_factory=list)
+
+
+@dataclass
+class TipnrRelative:
+    uid: str  # the relative's unique name
+    marker: str = ""  # ? | a | d | f (TIPNR's markers; `d?` both)
+
+
+@dataclass
+class TipnrFamily:
+    """A PERSON record's family columns."""
+
+    description: str
+    father: TipnrRelative | None = None
+    mother: TipnrRelative | None = None
+    siblings: list[TipnrRelative] = field(default_factory=list)
+    partners: list[TipnrRelative] = field(default_factory=list)
+    offspring: list[TipnrRelative] = field(default_factory=list)
+    tribe: str = ""  # the tribe or nation of the father (`Tribe of Judah`, `Edom`), "" if none
+    type: str = ""  # Male | Female | Group
 
 
 @dataclass
@@ -60,6 +92,44 @@ class TipnrRecord:
     openbible: str = ""  # places: the OpenBible name
     lonlat: tuple[float, float] | None = None  # places: the map link's point
     names: list[TipnrName] = field(default_factory=list)
+    family: TipnrFamily | None = None  # PERSON records
+
+
+def relatives(field_: str) -> list[TipnrRelative]:
+    """The relatives of a family column (comma-separated unique names with markers)."""
+    out = []
+    for item in field_.split(","):
+        m = _RELATIVE.match(item.strip())
+        if m:
+            out.append(TipnrRelative(m["uid"], m["marker"] or ""))
+    return out
+
+
+def read_family(first: list[str]) -> TipnrFamily:
+    """The family of a PERSON record from the fields of its first line."""
+    f = [*first, *[""] * (9 - len(first))]
+    father, _, mother = f[2].partition("+")
+    dad, mum = relatives(father), relatives(mother)
+    tribe = f[6].strip().lstrip(">").strip()
+    return TipnrFamily(
+        description=f[1].strip(),
+        father=dad[0] if dad else None,
+        mother=mum[0] if mum else None,
+        siblings=relatives(f[3]),
+        partners=relatives(f[4]),
+        offspring=relatives(f[5]),
+        tribe=tribe,
+        type=f[8].strip(),
+    )
+
+
+def eng_ref(ref: str) -> tuple[int, int, int] | None:
+    """`Exo.7.10a` -> (book_id, 7, 10) as written, English numbering (a psalm title stays verse
+    0); None outside the Hebrew Bible."""
+    m = _REF_ANY.match(ref.strip())
+    if not m or m.group(1) not in STEP_BOOKS:
+        return None
+    return BY_OSIS[STEP_BOOKS[m.group(1)]].book_id, int(m.group(2)), int(m.group(3))
 
 
 def step_ref(ref: str) -> tuple[int, int, int] | None:
@@ -91,6 +161,8 @@ def read_tipnr(path: Path) -> list[TipnrRecord]:
             point = next((p for f in first[2:6] if (p := _MAP.search(f))), None)
             if point:
                 rec.lonlat = (float(point.group(2)), float(point.group(1)))
+        elif rec.category == "PERSON":
+            rec.family = read_family(first)
         for ln in lines[2:]:
             if not ln.startswith("–") or ln.startswith("– Total"):
                 continue
@@ -102,6 +174,7 @@ def read_tipnr(path: Path) -> list[TipnrRecord]:
             if not digits:
                 continue
             refs = [r for x in f[4].split(";") if (r := step_ref(x)) is not None]
+            eng = [r for x in f[4].split(";") if (r := eng_ref(x)) is not None]
             # the first of its spellings (`יְרוּשָׁלִַם, יְרוּשְׁלֵם`); a compound's later parts
             # are written `+H6010K«H6010=עֵמֶק`
             raw = f[2].split("=", 1)[1].split("+") if "=" in f[2] else [""]
@@ -112,7 +185,8 @@ def read_tipnr(path: Path) -> list[TipnrRecord]:
                     parts.append((int(m.group(1)), m.group(2).split(",")[0].strip()))
             hebrew = " ".join(form for _, form in parts if form)
             rec.names.append(TipnrName(int(digits.group(1)), dstrong, hebrew, refs,
-                                       parts if len(parts) > 1 else []))  # fmt: skip
+                                       parts if len(parts) > 1 else [],
+                                       f[0].lstrip("–").strip(), eng))  # fmt: skip
         out.append(rec)
     return out
 

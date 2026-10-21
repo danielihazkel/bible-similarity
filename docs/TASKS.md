@@ -830,10 +830,13 @@ Phase 3 (M39c): API and viewer
 ✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
 
 ## M88: The family tree, data (§16.63, D101; proposed F1)
-- [ ] `read_tipnr()` reads the family columns of a PERSON record (parents, siblings, partners, offspring, tribe, type, the `(?)` / `(a)` / `(d)` / `(f)` markers); places unchanged
-- [ ] `bsim genealogy` (`analysis/genealogy.py`): people with Hebrew Bible references, links from TIPNR, proof verses by cue, the curated files of `curation/genealogy/` applied with strict validation, one primary parent each, fragments attached to their tribe; `bsim genealogy-review <block>` writes the review sheet
-- [ ] DB `genealogy_persons`, `genealogy_links`, `genealogy_proofs`, `genealogy_conflicts` (+ `meta.genealogy`)
-- [ ] Tests: the family columns, proof ranking (Gen 21:3 for Isaac), curated overrides and conflicts, validation errors, no cycles (pytest); counts on the real build
+- [x] `read_tipnr()` reads the family columns of a PERSON record (`TipnrFamily`: parents, siblings, partners, offspring, tribe, type, the `(?)` / `(a)` / `(d)` / `(f)` markers) and every reference as written (`eng_refs`, with `Exo.7.10a`); places unchanged (byte for byte)
+- [x] `data/kjv.py`: English (KJV) verse numbers to ours, 39 rules (1 Chr 6:1 = 5:27, Joel 3 = 4, ...)
+- [x] `bsim genealogy` (`analysis/genealogy.py`, ~3 s): people with Hebrew Bible names, links from both sides of TIPNR, proof verses by cue (construct, sons of, begot, kin, together; wife for spouses; a `nearby` hint for list headings), the review files of `curation/genealogy/` applied with strict validation, one drawn parent each, the married-in beside their spouse, the rest on their tribe's eponym or under "unattached" by book; `bsim genealogy-review <block>` writes the review sheet
+- [x] DB `genealogy_persons`, `genealogy_links`, `genealogy_proofs`, `genealogy_conflicts`, `genealogy_blocks` (+ `meta.genealogy`)
+- [x] Tests: the family columns, English numbering, the cues and the nearby hint, the stage on a small corpus (placement, proofs, tokens, determinism), a review file applied (confirmed, added, rejected, a conflict, missed), its errors, a cycle, the missing source (pytest)
+
+✔ 2,845 people (2,737 persons, 73 groups, 35 unnamed) and 1,818 parent links, 1,463 (80%) with a verse naming both before any review: construct 616, sons of 461, begot 217, kin 146, together 23; 218 more have a nearby hint and 137 nothing. TIPNR's references hit the name in 98.3% of verses once moved to Hebrew numbering (about 80% without the rules; 1 Chr 6 was 15 verses off). Placed: Adam, 1,553 under a parent, 169 on a tribe, 67 beside a spouse, 1,055 unattached (mostly people with no family in the text). 680 pytest; the stages flagged by the change but unchanged were adopted.
 
 ## M89: The family tree, viewer (§16.63, D101; proposed F2)
 - [ ] API `/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup?q=`
@@ -943,7 +946,7 @@ Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 
 From the 2026-10-21 request: a family tree of everyone in the Hebrew Bible. Every link has its verse, conflicts in the text are marked, and the tree collapses at any node. The work is reviewed block by block and handed off in `docs/genealogy/PROGRESS.md`. Names are shown in Hebrew only (D5, D92).
 
 Family tree
-- [ ] F1 (M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
+- [x] F1 (done, M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
 - [ ] F2 (M89) Viewer: the collapsible tree, side panel, markers, search, responsive
 - [ ] F3 (M90) The review in 19 blocks, in canon order
 - [ ] F4 (M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
