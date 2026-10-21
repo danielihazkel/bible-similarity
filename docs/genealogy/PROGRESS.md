@@ -85,32 +85,28 @@ Review blocks (M90), in Jewish canon order:
 | 13 | b13-ezra-nehemiah | Ezra–Nehemiah | reviewed | 142 | 5 |
 | 14 | b14-1chr-1 | 1 Chr 1 | reviewed | 0 | 0 |
 | 15 | b15-1chr-2 | 1 Chr 2 | reviewed | 134 | 0 |
-| 15b | b15b-1chr-3-4 | 1 Chr 3–4 | todo | | |
+| 15b | b15b-1chr-3-4 | 1 Chr 3–4 | reviewed | 166 | 0 |
 | 16 | b16-1chr-5-6 | 1 Chr 5–6 | todo | | |
 | 17 | b17-1chr-7-9 | 1 Chr 7–9 | todo | | |
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | todo | | |
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 15b: `b15b-1chr-3-4` (I Chr 3–4).** Follow **How to resume** step 2. Block 15 was split at I Chr 3:1 in the session that reviewed I Chr 2. This half has about 150 links, the size of blocks 08 and 09; if its sheet is much larger, split it again at I Chr 4:1.
+**M90, block 16: `b16-1chr-5-6` (I Chr 5–6).** Follow **How to resume** step 2. If its sheet is much larger than about 180 links, split it at I Chr 6:1 first, as block 15 was split.
 
 Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Lines whose flags include `status` were decided in an earlier block: leave them out. Check for "status" anywhere in the flags, not just first: block 15 nearly re-confirmed Abigail <- Jesse because its flags read "(doubt, status confirmed …)". The build now stops on a link decided twice.
+- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Leave out lines whose flags include `status` anywhere: they were decided in an earlier block, and the build now stops on a link decided twice.
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Links confirmed early, on this block's verses:** Zerubbabel <- Pedaiah (3:19, block 10).
-- **Left over from I Chr 2:** Haroeh <- Shobal ("הראה", 2:52; "וראיה בן שובל", 4:2) has its best verse in 4:2, so it is on this sheet.
-- **David's sons and the kings** (3:1–24) against II Sam 3:2–5 and 5:14–16, and I Kgs:
-  - Kileab and Daniel (3:1);
-  - "בת שוע בת עמיאל" (3:5), Bathsheba daughter of Eliam in II Sam 11:3;
-  - the second Eliphelet and Nogah (3:6–8);
-  - Josiah's sons Johanan and Shallum (3:15), against Jer 22:11 (block 10's open question);
-  - Jeconiah's sons and Zerubbabel (3:17–19);
-  - Shecaniah's line (3:21–24).
-- **Judah's sons again** (4:1): "פרץ חצרון וכרמי וחור ושובל" are not five sons. Hezron is Perez's son (2:5), and Hur and Shobal are Caleb's son and grandson (2:19, 50). Carmi there may be Achan's father (2:7) rather than Reuben's son; TIPNR keeps the two apart.
-- **Hur's line** (4:3–4): "בני חור בכור אפרתה אבי בית לחם", and Ashhur's wives Helah and Naarah (4:5–7). TIPNR links Hur's and Ashhur's sons there.
-- **"אבי X" with a town** (4:3–23): mark founders with `founder`, as in I Chr 2 (Hebron, Jorkeam, Madmannah, Machbenah, Gibea).
-- **Jabez** (4:9–10), **Caleb son of Jephunneh** (4:15), and **Mered's wives**, Bithiah daughter of Pharaoh and the Judahite (4:17–18).
-- **Simeon** (4:24–43) against Gen 46:10, Ex 6:15 and Num 26:12–14: Nemuel / Jemuel, Jarib / Jachin, Zerah / Zohar.
+- **Links confirmed early, on this block's verses:** Azariah <- Johanan (5:36, block 13's conflict).
+- **Reuben, Gad and half Manasseh** (5:1–26): Reuben's birthright given to Joseph's sons (5:1–2); Joel's line down to Beerah, exiled by Tiglath-pileser (5:4–6); the heads of Gad and of half Manasseh, who are given no fathers.
+- **The high priests** (5:27–41), from Levi to Jehozadak, against Ex 6:16–25 and Ezra 7:1–5:
+  - Ahitub <- Amariah and Bukki <- Abishua, left over from block 13 (Ezra 7:2–5);
+  - the second Azariah, Amariah and Ahitub (5:36–38), and Meraioth between Zadok and Ahitub in Neh 11:11 and I Chr 9:11 (block 13's open question).
+- **The Levites** (6:1–38):
+  - Gershom / Gershon (6:1–2), and Libni and Shimei;
+  - Kohath's line down to Samuel (6:7–13) against I Sam 1:1: Elkanah, Jeroham, Elihu / Eliel, Tohu / Toah, Zuph / Zophai; Samuel's sons Vashni and Abijah against Joel and Abijah (I Sam 8:2; 6:13, 18);
+  - the singers Heman, Asaph and Ethan, with their lines back to Levi (6:16–32), against the lines of 6:5–15.
+- **The Levites' cities** (6:39–66): towns, not persons.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -262,6 +258,21 @@ Each entry: the child, the readings with their verses, the block that found it.
     - **Salma** "אבי בית לחם", son of Hur (2:51), and Salma father of Boaz (2:11), who lived in Bethlehem, are two TIPNR keys.
     - **Hur** grandfather of Bezalel (2:19–20) is merged with the Hur of Ex 17:10 and 24:14, as TIPNR has it.
   - Ashhur "אבי תקוע" (2:24), Mesha "אבי זיף" (2:42), Maon "אבי בית צור" (2:45), Shobal "אבי קרית יערים" (2:50), Salma "אבי בית לחם" and Hareph "אבי בית גדר" (2:51): TIPNR does not make these towns persons, so no link is needed.
+- **I Chronicles 3–4** (b15b):
+  - **Jeconiah's sons:** "ובני יכניה אסר שאלתיאל בנו ומלכירם ופדיה ושנאצר יקמיה הושמע ונדביה" (3:17–18). The list goes on with Jeconiah's sons, so the six of 3:18 are added as his sons. TIPNR's six links to Shealtiel are rejected, as block 10's note on Zerubbabel already read the verse. Pedaiah is then Shealtiel's brother, and Zerubbabel's conflict stays Bible vs Bible: Haggai's Shealtiel, or Shealtiel's brother Pedaiah. TIPNR reads "אסר" as "the captive", not as a son.
+  - **Zedekiah** (3:16): "ובני יהויקים יכניה בנו צדקיה בנו" is kept as TIPNR has it, Jeconiah's son, after the pattern "X בנו" of 3:10–14. In II Chr 36:10 King Zedekiah is Jehoiachin's "אחיו", and in II Kgs 24:17 his "דדו". If this is the king, that is a conflict (M91).
+  - **Josiah's sons** (3:15): TIPNR takes Johanan the firstborn for Jehoahaz and keeps Shallum apart. But Jehoahaz was 23 at his accession and Jehoiakim 25 three months later (II Kgs 23:31, 36), so Jehoahaz was not the firstborn; Jer 22:11 makes Shallum the king after Josiah (block 10's open question; M91). TIPNR's unnamed wife as Shallum's mother is rejected.
+  - **David's sons** (3:1–9): Daniel (3:1) is Chileab of II Sam 3:3 on one TIPNR key. "בת שוע בת עמיאל" (3:5) is Bathsheba daughter of Eliam (II Sam 11:3), also on one key. Elpelet and Nogah (3:6–7), absent from II Sam 5:14–16, are linked to the wives taken in Jerusalem on I Chr 14:3–6. Elpelet's father link has its best verse in I Chr 14:5 (block 18).
+  - **Hananiah's line** (3:21): "בני רפיה בני ארנן בני עבדיה בני שכניה" are families named after Hananiah's sons Pelatiah and Jeshaiah. The text does not say whose sons they are, so their links to Hananiah are `unstated`. Shecaniah's line (3:22–24) follows; "ששה" (3:22) counts six where five sons are named.
+  - **Hur's sons** (4:3–4): "ואלה אבי עיטם יזרעאל וישמא וידבש" are the sons of "the father of Etam". "אלה בני חור" (4:4) may take them in, so their links to Hur are `unstated`, and Penuel and Ezer are confirmed. Ezer "אבי חושה" is a `founder`, and so are Heber "אבי שוכו" (4:18), Er "אבי לכה" and Laadah "אבי מרשה" (4:21).
+  - **Names linked only by their place in the list:**
+    - Koz (4:8) may be a fourth son of Helah, after "צרת וצחר ואתנן"; his links to Ashhur and Helah are `unstated`, and so is Harum <- Koz.
+    - Meonothai (4:14) may be a second son of Othniel; that link is `unstated`. Achsah is not said to be the mother of Hathath or Meonothai.
+    - Jabez (4:9–10) and Jehallelel (4:16) begin passages of their own; TIPNR's links to Koz and Elah are rejected.
+  - **Mered's wives** (4:17–18): "ותהר את מרים ואת שמי ואת ישבח" names no parent. TIPNR takes the three for the sons of Bithiah "אשר לקח מרד", so those links are `unstated`. "ואשתו היהדיה" follows Mered, so she is kept as his wife and the mother of Jered, Heber and Jekuthiel. "ואלה בני בתיה" comes right after those three, so whose sons Bithiah's are is not clear.
+  - **Hodiah** (4:19): "ובני אשת הודיה אחות נחם" reads "the sons of Hodiah's wife, Naham's sister". Hodiah is a man's name elsewhere (Neh 8:7, 10:11, 14, 19). TIPNR makes Hodiah the woman, Naham's sister and Ishbah's wife. Hodiah is made male and the father of the Garmite; the marriage to Ishbah, the Garmite <- Ishbah, and TIPNR's unnamed father of Hodiah and Naham are rejected.
+  - **Simeon** (4:24): "נמואל וימין יריב זרח שאול" against "ימואל וימין ואהד ויכין וצחר ושאול" (Gen 46:10, Ex 6:15) and Num 26:12–13. Nemuel, Jarib and Zerah here have no TIPNR keys of their own: Jemuel and Zerah are on the Genesis keys, and Jarib is not linked. Shallum son of Shaul (4:25) begins the line down to Shimei. Its Mibsam and Mishma are also the names of Ishmael's sons (Gen 25:13–14).
+  - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -428,3 +439,30 @@ Each entry: the child, the readings with their verses, the block that found it.
       - Jahdai's six sons <- Caleb.
     - Rechab <- Hammath is a `descendant`.
   - **Rejected:** TIPNR's unnamed wife of Hezron (2:9: her two mother links and the marriage); Ephrathah as Hezron's wife; Maacah as the mother of Machir's daughter; Jerioth as Mesha's mother; Jahdai as Caleb's wife.
+- 2026-10-22, the build: a link is now decided once. Listing it under `links` again, in the same file or a later one, or after an earlier file's conflict reading, stops the build (`apply_curation`, with a test). The existing review files pass.
+- 2026-10-22, M90 block 15b (I Chr 3–4): `curation/genealogy/15b-b15b-1chr-3-4.yaml`, reviewed. Its sheet had 162 links besides 21 book attachments, so it was not split again.
+  - **Counts:** 166 links checked (121 confirmed, 23 fixed, 16 rejected, 6 added), no conflicts, 5 cue verses dismissed (3:4, 11, 14 and 4:1 are proved earlier; 4:27 names no one). Zerubbabel <- Pedaiah was decided in block 10.
+  - **Confirmed:**
+    - Bathsheba's four sons (3:5);
+    - Nogah, son of David and of the wives taken in Jerusalem, and Elpelet's mother (3:6–7, 14:3–6);
+    - Shallum son of Josiah (3:15), and Zedekiah and Shealtiel sons of Jeconiah (3:16–17);
+    - Zerubbabel's line (3:19–24);
+    - Haroeh <- Shobal and his line (2:52, 4:2), Hur's sons Penuel and Ezer (4:4);
+    - Ashhur's wives and sons (4:5–7), Koz's sons, Chelub's line (4:11–12), Kenaz's and Othniel's sons (4:13–14), Caleb son of Jephunneh's sons (4:15), Jehallelel's (4:16), Ezrah's (4:17);
+    - Mered's wives Bithiah, daughter of Pharaoh, and the Judahite, and the Judahite's sons (4:17–18);
+    - the sons of Shimon and Ishi (4:20), Shelah's line (4:21–22), Simeon's line from Shaul to Shimei (4:25–26), and the Simeonite chains of 4:34–37, 42.
+  - **Fixed:**
+    - `founder`: Hushah, Soco, Lecah and Mareshah.
+    - `unstated`:
+      - Hananiah's four families (3:21);
+      - Hur's sons of 4:3;
+      - Koz and Harum;
+      - Meonothai;
+      - Mered and Bithiah's three.
+    - The Garmite <- Hodiah, as father; Hodiah is made male.
+  - **Rejected:**
+    - TIPNR's six sons of Shealtiel (3:18), and its unnamed wife of Josiah;
+    - Jabez <- Koz and Jehallelel <- Elah;
+    - Achsah as the mother of Hathath and Meonothai;
+    - the marriage of Ishbah and Hodiah, the Garmite <- Ishbah, and the unnamed father of Hodiah and Naham.
+  - **Added:** Malchiram, Pedaiah, Shenazzar, Jekamiah, Hoshama and Nedabiah <- Jeconiah (3:17–18).

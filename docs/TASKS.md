@@ -862,7 +862,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 13 Ezra–Nehemiah
 - [x] 14 1 Chr 1
 - [x] 15 1 Chr 2
-- [ ] 15b 1 Chr 3–4
+- [x] 15b 1 Chr 3–4
 - [ ] 16 1 Chr 5–6
 - [ ] 17 1 Chr 7–9
 - [ ] 18 1 Chr 10–29

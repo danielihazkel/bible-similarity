@@ -1,0 +1,179 @@
+# Block 15b: I Chronicles 3-4 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b15b-1chr-3-4
+status: reviewed
+people:
+  - {key: "Hodiah@1Ch.4.19", sex: m}  # "אשת הודיה" (4:19): Hodiah's wife
+links:
+  - "Nathan@2Sa.5.14-Luk <- Bathsheba@2Sa.11.3-Psa"
+  - "Shammua@2Sa.5.14-1Ch <- Bathsheba@2Sa.11.3-Psa"
+  - "Shobab@2Sa.5.14-1Ch <- Bathsheba@2Sa.11.3-Psa"
+  - {child: "Elpelet@1Ch.3.6-", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [I Chronicles 14:3, I Chronicles 14:5]}
+  - {child: "Nogah@1Ch.3.7-", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [I Chronicles 3:5, I Chronicles 3:7, I Chronicles 14:6]}
+  - {child: "Nogah@1Ch.3.7-", parent: "Jerusalem_wives@2Sa.5.13", status: confirmed, proof: [I Chronicles 14:3, I Chronicles 14:6]}
+  - "Shallum@1Ch.3.15 <- Josiah@1Ki.13.2-Mat"
+  - {child: "Shallum@1Ch.3.15", parent: "a_wife_of_Josiah@1Ch.3.15", status: rejected}
+  - {child: "a_wife_of_Josiah@1Ch.3.15", parent: "Josiah@1Ki.13.2-Mat", role: spouse, status: rejected}
+  - "Zedekiah@1Ch.3.16 <- Jehoiachin@2Ki.24.6-Mat"
+  - "Shealtiel@1Ch.3.17-Mat <- Jehoiachin@2Ki.24.6-Mat"
+  - {child: "Hoshama@1Ch.3.18", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - {child: "Jekamiah@1Ch.3.18", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - {child: "Malchiram@1Ch.3.18", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - {child: "Nedabiah@1Ch.3.18", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - {child: "Pedaiah@1Ch.3.18-", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - {child: "Shenazzar@1Ch.3.18", parent: "Shealtiel@1Ch.3.17-Mat", status: rejected}
+  - "Hananiah@1Ch.3.19- <- Zerubbabel@1Ch.3.19-Mat"
+  - "Meshullam@1Ch.3.19 <- Zerubbabel@1Ch.3.19-Mat"
+  - "Shelomith@1Ch.3.19 <- Zerubbabel@1Ch.3.19-Mat"
+  - "Shimei@1Ch.3.19 <- Pedaiah@1Ch.3.18-"
+  - {child: "Berechiah@1Ch.3.20", parent: "Zerubbabel@1Ch.3.19-Mat", status: confirmed, proof: [I Chronicles 3:19, I Chronicles 3:20]}
+  - {child: "Hasadiah@1Ch.3.20", parent: "Zerubbabel@1Ch.3.19-Mat", status: confirmed, proof: [I Chronicles 3:19, I Chronicles 3:20]}
+  - {child: "Hashubah@1Ch.3.20", parent: "Zerubbabel@1Ch.3.19-Mat", status: confirmed, proof: [I Chronicles 3:19, I Chronicles 3:20]}
+  - {child: "Jushab-hesed@1Ch.3.20", parent: "Zerubbabel@1Ch.3.19-Mat", status: confirmed, proof: [I Chronicles 3:19, I Chronicles 3:20]}
+  - {child: "Ohel@1Ch.3.20", parent: "Zerubbabel@1Ch.3.19-Mat", status: confirmed, proof: [I Chronicles 3:19, I Chronicles 3:20]}
+  - {child: "Arnan@1Ch.3.21", parent: "Hananiah@1Ch.3.19-", kind: unstated, status: fixed, proof: [I Chronicles 3:21]}
+  - "Jeshaiah@1Ch.3.21 <- Hananiah@1Ch.3.19-"
+  - {child: "Obadiah@1Ch.3.21", parent: "Hananiah@1Ch.3.19-", kind: unstated, status: fixed, proof: [I Chronicles 3:21]}
+  - "Pelatiah@1Ch.3.21 <- Hananiah@1Ch.3.19-"
+  - {child: "Rephaiah@1Ch.3.21", parent: "Hananiah@1Ch.3.19-", kind: unstated, status: fixed, proof: [I Chronicles 3:21]}
+  - {child: "Shecaniah@1Ch.3.21-", parent: "Hananiah@1Ch.3.19-", kind: unstated, status: fixed, proof: [I Chronicles 3:21]}
+  - "Bariah@1Ch.3.22 <- Shemaiah@1Ch.3.22"
+  - "Hattush@1Ch.3.22 <- Shemaiah@1Ch.3.22"
+  - "Igal@1Ch.3.22 <- Shemaiah@1Ch.3.22"
+  - "Neariah@1Ch.3.22- <- Shemaiah@1Ch.3.22"
+  - "Shaphat@1Ch.3.22 <- Shemaiah@1Ch.3.22"
+  - "Shemaiah@1Ch.3.22 <- Shecaniah@1Ch.3.21-"
+  - "Azrikam@1Ch.3.23 <- Neariah@1Ch.3.22-"
+  - "Elioenai@1Ch.3.23- <- Neariah@1Ch.3.22-"
+  - "Hizkiah@1Ch.3.23 <- Neariah@1Ch.3.22-"
+  - "Akkub@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Anani@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Delaiah@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Eliashib@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Hodaviah@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Johanan@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - "Pelaiah@1Ch.3.24 <- Elioenai@1Ch.3.23-"
+  - {child: "Haroeh@1Ch.2.52-", parent: "Shobal@1Ch.2.50-", status: confirmed, proof: [I Chronicles 2:52, I Chronicles 4:2]}
+  - "Ahumai@1Ch.4.2 <- Jahath@1Ch.4.2"
+  - "Jahath@1Ch.4.2 <- Haroeh@1Ch.2.52-"
+  - "Lahad@1Ch.4.2 <- Jahath@1Ch.4.2"
+  - {child: "Hazzelelponi@1Ch.4.3", parent: "Hur@Exo.17.10-2Ch", kind: unstated, status: fixed, proof: [I Chronicles 4:3, I Chronicles 4:4]}
+  - {child: "Idbash@1Ch.4.3", parent: "Hur@Exo.17.10-2Ch", kind: unstated, status: fixed, proof: [I Chronicles 4:3, I Chronicles 4:4]}
+  - {child: "Ishma@1Ch.4.3", parent: "Hur@Exo.17.10-2Ch", kind: unstated, status: fixed, proof: [I Chronicles 4:3, I Chronicles 4:4]}
+  - {child: "Jezreel@1Ch.4.3", parent: "Hur@Exo.17.10-2Ch", kind: unstated, status: fixed, proof: [I Chronicles 4:3, I Chronicles 4:4]}
+  - {child: "Ezer@1Ch.4.4", parent: "Hur@Exo.17.10-2Ch", status: confirmed, proof: [I Chronicles 4:4]}
+  - {child: "Hushah@1Ch.4.4", parent: "Ezer@1Ch.4.4", kind: founder, status: fixed, proof: [I Chronicles 4:4]}
+  - {child: "Penuel@1Ch.4.4", parent: "Hur@Exo.17.10-2Ch", status: confirmed, proof: [I Chronicles 4:4]}
+  - "Helah@1Ch.4.5- <- Ashhur@1Ch.2.24-"
+  - "Naarah@1Ch.4.5- <- Ashhur@1Ch.2.24-"
+  - {child: "Ahuzzam@1Ch.4.6", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:6]}
+  - "Ahuzzam@1Ch.4.6 <- Naarah@1Ch.4.5-"
+  - {child: "Haahashtari@1Ch.4.6", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:6]}
+  - "Haahashtari@1Ch.4.6 <- Naarah@1Ch.4.5-"
+  - {child: "Hepher@1Ch.4.6", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:6]}
+  - "Hepher@1Ch.4.6 <- Naarah@1Ch.4.5-"
+  - {child: "Temeni@1Ch.4.6", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:6]}
+  - "Temeni@1Ch.4.6 <- Naarah@1Ch.4.5-"
+  - {child: "Ethnan@1Ch.4.7", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:7]}
+  - "Ethnan@1Ch.4.7 <- Helah@1Ch.4.5-"
+  - {child: "Izhar@1Ch.4.7", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:7]}
+  - "Izhar@1Ch.4.7 <- Helah@1Ch.4.5-"
+  - {child: "Zereth@1Ch.4.7", parent: "Ashhur@1Ch.2.24-", status: confirmed, proof: [I Chronicles 4:5, I Chronicles 4:7]}
+  - "Zereth@1Ch.4.7 <- Helah@1Ch.4.5-"
+  - "Aharhel@1Ch.4.8 <- Harum@1Ch.4.8"
+  - "Anub@1Ch.4.8 <- Koz@1Ch.4.8"
+  - {child: "Harum@1Ch.4.8", parent: "Koz@1Ch.4.8", kind: unstated, status: fixed, proof: [I Chronicles 4:8]}
+  - {child: "Koz@1Ch.4.8", parent: "Ashhur@1Ch.2.24-", kind: unstated, status: fixed, proof: [I Chronicles 4:7, I Chronicles 4:8]}
+  - {child: "Koz@1Ch.4.8", parent: "Helah@1Ch.4.5-", kind: unstated, status: fixed, proof: [I Chronicles 4:7, I Chronicles 4:8]}
+  - "Zobebah@1Ch.4.8 <- Koz@1Ch.4.8"
+  - {child: "Jabez@1Ch.4.9-", parent: "Koz@1Ch.4.8", status: rejected}
+  - "Eshton@1Ch.4.11- <- Mehir@1Ch.4.11"
+  - "Mehir@1Ch.4.11 <- Chelub@1Ch.4.11"
+  - "Beth-rapha@1Ch.4.12 <- Eshton@1Ch.4.11-"
+  - "Paseah@1Ch.4.12 <- Eshton@1Ch.4.11-"
+  - "Tehinnah@1Ch.4.12 <- Eshton@1Ch.4.11-"
+  - "Hathath@1Ch.4.13 <- Othniel@Jos.15.17-1Ch"
+  - {child: "Hathath@1Ch.4.13", parent: "Achsah@Jos.15.16-Jdg", status: rejected}
+  - "Seraiah@1Ch.4.13- <- Kenaz@Num.32.12-1Ch"
+  - "Joab@1Ch.4.14 <- Seraiah@1Ch.4.13-"
+  - {child: "Meonothai@1Ch.4.14", parent: "Othniel@Jos.15.17-1Ch", kind: unstated, status: fixed, proof: [I Chronicles 4:13, I Chronicles 4:14]}
+  - {child: "Meonothai@1Ch.4.14", parent: "Achsah@Jos.15.16-Jdg", status: rejected}
+  - "Ophrah@1Ch.4.14 <- Meonothai@1Ch.4.14"
+  - "Elah@1Ch.4.15 <- Caleb@Num.13.6-1Ch"
+  - "Iru@1Ch.4.15 <- Caleb@Num.13.6-1Ch"
+  - "Kenaz@1Ch.4.15 <- Elah@1Ch.4.15"
+  - "Naam@1Ch.4.15 <- Caleb@Num.13.6-1Ch"
+  - "Asarel@1Ch.4.16 <- Jehallelel@1Ch.4.16"
+  - {child: "Jehallelel@1Ch.4.16", parent: "Elah@1Ch.4.15", status: rejected}
+  - "Tiria@1Ch.4.16 <- Jehallelel@1Ch.4.16"
+  - "Ziph@1Ch.4.16 <- Jehallelel@1Ch.4.16"
+  - "Ziphah@1Ch.4.16 <- Jehallelel@1Ch.4.16"
+  - "Epher@1Ch.4.17 <- Ezrah@1Ch.4.17"
+  - {child: "Ishbah@1Ch.4.17", parent: "Mered@1Ch.4.17-", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Ishbah@1Ch.4.17", parent: "Bithiah@1Ch.4.18", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Ishbah@1Ch.4.17", parent: "Hodiah@1Ch.4.19", role: spouse, status: rejected}
+  - "Jalon@1Ch.4.17 <- Ezrah@1Ch.4.17"
+  - "Jether@1Ch.4.17 <- Ezrah@1Ch.4.17"
+  - "Mered@1Ch.4.17- <- Ezrah@1Ch.4.17"
+  - {child: "Miriam@1Ch.4.17", parent: "Mered@1Ch.4.17-", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Miriam@1Ch.4.17", parent: "Bithiah@1Ch.4.18", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Shammai@1Ch.4.17", parent: "Mered@1Ch.4.17-", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Shammai@1Ch.4.17", parent: "Bithiah@1Ch.4.18", kind: unstated, status: fixed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - {child: "Mered@1Ch.4.17-", parent: "Bithiah@1Ch.4.18", role: spouse, status: confirmed, proof: [I Chronicles 4:18]}
+  - {child: "Mered@1Ch.4.17-", parent: "Jehudijah@1Ch.4.18", role: spouse, status: confirmed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - "Bithiah@1Ch.4.18 <- Pharaoh@1Ch.4.18"
+  - {child: "Heber@1Ch.4.18", parent: "Mered@1Ch.4.17-", status: confirmed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - "Heber@1Ch.4.18 <- Jehudijah@1Ch.4.18"
+  - {child: "Jekuthiel@1Ch.4.18", parent: "Mered@1Ch.4.17-", status: confirmed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - "Jekuthiel@1Ch.4.18 <- Jehudijah@1Ch.4.18"
+  - {child: "Jered@1Ch.4.18", parent: "Mered@1Ch.4.17-", status: confirmed, proof: [I Chronicles 4:17, I Chronicles 4:18]}
+  - "Jered@1Ch.4.18 <- Jehudijah@1Ch.4.18"
+  - {child: "Soco@1Ch.4.18", parent: "Heber@1Ch.4.18", kind: founder, status: fixed, proof: [I Chronicles 4:18]}
+  - {child: "Garmites@1Ch.4.19", parent: "Ishbah@1Ch.4.17", status: rejected}
+  - {child: "Garmites@1Ch.4.19", parent: "Hodiah@1Ch.4.19", role: father, status: fixed, proof: [I Chronicles 4:19]}
+  - {child: "Hodiah@1Ch.4.19", parent: "father_of_Hodiah@1Ch.4.19", status: rejected}
+  - {child: "Naham@1Ch.4.19", parent: "father_of_Hodiah@1Ch.4.19", status: rejected}
+  - "Amnon@1Ch.4.20 <- Shimon@1Ch.4.20"
+  - "Ben-hanan@1Ch.4.20 <- Shimon@1Ch.4.20"
+  - "Ben-zoheth@1Ch.4.20 <- Ishi@1Ch.4.20"
+  - "Rinnah@1Ch.4.20 <- Shimon@1Ch.4.20"
+  - "Tilon@1Ch.4.20 <- Shimon@1Ch.4.20"
+  - "Zoheth@1Ch.4.20 <- Ishi@1Ch.4.20"
+  - "Er@1Ch.4.21 <- Shelah@Gen.38.5-1Ch"
+  - "Laadah@1Ch.4.21 <- Shelah@Gen.38.5-1Ch"
+  - {child: "Lecah@1Ch.4.21", parent: "Er@1Ch.4.21", kind: founder, status: fixed, proof: [I Chronicles 4:21]}
+  - {child: "Mareshah@1Ch.4.21", parent: "Laadah@1Ch.4.21", kind: founder, status: fixed, proof: [I Chronicles 4:21]}
+  - {child: "Joash@1Ch.4.22", parent: "Shelah@Gen.38.5-1Ch", status: confirmed, proof: [I Chronicles 4:21, I Chronicles 4:22]}
+  - {child: "Jokim@1Ch.4.22", parent: "Shelah@Gen.38.5-1Ch", status: confirmed, proof: [I Chronicles 4:21, I Chronicles 4:22]}
+  - {child: "Saraph@1Ch.4.22", parent: "Shelah@Gen.38.5-1Ch", status: confirmed, proof: [I Chronicles 4:21, I Chronicles 4:22]}
+  - "Mibsam@1Ch.4.25 <- Shallum@1Ch.4.25"
+  - "Mishma@1Ch.4.25- <- Mibsam@1Ch.4.25"
+  - {child: "Shallum@1Ch.4.25", parent: "Shaul@Gen.46.10-1Ch", status: confirmed, proof: [I Chronicles 4:24, I Chronicles 4:25]}
+  - "Hammuel@1Ch.4.26 <- Mishma@1Ch.4.25-"
+  - "Shimei@1Ch.4.26- <- Zaccur@1Ch.4.26"
+  - "Zaccur@1Ch.4.26 <- Hammuel@1Ch.4.26"
+  - "Joshah@1Ch.4.34 <- Amaziah@1Ch.4.34"
+  - "Jehu@1Ch.4.35 <- Joshibiah@1Ch.4.35"
+  - "Joshibiah@1Ch.4.35 <- Seraiah@1Ch.4.35"
+  - "Seraiah@1Ch.4.35 <- Asiel@1Ch.4.35"
+  - "Allon@1Ch.4.37 <- Jedaiah@1Ch.4.37"
+  - "Jedaiah@1Ch.4.37 <- Shimri@1Ch.4.37"
+  - "Shimri@1Ch.4.37 <- Shemaiah@1Ch.4.37"
+  - "Shiphi@1Ch.4.37 <- Allon@1Ch.4.37"
+  - "Ziza@1Ch.4.37 <- Shiphi@1Ch.4.37"
+  - "Neariah@1Ch.4.42 <- Ishi@1Ch.4.42"
+  - "Pelatiah@1Ch.4.42 <- Ishi@1Ch.4.42"
+  - "Rephaiah@1Ch.4.42 <- Ishi@1Ch.4.42"
+  - "Uzziel@1Ch.4.42 <- Ishi@1Ch.4.42"
+  # Jeconiah's sons (3:17-18), which TIPNR makes Shealtiel's
+  - {child: "Malchiram@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  - {child: "Pedaiah@1Ch.3.18-", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  - {child: "Shenazzar@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  - {child: "Jekamiah@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  - {child: "Hoshama@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  - {child: "Nedabiah@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+missed:
+  - {ref: I Chronicles 3:4, reason: "the six sons born in Hebron: proved on II Samuel 3:2-5 (block 08)"}
+  - {ref: I Chronicles 3:11, reason: "Joram, Ahaziah and Joash, the kings of Judah: proved in Kings (block 09)"}
+  - {ref: I Chronicles 3:14, reason: "Amon and Josiah, the kings of Judah: proved in Kings (block 09)"}
+  - {ref: I Chronicles 4:1, reason: "בני יהודה: Judah's descendants, not his sons: Perez (Genesis 38:29, block 04), Hezron (2:5), Carmi (2:7), Hur and Shobal (2:19, 50; block 15)"}
+  - {ref: I Chronicles 4:27, reason: "Shimei's sixteen sons and six daughters, unnamed"}
