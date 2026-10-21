@@ -1,0 +1,323 @@
+# Block 06: Numbers-Deuteronomy (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b06-num-deut
+status: reviewed
+people:
+  - {key: "Jashub@Gen.46.13-1Ch", he: "יוב"}  # Genesis 46:13 (Numbers 26:24, I Chronicles 7:1 ישוב), as block 04's צחר
+  - {key: "Puah@Gen.46.13-1Ch", he: "פוה"}  # Genesis 46:13, Numbers 26:23 (I Chronicles 7:1 פואה)
+  - {key: "anon:cushite-wife-of-moses", he: "האשה הכשית", sex: f, kind: anon}  # Numbers 12:1
+links:
+  - "Elizur@Num.1.5- <- Shedeur@Num.1.5-"
+  - "Shelumiel@Num.1.6- <- Zurishaddai@Num.1.6-"
+  - "Nahshon@Exo.6.23-Luk <- Amminadab@Exo.6.23-Luk"
+  - "Nethanel@Num.1.8- <- Zuar@Num.1.8-"
+  - "Eliab@Num.1.9- <- Helon@Num.1.9-"
+  - "Elishama@Num.1.10-1Ch <- Ammihud@Num.1.10-1Ch"
+  - "Gamaliel@Num.1.10- <- Pedahzur@Num.1.10-"
+  - "Abidan@Num.1.11- <- Gideoni@Num.1.11-"
+  - "Ahiezer@Num.1.12- <- Ammishaddai@Num.1.12-"
+  - "Pagiel@Num.1.13- <- Ochran@Num.1.13-"
+  - "Eliasaph@Num.1.14- <- Deuel@Num.1.14-"
+  - "Ahira@Num.1.15- <- Enan@Num.1.15-"
+  - "Eliasaph@Num.3.24 <- Lael@Num.3.24"
+  - "Zuriel@Num.3.35 <- Abihail@Num.3.35"
+  - "Hobab@Num.10.29-Jdg <- Jethro@Exo.2.18-Num"
+  - "Shammua@Num.13.4 <- Zaccur@Num.13.4"
+  - "Shaphat@Num.13.5 <- Hori@Num.13.5"
+  - "Caleb@Num.13.6-1Ch <- Jephunneh@Num.13.6-1Ch"
+  - "Igal@Num.13.7 <- Joseph@Num.13.7"
+  - "Palti@Num.13.9 <- Raphu@Num.13.9"
+  - "Gaddiel@Num.13.10 <- Sodi@Num.13.10"
+  - "Gaddi@Num.13.11 <- Susi@Num.13.11"
+  - "Ammiel@Num.13.12 <- Gemalli@Num.13.12"
+  - "Sethur@Num.13.13 <- Michael@Num.13.13"
+  - "Nahbi@Num.13.14 <- Vophsi@Num.13.14"
+  - "Geuel@Num.13.15 <- Machi@Num.13.15"
+  - "Abiram@Num.16.1-Psa <- Eliab@Num.16.1-Deu"
+  - "Dathan@Num.16.1-Psa <- Eliab@Num.16.1-Deu"
+  - "On@Num.16.1 <- Peleth@Num.16.1"
+  - "Balak@Num.22.2-Rev <- Zippor@Num.22.2-Jdg"
+  - "Balaam@Num.22.5-Rev <- Beor@Num.22.5-2Pe"
+  - "Zimri@Num.25.14 <- Salu@Num.25.14"
+  - "Cozbi@Num.25.15- <- Zur@Num.25.15"
+  - "Eliab@Num.16.1-Deu <- Pallu@Gen.46.9-1Ch"
+  - "Nemuel@Num.26.9 <- Eliab@Num.16.1-Deu"
+  - {child: "Abiezer@Num.26.30-Jdg", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30]}
+  - {child: "Helek@Num.26.30-Jos", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30]}
+  - {child: "Asriel@Num.26.31-Jos", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30, Numbers 26:31]}
+  - {child: "Shechem@Num.26.31-Jos", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30, Numbers 26:31]}
+  - "Hoglah@Num.26.33-Jos <- Zelophehad@Num.26.33-1Ch"
+  - "Mahlah@Num.26.33-Jos <- Zelophehad@Num.26.33-1Ch"
+  - "Tirzah@Num.26.33-Jos <- Zelophehad@Num.26.33-1Ch"
+  - "Zelophehad@Num.26.33-1Ch <- Hepher@Num.26.32-Jos"
+  - "Becher@Num.26.35 <- Ephraim@Gen.41.52-Zec"
+  - "Tahan@Num.26.35 <- Ephraim@Gen.41.52-Zec"
+  - "Eran@Num.26.36 <- Shuthelah@Num.26.35-1Ch"
+  - "Ard@Num.26.40 <- Bela@Gen.46.21-1Ch"
+  - "Naaman@Num.26.40-1Ch <- Bela@Gen.46.21-1Ch"
+  - "Jochebed@Exo.6.20-Num <- Levi@Gen.29.34-Rev"
+  - "Miriam@Exo.15.20-Mic <- Jochebed@Exo.6.20-Num"
+  - {child: "Gilead@Num.26.29-1Ch", parent: "Machir@Gen.50.23-1Ch", status: confirmed, proof: [Numbers 26:29, Numbers 27:1, Joshua 17:3]}
+  - {child: "Hepher@Num.26.32-Jos", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30, Numbers 26:32, Numbers 27:1]}
+  - "Shemuel@Num.34.20 <- Ammihud@Num.34.20"
+  - "Elidad@Num.34.21 <- Chislon@Num.34.21"
+  - "Bukki@Num.34.22 <- Jogli@Num.34.22"
+  - "Hanniel@Num.34.23 <- Ephod@Num.34.23"
+  - "Kemuel@Num.34.24 <- Shiphtan@Num.34.24"
+  - "Elizaphan@Num.34.25 <- Parnach@Num.34.25"
+  - "Paltiel@Num.34.26 <- Azzan@Num.34.26"
+  - "Ahihud@Num.34.27 <- Shelomi@Num.34.27"
+  - "Pedahel@Num.34.28 <- Ammihud@Num.34.28"
+  - "Milcah@Num.26.33-Jos <- Zelophehad@Num.26.33-1Ch"
+  - "Noah@Num.26.33-Jos <- Zelophehad@Num.26.33-1Ch"
+  # the block's links whose best verse lies on a later sheet, checked on these books
+  - {child: "Shuthelah@Num.26.35-1Ch", parent: "Ephraim@Gen.41.52-Zec", status: confirmed, proof: [Numbers 26:35]}
+  - {child: "Shemida@Num.26.32-1Ch", parent: "Gilead@Num.26.29-1Ch", status: confirmed, proof: [Numbers 26:30, Numbers 26:32]}
+  - {child: "Miriam@Exo.15.20-Mic", parent: "Amram@Exo.6.18-1Ch", status: confirmed, proof: [Numbers 26:59]}
+  # Moses' Cushite wife (12:1)
+  - {child: "anon:cushite-wife-of-moses", parent: "Moses@Exo.2.10-Rev", role: spouse, status: added, proof: [Numbers 12:1]}
+conflicts:
+  - kind: descendant
+    child: "Eliab@Num.16.1-Deu"
+    readings:
+      - {parent: "Pallu@Gen.46.9-1Ch", proof: [Numbers 26:5, Numbers 26:8]}
+      - {parent: "Reuben@Gen.29.32-Rev", kind: descendant, proof: [Deuteronomy 11:6]}
+    note:
+      en: "Eliab is Pallu's son (Numbers 26:8), Pallu Reuben's (26:5); Deuteronomy 11:6 calls him \"Eliab son of Reuben\", his grandfather."
+      he: "אליאב בן פלוא (במדבר כו:ח), ופלוא בן ראובן (כו:ה); בדברים יא:ו „אליאב בן ראובן”, אבי אביו."
+  - kind: descendant
+    child: "Jair@Num.32.41-1Ch"
+    readings:
+      - {parent: "Segub@1Ch.2.21-", proof: [I Chronicles 2:21, I Chronicles 2:22]}
+      - {parent: "Manasseh@Gen.41.51-Rev", kind: descendant, proof: [Numbers 32:41, Deuteronomy 3:14]}
+    note:
+      en: "Jair is Segub's son, and Segub's mother was the daughter of Machir son of Manasseh (I Chronicles 2:21-22); Numbers 32:41 and Deuteronomy 3:14 call him \"Jair son of Manasseh\"."
+      he: "יאיר בן שגוב, ואם שגוב בת מכיר בן מנשה (דברי הימים א ב:כא–כב); בבמדבר לב:מא ובדברים ג:יד „יאיר בן מנשה”."
+missed:
+  - {ref: Numbers 1:20, reason: "the census of Reuben's tribe; Reuben <- Jacob is block 03"}
+  - {ref: Numbers 1:32, reason: "the census of Joseph's and Ephraim's tribes"}
+  - {ref: Numbers 1:45, reason: "בני ישראל: the people"}
+  - {ref: Numbers 1:49, reason: "בני ישראל: the people"}
+  - {ref: Numbers 1:54, reason: "בני ישראל: the people"}
+  - {ref: Numbers 2:33, reason: "בני ישראל: the people"}
+  - {ref: Numbers 2:34, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:2, reason: "Aaron's sons: checked in block 05"}
+  - {ref: Numbers 3:4, reason: "Aaron's sons: checked in block 05"}
+  - {ref: Numbers 3:9, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:12, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:17, reason: "Levi's sons: checked in block 04"}
+  - {ref: Numbers 3:19, reason: "Kohath's sons: checked in block 05"}
+  - {ref: Numbers 3:20, reason: "Merari's sons: checked in block 05"}
+  - {ref: Numbers 3:30, reason: "Elizaphan son of Uzziel: checked in block 05"}
+  - {ref: Numbers 3:32, reason: "Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 3:38, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:40, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:41, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:42, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:45, reason: "בני ישראל: the people"}
+  - {ref: Numbers 3:51, reason: "Aaron's sons, not named: the priests"}
+  - {ref: Numbers 4:2, reason: "בני קהת, בני לוי: the Levite clans"}
+  - {ref: Numbers 4:15, reason: "בני קהת: the clan; Aaron's sons, not named"}
+  - {ref: Numbers 4:16, reason: "Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 4:28, reason: "Ithamar son of Aaron: checked in block 05"}
+  - {ref: Numbers 4:33, reason: "Ithamar son of Aaron: checked in block 05"}
+  - {ref: Numbers 4:41, reason: "בני גרשון: the clan"}
+  - {ref: Numbers 4:45, reason: "בני מררי: the clan"}
+  - {ref: Numbers 5:4, reason: "בני ישראל: the people"}
+  - {ref: Numbers 5:6, reason: "בני ישראל: the people"}
+  - {ref: Numbers 6:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 6:23, reason: "בני ישראל: the people"}
+  - {ref: Numbers 7:8, reason: "Ithamar son of Aaron: checked in block 05; בני מררי the clan"}
+  - {ref: Numbers 7:17, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:23, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:29, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:35, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:41, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:47, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:53, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:59, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:65, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:71, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:77, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 7:83, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 8:10, reason: "בני ישראל: the people"}
+  - {ref: Numbers 8:11, reason: "בני ישראל: the people"}
+  - {ref: Numbers 8:16, reason: "בני ישראל: the people"}
+  - {ref: Numbers 8:17, reason: "בני ישראל: the people"}
+  - {ref: Numbers 8:19, reason: "בני ישראל: the people"}
+  - {ref: Numbers 8:20, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:4, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:5, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:7, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:10, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:17, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:18, reason: "בני ישראל: the people"}
+  - {ref: Numbers 9:19, reason: "בני ישראל: the people"}
+  - {ref: Numbers 10:12, reason: "בני ישראל: the people"}
+  - {ref: Numbers 10:14, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:15, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:16, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:17, reason: "בני גרשון, בני מררי: the clans"}
+  - {ref: Numbers 10:18, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:19, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:20, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:22, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:23, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:24, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:25, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:26, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 10:27, reason: "a chieftain named again with his father: proved on Numbers 1:5-15"}
+  - {ref: Numbers 13:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 13:3, reason: "בני ישראל: the people"}
+  - {ref: Numbers 13:8, reason: "Hoshea son of Nun: Joshua <- Nun is checked in block 05"}
+  - {ref: Numbers 13:16, reason: "Hoshea son of Nun renamed Joshua: Joshua <- Nun is checked in block 05"}
+  - {ref: Numbers 13:24, reason: "בני ישראל: the people"}
+  - {ref: Numbers 13:26, reason: "בני ישראל: the people"}
+  - {ref: Numbers 14:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 14:5, reason: "בני ישראל: the people"}
+  - {ref: Numbers 14:10, reason: "בני ישראל: the people"}
+  - {ref: Numbers 14:38, reason: "Joshua son of Nun (block 05) and Caleb son of Jephunneh (proved on 13:6)"}
+  - {ref: Numbers 14:39, reason: "בני ישראל: the people"}
+  - {ref: Numbers 15:25, reason: "בני ישראל: the people"}
+  - {ref: Numbers 15:26, reason: "בני ישראל: the people"}
+  - {ref: Numbers 16:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 16:7, reason: "בני לוי: the Levites"}
+  - {ref: Numbers 16:8, reason: "בני לוי: the Levites"}
+  - {ref: Numbers 17:2, reason: "Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 17:3, reason: "בני ישראל: the people"}
+  - {ref: Numbers 17:5, reason: "בני ישראל: the people"}
+  - {ref: Numbers 17:6, reason: "בני ישראל: the people"}
+  - {ref: Numbers 17:21, reason: "בני ישראל: the people"}
+  - {ref: Numbers 17:24, reason: "בני ישראל: the people"}
+  - {ref: Numbers 17:27, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:6, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:8, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:19, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:20, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:21, reason: "בני לוי: the Levites"}
+  - {ref: Numbers 18:24, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:26, reason: "בני ישראל: the people"}
+  - {ref: Numbers 18:28, reason: "בני ישראל: the people"}
+  - {ref: Numbers 19:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:1, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:12, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:13, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:22, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:24, reason: "בני ישראל: the people"}
+  - {ref: Numbers 20:25, reason: "Eleazar, Aaron's son: checked in block 05"}
+  - {ref: Numbers 20:26, reason: "Eleazar, Aaron's son: checked in block 05"}
+  - {ref: Numbers 20:28, reason: "Eleazar, Aaron's son: checked in block 05"}
+  - {ref: Numbers 21:10, reason: "בני ישראל: the people"}
+  - {ref: Numbers 21:24, reason: "בני עמון: the people"}
+  - {ref: Numbers 22:1, reason: "בני ישראל: the people"}
+  - {ref: Numbers 22:3, reason: "בני ישראל: the people"}
+  - {ref: Numbers 22:16, reason: "Balak son of Zippor: proved on 22:2"}
+  - {ref: Numbers 23:18, reason: "Balak son of Zippor: proved on 22:2"}
+  - {ref: Numbers 24:17, reason: "בני שת: a people, in Balaam's oracle"}
+  - {ref: Numbers 25:1, reason: "בנות מואב: the women of Moab"}
+  - {ref: Numbers 25:6, reason: "בני ישראל: the people"}
+  - {ref: Numbers 25:7, reason: "Phinehas son of Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 25:8, reason: "בני ישראל: the people"}
+  - {ref: Numbers 25:11, reason: "Phinehas son of Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 25:18, reason: "Cozbi, daughter of a chieftain of Midian: proved on 25:15"}
+  - {ref: Numbers 26:1, reason: "Eleazar son of Aaron: checked in block 05"}
+  - {ref: Numbers 26:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 26:4, reason: "בני ישראל: the people"}
+  - {ref: Numbers 26:12, reason: "Simeon's sons: checked in block 04 (נמואל is Jemuel, as 26:13 זרח is Zohar)"}
+  - {ref: Numbers 26:19, reason: "Judah's sons: checked in block 04"}
+  - {ref: Numbers 26:20, reason: "Judah's sons: checked in block 04"}
+  - {ref: Numbers 26:28, reason: "Joseph's sons: checked in block 04"}
+  - {ref: Numbers 26:37, reason: "the count of Ephraim's clans"}
+  - {ref: Numbers 26:42, reason: "Dan's son: checked in block 04 (שוחם is Hushim)"}
+  - {ref: Numbers 26:46, reason: "Serah <- Asher: checked in block 04"}
+  - {ref: Numbers 26:58, reason: "Amram <- Kohath: checked in block 05"}
+  - {ref: Numbers 26:60, reason: "Aaron's sons: checked in block 05"}
+  - {ref: Numbers 26:62, reason: "בני ישראל: the people"}
+  - {ref: Numbers 26:63, reason: "בני ישראל: the people"}
+  - {ref: Numbers 26:64, reason: "בני ישראל: the people"}
+  - {ref: Numbers 26:65, reason: "Caleb son of Jephunneh (proved on 13:6) and Joshua son of Nun (block 05)"}
+  - {ref: Numbers 27:11, reason: "בני ישראל: the people"}
+  - {ref: Numbers 27:12, reason: "בני ישראל: the people"}
+  - {ref: Numbers 27:18, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Numbers 27:21, reason: "בני ישראל: the people"}
+  - {ref: Numbers 30:1, reason: "בני ישראל: the people"}
+  - {ref: Numbers 30:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:6, reason: "Phinehas son of Eleazar: checked in block 05"}
+  - {ref: Numbers 31:8, reason: "the five kings of Midian, no parent named; Balaam son of Beor is proved on 22:5"}
+  - {ref: Numbers 31:9, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:12, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:16, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:30, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:42, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:47, reason: "בני ישראל: the people"}
+  - {ref: Numbers 31:54, reason: "בני ישראל: the people"}
+  - {ref: Numbers 32:1, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:2, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:6, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:7, reason: "בני ישראל: the people"}
+  - {ref: Numbers 32:9, reason: "בני ישראל: the people"}
+  - {ref: Numbers 32:11, reason: "the oath to Abraham, Isaac and Jacob; בן as an age"}
+  - {ref: Numbers 32:25, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:28, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Numbers 32:29, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:31, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:33, reason: "the tribes; Manasseh son of Joseph is checked in block 04"}
+  - {ref: Numbers 32:34, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:37, reason: "בני ראובן, בני גד: the tribes"}
+  - {ref: Numbers 32:39, reason: "Machir son of Manasseh: checked in block 04"}
+  - {ref: Numbers 32:40, reason: "Machir son of Manasseh: checked in block 04"}
+  - {ref: Numbers 33:1, reason: "בני ישראל: the people"}
+  - {ref: Numbers 33:3, reason: "בני ישראל: the people"}
+  - {ref: Numbers 33:5, reason: "בני ישראל: the people"}
+  - {ref: Numbers 33:38, reason: "בני ישראל: the people"}
+  - {ref: Numbers 33:39, reason: "בן as Aaron's age"}
+  - {ref: Numbers 33:40, reason: "בני ישראל: the people"}
+  - {ref: Numbers 33:51, reason: "בני ישראל: the people"}
+  - {ref: Numbers 34:2, reason: "בני ישראל: the people"}
+  - {ref: Numbers 34:13, reason: "בני ישראל: the people"}
+  - {ref: Numbers 34:17, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Numbers 34:19, reason: "Caleb son of Jephunneh: proved on 13:6"}
+  - {ref: Numbers 34:29, reason: "בני ישראל: the people"}
+  - {ref: Numbers 35:10, reason: "בני ישראל: the people"}
+  - {ref: Numbers 35:34, reason: "בני ישראל: the people"}
+  - {ref: Numbers 36:1, reason: "Gilead son of Machir son of Manasseh: proved on 26:29, 27:1"}
+  - {ref: Numbers 36:2, reason: "Zelophehad's daughters, not named here"}
+  - {ref: Numbers 36:5, reason: "בני ישראל: the people"}
+  - {ref: Numbers 36:6, reason: "Zelophehad's daughters, not named here"}
+  - {ref: Numbers 36:7, reason: "בני ישראל: the people"}
+  - {ref: Numbers 36:8, reason: "בני ישראל: the people"}
+  - {ref: Numbers 36:10, reason: "Zelophehad's daughters, not named here"}
+  - {ref: Numbers 36:12, reason: "Manasseh son of Joseph: checked in block 04"}
+  - {ref: Numbers 36:13, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 1:3, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 1:36, reason: "Caleb son of Jephunneh: proved on Numbers 13:6"}
+  - {ref: Deuteronomy 1:38, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Deuteronomy 2:4, reason: "בני עשו: Edom, the people"}
+  - {ref: Deuteronomy 2:8, reason: "בני עשו: Edom, the people"}
+  - {ref: Deuteronomy 2:9, reason: "בני לוט: Moab, the people"}
+  - {ref: Deuteronomy 2:12, reason: "בני עשו: Edom, the people"}
+  - {ref: Deuteronomy 2:19, reason: "בני לוט: Ammon, the people"}
+  - {ref: Deuteronomy 2:22, reason: "בני עשו: Edom, the people"}
+  - {ref: Deuteronomy 2:29, reason: "בני עשו: Edom, the people"}
+  - {ref: Deuteronomy 2:37, reason: "בני עמון: the people"}
+  - {ref: Deuteronomy 3:11, reason: "רבת בני עמון: a city"}
+  - {ref: Deuteronomy 3:16, reason: "בני עמון: the people"}
+  - {ref: Deuteronomy 3:18, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 4:44, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 4:45, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 4:46, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 10:6, reason: "Eleazar, Aaron's son: checked in block 05"}
+  - {ref: Deuteronomy 21:5, reason: "the priests, בני לוי"}
+  - {ref: Deuteronomy 23:5, reason: "Balaam son of Beor: proved on Numbers 22:5"}
+  - {ref: Deuteronomy 23:18, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 28:69, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 31:9, reason: "the priests, בני לוי"}
+  - {ref: Deuteronomy 31:19, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 31:22, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 31:23, reason: "Joshua son of Nun: checked in block 05"}
+  - {ref: Deuteronomy 32:44, reason: "Hoshea son of Nun: checked in block 05"}
+  - {ref: Deuteronomy 32:49, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 32:51, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 33:1, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 33:24, reason: "Asher blessed among sons: a figure"}
+  - {ref: Deuteronomy 34:8, reason: "בני ישראל: the people"}
+  - {ref: Deuteronomy 34:9, reason: "Joshua son of Nun: checked in block 05"}

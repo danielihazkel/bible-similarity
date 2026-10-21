@@ -74,7 +74,7 @@ Review blocks (M90), in Jewish canon order:
 | 03 | b03-gen-25-36 | Gen 25:19–36 | reviewed | 108 | 3 |
 | 04 | b04-gen-37-50 | Gen 37–50 | reviewed | 81 | 0 |
 | 05 | b05-exod-lev | Exodus–Leviticus | reviewed | 49 | 0 |
-| 06 | b06-num-deut | Numbers–Deuteronomy | todo | | |
+| 06 | b06-num-deut | Numbers–Deuteronomy | reviewed | 67 | 2 |
 | 07 | b07-josh-judg | Joshua–Judges | todo | | |
 | 08 | b08-samuel | 1–2 Samuel | todo | | |
 | 09 | b09-kings | 1–2 Kings | todo | | |
@@ -90,15 +90,15 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 06: `b06-num-deut` (Numbers–Deuteronomy).** Follow **How to resume** step 2.
+**M90, block 07: `b07-josh-judg` (Joshua–Judges).** Follow **How to resume** step 2.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
-- Left open by block 05, stated in Numbers: Jochebed <- Levi and Miriam <- Amram, Jochebed (26:59), Nahshon <- Amminadab (1:7), Hobab <- Jethro / Reuel (10:29, "חבב בן רעואל": Jethro and Reuel as one man is TIPNR's, block 05).
-- The census of Num 26: the clans of each tribe against Gen 46 (Nemuel / Jemuel, Jashub / Iob, Shuham / Hushim, Benjamin's sons and Bela's), Zelophehad's daughters (26:33, 27:1), Korah's sons who did not die (26:11), Dathan and Abiram (16:1, 26:9).
-- The chieftains of Num 1–2, 7, 10, 13 and 34 ("X son of Y"): many fathers named once; Caleb son of Jephunneh, Joshua son of Nun.
-- Phinehas (25:7), Zimri son of Salu and Cozbi daughter of Zur (25:14–15), Balaam son of Beor (22:5), Og and Sihon (no parents).
-- Many "בני ישראל" and "בני אהרן" cue verses: the generator of block 05 dismisses them by pattern (`make_b05.py`'s `reason`).
+- **Left open by block 06:** TIPNR's Kenaz <- Jephunneh. It rests on reading "עתניאל בן קנז אחי כלב" (Josh 15:17, Judg 1:13 "הקטן ממנו") as Kenaz being Caleb's brother, not on "כלב בן יפנה הקנזי" (Num 32:12, a gentilic). Decide it here with Othniel <- Kenaz. The link's best verse is Num 32:12, so it is **not on this sheet**: write it in by hand.
+- Hobab: Num 10:29 has "חבב בן רעואל המדיני חתן משה" (confirmed in block 06 as TIPNR's Hobab <- Jethro). Judg 4:11 has "חבב חתן משה" and Judg 1:16 "קיני חתן משה". Is Hobab the father-in-law? That may be a Bible conflict.
+- Anak and his sons: Num 13:22 has "אחימן ששי ותלמי ילידי הענק", Josh 15:13–14 "ארבע אבי הענק", "בני הענק". Is ענק a man or a people?
+- Josh 17:2 calls Gilead's sons (Abiezer, Helek, Asriel, Shechem, Hepher, Shemida) "בני מנשה בן יוסף". They are Gilead's sons in Num 26:30–32, which block 06 confirmed: a `descendant` link if the sheet offers one. Josh 17:3 repeats Zelophehad's line.
+- Caleb's daughter Achsah, given to Othniel (Josh 15:16–17, Judg 1:12–13); Phinehas son of Eleazar (Josh 22:13, 24:33, Judg 20:28); the judges' fathers.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -107,9 +107,18 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Laban** (b03, `descendant`): Bethuel's son (Gen 24:29, 28:5), "בן נחור" (29:5). Bethuel drawn.
 - **Timna** (b03): daughter of Seir, Lotan's sister (Gen 36:20, 22), or among Eliphaz's sons (I Chr 1:36). Seir drawn.
 - **Anah** (b03): son of Zibeon (Gen 36:2, 24) or of Seir (36:20, 29); perhaps two men, one TIPNR record. Zibeon drawn.
+- **Eliab** (b06, `descendant`): Pallu's son (Num 26:5, 8), "אליאב בן ראובן" (Deut 11:6). Pallu drawn.
+- **Jair** (b06, `descendant`): Segub's son, whose mother was Machir's daughter (I Chr 2:21–22); "יאיר בן מנשה" (Num 32:41, Deut 3:14). Segub drawn; the link Jair <- Segub is confirmed early, on block 15's verses.
 
 ## Open questions
 - **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
+- **More tribe attachments of TIPNR's** (for M91), found in block 06:
+  - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
+  - Og is filed under Ben-ammi (tribe "Ammon"), but he is king of Bashan "מיתר הרפאים" (Deut 3:11).
+  - Zippor is filed under Moab: his son Balak is king of Moab (Num 22:4), and his descent is not stated.
+- **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
+- **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
+- **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
 - **Esau's wives** follow TIPNR's identifications: Basemath daughter of Elon (Gen 26:34) is Adah (36:2), Mahalath (28:9) is Basemath daughter of Ishmael (36:3). The fathers agree, the names differ; no conflict recorded, only noted in the review file.
 - **One person in one list, two in another** (no conflict recordable): Gen 46:21 gives Naaman and Ard as Benjamin's sons, Num 26:40 as Bela's sons, and TIPNR has two people each (`Naaman@Gen.46.21-1Ch` / `Naaman@Num.26.40-1Ch`). A conflict needs one key with two parents; merging TIPNR keys is not supported. Revisit in M91, with Benjamin's sons in Num 26:38–40 and 1 Chr 7:6, 8:1–5.
 - **Adoption** (for M91): Jacob takes Ephraim and Manasseh as his own (Gen 48:5). An `adopted` father link beside Joseph would compete with him for the drawn parent; decide how adoption shows in the tree.
@@ -167,4 +176,12 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Added:** Moses <- Pharaoh's daughter, `adopted` (2:10, "ויהי לה לבן"); his father Amram stays the drawn parent, Jochebed his mother.
   - Kept: TIPNR's Jethro as Zipporah's father, the man 2:18 calls רעואל.
   - Left open for later blocks: Jochebed, Miriam and Nahshon (Numbers); Amminadab <- Ram, Hur <- Caleb and Ephrathah, Nun <- Elishama (Ruth, 1 Chronicles; Nun's is only a `nearby` hint, I Chr 7:27).
-
+- 2026-10-21, M90 block 06 (Numbers–Deuteronomy): `curation/genealogy/06-b06-num-deut.yaml`, reviewed.
+  - **Counts:** 67 links checked (66 confirmed, 1 added), 2 conflicts, 228 cue verses dismissed. Nearly all the cues are "בני ישראל", the tribes, the chieftains named again, or links checked in blocks 04–05. No cue verse is left unhandled.
+  - **Confirmed:** the chieftains of Num 1–2, 7, 10, 13 and 34 and the Levite heads of Num 3; Dathan, Abiram and Nemuel <- Eliab <- Pallu; On <- Peleth; Balak <- Zippor, Balaam <- Beor; Zimri <- Salu, Cozbi <- Zur; Hobab <- Jethro (Num 10:29, as TIPNR's one Jethro / Reuel); Jochebed <- Levi, Miriam <- Jochebed (26:59).
+  - **The line of Manasseh:** Gilead <- Machir (26:29, "ומכיר הוליד את גלעד"), Gilead's six sons (26:30–32), Zelophehad <- Hepher and his five daughters. Ephraim's Shuthelah, Becher and Tahan, Eran <- Shuthelah; Bela's Ard and Naaman (26:40, the open question stands).
+  - **Picked up from later sheets:** Shuthelah <- Ephraim (26:35), Shemida <- Gilead (26:30, 32), Miriam <- Amram (26:59).
+  - **Added:** Moses' Cushite wife (12:1), as a spouse.
+  - **Names:** Issachar's Jashub reads יוב and Puah פוה, as Genesis 46:13 writes them (block 04's rule for צחר).
+  - **Left for block 07:** Kenaz <- Jephunneh (TIPNR), Anak's sons, Hobab as Moses' חתן.
+  - Checked in the API: Moses with two wives, Gilead's six sons, Eliab's and Jair's conflicts with both readings.
