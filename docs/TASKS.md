@@ -849,7 +849,7 @@ Phase 3 (M39c): API and viewer
 Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curation/genealogy/NN-<block>.yaml`, rebuild, `docs/genealogy/PROGRESS.md` updated.
 - [x] 01 Gen 1–11
 - [x] 02 Gen 12–25:18
-- [ ] 03 Gen 25:19–36
+- [x] 03 Gen 25:19–36
 - [ ] 04 Gen 37–50
 - [ ] 05 Exodus–Leviticus
 - [ ] 06 Numbers–Deuteronomy

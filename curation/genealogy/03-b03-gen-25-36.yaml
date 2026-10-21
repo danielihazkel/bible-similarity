@@ -1,0 +1,159 @@
+# Block 03: Genesis 25:19-36 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+# Esau's wives follow TIPNR: Basemath daughter of Elon (26:34) is Adah (36:2), Mahalath (28:9) is
+# Basemath daughter of Ishmael (36:3); the names differ, the fathers agree.
+block: b03-gen-25-36
+status: reviewed
+people:
+  - {key: "Israel@Gen.25.26-Rev", he: "יעקב"}  # TIPNR's record is "Israel"; the tree calls him by his first name
+  - {key: "Hadad@Gen.36.39-1Ch", he: "הדר"}  # Genesis writes הדר (I Chronicles 1:50 הדד)
+links:
+  - {child: "Adah@Gen.26.34-", parent: "Elon@Gen.26.34-", status: confirmed, proof: [Genesis 26:34, Genesis 36:2]}
+  - "Judith@Gen.26.34 <- Beeri@Gen.26.34"
+  - "Judith@Gen.26.34 <- Esau@Gen.25.25-Heb"
+  - {child: "Esau@Gen.25.25-Heb", parent: "Rebekah@Gen.22.23-Rom", status: confirmed, proof: [Genesis 25:21, Genesis 25:24, Genesis 27:15, Genesis 27:42]}
+  - {child: "Israel@Gen.25.26-Rev", parent: "Rebekah@Gen.22.23-Rom", status: confirmed, proof: [Genesis 25:21, Genesis 25:24, Genesis 27:6, Genesis 28:5, Genesis 29:12]}
+  - "Mahalath@Gen.28.9- <- Ishmael@Gen.16.11-Psa"
+  - {child: "Rachel@Gen.29.6-Mat", parent: "Laban@Gen.24.29-", status: confirmed, proof: [Genesis 29:10, Genesis 29:16, Genesis 29:18, Genesis 29:28, Genesis 29:29]}
+  - {child: "Israel@Gen.25.26-Rev", parent: "Bilhah@Gen.29.29-1Ch", role: spouse, status: confirmed, proof: [Genesis 30:4, Genesis 35:22]}
+  - {child: "Leah@Gen.29.16-Rut", parent: "Israel@Gen.25.26-Rev", role: spouse, status: confirmed, proof: [Genesis 29:23, Genesis 30:9]}
+  - {child: "Zilpah@Gen.29.24-", parent: "Israel@Gen.25.26-Rev", role: spouse, status: confirmed, proof: [Genesis 30:9, Genesis 37:2]}
+  - {child: "Dinah@Gen.30.21-", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 30:21, Genesis 34:1]}
+  - {child: "Shechem@Gen.33.19-", parent: "Hamor@Gen.33.19-Act", status: confirmed, proof: [Genesis 33:19, Genesis 34:2, Genesis 34:8, Genesis 34:13, Genesis 34:20, Genesis 34:24, Genesis 34:26]}
+  - {child: "Dinah@Gen.30.21-", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 34:3, Genesis 34:5]}
+  - {child: "Simeon@Gen.29.33-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 29:33, Genesis 34:25, Genesis 35:23]}
+  - {child: "Reuben@Gen.29.32-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 29:32, Genesis 35:23]}
+  - {child: "Simeon@Gen.29.33-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 29:33, Genesis 35:23]}
+  - {child: "Levi@Gen.29.34-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 29:34, Genesis 35:23]}
+  - {child: "Judah@Gen.29.35-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 29:35, Genesis 35:23]}
+  - {child: "Issachar@Gen.30.18-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 30:17, Genesis 30:18, Genesis 35:23]}
+  - {child: "Zebulun@Gen.30.20-Rev", parent: "Leah@Gen.29.16-Rut", status: confirmed, proof: [Genesis 30:19, Genesis 30:20, Genesis 35:23]}
+  - {child: "Joseph@Gen.30.24-Rev", parent: "Rachel@Gen.29.6-Mat", status: confirmed, proof: [Genesis 30:22, Genesis 30:23, Genesis 30:24, Genesis 30:25, Genesis 35:24]}
+  - {child: "Benjamin@Gen.35.18-Rev", parent: "Rachel@Gen.29.6-Mat", status: confirmed, proof: [Genesis 35:16, Genesis 35:18, Genesis 35:24]}
+  - {child: "Dan@Gen.30.6-1Ch", parent: "Bilhah@Gen.29.29-1Ch", status: confirmed, proof: [Genesis 30:4, Genesis 30:5, Genesis 30:6, Genesis 35:25]}
+  - {child: "Naphtali@Gen.30.8-Rev", parent: "Bilhah@Gen.29.29-1Ch", status: confirmed, proof: [Genesis 30:7, Genesis 30:8, Genesis 35:25]}
+  - {child: "Gad@Gen.30.11-Rev", parent: "Zilpah@Gen.29.24-", status: confirmed, proof: [Genesis 30:10, Genesis 30:11, Genesis 35:26]}
+  - {child: "Asher@Gen.30.13-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:12, Genesis 30:13, Genesis 35:26]}
+  - {child: "Asher@Gen.30.13-Rev", parent: "Zilpah@Gen.29.24-", status: confirmed, proof: [Genesis 30:12, Genesis 30:13, Genesis 35:26]}
+  - "Oholibamah@Gen.36.2-1Ch <- Anah@Gen.36.2-1Ch"
+  - {child: "Zibeon@Gen.36.2-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20]}
+  - "Korah@Gen.36.5-1Ch <- Esau@Gen.25.25-Heb"
+  - "Esau@Gen.25.25-Heb <- Adah@Gen.26.34-"
+  - "Mahalath@Gen.28.9- <- Esau@Gen.25.25-Heb"
+  - "Eliphaz@Gen.36.4-1Ch <- Adah@Gen.26.34-"
+  - "Reuel@Gen.36.4-1Ch <- Mahalath@Gen.28.9-"
+  - "Gatam@Gen.36.11-1Ch <- Eliphaz@Gen.36.4-1Ch"
+  - {child: "Gatam@Gen.36.11-1Ch", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - "Kenaz@Gen.36.11-1Ch <- Eliphaz@Gen.36.4-1Ch"
+  - {child: "Kenaz@Gen.36.11-1Ch", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - "Omar@Gen.36.11-1Ch <- Eliphaz@Gen.36.4-1Ch"
+  - {child: "Omar@Gen.36.11-1Ch", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - "Teman@Gen.36.11-Job <- Eliphaz@Gen.36.4-1Ch"
+  - {child: "Teman@Gen.36.11-Job", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - "Zepho@Gen.36.11-1Ch <- Eliphaz@Gen.36.4-1Ch"
+  - {child: "Zepho@Gen.36.11-1Ch", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - {child: "a_wife_of_Eliphaz@Gen.36.11-1Ch", parent: "Eliphaz@Gen.36.4-1Ch", role: spouse, status: confirmed, proof: [Genesis 36:11, Genesis 36:12]}
+  - "Eliphaz@Gen.36.4-1Ch <- Esau@Gen.25.25-Heb"
+  - "Amalek@Gen.36.12- <- Eliphaz@Gen.36.4-1Ch"
+  - "Amalek@Gen.36.12- <- Timna@Gen.36.12-1Ch"
+  - "Timna@Gen.36.12-1Ch <- Eliphaz@Gen.36.4-1Ch"
+  - "Nahath@Gen.36.13-1Ch <- Reuel@Gen.36.4-1Ch"
+  - "Shammah@Gen.36.13-1Ch <- Reuel@Gen.36.4-1Ch"
+  - "Zerah@Gen.36.13-1Ch <- Reuel@Gen.36.4-1Ch"
+  - {child: "Korah@Gen.36.16", parent: "Eliphaz@Gen.36.4-1Ch", status: confirmed, proof: [Genesis 36:16]}
+  - {child: "Korah@Gen.36.16", parent: "a_wife_of_Eliphaz@Gen.36.11-1Ch", status: confirmed, proof: [Genesis 36:12, Genesis 36:16]}
+  - "Reuel@Gen.36.4-1Ch <- Esau@Gen.25.25-Heb"
+  - "Mizzah@Gen.36.13-1Ch <- Reuel@Gen.36.4-1Ch"
+  - "Oholibamah@Gen.36.2-1Ch <- Esau@Gen.25.25-Heb"
+  - "Jalam@Gen.36.5-1Ch <- Oholibamah@Gen.36.2-1Ch"
+  - "Jeush@Gen.36.5-1Ch <- Oholibamah@Gen.36.2-1Ch"
+  - "Korah@Gen.36.5-1Ch <- Oholibamah@Gen.36.2-1Ch"
+  - "Hori@Gen.14.6-1Ch <- Lotan@Gen.36.20-1Ch"
+  - "Hemam@Gen.36.22-1Ch <- Lotan@Gen.36.20-1Ch"
+  - "Alvan@Gen.36.23-1Ch <- Shobal@Gen.36.20-1Ch"
+  - "Ebal@Gen.36.23-1Ch <- Shobal@Gen.36.20-1Ch"
+  - "Manahath@Gen.36.23-1Ch <- Shobal@Gen.36.20-1Ch"
+  - "Onam@Gen.36.23-1Ch <- Shobal@Gen.36.20-1Ch"
+  - "Shepho@Gen.36.23-1Ch <- Shobal@Gen.36.20-1Ch"
+  - {child: "Aiah@Gen.36.24-1Ch", parent: "Zibeon@Gen.36.2-1Ch", status: confirmed, proof: [Genesis 36:24]}
+  - "Dishon@Gen.36.25-1Ch <- Anah@Gen.36.2-1Ch"
+  - "Cheran@Gen.36.26-1Ch <- Dishon@Gen.36.21-1Ch"
+  - "Eshban@Gen.36.26-1Ch <- Dishon@Gen.36.21-1Ch"
+  - "Hemdan@Gen.36.26-1Ch <- Dishon@Gen.36.21-1Ch"
+  - "Ithran@Gen.36.26-1Ch <- Dishon@Gen.36.21-1Ch"
+  - "Akan@Gen.36.27-1Ch <- Ezer@Gen.36.21-1Ch"
+  - "Bilhan@Gen.36.27-1Ch <- Ezer@Gen.36.21-1Ch"
+  - "Zaavan@Gen.36.27-1Ch <- Ezer@Gen.36.21-1Ch"
+  - "Aran@Gen.36.28-1Ch <- Dishan@Gen.36.21-1Ch"
+  - "Uz@Gen.36.28-1Ch <- Dishan@Gen.36.21-1Ch"
+  - "Bela@Gen.36.32-1Ch <- Beor@Gen.36.32-1Ch"
+  - "Jobab@Gen.36.33-1Ch <- Zerah@Gen.36.33-1Ch"
+  - "Hadad@Gen.36.35-1Ch <- Bedad@Gen.36.35-1Ch"
+  - "Baal-hanan@Gen.36.38-1Ch <- Achbor@Gen.36.38-1Ch"
+  - "Matred@Gen.36.39-1Ch <- Mezahab@Gen.36.39-1Ch"
+  - {child: "Mehetabel@Gen.36.39-1Ch", parent: "husband_of_Matred@Gen.36.39", status: rejected}
+  - "Mehetabel@Gen.36.39-1Ch <- Matred@Gen.36.39-1Ch"
+  - "Mehetabel@Gen.36.39-1Ch <- Hadad@Gen.36.39-1Ch"
+  - {child: "husband_of_Matred@Gen.36.39", parent: "Matred@Gen.36.39-1Ch", role: spouse, status: rejected}
+  # the block's links whose best verse lies on a later sheet, checked on these chapters
+  - {child: "Reuben@Gen.29.32-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 29:32, Genesis 35:23]}
+  - {child: "Levi@Gen.29.34-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 29:34, Genesis 35:23]}
+  - {child: "Judah@Gen.29.35-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 29:35, Genesis 35:23]}
+  - {child: "Dan@Gen.30.6-1Ch", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:5, Genesis 30:6, Genesis 35:25]}
+  - {child: "Naphtali@Gen.30.8-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:7, Genesis 30:8, Genesis 35:25]}
+  - {child: "Gad@Gen.30.11-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:10, Genesis 30:11, Genesis 35:26]}
+  - {child: "Issachar@Gen.30.18-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:17, Genesis 30:18, Genesis 35:23]}
+  - {child: "Zebulun@Gen.30.20-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:19, Genesis 30:20, Genesis 35:23]}
+  - {child: "Joseph@Gen.30.24-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 30:22, Genesis 30:24, Genesis 30:25, Genesis 35:24]}
+  - {child: "Benjamin@Gen.35.18-Rev", parent: "Israel@Gen.25.26-Rev", status: confirmed, proof: [Genesis 35:16, Genesis 35:18, Genesis 35:24]}
+  - {child: "Esau@Gen.25.25-Heb", parent: "Isaac@Gen.17.19-Jas", status: confirmed, proof: [Genesis 25:26, Genesis 27:1, Genesis 27:5, Genesis 28:8, Genesis 35:29]}
+  - {child: "Israel@Gen.25.26-Rev", parent: "Isaac@Gen.17.19-Jas", status: confirmed, proof: [Genesis 25:26, Genesis 35:29]}
+  - {child: "Rachel@Gen.29.6-Mat", parent: "Israel@Gen.25.26-Rev", role: spouse, status: confirmed, proof: [Genesis 29:28, Genesis 30:1]}
+  - {child: "Leah@Gen.29.16-Rut", parent: "Laban@Gen.24.29-", status: confirmed, proof: [Genesis 29:16, Genesis 29:23, Genesis 29:24]}
+  - {child: "Jalam@Gen.36.5-1Ch", parent: "Esau@Gen.25.25-Heb", status: confirmed, proof: [Genesis 36:5, Genesis 36:14]}
+  - {child: "Jeush@Gen.36.5-1Ch", parent: "Esau@Gen.25.25-Heb", status: confirmed, proof: [Genesis 36:5, Genesis 36:14]}
+  - {child: "Lotan@Gen.36.20-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20]}
+  - {child: "Shobal@Gen.36.20-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20]}
+  - {child: "Dishon@Gen.36.21-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20, Genesis 36:21]}
+  - {child: "Ezer@Gen.36.21-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20, Genesis 36:21]}
+  - {child: "Dishan@Gen.36.21-1Ch", parent: "Seir@Gen.36.20-1Ch", status: confirmed, proof: [Genesis 36:20, Genesis 36:21]}
+conflicts:
+  - kind: descendant
+    child: "Laban@Gen.24.29-"
+    readings:
+      - {parent: "Bethuel@Gen.22.22-", proof: [Genesis 24:29, Genesis 28:5]}
+      - {parent: "Nahor@Gen.11.26-", kind: descendant, proof: [Genesis 29:5]}
+    note:
+      en: "Laban is Bethuel's son (24:29, 28:5); Jacob asks after \"Laban son of Nahor\" (29:5), his grandfather."
+      he: "לבן בן בתואל (כד:כט, כח:ה); יעקב שואל על „לבן בן נחור” (כט:ה), אבי אביו."
+  - kind: bible
+    child: "Timna@Gen.36.12-1Ch"
+    readings:
+      - {parent: "Seir@Gen.36.20-1Ch", kind: son, proof: [Genesis 36:20, Genesis 36:22]}
+      - {parent: "Eliphaz@Gen.36.4-1Ch", proof: [I Chronicles 1:36]}
+    note:
+      en: "Genesis 36:22 makes Timna Lotan's sister, a daughter of Seir, and 36:12 Eliphaz's concubine; I Chronicles 1:36 lists Timna among Eliphaz's sons."
+      he: "בראשית לו:כב: תמנע אחות לוטן, בת שעיר, ולו:יב: פילגש אליפז; דברי הימים א א:לו מונה את תמנע בבני אליפז."
+  - kind: bible
+    child: "Anah@Gen.36.2-1Ch"
+    readings:
+      - {parent: "Zibeon@Gen.36.2-1Ch", proof: [Genesis 36:2, Genesis 36:24]}
+      - {parent: "Seir@Gen.36.20-1Ch", proof: [Genesis 36:20, Genesis 36:29]}
+    note:
+      en: "Genesis 36:24 makes Anah a son of Zibeon; 36:20 and 36:29 a son of Seir, Zibeon's brother. Perhaps two men named Anah; TIPNR has one."
+      he: "בראשית לו:כד: ענה בן צבעון; לו:כ ולו:כט: בן שעיר, אחי צבעון. אולי שני אנשים בשם ענה; ב־TIPNR אחד."
+missed:
+  - {ref: Genesis 25:19, reason: "Isaac son of Abraham: checked in block 02 (21:2-5)"}
+  - {ref: Genesis 25:20, reason: "Rebekah daughter of Bethuel: checked in block 02 (22:23)"}
+  - {ref: Genesis 27:21, reason: "Isaac takes Jacob for Esau: no new link"}
+  - {ref: Genesis 27:46, reason: "בנות חת: the Hittite women"}
+  - {ref: Genesis 28:1, reason: "Isaac charges Jacob: no new link"}
+  - {ref: Genesis 28:2, reason: "Bethuel, the father of Jacob's mother: Rebekah <- Bethuel is block 02"}
+  - {ref: Genesis 28:6, reason: "Esau sees Jacob blessed: no new link"}
+  - {ref: Genesis 29:13, reason: "Jacob, son of Laban's sister: Jacob <- Rebekah"}
+  - {ref: Genesis 31:1, reason: "Laban's sons, not named"}
+  - {ref: Genesis 31:43, reason: "Laban's claim on his daughters' sons: no new link"}
+  - {ref: Genesis 32:33, reason: "בני ישראל: the people"}
+  - {ref: Genesis 34:7, reason: "Jacob's sons together: each is linked by name"}
+  - {ref: Genesis 34:18, reason: "Hamor and Shechem please the people: no new link"}
+  - {ref: Genesis 36:19, reason: "the closing line of Esau's sons and chiefs"}
+  - {ref: Genesis 36:31, reason: "the kings of Edom, and בני ישראל as the people"}
