@@ -83,33 +83,21 @@ Review blocks (M90), in Jewish canon order:
 | 12 | b12-esth-dan | Esther, Daniel | reviewed | 35 | 0 |
 | 13 | b13-ezra-nehemiah | Ezra–Nehemiah | reviewed | 142 | 5 |
 | 14 | b14-1chr-1 | 1 Chr 1 | reviewed | 0 | 0 |
-| 15 | b15-1chr-2-4 | 1 Chr 2–4 | todo | | |
+| 15 | b15-1chr-2 | 1 Chr 2 | reviewed | 134 | 0 |
+| 15b | b15b-1chr-3-4 | 1 Chr 3–4 | todo | | |
 | 16 | b16-1chr-5-6 | 1 Chr 5–6 | todo | | |
 | 17 | b17-1chr-7-9 | 1 Chr 7–9 | todo | | |
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | todo | | |
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 15: `b15-1chr-2-4` (I Chr 2–4).** Follow **How to resume** step 2, but **split the block first**. Its sheet has 301 links besides 28 book attachments: 129 in I Chr 2, 46 in I Chr 3 and 105 in I Chr 4, about twice blocks 08 and 09. Split it at I Chr 3:1 into `b15-1chr-2` and `b15b-1chr-3-4`:
-- change `genealogy.blocks` in `configs/default.yaml`;
-- add the row to the table above, and the box in `docs/TASKS.md`;
-- review `b15-1chr-2` in that session, and leave I Chr 3–4 for the next.
+**M90, block 15b: `b15b-1chr-3-4` (I Chr 3–4).** Follow **How to resume** step 2. Block 15 was split at I Chr 3:1 in the session that reviewed I Chr 2. This half has about 150 links, the size of blocks 08 and 09; if its sheet is much larger, split it again at I Chr 4:1.
 
 Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03).
+- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Lines whose flags include `status` were decided in an earlier block: leave them out. Check for "status" anywhere in the flags, not just first: block 15 nearly re-confirmed Abigail <- Jesse because its flags read "(doubt, status confirmed …)".
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Links confirmed early, on this block's verses:** Jair <- Segub (2:21–22, block 06) and Zerubbabel <- Pedaiah (3:19, block 10).
-- **Judah's line** (2:3–55):
-  - Tamar and Bath-shua (2:3–4);
-  - Zerah's sons Ethan, Heman, Calcol, Dara (2:6), against the Ezrahite sages of I Kgs 5:11;
-  - "עכר עוכר ישראל" (2:7), Achan, against block 07's conflict;
-  - Ram's line down to David (2:10–15): Jesse's seven sons against the eight of I Sam 16:10–11 and 17:12;
-  - Caleb son of Hezron, his wives Azubah, Jerioth and Ephrath, and his concubines Ephah and Maacah (2:18–19, 46, 48);
-  - Hezron's late wife, Machir's daughter (2:21, 24);
-  - Sheshan's daughter given to his servant Jarha (2:34–35);
-  - Salma "אבי בית לחם" (2:51), rejected as Elimelech's father in block 11;
-  - TIPNR's Ephrathah as Hezron's wife (2:24, block 11's open question).
-- **"אבי X" with a town** (2:42–55, 4:3–23): founders of towns, not fathers. Use `founder` where TIPNR links the town as a person.
+- **Links confirmed early, on this block's verses:** Zerubbabel <- Pedaiah (3:19, block 10).
+- **Left over from I Chr 2:** Haroeh <- Shobal ("הראה", 2:52; "וראיה בן שובל", 4:2) has its best verse in 4:2, so it is on this sheet.
 - **David's sons and the kings** (3:1–24) against II Sam 3:2–5 and 5:14–16, and I Kgs:
   - Kileab and Daniel (3:1);
   - "בת שוע בת עמיאל" (3:5), Bathsheba daughter of Eliam in II Sam 11:3;
@@ -117,6 +105,11 @@ Things to look at in this block:
   - Josiah's sons Johanan and Shallum (3:15), against Jer 22:11 (block 10's open question);
   - Jeconiah's sons and Zerubbabel (3:17–19);
   - Shecaniah's line (3:21–24).
+- **Judah's sons again** (4:1): "פרץ חצרון וכרמי וחור ושובל" are not five sons. Hezron is Perez's son (2:5), and Hur and Shobal are Caleb's son and grandson (2:19, 50). Carmi there may be Achan's father (2:7) rather than Reuben's son; TIPNR keeps the two apart.
+- **Hur's line** (4:3–4): "בני חור בכור אפרתה אבי בית לחם", and Ashhur's wives Helah and Naarah (4:5–7). TIPNR links Hur's and Ashhur's sons there.
+- **"אבי X" with a town** (4:3–23): mark founders with `founder`, as in I Chr 2 (Hebron, Jorkeam, Madmannah, Machbenah, Gibea).
+- **Jabez** (4:9–10), **Caleb son of Jephunneh** (4:15), and **Mered's wives**, Bithiah daughter of Pharaoh and the Judahite (4:17–18).
+- **Simeon** (4:24–43) against Gen 46:10, Ex 6:15 and Num 26:12–14: Nemuel / Jemuel, Jarib / Jachin, Zerah / Zohar.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -251,6 +244,23 @@ Each entry: the child, the readings with their verses, the block that found it.
     - TIPNR's Shilonites ("People from Shelah(?)") have no link to Shelah.
     - TIPNR makes the father of Shemaiah, keeper of the East Gate (Neh 3:29), the same man as Shecaniah son of Jehiel (Ezra 10:2); the text does not say so.
 - **I Chronicles 1** (b14): Keturah is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1; Gen 25:6 speaks of Abraham's "פילגשים". The tree keeps her as a spouse, as it has no separate role for a concubine.
+- **I Chronicles 2** (b15):
+  - **Jesse's sons:** seven here, with David the seventh (2:13–15); eight in I Sam 16:10–11 and 17:12, with David the youngest. TIPNR's Elihu "מאחי דויד" (27:18) is left to block 18.
+  - **Zerah's sons** Zimri, Ethan, Heman, Calcol and Dara (2:6): TIPNR keeps them apart from the Ezrahite sages "איתן האזרחי והימן וכלכל ודרדע בני מחול" (I Kgs 5:11; block 09's open question). If they are the same men, Zerah's "sons" are his descendants through Mahol (M91). Zimri (2:6) is the Zabdi of Josh 7:1, as TIPNR has it.
+  - **Hezron's wives:** TIPNR's unnamed wife as mother of Jerahmeel and Caleb (2:9) is rejected: no mother is named there. Hezron's wives are Machir's daughter (2:21) and Abiah, who bore Ashhur after his death (2:24); TIPNR's Ephrathah as his wife is rejected too ("ואחר מות חצרון בכלב אפרתה", 2:24, names where he died, or Caleb's wife).
+  - **Jerahmeel's first wife:** "ותהי אשה אחרת לירחמאל ושמה עטרה היא אם אונם" (2:26) implies a first wife, the mother of the sons of 2:25; TIPNR's unnamed wife is kept. The list of 2:25 ends with "אחיה", which TIPNR takes for a son.
+  - **Caleb's wives:** "וכלב בן חצרון הוליד את עזובה אשה ואת יריעות ואלה בניה" (2:18): whose sons Jesher, Shobab and Ardon are, Azubah's or Jerioth's, is not clear; TIPNR's Azubah is kept. TIPNR's Jerioth as the mother of Mesha (2:42) is rejected.
+  - **Jahdai** (2:47) comes between Caleb's concubines Ephah and Maacah (2:46, 48), but the text does not say who Jahdai is to Caleb. TIPNR's spouse link is rejected, Jahdai's six sons are kept, and their link to Caleb is `unstated`.
+  - **Sheshan:** "ובני ששן אחלי" (2:31), but "ולא היה לששן בנים כי אם בנות" (2:34). TIPNR takes Ahlai for the daughter given to Jarha (2:35). Their marriage is kept on 2:31, 34–35, and Ahlai as Attai's mother is `unstated`.
+  - **Mareshah** (2:42) is among Caleb's sons but is not said to be Mesha's son; the link is `unstated`.
+  - **Founders:** Hebron (2:42), Jorkeam (2:44), Madmannah, Machbenah and Gibea (2:49) are towns of Judah (Josh 15), linked as `founder`. Maon (2:45) is "בן", so a son.
+  - **Hammath** "אבי בית רכב" (2:55) is the forefather of the Rechabites, so Rechab <- Hammath is a `descendant`. Hammath is a Kenite, though TIPNR attaches him to Judah (M91).
+  - **The families of Kiriath-jearim** (2:53): the Mishraites, Puthites, Shumathites and Zorathites stand under Shobal "אבי קרית יערים" (2:52), but are attached only to the book (M91).
+  - **For M91:**
+    - **Achsah:** "ובת כלב עכסה" (2:49) is the daughter of Caleb son of Hezron. In Josh 15:16–17 and Judg 1:12–13, Achsah is the daughter of Caleb son of Jephunneh. TIPNR keeps two Achsahs and two Calebs. If each pair is one person, this is a Bible vs Bible conflict.
+    - **Salma** "אבי בית לחם", son of Hur (2:51), and Salma father of Boaz (2:11), who lived in Bethlehem, are two TIPNR keys.
+    - **Hur** grandfather of Bezalel (2:19–20) is merged with the Hur of Ex 17:10 and 24:14, as TIPNR has it.
+  - Ashhur "אבי תקוע" (2:24), Mesha "אבי זיף" (2:42), Maon "אבי בית צור" (2:45), Shobal "אבי קרית יערים" (2:50), Salma "אבי בית לחם" and Hareph "אבי בית גדר" (2:51): TIPNR does not make these towns persons, so no link is needed.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -396,3 +406,24 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Counts:** no new links and no new conflicts; 6 cue verses are dismissed (1:18, 28, 31, 32, 34, 38), all proved in Genesis.
   - **Why so small:** I Chr 1 repeats Genesis 5, 10, 11:10–26, 25 and 36. Its 93 links with a proof here were all proved first in Genesis and are decided in blocks 01–03 (92 confirmed, Dodanim fixed). The 5 lines of the sheet are readings of the conflicts on Uz, Hul, Gether, Mash (1:17) and Timna (1:36). No person's TIPNR key starts in I Chr 1.
   - **Spellings:** the names spelled differently from Genesis (דיפת / ריפת, רודנים / דדנים, משך / מש, עלין / עלון, שפי / שפו, חמרן / חמדן, הדד / הדר, פעי / פעו) are on the Genesis keys, so none adds a link. Hadad / Hadar (1:50) was given "הדר" in block 03.
+- 2026-10-22, M90 block 15 (I Chr 2): `curation/genealogy/15-b15-1chr-2.yaml`, reviewed.
+  - **The split:** block 15 (I Chr 2–4, 301 links) was split at I Chr 3:1 into `b15-1chr-2` and `b15b-1chr-3-4`, in `configs/default.yaml`, the table above and `docs/TASKS.md`.
+  - **Counts:** 134 links checked (112 confirmed, 15 fixed, 7 rejected), no conflicts. 7 cue verses are dismissed: 2:1, 3, 4, 7 and 20 are proved in blocks 03, 04, 05 and 07, and 2:23 and 2:54 name no person. 2:34 is a proof of the Ahlai links. 6 links of the sheet were decided earlier: Zeruiah and Abigail <- Jesse, Jesse's three sons not by Nahash (block 08), and Jair <- Segub (block 06).
+  - **Confirmed:**
+    - Zerah's sons (2:6); Hezron's sons Jerahmeel and Caleb (2:9; Caleb on 2:9 and 2:18, since the automatic proof 2:24, "בכלב אפרתה", is a place);
+    - Jesse's sons Nethanel, Raddai and Ozem (2:13–15);
+    - Caleb's wives, concubines and sons (2:18–19, 46, 48–49), Hur and his sons Shobal, Salma and Hareph (2:50–51), and Achsah (2:49);
+    - Segub, son of Hezron and Machir's daughter (2:21);
+    - Abiah, Hezron's wife, and Ashhur (2:24);
+    - Jerahmeel's line (2:25–33) and its continuation through Jarha (2:35–41);
+    - Hebron's sons, Shema's and Rekem's lines, and Maon (2:43–45);
+    - the Menuhoth (half of the Manahathites) under Shobal (2:52).
+  - **Fixed:**
+    - Appaim is Nadab's son (2:30), not his descendant.
+    - `founder`: Hebron, Jorkeam, Madmannah, Machbenah and Gibea.
+    - `unstated`:
+      - Mareshah <- Mesha;
+      - Attai <- Ahlai;
+      - Jahdai's six sons <- Caleb.
+    - Rechab <- Hammath is a `descendant`.
+  - **Rejected:** TIPNR's unnamed wife of Hezron (2:9: her two mother links and the marriage); Ephrathah as Hezron's wife; Maacah as the mother of Machir's daughter; Jerioth as Mesha's mother; Jahdai as Caleb's wife.

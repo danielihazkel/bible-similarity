@@ -1,0 +1,146 @@
+# Block 15: I Chronicles 2 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b15-1chr-2
+status: reviewed
+links:
+  - "Calcol@1Ch.2.6 <- Zerah@Gen.38.30-Mat"
+  - "Dara@1Ch.2.6 <- Zerah@Gen.38.30-Mat"
+  - "Ethan@1Ch.2.6- <- Zerah@Gen.38.30-Mat"
+  - "Heman@1Ch.2.6 <- Zerah@Gen.38.30-Mat"
+  - "Azariah@1Ch.2.8 <- Ethan@1Ch.2.6-"
+  - "Jerahmeel@1Sa.27.10-1Ch <- Hezron@Gen.46.12-Luk"
+  - {child: "Jerahmeel@1Sa.27.10-1Ch", parent: "a_wife_of_Hezron@1Ch.2.9", status: rejected}
+  - {child: "Caleb@1Ch.2.9-", parent: "a_wife_of_Hezron@1Ch.2.9", status: rejected}
+  - {child: "a_wife_of_Hezron@1Ch.2.9", parent: "Hezron@Gen.46.12-Luk", role: spouse, status: rejected}
+  - {child: "Nethanel@1Ch.2.14", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 2:13, I Chronicles 2:14]}
+  - {child: "Raddai@1Ch.2.14", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 2:13, I Chronicles 2:14]}
+  - {child: "Ozem@1Ch.2.15", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 2:13, I Chronicles 2:15]}
+  - {child: "Caleb@1Ch.2.9-", parent: "Hezron@Gen.46.12-Luk", status: confirmed, proof: [I Chronicles 2:9, I Chronicles 2:18]}
+  - "Caleb@1Ch.2.9- <- Azubah@1Ch.2.18-"
+  - "Ardon@1Ch.2.18 <- Caleb@1Ch.2.9-"
+  - "Ardon@1Ch.2.18 <- Azubah@1Ch.2.18-"
+  - "Jerioth@1Ch.2.18 <- Caleb@1Ch.2.9-"
+  - "Jesher@1Ch.2.18 <- Caleb@1Ch.2.9-"
+  - "Jesher@1Ch.2.18 <- Azubah@1Ch.2.18-"
+  - "Shobab@1Ch.2.18 <- Caleb@1Ch.2.9-"
+  - "Shobab@1Ch.2.18 <- Azubah@1Ch.2.18-"
+  - {child: "Hur@Exo.17.10-2Ch", parent: "Ephrathah@Rut.1.2-1Ch", status: confirmed, proof: [I Chronicles 2:19, I Chronicles 2:50]}
+  - "Ephrathah@Rut.1.2-1Ch <- Caleb@1Ch.2.9-"
+  - "Segub@1Ch.2.21- <- Hezron@Gen.46.12-Luk"
+  - "Segub@1Ch.2.21- <- daughter_of_Machir@1Ch.2.21"
+  - "daughter_of_Machir@1Ch.2.21 <- Machir@Gen.50.23-1Ch"
+  - {child: "daughter_of_Machir@1Ch.2.21", parent: "Maacah@1Ch.7.15-", status: rejected}
+  - "daughter_of_Machir@1Ch.2.21 <- Hezron@Gen.46.12-Luk"
+  - {child: "Hezron@Gen.46.12-Luk", parent: "Ephrathah@Rut.1.2-1Ch", role: spouse, status: rejected}
+  - "Hezron@Gen.46.12-Luk <- Abiah@1Ch.2.24"
+  - "Ashhur@1Ch.2.24- <- Hezron@Gen.46.12-Luk"
+  - "Ashhur@1Ch.2.24- <- Abiah@1Ch.2.24"
+  - "Ahijah@1Ch.2.25 <- Jerahmeel@1Sa.27.10-1Ch"
+  - {child: "Ahijah@1Ch.2.25", parent: "a_wife_of_Jerahmeel@1Ch.2.26", status: confirmed, proof: [I Chronicles 2:25, I Chronicles 2:26]}
+  - "Bunah@1Ch.2.25 <- Jerahmeel@1Sa.27.10-1Ch"
+  - {child: "Bunah@1Ch.2.25", parent: "a_wife_of_Jerahmeel@1Ch.2.26", status: confirmed, proof: [I Chronicles 2:25, I Chronicles 2:26]}
+  - "Oren@1Ch.2.25 <- Jerahmeel@1Sa.27.10-1Ch"
+  - {child: "Oren@1Ch.2.25", parent: "a_wife_of_Jerahmeel@1Ch.2.26", status: confirmed, proof: [I Chronicles 2:25, I Chronicles 2:26]}
+  - "Ozem@1Ch.2.25 <- Jerahmeel@1Sa.27.10-1Ch"
+  - {child: "Ozem@1Ch.2.25", parent: "a_wife_of_Jerahmeel@1Ch.2.26", status: confirmed, proof: [I Chronicles 2:25, I Chronicles 2:26]}
+  - "Ram@1Ch.2.25- <- Jerahmeel@1Sa.27.10-1Ch"
+  - "Jerahmeel@1Sa.27.10-1Ch <- Atarah@1Ch.2.26"
+  - "Onam@1Ch.2.26- <- Jerahmeel@1Sa.27.10-1Ch"
+  - "Onam@1Ch.2.26- <- Atarah@1Ch.2.26"
+  - {child: "a_wife_of_Jerahmeel@1Ch.2.26", parent: "Jerahmeel@1Sa.27.10-1Ch", role: spouse, status: confirmed, proof: [I Chronicles 2:26]}
+  - {child: "Ram@1Ch.2.25-", parent: "a_wife_of_Jerahmeel@1Ch.2.26", status: confirmed, proof: [I Chronicles 2:25, I Chronicles 2:26]}
+  - "Eker@1Ch.2.27 <- Ram@1Ch.2.25-"
+  - "Jamin@1Ch.2.27 <- Ram@1Ch.2.25-"
+  - "Maaz@1Ch.2.27 <- Ram@1Ch.2.25-"
+  - "Abishur@1Ch.2.28- <- Shammai@1Ch.2.28-"
+  - "Jada@1Ch.2.28- <- Onam@1Ch.2.26-"
+  - "Nadab@1Ch.2.28- <- Shammai@1Ch.2.28-"
+  - "Shammai@1Ch.2.28- <- Onam@1Ch.2.26-"
+  - "Abishur@1Ch.2.28- <- Abihail@1Ch.2.29"
+  - "Ahban@1Ch.2.29 <- Abishur@1Ch.2.28-"
+  - "Ahban@1Ch.2.29 <- Abihail@1Ch.2.29"
+  - "Molid@1Ch.2.29 <- Abishur@1Ch.2.28-"
+  - "Molid@1Ch.2.29 <- Abihail@1Ch.2.29"
+  - {child: "Appaim@1Ch.2.30-", parent: "Nadab@1Ch.2.28-", kind: son, status: fixed, proof: [I Chronicles 2:30]}
+  - "Seled@1Ch.2.30 <- Nadab@1Ch.2.28-"
+  - "Ahlai@1Ch.2.31 <- Sheshan@1Ch.2.31-"
+  - "Ishi@1Ch.2.31 <- Appaim@1Ch.2.30-"
+  - "Sheshan@1Ch.2.31- <- Ishi@1Ch.2.31"
+  - "Jether@1Ch.2.32 <- Jada@1Ch.2.28-"
+  - "Jonathan@1Ch.2.32- <- Jada@1Ch.2.28-"
+  - "Peleth@1Ch.2.33 <- Jonathan@1Ch.2.32-"
+  - "Zaza@1Ch.2.33 <- Jonathan@1Ch.2.32-"
+  - {child: "Jarha@1Ch.2.34-", parent: "Ahlai@1Ch.2.31", role: spouse, status: confirmed, proof: [I Chronicles 2:31, I Chronicles 2:34, I Chronicles 2:35]}
+  - "Attai@1Ch.2.35- <- Jarha@1Ch.2.34-"
+  - {child: "Attai@1Ch.2.35-", parent: "Ahlai@1Ch.2.31", kind: unstated, status: fixed, proof: [I Chronicles 2:31, I Chronicles 2:34, I Chronicles 2:35]}
+  - "Nathan@1Ch.2.36 <- Attai@1Ch.2.35-"
+  - "Zabad@1Ch.2.36- <- Nathan@1Ch.2.36"
+  - "Ephlal@1Ch.2.37 <- Zabad@1Ch.2.36-"
+  - "Obed@1Ch.2.37- <- Ephlal@1Ch.2.37"
+  - "Azariah@1Ch.2.38- <- Jehu@1Ch.2.38"
+  - "Jehu@1Ch.2.38 <- Obed@1Ch.2.37-"
+  - "Eleasah@1Ch.2.39- <- Helez@1Ch.2.39"
+  - "Helez@1Ch.2.39 <- Azariah@1Ch.2.38-"
+  - "Shallum@1Ch.2.40- <- Sismai@1Ch.2.40"
+  - "Sismai@1Ch.2.40 <- Eleasah@1Ch.2.39-"
+  - "Elishama@1Ch.2.41 <- Jekamiah@1Ch.2.41"
+  - "Jekamiah@1Ch.2.41 <- Shallum@1Ch.2.40-"
+  - {child: "Hebron@1Ch.2.42-", parent: "Mareshah@1Ch.2.42", kind: founder, status: fixed, proof: [I Chronicles 2:42]}
+  - {child: "Mareshah@1Ch.2.42", parent: "Mesha@1Ch.2.42", kind: unstated, status: fixed, proof: [I Chronicles 2:42]}
+  - "Mesha@1Ch.2.42 <- Caleb@1Ch.2.9-"
+  - {child: "Mesha@1Ch.2.42", parent: "Jerioth@1Ch.2.18", status: rejected}
+  - "Korah@1Ch.2.43 <- Hebron@1Ch.2.42-"
+  - "Rekem@1Ch.2.43- <- Hebron@1Ch.2.42-"
+  - "Shema@1Ch.2.43- <- Hebron@1Ch.2.42-"
+  - "Tappuah@1Ch.2.43 <- Hebron@1Ch.2.42-"
+  - {child: "Jorkeam@1Ch.2.44", parent: "Raham@1Ch.2.44", kind: founder, status: fixed, proof: [I Chronicles 2:44]}
+  - "Raham@1Ch.2.44 <- Shema@1Ch.2.43-"
+  - "Shammai@1Ch.2.44- <- Rekem@1Ch.2.43-"
+  - "Maon@1Ch.2.45 <- Shammai@1Ch.2.44-"
+  - "Ephah@1Ch.2.46 <- Caleb@1Ch.2.9-"
+  - "Gazez@1Ch.2.46a <- Caleb@1Ch.2.9-"
+  - "Gazez@1Ch.2.46a <- Ephah@1Ch.2.46"
+  - "Gazez@1Ch.2.46b <- Haran@1Ch.2.46"
+  - "Haran@1Ch.2.46 <- Caleb@1Ch.2.9-"
+  - "Haran@1Ch.2.46 <- Ephah@1Ch.2.46"
+  - "Moza@1Ch.2.46 <- Caleb@1Ch.2.9-"
+  - "Moza@1Ch.2.46 <- Ephah@1Ch.2.46"
+  - {child: "Ephah@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Ephah@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - {child: "Geshan@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Geshan@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - {child: "Jahdai@1Ch.2.47", parent: "Caleb@1Ch.2.9-", role: spouse, status: rejected}
+  - {child: "Jotham@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Jotham@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - {child: "Pelet@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Pelet@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - {child: "Regem@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Regem@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - {child: "Shaaph@1Ch.2.47", parent: "Caleb@1Ch.2.9-", kind: unstated, status: fixed, proof: [I Chronicles 2:46, I Chronicles 2:47, I Chronicles 2:48]}
+  - {child: "Shaaph@1Ch.2.47", parent: "Jahdai@1Ch.2.47", status: confirmed, proof: [I Chronicles 2:47]}
+  - "Maacah@1Ch.2.48 <- Caleb@1Ch.2.9-"
+  - "Sheber@1Ch.2.48 <- Caleb@1Ch.2.9-"
+  - "Sheber@1Ch.2.48 <- Maacah@1Ch.2.48"
+  - "Tirhanah@1Ch.2.48 <- Caleb@1Ch.2.9-"
+  - "Tirhanah@1Ch.2.48 <- Maacah@1Ch.2.48"
+  - "Achsah@1Ch.2.49 <- Caleb@1Ch.2.9-"
+  - {child: "Gibea@1Ch.2.49", parent: "Sheva@1Ch.2.49", kind: founder, status: fixed, proof: [I Chronicles 2:49]}
+  - {child: "Machbenah@1Ch.2.49", parent: "Sheva@1Ch.2.49", kind: founder, status: fixed, proof: [I Chronicles 2:49]}
+  - {child: "Madmannah@1Ch.2.49", parent: "Shaaph@1Ch.2.49", kind: founder, status: fixed, proof: [I Chronicles 2:49]}
+  - {child: "Shaaph@1Ch.2.49", parent: "Caleb@1Ch.2.9-", status: confirmed, proof: [I Chronicles 2:48, I Chronicles 2:49]}
+  - {child: "Shaaph@1Ch.2.49", parent: "Maacah@1Ch.2.48", status: confirmed, proof: [I Chronicles 2:48, I Chronicles 2:49]}
+  - {child: "Sheva@1Ch.2.49", parent: "Caleb@1Ch.2.9-", status: confirmed, proof: [I Chronicles 2:48, I Chronicles 2:49]}
+  - {child: "Sheva@1Ch.2.49", parent: "Maacah@1Ch.2.48", status: confirmed, proof: [I Chronicles 2:48, I Chronicles 2:49]}
+  - {child: "Hur@Exo.17.10-2Ch", parent: "Caleb@1Ch.2.9-", status: confirmed, proof: [I Chronicles 2:19, I Chronicles 2:50]}
+  - {child: "Shobal@1Ch.2.50-", parent: "Hur@Exo.17.10-2Ch", status: confirmed, proof: [I Chronicles 2:50]}
+  - {child: "Hareph@1Ch.2.51", parent: "Hur@Exo.17.10-2Ch", status: confirmed, proof: [I Chronicles 2:50, I Chronicles 2:51]}
+  - {child: "Salma@1Ch.2.51-", parent: "Hur@Exo.17.10-2Ch", status: confirmed, proof: [I Chronicles 2:50, I Chronicles 2:51]}
+  - "Menuhoth@1Ch.2.52 <- Shobal@1Ch.2.50-"
+  - {child: "Rechab@2Ki.10.15-Jer", parent: "Hammath@1Ch.2.55", kind: descendant, status: fixed, proof: [I Chronicles 2:55]}
+missed:
+  - {ref: I Chronicles 2:1, reason: "Israel's sons: proved on Genesis 29:32-30:24, 35:16-26 (block 03)"}
+  - {ref: I Chronicles 2:3, reason: "Er, Onan and Shelah, Judah's sons by Bath-shua: proved on Genesis 38:2-5 (block 04)"}
+  - {ref: I Chronicles 2:4, reason: "Perez and Zerah, Tamar's sons by Judah: proved on Genesis 38:27-30 (block 04)"}
+  - {ref: I Chronicles 2:7, reason: "עכר is Achan, Carmi's son: proved on Joshua 7:1, 18 (block 07), where his descent is a conflict; TIPNR keeps both spellings on one key"}
+  - {ref: I Chronicles 2:20, reason: "Hur, Uri and Bezalel: proved on Exodus 31:2 (block 05)"}
+  - {ref: I Chronicles 2:23, reason: "בני מכיר אבי גלעד: Jair's towns, of Machir's line through his daughter (2:21); Gilead <- Machir is proved on Numbers 26:29 (block 06)"}
+  - {ref: I Chronicles 2:54, reason: "בני שלמא: towns and clans (Bethlehem, the Netophathite, Atroth-beth-joab, half the Manahathites, the Zorites); no person named"}
