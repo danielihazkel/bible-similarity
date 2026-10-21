@@ -61,7 +61,7 @@ A person counts as reviewed when every parent link of theirs is checked.
 |---|---|---|
 | F0 | Hand-off file, DESIGN §16.63 / D101, TASKS milestones | done |
 | M88 (F1) | Data: TIPNR family columns, `bsim genealogy`, automatic proofs, curated loader, `genealogy-review`, DB tables | done |
-| M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | todo |
+| M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
 | M90 (F3) | Review block by block (below) | todo |
 | M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry | todo |
 
@@ -90,38 +90,21 @@ Review blocks (M90), in Jewish canon order:
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M89 (F2), viewer.** This step does:
-- **API:** `src/bsim/api/{routes,queries,models}/genealogy.py`:
-  - `GET /api/genealogy/skeleton`: every drawn node, compact (`person_id`, `he`, parent, `sex`, `kind`, `placement`, `book_id`, flags, `seq`) plus each node's spouses (`placement = spouse` people beside it);
-  - `GET /api/genealogy/person/{id}`: parents, spouses, children by mother, siblings, proof verses as `{verse, tokens}`, conflicts;
-  - `GET /api/genealogy/lookup?q=`: Hebrew name search, with a "son of X" subtitle.
-- **Fixture rows** in `src/bsim/fixture.py`, and `npm run gen:api`.
-- **Page:** `web/src/pages/GenealogyPage.tsx` at `/genealogy?p=`:
-  - add `d3-hierarchy@3.1.2`;
-  - nodes are HTML buttons over an SVG edge layer, laid out only over the expanded part;
-  - collapse and expand;
-  - mother headers when a father has several wives;
-  - cross-links;
-  - markers and a legend;
-  - side panel, which becomes a bottom sheet at ≤ 860px;
-  - `usePanZoom` shared with `GeoMap.tsx`.
-- **Wiring:** `i18n/pages/genealogy.ts` (en + he), the nav line (Overview), the route.
-- **Tests:** vitest, e2e (smoke, axe, fixture).
+**M90, block 01: `b01-gen-1-11` (Gen 1–11).** Follow **How to resume** step 2:
+- `uv run bsim genealogy-review b01-gen-1-11`, then read Gen 1–11 against the sheet (Gen 4, 5, 10, 11 are the genealogies);
+- write `curation/genealogy/01-b01-gen-1-11.yaml`;
+- rebuild, and check the block's people at `/genealogy` (Adam's line opens by default; the reviewed ones lose the dashed outline).
 
-What the data gives the viewer (tables `genealogy_*` in `results.sqlite`):
-- `genealogy_links.drawn = 1` is the tree.
-- `placement`:
-  - `root` is Adam;
-  - `spouse` people are not nodes: draw them beside their spouse;
-  - `virtual` nodes are "unattached" and one per book under it, labelled from the catalogs and the book's name. Their `he` is empty.
-- A node is unreviewed when `genealogy_persons.reviewed = 0`, which gives the faint marker.
-- Conflicts are `genealogy_conflicts`, whose readings are link ids, the first one drawn.
-- Link `kind` `descendant` gives the violet dashed edge, and `role` `unstated` the grey dotted one.
+Things to look at in this block:
+- Gen 10's nations are TIPNR groups (`kind: group`): confirm them as `founder` or `son` links as the text has them.
+- Cain's line (Gen 4) and Seth's (Gen 5) both have a Lamech and an Enoch: check the keys keep them apart.
 
 ## Conflicts found
 None yet. Each entry: the child, the readings with their verses, the block that found it.
 
 ## Open questions
+- **Names TIPNR gives in another form than the reader expects:** Jacob's node reads ישראל (TIPNR's record is "Israel"). The review can set `he` in `people:` (block 03, Gen 25:19–36), or leave it and let the panel show both; decide there.
+- The skeleton is ~650 KB of JSON (gzipped in transit), fetched once per visit. Fine now; if M91 adds fields, consider a compact array form.
 - `bsim places` drops TIPNR's references marked by their occurrence (`Exo.7.10a`, 15% of all) and doesn't map English numbering (`data/kjv.py`). Fixing both might improve the gazetteer, but it is outside this series: raise it with the user, don't just do it.
 - 1,055 people are "unattached", mostly people with no family in the text. Most become reachable through search; the reviews may attach some.
 
@@ -134,3 +117,9 @@ None yet. Each entry: the child, the readings with their verses, the block that 
   - **Real data:** 2,845 people; 1,818 parent links, 1,463 proved by a verse naming both, 218 with a nearby hint, 137 with nothing.
   - **Placement:** root 1, tree 1,553, tribe 169, spouse 67, unattached 1,055.
   - **Pipeline:** the stages flagged stale but unchanged were adopted (the encoders, places, place-lists, place-arc, place-links, gematria-links).
+- 2026-10-21, M89: the viewer.
+  - **API:** `/api/genealogy/skeleton` (2,816 nodes, 64 spouses beside them, 113 cross-links), `/api/genealogy/person/{id}`, `/api/genealogy/lookup?q=`; fixture rows (a made-up tree from Adam to Lamech's wives, with a conflict, a descendant link, a tribe and a book group).
+  - **Page:** Overview → Family tree (`/genealogy?p=`), `d3-hierarchy` 3.1.2. Children hang from mother headers when they have more than one mother, the attached apart; the unnamed are named by what they are to their parent or spouse ("בת לוט"). It opens on Adam's first three generations; nodes off screen are not drawn.
+  - **Pan and zoom:** `lib/panZoom.ts` (drag, pinch, Ctrl + wheel), shared with `GeoMap`, which gains pinch and Ctrl + wheel.
+  - **Panel:** parents, spouses, children by mother, siblings, the people attached, each link's verses with both names marked, a conflict's readings; it can open or close everything below. On a phone it is a bottom sheet, and the search sits above it.
+  - **Checked** on the real data in both languages, light and dark, desktop and phone: Jacob's sons under Leah, Bilhah, Zilpah and Rachel, with verses.

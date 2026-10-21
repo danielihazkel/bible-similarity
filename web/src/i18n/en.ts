@@ -31,6 +31,7 @@ import { paEn } from './pages/placeArc'
 import { plkEn } from './pages/placeLinks'
 import { plsEn } from './pages/placeLists'
 import { geoEn, plEn } from './pages/places'
+import { gtEn } from './pages/genealogy'
 import { qryEn } from './pages/query'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -123,6 +124,7 @@ export const en = {
     placeLists: { label: 'Place lists on the ground', hint: 'Are itineraries, borders and town lists ordered on the map?' },
     placeArc: { label: 'The geographic arc', hint: 'Where each chapter takes place, and how the story moves' },
     placeLinks: { label: 'Named together, near together?', hint: 'Do places the text names together lie together?' },
+    genealogy: { label: 'Family tree', hint: 'Everyone the text names, parent by parent, with the verses that say so' },
     network: { label: 'Network', hint: 'Echo communities, most echoed passages, who echoes whom' },
     style: { label: 'Style', hint: 'Stylometry and style shifts' },
     shifts: { label: 'Shifts', hint: 'Words used differently across the canon' },
@@ -470,6 +472,7 @@ export const en = {
   pls: plsEn,
   pa: paEn,
   plk: plkEn,
+  gt: gtEn,
   qry: qryEn,
   nb: nbEn,
   echo: echoEn,

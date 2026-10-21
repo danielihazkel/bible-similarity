@@ -297,6 +297,32 @@ export interface PlaceLinksMeta {
 export type PlaceLinksResponse = Omit<S['PlaceLinksResponse'], 'meta'> & { meta: PlaceLinksMeta & Record<string, unknown> }
 export type PlaceLinkPairsResponse = S['PlaceLinkPairsResponse']
 
+// The family tree (`/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup`, DESIGN.md §16.63).
+export type TreeNode = S['TreeNode']
+export type TreeSpouse = S['TreeSpouse']
+export type CrossLink = S['CrossLink']
+export interface GenealogyMeta {
+  persons?: number
+  parent_links?: number
+  proved?: number
+  reviewed_links?: number
+  placement?: Record<string, number>
+  conflicts?: Record<string, number>
+  blocks?: Record<string, number>
+}
+export type SkeletonResponse = Omit<S['SkeletonResponse'], 'meta'> & { meta: GenealogyMeta & Record<string, unknown> }
+export type PersonRef = S['PersonRef']
+export type ProofVerse = S['ProofVerse']
+export type FamilyLink = S['FamilyLink']
+export type ChildGroup = S['ChildGroup']
+export type GenealogyConflict = S['Conflict']
+export type PersonInfo = S['PersonInfo']
+export type PersonDetail = S['PersonDetail']
+export type PersonMatch = S['PersonMatch']
+export type PersonLookup = S['PersonLookup']
+export type ProofCue = NonNullable<ProofVerse['cue']>
+export type LinkStatus = FamilyLink['status']
+
 // Equidistant letter sequences against controls (`/els`, DESIGN.md §16.62).
 export type ElsControlKey = 'letters' | 'verses' | 'blocks'
 export type ElsControl = S['ElsControl']

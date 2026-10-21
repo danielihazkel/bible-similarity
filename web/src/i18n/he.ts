@@ -38,6 +38,7 @@ import { paHe } from './pages/placeArc'
 import { plkHe } from './pages/placeLinks'
 import { plsHe } from './pages/placeLists'
 import { geoHe, plHe } from './pages/places'
+import { gtHe } from './pages/genealogy'
 import { qryHe } from './pages/query'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -130,6 +131,7 @@ export const he: Messages = {
     placeLists: { label: 'רשימות המקומות על פני הארץ', hint: 'האם המסעות, הגבולות ורשימות הערים מסודרים על המפה?' },
     placeArc: { label: 'הקשת הגאוגרפית', hint: 'היכן מתרחש כל פרק, ולאן הסיפור נע' },
     placeLinks: { label: 'נזכרים יחד, שוכנים יחד?', hint: 'האם מקומות שהכתוב מזכיר יחד שוכנים יחד?' },
+    genealogy: { label: 'אילן היוחסין', hint: 'כל מי שהכתוב מזכיר, הורה אחר הורה, עם הפסוקים שאומרים זאת' },
     network: { label: 'רשת', hint: 'קהילות הדים, הקטעים המהדהדים ביותר, מי מהדהד את מי' },
     style: { label: 'סגנון', hint: 'סטילומטריה ומעברי סגנון' },
     shifts: { label: 'תזוזות', hint: 'מילים שמשמשות אחרת לאורך התנ״ך' },
@@ -471,6 +473,7 @@ export const he: Messages = {
   pls: plsHe,
   pa: paHe,
   plk: plkHe,
+  gt: gtHe,
   qry: qryHe,
   nb: nbHe,
   echo: echoHe,

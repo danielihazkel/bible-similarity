@@ -41,6 +41,9 @@ import type {
   PlaceLinksResponse,
   PlacesResponse,
   PlaceVersesResponse,
+  PersonDetail,
+  PersonLookup,
+  SkeletonResponse,
   GematriaLemmasResponse,
   GematriaResponse,
   GematriaSystem,
@@ -830,6 +833,28 @@ export const usePlaceLinkPairs = (q: { place?: number; sort: PlaceLinkSort; limi
   useQuery({
     queryKey: ['place-link-pairs', q],
     queryFn: ({ signal }) => getJson<PlaceLinkPairsResponse>('/place-links/pairs', q, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** The family tree, compact: every node and the link it hangs by (§16.63). */
+export const useGenealogySkeleton = () =>
+  useQuery({ queryKey: ['genealogy-skeleton'], queryFn: ({ signal }) => getJson<SkeletonResponse>('/genealogy/skeleton', {}, signal), ...forever })
+
+export const useGenealogyPerson = (personId: number | undefined) =>
+  useQuery({
+    queryKey: ['genealogy-person', personId],
+    queryFn: ({ signal }) => getJson<PersonDetail>(`/genealogy/person/${personId}`, {}, signal),
+    enabled: personId !== undefined,
+    ...forever,
+  })
+
+/** People by a Hebrew name, for the tree's search. */
+export const usePersonLookup = (q: string) =>
+  useQuery({
+    queryKey: ['person-lookup', q],
+    queryFn: ({ signal }) => getJson<PersonLookup>('/genealogy/lookup', { q }, signal),
+    enabled: q.trim().length > 0,
     placeholderData: keepPreviousData,
     ...forever,
   })

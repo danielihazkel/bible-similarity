@@ -94,6 +94,8 @@ const PAGES: [string, RegExp][] = [
   ['/place-arc?book=12', /The geographic arc/],
   ['/place-links', /Named together, near together/],
   ['/place-links?place=52&sort=km&bins=sure', /Named together, near together/],
+  ['/genealogy', /Family tree/],
+  ['/genealogy?p=194', /Family tree/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
@@ -163,7 +165,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -328,6 +330,19 @@ test('places named together lie together, and Dan and Beersheba are a far pair',
   await expect(page.locator('.plk-leads tbody tr')).toHaveCount(25)
   await page.goto('/place-links?place=52&sort=km')
   await expect(page.locator('.plk-pairs li').first()).toContainText('באר שבע')
+})
+
+test('the family tree: Jacob’s sons under their four mothers, with verses', async ({ page }) => {
+  await page.goto('/genealogy?p=194')
+  const panel = page.getByRole('region', { name: 'Person' })
+  await expect(panel.locator('.gt-child-group h4')).toHaveText(['By לאה', 'By בלהה', 'By זלפה', 'By רחל'])
+  await expect(panel.locator('.gt-proof').first()).toContainText('I Chronicles 1:34')
+  await expect(page.locator('.gt-node.selected')).toContainText('ישראל')
+  // by the keyboard: on a phone the bottom sheet covers the tree's lower half
+  await page.locator('.gt-node.selected .gt-toggle').press('Enter')
+  // twenty children are wider than the view, and only what is in view is drawn: zoom out
+  for (let i = 0; i < 5; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
+  for (const h of ['by לאה', 'by בלהה', 'by זלפה', 'by רחל']) await expect(page.locator('.gt-header.mother', { hasText: h })).toHaveCount(1)
 })
 
 test('letters at equal skips: no more names in the Torah than its controls, and תורה at 50 from Genesis 1:1', async ({ page }) => {

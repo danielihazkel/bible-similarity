@@ -109,6 +109,8 @@ const PAGES = [
   '/place-arc?book=1',
   '/place-links',
   '/place-links?place=1&sort=km&bins=no_lists',
+  '/genealogy',
+  '/genealogy?p=10',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/forms?view=lists&kind=genealogy',
@@ -350,6 +352,51 @@ test('places named together: the test, the decay, the leads and the pairs', asyn
   await page.goto('/findings')
   await page.getByRole('link', { name: /Named together, near together/ }).first().click()
   await expect(page).toHaveURL(/\/place-links/)
+})
+
+test('the family tree: open and close, a person and the verses, search, a phone', async ({ page }) => {
+  await page.goto('/genealogy')
+  await expect(page.getByText(/13 people and 12 parent links/)).toBeVisible()
+  const node = (he: string) => page.locator('.gt-node').filter({ has: page.locator('.gt-name', { hasText: he }) })
+  await expect(node('יבל')).toHaveCount(1)
+  for (const h of ['by עדה', 'by צלה', 'not stated (1)']) await expect(page.locator('.gt-header', { hasText: h })).toHaveCount(1)
+  await expect(node('אנוש')).toHaveClass(/conflict/)
+  await expect(page.locator('.gt-edges .gt-edge.desc')).toHaveCount(1)
+  await node('למך').getByRole('button', { name: 'Hide those below' }).click()
+  await expect(node('יבל')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Show 3 people below' }).click()
+  await expect(node('יבל')).toHaveCount(1)
+  await node('אנוש').locator('.gt-name').click()
+  await expect(page).toHaveURL(/\/genealogy\?p=10$/)
+  const panel = page.getByRole('region', { name: 'Person' })
+  await expect(panel.locator('.gt-conflict .gt-link')).toHaveCount(2)
+  await expect(panel.locator('.gt-proof .w-focus').first()).toBeVisible()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  // search opens the line to Balaam, under "unattached"
+  await page.getByRole('searchbox', { name: 'Find a person' }).fill('בלעם')
+  await page.locator('.gt-matches').getByRole('button', { name: 'בלעם' }).click()
+  await expect(page).toHaveURL(/p=13$/)
+  await expect(node('בלעם')).toHaveClass(/selected/)
+  await expect(page.locator('.gt-node .gt-name', { hasText: 'Exodus' })).toHaveCount(1)
+  // drag moves the tree without choosing anyone
+  const canvas = page.locator('.gt-canvas')
+  const before = await canvas.getAttribute('style')
+  await page.locator('.gt-viewport').scrollIntoViewIfNeeded()
+  const box = (await page.locator('.gt-viewport').boundingBox())!
+  // from the middle: the sticky top bar may cover its top edge
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width / 2 + 100, box.y + box.height / 2 + 60, { steps: 6 })
+  await page.mouse.up()
+  await expect(canvas).not.toHaveAttribute('style', before!)
+  await expect(page).toHaveURL(/p=13$/)
+  // a phone: the panel is a bottom sheet
+  await page.setViewportSize({ width: 390, height: 800 })
+  await expect(panel).toBeVisible()
+  expect(await page.locator('.gt-side').evaluate((e) => getComputedStyle(e).position)).toBe('fixed')
+  await panel.getByRole('button', { name: 'Close', exact: true }).click()
+  await expect(page.locator('.gt-side')).toBeHidden()
 })
 
 test('letters at equal skips: the counts against the controls, the names, the tradition', async ({ page }) => {

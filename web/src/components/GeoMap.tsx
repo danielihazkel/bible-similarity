@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { BasemapResponse } from '../api/types'
 import { useT } from '../context/localeContext'
-import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, viewBox, zoomBounds } from '../lib/geo'
+import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, viewBox, zoomBounds, zoomBoundsAt } from '../lib/geo'
+import { usePanZoom } from '../lib/panZoom'
 
 interface Props {
   basemap: BasemapResponse | undefined
@@ -34,8 +35,8 @@ const ZOOM = 1.6
 
 /**
  * The places on an SVG map of the region (§16.57): Natural Earth's land, lakes and rivers under
- * points sized by how often each place is named and coloured by its kind. Drag to pan, the
- * buttons (or + / −) to zoom; with keyboard focus, ←/→ step through the places, most named first,
+ * points sized by how often each place is named and coloured by its kind. Drag to pan; pinch,
+ * Ctrl + wheel or the buttons (or + / −) to zoom; with keyboard focus, ←/→ step through the places, most named first,
  * and Enter opens the current one.
  */
 export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = (p) => p.he, titleOf }: Props) {
@@ -45,7 +46,11 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
   const ref = useRef<SVGSVGElement>(null)
   const [width, setWidth] = useState(640)
   const [cur, setCur] = useState<number>()
-  const drag = useRef<{ x: number; y: number; b: Bounds; moved: boolean } | undefined>(undefined)
+  // the bounds as of the last gesture step: steps may come faster than renders
+  const live = useRef(bounds)
+  useEffect(() => {
+    live.current = bounds
+  }, [bounds])
 
   useEffect(() => {
     const el = ref.current
@@ -93,26 +98,22 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
     else if ((e.key === '+' || e.key === '=') && onBounds) zoom(ZOOM)
     else if (e.key === '-' && onBounds) zoom(1 / ZOOM)
   }
-  const toDeg = (dx: number) => (dx * vb.w) / width
-  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!onBounds) return
-    drag.current = { x: e.clientX, y: e.clientY, b: bounds, moved: false }
+  const step = (f: (b: Bounds, v: ReturnType<typeof viewBox>, k: number) => Bounds) => {
+    const v = viewBox(live.current, aspect)
+    live.current = f(live.current, v, v.w / width)
+    onBounds?.(live.current)
   }
-  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    const d = drag.current
-    if (!d || !onBounds) return
-    const dx = e.clientX - d.x
-    const dy = e.clientY - d.y
-    if (!d.moved && Math.hypot(dx, dy) < 4) return
-    if (!d.moved) e.currentTarget.setPointerCapture?.(e.pointerId)
-    d.moved = true
-    onBounds(panBounds(d.b, -toDeg(dx) / projectX(1), toDeg(dy)))
-  }
-  const onUp = () => {
-    setTimeout(() => (drag.current = undefined), 0)
-  }
+  const { handlers, dragged } = usePanZoom(
+    ref,
+    onBounds
+      ? {
+          onPan: (dx, dy) => step((b, _, k) => panBounds(b, (-dx * k) / projectX(1), dy * k)),
+          onZoom: (f, x, y) => step((b, v, k) => zoomBoundsAt(b, f, (v.x + x * k) / projectX(1), -(v.y + y * k))),
+        }
+      : {},
+  )
   const pick = (p: GeoPoint) => {
-    if (drag.current?.moved) return
+    if (dragged()) return
     onSelect(p.place_id)
   }
 
@@ -127,10 +128,7 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
         aria-label={t.keys(label)}
         tabIndex={0}
         onKeyDown={onKey}
-        onPointerDown={onDown}
-        onPointerMove={onMove}
-        onPointerUp={onUp}
-        onPointerCancel={onUp}
+        {...(onBounds ? handlers : {})}
         className={onBounds ? 'pannable' : undefined}
       >
         <rect className="geo-sea" x={vb.x} y={vb.y} width={vb.w} height={vb.h} />

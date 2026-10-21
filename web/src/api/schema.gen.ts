@@ -2442,6 +2442,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/genealogy/skeleton": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Skeleton
+         * @description Every person drawn as a node, with the link it hangs by; the people drawn beside a spouse;
+         *     the parent links not drawn. The viewer lays out what is expanded.
+         */
+        get: operations["skeleton_api_genealogy_skeleton_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/genealogy/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lookup
+         * @description People by a Hebrew name (pointing ignored), whole names first, the most named first, each
+         *     with the parent, tribe or spouse that tells namesakes apart.
+         */
+        get: operations["lookup_api_genealogy_lookup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/genealogy/person/{person_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Person
+         * @description One person's family: parents, spouses, children by their other parent, siblings, each link
+         *     with its proof verses (both names marked), and the readings where the text disagrees.
+         */
+        get: operations["person_api_genealogy_person__person_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patterns": {
         parameters: {
             query?: never;
@@ -3208,6 +3271,12 @@ export interface components {
             /** Items */
             items: components["schemas"]["ChangeGroup"][];
         };
+        /** ChildGroup */
+        ChildGroup: {
+            other: components["schemas"]["PersonRef"] | null;
+            /** Children */
+            children: components["schemas"]["FamilyLink"][];
+        };
         /** CipherChapter */
         CipherChapter: {
             /**
@@ -3517,6 +3586,44 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["ConcordanceHit"][];
+        };
+        /** Conflict */
+        Conflict: {
+            /** Conflict Id */
+            conflict_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bible" | "descendant";
+            /** Block */
+            block: string | null;
+            /** Readings */
+            readings: components["schemas"]["FamilyLink"][];
+            /** Note En */
+            note_en: string | null;
+            /** Note He */
+            note_he: string | null;
+        };
+        /**
+         * CrossLink
+         * @description A parent link the tree does not draw: the other parent, another reading.
+         */
+        CrossLink: {
+            /** Parent */
+            parent: number;
+            /** Child */
+            child: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "father" | "mother";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "son" | "descendant" | "adopted" | "levirate" | "founder" | "unstated" | "spouse" | "sibling";
         };
         /** CurvePoint */
         CurvePoint: {
@@ -4318,6 +4425,49 @@ export interface components {
             b: number;
             /** Shared */
             shared: components["schemas"]["SharedLemma"][];
+        };
+        /**
+         * FamilyLink
+         * @description One link of the person's, with the person at its other end and its proof verses.
+         */
+        FamilyLink: {
+            /** Link Id */
+            link_id: number;
+            person: components["schemas"]["PersonRef"];
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "father" | "mother" | "spouse" | "sibling" | "unstated";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "son" | "descendant" | "adopted" | "levirate" | "founder" | "unstated" | "spouse" | "sibling";
+            /** Drawn */
+            drawn: boolean;
+            /** Doubt */
+            doubt: boolean;
+            /** Marker */
+            marker: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "tipnr" | "confirmed" | "fixed" | "added" | "rejected" | "reading";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "tipnr" | "curated" | "tribe";
+            /** Cue */
+            cue: ("construct" | "sons_of" | "wife" | "begot" | "kin" | "together" | "nearby") | null;
+            /** N Candidates */
+            n_candidates: number;
+            /** Conflict Id */
+            conflict_id: number | null;
+            /** Proofs */
+            proofs: components["schemas"]["ProofVerse"][];
         };
         /**
          * Finding
@@ -5942,6 +6092,113 @@ export interface components {
             /** Synonyms */
             synonyms: components["schemas"]["SourceSynonym"][];
         };
+        /** PersonDetail */
+        PersonDetail: {
+            person: components["schemas"]["PersonInfo"];
+            /** First Label */
+            first_label: string | null;
+            /** First Label He */
+            first_label_he: string | null;
+            /** Parents */
+            parents: components["schemas"]["FamilyLink"][];
+            attached: components["schemas"]["FamilyLink"] | null;
+            /** Spouses */
+            spouses: components["schemas"]["FamilyLink"][];
+            /** Children */
+            children: components["schemas"]["ChildGroup"][];
+            /** Siblings */
+            siblings: components["schemas"]["PersonRef"][];
+            /** Members */
+            members: components["schemas"]["PersonRef"][];
+            /** Conflicts */
+            conflicts: components["schemas"]["Conflict"][];
+        };
+        /** PersonInfo */
+        PersonInfo: {
+            /** Person Id */
+            person_id: number;
+            /** He */
+            he: string;
+            /** Sex */
+            sex: ("m" | "f") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "group" | "anon" | "virtual";
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "root" | "tree" | "tribe" | "spouse" | "unattached" | "virtual";
+            /** First Vid */
+            first_vid: number | null;
+            /** N Verses */
+            n_verses: number;
+            /** Reviewed */
+            reviewed: boolean;
+            /** Book Id */
+            book_id: number | null;
+        };
+        /** PersonLookup */
+        PersonLookup: {
+            /** Query */
+            query: string;
+            /** Items */
+            items: components["schemas"]["PersonMatch"][];
+        };
+        /** PersonMatch */
+        PersonMatch: {
+            /** Person Id */
+            person_id: number;
+            /** He */
+            he: string;
+            /** Sex */
+            sex: ("m" | "f") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "group" | "anon" | "virtual";
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "root" | "tree" | "tribe" | "spouse" | "unattached" | "virtual";
+            /** First Vid */
+            first_vid: number | null;
+            /** N Verses */
+            n_verses: number;
+            /** Exact */
+            exact: boolean;
+            /** Relation */
+            relation: ("child" | "tribe" | "spouse") | null;
+            /** Of He */
+            of_he: string | null;
+            /** First Label */
+            first_label: string | null;
+            /** First Label He */
+            first_label_he: string | null;
+        };
+        /** PersonRef */
+        PersonRef: {
+            /** Person Id */
+            person_id: number;
+            /** He */
+            he: string;
+            /** Sex */
+            sex: ("m" | "f") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "group" | "anon" | "virtual";
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "root" | "tree" | "tribe" | "spouse" | "unattached" | "virtual";
+        };
         /** PhraseInfo */
         PhraseInfo: {
             /** Score */
@@ -6288,6 +6545,19 @@ export interface components {
             unit: string | null;
             /** Items */
             items: components["schemas"]["PlaceSite"][];
+        };
+        /** ProofVerse */
+        ProofVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Tokens */
+            tokens: number[];
+            /** Cue */
+            cue: ("construct" | "sons_of" | "wife" | "begot" | "kin" | "together" | "nearby") | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "auto" | "curated";
         };
         /**
          * Psalm
@@ -7362,6 +7632,19 @@ export interface components {
              */
             phrases: boolean;
         };
+        /** SkeletonResponse */
+        SkeletonResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Nodes */
+            nodes: components["schemas"]["TreeNode"][];
+            /** Spouses */
+            spouses: components["schemas"]["TreeSpouse"][];
+            /** Cross */
+            cross: components["schemas"]["CrossLink"][];
+        };
         /** SourceChapter */
         SourceChapter: {
             /** Unit Id */
@@ -7673,6 +7956,67 @@ export interface components {
             score: number;
             /** Preview */
             preview: string;
+        };
+        /**
+         * TreeNode
+         * @description A person drawn as a node of the tree, compact (§16.63).
+         */
+        TreeNode: {
+            /** Person Id */
+            person_id: number;
+            /** He */
+            he: string;
+            /** Sex */
+            sex: ("m" | "f") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "group" | "anon" | "virtual";
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "root" | "tree" | "tribe" | "spouse" | "unattached" | "virtual";
+            /** Parent */
+            parent: number | null;
+            /** Role */
+            role: ("father" | "mother" | "unstated") | null;
+            /** Link Kind */
+            link_kind: ("son" | "descendant" | "adopted" | "levirate" | "founder" | "unstated" | "spouse" | "sibling") | null;
+            /** Seq */
+            seq: number | null;
+            /** Mother */
+            mother: number | null;
+            /** Book Id */
+            book_id: number | null;
+            /** Reviewed */
+            reviewed: boolean;
+            /** Doubt */
+            doubt: boolean;
+            /** Conflict */
+            conflict: boolean;
+            /** Spouses */
+            spouses: number[];
+        };
+        /**
+         * TreeSpouse
+         * @description A person drawn beside a spouse rather than as a node.
+         */
+        TreeSpouse: {
+            /** Person Id */
+            person_id: number;
+            /** He */
+            he: string;
+            /** Sex */
+            sex: ("m" | "f") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "group" | "anon" | "virtual";
+            /** Reviewed */
+            reviewed: boolean;
         };
         /**
          * TypeScene
@@ -11776,6 +12120,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlaceLinkPairsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    skeleton_api_genealogy_skeleton_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkeletonResponse"];
+                };
+            };
+        };
+    };
+    lookup_api_genealogy_lookup_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonLookup"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    person_api_genealogy_person__person_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                person_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonDetail"];
                 };
             };
             /** @description Validation Error */

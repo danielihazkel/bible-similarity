@@ -839,9 +839,11 @@ Phase 3 (M39c): API and viewer
 ✔ 2,845 people (2,737 persons, 73 groups, 35 unnamed) and 1,818 parent links, 1,463 (80%) with a verse naming both before any review: construct 616, sons of 461, begot 217, kin 146, together 23; 218 more have a nearby hint and 137 nothing. TIPNR's references hit the name in 98.3% of verses once moved to Hebrew numbering (about 80% without the rules; 1 Chr 6 was 15 verses off). Placed: Adam, 1,553 under a parent, 169 on a tribe, 67 beside a spouse, 1,055 unattached (mostly people with no family in the text). 680 pytest; the stages flagged by the change but unchanged were adopted.
 
 ## M89: The family tree, viewer (§16.63, D101; proposed F2)
-- [ ] API `/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup?q=`
-- [ ] Viewer: Overview → Family tree (the tree with `d3-hierarchy`, collapse and expand anywhere, children by mother, cross-links, the markers and their legend, the side panel with proof verses, search, a bottom sheet on a phone, pinch and pan via a `usePanZoom` shared with the map); English and Hebrew
-- [ ] Tests: the API (pytest); the tree, collapsing, the panel, search, Hebrew (vitest); e2e on the fixture and the real build, axe
+- [x] API `/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup?q=`
+- [x] Viewer: Overview → Family tree (the tree with `d3-hierarchy`, collapse and expand anywhere, children by mother, cross-links, the markers and their legend, the side panel with proof verses, search, a bottom sheet on a phone, pinch and pan via a `usePanZoom` shared with the map); English and Hebrew
+- [x] Tests: the API (pytest); the tree, collapsing, the panel, search, Hebrew (vitest); e2e on the fixture and the real build, axe
+
+✔ Overview → Family tree: 2,816 nodes, 64 people drawn beside a spouse and 113 cross-links, laid out only where open and drawn only where in view. Jacob's sons sit under Leah, Bilhah, Zilpah and Rachel, each link with its verses and both names marked. Light and dark, English and Hebrew (mirrored), desktop and phone (bottom sheet). 683 pytest, 272 vitest; fixture e2e 309 passed (one Hebrew axe sweep failed once while other suites ran and passed on rerun); the real-data tree, page and axe sweeps pass.
 
 ## M90: The family tree, review block by block (§16.63; proposed F3)
 Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curation/genealogy/NN-<block>.yaml`, rebuild, `docs/genealogy/PROGRESS.md` updated.
@@ -947,7 +949,7 @@ From the 2026-10-21 request: a family tree of everyone in the Hebrew Bible. Ever
 
 Family tree
 - [x] F1 (done, M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
-- [ ] F2 (M89) Viewer: the collapsible tree, side panel, markers, search, responsive
+- [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
 - [ ] F3 (M90) The review in 19 blocks, in canon order
 - [ ] F4 (M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
 - [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria

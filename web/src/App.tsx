@@ -21,6 +21,7 @@ const PlacesPage = lazy(() => import('./pages/PlacesPage').then((m) => ({ defaul
 const PlaceListsPage = lazy(() => import('./pages/PlaceListsPage').then((m) => ({ default: m.PlaceListsPage })))
 const PlaceArcPage = lazy(() => import('./pages/PlaceArcPage').then((m) => ({ default: m.PlaceArcPage })))
 const PlaceLinksPage = lazy(() => import('./pages/PlaceLinksPage').then((m) => ({ default: m.PlaceLinksPage })))
+const GenealogyPage = lazy(() => import('./pages/GenealogyPage').then((m) => ({ default: m.GenealogyPage })))
 const ElsPage = lazy(() => import('./pages/ElsPage').then((m) => ({ default: m.ElsPage })))
 const MasorahPage = lazy(() => import('./pages/MasorahPage').then((m) => ({ default: m.MasorahPage })))
 const CiphersPage = lazy(() => import('./pages/CiphersPage').then((m) => ({ default: m.CiphersPage })))
@@ -105,6 +106,7 @@ export function App() {
           <Route path="place-lists" element={<PlaceListsPage />} />
           <Route path="place-arc" element={<PlaceArcPage />} />
           <Route path="place-links" element={<PlaceLinksPage />} />
+          <Route path="genealogy" element={<GenealogyPage />} />
           <Route path="query" element={<QueryPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />

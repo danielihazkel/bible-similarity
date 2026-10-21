@@ -309,6 +309,7 @@ CREATE TABLE meta    (key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;          
 | `GET /api/place-lists`, `/api/place-lists/{key}`, `/api/place-districts/{key}` | Are the place lists ordered on the ground? (§16.58): each list's path against random orders of its places (all located, and sure sites alone) with the random paths binned; one list's places in the text's order with the km of each step and the short path's order; one grouping's districts with their tests and towns |
 | `GET /api/place-arc`, `/api/place-arc/{book_id}` | The geographic arc (§16.60): consecutive chapters' centres against shuffled orders over all books and per book, the known moves with their spans' centres, the oracles against the nations against the other prophetic chapters with their chapters; one book's placed chapters in order (centre, spread, reach, the step from the one before, the place named most) |
 | `GET /api/place-links`, `/api/place-links/pairs?place=&sort=&far=` | Do places named together lie together? (§16.61): per variant (every located place, sure sites, without the place lists) rho between the linked pairs' G² and km against shuffled coordinates and the decay by distance; the known far pair and the leads; every linked pair's km and G² (the scatter); the linked pairs (paged; one place's; strongest, farthest or nearest first; far ones only) |
+| `GET /api/genealogy/skeleton`, `/api/genealogy/person/{id}`, `/api/genealogy/lookup?q=` | The family tree (§16.63): every node compact (the link it hangs by, its mother when drawn under its father, the spouses beside it, the markers) with the parent links not drawn; one person's parents, spouses, children by their other parent, siblings and the people attached to them, each link with its proof verses (both names' tokens) and the readings of a conflict; people by a Hebrew name with what tells namesakes apart (parent, tribe's eponym or spouse) |
 | `GET /api/els` | Equidistant letter sequences against controls (§16.62): per scope (the Torah, Genesis) the names' hits against their exact expectation, each control's R values (shuffled letters, shuffled verses, blocks of the other books) with mean, range and p, the blocks, every name's counts; the tradition's sequences at the start of each book |
 | `GET /api/gematria-links`, `/api/gematria-links/pairs?value=&sort=&same_letters=` | Do equal letter values link related words? (§16.59): equal-value pairs against matched pairs on three measures, the check on one-root pairs, the tradition's equivalences ranked, Genesis 1:1's numbers over every verse; the pairs of equal value (paged, most related first or by value) |
 | `GET /api/map/{type}`, `/api/affinity`, `/api/affinity/{a}/{b}`, `/api/stylometry`, `/api/stylometry/book/{id}`, `/api/seams?book=&limit=&offset=` | corpus map, book affinity, stylometry, style seams (§16.4, §16.6, §16.12) |
@@ -1421,7 +1422,7 @@ For two passages that run parallel in two books, which one drew on the other? Th
   - The letter string is ours: 4 letters fewer than the tradition's 304,805 (§16.55).
 
 ### 16.63 The family tree (`bsim genealogy`, `analysis/genealogy.py`, `/genealogy`)
-Status: data built (M88); viewer M89, review M90–M91. Progress and hand-off: `docs/genealogy/PROGRESS.md`.
+Status: data built (M88), viewer (M89); review M90–M91. Progress and hand-off: `docs/genealogy/PROGRESS.md`.
 - **Why:** one tree of everyone the Hebrew Bible names, where each parent → child link is backed by the verse(s) that state it, can be collapsed at any node, and marks where the text disagrees with itself.
 - **The backbone:** TIPNR's PERSON records (already downloaded with `geo`, §16.56). Each record has these columns: parents (father + mother), siblings, partners, offspring, tribe or nation, and type (Male / Female / Group).
   - Markers on the links: `(?)` an ambiguity decided by STEPBible, `(a)` an ancestor rather than the parent, `(d)` a group descended from them, `(f)` the founder of a place.
@@ -1487,3 +1488,10 @@ Status: data built (M88); viewer M89, review M90–M91. Progress and hand-off: `
     - a link not yet reviewed has a faint outline.
   - **Side panel:** parents, spouses, children, siblings, the proof verses in Hebrew with both names marked, and the readings of a conflict.
   - On a phone the panel becomes a bottom sheet. Names are shown in Hebrew only (D5, D92).
+  - **As built (M89):**
+    - Every expanded person's children hang from a header row: one header per mother when they have more than one, those of an unnamed mother and those attached by a link not stated in groups of their own; otherwise an unseen header. Each generation is then two levels of the hierarchy, so generations line up across the tree and no two nodes overlap.
+    - The unnamed get a name from what they are to the one they are drawn under or beside ("daughter of לוט", "בת לוט"); the "unattached" groups take the book's name.
+    - It opens on Adam's first three generations. A person in the address opens the line down to them and brings them into view; one chosen in the tree stays where it is, and opening or closing a node keeps that node in place.
+    - The panel can open or close everything below a person. Hebrew mirrors the tree, so the first-born is on the right.
+    - Drag pans; pinch, Ctrl + wheel or the buttons zoom; the arrow keys pan when the tree has focus. `lib/panZoom.ts` is shared with the map (`GeoMap`), which gains pinch and Ctrl + wheel.
+    - The skeleton is about 650 KB of JSON (gzipped in transit) for 2,816 nodes, 64 spouses and 113 cross-links, and is fetched once.

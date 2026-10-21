@@ -4,6 +4,7 @@ import json
 
 import pandas as pd
 import pytest
+from fastapi.testclient import TestClient
 
 from bsim.analysis.genealogy import (
     UNATTACHED,
@@ -16,9 +17,11 @@ from bsim.analysis.genealogy import (
     run_genealogy,
     run_genealogy_review,
 )
+from bsim.api.app import create_app
 from bsim.config import load_config
 from bsim.data.geo import TipnrRelative, read_tipnr, relatives
 from bsim.data.kjv import English
+from bsim.fixture import fixture_encoder
 
 
 def person(uid, strong, parents=" + ", partners="", offspring="", tribe=">", type_="Male",
@@ -322,3 +325,90 @@ def test_missing_tipnr_fails_fast(tmp_path):
         f.unlink()
     with pytest.raises(FileNotFoundError, match="--only geo"):
         run_genealogy(cfg, log=lambda _: None)
+
+
+# the viewer's API, on the fixture's made-up tree (`bsim.fixture`): Adam (Eve beside him) -> Cain,
+# Seth; Seth -> Enosh (Cain the other reading), Shimei (his tribe); Cain -> Lamech (a descendant)
+# -> Jabal (by Adah), Tubal (by Zillah), an unnamed daughter; Balaam unattached, by Exodus
+
+
+@pytest.fixture
+def client(built):
+    cfg, _ = built
+    return TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
+
+
+def test_api_skeleton(client):
+    r = client.get("/api/genealogy/skeleton").json()
+    nodes = {n["person_id"]: n for n in r["nodes"]}
+    # those drawn beside a spouse are no nodes
+    assert sorted(nodes) == [1, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15]
+    assert [n for n, x in nodes.items() if x["parent"] is None] == [1, 14]
+    assert nodes[1]["spouses"] == [2] and nodes[5]["spouses"] == [6, 7]
+    assert [s["he"] for s in r["spouses"]] == ["חוה", "עדה", "צלה"]
+    # mother headers: the children of a father with their mothers
+    assert (nodes[8]["mother"], nodes[9]["mother"], nodes[11]["mother"]) == (6, 7, None)
+    assert nodes[3]["mother"] == 2 and nodes[12]["mother"] is None
+    # the markers
+    assert nodes[5]["link_kind"] == "descendant" and nodes[12]["role"] == "unstated"
+    assert nodes[10]["conflict"] and not nodes[4]["conflict"]
+    assert nodes[11]["doubt"] and not nodes[4]["reviewed"] and nodes[3]["reviewed"]
+    assert (nodes[15]["kind"], nodes[15]["book_id"], nodes[13]["parent"]) == ("virtual", 1, 15)
+    # cross-links: the parent links not drawn between two nodes (not Eve, beside Adam)
+    assert r["cross"] == [{"parent": 3, "child": 10, "role": "father", "kind": "son"}]
+    assert r["meta"]["placement"]["spouse"] == 3
+
+
+def test_api_person(client):
+    d = client.get("/api/genealogy/person/5").json()
+    assert d["person"]["he"] == "למך" and not d["person"]["reviewed"]
+    (dad,) = d["parents"]
+    assert (dad["person"]["he"], dad["kind"], dad["marker"], dad["proofs"]) == (
+        "קין", "descendant", "a", [])  # fmt: skip
+    assert [s["person"]["he"] for s in d["spouses"]] == ["עדה", "צלה"]
+    groups = [((g["other"] or {}).get("he"), [c["person"]["person_id"] for c in g["children"]])
+              for g in d["children"]]  # fmt: skip
+    assert groups == [("עדה", [8]), ("צלה", [9]), (None, [11])]
+    jabal = d["children"][0]["children"][0]
+    assert jabal["cue"] == "sons_of" and jabal["proofs"][0]["tokens"] == [0, 1]
+    assert jabal["proofs"][0]["verse"]["verse_id"] == 4
+    hint = d["children"][2]["children"][0]
+    assert (hint["doubt"], hint["proofs"][0]["cue"]) == (True, "nearby")
+
+    # a conflict: both readings with their verses, the drawn one first
+    e = client.get("/api/genealogy/person/10").json()
+    (c,) = e["conflicts"]
+    assert c["kind"] == "bible" and c["note_he"] == "שני כתובים חלוקים."
+    assert [(x["person"]["he"], x["drawn"], x["proofs"][0]["source"]) for x in c["readings"]] == [
+        ("שת", True, "curated"), ("קין", False, "curated")]  # fmt: skip
+    assert [x["person"]["he"] for x in e["parents"]] == ["שת", "קין"]
+    assert e["siblings"] == []  # not Cain's children: his is the reading not drawn
+
+    a = client.get("/api/genealogy/person/1").json()
+    assert [g["other"]["he"] for g in a["children"]] == ["חוה"]
+    assert [c["person"]["he"] for c in a["children"][0]["children"]] == ["קין", "שת"]
+    assert a["spouses"][0]["proofs"][0]["cue"] == "wife"
+    s = client.get("/api/genealogy/person/4").json()
+    assert [x["he"] for x in s["siblings"]] == ["קין"]
+    assert [x["he"] for x in s["members"]] == ["שמעי"]
+    t = client.get("/api/genealogy/person/12").json()
+    assert t["parents"] == [] and t["attached"]["person"]["he"] == "שת"
+    assert t["attached"]["source"] == "tribe"
+    v = client.get("/api/genealogy/person/14").json()
+    assert v["person"]["kind"] == "virtual" and [m["person_id"] for m in v["members"]] == [15]
+    assert client.get("/api/genealogy/person/99").status_code == 404
+
+
+def test_api_lookup(client):
+    def find(q):
+        items = client.get("/api/genealogy/lookup", params={"q": q}).json()["items"]
+        return [(x["he"], x["exact"], x["relation"], x["of_he"]) for x in items]
+
+    assert find("שת") == [("שת", True, "child", "אדם")]
+    assert find("עד") == [("עדה", False, "spouse", "למך")]  # drawn beside her husband
+    assert find("שמעי") == [("שמעי", True, "tribe", "שת")]
+    assert find("בלעם") == [("בלעם", True, None, None)]  # under "unattached": nothing to say
+    assert find("תבל") == [("תובל", True, "child", "למך")]  # ו and י ignored when nothing matches
+    assert find("קַיִן")[0][0] == "קין"  # pointing ignored
+    assert find("xyz") == [] and find("") == []
+    assert client.get("/api/genealogy/lookup", params={"q": "a", "limit": 0}).status_code == 422

@@ -637,6 +637,103 @@ def write_inputs(cfg, tmp_path):
         }),
         encoding="utf-8",
     )  # fmt: skip
+    # the family tree (`bsim genealogy`), made up: Adam (Eve beside him) -> Cain, Seth; Seth ->
+    # Enosh (a conflict: Cain the other reading), Shimei (on his tribe, link not stated); Cain ->
+    # Lamech (a descendant), whose two wives Adah and Zillah each bore a son, and an unnamed
+    # daughter (mother not named, a doubtful link); Balaam under "unattached", by Exodus
+    gen_dir = art / "genealogy"
+    gen_dir.mkdir(parents=True, exist_ok=True)
+    person_rows = [
+        (1, "Adam@Gen", "אדם", "m", "person", None, 0, 3, True, "root", None),
+        (2, "Eve@Gen", "חוה", "f", "person", None, 0, 1, True, "spouse", None),
+        (3, "Cain@Gen", "קין", "m", "person", None, 1, 2, True, "tree", None),
+        (4, "Seth@Gen", "שת", "m", "person", None, 2, 2, False, "tree", None),
+        (5, "Lamech@Gen", "למך", "m", "person", None, 3, 1, False, "tree", None),
+        (6, "Adah@Gen", "עדה", "f", "person", None, 3, 1, True, "spouse", None),
+        (7, "Zillah@Gen", "צלה", "f", "person", None, 3, 1, True, "spouse", None),
+        (8, "Jabal@Gen", "יבל", "m", "person", None, 4, 1, False, "tree", None),
+        (9, "Tubal@Gen", "תובל", "m", "person", None, 4, 1, False, "tree", None),
+        (10, "Enosh@Gen", "אנוש", "m", "person", None, 2, 1, True, "tree", None),
+        (11, "daughter_of_Lamech@Gen", "", "f", "anon", None, 4, 0, False, "tree", None),
+        (12, "Shimei@Gen", "שמעי", "m", "person", "Tribe of Seth", 3, 1, True, "tribe", None),
+        (13, "Balaam@Exo", "בלעם", "m", "person", None, 5, 1, True, "unattached", None),
+        (14, "virtual:unattached", "", None, "virtual", None, None, 0, False, "virtual", None),
+        (15, "virtual:book:1", "", None, "virtual", None, None, 0, False, "virtual", 1),
+    ]
+    pd.DataFrame(
+        [(*r, "[]") for r in person_rows],
+        columns=["person_id", "key", "he", "sex", "kind", "tribe", "first_vid", "n_verses",
+                 "reviewed", "placement", "book_id", "founded"],
+    ).astype({"first_vid": "Int64", "book_id": "Int64"}).to_parquet(
+        gen_dir / "persons.parquet"
+    )  # fmt: skip
+    T, C = ("tipnr", "tipnr"), ("confirmed", "curated")
+    link_rows = [  # id, parent, child, role, kind, drawn, doubt, marker, status, source, ...
+        (1, 1, 2, "spouse", "spouse", False, False, "", *T, None, None, None, 1, "wife"),
+        (2, 1, 3, "father", "son", True, False, "", *C, "b01-gen-1-11", None, 0, 1, "begot"),
+        (3, 2, 3, "mother", "son", False, False, "", *T, None, None, 0, 1, "begot"),
+        (4, 1, 4, "father", "son", True, False, "", *T, None, None, 1, 2, "construct"),
+        (5, 2, 4, "mother", "son", False, False, "", *T, None, None, 1, 1, "kin"),
+        (6, 3, 5, "father", "descendant", True, False, "a", *T, None, None, 0, 0, None),
+        (7, 5, 6, "spouse", "spouse", False, False, "", *T, None, None, None, 0, None),
+        (8, 5, 7, "spouse", "spouse", False, False, "", *T, None, None, None, 0, None),
+        (9, 5, 8, "father", "son", True, False, "", *T, None, None, 0, 1, "sons_of"),
+        (10, 6, 8, "mother", "son", False, False, "", *T, None, None, 0, 0, None),
+        (11, 5, 9, "father", "son", True, False, "", *T, None, None, 1, 0, None),
+        (12, 7, 9, "mother", "son", False, False, "", *T, None, None, 0, 0, None),
+        (13, 5, 11, "father", "son", True, True, "?", *T, None, None, 2, 0, "nearby"),
+        (14, 4, 10, "father", "son", True, False, "", "reading", "curated", "b01-gen-1-11", 1,
+         0, 1, "construct"),
+        (15, 3, 10, "father", "son", False, False, "", "reading", "curated", "b01-gen-1-11", 1,
+         None, 1, "together"),
+        (16, 3, 4, "sibling", "sibling", False, False, "", *T, None, None, None, 0, None),
+        (17, 4, 12, "unstated", "unstated", True, False, "", "tipnr", "tribe", None, None, None,
+         0, None),
+        (18, 14, 15, "unstated", "unstated", True, False, "", "tipnr", "tribe", None, None, None,
+         0, None),
+        (19, 15, 13, "unstated", "unstated", True, False, "", "tipnr", "tribe", None, None, None,
+         0, None),
+    ]  # fmt: skip
+    pd.DataFrame(
+        link_rows,
+        columns=["link_id", "parent_id", "child_id", "role", "kind", "drawn", "doubt", "marker",
+                 "status", "source", "block", "conflict_id", "seq", "n_candidates", "cue"],
+    ).astype({"conflict_id": "Int64", "seq": "Int64"}).to_parquet(
+        gen_dir / "links.parquet"
+    )  # fmt: skip
+    pd.DataFrame(
+        [(1, 1, 0, "wife", "[0, 1]", "auto"), (2, 1, 1, "begot", "[0, 1]", "curated"),
+         (3, 1, 1, "begot", "[0]", "auto"), (4, 1, 2, "construct", "[0, 1]", "auto"),
+         (4, 2, 3, "kin", "[0]", "auto"), (5, 1, 2, "kin", "[0]", "auto"),
+         (9, 1, 4, "sons_of", "[0, 1]", "auto"), (13, 1, 4, "nearby", "[1]", "auto"),
+         (14, 1, 2, "construct", "[0, 1]", "curated"), (15, 1, 3, "together", "[0]", "curated")],
+        columns=["link_id", "rank", "verse_id", "cue", "tokens", "source"],
+    ).to_parquet(gen_dir / "proofs.parquet")  # fmt: skip
+    pd.DataFrame(
+        [(1, "bible", 10, "b01-gen-1-11", "[14, 15]", "Two passages differ.",
+          "שני כתובים חלוקים.")],
+        columns=["conflict_id", "kind", "child_id", "block", "readings", "note_en", "note_he"],
+    ).to_parquet(gen_dir / "conflicts.parquet")  # fmt: skip
+    pd.DataFrame(
+        [("b01-gen-1-11", 0, 4, "draft", 2, 1, 0, "01-b01-gen-1-11.yaml"),
+         ("b02-exodus", 5, 5, "todo", 0, 0, 0, None)],
+        columns=["block", "first_vid", "last_vid", "status", "n_links", "n_conflicts", "n_missed",
+                 "file"],
+    ).to_parquet(gen_dir / "blocks.parquet")  # fmt: skip
+    (gen_dir / "genealogy.meta.json").write_text(
+        json.dumps({
+            "persons": 13, "kinds": {"person": 12, "group": 0, "anon": 1},
+            "links": {"father": 8, "mother": 4, "spouse": 3, "sibling": 1, "unstated": 3},
+            "parent_links": 12, "proved": 6,
+            "best_cue": {"construct": 2, "sons_of": 1, "wife": 0, "begot": 2, "kin": 1,
+                         "together": 1, "nearby": 1, "unproved": 4},
+            "descendant_links": 1, "doubtful_links": 1,
+            "placement": {"root": 1, "tree": 8, "tribe": 1, "spouse": 3, "unattached": 1},
+            "unmatched_refs": 0, "conflicts": {"bible": 1, "descendant": 0},
+            "reviewed_links": 3, "blocks": {"todo": 1, "draft": 1, "reviewed": 0},
+        }),
+        encoding="utf-8",
+    )  # fmt: skip
     # equidistant letter sequences (`bsim els`), made up: one scope (v0-v4), two names, the
     # letters' and verses' shuffles and one block; the known sequence at v0
     els_dir = art / "els"

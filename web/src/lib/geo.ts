@@ -70,6 +70,16 @@ export function zoomBounds(b: Bounds, factor: number): Bounds {
   return { lon0: cx - hw, lat0: cy - hh, lon1: cx + hw, lat1: cy + hh }
 }
 
+/** Bounds zoomed by `factor` (> 1: in) about a point, which stays where it is. */
+export function zoomBoundsAt(b: Bounds, factor: number, lon: number, lat: number): Bounds {
+  return {
+    lon0: lon + (b.lon0 - lon) / factor,
+    lat0: lat + (b.lat0 - lat) / factor,
+    lon1: lon + (b.lon1 - lon) / factor,
+    lat1: lat + (b.lat1 - lat) / factor,
+  }
+}
+
 /** Whether a point lies inside bounds. */
 export function inBounds(b: Bounds, p: { lat: number; lon: number }): boolean {
   return p.lon >= b.lon0 && p.lon <= b.lon1 && p.lat >= b.lat0 && p.lat <= b.lat1
