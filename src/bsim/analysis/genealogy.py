@@ -259,6 +259,7 @@ def apply_curation(
     conflicts: list[dict[str, Any]] = []
     rows: list[dict[str, Any]] = []
     seen_blocks: dict[str, str] = {}
+    decided: dict[int, str] = {}  # id(link) -> the file whose `links` or conflict decided it
 
     def err(where: str, msg: str) -> None:
         errors.append(f"{where}: {msg}")
@@ -358,6 +359,10 @@ def apply_curation(
                     err(where, f"no link {child} <- {parent} to {st}: add it")
                     continue
                 lk = have[0]
+                if id(lk) in decided:
+                    err(where, f"{child} <- {parent} is already decided in {decided[id(lk)]}:"
+                               " leave it out")  # fmt: skip
+                    continue
                 if st == "fixed" and role is not None and role != lk.role:
                     del links[(lk.parent, lk.child, lk.role)]
                     lk.role = role
@@ -365,6 +370,7 @@ def apply_curation(
                 if kind is not None:
                     lk.kind = kind
             lk.status, lk.block = st, block
+            decided[id(lk)] = f
             if proof is not None:
                 lk.proof = proof
             n_links += 1
@@ -410,6 +416,7 @@ def apply_curation(
                     lk.proof = proof
                 lk.conflict, lk.block = len(conflicts) + 1, lk.block or block
                 lk.drawn = not out
+                decided.setdefault(id(lk), f)
                 out.append(lk)
             conflicts.append({
                 "conflict_id": len(conflicts) + 1, "kind": kind, "child": child, "block": block,

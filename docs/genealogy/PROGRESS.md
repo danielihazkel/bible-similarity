@@ -51,6 +51,7 @@ missed:                   # cue verses of the sheet that are no link, each with 
 ```
 Rules the build enforces, stopping on any error:
 - `confirmed` and `fixed` need a TIPNR link, and `added` must not have one.
+- A link is decided once: listing it under `links` again, in the same file or a later one, or after an earlier file's conflict reading, is an error. A conflict's reading may still name a link decided elsewhere.
 - Every key and reference must resolve, and the tree must not get a cycle.
 
 A person counts as reviewed when every parent link of theirs is checked.
@@ -94,7 +95,7 @@ Review blocks (M90), in Jewish canon order:
 **M90, block 15b: `b15b-1chr-3-4` (I Chr 3–4).** Follow **How to resume** step 2. Block 15 was split at I Chr 3:1 in the session that reviewed I Chr 2. This half has about 150 links, the size of blocks 08 and 09; if its sheet is much larger, split it again at I Chr 4:1.
 
 Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Lines whose flags include `status` were decided in an earlier block: leave them out. Check for "status" anywhere in the flags, not just first: block 15 nearly re-confirmed Abigail <- Jesse because its flags read "(doubt, status confirmed …)".
+- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Lines whose flags include `status` were decided in an earlier block: leave them out. Check for "status" anywhere in the flags, not just first: block 15 nearly re-confirmed Abigail <- Jesse because its flags read "(doubt, status confirmed …)". The build now stops on a link decided twice.
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
 - **Links confirmed early, on this block's verses:** Zerubbabel <- Pedaiah (3:19, block 10).
 - **Left over from I Chr 2:** Haroeh <- Shobal ("הראה", 2:52; "וראיה בן שובל", 4:2) has its best verse in 4:2, so it is on this sheet.
