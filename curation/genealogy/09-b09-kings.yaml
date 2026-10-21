@@ -1,0 +1,314 @@
+# Block 09: 1-2 Kings (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b09-kings
+status: reviewed
+links:
+  - {child: "Eli@1Sa.1.3-1Ki", parent: "Unnamed#4@1Ki.2.27", status: rejected}
+  - {child: "Unnamed#1@1Ki.2.27", parent: "Ithamar@Exo.6.23-Ezr", status: rejected}
+  - {child: "Unnamed#2@1Ki.2.27", parent: "Unnamed#1@1Ki.2.27", status: rejected}
+  - {child: "Unnamed#3@1Ki.2.27", parent: "Unnamed#2@1Ki.2.27", status: rejected}
+  - {child: "Unnamed#4@1Ki.2.27", parent: "Unnamed#3@1Ki.2.27", status: rejected}
+  - "daughter_of_Pharaoh@1Ki.3.1 <- Pharaoh@1Ki.3.1-Sng"
+  - {child: "daughter_of_Pharaoh@1Ki.3.1", parent: "Tahpenes@1Ki.11.19-", status: rejected}
+  - {child: "daughter_of_Pharaoh@1Ki.3.1", parent: "Solomon@2Sa.5.14-Act", role: spouse, status: confirmed, proof: [I Kings 3:1, I Kings 7:8, I Kings 11:1]}
+  - "Ahijah@1Ki.4.3 <- Seraiah@2Sa.8.17-1Ch"
+  - "Elihoreph@1Ki.4.3 <- Seraiah@2Sa.8.17-1Ch"
+  - "Azariah@1Ki.4.5 <- Nathan@2Sa.7.2-Psa"
+  - "Zabud@1Ki.4.5 <- Nathan@2Sa.7.2-Psa"
+  - "Adoram@2Sa.20.24-2Ch <- Abda@1Ki.4.6"
+  - "Ben-hur@1Ki.4.8 <- Hur@1Ki.4.8"
+  - "Ben-deker@1Ki.4.9 <- Deker@1Ki.4.9"
+  - "Ben-hesed@1Ki.4.10 <- Hesed@1Ki.4.10"
+  - "Ben-abinadab@1Ki.4.11 <- Abinadab@1Ki.4.11"
+  - "Taphath@1Ki.4.11 <- Solomon@2Sa.5.14-Act"
+  - {child: "Taphath@1Ki.4.11", parent: "a_wife_of_Solomon@1Ki.4.11", status: rejected}
+  - "Taphath@1Ki.4.11 <- Ben-abinadab@1Ki.4.11"
+  - {child: "a_wife_of_Solomon@1Ki.4.11", parent: "Solomon@2Sa.5.14-Act", role: spouse, status: confirmed, proof: [I Kings 11:3]}
+  - "Baana@1Ki.4.12 <- Ahilud@2Sa.8.16-1Ch"
+  - {child: "Ben-Geber@1Ki.4.13", parent: "Geber@1Ki.4.19", kind: unstated, status: fixed, proof: [I Kings 4:13, I Kings 4:19]}
+  - "Ahinadab@1Ki.4.14 <- Iddo@1Ki.4.14"
+  - "Basemath@1Ki.4.15 <- Solomon@2Sa.5.14-Act"
+  - {child: "Basemath@1Ki.4.15", parent: "a_wife_of_Solomon@1Ki.4.11", status: rejected}
+  - "Basemath@1Ki.4.15 <- Ahimaaz@1Ki.4.15"
+  - "Baana@1Ki.4.16 <- Hushai@2Sa.15.32-1Ch"
+  - "Jehoshaphat@1Ki.4.17 <- Paruah@1Ki.4.17"
+  - "Shimei@1Ki.1.8- <- Ela@1Ki.4.18"
+  - "Geber@1Ki.4.19 <- Uri@1Ki.4.19"
+  - "Calcol@1Ki.4.31 <- Mahol@1Ki.4.31"
+  - "Darda@1Ki.4.31 <- Mahol@1Ki.4.31"
+  - {child: "Ethan@1Ki.4.31-Psa", parent: "Mahol@1Ki.4.31", kind: unstated, status: fixed, proof: [I Kings 5:11]}
+  - {child: "Heman@1Ki.4.31-Psa", parent: "Mahol@1Ki.4.31", kind: unstated, status: fixed, proof: [I Kings 5:11]}
+  - {child: "Mahol@1Ki.4.31", parent: "Zerah@Gen.38.30-Mat", kind: unstated, status: fixed, proof: [I Kings 5:11]}
+  - "Tahpenes@1Ki.11.19- <- father_of_Tahpenes@1Ki.11.19"
+  - "sister_of_Tahpenes@1Ki.11.19 <- father_of_Tahpenes@1Ki.11.19"
+  - "sister_of_Tahpenes@1Ki.11.19 <- Hadad@1Ki.11.14-"
+  - {child: "Tahpenes@1Ki.11.19-", parent: "Pharaoh@1Ki.3.1-Sng", role: spouse, status: confirmed, proof: [I Kings 11:19, I Kings 11:20]}
+  - "Genubath@1Ki.11.20 <- Hadad@1Ki.11.14-"
+  - "Genubath@1Ki.11.20 <- sister_of_Tahpenes@1Ki.11.19"
+  - "Rezon@1Ki.11.23 <- Eliada@1Ki.11.23"
+  - "Jeroboam@1Ki.11.26-2Ch <- Nebat@1Ki.11.26-2Ch"
+  - "Jeroboam@1Ki.11.26-2Ch <- Zeruah@1Ki.11.26"
+  - "Zeruah@1Ki.11.26 <- Nebat@1Ki.11.26-2Ch"
+  - {child: "Josiah@1Ki.13.2-Mat", parent: "Hamutal@2Ki.23.31-Jer", role: spouse, status: confirmed, proof: [II Kings 23:30, II Kings 23:31]}
+  - "Abijah@1Ki.14.1 <- Jeroboam@1Ki.11.26-2Ch"
+  - {child: "Solomon@2Sa.5.14-Act", parent: "Naamah@1Ki.14.21-2Ch", role: spouse, status: confirmed, proof: [I Kings 14:21]}
+  - "Rehoboam@1Ki.11.43-Mat <- Naamah@1Ki.14.21-2Ch"
+  - {child: "Maacah@1Ki.15.2-2Ch", parent: "Tamar@2Sa.14.27", status: rejected}
+  - "Ben-hadad@1Ki.15.18-Jer <- Tabrimmon@1Ki.15.18"
+  - "Tabrimmon@1Ki.15.18 <- Hezion@1Ki.15.18"
+  - "Nadab@1Ki.14.20- <- Jeroboam@1Ki.11.26-2Ch"
+  - "Baasha@1Ki.15.16-Jer <- Ahijah@1Ki.15.27-2Ki"
+  - "Jehu@1Ki.16.1-2Ch <- Hanani@1Ki.16.1-2Ch"
+  - "Elah@1Ki.16.6- <- Baasha@1Ki.15.16-Jer"
+  - "Tibni@1Ki.16.21- <- Ginath@1Ki.16.21-"
+  - "Ahab@1Ki.16.28-Mic <- Omri@1Ki.16.16-Mic"
+  - "Jezebel@1Ki.16.31-Rev <- Ethbaal@1Ki.16.31"
+  - "Abiram@1Ki.16.34 <- Hiel@1Ki.16.34"
+  - "Segub@1Ki.16.34 <- Hiel@1Ki.16.34"
+  - "Elisha@1Ki.19.16-Luk <- Shaphat@1Ki.19.16-2Ki"
+  - "Jezebel@1Ki.16.31-Rev <- Ahab@1Ki.16.28-Mic"
+  - "Micaiah@1Ki.22.8-2Ch <- Imlah@1Ki.22.8-2Ch"
+  - "Zedekiah@1Ki.22.11-2Ch <- Chenaanah@1Ki.22.11-2Ch"
+  - {child: "Joash@1Ki.22.26-2Ch", parent: "Ahab@1Ki.16.28-Mic", kind: unstated, status: fixed, proof: [I Kings 22:26]}
+  - {child: "Joash@1Ki.22.26-2Ch", parent: "Jezebel@1Ki.16.31-Rev", status: rejected}
+  - {child: "Ahaziah@1Ki.22.40-2Ch", parent: "Jezebel@1Ki.16.31-Rev", kind: unstated, status: fixed, proof: [I Kings 22:53]}
+  - "Jehoshaphat@1Ki.15.24-Mat <- Asa@1Ki.15.8-Mat"
+  - "Jehoshaphat@1Ki.15.24-Mat <- Azubah@1Ki.22.42-2Ch"
+  - "Azubah@1Ki.22.42-2Ch <- Shilhi@1Ki.22.42-2Ch"
+  - {child: "Azubah@1Ki.22.42-2Ch", parent: "Asa@1Ki.15.8-Mat", role: spouse, status: confirmed, proof: [I Kings 22:41, I Kings 22:42]}
+  - "Ahaziah@1Ki.22.40-2Ch <- Ahab@1Ki.16.28-Mic"
+  - "Jehoram@1Ki.22.50-Mat <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Joram@2Ki.1.17-2Ch <- Ahab@1Ki.16.28-Mic"
+  - "Ahaziah@2Ki.8.24-2Ch <- Jehoram@1Ki.22.50-Mat"
+  - "Athaliah@2Ki.8.26-2Ch <- Ahab@1Ki.16.28-Mic"
+  - {child: "Athaliah@2Ki.8.26-2Ch", parent: "Jezebel@1Ki.16.31-Rev", status: rejected}
+  - "Jehu@1Ki.19.16-Hos <- Jehoshaphat@2Ki.9.2-"
+  - "Jehoshaphat@2Ki.9.2- <- Nimshi@1Ki.19.16-2Ch"
+  - "Joram@2Ki.1.17-2Ch <- Jezebel@1Ki.16.31-Rev"
+  - "Jonadab@2Ki.10.15-Jer <- Rechab@2Ki.10.15-Jer"
+  - "Ahaziah@2Ki.8.24-2Ch <- Athaliah@2Ki.8.26-2Ch"
+  - "Jehosheba@2Ki.11.2-2Ch <- Jehoram@1Ki.22.50-Mat"
+  - "Joash@2Ki.11.2-2Ch <- Ahaziah@2Ki.8.24-2Ch"
+  - "Joash@2Ki.11.2-2Ch <- Zibiah@2Ki.12.1-2Ch"
+  - {child: "Zibiah@2Ki.12.1-2Ch", parent: "Ahaziah@2Ki.8.24-2Ch", role: spouse, status: confirmed, proof: [II Kings 11:2, II Kings 12:2]}
+  - "Jehozabad@2Ki.12.21-2Ch <- Shomer@2Ki.12.21-2Ch"
+  - {child: "Jozacar@2Ki.12.21-2Ch", parent: "husband_of_Shimeath@2Ki.12.21", status: rejected}
+  - "Jozacar@2Ki.12.21-2Ch <- Shimeath@2Ki.12.21-2Ch"
+  - {child: "husband_of_Shimeath@2Ki.12.21", parent: "Shimeath@2Ki.12.21-2Ch", role: spouse, status: rejected}
+  - "Jehoahaz@2Ki.10.35-2Ch <- Jehu@1Ki.19.16-Hos"
+  - "Ben-hadad@2Ki.13.3-Amo <- Hazael@1Ki.19.15-Amo"
+  - "Joash@2Ki.13.9-Amo <- Jehoahaz@2Ki.10.35-2Ch"
+  - "Amaziah@2Ki.12.21-2Ch <- Joash@2Ki.11.2-2Ch"
+  - {child: "Joash@2Ki.11.2-2Ch", parent: "Jehoaddan@2Ki.14.2-2Ch", role: spouse, status: confirmed, proof: [II Kings 14:1, II Kings 14:2]}
+  - "Jeroboam@2Ki.13.13-Amo <- Joash@2Ki.13.9-Amo"
+  - "Jonah@2Ki.14.25-Luk <- Amittai@2Ki.14.25-Jon"
+  - "Uzziah@2Ki.14.21-Mat <- Amaziah@2Ki.12.21-2Ch"
+  - {child: "Jecoliah@2Ki.15.2-2Ch", parent: "Amaziah@2Ki.12.21-2Ch", role: spouse, status: confirmed, proof: [II Kings 15:1, II Kings 15:2]}
+  - "Zechariah@2Ki.14.29- <- Jeroboam@2Ki.13.13-Amo"
+  - "Shallum@2Ki.15.10- <- Jabesh@2Ki.15.10-"
+  - "Menahem@2Ki.15.14- <- Gadi@2Ki.15.14-"
+  - "Pekahiah@2Ki.15.22- <- Menahem@2Ki.15.14-"
+  - "Pekah@2Ki.15.25-Isa <- Remaliah@2Ki.15.25-Isa"
+  - "Jotham@2Ki.15.5-Mat <- Uzziah@2Ki.14.21-Mat"
+  - "Hoshea@2Ki.15.30- <- Elah@2Ki.15.30-"
+  - "Jerusha@2Ki.15.33-2Ch <- Zadok@2Ki.15.33-2Ch"
+  - {child: "Uzziah@2Ki.14.21-Mat", parent: "Jerusha@2Ki.15.33-2Ch", role: spouse, status: confirmed, proof: [II Kings 15:32, II Kings 15:33]}
+  - {child: "Ahaz@2Ki.15.38-Mat", parent: "Abi@2Ki.18.2-2Ch", role: spouse, status: confirmed, proof: [II Kings 18:1, II Kings 18:2]}
+  - "Ahaz@2Ki.15.38-Mat <- Jotham@2Ki.15.5-Mat"
+  - "Hezekiah@2Ki.16.20-Mat <- Ahaz@2Ki.15.38-Mat"
+  - "Abi@2Ki.18.2-2Ch <- Zechariah@2Ki.18.2-2Ch"
+  - "Eliakim@2Ki.18.18-Isa <- Hilkiah@2Ki.18.18-Isa"
+  - "Joah@2Ki.18.18-Isa <- Asaph@2Ki.18.18-Isa"
+  - "Isaiah@2Ki.19.2-Rom <- Amoz@2Ki.19.2-Isa"
+  - {child: "Adrammelech@2Ki.19.37-Isa", parent: "Sennacherib@2Ki.18.13-Isa", status: confirmed, proof: [II Kings 19:36, II Kings 19:37]}
+  - {child: "Esarhaddon@2Ki.19.37-Isa", parent: "Sennacherib@2Ki.18.13-Isa", status: confirmed, proof: [II Kings 19:36, II Kings 19:37]}
+  - {child: "Sharezer@2Ki.19.37-Isa", parent: "Sennacherib@2Ki.18.13-Isa", status: confirmed, proof: [II Kings 19:36, II Kings 19:37]}
+  - "Merodach-baladan@2Ki.20.12-Isa <- Baladan@2Ki.20.12-Isa"
+  - "Manasseh@2Ki.20.21-Mat <- Hephzibah@2Ki.21.1"
+  - {child: "Hezekiah@2Ki.16.20-Mat", parent: "Hephzibah@2Ki.21.1", role: spouse, status: confirmed, proof: [II Kings 20:21, II Kings 21:1]}
+  - "Amon@2Ki.21.18-Mat <- Meshullemeth@2Ki.21.19"
+  - "Meshullemeth@2Ki.21.19 <- Haruz@2Ki.21.19"
+  - {child: "Meshullemeth@2Ki.21.19", parent: "Manasseh@2Ki.20.21-Mat", role: spouse, status: confirmed, proof: [II Kings 21:18, II Kings 21:19]}
+  - "Josiah@1Ki.13.2-Mat <- Jedidah@2Ki.22.1"
+  - "Jedidah@2Ki.22.1 <- Adaiah@2Ki.22.1"
+  - {child: "Jedidah@2Ki.22.1", parent: "Amon@2Ki.21.18-Mat", role: spouse, status: confirmed, proof: [II Kings 21:24, II Kings 22:1]}
+  - "Azaliah@2Ki.22.3-2Ch <- Meshullam@2Ki.22.3"
+  - "Shaphan@2Ki.22.3-Jer <- Azaliah@2Ki.22.3-2Ch"
+  - "Achbor@2Ki.22.12-Jer <- Micaiah@2Ki.22.12-2Ch"
+  - "Ahikam@2Ki.22.12-Jer <- Shaphan@2Ki.22.3-Jer"
+  - "Shallum@2Ki.22.14-2Ch <- Tikvah@2Ki.22.14-2Ch"
+  - "Shallum@2Ki.22.14-2Ch <- Huldah@2Ki.22.14-2Ch"
+  - "Tikvah@2Ki.22.14-2Ch <- Harhas@2Ki.22.14-2Ch"
+  - "Jehoahaz@2Ki.23.30-2Ch <- Josiah@1Ki.13.2-Mat"
+  - "Jehoahaz@2Ki.23.30-2Ch <- Hamutal@2Ki.23.31-Jer"
+  - "Hamutal@2Ki.23.31-Jer <- Jeremiah@2Ki.23.31-Jer"
+  - "Jehoiakim@2Ki.23.34-Dan <- Josiah@1Ki.13.2-Mat"
+  - "Jehoiakim@2Ki.23.34-Dan <- Zebidah@2Ki.23.36"
+  - "Zebidah@2Ki.23.36 <- Pedaiah@2Ki.23.36"
+  - {child: "Zebidah@2Ki.23.36", parent: "Josiah@1Ki.13.2-Mat", role: spouse, status: confirmed, proof: [II Kings 23:34, II Kings 23:36]}
+  - "Jehoiachin@2Ki.24.6-Mat <- Nehushta@2Ki.24.8"
+  - "Nehushta@2Ki.24.8 <- Elnathan@2Ki.24.8"
+  - {child: "Nehushta@2Ki.24.8", parent: "Jehoiakim@2Ki.23.34-Dan", role: spouse, status: confirmed, proof: [II Kings 24:6, II Kings 24:8]}
+  - "Zedekiah@2Ki.24.17-Jer <- Hamutal@2Ki.23.31-Jer"
+  - "Gedaliah@2Ki.25.22-Jer <- Ahikam@2Ki.22.12-Jer"
+  - "Ishmael@2Ki.25.23-Jer <- Nethaniah@2Ki.25.23-Jer"
+  - "Johanan@2Ki.25.23-Jer <- Kareah@2Ki.25.23-Jer"
+  - "Seraiah@2Ki.25.23-Jer <- Tanhumeth@2Ki.25.23-Jer"
+  - "Nethaniah@2Ki.25.23-Jer <- Elishama@2Ki.25.25-Jer"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Rehoboam@1Ki.11.43-Mat", parent: "Solomon@2Sa.5.14-Act", status: confirmed, proof: [I Kings 11:43, I Kings 14:21]}
+  - {child: "Abijah@1Ki.14.31-Mat", parent: "Rehoboam@1Ki.11.43-Mat", status: confirmed, proof: [I Kings 14:31]}
+  - {child: "Abijah@1Ki.14.31-Mat", parent: "Maacah@1Ki.15.2-2Ch", status: confirmed, proof: [I Kings 15:2]}
+  - {child: "Asa@1Ki.15.8-Mat", parent: "Abijah@1Ki.14.31-Mat", status: confirmed, proof: [I Kings 15:8]}
+  - {child: "Amaziah@2Ki.12.21-2Ch", parent: "Jehoaddan@2Ki.14.2-2Ch", status: confirmed, proof: [II Kings 14:2]}
+  - {child: "Uzziah@2Ki.14.21-Mat", parent: "Jecoliah@2Ki.15.2-2Ch", status: confirmed, proof: [II Kings 15:2]}
+  - {child: "Jotham@2Ki.15.5-Mat", parent: "Jerusha@2Ki.15.33-2Ch", status: confirmed, proof: [II Kings 15:33]}
+  - {child: "Hezekiah@2Ki.16.20-Mat", parent: "Abi@2Ki.18.2-2Ch", status: confirmed, proof: [II Kings 18:2]}
+  - {child: "Manasseh@2Ki.20.21-Mat", parent: "Hezekiah@2Ki.16.20-Mat", status: confirmed, proof: [II Kings 20:21, II Kings 21:3]}
+  - {child: "Amon@2Ki.21.18-Mat", parent: "Manasseh@2Ki.20.21-Mat", status: confirmed, proof: [II Kings 21:18, II Kings 21:20]}
+  - {child: "Josiah@1Ki.13.2-Mat", parent: "Amon@2Ki.21.18-Mat", status: confirmed, proof: [II Kings 21:24, II Kings 21:26]}
+  - {child: "Jehoiachin@2Ki.24.6-Mat", parent: "Jehoiakim@2Ki.23.34-Dan", status: confirmed, proof: [II Kings 24:6]}
+  - {child: "Jehoram@1Ki.22.50-Mat", parent: "Athaliah@2Ki.8.26-2Ch", role: spouse, status: confirmed, proof: [II Kings 8:18, II Kings 8:26]}
+  - {child: "Jehosheba@2Ki.11.2-2Ch", parent: "Athaliah@2Ki.8.26-2Ch", kind: unstated, status: fixed, proof: [II Kings 11:2]}
+  - {child: "Uriel@2Ch.13.2", parent: "Tamar@2Sa.14.27", role: spouse, status: rejected}
+  # Asa's mother Maacah, and Eli's attachment to Ithamar
+  - {child: "Asa@1Ki.15.8-Mat", parent: "Maacah@1Ki.15.2-2Ch", role: mother, kind: descendant, status: added, proof: [I Kings 15:10, I Kings 15:13]}
+  - {child: "Eli@1Sa.1.3-1Ki", parent: "Ithamar@Exo.6.23-Ezr", role: father, kind: unstated, status: added, proof: [I Kings 2:27, I Chronicles 24:3]}
+conflicts:
+  - kind: bible
+    child: "Maacah@1Ki.15.2-2Ch"
+    readings:
+      - {parent: "Absalom@2Sa.3.3-Psa", role: father, proof: [I Kings 15:2, II Chronicles 11:20, II Chronicles 11:21]}
+      - {parent: "Uriel@2Ch.13.2", proof: [II Chronicles 13:2]}
+    note:
+      en: "Abijam's mother is \"מעכה בת אבישלום\" (I Kings 15:2), \"מעכה בת אבשלום\" (II Chronicles 11:20-21), and \"מיכיהו בת אוריאל מן גבעה\" (II Chronicles 13:2). TIPNR makes her the daughter of Uriel and of Absalom's daughter Tamar; no verse says so."
+      he: "אם אבים „מעכה בת אבישלום” (מלכים א טו:ב), „מעכה בת אבשלום” (דברי הימים ב יא:כ–כא), ו„מיכיהו בת אוריאל מן גבעה” (דה״ב יג:ב). ב־TIPNR היא בת אוריאל ובת תמר בת אבשלום, ואין כתוב שאומר זאת."
+  - kind: descendant
+    child: "Athaliah@2Ki.8.26-2Ch"
+    readings:
+      - {parent: "Ahab@1Ki.16.28-Mic", proof: [II Kings 8:18, II Kings 8:26, II Chronicles 21:6]}
+      - {parent: "Omri@1Ki.16.16-Mic", kind: descendant, proof: [II Kings 8:26, II Chronicles 22:2]}
+    note:
+      en: "Jehoram's wife is \"בת אחאב\" (II Kings 8:18, II Chronicles 21:6); Ahaziah's mother is \"עתליהו בת עמרי\" (II Kings 8:26, II Chronicles 22:2), Ahab's father."
+      he: "אשת יהורם „בת אחאב” (מלכים ב ח:יח, דה״ב כא:ו); אם אחזיהו „עתליהו בת עמרי” (מלכים ב ח:כו, דה״ב כב:ב), אבי אחאב."
+  - kind: descendant
+    child: "Jehu@1Ki.19.16-Hos"
+    readings:
+      - {parent: "Jehoshaphat@2Ki.9.2-", proof: [II Kings 9:2, II Kings 9:14]}
+      - {parent: "Nimshi@1Ki.19.16-2Ch", kind: descendant, proof: [I Kings 19:16, II Kings 9:20]}
+    note:
+      en: "\"יהוא בן יהושפט בן נמשי\" (II Kings 9:2, 14); \"יהוא בן נמשי\" (I Kings 19:16, II Kings 9:20), his grandfather."
+      he: "„יהוא בן יהושפט בן נמשי” (מלכים ב ט:ב, יד); „יהוא בן נמשי” (מלכים א יט:טז, מלכים ב ט:כ), אבי אביו."
+  - kind: descendant
+    child: "Azariah@1Ki.4.2-1Ch"
+    readings:
+      - {parent: "Ahimaaz@2Sa.15.27-1Ch", proof: [I Chronicles 5:35]}
+      - {parent: "Zadok@2Sa.8.17-Ezk", kind: descendant, proof: [I Kings 4:2]}
+    note:
+      en: "\"עזריהו בן צדוק הכהן\" (I Kings 4:2); \"ואחימעץ הוליד את עזריה\" (I Chronicles 5:35), Zadok's grandson, as TIPNR takes him."
+      he: "„עזריהו בן צדוק הכהן” (מלכים א ד:ב); „ואחימעץ הוליד את עזריה” (דה״א ה:לה), נכד צדוק, כפי ש־TIPNR מזהה אותו."
+missed:
+  - {ref: I Kings 1:7, reason: "Joab son of Zeruiah, Abner son of Ner, Amasa son of Jether, Shimei son of Gera: proved in block 08"}
+  - {ref: I Kings 1:8, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 1:13, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: I Kings 1:17, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: I Kings 1:26, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 1:30, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: I Kings 1:32, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 1:33, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: I Kings 1:36, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 1:38, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 1:44, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 2:1, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: I Kings 2:5, reason: "Joab son of Zeruiah, Abner son of Ner, Amasa son of Jether, Shimei son of Gera: proved in block 08"}
+  - {ref: I Kings 2:7, reason: "Barzillai's sons, not named; Absalom Solomon's brother"}
+  - {ref: I Kings 2:8, reason: "Joab son of Zeruiah, Abner son of Ner, Amasa son of Jether, Shimei son of Gera: proved in block 08"}
+  - {ref: I Kings 2:13, reason: "Adonijah son of Haggith, Bathsheba Solomon's mother: proved in block 08"}
+  - {ref: I Kings 2:22, reason: "Adonijah, Solomon's elder brother; Joab son of Zeruiah (block 08)"}
+  - {ref: I Kings 2:25, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 2:29, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 2:32, reason: "Joab son of Zeruiah, Abner son of Ner, Amasa son of Jether, Shimei son of Gera: proved in block 08"}
+  - {ref: I Kings 2:34, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 2:35, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 2:46, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 4:4, reason: "Benaiah son of Jehoiada: proved in block 08"}
+  - {ref: I Kings 5:21, reason: "בן חכם: Solomon, David's son"}
+  - {ref: I Kings 6:1, reason: "בני ישראל: the people"}
+  - {ref: I Kings 6:13, reason: "בני ישראל: the people"}
+  - {ref: I Kings 7:8, reason: "Pharaoh's daughter: proved on 3:1"}
+  - {ref: I Kings 8:1, reason: "בני ישראל: the people"}
+  - {ref: I Kings 8:9, reason: "בני ישראל: the people"}
+  - {ref: I Kings 8:63, reason: "בני ישראל: the people"}
+  - {ref: I Kings 9:21, reason: "בני ישראל: the people"}
+  - {ref: I Kings 9:22, reason: "בני ישראל: the people"}
+  - {ref: I Kings 9:24, reason: "Pharaoh's daughter: proved on 3:1"}
+  - {ref: I Kings 11:1, reason: "Pharaoh's daughter: proved on 3:1"}
+  - {ref: I Kings 11:2, reason: "בני ישראל: the people"}
+  - {ref: I Kings 11:7, reason: "בני עמון: the people"}
+  - {ref: I Kings 11:33, reason: "בני עמון: the people"}
+  - {ref: I Kings 12:16, reason: "בן ישי: David"}
+  - {ref: I Kings 12:17, reason: "בני ישראל: the people"}
+  - {ref: I Kings 12:24, reason: "בני ישראל: the people"}
+  - {ref: I Kings 12:33, reason: "בני ישראל: the people"}
+  - {ref: I Kings 13:2, reason: "Josiah, a son of David's house: a prophecy"}
+  - {ref: I Kings 14:24, reason: "בני ישראל: the people"}
+  - {ref: I Kings 15:1, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: I Kings 15:24, reason: "Jehoshaphat, Asa's son: proved on 22:41"}
+  - {ref: I Kings 16:3, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: I Kings 16:26, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: I Kings 18:20, reason: "בני ישראל: the people"}
+  - {ref: I Kings 18:31, reason: "the tribes, בני יעקב"}
+  - {ref: I Kings 19:10, reason: "בני ישראל: the people"}
+  - {ref: I Kings 19:14, reason: "בני ישראל: the people"}
+  - {ref: I Kings 20:27, reason: "בני ישראל: the people"}
+  - {ref: I Kings 20:29, reason: "בני ישראל: the people"}
+  - {ref: I Kings 21:26, reason: "בני ישראל: the people"}
+  - {ref: I Kings 22:51, reason: "Jehoram, Jehoshaphat's son: proved on II Kings 8:16"}
+  - {ref: II Kings 3:3, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 6:31, reason: "Elisha son of Shaphat: proved on I Kings 19:16"}
+  - {ref: II Kings 8:9, reason: "Ben-hadad calls himself Elisha's son: a figure"}
+  - {ref: II Kings 8:12, reason: "בני ישראל: the people"}
+  - {ref: II Kings 8:24, reason: "Ahaziah, Joram's son: proved on 8:25"}
+  - {ref: II Kings 8:28, reason: "Joram son of Ahab: proved on II Kings 3:1"}
+  - {ref: II Kings 9:9, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 9:29, reason: "Joram son of Ahab: proved on II Kings 3:1"}
+  - {ref: II Kings 10:1, reason: "Ahab's seventy sons, not named"}
+  - {ref: II Kings 10:29, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 10:30, reason: "Jehu's sons to the fourth generation, not named"}
+  - {ref: II Kings 10:35, reason: "Jehoahaz, Jehu's son: proved on 13:1"}
+  - {ref: II Kings 13:2, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 13:5, reason: "בני ישראל: the people"}
+  - {ref: II Kings 13:9, reason: "Joash, Jehoahaz's son: proved on 13:10"}
+  - {ref: II Kings 13:11, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 14:16, reason: "Jeroboam, Joash's son: proved on 14:23"}
+  - {ref: II Kings 14:24, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 15:5, reason: "Jotham בן המלך: proved on 15:32"}
+  - {ref: II Kings 15:7, reason: "Jotham, Azariah's son: proved on 15:32"}
+  - {ref: II Kings 15:9, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 15:18, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 15:24, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 15:28, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 15:37, reason: "Pekah son of Remaliah: proved on II Kings 15:25"}
+  - {ref: II Kings 15:38, reason: "Ahaz, Jotham's son: proved on 16:1"}
+  - {ref: II Kings 16:3, reason: "Ahaz's son, not named"}
+  - {ref: II Kings 16:5, reason: "Pekah son of Remaliah: proved on II Kings 15:25"}
+  - {ref: II Kings 16:20, reason: "Hezekiah, Ahaz's son: proved on 18:1"}
+  - {ref: II Kings 17:7, reason: "בני ישראל: the people"}
+  - {ref: II Kings 17:8, reason: "בני ישראל: the people"}
+  - {ref: II Kings 17:9, reason: "בני ישראל: the people"}
+  - {ref: II Kings 17:21, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 17:22, reason: "בני ישראל: the people"}
+  - {ref: II Kings 17:24, reason: "בני ישראל: the people"}
+  - {ref: II Kings 17:34, reason: "בני ישראל: the people"}
+  - {ref: II Kings 18:4, reason: "בני ישראל: the people"}
+  - {ref: II Kings 18:9, reason: "Hoshea son of Elah: proved on II Kings 15:30"}
+  - {ref: II Kings 19:2, reason: "Isaiah son of Amoz: proved on II Kings 19:20"}
+  - {ref: II Kings 19:12, reason: "בני עדן: a people"}
+  - {ref: II Kings 19:21, reason: "בת ציון, בת ירושלם: a figure"}
+  - {ref: II Kings 21:2, reason: "בני ישראל: the people"}
+  - {ref: II Kings 21:7, reason: "Solomon, David's son: proved in block 08"}
+  - {ref: II Kings 21:9, reason: "בני ישראל: the people"}
+  - {ref: II Kings 23:10, reason: "גי בן הנם: a place"}
+  - {ref: II Kings 23:13, reason: "בני עמון: the people"}
+  - {ref: II Kings 23:15, reason: "Jeroboam son of Nebat: proved on I Kings 11:26"}
+  - {ref: II Kings 24:2, reason: "בני עמון: the people"}
+  - {ref: II Kings 25:7, reason: "Zedekiah's sons, not named"}
