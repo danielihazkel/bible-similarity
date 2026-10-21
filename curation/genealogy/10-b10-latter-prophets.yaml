@@ -1,0 +1,265 @@
+# Block 10: Isaiah-Malachi (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b10-latter-prophets
+status: reviewed
+people:
+  - {key: "anon:prophetess-of-isaiah", he: "הנביאה", sex: f, kind: anon}  # Isaiah 8:3
+links:
+  - "Shear-jashub@Isa.7.3 <- Isaiah@2Ki.19.2-Rom"
+  - {child: "Maher-shalal-hash-baz@Isa.8.1-", parent: "Isaiah@2Ki.19.2-Rom", status: confirmed, proof: [Isaiah 8:3, Isaiah 8:18]}
+  - "Zechariah@Isa.8.2 <- Jeberechiah@Isa.8.2"
+  - {child: "Hilkiah@Jer.1.1", parent: "father_of_Hilkiah@Jer.32.7", status: confirmed, proof: [Jeremiah 1:1, Jeremiah 32:7]}
+  - "Jeremiah@2Ch.35.25-Mat <- Hilkiah@Jer.1.1"
+  - {child: "Zedekiah@2Ki.24.17-Jer", parent: "Josiah@1Ki.13.2-Mat", status: confirmed, proof: [Jeremiah 1:3, Jeremiah 37:1]}
+  - "Zephaniah@2Ki.25.18-Jer <- Maaseiah@Jer.21.1-"
+  - "Pashhur@Jer.21.1- <- Malchiah@Jer.21.1-"
+  - "Uriah@Jer.26.20- <- Shemaiah@Jer.26.20"
+  - "Elnathan@Jer.26.22- <- Achbor@2Ki.22.12-Jer"
+  - "Hananiah@Jer.28.1- <- Azzur@Jer.28.1"
+  - "Elasah@Jer.29.3 <- Shaphan@2Ki.22.3-Jer"
+  - "Gemariah@Jer.29.3 <- Hilkiah@2Ki.22.4-Jer"
+  - "Ahab@Jer.29.21- <- Kolaiah@Jer.29.21"
+  - "Zedekiah@Jer.29.21- <- Maaseiah@Jer.29.21"
+  - "Hanamel@Jer.32.7- <- Shallum@Jer.32.7"
+  - {child: "Shallum@Jer.32.7", parent: "father_of_Hilkiah@Jer.32.7", status: confirmed, proof: [Jeremiah 32:7, Jeremiah 32:8, Jeremiah 32:9]}
+  - "Baruch@Jer.32.12- <- Neriah@Jer.32.12-"
+  - "Neriah@Jer.32.12- <- Mahseiah@Jer.32.12-"
+  - "Jaazaniah@Jer.35.3 <- Jeremiah@Jer.35.3"
+  - "Jeremiah@Jer.35.3 <- Habazziniah@Jer.35.3"
+  - "Hanan@Jer.35.4 <- Igdaliah@Jer.35.4"
+  - "Maaseiah@Jer.35.4 <- Shallum@Jer.35.4"
+  - "Gemariah@Jer.36.10- <- Shaphan@2Ki.22.3-Jer"
+  - "Micaiah@Jer.36.11- <- Gemariah@Jer.36.10-"
+  - "Delaiah@Jer.36.12- <- Shemaiah@Jer.36.12"
+  - "Zedekiah@Jer.36.12 <- Hananiah@Jer.36.12"
+  - "Jehudi@Jer.36.14- <- Nethaniah@Jer.36.14"
+  - "Nethaniah@Jer.36.14 <- Shelemiah@Jer.36.14"
+  - "Shelemiah@Jer.36.14 <- Cushi@Jer.36.14"
+  - "Jerahmeel@Jer.36.26 <- Hammelech@Jer.36.26-"
+  - "Seraiah@Jer.36.26 <- Azriel@Jer.36.26"
+  - "Shelemiah@Jer.36.26 <- Abdeel@Jer.36.26"
+  - "Jehucal@Jer.37.3- <- Shelemiah@Jer.37.3-"
+  - "Irijah@Jer.37.13- <- Shelemiah@Jer.37.13"
+  - "Shelemiah@Jer.37.13 <- Hananiah@Jer.37.13"
+  - "Gedaliah@Jer.38.1 <- Pashhur@Jer.38.1"
+  - "Shephatiah@Jer.38.1 <- Mattan@Jer.38.1"
+  - "Jonathan@Jer.40.8 <- Kareah@2Ki.25.23-Jer"
+  - "Jezaniah@2Ki.25.23-Jer <- Hoshaiah@Jer.42.1-"
+  - "Seraiah@Jer.51.59- <- Neriah@Jer.32.12-"
+  - "Ezekiel@Ezk.1.3- <- Buzi@Ezk.1.3"
+  - "Jaazaniah@Ezk.8.11 <- Shaphan@Ezk.8.11"
+  - "Jaazaniah@Ezk.11.1 <- Azzur@Ezk.11.1"
+  - "Pelatiah@Ezk.11.1- <- Benaiah@Ezk.11.1-"
+  - {child: "a_wife_of_Ezekiel@Ezk.24.18", parent: "Ezekiel@Ezk.1.3-", role: spouse, status: confirmed, proof: [Ezekiel 24:16, Ezekiel 24:18]}
+  - "Hosea@Hos.1.1-Rom <- Beeri@Hos.1.1"
+  - {child: "Hosea@Hos.1.1-Rom", parent: "Gomer@Hos.1.3", role: spouse, status: confirmed, proof: [Hosea 1:2, Hosea 1:3]}
+  - "Gomer@Hos.1.3 <- Diblaim@Hos.1.3"
+  - {child: "Jezreel@Hos.1.4", parent: "Hosea@Hos.1.1-Rom", status: confirmed, proof: [Hosea 1:3, Hosea 1:4]}
+  - {child: "Jezreel@Hos.1.4", parent: "Gomer@Hos.1.3", status: confirmed, proof: [Hosea 1:3, Hosea 1:4]}
+  - {child: "Lo-ruhamah@Hos.1.6-", parent: "Hosea@Hos.1.1-Rom", kind: unstated, status: fixed, proof: [Hosea 1:6]}
+  - {child: "Lo-ruhamah@Hos.1.6-", parent: "Gomer@Hos.1.3", status: confirmed, proof: [Hosea 1:6]}
+  - {child: "Lo-ammi@Hos.1.9", parent: "Hosea@Hos.1.1-Rom", kind: unstated, status: fixed, proof: [Hosea 1:8, Hosea 1:9]}
+  - {child: "Lo-ammi@Hos.1.9", parent: "Gomer@Hos.1.3", status: confirmed, proof: [Hosea 1:8, Hosea 1:9]}
+  - "Joel@Jol.1.1-Act <- Pethuel@Jol.1.1"
+  - "Amariah@Zep.1.1 <- Hezekiah@Zep.1.1"
+  - "Cushi@Zep.1.1 <- Gedaliah@Zep.1.1"
+  - "Gedaliah@Zep.1.1 <- Amariah@Zep.1.1"
+  - "Zephaniah@Zep.1.1 <- Cushi@Zep.1.1"
+  - "Joshua@Ezr.2.2-Zec <- Jehozadak@1Ch.6.14-Zec"
+  - "Berechiah@Zec.1.1- <- Iddo@Ezr.5.1-Zec"
+  - "Zechariah@Ezr.5.1-Zec <- Berechiah@Zec.1.1-"
+  - "Josiah@Zec.6.10- <- Zephaniah@Zec.6.10-"
+  # links of the block's people whose best verse lies on another sheet
+  - {child: "Malchijah@1Ch.9.12-Neh", parent: "Hammelech@Jer.36.26-", status: rejected}
+  # Isaiah's prophetess, Pashhur son of Immer, Malchiah son of Hammelech
+  - {child: "Maher-shalal-hash-baz@Isa.8.1-", parent: "anon:prophetess-of-isaiah", role: mother, status: added, proof: [Isaiah 8:3]}
+  - {child: "Pashhur@Jer.20.1-", parent: "Immer@1Ch.24.14-Jer", role: father, kind: descendant, status: added, proof: [Jeremiah 20:1]}
+  - {child: "Malchiah@Jer.21.1-", parent: "Hammelech@Jer.36.26-", role: father, status: added, proof: [Jeremiah 38:6]}
+conflicts:
+  - kind: bible
+    child: "Zerubbabel@1Ch.3.19-Mat"
+    readings:
+      - {parent: "Shealtiel@1Ch.3.17-Mat", role: father, proof: [Haggai 1:1, Haggai 1:12, Haggai 1:14, Haggai 2:2, Haggai 2:23, Ezra 3:2, Nehemiah 12:1]}
+      - {parent: "Pedaiah@1Ch.3.18-", proof: [I Chronicles 3:19]}
+    note:
+      en: "\"זרבבל בן שאלתיאל\" (Haggai 1:1, 2:23; Ezra 3:2; Nehemiah 12:1); \"ובני פדיה זרבבל ושמעי\" (I Chronicles 3:19), where Pedaiah is listed with Shealtiel among Jeconiah's sons (3:17-18)."
+      he: "„זרבבל בן שאלתיאל” (חגי א:א, ב:כג; עזרא ג:ב; נחמיה יב:א); „ובני פדיה זרבבל ושמעי” (דברי הימים א ג:יט), ופדיה נמנה עם שאלתיאל בבני יכניה (ג:יז–יח)."
+  - kind: descendant
+    child: "Zechariah@Ezr.5.1-Zec"
+    readings:
+      - {parent: "Berechiah@Zec.1.1-", proof: [Zechariah 1:1, Zechariah 1:7]}
+      - {parent: "Iddo@Ezr.5.1-Zec", kind: descendant, proof: [Ezra 5:1, Ezra 6:14]}
+    note:
+      en: "\"זכריה בן ברכיה בן עדו הנביא\" (Zechariah 1:1, 7); \"זכריה בר עדוא\" (Ezra 5:1, 6:14), his grandfather."
+      he: "„זכריה בן ברכיה בן עדו הנביא” (זכריה א:א, ז); „זכריה בר עדוא” (עזרא ה:א, ו:יד), אבי אביו."
+missed:
+  - {ref: Isaiah 1:8, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 2:1, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 3:16, reason: "בנות ציון: the women of Zion"}
+  - {ref: Isaiah 3:17, reason: "בנות ציון: the women of Zion"}
+  - {ref: Isaiah 4:4, reason: "בנות ציון: the women of Zion"}
+  - {ref: Isaiah 7:4, reason: "בן רמליהו, Pekah: proved on II Kings 15:25 (block 09)"}
+  - {ref: Isaiah 7:5, reason: "בן רמליהו, Pekah: proved on II Kings 15:25 (block 09)"}
+  - {ref: Isaiah 7:6, reason: "בן טבאל: the man is not named"}
+  - {ref: Isaiah 7:9, reason: "בן רמליהו, Pekah: proved on II Kings 15:25 (block 09)"}
+  - {ref: Isaiah 7:14, reason: "the sign of עמנואל: his parents are not named"}
+  - {ref: Isaiah 8:6, reason: "בן רמליהו, Pekah: proved on II Kings 15:25 (block 09)"}
+  - {ref: Isaiah 10:30, reason: "בת גלים: a place"}
+  - {ref: Isaiah 10:32, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 11:14, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Isaiah 13:1, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 16:1, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 16:2, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Isaiah 17:3, reason: "בני ישראל: the people"}
+  - {ref: Isaiah 19:11, reason: "בן חכמים, בן מלכי קדם: a figure"}
+  - {ref: Isaiah 20:2, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 21:3, reason: "כצירי יולדה: a figure"}
+  - {ref: Isaiah 21:17, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Isaiah 22:20, reason: "Eliakim son of Hilkiah: proved on II Kings 18:18 (block 09)"}
+  - {ref: Isaiah 23:10, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 23:12, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 27:12, reason: "בני ישראל: the people"}
+  - {ref: Isaiah 36:22, reason: "Eliakim son of Hilkiah, Joah son of Asaph: proved on II Kings 18:18 (block 09)"}
+  - {ref: Isaiah 37:2, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 37:12, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Isaiah 37:21, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 37:22, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 37:38, reason: "Sennacherib's sons: proved on II Kings 19:37 (block 09)"}
+  - {ref: Isaiah 38:1, reason: "Isaiah son of Amoz: proved on II Kings 19:20 (block 09)"}
+  - {ref: Isaiah 47:1, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 52:2, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 62:11, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Isaiah 66:20, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 1:2, reason: "Josiah son of Amon: proved on II Kings 21:24 (block 09)"}
+  - {ref: Jeremiah 2:16, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 3:21, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 6:1, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 7:30, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 7:31, reason: "גיא בן הנם: a place"}
+  - {ref: Jeremiah 7:32, reason: "גיא בן הנם: a place"}
+  - {ref: Jeremiah 9:25, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 15:4, reason: "Manasseh son of Hezekiah: proved on II Kings 20:21 (block 09)"}
+  - {ref: Jeremiah 16:14, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 16:15, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 19:2, reason: "גיא בן הנם: a place"}
+  - {ref: Jeremiah 19:6, reason: "גיא בן הנם: a place"}
+  - {ref: Jeremiah 22:11, reason: "שלם בן יאשיהו, who reigned after Josiah: TIPNR files the verse under Jehoiachin, marked doubtful; see the open questions"}
+  - {ref: Jeremiah 22:23, reason: "כילדה: a figure"}
+  - {ref: Jeremiah 22:24, reason: "Jeconiah son of Jehoiakim: proved on II Kings 24:6 (block 09)"}
+  - {ref: Jeremiah 23:7, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 24:1, reason: "Jeconiah son of Jehoiakim: proved on II Kings 24:6 (block 09)"}
+  - {ref: Jeremiah 25:1, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 25:3, reason: "Josiah son of Amon: proved on II Kings 21:24 (block 09)"}
+  - {ref: Jeremiah 25:21, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 26:1, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 27:3, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 27:20, reason: "Jeconiah son of Jehoiakim: proved on II Kings 24:6 (block 09)"}
+  - {ref: Jeremiah 28:4, reason: "Jeconiah son of Jehoiakim: proved on II Kings 24:6 (block 09)"}
+  - {ref: Jeremiah 32:30, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 32:32, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 32:35, reason: "גיא בן הנם: a place"}
+  - {ref: Jeremiah 35:1, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 35:8, reason: "Jonadab son of Rechab: proved on II Kings 10:15 (block 09)"}
+  - {ref: Jeremiah 35:14, reason: "Jonadab son of Rechab: proved on II Kings 10:15 (block 09)"}
+  - {ref: Jeremiah 35:16, reason: "Jonadab son of Rechab: proved on II Kings 10:15 (block 09)"}
+  - {ref: Jeremiah 35:19, reason: "Jonadab son of Rechab: proved on II Kings 10:15 (block 09)"}
+  - {ref: Jeremiah 36:1, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 36:8, reason: "Baruch son of Neriah: proved on Jeremiah 32:12"}
+  - {ref: Jeremiah 36:9, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 36:32, reason: "Baruch son of Neriah: proved on Jeremiah 32:12"}
+  - {ref: Jeremiah 39:6, reason: "Zedekiah's sons, not named"}
+  - {ref: Jeremiah 40:6, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 40:7, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 40:9, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 40:11, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 40:14, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 40:16, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 41:2, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 41:6, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 41:7, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:9, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:10, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 41:11, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:12, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:13, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:14, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:15, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 41:16, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 41:18, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 42:8, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 43:3, reason: "Baruch son of Neriah: proved on Jeremiah 32:12"}
+  - {ref: Jeremiah 43:4, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 43:5, reason: "Ishmael son of Nethaniah, Johanan son of Kareah: proved on II Kings 25:23 (block 09)"}
+  - {ref: Jeremiah 43:6, reason: "Gedaliah son of Ahikam son of Shaphan: proved on II Kings 22:12, 25:22 (block 09)"}
+  - {ref: Jeremiah 45:1, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 46:2, reason: "Jehoiakim son of Josiah: proved on II Kings 23:34 (block 09)"}
+  - {ref: Jeremiah 46:11, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Jeremiah 46:19, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Jeremiah 46:24, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Jeremiah 48:18, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Jeremiah 49:1, reason: "הבנים אין לישראל: a figure"}
+  - {ref: Jeremiah 49:2, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 49:3, reason: "בנות רבה: the towns of Rabbah"}
+  - {ref: Jeremiah 49:6, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Jeremiah 50:4, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 50:33, reason: "בני ישראל: the people"}
+  - {ref: Jeremiah 51:33, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Jeremiah 52:10, reason: "Zedekiah's sons, not named"}
+  - {ref: Ezekiel 4:13, reason: "בני ישראל: the people"}
+  - {ref: Ezekiel 16:46, reason: "Samaria and Sodom, the sisters, and their daughters: a figure"}
+  - {ref: Ezekiel 16:53, reason: "Samaria and Sodom and their daughters: a figure"}
+  - {ref: Ezekiel 16:55, reason: "Samaria and Sodom and their daughters: a figure"}
+  - {ref: Ezekiel 20:27, reason: "בן אדם: the prophet addressed"}
+  - {ref: Ezekiel 21:25, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 21:33, reason: "בן אדם: the prophet addressed"}
+  - {ref: Ezekiel 23:4, reason: "Oholah and Oholibah, Samaria and Jerusalem: a figure"}
+  - {ref: Ezekiel 23:7, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 23:15, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 23:23, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 25:3, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 25:5, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 25:10, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 27:6, reason: "בת אשרים: boxwood"}
+  - {ref: Ezekiel 27:11, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 30:5, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Ezekiel 37:16, reason: "בן אדם: the prophet addressed"}
+  - {ref: Ezekiel 37:21, reason: "בני ישראל: the people"}
+  - {ref: Ezekiel 40:46, reason: "בני צדוק: the priests of Zadok's line"}
+  - {ref: Ezekiel 43:7, reason: "בן אדם: the prophet addressed"}
+  - {ref: Ezekiel 44:5, reason: "בן אדם: the prophet addressed"}
+  - {ref: Ezekiel 44:9, reason: "בן נכר: the foreigner"}
+  - {ref: Ezekiel 44:15, reason: "בני צדוק: the priests of Zadok's line"}
+  - {ref: Ezekiel 47:22, reason: "the strangers' children, not named"}
+  - {ref: Ezekiel 48:11, reason: "בני צדוק: the priests of Zadok's line"}
+  - {ref: Hosea 2:2, reason: "בני ישראל: the people"}
+  - {ref: Hosea 3:1, reason: "בני ישראל: the people"}
+  - {ref: Hosea 3:5, reason: "בני ישראל: the people"}
+  - {ref: Hosea 4:1, reason: "בני ישראל: the people"}
+  - {ref: Joel 2:23, reason: "בני ישראל: the people"}
+  - {ref: Joel 4:6, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Joel 4:8, reason: "בני ישראל: the people"}
+  - {ref: Joel 4:16, reason: "בני ישראל: the people"}
+  - {ref: Joel 4:19, reason: "בני ישראל: the people"}
+  - {ref: Amos 1:1, reason: "Jeroboam son of Joash: proved on II Kings 14:23 (block 09)"}
+  - {ref: Amos 1:13, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Amos 2:11, reason: "בני ישראל: the people"}
+  - {ref: Amos 3:1, reason: "בני ישראל: the people"}
+  - {ref: Amos 3:12, reason: "בני ישראל: the people"}
+  - {ref: Amos 4:5, reason: "בני ישראל: the people"}
+  - {ref: Obadiah 1:20, reason: "בני ישראל: the people"}
+  - {ref: Micah 1:13, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Micah 4:8, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Micah 4:10, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Micah 4:13, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Micah 6:5, reason: "Balaam son of Beor: proved in block 06"}
+  - {ref: Zephaniah 2:2, reason: "בטרם לדת חק: not a birth"}
+  - {ref: Zephaniah 2:8, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Zephaniah 2:9, reason: "בני עמון, בני אשור: a people"}
+  - {ref: Zephaniah 3:14, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Haggai 2:4, reason: "Joshua son of Jehozadak: proved on Haggai 1:1"}
+  - {ref: Zechariah 2:11, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Zechariah 2:14, reason: "בת ציון, בת בבל: a figure for the city or the land"}
+  - {ref: Zechariah 6:11, reason: "Joshua son of Jehozadak: proved on Haggai 1:1"}
+  - {ref: Zechariah 9:9, reason: "בת ציון; בן אתנות: a figure"}
+  - {ref: Zechariah 9:13, reason: "בניך ציון, בניך יון: the people"}
+  - {ref: Malachi 3:3, reason: "בני לוי: the Levites"}
+  - {ref: Malachi 3:6, reason: "בני ישראל: the people"}
