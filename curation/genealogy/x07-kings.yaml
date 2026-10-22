@@ -1,0 +1,40 @@
+# M91 step 7: Samuel-Kings against Chronicles: David's brothers and heroes, the kings' sons and
+# officers, the Levites of David's lists (DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: x07-kings
+status: reviewed
+# TIPNR keys each person of the parallel passages once, with the variants: David's sons (II Sam
+# 3:2-5, 5:14-16 / I Chr 3:1-9, 14:4-7), his officers (II Sam 8:15-18 / I Chr 18:14-17; Seraiah,
+# Shisha and Shavsha), the Rapha's offspring (II Sam 21:18-22 / I Chr 20:4-8), Achbor / Abdon
+# and Harhas / Hasrah (II Kgs 22:12-14 / II Chr 34:20-22), Jozacar / Zabad and Shomer / Shimrith
+# (II Kgs 12:22 / II Chr 24:26), Ahaziah / Jehoahaz / Azariah (II Chr 21:17, 22:6) and Uzziah /
+# Azariah. Nothing to merge there.
+# Left:
+#  - Shomer (II Kgs 12:22) is "שמרית המואבית" in II Chr 24:26, a woman, on one key; a person has
+#    one sex, so the key stays a man's, as in Kings.
+#  - Elpelet and Nogah (I Chr 3:6-7, 14:5-6) and Jerimoth son of David (II Chr 11:18) are in no
+#    list of Samuel; they are Chronicles' own.
+#  - Zechariah son of Meshelemiah the gatekeeper (9:21, 26:2, 14) is on the singer Zechariah's key
+#    (15:18, 20, 24, 16:5), whom 15:18 lists beside "השערים"; a key is not split.
+#  - Josiah's sons and Zedekiah were settled in step 4.
+same:
+  # "ליהודה אליהו מאחי דויד" (I Chr 27:18)
+  - keys: ["Elihu@1Ch.27.18", "Eliab@1Sa.16.6-2Ch"]
+    status: possible
+    proof: [I Chronicles 27:18, I Samuel 16:6, I Chronicles 2:13]
+    note:
+      en: "Elihu \"מאחי דויד\" is the officer of Judah (I Chronicles 27:18). Eliab, Jesse's firstborn (I Samuel 16:6, I Chronicles 2:13), is the brother of the name nearest; Jesse had eight sons (I Samuel 17:12), seven named in I Chronicles 2:13-15, and \"אחי\" may be a kinsman."
+      he: "אליהו „מאחי דויד” הוא הנגיד ליהודה (דברי הימים א כז:יח). אליאב, בכור ישי (שמואל א טז:ו, דברי הימים א ב:יג), הוא האח ששמו קרוב ביותר; לישי היו שמונה בנים (שמואל א יז:יב), ושבעה נקובים בדברי הימים א ב:יג–טו, ו„אחי” יכול להיות קרוב משפחה."
+  # the heroes, "אליפלט בן אחסבי בן המעכתי" (II Sam 23:34) and "אליפל בן אור" (I Chr 11:35)
+  - keys: ["Eliphal@1Ch.11.35", "Eliphelet@2Sa.23.34"]
+    status: possible
+    proof: [II Samuel 23:34, I Chronicles 11:35]
+    note:
+      en: "Both come after Ahiam son of Sharar / Sachar the Hararite in the lists of David's heroes: \"אליפלט בן אחסבי בן המעכתי\" (II Samuel 23:34) and \"אליפל בן אור\" (I Chronicles 11:35). The names are near; the fathers differ."
+      he: "שניהם באים אחרי אחיאם בן שרר / שכר ההררי ברשימות גבורי דוד: „אליפלט בן אחסבי בן המעכתי” (שמואל ב כג:לד) ו„אליפל בן אור” (דברי הימים א יא:לה). השמות קרובים; האבות שונים."
+  # "ואחימלך בן אביתר כהנים" (II Sam 8:17) against "אביתר בן אחימלך" (I Sam 22:20)
+  - keys: ["Ahimelech@2Sa.8.17-1Ch", "Ahimelech@1Sa.14.3-Psa"]
+    status: possible
+    proof: [II Samuel 8:17, I Samuel 22:20, II Samuel 20:25, I Chronicles 24:6]
+    note:
+      en: "David's priests are \"צדוק בן אחיטוב ואחימלך בן אביתר\" (II Samuel 8:17, I Chronicles 18:16, 24:6), but \"צדוק ואביתר\" (II Samuel 20:25), and Abiathar is the son of Ahimelech son of Ahitub (I Samuel 22:20). Either the son was named after his grandfather, as TIPNR has it, or the names in 8:17 are turned round and this is Abiathar's father."
+      he: "כהני דוד הם „צדוק בן אחיטוב ואחימלך בן אביתר” (שמואל ב ח:יז, דברי הימים א יח:טז, כד:ו), אבל „צדוק ואביתר” (שמואל ב כ:כה), ואביתר הוא בן אחימלך בן אחטוב (שמואל א כב:כ). או שהבן נקרא על שם סבו, כפי שיש ב־TIPNR, או שהשמות בח:יז התהפכו וזהו אבי אביתר."

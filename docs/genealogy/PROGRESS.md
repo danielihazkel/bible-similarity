@@ -116,23 +116,23 @@ Cross-book steps (M91), planned in step 1:
 | 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | done |
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | done |
 | 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | done |
-| 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | todo |
+| 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | done |
 | 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | todo |
 | 9 | "Unattached": people whose tribe or family the text states | todo |
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 7: `x07-kings`, Samuel–Kings against Chronicles: David's brothers and heroes, the kings' sons and officers, the Levites of David's lists.** Write `curation/genealogy/x07-kings.yaml` (`block: x07-kings`), with the scratchpad probes of steps 3–6: `state.py` pickles the persons and links after the review, `twokeys2.py` lists the people of a passage with the same-name keys whose verses fall in given passages (`EXACT=1` for the exact name; the Ezra–Nehemiah lists make the loose match noisy), `keys.py` shows every key of some names with its verses and links, and `show.py` prints verses.
+**M91, step 8: `x08-tribes`, TIPNR's tribe attachments that the text does not support (blocks 01–13).** Write `curation/genealogy/x08-tribes.yaml` (`block: x08-tribes`): a `people:` correction `{key, tribe: "<TIPNR's label>"}` moves a person without a parent to another tribe's eponym, and `tribe: ""` sends them to "unattached" by book (step 3); a stated descent is a link instead (`added`, kind `descendant`).
 
-- **One person, two keys:** for every person of I Chr 2:13–17, 3:1–9, 11–12, 14:3–7, 15–16, 18:14–17, 20, 27 and II Chronicles, the keys of the same name in Samuel and Kings. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
+- **The sweep:** every person placed on a tribe (`placement` `tribe`) whose first verse is in blocks 01–13 (Genesis to Nehemiah, not Chronicles), with their tribe and verses. For each, does a verse name the tribe, or a family that has one? Keep those that do; the rest change. A probe in the scratchpad: `state.py`, then the persons with no live parent link and a tribe, grouped by tribe.
 - **The open questions for this step:**
-  - David's brothers: Elihu "מאחי דויד" (I Chr 27:18) and Eliab; Jesse's eight sons (I Sam 16:10, 17:12) against seven (I Chr 2:13–15); Abigail and Zeruiah.
-  - David's heroes, II Sam 23:8–39 against I Chr 11:10–47: the pairs TIPNR keeps apart.
-  - David's sons, II Sam 3:2–5, 5:14–16 against I Chr 3:1–9, 14:4–7 (Elishua / Elishama, the two Eliphelets, Nogah).
-  - The officers: Shisha / Seraiah / Shavsha (I Kgs 4:3, II Sam 8:17, I Chr 18:16); Solomon's officers (I Kgs 4); Jehozabad son of Shomer (II Kgs 12:22) and of "שמרית המואבית" (II Chr 24:26).
-  - The Levites of David's lists (I Chr 15–16, 23–26): Zechariah son of Meshelemiah on the singer Zechariah's key (9:21, 15:18); Ahimelech son of Abiathar (II Sam 8:17, I Chr 24:6) and Abiathar son of Ahimelech (I Sam 22:20).
-  - Josiah's sons and Zedekiah were settled in step 4; check that nothing is left.
-- Then rebuild (`bsim genealogy`, `bsim build-db`), check the merged people at `/genealogy`, run ruff and pytest, and update this file.
+  - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
+  - Og is filed under Ammon, but he is king of Bashan "מיתר הרפאים" (Deut 3:11); Zippor under Moab, whose descent is not stated.
+  - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1).
+  - Joash, Gideon's father, "אבי העזרי" (Judg 6:11, 24): a `descendant` of Abiezer (Num 26:30, merged in step 5).
+  - Immanuel (Isa 7:14), attached to Judah by a link not stated.
+  - Cush "בן ימיני" (Ps 7:1) and Daniel and his companions "מבני יהודה" (Dan 1:6), attached only to their books.
+- Then rebuild (`bsim genealogy`, `bsim build-db`), check the moved people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -209,8 +209,8 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Maoch / Maacah, Achish's father (I Sam 27:2 / I Kgs 2:39);
   - Jaare-oregim / Jair, Elhanan's father (II Sam 21:19 / I Chr 20:5), where Samuel has Goliath and Chronicles "לחמי אחי גלית";
   - Palti / Paltiel, Toi / Tou, Joram / Hadoram, Sharar / Sachar.
-- **Ahimelech and Abiathar** (b08): "אחימלך בן אביתר" (II Sam 8:17, I Chr 18:16, 24:6) against "אביתר בן אחימלך" (I Sam 22:20, 23:6). TIPNR has two Ahimelechs, so the tree keeps both links as written.
-- **Jesse's sons:** eight (I Sam 17:12), seven named in I Chr 2:13–15. For block 15.
+- **Ahimelech and Abiathar** (b08): "אחימלך בן אביתר" (II Sam 8:17, I Chr 18:16, 24:6) against "אביתר בן אחימלך" (I Sam 22:20, 23:6). TIPNR has two Ahimelechs, so the tree keeps both links as written. **Step 7:** the two Ahimelechs are a `possible` (II Sam 20:25 has "צדוק ואביתר"); both links stay as written.
+- **Jesse's sons:** eight (I Sam 17:12), seven named in I Chr 2:13–15. For block 15. **Step 7:** no key to add; Elihu (I Chr 27:18) and Eliab are a `possible`.
 - **The Rapha's offspring** (b08): Ishbi-benob, Saph, Goliath, the man of 21:20 and Lahmi are `descendant`s of הרפה ("בילידי הרפה", "ילדו להרפה", II Sam 21:16–22). With the article, it reads as the eponym of the Rephaim, not a father. Rapha is unattached.
 - **Asa's mother** (b09): "ושם אמו מעכה בת אבישלום" (I Kgs 15:10, 13), who is Abijam's mother (15:2), and Asa is Abijam's son (15:8). The link Asa <- Maacah is added as a mother link of kind `descendant`. Abijam stays Asa's drawn parent.
 - **Eli** (b09): TIPNR hangs Eli on Ithamar through four invented unnamed generations (`Unnamed#1–4@1Ki.2.27`). Those links are rejected, and Eli <- Ithamar is added as `unstated`: Abiathar, of Eli's house (I Kgs 2:27), is of Ithamar's sons through Ahimelech (I Chr 24:3). The four unnamed people are left with no link. Block 18 rechecks this with I Chr 24.
@@ -232,7 +232,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Abishalom (15:2, 10) is Absalom.
   - The Pharaoh of Hadad and Tahpenes (11:19) is Solomon's father-in-law (one key).
 - **Dropped TIPNR placeholders** (b09): the unnamed wife who is the mother of Solomon's daughters Taphath and Basemath. She stays as one of his wives (I Kgs 11:3). The unnamed husband of Shimeath, Jozacar's mother, is dropped.
-- **For later blocks** (b09): Shomer, Jehozabad's father (II Kgs 12:22), is "שמרית המואבית" in II Chr 24:26, a woman (block 19). Hiram the craftsman has a mother "ממטה נפתלי" (I Kgs 7:14) or "מן בנות דן" (II Chr 2:13). No parent is named, so nothing is recorded.
+- **For later blocks** (b09): Shomer, Jehozabad's father (II Kgs 12:22), is "שמרית המואבית" in II Chr 24:26, a woman (block 19). Hiram the craftsman has a mother "ממטה נפתלי" (I Kgs 7:14) or "מן בנות דן" (II Chr 2:13). No parent is named, so nothing is recorded. **Step 7:** Shomer / Shimrith stays one key, a man, as in Kings.
 - **Shallum son of Josiah** (b10): "שלם בן יאשיהו מלך יהודה המלך תחת יאשיהו אביו" (Jer 22:11) is the king after Josiah, Jehoahaz in II Kgs 23:30. TIPNR files the verse under Jehoiachin, marked doubtful, and keeps Shallum of I Chr 3:15 as another son of Josiah, beside Johanan, whom it takes for Jehoahaz. No link is recorded, since merging TIPNR keys is not supported. For block 15 (I Chr 3:15) and M91. **Step 4:** recorded as a `possible` with Jehoahaz.
 - **Hammelech** (b10): TIPNR's one man "המלך" is the father of Jerahmeel (Jer 36:26, under Jehoiakim) and of Malchiah (38:6, under Zedekiah). "בן המלך" can be "the king's son", and the kings differ. Kept as TIPNR has it.
   - TIPNR's family column gives Hammelech's son as Malchijah of I Chr 9:12, but its own references put 38:6 under Malchiah, Pashhur's father (Jer 21:1). That link is rejected, and Malchiah <- Hammelech is added.
@@ -351,7 +351,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **The returnees** (9:3–34): Uthai's line (9:4) against Neh 11:4, which has Athaiah son of Uzziah; Sallu's line (9:7) against Neh 11:7 (M91). The priests and Levites of 9:10–16 were decided on Neh 11 (block 13). Neh 11:13 has Ahzai between Azarel and Meshillemoth, I Chr 9:12 Jahzerah and Meshullam between Adiel and Meshillemith. **Step 6:** Uthai and Athaiah are a `possible`; Sallu and his father Meshullam are merged, with a conflict on Meshullam's father (Joed drawn, Hodaviah the other reading).
   - **The gatekeepers:** Shallum son of Kore (9:19) is added; his firstborn Mattithiah (9:31) is confirmed. TIPNR keeps Meshelemiah (9:21; son of Kore in 26:1) apart from Shallum, and Shelemiah (26:14) too (M91). **Step 6:** Shallum and Meshelemiah are a `possible`; TIPNR's Meshelemiah key already holds Shelemiah (26:14).
 - **I Chronicles 10–29** (b18):
-  - **David's heroes** (11:26–47): TIPNR takes Shage, Jonathan's father (11:34), for Shammah the Hararite (II Sam 23:33), and Nathan, Joel's brother (11:38), for Nathan of Zobah, Igal's father (II Sam 23:36). "מבחר בן הגרי" (11:38) is the Hagrite; his link to TIPNR's Hagri, the Hagrites' eponym, is `descendant`. Jashobeam "בן חכמוני" (11:11) is the Hachmonite (II Sam 23:8, TIPNR's group key); his father is Zabdiel (27:2), as TIPNR has it.
+  - **David's heroes** (11:26–47): TIPNR takes Shage, Jonathan's father (11:34), for Shammah the Hararite (II Sam 23:33), and Nathan, Joel's brother (11:38), for Nathan of Zobah, Igal's father (II Sam 23:36). "מבחר בן הגרי" (11:38) is the Hagrite; his link to TIPNR's Hagri, the Hagrites' eponym, is `descendant`. Jashobeam "בן חכמוני" (11:11) is the Hachmonite (II Sam 23:8, TIPNR's group key); his father is Zabdiel (27:2), as TIPNR has it. **Step 7:** TIPNR keys both lists as one; Eliphal son of Ur (11:35) and Eliphelet son of Ahasbai (II Sam 23:34) are a `possible`.
   - **Obed-edom** son of Jeduthun (16:38) is TIPNR's one key for Obed-edom the Gittite (II Sam 6:10), the gatekeeper with his sons (26:4–8) and the singer (15:18, 21) (M91). Jeduthun is the singer, Ethan (block 16). **Step 6:** left as one key; a key is not split.
   - **Ladan** (23:7–9, 26:21) is TIPNR's Libni (Ex 6:17), in "לעדן ושמעי" against "לבני ושמעי"; TIPNR marks it doubtful. Jehiel son of Ladan (23:8) is also TIPNR's Jahath son of Libni (6:5, 28); Shimei son of Jahath (6:27–28) is the Shimei of 23:9, whose sons are "ראשי האבות ללעדן". The two keys stay merged (M91), so Zimmah's second reading (block 16) shows Jehiel. **Step 6:** left as TIPNR has it.
   - **Shimei son of Gershon** (23:10) has a son Jahath, apart from Jahath son of Libni.
@@ -359,7 +359,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Hebron's sons** "ובני יריהו אמריהו השני" (24:23) are those of 23:19, with Jeriah the first of them; the cue is dismissed.
   - **Jeduthun's six sons** (25:3) name five; Shimei (25:17) would be the sixth.
   - **Meshelemiah son of Kore** (26:1) is added; "מן בני אסף" is Ebiasaph, as in 9:19.
-  - **Elihu "מאחי דויד"** (27:18) is confirmed as Jesse's son, the eighth of I Sam 16:10, 17:12, as against the seven of I Chr 2:13–15; he may be Eliab (I Sam 16:6) (M91).
+  - **Elihu "מאחי דויד"** (27:18) is confirmed as Jesse's son, the eighth of I Sam 16:10, 17:12, as against the seven of I Chr 2:13–15; he may be Eliab (I Sam 16:6) (M91). **Step 7:** Elihu and Eliab are a `possible`.
   - **Jaasiel son of Abner** (27:21) is TIPNR's Abner son of Ner. Jehoiada son of Benaiah (27:34) is kept apart from Jehoiada, Benaiah's father.
 - **II Chronicles** (b19):
   - **Rehoboam's wives** (11:18–21): "את מחלת בת ירימות בן דויד אביהיל בת אליאב בן ישי" names one wife, "ותלד לו" (11:19) and "ואחריה" (11:20), so Abihail is Mahalath's mother and Jerimoth's wife, as TIPNR also has her. Her second TIPNR link, as Rehoboam's wife, is rejected. Jerimoth son of David is in no list of David's sons; his mother link to the Jerusalem wives is rejected (I Chr 3:9 has the concubines' sons, unnamed).
@@ -368,7 +368,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **The singers in Hezekiah's day** (29:13–14): "ומן בני הימן יחיאל ושמעי ומן בני ידותון שמעיה ועזיאל" are descendants, as "ומן בני אליצפן ... ומן בני אסף" in 29:13; the four links are `descendant`.
   - **The Levites of 29:12**: "מחת בן עמשי ויואל בן עזריהו" repeats the pairs of Heman's line (I Chr 6:20–21), and "יואח בן זמה" those of Gershon's (6:6); TIPNR keeps them apart, as men of Hezekiah's day. "ועדן בן יואח" has its own Joah in TIPNR (M91). **Step 6:** the two Joahs of 29:12 are a `possible`; the others are left, as Hezekiah's men.
   - **Huram-abi** (2:13) is the son of "אשה מן בנות דן"; I Kgs 7:14 has "בן אשה אלמנה הוא ממטה נפתלי". Neither parent is named.
-  - **Jehozabad son of Shimrith the Moabitess** (24:26) is the son of Shomer in II Kgs 12:22, where block 09 confirmed the father; Chronicles makes the name a woman's (M91).
+  - **Jehozabad son of Shimrith the Moabitess** (24:26) is the son of Shomer in II Kgs 12:22, where block 09 confirmed the father; Chronicles makes the name a woman's (M91). **Step 7:** left: one key, a man.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -670,3 +670,8 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Added:** Gershom <- Phinehas and Daniel <- Ithamar (Ezra 8:2), `descendant`s; both leave "Unattached".
   - **Left:** the Meraioth of Neh 11:11 (block 17b's conflict), Maasai / Amashsai (one key), Obed-edom and Ladan (one key each, not split), the Levites of II Chr 29:12.
   - 6 fewer people (2,836), 47 conflicts, identities: 18 merged, 17 possible.
+- 2026-10-22, M91 step 7: Samuel–Kings against Chronicles (`x07-kings.yaml`, reviewed).
+  - **Probes:** the people of I Chronicles 10–29 and II Chronicles against the keys of the same name in Samuel and Kings, and the parallel passages side by side (David's sons, heroes and officers, the Rapha's offspring, Abigail and Zeruiah, Jesse's sons, Jehoash's killers, Josiah's envoys and Huldah). TIPNR keys every person of the parallels once, with the variants (Achbor / Abdon, Harhas / Hasrah, Jozacar / Zabad, Ahaziah / Jehoahaz / Azariah, Seraiah / Shisha / Shavsha); the II Chronicles people tied to kings (Rehoboam's and Jehoshaphat's sons, Uriel) have no key elsewhere.
+  - **Possible (3):** Elihu "מאחי דויד" (I Chr 27:18) and Eliab; Eliphal son of Ur (I Chr 11:35) and Eliphelet son of Ahasbai (II Sam 23:34); Ahimelech son of Abiathar (II Sam 8:17) and Ahimelech son of Ahitub.
+  - **Left:** Shomer / Shimrith on one key, a man; Elpelet, Nogah and Jerimoth, Chronicles' own; Zechariah the gatekeeper on the singer's key; Josiah's sons (step 4).
+  - Nothing merged: 2,836 people, 47 conflicts, identities: 18 merged, 20 possible.
