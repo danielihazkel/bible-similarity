@@ -1,0 +1,193 @@
+# Block 17b: I Chronicles 8-9 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b17b-1chr-8-9
+status: reviewed
+people:
+  - {key: "anon:eshek-1ch-8-39", he: "עשק", sex: m, kind: person}  # I Chronicles 8:39
+links:
+  - "Abihud@1Ch.8.3 <- Bela@Gen.46.21-1Ch"
+  - "Addar@1Ch.8.3 <- Bela@Gen.46.21-1Ch"
+  - "Gera@1Ch.8.3 <- Bela@Gen.46.21-1Ch"
+  - {child: "Ahoah@2Sa.23.9-1Ch", parent: "Bela@Gen.46.21-1Ch", status: confirmed, proof: [I Chronicles 8:3, I Chronicles 8:4]}
+  - {child: "Abishua@1Ch.8.4", parent: "Bela@Gen.46.21-1Ch", status: confirmed, proof: [I Chronicles 8:3, I Chronicles 8:4]}
+  - {child: "Ahihud@1Ch.8.7", parent: "Ehud@Jdg.3.15-1Ch", kind: unstated, status: fixed, proof: [I Chronicles 8:6, I Chronicles 8:7]}
+  - {child: "Ahijah@1Ch.8.7", parent: "Ehud@Jdg.3.15-1Ch", status: confirmed, proof: [I Chronicles 8:6, I Chronicles 8:7]}
+  - {child: "Gera@1Ch.8.7", parent: "Ehud@Jdg.3.15-1Ch", status: confirmed, proof: [I Chronicles 8:6, I Chronicles 8:7]}
+  - {child: "Naaman@1Ch.8.7", parent: "Ehud@Jdg.3.15-1Ch", status: confirmed, proof: [I Chronicles 8:6, I Chronicles 8:7]}
+  - {child: "Uzza@1Ch.8.7", parent: "Ehud@Jdg.3.15-1Ch", kind: unstated, status: fixed, proof: [I Chronicles 8:6, I Chronicles 8:7]}
+  - "Shaharaim@1Ch.8.8 <- Baara@1Ch.8.8"
+  - "Shaharaim@1Ch.8.8 <- Hushim@1Ch.8.8-"
+  - {child: "Shaharaim@1Ch.8.8", parent: "Hodesh@1Ch.8.9", role: spouse, status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9]}
+  - {child: "Jobab@1Ch.8.9", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9]}
+  - "Jobab@1Ch.8.9 <- Hodesh@1Ch.8.9"
+  - {child: "Malcam@1Ch.8.9", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9]}
+  - "Malcam@1Ch.8.9 <- Hodesh@1Ch.8.9"
+  - {child: "Mesha@1Ch.8.9", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9]}
+  - "Mesha@1Ch.8.9 <- Hodesh@1Ch.8.9"
+  - {child: "Zibia@1Ch.8.9", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9]}
+  - "Zibia@1Ch.8.9 <- Hodesh@1Ch.8.9"
+  - {child: "Jeuz@1Ch.8.10", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Jeuz@1Ch.8.10", parent: "Hodesh@1Ch.8.9", status: confirmed, proof: [I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Mirmah@1Ch.8.10", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Mirmah@1Ch.8.10", parent: "Hodesh@1Ch.8.9", status: confirmed, proof: [I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Sachia@1Ch.8.10", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Sachia@1Ch.8.10", parent: "Hodesh@1Ch.8.9", status: confirmed, proof: [I Chronicles 8:9, I Chronicles 8:10]}
+  - {child: "Abitub@1Ch.8.11", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:11]}
+  - "Abitub@1Ch.8.11 <- Hushim@1Ch.8.8-"
+  - {child: "Elpaal@1Ch.8.11-", parent: "Shaharaim@1Ch.8.8", status: confirmed, proof: [I Chronicles 8:8, I Chronicles 8:11]}
+  - "Elpaal@1Ch.8.11- <- Hushim@1Ch.8.8-"
+  - "Eber@1Ch.8.12 <- Elpaal@1Ch.8.11-"
+  - "Misham@1Ch.8.12 <- Elpaal@1Ch.8.11-"
+  - "Shemed@1Ch.8.12 <- Elpaal@1Ch.8.11-"
+  - {child: "Beriah@1Ch.8.13-", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:12, I Chronicles 8:13]}
+  - {child: "Shema@1Ch.8.13", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:12, I Chronicles 8:13]}
+  - {child: "Ahio@1Ch.8.14", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:14, I Chronicles 8:16]}
+  - {child: "Jeremoth@1Ch.8.14", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:14, I Chronicles 8:16]}
+  - {child: "Shashak@1Ch.8.14-", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:14, I Chronicles 8:16]}
+  - {child: "Arad@1Ch.8.15", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:15, I Chronicles 8:16]}
+  - {child: "Eder@1Ch.8.15", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:15, I Chronicles 8:16]}
+  - {child: "Zebadiah@1Ch.8.15", parent: "Beriah@1Ch.8.13-", status: confirmed, proof: [I Chronicles 8:15, I Chronicles 8:16]}
+  - "Ishpah@1Ch.8.16 <- Beriah@1Ch.8.13-"
+  - "Joha@1Ch.8.16 <- Beriah@1Ch.8.13-"
+  - "Michael@1Ch.8.16 <- Beriah@1Ch.8.13-"
+  - {child: "Heber@1Ch.8.17", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:17, I Chronicles 8:18]}
+  - {child: "Hizki@1Ch.8.17", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:17, I Chronicles 8:18]}
+  - {child: "Meshullam@1Ch.8.17", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:17, I Chronicles 8:18]}
+  - {child: "Zebadiah@1Ch.8.17", parent: "Elpaal@1Ch.8.11-", status: confirmed, proof: [I Chronicles 8:17, I Chronicles 8:18]}
+  - "Ishmerai@1Ch.8.18 <- Elpaal@1Ch.8.11-"
+  - "Izliah@1Ch.8.18 <- Elpaal@1Ch.8.11-"
+  - "Jobab@1Ch.8.18 <- Elpaal@1Ch.8.11-"
+  - {child: "Jakim@1Ch.8.19", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:19, I Chronicles 8:21]}
+  - {child: "Zabdi@1Ch.8.19", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:19, I Chronicles 8:21]}
+  - {child: "Zichri@1Ch.8.19", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:19, I Chronicles 8:21]}
+  - {child: "Eliel@1Ch.8.20", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:20, I Chronicles 8:21]}
+  - {child: "Elienai@1Ch.8.20", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:20, I Chronicles 8:21]}
+  - {child: "Zillethai@1Ch.8.20", parent: "Shimei@1Ch.8.21", status: confirmed, proof: [I Chronicles 8:20, I Chronicles 8:21]}
+  - "Adaiah@1Ch.8.21 <- Shimei@1Ch.8.21"
+  - "Beraiah@1Ch.8.21 <- Shimei@1Ch.8.21"
+  - "Shimrath@1Ch.8.21 <- Shimei@1Ch.8.21"
+  - {child: "Eber@1Ch.8.22", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:22, I Chronicles 8:25]}
+  - {child: "Eliel@1Ch.8.22", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:22, I Chronicles 8:25]}
+  - {child: "Ishpan@1Ch.8.22", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:22, I Chronicles 8:25]}
+  - {child: "Abdon@1Ch.8.23", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:23, I Chronicles 8:25]}
+  - {child: "Hanan@1Ch.8.23", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:23, I Chronicles 8:25]}
+  - {child: "Zichri@1Ch.8.23", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:23, I Chronicles 8:25]}
+  - {child: "Anthothijah@1Ch.8.24", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:24, I Chronicles 8:25]}
+  - {child: "Elam@1Ch.8.24", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:24, I Chronicles 8:25]}
+  - {child: "Hananiah@1Ch.8.24", parent: "Shashak@1Ch.8.14-", status: confirmed, proof: [I Chronicles 8:24, I Chronicles 8:25]}
+  - "Iphdeiah@1Ch.8.25 <- Shashak@1Ch.8.14-"
+  - "Penuel@1Ch.8.25 <- Shashak@1Ch.8.14-"
+  - {child: "Athaliah@1Ch.8.26", parent: "Jeroham@1Ch.8.27", status: confirmed, proof: [I Chronicles 8:26, I Chronicles 8:27]}
+  - {child: "Shamsherai@1Ch.8.26", parent: "Jeroham@1Ch.8.27", status: confirmed, proof: [I Chronicles 8:26, I Chronicles 8:27]}
+  - {child: "Shehariah@1Ch.8.26", parent: "Jeroham@1Ch.8.27", status: confirmed, proof: [I Chronicles 8:26, I Chronicles 8:27]}
+  - "Elijah@1Ch.8.27 <- Jeroham@1Ch.8.27"
+  - "Jaareshiah@1Ch.8.27 <- Jeroham@1Ch.8.27"
+  - "Zichri@1Ch.8.27 <- Jeroham@1Ch.8.27"
+  - {child: "Maacah@1Ch.8.29-", parent: "Abiel@1Sa.9.1-1Ch", role: spouse, status: confirmed, proof: [I Chronicles 8:29, I Chronicles 9:35]}
+  - {child: "Kish@1Sa.9.1-Act", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:30]}
+  - {child: "Abdon@1Ch.8.30-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:30, I Chronicles 9:35, I Chronicles 9:36]}
+  - {child: "Abdon@1Ch.8.30-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:30]}
+  - {child: "Baal@1Ch.8.30-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:30, I Chronicles 9:35, I Chronicles 9:36]}
+  - {child: "Baal@1Ch.8.30-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:30]}
+  - {child: "Nadab@1Ch.8.30-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:30, I Chronicles 9:35, I Chronicles 9:36]}
+  - {child: "Nadab@1Ch.8.30-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:30]}
+  - {child: "Zur@1Ch.8.30-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:30, I Chronicles 9:35, I Chronicles 9:36]}
+  - {child: "Zur@1Ch.8.30-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:30]}
+  - {child: "Ahio@1Ch.8.31-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:31, I Chronicles 9:35, I Chronicles 9:37]}
+  - {child: "Ahio@1Ch.8.31-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:31]}
+  - {child: "Gedor@1Ch.8.31-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:31, I Chronicles 9:35, I Chronicles 9:37]}
+  - {child: "Gedor@1Ch.8.31-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:31]}
+  - {child: "Zecher@1Ch.8.31-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 8:29, I Chronicles 8:31, I Chronicles 9:35, I Chronicles 9:37]}
+  - {child: "Zecher@1Ch.8.31-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 8:29, I Chronicles 8:31]}
+  - "Shimeah@1Ch.8.32- <- Mikloth@1Ch.8.32-"
+  - "Ahaz@1Ch.8.35- <- Micah@2Sa.9.12-1Ch"
+  - "Melech@1Ch.8.35- <- Micah@2Sa.9.12-1Ch"
+  - "Pithon@1Ch.8.35- <- Micah@2Sa.9.12-1Ch"
+  - "Tarea@1Ch.8.35- <- Micah@2Sa.9.12-1Ch"
+  - "Alemeth@1Ch.8.36- <- Jehoaddah@1Ch.8.36-"
+  - "Azmaveth@1Ch.8.36- <- Jehoaddah@1Ch.8.36-"
+  - "Jehoaddah@1Ch.8.36- <- Ahaz@1Ch.8.35-"
+  - "Moza@1Ch.8.36- <- Zimri@1Ch.8.36-"
+  - "Zimri@1Ch.8.36- <- Jehoaddah@1Ch.8.36-"
+  - {child: "Azel@1Ch.8.37-", parent: "Binea@1Ch.8.37-", status: rejected}
+  - "Binea@1Ch.8.37- <- Moza@1Ch.8.36-"
+  - {child: "Eleasah@1Ch.8.37-", parent: "Binea@1Ch.8.37-", status: rejected}
+  - {child: "Raphah@1Ch.8.37-", parent: "Binea@1Ch.8.37-", status: confirmed, proof: [I Chronicles 8:37, I Chronicles 9:43]}
+  - "Azrikam@1Ch.8.38- <- Azel@1Ch.8.37-"
+  - "Bocheru@1Ch.8.38- <- Azel@1Ch.8.37-"
+  - {child: "Eliphelet@1Ch.8.39", parent: "Eleasah@1Ch.8.37-", status: rejected}
+  - {child: "Jeush@1Ch.8.39", parent: "Eleasah@1Ch.8.37-", status: rejected}
+  - {child: "Ulam@1Ch.8.39-", parent: "Eleasah@1Ch.8.37-", status: rejected}
+  - "Ammihud@1Ch.9.4 <- Omri@1Ch.9.4"
+  - "Imri@1Ch.9.4 <- Bani@1Ch.9.4"
+  - "Omri@1Ch.9.4 <- Imri@1Ch.9.4"
+  - "Uthai@1Ch.9.4 <- Ammihud@1Ch.9.4"
+  - "Hodaviah@1Ch.9.7 <- Senaah@1Ch.9.7-Neh"
+  - "Meshullam@1Ch.9.7 <- Hodaviah@1Ch.9.7"
+  - "Sallu@1Ch.9.7 <- Meshullam@1Ch.9.7"
+  - "Elah@1Ch.9.8 <- Uzzi@1Ch.9.8"
+  - "Ibneiah@1Ch.9.8 <- Jeroham@1Ch.9.8"
+  - "Meshullam@1Ch.9.8 <- Shephatiah@1Ch.9.8"
+  - "Reuel@1Ch.9.8 <- Ibnijah@1Ch.9.8"
+  - "Shephatiah@1Ch.9.8 <- Reuel@1Ch.9.8"
+  - "Uzzi@1Ch.9.8 <- Michri@1Ch.9.8"
+  - "Adiel@1Ch.9.12-Neh <- Jahzerah@1Ch.9.12"
+  - "Jahzerah@1Ch.9.12 <- Meshullam@1Ch.9.12-Neh"
+  - "Asa@1Ch.9.16 <- Elkanah@1Ch.9.16"
+  - "Berechiah@1Ch.9.16 <- Asa@1Ch.9.16"
+  - "Kore@1Ch.9.19- <- Ebiasaph@Exo.6.24-1Ch"
+  - "Zechariah@1Ch.9.21- <- Meshelemiah@1Ch.9.21-"
+  - "Mattithiah@1Ch.9.31 <- Shallum@1Ch.9.17-Neh"
+  - {child: "Ner@1Sa.14.50-1Ch", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 9:35, I Chronicles 9:36]}
+  - {child: "Mikloth@1Ch.8.32-", parent: "Abiel@1Sa.9.1-1Ch", status: confirmed, proof: [I Chronicles 9:35, I Chronicles 9:37]}
+  - {child: "Mikloth@1Ch.8.32-", parent: "Maacah@1Ch.8.29-", kind: unstated, status: fixed, proof: [I Chronicles 9:35, I Chronicles 9:37]}
+  - "Hanan@1Ch.8.38- <- Azel@1Ch.8.37-"
+  - "Ishmael@1Ch.8.38- <- Azel@1Ch.8.37-"
+  - "Obadiah@1Ch.8.38- <- Azel@1Ch.8.37-"
+  - "Sheariah@1Ch.8.38- <- Azel@1Ch.8.37-"
+  # the chain of 8:37, Eshek's sons (8:39), and Shallum son of Kore (9:19)
+  - {child: "Eleasah@1Ch.8.37-", parent: "Raphah@1Ch.8.37-", role: father, status: added, proof: [I Chronicles 8:37, I Chronicles 9:43]}
+  - {child: "Azel@1Ch.8.37-", parent: "Eleasah@1Ch.8.37-", role: father, status: added, proof: [I Chronicles 8:37, I Chronicles 9:43]}
+  - {child: "anon:eshek-1ch-8-39", parent: "Eleasah@1Ch.8.37-", role: father, status: added, proof: [I Chronicles 8:37, I Chronicles 8:38, I Chronicles 8:39]}
+  - {child: "Ulam@1Ch.8.39-", parent: "anon:eshek-1ch-8-39", role: father, status: added, proof: [I Chronicles 8:39]}
+  - {child: "Jeush@1Ch.8.39", parent: "anon:eshek-1ch-8-39", role: father, status: added, proof: [I Chronicles 8:39]}
+  - {child: "Eliphelet@1Ch.8.39", parent: "anon:eshek-1ch-8-39", role: father, status: added, proof: [I Chronicles 8:39]}
+  - {child: "Shallum@1Ch.9.17-Neh", parent: "Kore@1Ch.9.19-", role: father, status: added, proof: [I Chronicles 9:19]}
+conflicts:
+  - kind: bible
+    child: "Gera@Gen.46.21-1Ch"
+    readings:
+      - {parent: "Benjamin@Gen.35.18-Rev", proof: [Genesis 46:21]}
+      - {parent: "Bela@Gen.46.21-1Ch", proof: [I Chronicles 8:3, I Chronicles 8:5]}
+    note:
+      en: "Benjamin's son (Genesis 46:21); among Bela's sons, \"ויהיו בנים לבלע אדר וגרא ... וגרא ושפופן וחורם\" (I Chronicles 8:3-5), where TIPNR takes the second Gera for Benjamin's."
+      he: "בן בנימן (בראשית מו:כא); בין בני בלע, „ויהיו בנים לבלע אדר וגרא ... וגרא ושפופן וחורם” (דברי הימים א ח:ג–ה), ו־TIPNR מזהה את גרא השני עם בן בנימן."
+  - kind: bible
+    child: "Muppim@Gen.46.21-1Ch"
+    readings:
+      - {parent: "Benjamin@Gen.35.18-Rev", proof: [Genesis 46:21]}
+      - {parent: "Bela@Gen.46.21-1Ch", proof: [I Chronicles 8:3, I Chronicles 8:5]}
+    note:
+      en: "Benjamin's son \"מפים\" (Genesis 46:21), \"שפופם\" in Numbers 26:39; \"ושפופן\" among Bela's sons (I Chronicles 8:3, 5)."
+      he: "„מפים” בן בנימן (בראשית מו:כא), „שפופם” בבמדבר כו:לט; „ושפופן” בין בני בלע (דברי הימים א ח:ג, ה)."
+  - kind: bible
+    child: "Huppim@Gen.46.21-1Ch"
+    readings:
+      - {parent: "Benjamin@Gen.35.18-Rev", proof: [Genesis 46:21]}
+      - {parent: "Bela@Gen.46.21-1Ch", proof: [I Chronicles 8:3, I Chronicles 8:5]}
+    note:
+      en: "Benjamin's son \"חפים\" (Genesis 46:21), \"חופם\" in Numbers 26:39; \"וחורם\" among Bela's sons (I Chronicles 8:3, 5)."
+      he: "„חפים” בן בנימן (בראשית מו:כא), „חופם” בבמדבר כו:לט; „וחורם” בין בני בלע (דברי הימים א ח:ג, ה)."
+  - kind: bible
+    child: "Zadok@1Ch.6.12-Neh"
+    readings:
+      - {parent: "Ahitub@1Ch.6.11-Ezr", proof: [I Chronicles 5:38, Ezra 7:2]}
+      - {parent: "Meraioth@1Ch.6.6-Neh", proof: [I Chronicles 9:11, Nehemiah 11:11]}
+    note:
+      en: "\"ואחיטוב הוליד את צדוק וצדוק הוליד את שלום\" (I Chronicles 5:38), \"בן שלום בן צדוק בן אחיטוב\" (Ezra 7:2); \"בן משלם בן צדוק בן מריות בן אחיטוב\" (I Chronicles 9:11, Nehemiah 11:11). TIPNR's key for that Meraioth is Zerahiah's son (5:32)."
+      he: "„ואחיטוב הוליד את צדוק וצדוק הוליד את שלום” (דברי הימים א ה:לח), „בן שלום בן צדוק בן אחיטוב” (עזרא ז:ב); „בן משלם בן צדוק בן מריות בן אחיטוב” (דברי הימים א ט:יא, נחמיה יא:יא). TIPNR מזהה את מריות הזה עם בן זרחיה (ה:לב)."
+missed:
+  - {ref: I Chronicles 8:40, reason: "Ulam's sons and grandsons, a hundred and fifty, unnamed"}
+  - {ref: I Chronicles 9:3, reason: "the tribes who lived in Jerusalem"}
+  - {ref: I Chronicles 9:6, reason: "Jeuel of Zerah's descendants: not said whose son he is"}
+  - {ref: I Chronicles 9:20, reason: "Phinehas son of Eleazar: proved in Exodus (block 05)"}
+  - {ref: I Chronicles 9:40, reason: "Merib-baal (Mephibosheth) son of Jonathan and his son Micah: proved in II Samuel (block 08)"}
