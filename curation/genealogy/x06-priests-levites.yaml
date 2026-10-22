@@ -1,0 +1,110 @@
+# M91 step 6: the priests, the Levites, the gatekeepers and the singers, Ezra 7-10 / Nehemiah 3,
+# 11-13 against I Chronicles 5:27-6:66, 9 and 23-26 (DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: x06-priests-levites
+status: reviewed
+# Left as TIPNR has it:
+#  - The high priests of Ezra 7:1-5 and I Chr 5:29-41 are one key each; the Meraioth of Neh 11:11 /
+#    I Chr 9:11 already has its conflict on Zadok (block 17b), and the skip of Ezra 7:3 its own on
+#    Azariah (block 13).
+#  - Maasai / Amashsai (I Chr 9:12, Neh 11:13) is one key already.
+#  - Obed-edom is one key for the Gittite (II Sam 6:10), the gatekeeper (26:4-8) and the singer
+#    (15:18, 21); Ladan is Libni's key and Jehiel Jahath's (23:7-9). A key is not split here.
+#  - The Levites of II Chr 29:12 repeat names of I Chr 6:6, 20-21, 29, but they are Hezekiah's men.
+same:
+  # "אלישיב הכהן הגדול" (Neh 3:1) and "יוידע בן אלישיב הכהן הגדול" (13:28)
+  - keys: ["Eliashib@Neh.12.10-", "Eliashib@Neh.3.1-"]
+    status: merged
+    proof: [Nehemiah 3:1, Nehemiah 13:28, Nehemiah 12:10]
+    note:
+      en: "\"אלישיב הכהן הגדול\" builds the Sheep Gate in Nehemiah's day (Nehemiah 3:1); the high priest of that day is Eliashib son of Joiakim (12:10), \"יוידע בן אלישיב הכהן הגדול\" (13:28)."
+      he: "„אלישיב הכהן הגדול” בונה את שער הצאן בימי נחמיה (נחמיה ג:א); הכהן הגדול בימים ההם הוא אלישיב בן יויקים (יב:י), „יוידע בן אלישיב הכהן הגדול” (יג:כח)."
+  - keys: ["Eliashib@Neh.13.4-", "Eliashib@Neh.12.10-"]
+    status: possible
+    proof: [Nehemiah 13:4, Nehemiah 13:28]
+    note:
+      en: "\"אלישיב הכהן\", over the chambers and \"קרוב לטוביה\" (Nehemiah 13:4), is not called the high priest; the high priest's grandson married Sanballat's daughter (13:28), Tobiah's ally."
+      he: "„אלישיב הכהן”, הממונה על הלשכה ו„קרוב לטוביה” (נחמיה יג:ד), אינו נקרא כהן גדול; נכד הכהן הגדול היה חתן לסנבלט (יג:כח), בעל בריתו של טוביה."
+  - keys: ["Eliashib@Ezr.10.6", "Eliashib@Neh.12.10-"]
+    status: possible
+    proof: [Ezra 10:6, Nehemiah 12:23]
+    note:
+      en: "Ezra goes to \"לשכת יהוחנן בן אלישיב\" (Ezra 10:6); the Levites' records run \"ועד ימי יוחנן בן אלישיב\" (Nehemiah 12:23), the high priest's line."
+      he: "עזרא הולך אל „לשכת יהוחנן בן אלישיב” (עזרא י:ו); רשימות הלוים נכתבו „ועד ימי יוחנן בן אלישיב” (נחמיה יב:כג), בשושלת הכהנים הגדולים."
+  - keys: ["Jehohanan@Ezr.10.6", "Johanan@Neh.12.11-"]
+    status: possible
+    proof: [Ezra 10:6, Nehemiah 12:22, Nehemiah 12:23]
+    note:
+      en: "\"יהוחנן בן אלישיב\" (Ezra 10:6) and \"יוחנן בן אלישיב\" (Nehemiah 12:23), who follows Joiada among the high priests (12:22)."
+      he: "„יהוחנן בן אלישיב” (עזרא י:ו) ו„יוחנן בן אלישיב” (נחמיה יב:כג), הבא אחרי יוידע בכהנים הגדולים (יב:כב)."
+  # the returnees in Jerusalem, Neh 11:3-19 against I Chr 9:2-17
+  - keys: ["Athaiah@Neh.11.4", "Uthai@1Ch.9.4"]
+    status: possible
+    proof: [Nehemiah 11:4, I Chronicles 9:4]
+    note:
+      en: "The first of Judah's men in Jerusalem, of Perez's line: \"עתיה בן עזיה בן זכריה בן אמריה\" (Nehemiah 11:4) and \"עותי בן עמיהוד בן עמרי בן אמרי\" (I Chronicles 9:4). The names are near; the fathers differ."
+      he: "הראשון מבני יהודה בירושלם, מבני פרץ: „עתיה בן עזיה בן זכריה בן אמריה” (נחמיה יא:ד) ו„עותי בן עמיהוד בן עמרי בן אמרי” (דברי הימים א ט:ד). השמות קרובים; האבות שונים."
+  - keys: ["Sallu@Neh.11.7", "Sallu@1Ch.9.7"]
+    status: merged
+    proof: [Nehemiah 11:7, I Chronicles 9:7]
+    note:
+      en: "The first of Benjamin's men in Jerusalem: \"סלא בן משלם\" (Nehemiah 11:7) and \"סלוא בן משלם\" (I Chronicles 9:7)."
+      he: "הראשון מבני בנימן בירושלם: „סלא בן משלם” (נחמיה יא:ז) ו„סלוא בן משלם” (דברי הימים א ט:ז)."
+  - keys: ["Meshullam@Neh.11.7", "Meshullam@1Ch.9.7"]
+    status: merged
+    proof: [Nehemiah 11:7, I Chronicles 9:7]
+  # the singers: Mattaniah son of Mica, of Asaph's line
+  - keys: ["Mattaniah@1Ch.9.15-Neh", "Mattaniah@Neh.11.22-"]
+    status: merged
+    proof: [Nehemiah 11:17, Nehemiah 11:22, Nehemiah 12:35, I Chronicles 9:15]
+    note:
+      en: "\"מתניה בן מיכא בן זבדי בן אסף\" (Nehemiah 11:17, I Chronicles 9:15 \"זכרי\"); his great-grandson Uzzi \"בן בני בן חשביה בן מתניה בן מיכא מבני אסף\" (Nehemiah 11:22); and Zechariah \"בן יונתן בן שמעיה בן מתניה בן מיכיה בן זכור בן אסף\" (12:35)."
+      he: "„מתניה בן מיכא בן זבדי בן אסף” (נחמיה יא:יז, ובדברי הימים א ט:טו „זכרי”); נינו עזי „בן בני בן חשביה בן מתניה בן מיכא מבני אסף” (נחמיה יא:כב); וזכריה „בן יונתן בן שמעיה בן מתניה בן מיכיה בן זכור בן אסף” (יב:לה)."
+  - keys: ["Mica@1Ch.9.15-Neh", "Mica@Neh.11.22-"]
+    status: merged
+    proof: [Nehemiah 11:17, Nehemiah 11:22, Nehemiah 12:35]
+  - keys: ["Asaph@1Ch.6.39-Psa", "Asaph@1Ch.9.15-Neh"]
+    status: merged
+    proof: [Nehemiah 11:17, I Chronicles 9:15, Nehemiah 12:46]
+    note:
+      en: "The Asaph of Mattaniah's line is \"ראש התחלה יהודה לתפלה\" (Nehemiah 11:17), Asaph the singer of David's day (12:46)."
+      he: "אסף שבשושלת מתניה הוא „ראש התחלה יהודה לתפלה” (נחמיה יא:יז), אסף המשורר מימי דוד (יב:מו)."
+  - keys: ["Zichri@1Ch.9.15-Neh", "Zaccur@1Ch.25.2-Neh"]
+    status: possible
+    proof: [I Chronicles 9:15, Nehemiah 11:17, Nehemiah 12:35, I Chronicles 25:2]
+    note:
+      en: "Mica's father is Zichri (I Chronicles 9:15), Zabdi (Nehemiah 11:17) or Zaccur (12:35), each a son of Asaph; Zaccur is Asaph's son in David's day (I Chronicles 25:2)."
+      he: "אבי מיכא הוא זכרי (דברי הימים א ט:טו), זבדי (נחמיה יא:יז) או זכור (יב:לה), כל אחד בן אסף; זכור הוא בן אסף בימי דוד (דברי הימים א כה:ב)."
+  # the gatekeepers
+  - keys: ["Shallum@1Ch.9.17-Neh", "Meshelemiah@1Ch.9.21-"]
+    status: possible
+    proof: [I Chronicles 9:17, I Chronicles 9:19, I Chronicles 9:21, I Chronicles 26:1, I Chronicles 26:14]
+    note:
+      en: "Both are Korahite gatekeepers, sons of Kore: \"שלום בן קורא בן אביסף בן קרח\" (I Chronicles 9:19), at the east gate (9:17-18), and \"משלמיהו בן קרא\" (26:1), whose lot fell to the east (26:14). Zechariah son of Meshelemiah keeps the tent's door (9:21)."
+      he: "שניהם שוערים קרחים, בני קורא: „שלום בן קורא בן אביסף בן קרח” (דברי הימים א ט:יט), בשער המזרח (ט:יז–יח), ו„משלמיהו בן קרא” (כו:א), שגורלו נפל מזרחה (כו:יד). זכריה בן משלמיה שוער פתח לאהל מועד (ט:כא)."
+  - keys: ["Joah@2Ch.29.12a", "Joah@2Ch.29.12b"]
+    status: possible
+    proof: [II Chronicles 29:12]
+    note:
+      en: "\"ומן הגרשני יואח בן זמה ועדן בן יואח\" (II Chronicles 29:12): Eden's father may be the Joah just named, but the verse pairs two men from each family, and the Kohathite and Merarite pairs are not father and son."
+      he: "„ומן הגרשני יואח בן זמה ועדן בן יואח” (דברי הימים ב כט:יב): ייתכן שאבי עדן הוא יואח הנזכר, אבל הפסוק מונה שני אנשים מכל משפחה, וזוגות הקהתי והמררי אינם אב ובנו."
+links:
+  # the heads of fathers' houses of Ezra 8:2, "מבני פינחס גרשם מבני איתמר דניאל"
+  - {child: "Gershom@Ezr.8.2", parent: "Phinehas@Exo.6.25-Psa", role: father, kind: descendant, status: added, proof: [Ezra 8:2]}
+  - {child: "Daniel@Ezr.8.2-Neh", parent: "Ithamar@Exo.6.23-Ezr", role: father, kind: descendant, status: added, proof: [Ezra 8:2]}
+conflicts:
+  - kind: bible
+    child: "Meshullam@Neh.11.7"
+    readings:
+      - {parent: "Joed@Neh.11.7", proof: [Nehemiah 11:7]}
+      - {parent: "Hodaviah@1Ch.9.7", proof: [I Chronicles 9:7]}
+    note:
+      en: "Sallu's father Meshullam is \"בן יועד בן פדיה\" (Nehemiah 11:7) or \"בן הודויה בן הסנאה\" (I Chronicles 9:7)."
+      he: "משלם אבי סלוא הוא „בן יועד בן פדיה” (נחמיה יא:ז) או „בן הודויה בן הסנאה” (דברי הימים א ט:ז)."
+  - kind: bible
+    child: "Mica@1Ch.9.15-Neh"
+    readings:
+      - {parent: "Zichri@1Ch.9.15-Neh", proof: [I Chronicles 9:15, Nehemiah 11:17]}
+      - {parent: "Zaccur@1Ch.25.2-Neh", proof: [Nehemiah 12:35]}
+    note:
+      en: "\"מיכא בן זכרי בן אסף\" (I Chronicles 9:15; \"זבדי\" in Nehemiah 11:17) and \"מיכיה בן זכור בן אסף\" (Nehemiah 12:35): three forms of the name of Asaph's son, perhaps one man."
+      he: "„מיכא בן זכרי בן אסף” (דברי הימים א ט:טו; „זבדי” בנחמיה יא:יז) ו„מיכיה בן זכור בן אסף” (נחמיה יב:לה): שלוש צורות לשם בן אסף, ואולי איש אחד."

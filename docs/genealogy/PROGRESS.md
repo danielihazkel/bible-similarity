@@ -115,23 +115,23 @@ Cross-book steps (M91), planned in step 1:
 | 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | done |
 | 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | done |
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | done |
-| 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | todo |
+| 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | done |
 | 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | todo |
 | 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | todo |
 | 9 | "Unattached": people whose tribe or family the text states | todo |
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 6: `x06-priests-levites`, Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers.** Write `curation/genealogy/x06-priests-levites.yaml` (`block: x06-priests-levites`), with the scratchpad probes of steps 3–5: `state.py` pickles the persons and links after the review, `twokeys2.py` lists the people of a passage with the same-name keys whose verses fall in given passages (`EXACT=1` for the exact name), `keys.py` shows every key of some names with its verses and links, and `show.py` prints verses.
+**M91, step 7: `x07-kings`, Samuel–Kings against Chronicles: David's brothers and heroes, the kings' sons and officers, the Levites of David's lists.** Write `curation/genealogy/x07-kings.yaml` (`block: x07-kings`), with the scratchpad probes of steps 3–6: `state.py` pickles the persons and links after the review, `twokeys2.py` lists the people of a passage with the same-name keys whose verses fall in given passages (`EXACT=1` for the exact name; the Ezra–Nehemiah lists make the loose match noisy), `keys.py` shows every key of some names with its verses and links, and `show.py` prints verses.
 
-- **One person, two keys:** for every person of I Chr 5:27–6:66, 9:1–34 and 23–26, the keys of the same name in Ezra 2, 7–8, 10, Neh 3, 7, 10–12, Samuel and Kings. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
+- **One person, two keys:** for every person of I Chr 2:13–17, 3:1–9, 11–12, 14:3–7, 15–16, 18:14–17, 20, 27 and II Chronicles, the keys of the same name in Samuel and Kings. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
 - **The open questions for this step:**
-  - The high priests: the Meraioth between Zadok and Ahitub (Neh 11:11, I Chr 9:11) against I Chr 5:38 and Ezra 7:2; Eliashib's three keys (Neh 3:1; 12:10, 22–23, 13:28; 13:4, 7), and Johanan son of Eliashib (Ezra 10:6) beside the Johanan of Neh 12:23.
-  - The returnees: Uthai (I Chr 9:4) and Athaiah (Neh 11:4); Sallu's line (9:7, Neh 11:7); Maasai and Amashsai (9:12, Neh 11:13).
-  - The singers: Mattaniah son of Mica on two keys (Neh 11:17 = I Chr 9:15; Neh 11:22, 12:35), whose grandfather is Zabdi / Zichri or Zaccur; the two Asaphs (I Chr 9:15, 6:24); the Levites of II Chr 29:12 against the pairs of I Chr 6:6, 20–21.
-  - The gatekeepers: Shallum son of Kore (9:19), Meshelemiah (9:21, 26:1) and Shelemiah (26:14); Obed-edom's one key (the Gittite, the gatekeeper, the singer).
-  - Ladan / Libni and Jehiel / Jahath (23:7–9), one key each in TIPNR.
-  - The heads of Ezra 8:2, Gershom "מבני פינחס" and Daniel "מבני איתמר", attached only by tribe or book.
+  - David's brothers: Elihu "מאחי דויד" (I Chr 27:18) and Eliab; Jesse's eight sons (I Sam 16:10, 17:12) against seven (I Chr 2:13–15); Abigail and Zeruiah.
+  - David's heroes, II Sam 23:8–39 against I Chr 11:10–47: the pairs TIPNR keeps apart.
+  - David's sons, II Sam 3:2–5, 5:14–16 against I Chr 3:1–9, 14:4–7 (Elishua / Elishama, the two Eliphelets, Nogah).
+  - The officers: Shisha / Seraiah / Shavsha (I Kgs 4:3, II Sam 8:17, I Chr 18:16); Solomon's officers (I Kgs 4); Jehozabad son of Shomer (II Kgs 12:22) and of "שמרית המואבית" (II Chr 24:26).
+  - The Levites of David's lists (I Chr 15–16, 23–26): Zechariah son of Meshelemiah on the singer Zechariah's key (9:21, 15:18); Ahimelech son of Abiathar (II Sam 8:17, I Chr 24:6) and Abiathar son of Ahimelech (I Sam 22:20).
+  - Josiah's sons and Zedekiah were settled in step 4; check that nothing is left.
 - Then rebuild (`bsim genealogy`, `bsim build-db`), check the merged people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
@@ -170,6 +170,8 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Abiezer** (x05): Gilead's son, as Iezer (Num 26:30, Josh 17:2); the son of Hammolecheth, Gilead's sister, and her husband (I Chr 7:18). Gilead drawn.
 - **Shechem** (x05): Gilead's son, Shemida's brother (Num 26:31–32); "ויהיו בני שמידע אחין ושכם" (I Chr 7:19). Gilead drawn.
 - **Elkanah and Ebiasaph** (x05): Korah's sons (Ex 6:24; I Chr 6:22 for Ebiasaph), or a chain, "קרח בנו אסיר בנו אלקנה בנו ואביסף בנו" (I Chr 6:7–8). Korah drawn.
+- **Meshullam, Sallu's father** (x06): "בן יועד בן פדיה" (Neh 11:7) or "בן הודויה בן הסנאה" (I Chr 9:7), one person since the merge. Joed drawn.
+- **Mica, Mattaniah's father** (x06): son of Zichri (I Chr 9:15; Zabdi in Neh 11:17) or of Zaccur (Neh 12:35), each a son of Asaph. Zichri drawn.
 ## Open questions
 - **Edom** (M91 step 3, settled): Seir the Horite, the kings of Edom and their fathers, Elon and Beeri the Hittites, and TIPNR's husband of Matred are taken off TIPNR's tribe "Edom" (`tribe: ""` in `x03-edom.yaml`) and sit under "unattached". The chiefs of Gen 36:40–43 ("אלופי עשו") and Hadad "האדמי" (I Kgs 11:14) stay under Esau.
 - **Edom, left as TIPNR has it** (M91 step 3):
@@ -269,19 +271,19 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Family lists:** "בני פחת מואב לבני ישוע יואב" and "בני אטר ליחזקיה" (Ezra 2:6, 16; Neh 7:11, 21) group families and name no father. TIPNR's Jeshua and Joab <- Pahath-moab and Hezekiah <- Ater are rejected, like the other "בני X" of the lists.
   - **Family names after "בן"** in Neh 3 are kept as fathers, as written, though several are also family names in Ezra 2: Pahath-moab and Harim (3:11), Hakkoz (3:4), Bani (3:17), Henadad (3:18, 24), Parosh (3:25), Immer (3:29). Only "בן השלני" (Neh 11:5) is made a `descendant`, of the Shelanite family (Num 26:20). "יהודה בן הסנואה" (11:9) and "זבדיאל בן הגדולים" (11:14) are kept as TIPNR names them.
   - **Jeshua son of Jozadak** (Ezra 10:18) is the high priest of Ezra 3:2 and 5:2. TIPNR files the verse under the course Jeshua of David's time (I Chr 24:11; also Ezra 2:36, Neh 7:39) with a Jozadak of its own; that link is rejected. The high priest's link is confirmed in block 10.
-  - **The high priest Eliashib** is three TIPNR keys: Neh 3:1, 20–21 ("אלישיב הכהן הגדול"); Neh 12:10, 22–23 and 13:28; Neh 13:4, 7 (over the chambers, "קרוב לטוביה"). "יהוחנן בן אלישיב" (Ezra 10:6) is another pair of keys, perhaps the Johanan of Neh 12:23 (M91).
+  - **The high priest Eliashib** is three TIPNR keys: Neh 3:1, 20–21 ("אלישיב הכהן הגדול"); Neh 12:10, 22–23 and 13:28; Neh 13:4, 7 (over the chambers, "קרוב לטוביה"). "יהוחנן בן אלישיב" (Ezra 10:6) is another pair of keys, perhaps the Johanan of Neh 12:23 (M91). **Step 6:** Neh 3:1's key is merged with Neh 12:10's; Neh 13:4's and Ezra 10:6's Eliashib, and Jehohanan with Johanan of Neh 12:22–23, are each a `possible`.
   - **Hanani** is Hacaliah's son by "חנני אחי" (Neh 7:2; "אחד מאחי", 1:2); אח can also mean a kinsman.
   - **Tobiah** (Neh 6:18): his wife, Shecaniah's daughter, is not said to be Jehohanan's mother, so that mother link is rejected.
   - **Neh 12:36:** "ואחיו שמעיה ועזראל ..." are Zechariah's fellow musicians. TIPNR's eight sons of Jonathan are rejected.
   - **Added:** Shecaniah <- Jahaziel, "מבני שכניה בן יחזיאל" (Ezra 8:5), read like "ומבני שלומית בן יוספיה" (8:10), which TIPNR links; Micaiah <- Zaccur (Neh 12:35). TIPNR's Zaccur there is Asaph's son of David's time (I Chr 25:2), so the line Asaph, Zaccur, Micaiah, Mattaniah, Shemaiah, Jonathan, Zechariah spans David to Nehemiah in six generations and skips where the text does not show.
-  - **Neh 11:11 / I Chr 9:11** put a Meraioth between Zadok and Ahitub ("צדוק בן מריות בן אחיטוב"), against "ואחיטוב הוליד את צדוק" (I Chr 5:38, Ezra 7:2). TIPNR merges that Meraioth with Zerahiah's son and has no Meraioth <- Ahitub link (blocks 16–17).
+  - **Neh 11:11 / I Chr 9:11** put a Meraioth between Zadok and Ahitub ("צדוק בן מריות בן אחיטוב"), against "ואחיטוב הוליד את צדוק" (I Chr 5:38, Ezra 7:2). TIPNR merges that Meraioth with Zerahiah's son and has no Meraioth <- Ahitub link (blocks 16–17). **Step 6:** the conflict on Zadok (block 17b) stands.
   - **Neh 11:13 / I Chr 9:12:** "עמשסי בן עזראל בן אחזי בן משלמות בן אמר" against "מעשי בן עדיאל בן יחזרה בן משלם בן משלמית בן אמר". TIPNR takes Ahzai for Meshullam, though the name is nearer Jahzerah; Meshullam <- Meshillemith is proved on I Chr 9:12 alone (block 17).
   - **Neh 11:10** "ידעיה בן יויריב יכין" against I Chr 9:10 "ידעיה ויהויריב ויכין", three priests; TIPNR's link is kept (block 17). **Neh 12:24** "וישוע בן קדמיאל" against "ישוע בנוי קדמיאל" (12:8, 10:10); kept as written.
   - Ezra 7:2–5's "אחיטוב בן אמריה" and "בקי בן אבישוע" run across verse ends, so Ahitub <- Amariah and Bukki <- Abishua are left to block 16 (I Chr 5:31, 37).
   - The priest who took a wife of the daughters of Barzillai the Gileadite (Ezra 2:61, Neh 7:63) is not named; nothing is added.
   - **For M91:**
-    - TIPNR keeps one man under two keys: Mattaniah son of Mica of Neh 11:17 (= I Chr 9:15), and of 11:22 and 12:35. If they are one man, Mica's father is Zabdi / Zichri (Neh 11:17, I Chr 9:15) or Zaccur (Neh 12:35). Likewise Asaph@1Ch.9.15-Neh stands beside Asaph@1Ch.6.39-Psa.
-    - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book.
+    - TIPNR keeps one man under two keys: Mattaniah son of Mica of Neh 11:17 (= I Chr 9:15), and of 11:22 and 12:35. If they are one man, Mica's father is Zabdi / Zichri (Neh 11:17, I Chr 9:15) or Zaccur (Neh 12:35). Likewise Asaph@1Ch.9.15-Neh stands beside Asaph@1Ch.6.39-Psa. **Step 6:** Mattaniah, Mica and Asaph are merged; Mica's father is a conflict (Zichri drawn, Zaccur the other reading), and Zichri and Zaccur are a `possible`.
+    - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book. **Step 6:** Gershom <- Phinehas and Daniel <- Ithamar are added as `descendant`s; Pethahiah is left to step 9.
     - TIPNR's Shilonites ("People from Shelah(?)") have no link to Shelah.
     - TIPNR makes the father of Shemaiah, keeper of the East Gate (Neh 3:29), the same man as Shecaniah son of Jehiel (Ezra 10:2); the text does not say so.
 - **I Chronicles 1** (b14): Keturah is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1; Gen 25:6 speaks of Abraham's "פילגשים". The tree keeps her as a spouse, as it has no separate role for a concubine.
@@ -346,12 +348,12 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Elpaal's sons** are in two lists (8:12–13, 17–18), and Shimei and Jeroham (8:21, 27) have no fathers; they may be Shema and Jeremoth (8:13–14). TIPNR reads "ואחיו" (8:14) as a man, Ahio, among Beriah's sons; LXX reads "his brothers".
   - **Jeiel of Gibeon** (8:29, 9:35) is TIPNR's Abiel, Kish's father (I Sam 9:1), as in block 08's conflict on Kish. His wife Maacah is confirmed; "ובנו הבכור עבדון..." are his sons, and her mother links to them are `unstated`.
   - **The chain of 8:37** (and 9:43): "בנעא רפה בנו אלעשה בנו אצל בנו" runs Binea, Raphah, Eleasah, Azel. TIPNR makes all three Binea's sons; Eleasah <- Binea and Azel <- Binea are rejected and the chain added. "ובני עשק אחיו" (8:39): Eshek is Azel's brother, added as `anon:eshek-1ch-8-39` (TIPNR's key there is Eleasah's), with his sons Ulam, Jeush and Eliphelet.
-  - **The returnees** (9:3–34): Uthai's line (9:4) against Neh 11:4, which has Athaiah son of Uzziah; Sallu's line (9:7) against Neh 11:7 (M91). The priests and Levites of 9:10–16 were decided on Neh 11 (block 13). Neh 11:13 has Ahzai between Azarel and Meshillemoth, I Chr 9:12 Jahzerah and Meshullam between Adiel and Meshillemith.
-  - **The gatekeepers:** Shallum son of Kore (9:19) is added; his firstborn Mattithiah (9:31) is confirmed. TIPNR keeps Meshelemiah (9:21; son of Kore in 26:1) apart from Shallum, and Shelemiah (26:14) too (M91).
+  - **The returnees** (9:3–34): Uthai's line (9:4) against Neh 11:4, which has Athaiah son of Uzziah; Sallu's line (9:7) against Neh 11:7 (M91). The priests and Levites of 9:10–16 were decided on Neh 11 (block 13). Neh 11:13 has Ahzai between Azarel and Meshillemoth, I Chr 9:12 Jahzerah and Meshullam between Adiel and Meshillemith. **Step 6:** Uthai and Athaiah are a `possible`; Sallu and his father Meshullam are merged, with a conflict on Meshullam's father (Joed drawn, Hodaviah the other reading).
+  - **The gatekeepers:** Shallum son of Kore (9:19) is added; his firstborn Mattithiah (9:31) is confirmed. TIPNR keeps Meshelemiah (9:21; son of Kore in 26:1) apart from Shallum, and Shelemiah (26:14) too (M91). **Step 6:** Shallum and Meshelemiah are a `possible`; TIPNR's Meshelemiah key already holds Shelemiah (26:14).
 - **I Chronicles 10–29** (b18):
   - **David's heroes** (11:26–47): TIPNR takes Shage, Jonathan's father (11:34), for Shammah the Hararite (II Sam 23:33), and Nathan, Joel's brother (11:38), for Nathan of Zobah, Igal's father (II Sam 23:36). "מבחר בן הגרי" (11:38) is the Hagrite; his link to TIPNR's Hagri, the Hagrites' eponym, is `descendant`. Jashobeam "בן חכמוני" (11:11) is the Hachmonite (II Sam 23:8, TIPNR's group key); his father is Zabdiel (27:2), as TIPNR has it.
-  - **Obed-edom** son of Jeduthun (16:38) is TIPNR's one key for Obed-edom the Gittite (II Sam 6:10), the gatekeeper with his sons (26:4–8) and the singer (15:18, 21) (M91). Jeduthun is the singer, Ethan (block 16).
-  - **Ladan** (23:7–9, 26:21) is TIPNR's Libni (Ex 6:17), in "לעדן ושמעי" against "לבני ושמעי"; TIPNR marks it doubtful. Jehiel son of Ladan (23:8) is also TIPNR's Jahath son of Libni (6:5, 28); Shimei son of Jahath (6:27–28) is the Shimei of 23:9, whose sons are "ראשי האבות ללעדן". The two keys stay merged (M91), so Zimmah's second reading (block 16) shows Jehiel.
+  - **Obed-edom** son of Jeduthun (16:38) is TIPNR's one key for Obed-edom the Gittite (II Sam 6:10), the gatekeeper with his sons (26:4–8) and the singer (15:18, 21) (M91). Jeduthun is the singer, Ethan (block 16). **Step 6:** left as one key; a key is not split.
+  - **Ladan** (23:7–9, 26:21) is TIPNR's Libni (Ex 6:17), in "לעדן ושמעי" against "לבני ושמעי"; TIPNR marks it doubtful. Jehiel son of Ladan (23:8) is also TIPNR's Jahath son of Libni (6:5, 28); Shimei son of Jahath (6:27–28) is the Shimei of 23:9, whose sons are "ראשי האבות ללעדן". The two keys stay merged (M91), so Zimmah's second reading (block 16) shows Jehiel. **Step 6:** left as TIPNR has it.
   - **Shimei son of Gershon** (23:10) has a son Jahath, apart from Jahath son of Libni.
   - **Merari's sons** (24:26–27): "בני יעזיהו בנו" reads as "the sons of Jaaziah his son", but "ליעזיהו בנו ושהם וזכור ועברי" lists Beno as a fourth son; TIPNR's Beno is confirmed.
   - **Hebron's sons** "ובני יריהו אמריהו השני" (24:23) are those of 23:19, with Jeriah the first of them; the cue is dismissed.
@@ -364,7 +366,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Maaseiah "בן המלך"** (28:7) is TIPNR's son of Ahaz, who was twenty when he began to reign (28:1); like "יואש בן המלך" (I Kgs 22:26, block 09) it may be a title, so the link is `unstated`. His mother link to Abi, Hezekiah's mother, is rejected.
   - **Zechariah son of Jehoiada** (24:20): Jehosheba is Jehoiada's wife (22:11) but not said to be Zechariah's mother; the link is `unstated`.
   - **The singers in Hezekiah's day** (29:13–14): "ומן בני הימן יחיאל ושמעי ומן בני ידותון שמעיה ועזיאל" are descendants, as "ומן בני אליצפן ... ומן בני אסף" in 29:13; the four links are `descendant`.
-  - **The Levites of 29:12**: "מחת בן עמשי ויואל בן עזריהו" repeats the pairs of Heman's line (I Chr 6:20–21), and "יואח בן זמה" those of Gershon's (6:6); TIPNR keeps them apart, as men of Hezekiah's day. "ועדן בן יואח" has its own Joah in TIPNR (M91).
+  - **The Levites of 29:12**: "מחת בן עמשי ויואל בן עזריהו" repeats the pairs of Heman's line (I Chr 6:20–21), and "יואח בן זמה" those of Gershon's (6:6); TIPNR keeps them apart, as men of Hezekiah's day. "ועדן בן יואח" has its own Joah in TIPNR (M91). **Step 6:** the two Joahs of 29:12 are a `possible`; the others are left, as Hezekiah's men.
   - **Huram-abi** (2:13) is the son of "אשה מן בנות דן"; I Kgs 7:14 has "בן אשה אלמנה הוא ממטה נפתלי". Neither parent is named.
   - **Jehozabad son of Shimrith the Moabitess** (24:26) is the son of Shomer in II Kgs 12:22, where block 09 confirmed the father; Chronicles makes the name a woman's (M91).
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
@@ -658,3 +660,13 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Left:** the two lines from Kohath to Samuel (one key per pair already; Elkanah "אפרתי" is where he lived); Jediael and Bela's sons of 7:7; Elishama son of Ammihud (one key), Tahan son of Telah and Bered (Ephraim); Asher, whose keys already hold Gen 46:17 and Num 26:44–45.
   - **Mother headers:** a mother who is the wife of the child's other father, a reading not drawn, heads no group under the drawn one (`genealogy_mothers`, a test, DESIGN §16.63). Without it, Asriel and Abiezer would have stood under Gilead beneath the Aramean concubine and Hammolecheth.
   - 7 fewer people (2,842), 45 conflicts, identities: 12 merged, 10 possible.
+- 2026-10-22, M91 step 6: the priests, the Levites, the gatekeepers and the singers (`x06-priests-levites.yaml`, reviewed).
+  - **Probes:** every person of I Chr 5:27–6:66, 9:1–34 and 23–26 against the keys of the same name in Ezra 2, 7–8, 10, Neh 3, 7, 10–13, Samuel and Kings (exact names; the loose match is swamped by the lists of Ezra 10 and Neh 10–12). The high priests, the lines of 6:18–32 and most returnees of I Chr 9 / Neh 11 are one key each already.
+  - **Merged (6):**
+    - Eliashib "הכהן הגדול" (Neh 3:1) with Eliashib son of Joiakim (Neh 12:10, 13:28).
+    - Sallu son of Meshullam and his father (Neh 11:7, I Chr 9:7), with a conflict on Meshullam's father: Joed drawn, Hodaviah the other reading.
+    - Mattaniah son of Mica (Neh 11:17, 22, 12:35, I Chr 9:15), his father Mica and Asaph the singer, with a conflict on Mica's father: Zichri drawn, Zaccur the other reading.
+  - **Possible (7):** Eliashib of Neh 13:4 and of Ezra 10:6 with the high priest; Jehohanan son of Eliashib (Ezra 10:6) with Johanan (Neh 12:22–23); Uthai and Athaiah (I Chr 9:4, Neh 11:4); Zichri and Zaccur, Asaph's sons; Shallum and Meshelemiah, sons of Kore; the two Joahs of II Chr 29:12.
+  - **Added:** Gershom <- Phinehas and Daniel <- Ithamar (Ezra 8:2), `descendant`s; both leave "Unattached".
+  - **Left:** the Meraioth of Neh 11:11 (block 17b's conflict), Maasai / Amashsai (one key), Obed-edom and Ladan (one key each, not split), the Levites of II Chr 29:12.
+  - 6 fewer people (2,836), 47 conflicts, identities: 18 merged, 17 possible.
