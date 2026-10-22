@@ -20,18 +20,22 @@
   `genealogy.blocks`, checks links against the Hebrew: each `confirmed`, `fixed`, `added` or
   `rejected`, with its own proof verses if given (Sefaria references, Hebrew numbering); added
   people (`anon:` keys); conflicts, whose readings name a parent and its verses, the first drawn;
-  cue verses looked at and passed over (`missed`). Every key, reference and status is checked and
-  any error stops the build (`RuntimeError`).
-- **The tree.** Each person gets one primary parent: a conflict's first reading, else the father,
-  else the mother; the other parent links are cross-links. A person left without one who married
-  in (a spouse, or a parent only of children drawn under the other parent) is drawn beside the
-  spouse; anyone else is attached to the eponym of its tribe or nation (`tribes`) by an
-  `unstated` link, else put under "unattached", by the book that first names them. `root`
-  (Adam) heads the tree. A cycle is an error.
+  cue verses looked at and passed over (`missed`); identities (`same:`), one person under several
+  TIPNR keys, `merged` into one (before any link is decided; a merged person with two fathers
+  needs a conflict) or `possible` (both kept, cross-referred). The cross-book steps' files
+  (`cross_blocks`) have no verse range. Every key, reference and status is checked and any error
+  stops the build (`RuntimeError`).
+- **The tree.** Each person gets one primary parent: a conflict's first reading, else the father
+  (an adoptive one last, Gen 48:5), else the mother; the other parent links are cross-links. A
+  person left without one who married in (a spouse, or a parent only of children drawn under the
+  other parent) is drawn beside the spouse; anyone else is attached to the eponym of its tribe or
+  nation (`tribes`) by an `unstated` link, else put under "unattached", by the book that first
+  names them. `root` (Adam) heads the tree. A cycle is an error.
 
 Writes `artifacts/genealogy/`: `persons.parquet`, `links.parquet`, `proofs.parquet`,
-`conflicts.parquet`, `blocks.parquet` and `genealogy.meta.json`. `bsim genealogy-review <block>`
-writes the block's review sheet to `review/<block>.md` (`run_genealogy_review`).
+`conflicts.parquet`, `identities.parquet`, `blocks.parquet` and `genealogy.meta.json`.
+`bsim genealogy-review <block>` writes the block's review sheet to `review/<block>.md`
+(`run_genealogy_review`).
 """
 
 from __future__ import annotations
@@ -63,6 +67,7 @@ ROLES = (*PARENT_ROLES, "spouse", "sibling", "unstated")
 LINK_KINDS = ("son", "descendant", "adopted", "levirate", "founder", "unstated")
 STATUSES = ("confirmed", "fixed", "added", "rejected")
 CONFLICT_KINDS = ("bible", "descendant")
+IDENTITY_STATUSES = ("merged", "possible")
 PERSON_KINDS = ("person", "group", "anon", "virtual")
 UNATTACHED = "virtual:unattached"
 
@@ -246,20 +251,60 @@ def verse_of_ref(ref: str, vid_of: dict[tuple[int, int, int], int]) -> int:
 _ARROW = re.compile(r"^\s*(?P<child>\S+)\s*<-\s*(?P<parent>\S+)\s*$")
 
 
+def merge_person(
+    keep: str, gone: str, persons: dict[str, Person], links: dict[tuple[str, str, str], Link]
+) -> None:
+    """Fold `gone` into `keep` (the review's `same:`, merged): its verses and names join, its links
+    move over, two links that become one fold, and a link between the two is dropped."""
+    a, b = persons[keep], persons.pop(gone)
+    for v, toks in b.verses.items():
+        a.verses[v] = sorted({*a.verses.get(v, []), *toks})
+    a.verses = dict(sorted(a.verses.items()))
+    a.strongs |= b.strongs
+    a.founded += [x for x in b.founded if x not in a.founded]
+    a.he, a.sex, a.tribe = a.he or b.he, a.sex or b.sex, a.tribe or b.tribe
+    for k in [k for k in links if gone in k[:2]]:
+        lk = links.pop(k)
+        parent, child = (keep if x == gone else x for x in k[:2])
+        if parent == child:
+            continue
+        if lk.role in ("spouse", "sibling") and child < parent:
+            parent, child = child, parent
+        lk.parent, lk.child = parent, child
+        have = links.setdefault((parent, child, lk.role), lk)
+        if have is not lk:
+            have.sides |= lk.sides
+            have.doubt |= lk.doubt
+            have.marker = "".join(sorted(set(have.marker) | set(lk.marker)))
+            have.order = lk.order if have.order is None else have.order
+
+
 def apply_curation(
     docs: list[dict[str, Any]],
     persons: dict[str, Person],
     links: dict[tuple[str, str, str], Link],
     blocks: dict[str, tuple[int, int]],
     vid_of: dict[tuple[int, int, int], int],
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Apply the review files to `persons` and `links` (in place). Returns the conflicts and the
-    blocks' rows; every problem found is raised at the end, together."""
+    cross: frozenset[str] = frozenset(),
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Apply the review files to `persons` and `links` (in place). Returns the conflicts, the
+    blocks' rows and the identities; every problem found is raised at the end, together.
+
+    The files' people come first, then the identities (`same:`): a merge folds the other keys into
+    the first before any link is decided, and the merged keys still name the person. A link the
+    merge made of two may be decided once under each pair of keys if both agree. `cross` are the
+    blocks of the cross-book steps, which have no verse range."""
     errors: list[str] = []
     conflicts: list[dict[str, Any]] = []
     rows: list[dict[str, Any]] = []
     seen_blocks: dict[str, str] = {}
-    decided: dict[int, str] = {}  # id(link) -> the file whose `links` or conflict decided it
+    # id(link) -> the file whose `links` or conflict decided it, the keys it named, the status
+    decided: dict[int, tuple[str, tuple[str, str], str]] = {}
+    alias: dict[str, str] = {}  # a merged key -> the key it was merged into
+    identities: list[dict[str, Any]] = []
+
+    def canon(key: str) -> str:
+        return alias.get(key, key)
 
     def err(where: str, msg: str) -> None:
         errors.append(f"{where}: {msg}")
@@ -279,26 +324,31 @@ def apply_curation(
         return out
 
     def known(where: str, key: Any) -> bool:
-        if not isinstance(key, str) or key not in persons:
+        if not isinstance(key, str) or (key not in persons and key not in alias):
             err(where, f"unknown person {key!r}")
             return False
         return True
 
+    def note_of(where: str, c: dict[str, Any]) -> dict[str, str]:
+        note = c.get("note") or {}
+        if note and set(note) != {"en", "he"}:
+            err(where, "a note has both en and he, or is left out")
+        return note
+
     def parent_links(child: str, parent: str) -> list[Link]:
         return [lk for r in (*PARENT_ROLES, "spouse") if (lk := links.get((parent, child, r)))]
 
+    valid = []
     for doc in docs:
         f = doc["file"]
         block = doc.get("block")
-        if block not in blocks:
-            err(f, f"unknown block {block!r} (genealogy.blocks)")
+        if block not in blocks and block not in cross:
+            err(f, f"unknown block {block!r} (genealogy.blocks, genealogy.cross_blocks)")
             continue
         if block in seen_blocks:
             err(f, f"block {block} is also in {seen_blocks[block]}")
         seen_blocks[block] = f
-        status = doc.get("status", "draft")
-        if status not in ("draft", "reviewed"):
-            err(f, f"status must be draft or reviewed, not {status!r}")
+        valid.append(doc)
         for i, p in enumerate(doc.get("people") or []):
             where = f"{f} people[{i}]"
             key = p.get("key") if isinstance(p, dict) else None
@@ -318,6 +368,54 @@ def apply_curation(
                 err(where, "kind is person, group or anon; sex m or f")
                 continue
             persons[key] = Person(key, str(p.get("he", "")), p.get("sex"), kind)
+
+    # the identities: the merges first, so that every link is decided between merged persons
+    possible = []
+    for doc in valid:
+        for i, s in enumerate(doc.get("same") or []):
+            where = f"{doc['file']} same[{i}]"
+            ks = s.get("keys") if isinstance(s, dict) else None
+            st = s.get("status") if isinstance(s, dict) else None
+            if not isinstance(ks, list) or len(ks) < 2 or st not in IDENTITY_STATUSES:
+                err(where, f"lists two keys or more and a status, one of {IDENTITY_STATUSES}")
+                continue
+            note = note_of(where, s)
+            if not all([known(where, k) for k in ks]):
+                continue
+            proof = refs(where, s.get("proof"))
+            if proof is None:
+                if "proof" not in s:
+                    err(where, "an identification needs its proof verses")
+                continue
+            ident = {"status": st, "keys": ks, "proof": proof, "block": doc["block"],
+                     "note_en": note.get("en"), "note_he": note.get("he")}  # fmt: skip
+            if st == "possible":
+                possible.append((where, ident))
+                continue
+            keep = canon(ks[0])
+            for k in ks[1:]:
+                gone = canon(k)
+                if gone == keep:
+                    err(where, f"{k} is merged into {ks[0]} already")
+                    continue
+                merge_person(keep, gone, persons, links)
+                alias[gone] = keep
+                for x, y in alias.items():
+                    if y == gone:
+                        alias[x] = keep
+            identities.append(ident)
+    for where, ident in possible:
+        first, *others = (canon(k) for k in ident["keys"])
+        if first in others:
+            err(where, f"{ident['keys']} name one person, merged elsewhere")
+            continue
+        identities.append(ident)
+
+    for doc in valid:
+        f, block = doc["file"], doc["block"]
+        status = doc.get("status", "draft")
+        if status not in ("draft", "reviewed"):
+            err(f, f"status must be draft or reviewed, not {status!r}")
         n_links = 0
         for i, item in enumerate(doc.get("links") or []):
             where = f"{f} links[{i}]"
@@ -330,6 +428,8 @@ def apply_curation(
             child, parent = item.get("child"), item.get("parent")
             if not (known(where, child) & known(where, parent)):
                 continue
+            named = (child, parent)
+            child, parent = canon(child), canon(parent)
             st = item.get("status", "confirmed")
             if st not in STATUSES:
                 err(where, f"status {st!r} is not one of {STATUSES}")
@@ -360,8 +460,16 @@ def apply_curation(
                     continue
                 lk = have[0]
                 if id(lk) in decided:
-                    err(where, f"{child} <- {parent} is already decided in {decided[id(lk)]}:"
-                               " leave it out")  # fmt: skip
+                    f0, named0, st0 = decided[id(lk)]
+                    if named0 != named and st0 == st:  # two links, one since a merge: they agree
+                        n_links += 1
+                        continue
+                    if named0 != named:
+                        err(where, f"{child} <- {parent} is {st0} in {f0} under the keys merged"
+                                   f" into these: decide it once")  # fmt: skip
+                    else:
+                        err(where, f"{named[0]} <- {named[1]} is already decided in {f0}:"
+                                   " leave it out")  # fmt: skip
                     continue
                 if st == "fixed" and role is not None and role != lk.role:
                     del links[(lk.parent, lk.child, lk.role)]
@@ -370,7 +478,7 @@ def apply_curation(
                 if kind is not None:
                     lk.kind = kind
             lk.status, lk.block = st, block
-            decided[id(lk)] = f
+            decided[id(lk)] = (f, named, st)
             if proof is not None:
                 lk.proof = proof
             n_links += 1
@@ -384,6 +492,7 @@ def apply_curation(
                 continue
             if not known(where, child):
                 continue
+            named_child, child = child, canon(child)
             if (
                 not isinstance(readings, list)
                 or not readings
@@ -391,15 +500,14 @@ def apply_curation(
             ):
                 err(where, "a conflict lists its readings (a bible conflict at least two)")
                 continue
-            note = c.get("note") or {}
-            if note and set(note) != {"en", "he"}:
-                err(where, "a note has both en and he, or is left out")
+            note = note_of(where, c)
             out = []
             for j, r in enumerate(readings):
                 w = f"{where} readings[{j}]"
                 parent = r.get("parent") if isinstance(r, dict) else None
                 if not known(w, parent):
                     continue
+                named, parent = (named_child, parent), canon(parent)
                 have = [lk for lk in parent_links(child, parent) if lk.role in PARENT_ROLES]
                 proof = refs(w, r.get("proof"))
                 if have:
@@ -416,7 +524,7 @@ def apply_curation(
                     lk.proof = proof
                 lk.conflict, lk.block = len(conflicts) + 1, lk.block or block
                 lk.drawn = not out
-                decided.setdefault(id(lk), f)
+                decided.setdefault(id(lk), (f, named, "reading"))
                 out.append(lk)
             conflicts.append({
                 "conflict_id": len(conflicts) + 1, "kind": kind, "child": child, "block": block,
@@ -429,13 +537,28 @@ def apply_curation(
                 err(f"{f} missed[{i}]", "each has a ref and a reason")
             else:
                 refs(f"{f} missed[{i}]", [m["ref"]])
-        lo, hi = blocks[block]
-        rows.append({"block": block, "first_vid": lo, "last_vid": hi, "status": status,
-                     "n_links": n_links, "n_conflicts": n_conf, "n_missed": len(missed),
-                     "file": f})  # fmt: skip
+        if block in blocks:
+            lo, hi = blocks[block]
+            rows.append({"block": block, "first_vid": lo, "last_vid": hi, "status": status,
+                         "n_links": n_links, "n_conflicts": n_conf, "n_missed": len(missed),
+                         "file": f})  # fmt: skip
+
+    # a merged person with two fathers (or mothers) needs a conflict that names them
+    named_in: dict[str, set[str]] = defaultdict(set)
+    for c in conflicts:
+        named_in[c["child"]] |= {lk.parent for lk in c["readings"]}
+    for k in {canon(i["keys"][0]) for i in identities if i["status"] == "merged"}:
+        for role in PARENT_ROLES:
+            ps = {lk.parent for lk in links.values() if lk.child == k and lk.role == role
+                  and lk.status != "rejected" and lk.kind != "adopted"}  # fmt: skip
+            if len(ps) > 1 and not ps <= named_in[k]:
+                err(k, f"merged, it has {len(ps)} {role}s ({', '.join(sorted(ps))}):"
+                       " a conflict lists them as readings")  # fmt: skip
     if errors:
         raise CurationError("the review files have errors:\n  " + "\n  ".join(errors))
-    return conflicts, rows
+    for i in identities:
+        i["persons"] = list(dict.fromkeys(canon(k) for k in i["keys"]))
+    return conflicts, rows, identities
 
 
 def missed_refs(docs: list[dict[str, Any]], vid_of: dict[tuple[int, int, int], int]) -> set[int]:
@@ -495,9 +618,10 @@ def choose_primary(links: dict[tuple[str, str, str], Link]) -> dict[str, Link]:
         if lk.role in PARENT_ROLES and lk.status != "rejected":
             cands[lk.child].append(lk)
 
-    def rank(lk: Link) -> tuple[int, int, int, int, str]:
+    def rank(lk: Link) -> tuple[int, int, int, int, int, str]:
         return (
             0 if lk.drawn else 1,  # a conflict's first reading
+            0 if lk.kind != "adopted" else 1,  # an adoptive father is a cross-link (Gen 48:5)
             0 if lk.role == "father" else 1,
             0 if lk.status != "reading" else 1,  # a conflict's other readings are cross-links
             0 if "parent" in lk.sides or lk.source == "curated" else 1,  # the child's own column
@@ -579,17 +703,21 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
         if _in_corpus(str(lo), vid_of) and _in_corpus(str(hi), vid_of)
     }
     docs = read_curation(resolve_path(cfg, "curation") / "genealogy")
-    conflicts, block_rows = apply_curation(docs, persons, links, blocks, vid_of)
+    cross = frozenset(str(b) for b in gc.get("cross_blocks") or [])
+    conflicts, block_rows, identities = apply_curation(docs, persons, links, blocks, vid_of, cross)
 
     # the tree: one primary parent each, the rest attached to their tribe
     primary = choose_primary(links)
     cycles = check_cycles(primary)
     if cycles:
         raise RuntimeError(f"the tree has cycles: {cycles[:5]}")
-    root = str(gc["root"])
+    # a merged key in the config names the person it was merged into
+    merged_into = {k: i["persons"][0] for i in identities if i["status"] == "merged"
+                   for k in i["keys"]}  # fmt: skip
+    root = merged_into.get(str(gc["root"]), str(gc["root"]))
     if root not in persons:
         raise RuntimeError(f"genealogy.root {root!r} is no person")
-    tribes = {str(k): str(v) for k, v in (gc.get("tribes") or {}).items()}
+    tribes = {str(k): merged_into.get(str(v), str(v)) for k, v in (gc.get("tribes") or {}).items()}
     bad = sorted(v for v in tribes.values() if v not in persons)
     if bad:
         raise RuntimeError(f"genealogy.tribes names unknown persons: {bad}")
@@ -613,7 +741,8 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
         elif lk.role in PARENT_ROLES and primary.get(lk.child) is lk:
             drawn_parent.add(lk.parent)
     for lk in links.values():
-        if lk.role in PARENT_ROLES and lk.status != "rejected" and primary.get(lk.child) is not lk:
+        if (lk.role in PARENT_ROLES and lk.status != "rejected" and lk.kind != "adopted"
+                and primary.get(lk.child) is not lk):  # fmt: skip
             partners[lk.parent].add(primary[lk.child].parent)  # the parent the child is drawn under
     placement = {k: "tree" for k in primary}
     placement[root] = "root"
@@ -728,6 +857,33 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     )  # fmt: skip
     for c in ("note_en", "note_he"):
         conflicts_df[c] = conflicts_df[c].astype(object)
+
+    def named_at(v: int, who: list[str]) -> dict[str, Any]:
+        ws = vwords.get(v, [])
+        toks = {t for k in who for t in persons[k].verses.get(v) or []}
+        toks |= {t for k in who if not persons[k].verses.get(v)
+                 for t in name_tokens(ws, persons[k].strongs)}  # fmt: skip
+        return {"verse_id": v, "tokens": display_tokens(ws, sorted(toks))}
+
+    ident_rows = []
+    for ident in identities:
+        one, *others = ident["persons"]
+        for other in others if ident["status"] == "possible" else [None]:
+            who = [one] if other is None else [one, other]
+            ident_rows.append({
+                "identity_id": len(ident_rows) + 1, "status": ident["status"],
+                "person_id": pid[one], "other_id": None if other is None else pid[other],
+                "keys": json.dumps(ident["keys"], ensure_ascii=False),
+                "proofs": json.dumps([named_at(v, who) for v in ident["proof"]]),
+                "block": ident["block"], "note_en": ident["note_en"], "note_he": ident["note_he"],
+            })  # fmt: skip
+    identities_df = pd.DataFrame(
+        ident_rows,
+        columns=["identity_id", "status", "person_id", "other_id", "keys", "proofs", "block",
+                 "note_en", "note_he"],
+    ).astype({"other_id": "Int64"})  # fmt: skip
+    for c in ("note_en", "note_he"):
+        identities_df[c] = identities_df[c].astype(object)
     done = {r["block"]: r for r in block_rows}
     blocks_df = pd.DataFrame(
         [done.get(b, {"block": b, "first_vid": lo, "last_vid": hi, "status": "todo",
@@ -746,6 +902,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     links_df.to_parquet(out / "links.parquet")
     proofs_df.to_parquet(out / "proofs.parquet")
     conflicts_df.to_parquet(out / "conflicts.parquet")
+    identities_df.to_parquet(out / "identities.parquet")
     blocks_df.to_parquet(out / "blocks.parquet")
     parent = links_df[links_df.role.isin(PARENT_ROLES) & (links_df.status != "rejected")]
     meta = {
@@ -765,6 +922,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
         },
         "unmatched_refs": unmatched,
         "conflicts": {k: int((conflicts_df.kind == k).sum()) for k in CONFLICT_KINDS},
+        "identities": {k: int((identities_df.status == k).sum()) for k in IDENTITY_STATUSES},
         "reviewed_links": int((parent.status.isin([*STATUSES, "reading"])).sum()),
         "blocks": {s: int((blocks_df.status == s).sum()) for s in ("todo", "draft", "reviewed")},
         "seconds": round(time.perf_counter() - t0, 1),
@@ -776,8 +934,8 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
         f"done: {meta['persons']:,} people ({meta['kinds']}); {meta['parent_links']:,} parent"
         f" links, {meta['proved']:,} with a verse naming both (best cue {meta['best_cue']});"
         f" placed {meta['placement']}; {meta['reviewed_links']:,} reviewed,"
-        f" {sum(meta['conflicts'].values())}"
-        f" conflicts ({meta['seconds']} s) -> {out}"
+        f" {sum(meta['conflicts'].values())} conflicts, identities {meta['identities']}"
+        f" ({meta['seconds']} s) -> {out}"
     )
     return out
 
@@ -909,6 +1067,16 @@ def run_genealogy_review(cfg: dict[str, Any], block: str, log: Log = print) -> P
     lines += ["", f"## Conflicts recorded ({len(here)})", ""]
     for c in here.itertuples():
         lines.append(f"- {c.kind}: {who(c.child_id)}, readings {c.readings}")
+    # the identities of the people first named here (a merged person under its first key)
+    ids_path = folder / "identities.parquet"
+    idents = pd.read_parquet(ids_path) if ids_path.exists() else pd.DataFrame()
+    if len(idents):
+        idents = idents[idents.person_id.isin(first.index) | idents.other_id.isin(first.index)]
+    lines += ["", f"## Identities recorded ({len(idents)})", ""]
+    for x in idents.itertuples():
+        other = f" ~ {who(int(x.other_id))}" if pd.notna(x.other_id) else ""
+        keys = ", ".join(json.loads(x.keys))
+        lines.append(f"- {x.status}: {who(x.person_id)}{other}, keys {keys}")
     path = folder / "review" / f"{block}.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", "utf-8")

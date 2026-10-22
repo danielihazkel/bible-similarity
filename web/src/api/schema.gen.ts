@@ -4931,6 +4931,28 @@ export interface components {
             link: components["schemas"]["GoldLink"] | null;
             phrase: components["schemas"]["PhraseInfo"] | null;
         };
+        /**
+         * Identity
+         * @description One person under several of TIPNR's entries (the review's `same:`, §16.63).
+         */
+        Identity: {
+            /** Identity Id */
+            identity_id: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "merged" | "possible";
+            person: components["schemas"]["PersonRef"] | null;
+            /** N Keys */
+            n_keys: number;
+            /** Proofs */
+            proofs: components["schemas"]["ProofVerse"][];
+            /** Note En */
+            note_en: string | null;
+            /** Note He */
+            note_he: string | null;
+        };
         /** KetivResponse */
         KetivResponse: {
             /** Meta */
@@ -6112,6 +6134,8 @@ export interface components {
             members: components["schemas"]["PersonRef"][];
             /** Conflicts */
             conflicts: components["schemas"]["Conflict"][];
+            /** Identities */
+            identities: components["schemas"]["Identity"][];
         };
         /** PersonInfo */
         PersonInfo: {

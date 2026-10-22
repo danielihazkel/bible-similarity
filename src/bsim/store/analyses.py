@@ -237,13 +237,14 @@ SOURCES: tuple[Source, ...] = (
             Table("genealogy_links", "links", fix=as_int("drawn", "doubt")),
             Table("genealogy_proofs", "proofs"),
             Table("genealogy_conflicts", "conflicts"),
+            Table("genealogy_identities", "identities"),
             Table("genealogy_blocks", "blocks"),
         ),
         "genealogy.meta.json",
         keys(
             "genealogy", "persons", "kinds", "links", "parent_links", "proved", "best_cue",
             "descendant_links", "doubtful_links", "placement", "unmatched_refs", "conflicts",
-            "reviewed_links", "blocks",
+            "identities", "reviewed_links", "blocks",
         ),
     ),
     Source(

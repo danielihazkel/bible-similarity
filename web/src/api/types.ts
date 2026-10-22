@@ -308,6 +308,7 @@ export interface GenealogyMeta {
   reviewed_links?: number
   placement?: Record<string, number>
   conflicts?: Record<string, number>
+  identities?: Record<string, number>
   blocks?: Record<string, number>
 }
 export type SkeletonResponse = Omit<S['SkeletonResponse'], 'meta'> & { meta: GenealogyMeta & Record<string, unknown> }
@@ -316,6 +317,7 @@ export type ProofVerse = S['ProofVerse']
 export type FamilyLink = S['FamilyLink']
 export type ChildGroup = S['ChildGroup']
 export type GenealogyConflict = S['Conflict']
+export type GenealogyIdentity = S['Identity']
 export type PersonInfo = S['PersonInfo']
 export type PersonDetail = S['PersonDetail']
 export type PersonMatch = S['PersonMatch']

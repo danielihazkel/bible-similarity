@@ -13,6 +13,7 @@ from bsim.api.models.genealogy import (
     Conflict,
     CrossLink,
     FamilyLink,
+    Identity,
     PersonDetail,
     PersonInfo,
     PersonLookup,
@@ -111,6 +112,9 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
             and lk["role"] == "unstated"]  # fmt: skip
     conflicts = queries.genealogy_conflicts_of(conn, person_id)
     readings = queries.genealogy_links_by_id(conn, [i for c in conflicts for i in c["readings"]])
+    idents = queries.genealogy_identities_of(conn, person_id)
+    alike = {x["identity_id"]: x["other_id"] if x["person_id"] == person_id else x["person_id"]
+             for x in idents if x["status"] == "possible"}  # fmt: skip
 
     # the children's other parents: a father's children by their mother, and the other way round
     mine = {lk["child_id"]: lk["role"] for lk in down}
@@ -118,12 +122,14 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
     for lk in queries.genealogy_parent_links(conn, list(mine)):
         if lk["parent_id"] != person_id and lk["role"] != mine[lk["child_id"]]:
             other_of.setdefault(lk["child_id"], lk["parent_id"])
-    # siblings: TIPNR's, and the other children of the parents (not of a reading not drawn)
+    # siblings: TIPNR's, and the other children of the parents (not of a reading not drawn, nor
+    # of an adoptive father)
     sibs = [lk["child_id"] if lk["parent_id"] == person_id else lk["parent_id"]
             for lk in links if lk["role"] == "sibling"]  # fmt: skip
     sibs += queries.genealogy_children_of(
-        conn, [lk["parent_id"] for lk in up if lk["drawn"] or lk["status"] != "reading"]
-    )
+        conn, [lk["parent_id"] for lk in up
+               if (lk["drawn"] or lk["status"] != "reading") and lk["kind"] != "adopted"]
+    )  # fmt: skip
     sibs = sorted({s for s in sibs if s != person_id})
 
     def other(lk: dict[str, Any]) -> int:
@@ -131,10 +137,15 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
 
     every = [*up, *wed, *down, *readings.values(), *([attached] if attached else [])]
     people = queries.genealogy_people(
-        conn, [other(lk) for lk in every] + list(other_of.values()) + sibs + hung
+        conn,
+        [other(lk) for lk in every] + list(other_of.values()) + sibs + hung + list(alike.values()),
     )
     proofs = queries.genealogy_proofs(conn, [lk["link_id"] for lk in every])
-    verses = queries.verses_by_id(conn, [v["verse_id"] for ps in proofs.values() for v in ps])
+    verses = queries.verses_by_id(
+        conn,
+        [v["verse_id"] for ps in proofs.values() for v in ps]
+        + [v["verse_id"] for x in idents for v in x["proofs"]],
+    )
 
     def ref(i: int) -> PersonRef:
         return PersonRef(**people[i])
@@ -173,5 +184,15 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
                 readings=[family(readings[i]) for i in c["readings"] if i in readings],
             )
             for c in conflicts
+        ],
+        "identities": [
+            Identity(
+                **{k: x[k] for k in ("identity_id", "status", "note_en", "note_he")},
+                person=ref(alike[x["identity_id"]]) if x["identity_id"] in alike else None,
+                n_keys=len(x["keys"]),
+                proofs=[ProofVerse(verse=verses[v["verse_id"]], tokens=v["tokens"], cue=None,
+                                   source="curated") for v in x["proofs"]],
+            )  # fmt: skip
+            for x in idents
         ],
     }

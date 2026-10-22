@@ -81,6 +81,7 @@ export const gtEn = {
   showFewer: 'Show fewer',
   roles: { father: 'father', mother: 'mother', spouse: 'spouse', sibling: 'sibling', unstated: 'link not stated' },
   descendant: 'a descendant, not a child',
+  adopted: 'by adoption',
   status: {
     tipnr: 'not yet checked',
     confirmed: 'checked',
@@ -113,6 +114,9 @@ export const gtEn = {
   },
   readingDrawn: 'the reading the tree draws',
   readingOther: 'another reading',
+  identities: 'One person or two?',
+  maybeSame: 'Perhaps the same person as',
+  mergedFrom: (n: number) => `Read as one person, though STEPBible lists ${countEn(n, 'entry', 'entries')}.`,
 }
 
 const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
@@ -188,6 +192,7 @@ export const gtHe: typeof gtEn = {
   showFewer: 'הצגת פחות',
   roles: { father: 'אב', mother: 'אם', spouse: 'בן זוג', sibling: 'אח', unstated: 'קשר שלא נאמר' },
   descendant: 'צאצא ולא בן',
+  adopted: 'באימוץ',
   status: {
     tipnr: 'טרם נבדק',
     confirmed: 'נבדק',
@@ -220,4 +225,7 @@ export const gtHe: typeof gtEn = {
   },
   readingDrawn: 'הקריאה שהאילן מצייר',
   readingOther: 'קריאה אחרת',
+  identities: 'אדם אחד או שניים?',
+  maybeSame: 'אולי אותו אדם כמו',
+  mergedFrom: (n: number) => `נקרא כאדם אחד, אף ש־STEPBible מונה ${countHe(n, 'רשומה אחת', 'שתי רשומות', 'רשומות')}.`,
 }

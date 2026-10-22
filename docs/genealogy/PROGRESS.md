@@ -52,6 +52,9 @@ conflicts:
       - {parent: "Shealtiel@…", proof: [Ezra 3:2]}
       - {parent: "Pedaiah@…", proof: [I Chronicles 3:19]}
     note: {en: "…", he: "…"}   # optional; both languages or none
+same:                     # one person under several TIPNR keys (M91); the first key is kept
+  - {keys: ["Asriel@Num.26.31-Jos", "Asriel@1Ch.7.14"], status: merged, proof: [Numbers 26:31, I Chronicles 7:14]}
+  - {keys: ["Elihu@1Ch.27.18", "Eliab@1Sa.16.6-2Ch"], status: possible, proof: [I Chronicles 27:18], note: {en: "…", he: "…"}}
 missed:                   # cue verses of the sheet that are no link, each with a reason
   - {ref: Genesis 4:25, reason: "Cain named as Abel's killer"}
 ```
@@ -59,6 +62,9 @@ Rules the build enforces, stopping on any error:
 - `confirmed` and `fixed` need a TIPNR link, and `added` must not have one.
 - A link is decided once: listing it under `links` again, in the same file or a later one, or after an earlier file's conflict reading, is an error. A conflict's reading may still name a link decided elsewhere.
 - Every key and reference must resolve, and the tree must not get a cycle.
+- `same:` (M91): `merged` folds the other keys into the first before any link is decided, and the merged keys still name the person in every file. A link that two files decided under the two pairs of keys must have the same status there. A merged person with two fathers (or mothers) needs a conflict listing them as readings. `possible` keeps both persons; it cannot name two keys already merged. Both need proof verses.
+- The cross-book steps' files are `curation/genealogy/xNN-<topic>.yaml`, with `block` one of `genealogy.cross_blocks` (`x03-edom` … `x09-unattached`). They have no verse range and no review sheet.
+- An adoptive father is a link of kind `adopted` (`role: father`); it is never the one the tree draws while the child has another father.
 
 A person counts as reviewed when every parent link of theirs is checked.
 
@@ -103,7 +109,7 @@ Cross-book steps (M91), planned in step 1:
 | Step | What | Status |
 |---|---|---|
 | 1 | The plan; the format for identifications and adoption, asked | done |
-| 2 | Build `same:` (`merged` / `possible`) and `adopted` cross-links: loader, tree, API, panel, DESIGN §16.63, tests | todo |
+| 2 | Build `same:` (`merged` / `possible`) and `adopted` cross-links: loader, tree, API, panel, DESIGN §16.63, tests | done |
 | 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | todo |
 | 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | todo |
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | todo |
@@ -114,29 +120,12 @@ Cross-book steps (M91), planned in step 1:
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 2: build identifications and adoption.** The format was decided (see **Decisions**, 2026-10-22). This step builds it with a test case each, and records no identification yet; steps 3–7 do that.
+**M91, step 3: `x03-edom`, Gen 36 against I Chr 1.** Write `curation/genealogy/x03-edom.yaml` (`block: x03-edom`). There is no review sheet for a cross-book step, so build the lists with scratchpad probes:
 
-- **The format,** in the curated files:
-  ```yaml
-  same:
-    - keys: ["Asriel@Num.26.31-Jos", "Asriel@1Ch.7.14"]   # the first key is kept
-      status: merged            # merged | possible
-      proof: [Numbers 26:31, I Chronicles 7:14]
-      note: {en: "…", he: "…"}  # optional; both languages or none
-  ```
-- **`merged`** (`apply_curation`, before links are decided):
-  - The other keys' verses and tokens join the first key's, and their links (as child and as parent) move to it.
-  - Two links that become one (the same parent and role) fold, keeping the one that was decided.
-  - A merged person left with two parents in one role is an error unless a conflict in the same file lists them as readings.
-  - The other keys still resolve, to the kept person, so the M90 files keep working. The review sheet lists the keys merged into a person.
-- **`possible`:** a `same` link between the two persons, with its proof; the panel's, like `sibling`, never the tree's.
-- **Where:** files for the cross-book steps, `curation/genealogy/xNN-<topic>.yaml`. Their `block` names a step, not a verse range: add a `genealogy.cross_blocks` list in `configs/default.yaml`, or let such files have no range.
-- **Adoption:** `kind: adopted` is already a link kind. Make sure `choose_primary` never draws an adopted link while the child has another father, and that the panel marks it. Then add Jacob -> Ephraim and Manasseh (Gen 48:5, "אפרים ומנשה כראובן ושמעון יהיו לי") as `added`, kind `adopted`, in the step's file.
-- **API and viewer:** the person payload gets the `possible` identifications with proofs, and the keys merged into the person. The panel gets a "May be the same as" section, with its strings in the catalogs (`en.ts`, `he.ts`). Regenerate the API types (`npm run gen:api`).
-- **Tests:**
-  - pytest: a merge (verses, links moved, links folded, the conflict required, old keys resolve), a possible link, adoption never drawn;
-  - vitest: the panel's section in both languages.
-- **Watch:** the skeleton's size (~650 KB) if fields are added.
+- **One person, two keys:** for every person named in Gen 36 or I Chr 1:35–54, find TIPNR keys with the same name (with ו and י ignored) whose verses fall in the other passage. Read both verses, and record a `same:` entry: `merged` where the lists clearly name one person (same name or a known variant, same place in the list, same father), `possible` where it is only likely. A merge whose keys had different fathers needs a conflict in the same file.
+- **The variants** between the lists, against the M90 decisions of blocks 03 and 14: Alvah / Aliah, Jetheth, Shepho / Shephi, Homam / Hemam, Akan / Jaakan, Hadad's city Pau / Pai, Mehetabel. Block 14 found no links to check, because TIPNR already keys most of I Chr 1 to Genesis.
+- **The tribe attachments of Edom** (open question at the head of **Open questions**): Seir the Horite, and the kings' fathers Beor, Zerah of Bozrah, Bedad, Achbor and Mezahab, hang on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22), and the kings are not said to descend from him. The only tool for this so far is `genealogy.tribes` (a whole tribe's eponym), so decide whether a person can be taken off a tribe: say, a `people:` correction `tribe: ""`, which the loader would need. If that needs code, build it with a test, as step 2 did.
+- Then rebuild (`bsim genealogy`, `bsim build-db`), check the merged people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -619,3 +608,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Asked the user:** one person under two keys becomes a `same:` list, `merged` (one node, with a conflict where the parents differ) or `possible` (a cross-link in the panel). Adoption is an `adopted` cross-link from Jacob, and the tree keeps Joseph.
   - **Planned:** M91 split into 10 steps (table above). The "(M91)" items of **Open questions** fall under steps 3–9.
   - The build has no `same:` yet; step 2 adds it.
+- 2026-10-22, M91 step 2: identities and adoption built.
+  - **The loader** (`apply_curation`): the files' people come first, then `same:`. `merged` folds keys into the first (`merge_person`: verses, names, places founded, links; two links that become one fold, a link between the two is dropped), and every later key resolves through the merge. A link decided under both pairs of keys must agree. A merged person with two fathers or mothers needs a conflict. `possible` keeps both. `genealogy.cross_blocks` lists the cross-book steps' blocks, which have no verse range. A merged key in `genealogy.root` or `genealogy.tribes` names the merged person.
+  - **Adoption:** `choose_primary` ranks an `adopted` father after every other, and it adds no "married in" partner. Added Jacob -> Ephraim and Manasseh (Gen 48:5) to block 04's file, as `added`, kind `adopted`: a cross-link, and Joseph stays the drawn father.
+  - **Output:** `identities.parquet`, with each identity's verses and the names' tokens, goes to the DB table `genealogy_identities` and `meta.identities`. The review sheet lists the identities of the people first named in its block.
+  - **API and viewer:** `PersonDetail.identities` (merged: how many entries; possible: the other person), with the proofs. The panel's section is "One person or two?" ("Read as one person, though STEPBible lists 2 entries"; "Perhaps the same person as …"), and an adopted link is tagged "by adoption". The panel's siblings leave out an adoptive father's children. English and Hebrew.
+  - **Tests:** pytest covers a merge (verses, places, the marriages folded, a link named by both keys, adoption not drawn, identities, the sheet), the errors (two fathers without a conflict, a possible on merged keys, too few keys, no proof, a link decided two ways) and the API on the fixture. vitest covers the panel's section and the adoption tag in both languages. DESIGN §16.63 is updated.

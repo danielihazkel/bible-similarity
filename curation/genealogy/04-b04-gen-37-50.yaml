@@ -89,6 +89,9 @@ links:
   - {child: "Serah@Gen.46.17-1Ch", parent: "Asher@Gen.30.13-Rev", status: confirmed, proof: [Genesis 46:17]}
   # the levirate (38:8-9): Onan takes his brother's wife
   - {child: "Tamar@Gen.38.6-Mat", parent: "Onan@Gen.38.4-1Ch", role: spouse, status: added, proof: [Genesis 38:8, Genesis 38:9]}
+  # adoption (48:5): Jacob takes Ephraim and Manasseh as his own; the tree keeps Joseph (M91 step 2)
+  - {child: "Ephraim@Gen.41.52-Zec", parent: "Israel@Gen.25.26-Rev", role: father, kind: adopted, status: added, proof: [Genesis 48:5]}
+  - {child: "Manasseh@Gen.41.51-Rev", parent: "Israel@Gen.25.26-Rev", role: father, kind: adopted, status: added, proof: [Genesis 48:5]}
 missed:
   - {ref: Genesis 38:26, reason: "Judah lies with Tamar no more, and has not given her to Shelah: no marriage"}
   - {ref: Genesis 41:46, reason: "בן as Joseph's age"}

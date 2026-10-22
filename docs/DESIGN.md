@@ -1461,8 +1461,14 @@ Status: data built (M88), viewer (M89); review M90–M91. Progress and hand-off:
     - `descendant`: בן spans generations, e.g. Jehu son of Nimshi (2 Kgs 9:2, 9:20).
   - Rabbinic identifications are deferred.
   - A key or reference that does not resolve stops the build.
+- **Identities (M91):** one person under several TIPNR keys is a `same:` entry with its proof verses (user, 2026-10-22).
+  - `merged`: the keys become one person, the first key's, before any link is decided. Its verses, names and links join, two links that become one fold, and the other keys still name the person in every file. A link that two files decided under the two pairs of keys must agree.
+  - A merged person left with two fathers (or two mothers) stops the build unless a conflict lists them as readings: the text then disagrees with itself.
+  - `possible`: both persons stay, and the panel says "perhaps the same person as …" with the verses.
+  - They go in `identities.parquet` / `genealogy_identities`. The cross-book steps' files (`genealogy.cross_blocks`) have no verse range and no row in the blocks table.
+- **Adoption:** an `adopted` father link (Jacob to Ephraim and Manasseh, Gen 48:5) is never the drawn one while the child has another father. It is a cross-link in the tree, marked in the panel, and its children are not the adopted child's siblings.
 - **Placement:**
-  - Each person has one primary parent: a conflict's first reading, else the father, else the mother. Other parents and other readings are cross-links (`drawn` = 0).
+  - Each person has one primary parent: a conflict's first reading, else the father (an adoptive one last), else the mother. Other parents and other readings are cross-links (`drawn` = 0).
   - Someone without a parent who married in is drawn beside the spouse rather than as a node: a spouse, or a parent only of children drawn under the other parent (Eve, Sarah, Keturah). Of a couple neither of whom has a parent, the husband is placed and the wife is beside him.
   - Anyone else without a parent hangs on the eponym of TIPNR's tribe or nation of the father (`genealogy.tribes`: the twelve tribes, Israel, Edom → Esau, Canaan, Egypt, Ammon, Moab, Midian, Aram, Asshur, Cush) by an `unstated` link. Otherwise they go under "unattached", grouped by the book that first names them.
   - A cycle is an error.
@@ -1486,7 +1492,7 @@ Status: data built (M88), viewer (M89); review M90–M91. Progress and hand-off:
     - a descendant link is violet and dashed;
     - an unstated link is grey and dotted;
     - a link not yet reviewed has a faint outline.
-  - **Side panel:** parents, spouses, children, siblings, the proof verses in Hebrew with both names marked, and the readings of a conflict.
+  - **Side panel:** parents, spouses, children, siblings, the proof verses in Hebrew with both names marked, the readings of a conflict, and the identities ("read as one person, though STEPBible lists 2 entries"; "perhaps the same person as …", with its verses).
   - On a phone the panel becomes a bottom sheet. Names are shown in Hebrew only (D5, D92).
   - **As built (M89):**
     - Every expanded person's children hang from a header row: one header per mother when they have more than one, those of an unnamed mother and those attached by a link not stated in groups of their own; otherwise an unseen header. Each generation is then two levels of the hierarchy, so generations line up across the tree and no two nodes overlap.

@@ -562,6 +562,33 @@ function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAll, onCl
           ))}
         </section>
       )}
+      {d.identities.length > 0 && (
+        <section className="gt-identities">
+          <h3>{t.identities}</h3>
+          {d.identities.map((x) => {
+            const note = locale === 'he' ? x.note_he : x.note_en
+            return (
+              <div key={x.identity_id} className="gt-identity">
+                <p className="small">
+                  {x.person ? (
+                    <>
+                      {t.maybeSame} {who(x.person.person_id)}
+                    </>
+                  ) : (
+                    t.mergedFrom(x.n_keys)
+                  )}
+                  {note && ` · ${note}`}
+                </p>
+                <ol className="gt-proofs">
+                  {x.proofs.map((v) => (
+                    <Proof key={v.verse.verse_id} v={v} t={t} />
+                  ))}
+                </ol>
+              </div>
+            )
+          })}
+        </section>
+      )}
       {d.parents.length > 0 && (
         <>
           <h3>{t.parents}</h3>
@@ -637,6 +664,7 @@ function LinkItem({ l, t, who, compact = false, role = true, reading }: LinkProp
     role && !reading ? t.roles[l.role] : undefined,
     reading,
     l.kind === 'descendant' ? t.descendant : undefined,
+    l.kind === 'adopted' ? t.adopted : undefined,
     t.status[l.status],
     l.marker && t.markers[l.marker] ? t.markers[l.marker] : undefined,
     l.doubt ? t.doubt : undefined,

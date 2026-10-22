@@ -107,6 +107,7 @@ def corpus(tmp_path, curation=None):
         **cfg["genealogy"], "root": "Adam@Gen.1.1",
         "tribes": {"Tribe of Judah": "Judah@Gen.1.4"},
         "blocks": {"b1": ["Genesis 1:1", "Genesis 1:6"], "b2": ["Exodus 1:1", "Exodus 1:1"]},
+        "cross_blocks": ["x1"],
     }  # fmt: skip
     return cfg
 
@@ -341,6 +342,103 @@ def test_cycle_is_an_error(tmp_path):
         run_genealogy(cfg, log=lambda _: None)
 
 
+SAME = """
+block: x1
+same:
+  - {keys: ["Adam@Gen.1.1", "Abraham@Gen.1.2"], status: merged, proof: [Genesis 1:1, Genesis 1:2],
+     note: {en: "one man", he: "איש אחד"}}
+  - {keys: ["Eve@Gen.1.1", "Sarah@Gen.1.2"], status: merged, proof: [Genesis 1:2]}
+  - {keys: ["Abagtha@Exo.1.1", "Hezron@Gen.1.5"], status: possible, proof: [Exodus 1:1]}
+links:
+  - "Isaac@Gen.1.2 <- Abraham@Gen.1.2"
+  - "Isaac@Gen.1.2 <- Adam@Gen.1.1"
+  - {child: "Judah@Gen.1.4", parent: "Seth@Gen.1.1", kind: adopted, status: added}
+"""
+
+
+def test_identities(tmp_path):
+    cfg = corpus(tmp_path)
+    (tmp_path / "cur" / "genealogy" / "x1.yaml").write_text(SAME, "utf-8")
+    out = run_genealogy(cfg, log=lambda _: None)
+    p = pd.read_parquet(out / "persons.parquet").set_index("key")
+    pid = p.person_id.to_dict()
+    # merged: one person each, with the verses, places founded and links of both keys
+    assert "Abraham@Gen.1.2" not in pid and "Sarah@Gen.1.2" not in pid
+    assert p.n_verses["Adam@Gen.1.1"] == 3  # Gen 1:1 and Abraham's 1:2 and 1:3
+    assert json.loads(p.founded["Adam@Gen.1.1"]) == ["Hebron@Gen.1.5"]
+    links = pd.read_parquet(out / "links.parquet")
+    by = {(r.child_id, r.parent_id, r.role): r for r in links.itertuples()}
+    adam, eve, isaac = pid["Adam@Gen.1.1"], pid["Eve@Gen.1.1"], pid["Isaac@Gen.1.2"]
+    assert links[links.role == "spouse"][["parent_id", "child_id"]].values.tolist() == [
+        [adam, eve], [pid["Hezron@Gen.1.5"], pid["a_wife_of_Hezron@Gen.1.5"]]
+    ]  # the two marriages folded into one  # fmt: skip
+    # Isaac's link, named by both keys of his father, decided once
+    assert by[(isaac, adam, "father")].status == "confirmed" and (isaac, eve, "mother") in by
+    # adoption: a cross-link; the tree keeps Isaac as Judah's father
+    judah = pid["Judah@Gen.1.4"]
+    adopted = by[(judah, pid["Seth@Gen.1.1"], "father")]
+    assert (adopted.kind, adopted.drawn, by[(judah, isaac, "father")].drawn) == ("adopted", False,
+                                                                                 True)  # fmt: skip
+    ids = pd.read_parquet(out / "identities.parquet")
+    assert ids[["status", "person_id"]].values.tolist() == [
+        ["merged", adam], ["merged", eve], ["possible", pid["Abagtha@Exo.1.1"]]]
+    assert ids.other_id.isna().tolist() == [True, True, False]
+    assert ids.other_id[2] == pid["Hezron@Gen.1.5"]
+    first = ids.iloc[0]
+    assert json.loads(first["keys"]) == ["Adam@Gen.1.1", "Abraham@Gen.1.2"]
+    assert json.loads(first.proofs) == [{"verse_id": 0, "tokens": [1]},
+                                        {"verse_id": 1, "tokens": [1]}]  # fmt: skip
+    assert first.note_he == "איש אחד" and first.block == "x1"
+    meta = json.loads((out / "genealogy.meta.json").read_text("utf-8"))
+    assert meta["identities"] == {"merged": 2, "possible": 1}
+    assert "x1" not in pd.read_parquet(out / "blocks.parquet").block.tolist()  # no verse range
+    sheet = run_genealogy_review(cfg, "b1", log=lambda _: None).read_text("utf-8")
+    assert "- merged: אדם `Adam@Gen.1.1`, keys Adam@Gen.1.1, Abraham@Gen.1.2" in sheet
+
+
+def test_identity_errors(tmp_path):
+    def lines(*xs):
+        return "\n".join(xs) + "\n"
+
+    cfg = corpus(tmp_path, lines("block: b1", "links:", '  - "Isaac@Gen.1.2 <- Abraham@Gen.1.2"'))
+    x = tmp_path / "cur" / "genealogy" / "x1.yaml"
+    x.write_text(lines(
+        "block: x1", "same:",
+        '  - {keys: ["Seth@Gen.1.1", "Judah@Gen.1.4"], status: merged, proof: [Genesis 1:1]}',
+        '  - {keys: ["Seth@Gen.1.1", "Judah@Gen.1.4"], status: possible, proof: [Genesis 1:1]}',
+        '  - {keys: ["Seth@Gen.1.1"], status: merged}',
+        '  - {keys: ["Adam@Gen.1.1", "Abraham@Gen.1.2"], status: merged}',
+        '  - {keys: ["Eve@Gen.1.1", "Sarah@Gen.1.2"], status: merged, proof: [Genesis 1:2]}',
+        "links:",
+        '  - {child: "Isaac@Gen.1.2", parent: "Eve@Gen.1.1", status: rejected}',
+        '  - "Isaac@Gen.1.2 <- Sarah@Gen.1.2"',
+    ), "utf-8")  # fmt: skip
+    with pytest.raises(CurationError) as e:
+        run_genealogy(cfg, log=lambda _: None)
+    msg = str(e.value)
+    for want in (
+        "Seth@Gen.1.1: merged, it has 2 fathers (Adam@Gen.1.1, Isaac@Gen.1.2)",
+        "name one person, merged elsewhere",
+        "lists two keys or more and a status",
+        "an identification needs its proof verses",
+        # one link since the merge, rejected under one pair of keys and confirmed under the other
+        "x1.yaml links[1]: Isaac@Gen.1.2 <- Eve@Gen.1.1 is rejected in x1.yaml",
+    ):  # fmt: skip
+        assert want in msg, want
+    # a conflict that names both fathers settles the merge; the conflict names the merged key
+    x.write_text(lines(
+        "block: x1", "same:",
+        '  - {keys: ["Seth@Gen.1.1", "Judah@Gen.1.4"], status: merged, proof: [Genesis 1:1]}',
+        "conflicts:",
+        '  - {kind: bible, child: "Judah@Gen.1.4", readings: [{parent: "Adam@Gen.1.1"},'
+        ' {parent: "Isaac@Gen.1.2"}]}',
+    ), "utf-8")  # fmt: skip
+    out = run_genealogy(cfg, log=lambda _: None)
+    c = pd.read_parquet(out / "conflicts.parquet")
+    pid = pd.read_parquet(out / "persons.parquet").set_index("key").person_id
+    assert c.child_id.tolist() == [pid["Seth@Gen.1.1"]]
+
+
 def test_missing_tipnr_fails_fast(tmp_path):
     cfg = corpus(tmp_path)
     for f in (tmp_path / "raw" / "geo").iterdir():
@@ -416,6 +514,14 @@ def test_api_person(client):
     t = client.get("/api/genealogy/person/12").json()
     assert t["parents"] == [] and t["attached"]["person"]["he"] == "שת"
     assert t["attached"]["source"] == "tribe"
+    # identities: Enosh read as one from two entries; Shimei and Balaam perhaps one man
+    (m,) = e["identities"]
+    assert (m["status"], m["person"], m["n_keys"], m["note_he"]) == ("merged", None, 2, "איש אחד.")
+    assert m["proofs"][0]["verse"]["verse_id"] == 2 and m["proofs"][0]["source"] == "curated"
+    for a_, b_ in ((12, "בלעם"), (13, "שמעי")):
+        (x,) = client.get(f"/api/genealogy/person/{a_}").json()["identities"]
+        assert (x["status"], x["person"]["he"], x["proofs"][0]["tokens"]) == ("possible", b_, [1])
+    assert d["identities"] == []
     v = client.get("/api/genealogy/person/14").json()
     assert v["person"]["kind"] == "virtual" and [m["person_id"] for m in v["members"]] == [15]
     assert client.get("/api/genealogy/person/99").status_code == 404

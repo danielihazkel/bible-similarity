@@ -347,6 +347,20 @@ CREATE TABLE genealogy_conflicts (
     note_he TEXT
 );
 
+-- One person under several of TIPNR's keys (the review's `same:`): `merged` into one person, or
+-- `possible`, both kept and cross-referred in the panel.
+CREATE TABLE genealogy_identities (
+    identity_id INTEGER PRIMARY KEY,
+    status TEXT NOT NULL,           -- merged | possible
+    person_id INTEGER NOT NULL,     -- merged: the person they became; possible: the first key's
+    other_id INTEGER,               -- possible: the other key's person
+    keys TEXT NOT NULL,             -- JSON: TIPNR's keys, as the review file lists them
+    proofs TEXT NOT NULL,           -- JSON: [{verse_id, tokens}], the names' display tokens
+    block TEXT,
+    note_en TEXT,
+    note_he TEXT
+);
+
 -- The review blocks (`genealogy.blocks`) and how far each has got.
 CREATE TABLE genealogy_blocks (
     block TEXT PRIMARY KEY,

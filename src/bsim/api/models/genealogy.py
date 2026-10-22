@@ -16,6 +16,7 @@ LinkKind = Literal["son", "descendant", "adopted", "levirate", "founder", "unsta
 LinkStatus = Literal["tipnr", "confirmed", "fixed", "added", "rejected", "reading"]
 Cue = Literal["construct", "sons_of", "wife", "begot", "kin", "together", "nearby"]
 ConflictKind = Literal["bible", "descendant"]
+IdentityStatus = Literal["merged", "possible"]
 
 
 class TreeNode(ApiModel):
@@ -111,6 +112,18 @@ class Conflict(ApiModel):
     note_he: str | None
 
 
+class Identity(ApiModel):
+    """One person under several of TIPNR's entries (the review's `same:`, §16.63)."""
+
+    identity_id: int
+    status: IdentityStatus  # merged: read as this one person; possible: perhaps `person` too
+    person: PersonRef | None  # possible: the other person; merged: None
+    n_keys: int  # the entries read as one person
+    proofs: list[ProofVerse]  # the verses of the identification, the names marked
+    note_en: str | None
+    note_he: str | None
+
+
 class PersonInfo(ApiModel):
     person_id: int
     he: str
@@ -134,6 +147,7 @@ class PersonDetail(ApiModel):
     siblings: list[PersonRef]
     members: list[PersonRef]  # hung on it by a link not stated: its tribe's people, a book's
     conflicts: list[Conflict]
+    identities: list[Identity]  # read as one person from several entries, or perhaps another
 
 
 class PersonMatch(ApiModel):

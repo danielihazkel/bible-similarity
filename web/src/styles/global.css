@@ -3175,6 +3175,8 @@ a.dossier-chip:hover {
 .gt-cue { font-size: 0.75rem; }
 .gt-conflicts { border-inline-start: 3px solid var(--gt-conflict); padding-inline-start: 0.7rem; }
 .gt-conflicts .gt-warn { color: var(--gt-conflict-ink); }
+.gt-identities { border-inline-start: 3px solid var(--border); padding-inline-start: 0.7rem; }
+.gt-identity + .gt-identity { margin-top: 0.4rem; }
 .gt-names { display: flex; flex-wrap: wrap; gap: 0.2rem 0.8rem; }
 .gt-names .he { font-family: var(--font-he); font-size: 1.1rem; }
 @media (max-width: 860px) {

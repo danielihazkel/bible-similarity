@@ -720,6 +720,15 @@ def write_inputs(cfg, tmp_path):
         columns=["block", "first_vid", "last_vid", "status", "n_links", "n_conflicts", "n_missed",
                  "file"],
     ).to_parquet(gen_dir / "blocks.parquet")  # fmt: skip
+    # identities: Enosh read as one person from two entries; Shimei perhaps Balaam
+    pd.DataFrame(
+        [(1, "merged", 10, None, '["Enosh@Gen", "Enosh@Gen.5"]', '[{"verse_id": 2, "tokens": [0]}]',
+          "x03-edom", "One man.", "איש אחד."),
+         (2, "possible", 12, 13, '["Shimei@Gen", "Balaam@Exo"]', '[{"verse_id": 3, "tokens": [1]}]',
+          "x03-edom", None, None)],
+        columns=["identity_id", "status", "person_id", "other_id", "keys", "proofs", "block",
+                 "note_en", "note_he"],
+    ).astype({"other_id": "Int64"}).to_parquet(gen_dir / "identities.parquet")  # fmt: skip
     (gen_dir / "genealogy.meta.json").write_text(
         json.dumps({
             "persons": 13, "kinds": {"person": 12, "group": 0, "anon": 1},
@@ -730,7 +739,8 @@ def write_inputs(cfg, tmp_path):
             "descendant_links": 1, "doubtful_links": 1,
             "placement": {"root": 1, "tree": 8, "tribe": 1, "spouse": 3, "unattached": 1},
             "unmatched_refs": 0, "conflicts": {"bible": 1, "descendant": 0},
-            "reviewed_links": 3, "blocks": {"todo": 1, "draft": 1, "reviewed": 0},
+            "identities": {"merged": 1, "possible": 1}, "reviewed_links": 3,
+            "blocks": {"todo": 1, "draft": 1, "reviewed": 0},
         }),
         encoding="utf-8",
     )  # fmt: skip

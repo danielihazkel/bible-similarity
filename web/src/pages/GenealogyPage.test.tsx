@@ -93,18 +93,20 @@ const ENOSH: PersonDetail = {
   siblings: [],
   members: [],
   conflicts: [{ conflict_id: 1, kind: 'bible', block: 'b01-gen-1-11', readings: [], note_en: 'Two passages differ.', note_he: 'שני כתובים חלוקים.' }],
+  identities: [{ identity_id: 1, status: 'merged', person: null, n_keys: 2, proofs: [{ verse: verse(26, 'וּלְשֵׁת גַּם־הוּא יֻלַּד־בֵּן'), tokens: [0], cue: null, source: 'curated' }], note_en: 'One man.', note_he: 'איש אחד.' }],
 }
 ENOSH.conflicts[0].readings = ENOSH.parents
 const LAMECH: PersonDetail = {
   ...ENOSH,
   person: { ...ENOSH.person, person_id: 5, he: 'למך', reviewed: false },
-  parents: [link(6, ref(3, 'קין'), { kind: 'descendant', marker: 'a' })],
+  parents: [link(6, ref(3, 'קין'), { kind: 'descendant', marker: 'a' }), link(20, ref(4, 'שת'), { kind: 'adopted', drawn: false, status: 'added', source: 'curated' })],
   spouses: [link(7, ref(6, 'עדה', 'spouse'), { role: 'spouse', kind: 'spouse', drawn: false })],
   children: [
     { other: { ...ref(6, 'עדה', 'spouse'), sex: 'f' }, children: [link(9, ref(8, 'יבל'), { cue: 'sons_of', proofs: [{ verse: verse(20, 'יָבָל הוּא'), tokens: [0], cue: 'sons_of', source: 'auto' }] })] },
     { other: null, children: [link(13, { ...ref(11, ''), sex: 'f', kind: 'anon' }, { doubt: true })] },
   ],
   conflicts: [],
+  identities: [{ identity_id: 2, status: 'possible', person: ref(13, 'בלעם', 'unattached'), n_keys: 2, proofs: [], note_en: null, note_he: null }],
 }
 const LOOKUP: PersonLookup = {
   query: 'אנוש',
@@ -206,6 +208,10 @@ describe('GenealogyPage', () => {
     expect(within(panel).getAllByText('“son of”').length).toBeGreaterThan(0)
     expect(panel.querySelectorAll('.w-focus').length).toBeGreaterThan(0)
     expect(within(panel).getAllByRole('link', { name: 'Genesis 4:26' })[0].getAttribute('href')).toBe('/unit/v%3A26')
+    // read as one person from two entries, on its verse
+    expect(within(panel).getByText('One person or two?')).toBeTruthy()
+    expect(panel.querySelector('.gt-identity p')?.textContent).toBe('Read as one person, though STEPBible lists 2 entries. · One man.')
+    expect(panel.querySelectorAll('.gt-identity .gt-proof')).toHaveLength(1)
     fireEvent.click(within(panel).getByRole('button', { name: 'Close' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/genealogy'))
   })
@@ -217,9 +223,14 @@ describe('GenealogyPage', () => {
     expect(within(panel).getByText('an ancestor, not the parent')).toBeTruthy()
     expect(within(panel).getByText('Mother not named')).toBeTruthy()
     expect(panel.querySelector('.gt-child-group h4')?.textContent).toBe('By עדה')
+    // an adoptive father, not drawn; perhaps the same person as another
+    expect(within(panel).getByText('by adoption')).toBeTruthy()
+    expect(panel.querySelector('.gt-identity p')?.textContent).toBe('Perhaps the same person as בלעם')
     expect(container.querySelector('.gt-node.selected')?.textContent).toContain('למך')
     fireEvent.click(within(panel).getByRole('button', { name: 'Open all below' }))
     await waitFor(() => expect(names(container)).toContain('תובל'))
+    fireEvent.click(within(panel).getByRole('button', { name: 'בלעם' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/genealogy?p=13'))
   })
 
   it('finds a person by name', async () => {
@@ -238,6 +249,8 @@ describe('GenealogyPage', () => {
     const panel = await screen.findByRole('region', { name: 'אדם' })
     expect(await within(panel).findByText('צאצא ולא בן')).toBeTruthy()
     expect(panel.querySelector('.gt-child-group h4')?.textContent).toBe('ילדי עדה')
+    expect(within(panel).getByText('באימוץ')).toBeTruthy()
+    expect(panel.querySelector('.gt-identity p')?.textContent).toBe('אולי אותו אדם כמו בלעם')
   })
 
   it('says when the tree was not built', async () => {
