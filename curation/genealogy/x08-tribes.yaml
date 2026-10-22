@@ -1,0 +1,41 @@
+# M91 step 8: TIPNR's tribe attachments that the text does not support, blocks 01-13 (DESIGN.md
+# §16.63, docs/genealogy/PROGRESS.md). The sweep: the 105 people of Genesis-Nehemiah who hang on a
+# tribe's or nation's eponym by a link not stated.
+block: x08-tribes
+status: reviewed
+# Kept, the tribe or nation stated, or carried for a son whose it is:
+#  - the chieftains' fathers of Num 1 (but Zurishaddai), Machi (Num 13:15), Aphiah, Rimmon and
+#    Bichri "ימיני", Senaah, Elimelech "מבית לחם יהודה", Jephunneh (step 4), the Netophathites;
+#  - the priests and gatekeepers of Neh 11-12, Jehoiada "הכהן";
+#  - the kings and their fathers: of Ammon, Assyria, Cush, Egypt, Moab (Zippor carries Balak,
+#    "מלך למואב", Num 22:4), Aram, Midian (Jethro "כהן מדין"), Edom (step 3); Israel's kings
+#    and their fathers whose tribe is not given (Zimri, Omri, Nimshi, Gadi, Remaliah);
+#  - Canaan: the kings of Sodom, Gomorrah, Admah and Zeboiim, within "גבול הכנעני" (Gen 10:19);
+#    the "מלכי האמרי" of Josh 10:5, the Amorite being Canaan's son (Gen 10:16); Horam of Gezer
+#    (Josh 16:10); Jabin and Jobab (Josh 11:1-3, Judg 4:2 "מלך כנען"); Adoni-bezek (Judg 1:4-5).
+#  - TIPNR's four unnamed ancestors of Eli (I Kgs 2:27) keep Levi: they have no link (block 09).
+people:
+  - {key: "Zurishaddai@Num.1.6-", tribe: "Tribe of Simeon"}  # "לשמעון שלמיאל בן צורישדי" (Num 1:6)
+  - {key: "Nebat@1Ki.11.26-2Ch", tribe: "Tribe of Ephraim"}  # "ירבעם בן נבט אפרתי" (I Kgs 11:26)
+  - {key: "Ahijah@1Ki.15.27-2Ki", tribe: "Tribe of Issachar"}  # "בעשא בן אחיה לבית יששכר" (I Kgs 15:27)
+  - {key: "Abimelech@Gen.20.2-", tribe: "Philistia"}  # "אבימלך מלך פלשתים" (Gen 26:1)
+  - {key: "Maoch@1Sa.27.2-1Ki", tribe: "Philistia"}  # "אכיש בן מעוך מלך גת" (I Sam 27:2)
+  - {key: "Ethbaal@1Ki.16.31", tribe: "Canaan"}  # "מלך צידנים" (I Kgs 16:31); Sidon, Canaan's firstborn (Gen 10:15)
+  - {key: "Toi@2Sa.8.9-1Ch", tribe: "Canaan"}  # "מלך חמת" (II Sam 8:9); "החמתי" of Canaan's sons (Gen 10:18)
+  - {key: "Cush@Psa.7.0", tribe: "Tribe of Benjamin"}  # "כוש בן ימיני" (Ps 7:1)
+  - {key: "Daniel@Ezk.14.14-Mrk", tribe: "Tribe of Judah"}  # "מבני יהודה דניאל חנניה מישאל ועזריה" (Dan 1:6)
+  - {key: "Hananiah@Dan.1.6-", tribe: "Tribe of Judah"}
+  - {key: "Mishael@Dan.1.6-", tribe: "Tribe of Judah"}
+  - {key: "Azariah@Dan.1.6-", tribe: "Tribe of Judah"}
+  # off TIPNR's tribe: the text gives no tribe or nation
+  - {key: "Og@Num.21.33-Psa", tribe: ""}  # "מלך הבשן ... מיתר הרפאים" (Deut 3:11); his bed is in Rabbah of Ammon
+  - {key: "Arba@Jos.14.15-", tribe: ""}  # "האדם הגדול בענקים" (Josh 14:15), "אבי הענק" (15:13)
+  - {key: "Melchizedek@Gen.14.18-Heb", tribe: ""}  # "מלך שלם", "כהן לאל עליון" (Gen 14:18)
+  - {key: "Hiram@2Sa.5.11-2Ch", tribe: ""}  # "מלך צר" (II Sam 5:11), not Aram
+  - {key: "Hiram@1Ki.7.13-2Ch", tribe: ""}  # his mother "ממטה נפתלי" or "מן בנות דן", his father "איש צרי" (I Kgs 7:14, II Chr 2:13)
+  - {key: "Osnappar@Ezr.4.10", tribe: ""}  # "אסנפר רבא ויקירא" (Ezra 4:10): no nation named
+  - {key: "Micah@Jdg.17.1-", tribe: ""}  # "איש מהר אפרים" (Judg 17:1), a place; the Levite is the young man of 17:7
+  - {key: "Jesus@Isa.7.14-Rev", tribe: ""}  # the child of "העלמה" (Isa 7:14): no tribe stated
+links:
+  # Gideon's father, "יואש אבי העזרי", of Abiezer son of Gilead (Num 26:30, Josh 17:2)
+  - {child: "Joash@Jdg.6.11-", parent: "Abiezer@Num.26.30-Jdg", role: father, kind: descendant, status: added, proof: [Judges 6:11, Judges 6:24, Judges 8:32]}

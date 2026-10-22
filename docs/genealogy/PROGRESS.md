@@ -117,22 +117,20 @@ Cross-book steps (M91), planned in step 1:
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | done |
 | 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | done |
 | 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | done |
-| 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | todo |
+| 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | done |
 | 9 | "Unattached": people whose tribe or family the text states | todo |
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 8: `x08-tribes`, TIPNR's tribe attachments that the text does not support (blocks 01–13).** Write `curation/genealogy/x08-tribes.yaml` (`block: x08-tribes`): a `people:` correction `{key, tribe: "<TIPNR's label>"}` moves a person without a parent to another tribe's eponym, and `tribe: ""` sends them to "unattached" by book (step 3); a stated descent is a link instead (`added`, kind `descendant`).
+**M91, step 9: `x09-unattached`, "Unattached": people whose tribe or family the text states.** Write `curation/genealogy/x09-unattached.yaml` (`block: x09-unattached`): a `people:` correction `{key, tribe: "<label>"}` hangs a person without a parent on a tribe's or nation's eponym (the labels of `genealogy.tribes`; step 8 added `Philistia`), and a stated descent is a link (`added`, kind `descendant`).
 
-- **The sweep:** every person placed on a tribe (`placement` `tribe`) whose first verse is in blocks 01–13 (Genesis to Nehemiah, not Chronicles), with their tribe and verses. For each, does a verse name the tribe, or a family that has one? Keep those that do; the rest change. A probe in the scratchpad: `state.py`, then the persons with no live parent link and a tribe, grouped by tribe.
+- **The sweep:** the 1,076 people under "unattached" (`placement` `unattached`), with the verses that name them. Pick out those whose verses give a tribe or nation: "מבני X", "ממטה / למטה X", "לבית X", "איש ימיני", the gentilics (האפרתי, הגלעדי, הכרמלי, העמוני, המואבי, המצרי, הפלשתי, החתי, ...), "מלך X". Most of the 1,076 have no family in the text and stay.
 - **The open questions for this step:**
-  - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
-  - Og is filed under Ammon, but he is king of Bashan "מיתר הרפאים" (Deut 3:11); Zippor under Moab, whose descent is not stated.
-  - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1).
-  - Joash, Gideon's father, "אבי העזרי" (Judg 6:11, 24): a `descendant` of Abiezer (Num 26:30, merged in step 5).
-  - Immanuel (Isa 7:14), attached to Judah by a link not stated.
-  - Cush "בן ימיני" (Ps 7:1) and Daniel and his companions "מבני יהודה" (Dan 1:6), attached only to their books.
-- Then rebuild (`bsim genealogy`, `bsim build-db`), check the moved people at `/genealogy`, run ruff and pytest, and update this file.
+  - Kish "איש ימיני" (Est 2:5), Mordecai's forefather, attached only to Esther.
+  - Pethahiah son of Meshezabel "מבני זרח בן יהודה" (Neh 11:24).
+  - The families of Kiriath-jearim (I Chr 2:53) under Shobal; Hammath the Kenite (2:55), attached to Judah; the Simeonite princes of 4:34–37, 42.
+  - Achish's kin and the other kings of the Philistine cities (Gath, Gerar), now that `Philistia` has an eponym.
+- Then rebuild (`bsim genealogy`, `bsim build-db`), check the attached people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -181,13 +179,13 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Not recorded as identities: Judith daughter of Beeri the Hittite (26:34) and Oholibamah daughter of Anah the Hivite (36:2), the wife each list has left after the two TIPNR matches by father (other father, other people); Zerah of Bozrah (36:33) and Zerah son of Reuel (36:13); Hadad son of Bedad (36:35) and Hadad the Edomite (I Kgs 11:14). The names alone are the link.
   - Korah of Gen 36:16, a chief of Eliphaz's line, is recorded as `possible` with Korah son of Oholibamah (36:5, 18): Eliphaz's sons (36:11–12, I Chr 1:36) have no Korah.
 - **More tribe attachments of TIPNR's** (for M91), found in block 06:
-  - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
-  - Og is filed under Ben-ammi (tribe "Ammon"), but he is king of Bashan "מיתר הרפאים" (Deut 3:11).
-  - Zippor is filed under Moab: his son Balak is king of Moab (Num 22:4), and his descent is not stated.
+  - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12). **Step 8:** moved to Simeon.
+  - Og is filed under Ben-ammi (tribe "Ammon"), but he is king of Bashan "מיתר הרפאים" (Deut 3:11). **Step 8:** off Ammon, unattached.
+  - Zippor is filed under Moab: his son Balak is king of Moab (Num 22:4), and his descent is not stated. **Step 8:** kept: he carries Balak, "מלך למואב".
 - **More TIPNR people filed under a tribe or unattached** (for M91), found in block 07:
-  - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1); the Levite is the young man of Bethlehem (17:7).
+  - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1); the Levite is the young man of Bethlehem (17:7). **Step 8:** off Levi, unattached.
   - Jephunneh has no tribe, so Caleb, Kenaz and Othniel sit under "Unattached". Caleb is of Judah (Num 13:6, 34:19). 1 Chr 2:9, 18, 42 and 4:15 have Calebs of Hezron's line; block 15 decides how they relate. **Step 4:** Jephunneh is filed under Judah (`tribe` correction); the two Calebs are a `possible`.
-  - Joash, Gideon's father, is "אבי העזרי" (Judg 6:11, 24), of Abiezer, Gilead's son (Num 26:30, Josh 17:2), but he has no tribe.
+  - Joash, Gideon's father, is "אבי העזרי" (Judg 6:11, 24), of Abiezer, Gilead's son (Num 26:30, Josh 17:2), but he has no tribe. **Step 8:** added Joash <- Abiezer, a `descendant` (Judg 6:11, 24, 8:32).
 - **Kenaz <- Jephunneh** (b07) is kept as `unstated`. It rests only on reading "עתניאל בן קנז אחי כלב (הקטן ממנו)" (Josh 15:17, Judg 1:13, 3:9) as Kenaz being Caleb's brother. "כלב בן יפנה הקנזי" (Num 32:12, Josh 14:6, 14) makes Caleb a Kenizzite instead.
 - **Hobab** (b07): Num 10:29 has "חבב בן רעואל המדיני חתן משה", Judg 4:11 "חבב חתן משה". If חתן there means father-in-law, Hobab is Zipporah's father, against Exod 2:18–21 (Reuel). No conflict is recorded, since the word can mean any in-law; the tree follows Num 10:29.
 - **Jonathan son of Gershom** (Judg 18:30) writes "בן מנשה" with a suspended nun; without it, it reads משה. TIPNR's Gershom is Moses' son (marked doubtful), and the link is kept.
@@ -248,7 +246,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Malchiah son of Hammelech (Jer 38:6) is Pashhur's father (21:1, 38:1).
 - **Not identified** (b10): Zephaniah's forefather "חזקיה" (Zeph 1:1) has his own key, not King Hezekiah's; the text does not say. Zechariah son of Jeberechiah (Isa 8:2) is not the prophet.
 - **For M91** (b10):
-  - TIPNR keys Immanuel (Isa 7:14) as Jesus and attaches him to Judah by a link not stated. Under the Bible-only rule, the child of "העלמה" has no stated tribe.
+  - TIPNR keys Immanuel (Isa 7:14) as Jesus and attaches him to Judah by a link not stated. Under the Bible-only rule, the child of "העלמה" has no stated tribe. **Step 8:** off Judah, unattached.
   - The Rechabites (Jer 35) hang from Habazziniah with no link to Jonadab son of Rechab, "אבינו" (35:6). I Chr 2:55 makes them Kenites (block 15).
 - **Zedekiah** (b10): "צדקיהו בן יאשיהו" (Jer 1:3, 37:1) agrees with "דדו" (II Kgs 24:17), Jehoiachin's uncle; II Chr 36:10 has "אחיו" (block 19).
 - **Zerubbabel's conflict** (b10): TIPNR's Pedaiah <- Shealtiel (block 15) would make Shealtiel his grandfather, a `descendant` reading. Block 15 decides how to read I Chr 3:17–19.
@@ -259,14 +257,14 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Obed: "ילד בן לנעמי" (4:17), but Ruth bore him (4:13); Boaz takes her "להקים שם המת על נחלתו" (4:10). Boaz stays his father (4:21); no `levirate` link to Mahlon is recorded.
   - Salmon is "שלמה" (4:20), "שלמון" (4:21) and "שלמא" (I Chr 2:11), one key.
 - **Added** (b11): Job's wife (2:9, 19:17) as a spouse only, since the mother of his children is not named; Lemuel's mother, "אשר יסרתו אמו" (Prov 31:1). Job's seven sons are not named.
-- **For M91** (b11): Cush "בן ימיני" (Ps 7:1) is of Benjamin, but is attached only to the book. TIPNR's Buzites <- Ram (Job 32:2, "הבוזי ממשפחת רם") is kept as a `descendant`; Buz son of Nahor (Gen 22:21) is not linked. "קהלת בן דוד" (Eccl 1:1) has no key.
+- **For M91** (b11): Cush "בן ימיני" (Ps 7:1) is of Benjamin, but is attached only to the book. TIPNR's Buzites <- Ram (Job 32:2, "הבוזי ממשפחת רם") is kept as a `descendant`; Buz son of Nahor (Gen 22:21) is not linked. "קהלת בן דוד" (Eccl 1:1) has no key. **Step 8:** Cush is filed under Benjamin.
 - **Esther and Daniel** (b12):
   - Esther is "בת אביחיל דד מרדכי" (2:15) and "בת דדו" (2:7): Abihail is Mordecai's uncle, but no link from Abihail to Shimei or Kish is recorded, as "דוד" does not say on which side.
   - Mordecai's forefather Kish (2:5) is TIPNR's own key, not Saul's father; the text does not say.
   - Haman "האגגי" (3:1): whether Agag of I Sam 15 is meant is not stated, and nothing is linked.
   - Belshazzar is kept as Nebuchadnezzar's son: "נבוכדנצר אבוהי" (Dan 5:2, 11, 18), "ואנת ברה" (5:22). No other father is named, so no conflict.
   - "דריוש בן אחשורוש מזרע מדי" (Dan 9:1) is kept on TIPNR's one Ahasuerus, who is also Esther's king; an identification of TIPNR's.
-  - Daniel and his companions are "מבני יהודה" (Dan 1:6) but attached only to the book (M91).
+  - Daniel and his companions are "מבני יהודה" (Dan 1:6) but attached only to the book (M91). **Step 8:** filed under Judah.
 - **Ezra–Nehemiah** (b13):
   - **Family lists:** "בני פחת מואב לבני ישוע יואב" and "בני אטר ליחזקיה" (Ezra 2:6, 16; Neh 7:11, 21) group families and name no father. TIPNR's Jeshua and Joab <- Pahath-moab and Hezekiah <- Ater are rejected, like the other "בני X" of the lists.
   - **Family names after "בן"** in Neh 3 are kept as fathers, as written, though several are also family names in Ezra 2: Pahath-moab and Harim (3:11), Hakkoz (3:4), Bani (3:17), Henadad (3:18, 24), Parosh (3:25), Immer (3:29). Only "בן השלני" (Neh 11:5) is made a `descendant`, of the Shelanite family (Num 26:20). "יהודה בן הסנואה" (11:9) and "זבדיאל בן הגדולים" (11:14) are kept as TIPNR names them.
@@ -675,3 +673,10 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Possible (3):** Elihu "מאחי דויד" (I Chr 27:18) and Eliab; Eliphal son of Ur (I Chr 11:35) and Eliphelet son of Ahasbai (II Sam 23:34); Ahimelech son of Abiathar (II Sam 8:17) and Ahimelech son of Ahitub.
   - **Left:** Shomer / Shimrith on one key, a man; Elpelet, Nogah and Jerimoth, Chronicles' own; Zechariah the gatekeeper on the singer's key; Josiah's sons (step 4).
   - Nothing merged: 2,836 people, 47 conflicts, identities: 18 merged, 20 possible.
+- 2026-10-22, M91 step 8: TIPNR's tribe attachments, blocks 01–13 (`x08-tribes.yaml`, reviewed).
+  - **The sweep:** the 105 people of Genesis–Nehemiah who hang on a tribe's or nation's eponym by a link not stated, each checked for a verse that gives the tribe or nation, or a son's that they carry. 91 are kept (the comments of the file list them by kind); 6 move and 8 come off.
+  - **Moved (6, and Maoch from "unattached"):** Zurishaddai to Simeon (Num 1:6); Nebat to Ephraim ("אפרתי", I Kgs 11:26); Ahijah, Baasha's father, to Issachar (I Kgs 15:27); Abimelech of Gerar ("מלך פלשתים", Gen 26:1) and Maoch, Achish's father ("מלך גת"), to the Philistines; Ethbaal ("מלך צידנים") and Toi ("מלך חמת") to Canaan (Gen 10:15, 18).
+  - **Off a tribe (8):** Og, Arba "אבי הענק", Melchizedek, the two Hirams (Tyre is not Aram), Osnappar, Micah of Judg 17 and Immanuel go under "unattached".
+  - **Attached (5):** Cush "בן ימיני" to Benjamin; Daniel, Hananiah, Mishael and Azariah "מבני יהודה" to Judah. Joash, Gideon's father, is a `descendant` of Abiezer.
+  - **Config:** `genealogy.tribes` gains `Philistia` -> the Philistines (Gen 10:14), so Achish's line now hangs on them too.
+  - 2,836 people, 1,799 parent links, 47 conflicts; placed on a tribe 164, unattached 1,076.
