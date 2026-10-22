@@ -1,0 +1,80 @@
+# M91 step 4: Judah and Simeon, Gen 38 / 46, Num 26, Joshua-Judges, Ruth, Kings, Ezra against
+# I Chronicles 2-4 (DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: x04-judah-simeon
+status: reviewed
+# Simeon's sons (I Chr 4:24): TIPNR keys Nemuel, Jarib and Zerah to Jemuel, Jachin and Zohar of
+# Gen 46:10 / Ex 6:15, as Num 26:12-13 has Nemuel and Zerah; nothing to merge.
+# Chelub "אחי שוחה" (4:11) is not tied to either Caleb by anything but the name: left apart.
+# Jephunneh: Caleb his son is "למטה יהודה" (Num 13:6, 34:19), so he hangs on Judah.
+people:
+  - {key: "Jephunneh@Num.13.6-1Ch", tribe: "Tribe of Judah"}
+same:
+  - keys: ["Achsah@Jos.15.16-Jdg", "Achsah@1Ch.2.49"]
+    status: merged
+    proof: [Joshua 15:16, Judges 1:12, I Chronicles 2:49]
+    note:
+      en: "Achsah daughter of Caleb, given to Othniel (Joshua 15:16-17, Judges 1:12-13), and \"ובת כלב עכסה\" (I Chronicles 2:49)."
+      he: "עכסה בת כלב, שניתנה לעתניאל (יהושע טו:טז–יז, שופטים א:יב–יג), ו„ובת כלב עכסה” (דברי הימים א ב:מט)."
+  - keys: ["Caleb@Num.13.6-1Ch", "Caleb@1Ch.2.9-"]
+    status: possible
+    proof: [Joshua 15:16, I Chronicles 2:49, I Chronicles 2:19, I Chronicles 2:20]
+    note:
+      en: "Each Caleb has a daughter Achsah. But Caleb son of Hezron is the great-grandfather of Bezalel (I Chronicles 2:18-20), and Caleb son of Jephunneh is of Bezalel's generation, forty at Kadesh-barnea (Joshua 14:7)."
+      he: "לכל אחד מהשניים בת בשם עכסה. אבל כלב בן חצרון הוא אבי סבו של בצלאל (דברי הימים א ב:יח–כ), וכלב בן יפנה בן דורו של בצלאל, בן ארבעים שנה בקדש ברנע (יהושע יד:ז)."
+  - keys: ["Hattush@1Ch.3.22", "Hattush@Ezr.8.2"]
+    status: merged
+    proof: [I Chronicles 3:22, Ezra 8:2]
+    note:
+      en: "\"מבני דויד חטוש\" (Ezra 8:2), followed by \"מבני שכניה\" (8:3); in David's line, \"ובני שכניה שמעיה ובני שמעיה חטוש\" (I Chronicles 3:22)."
+      he: "„מבני דויד חטוש” (עזרא ח:ב), ואחריו „מבני שכניה” (ח:ג); ובשושלת דוד, „ובני שכניה שמעיה ובני שמעיה חטוש” (דברי הימים א ג:כב)."
+  # Zerah's sons and the sages of I Kgs 5:11: four names in the same order, Ethan "האזרחי"
+  - keys: ["Ethan@1Ch.2.6-", "Ethan@1Ki.4.31-Psa"]
+    status: merged
+    proof: [I Chronicles 2:6, I Kings 5:11, Psalms 89:1]
+  - keys: ["Heman@1Ch.2.6", "Heman@1Ki.4.31-Psa"]
+    status: merged
+    proof: [I Chronicles 2:6, I Kings 5:11, Psalms 88:1]
+  - keys: ["Calcol@1Ch.2.6", "Calcol@1Ki.4.31"]
+    status: merged
+    proof: [I Chronicles 2:6, I Kings 5:11]
+  - keys: ["Dara@1Ch.2.6", "Darda@1Ki.4.31"]
+    status: merged
+    proof: [I Chronicles 2:6, I Kings 5:11]
+  - keys: ["Salma@1Ch.2.51-", "Salmon@Rut.4.20-Luk"]
+    status: possible
+    proof: [I Chronicles 2:51, I Chronicles 2:11, Ruth 2:4]
+    note:
+      en: "Salma son of Hur is \"אבי בית לחם\" (I Chronicles 2:51); Salma son of Nahshon is the father of Boaz (2:11), who lived in Bethlehem (Ruth 2:4). Their fathers and lines differ, Caleb's and Ram's."
+      he: "שלמא בן חור הוא „אבי בית לחם” (דברי הימים א ב:נא); שלמא בן נחשון הוא אבי בעז (ב:יא), שישב בבית לחם (רות ב:ד). אבותיהם ושושלותיהם שונים, של כלב ושל רם."
+  - keys: ["Shallum@1Ch.3.15", "Jehoahaz@2Ki.23.30-2Ch"]
+    status: possible
+    proof: [Jeremiah 22:11, II Kings 23:30, I Chronicles 3:15]
+    note:
+      en: "Jeremiah 22:11 names Shallum son of Josiah as the king after Josiah, who is Jehoahaz (II Kings 23:30). TIPNR takes Johanan the firstborn (I Chronicles 3:15) for Jehoahaz, though Jehoahaz was 23 at his accession and Jehoiakim 25 three months later (II Kings 23:31, 36)."
+      he: "ירמיהו כב:יא קורא „שלם בן יאשיהו” למלך שאחרי יאשיהו, הוא יהואחז (מלכים ב כג:ל). TIPNR מזהה את יהואחז עם יוחנן הבכור (דברי הימים א ג:טו), אף שיהואחז היה בן עשרים ושלוש במלכו ויהויקים בן עשרים וחמש שלושה חודשים אחריו (מלכים ב כג:לא, לו)."
+  - keys: ["Zedekiah@1Ch.3.16", "Zedekiah@2Ki.24.17-Jer"]
+    status: possible
+    proof: [I Chronicles 3:16, II Chronicles 36:10, II Kings 24:17]
+    note:
+      en: "\"ובני יהויקים יכניה בנו צדקיה בנו\" (I Chronicles 3:16), which TIPNR reads as Jeconiah's son. King Zedekiah is Josiah's son (I Chronicles 3:15, II Kings 24:17-18), Jehoiachin's \"דדו\" (II Kings 24:17) but his \"אחיו\" (II Chronicles 36:10), as 3:16 would make him if both are Jehoiakim's sons."
+      he: "„ובני יהויקים יכניה בנו צדקיה בנו” (דברי הימים א ג:טז), ש־TIPNR קורא כבנו של יכניה. המלך צדקיהו הוא בן יאשיהו (דברי הימים א ג:טו, מלכים ב כד:יז–יח), „דדו” של יהויכין (מלכים ב כד:יז) אבל „אחיו” (דברי הימים ב לו:י), כפי שיוצא מג:טז אם שניהם בני יהויקים."
+conflicts:
+  - kind: bible
+    child: "Achsah@Jos.15.16-Jdg"
+    readings:
+      - {parent: "Caleb@Num.13.6-1Ch", proof: [Joshua 15:16, Judges 1:12]}
+      - {parent: "Caleb@1Ch.2.9-", proof: [I Chronicles 2:49]}
+    note:
+      en: "Achsah is the daughter of Caleb son of Jephunneh (Joshua 15:13-17) and of Caleb son of Hezron (I Chronicles 2:18, 49): either the two Calebs are one man, or each had a daughter Achsah."
+      he: "עכסה היא בת כלב בן יפנה (יהושע טו:יג–יז) ובת כלב בן חצרון (דברי הימים א ב:יח, מט): או ששני הכלבים איש אחד, או שלכל אחד בת בשם עכסה."
+  - kind: bible
+    child: "Ethan@1Ch.2.6-"
+    readings: &zerah
+      - {parent: "Zerah@Gen.38.30-Mat", proof: [I Chronicles 2:6]}
+      - {parent: "Mahol@1Ki.4.31", proof: [I Kings 5:11]}
+    note: &zerah-note
+      en: "I Chronicles 2:6 lists Ethan, Heman, Calcol and Dara among the sons of Zerah; I Kings 5:11 names Ethan the Ezrahite, Heman, Calcol and Darda, sons of Mahol. If בני זרח means descendants, Mahol stands between."
+      he: "דברי הימים א ב:ו מונה את איתן, הימן, כלכל ודרע בבני זרח; מלכים א ה:יא מזכיר את איתן האזרחי, הימן, כלכל ודרדע, בני מחול. אם „בני זרח” הם צאצאיו, מחול ביניהם."
+  - {kind: bible, child: "Heman@1Ch.2.6", readings: *zerah, note: *zerah-note}
+  - {kind: bible, child: "Calcol@1Ch.2.6", readings: *zerah, note: *zerah-note}
+  - {kind: bible, child: "Dara@1Ch.2.6", readings: *zerah, note: *zerah-note}

@@ -113,7 +113,7 @@ Cross-book steps (M91), planned in step 1:
 | 1 | The plan; the format for identifications and adoption, asked | done |
 | 2 | Build `same:` (`merged` / `possible`) and `adopted` cross-links: loader, tree, API, panel, DESIGN §16.63, tests | done |
 | 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | done |
-| 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | todo |
+| 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | done |
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | todo |
 | 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | todo |
 | 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | todo |
@@ -122,17 +122,16 @@ Cross-book steps (M91), planned in step 1:
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 4: `x04-judah-simeon`, Gen 46 / Num 26 / Joshua–Judges / Ruth against I Chr 2–4.** Write `curation/genealogy/x04-judah-simeon.yaml` (`block: x04-judah-simeon`), with scratchpad probes as in step 3 (`state.py` pickles the persons and links after the review; `edom.py` lists the people of two passages with their keys, parents and tribe):
+**M91, step 5: `x05-1chr-5-8`, Gen 46 / Ex 6 / Num 26 / Samuel against I Chr 5–8.** Write `curation/genealogy/x05-1chr-5-8.yaml` (`block: x05-1chr-5-8`), with the scratchpad probes of steps 3–4: `state.py` pickles the persons and links after the review, `twokeys2.py` lists the people of a passage with the same-name keys whose verses fall in given passages (`EXACT=1` for the exact name), and `keys.py` shows every key of some names with its verses and links.
 
-- **One person, two keys:** for every person of I Chr 2:1–4:43, the TIPNR keys of the same name (ו and י ignored) whose verses fall in Gen 38, 46, Num 26, Joshua, Judges, Ruth, Samuel or Kings. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
+- **One person, two keys:** for every person of I Chr 5:1–8:40, the keys of the same name in Gen 46, Ex 6, Num 3, 26, Joshua 17, Judges and Samuel. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
 - **The open questions for this step:**
-  - Caleb son of Hezron (2:9 Chelubai, 2:18, 42), Chelub "אחי שוחה" (4:11) and Caleb son of Jephunneh (Num 13:6, Josh 14–15, I Chr 4:15); Achsah daughter of each (2:49; Josh 15:16–17, Judg 1:12–13). If both pairs are one, Achsah gets a Bible vs Bible conflict. Jephunneh has no tribe (Caleb is of Judah, Num 13:6).
-  - Salma son of Hur "אבי בית לחם" (2:51) and Salma father of Boaz (2:11, Ruth 4:20–21).
-  - Zerah's sons Ethan, Heman, Calcol and Dara (2:6) and the Ezrahite sages "בני מחול" (I Kgs 5:11).
-  - Josiah's sons (3:15): Shallum and Jer 22:11, Johanan and Jehoahaz; Zedekiah (3:16) and the king (II Kgs 24:17, II Chr 36:10).
-  - Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2).
-  - Simeon's sons (4:24) against Gen 46:10, Ex 6:15 and Num 26:12–13: Nemuel / Jemuel, Jarib / Jachin, Zerah / Zohar.
-- Leave David's brothers (Elihu / Eliab) to step 7, and the tribe attachments (Hammath the Kenite, the families of Kiriath-jearim, Daniel "מבני יהודה") to steps 8–9.
+  - Reuben: Joel of 5:4 and Joel father of Shema (5:8), two keys.
+  - Levi: Korah's line (6:7–9 against Ex 6:24 and 6:22), and the two lines from Kohath to Samuel (6:7–13 and 6:18–23), which TIPNR already pairs on one key each; Elkanah "אפרתי" (I Sam 1:1).
+  - Benjamin: the lists of Gen 46:21, Num 26:38–40, I Chr 7:6–12 and 8:1–5. Naaman and Ard (two keys each), Ir / Iri, Shuppim and Huppim / Muppim and Huppim, Hushim "בני אחר" (7:12).
+  - Manasseh: Asriel, Abiezer / Iezer and Shechem, sons of Gilead in Num 26:30–31 and of others in I Chr 7:14–19.
+  - Ephraim: Elishama son of Ammihud (7:26) and the chieftain (Num 1:10); Tahan and Bered (7:20, 25) against Tahan and Becher (Num 26:35).
+  - Asher: I Chr 7:30–40 against Gen 46:17 and Num 26:44–47.
 - Then rebuild (`bsim genealogy`, `bsim build-db`), check the merged people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
@@ -164,6 +163,8 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Gera, Muppim and Huppim** (b17b): Benjamin's sons (Gen 46:21; Shephupham and Hupham in Num 26:39); among Bela's sons, "ויהיו בנים לבלע אדר וגרא ... וגרא ושפופן וחורם" (I Chr 8:3–5), where TIPNR takes the second Gera, Shephuphan and Huram for Benjamin's sons. Benjamin drawn.
 - **Zadok, Shallum's father** (b17b): "ואחיטוב הוליד את צדוק וצדוק הוליד את שלום" (I Chr 5:38), "בן שלום בן צדוק בן אחיטוב" (Ezra 7:2); "בן משלם בן צדוק בן מריות בן אחיטוב" (I Chr 9:11, Neh 11:11). Ahitub drawn. TIPNR's key for that Meraioth is Zerahiah's son (5:32), so the second reading shows him.
 - **Zetham and Joel** (b18): "בני לעדן הראש יחיאל וזתם ויואל שלשה" (I Chr 23:8), Jehiel's brothers; "בני יחיאלי זתם ויואל אחיו" (26:22), Jehieli's sons, unless יחיאלי names the clan. Ladan (TIPNR's Libni) drawn.
+- **Achsah** (x04): daughter of Caleb son of Jephunneh (Josh 15:16–17, Judg 1:12–13) and of Caleb son of Hezron (I Chr 2:49), one person since the merge. Caleb son of Jephunneh drawn.
+- **Ethan, Heman, Calcol and Dara** (x04): "ובני זרח זמרי ואיתן והימן וכלכל ודרע" (I Chr 2:6); "איתן האזרחי והימן וכלכל ודרדע בני מחול" (I Kgs 5:11). Zerah drawn; if "בני זרח" means descendants, Mahol stands between.
 ## Open questions
 - **Edom** (M91 step 3, settled): Seir the Horite, the kings of Edom and their fathers, Elon and Beeri the Hittites, and TIPNR's husband of Matred are taken off TIPNR's tribe "Edom" (`tribe: ""` in `x03-edom.yaml`) and sit under "unattached". The chiefs of Gen 36:40–43 ("אלופי עשו") and Hadad "האדמי" (I Kgs 11:14) stay under Esau.
 - **Edom, left as TIPNR has it** (M91 step 3):
@@ -178,7 +179,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Zippor is filed under Moab: his son Balak is king of Moab (Num 22:4), and his descent is not stated.
 - **More TIPNR people filed under a tribe or unattached** (for M91), found in block 07:
   - Micah of Judg 17 is filed under Levi, but he is "מהר אפרים" (17:1); the Levite is the young man of Bethlehem (17:7).
-  - Jephunneh has no tribe, so Caleb, Kenaz and Othniel sit under "Unattached". Caleb is of Judah (Num 13:6, 34:19). 1 Chr 2:9, 18, 42 and 4:15 have Calebs of Hezron's line; block 15 decides how they relate.
+  - Jephunneh has no tribe, so Caleb, Kenaz and Othniel sit under "Unattached". Caleb is of Judah (Num 13:6, 34:19). 1 Chr 2:9, 18, 42 and 4:15 have Calebs of Hezron's line; block 15 decides how they relate. **Step 4:** Jephunneh is filed under Judah (`tribe` correction); the two Calebs are a `possible`.
   - Joash, Gideon's father, is "אבי העזרי" (Judg 6:11, 24), of Abiezer, Gilead's son (Num 26:30, Josh 17:2), but he has no tribe.
 - **Kenaz <- Jephunneh** (b07) is kept as `unstated`. It rests only on reading "עתניאל בן קנז אחי כלב (הקטן ממנו)" (Josh 15:17, Judg 1:13, 3:9) as Kenaz being Caleb's brother. "כלב בן יפנה הקנזי" (Num 32:12, Josh 14:6, 14) makes Caleb a Kenizzite instead.
 - **Hobab** (b07): Num 10:29 has "חבב בן רעואל המדיני חתן משה", Judg 4:11 "חבב חתן משה". If חתן there means father-in-law, Hobab is Zipporah's father, against Exod 2:18–21 (Reuel). No conflict is recorded, since the word can mean any in-law; the tree follows Num 10:29.
@@ -213,9 +214,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - Joash "בן המלך" (I Kgs 22:26) for Ahab, perhaps a title; his link to Jezebel is rejected.
 - **Not stated** (b09):
   - Ben-geber (I Kgs 4:13) as the son of Geber son of Uri (4:19).
-  - Ethan and Heman as sons of Mahol: "מאיתן האזרחי והימן וכלכל ודרדע בני מחול" (5:11).
+  - Ethan and Heman as sons of Mahol: "מאיתן האזרחי והימן וכלכל ודרדע בני מחול" (5:11). **Step 4:** merged with Zerah's sons; Zerah and Mahol are a conflict.
   - Mahol as Zerah's descendant, which rests on "האזרחי" alone.
-  - I Chr 2:6 lists Ethan, Heman, Calcol and Dara as sons of Zerah. TIPNR uses other keys there (block 15).
+  - I Chr 2:6 lists Ethan, Heman, Calcol and Dara as sons of Zerah. TIPNR uses other keys there (block 15). **Step 4:** merged with the sages of 5:11.
 - **TIPNR identifications kept** (b09):
   - Shisha (I Kgs 4:3) is Seraiah, David's scribe.
   - Nathan, father of Azariah and Zabud (4:5), is Nathan the prophet.
@@ -225,7 +226,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - The Pharaoh of Hadad and Tahpenes (11:19) is Solomon's father-in-law (one key).
 - **Dropped TIPNR placeholders** (b09): the unnamed wife who is the mother of Solomon's daughters Taphath and Basemath. She stays as one of his wives (I Kgs 11:3). The unnamed husband of Shimeath, Jozacar's mother, is dropped.
 - **For later blocks** (b09): Shomer, Jehozabad's father (II Kgs 12:22), is "שמרית המואבית" in II Chr 24:26, a woman (block 19). Hiram the craftsman has a mother "ממטה נפתלי" (I Kgs 7:14) or "מן בנות דן" (II Chr 2:13). No parent is named, so nothing is recorded.
-- **Shallum son of Josiah** (b10): "שלם בן יאשיהו מלך יהודה המלך תחת יאשיהו אביו" (Jer 22:11) is the king after Josiah, Jehoahaz in II Kgs 23:30. TIPNR files the verse under Jehoiachin, marked doubtful, and keeps Shallum of I Chr 3:15 as another son of Josiah, beside Johanan, whom it takes for Jehoahaz. No link is recorded, since merging TIPNR keys is not supported. For block 15 (I Chr 3:15) and M91.
+- **Shallum son of Josiah** (b10): "שלם בן יאשיהו מלך יהודה המלך תחת יאשיהו אביו" (Jer 22:11) is the king after Josiah, Jehoahaz in II Kgs 23:30. TIPNR files the verse under Jehoiachin, marked doubtful, and keeps Shallum of I Chr 3:15 as another son of Josiah, beside Johanan, whom it takes for Jehoahaz. No link is recorded, since merging TIPNR keys is not supported. For block 15 (I Chr 3:15) and M91. **Step 4:** recorded as a `possible` with Jehoahaz.
 - **Hammelech** (b10): TIPNR's one man "המלך" is the father of Jerahmeel (Jer 36:26, under Jehoiakim) and of Malchiah (38:6, under Zedekiah). "בן המלך" can be "the king's son", and the kings differ. Kept as TIPNR has it.
   - TIPNR's family column gives Hammelech's son as Malchijah of I Chr 9:12, but its own references put 38:6 under Malchiah, Pashhur's father (Jer 21:1). That link is rejected, and Malchiah <- Hammelech is added.
 - **Pashhur son of Immer** (b10): "פשחור בן אמר הכהן" (Jer 20:1) is added as a `descendant`. TIPNR's Immer is the head of the sixteenth course (I Chr 24:14); block 18 may revisit.
@@ -281,7 +282,7 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **I Chronicles 1** (b14): Keturah is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1; Gen 25:6 speaks of Abraham's "פילגשים". The tree keeps her as a spouse, as it has no separate role for a concubine.
 - **I Chronicles 2** (b15):
   - **Jesse's sons:** seven here, with David the seventh (2:13–15); eight in I Sam 16:10–11 and 17:12, with David the youngest. TIPNR's Elihu "מאחי דויד" (27:18) is left to block 18.
-  - **Zerah's sons** Zimri, Ethan, Heman, Calcol and Dara (2:6): TIPNR keeps them apart from the Ezrahite sages "איתן האזרחי והימן וכלכל ודרדע בני מחול" (I Kgs 5:11; block 09's open question). If they are the same men, Zerah's "sons" are his descendants through Mahol (M91). Zimri (2:6) is the Zabdi of Josh 7:1, as TIPNR has it.
+  - **Zerah's sons** Zimri, Ethan, Heman, Calcol and Dara (2:6): TIPNR keeps them apart from the Ezrahite sages "איתן האזרחי והימן וכלכל ודרדע בני מחול" (I Kgs 5:11; block 09's open question). If they are the same men, Zerah's "sons" are his descendants through Mahol (M91). Zimri (2:6) is the Zabdi of Josh 7:1, as TIPNR has it. **Step 4:** merged, with a conflict each (Zerah drawn, Mahol the other reading).
   - **Hezron's wives:** TIPNR's unnamed wife as mother of Jerahmeel and Caleb (2:9) is rejected: no mother is named there. Hezron's wives are Machir's daughter (2:21) and Abiah, who bore Ashhur after his death (2:24); TIPNR's Ephrathah as his wife is rejected too ("ואחר מות חצרון בכלב אפרתה", 2:24, names where he died, or Caleb's wife).
   - **Jerahmeel's first wife:** "ותהי אשה אחרת לירחמאל ושמה עטרה היא אם אונם" (2:26) implies a first wife, the mother of the sons of 2:25; TIPNR's unnamed wife is kept. The list of 2:25 ends with "אחיה", which TIPNR takes for a son.
   - **Caleb's wives:** "וכלב בן חצרון הוליד את עזובה אשה ואת יריעות ואלה בניה" (2:18): whose sons Jesher, Shobab and Ardon are, Azubah's or Jerioth's, is not clear; TIPNR's Azubah is kept. TIPNR's Jerioth as the mother of Mesha (2:42) is rejected.
@@ -292,14 +293,14 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Hammath** "אבי בית רכב" (2:55) is the forefather of the Rechabites, so Rechab <- Hammath is a `descendant`. Hammath is a Kenite, though TIPNR attaches him to Judah (M91).
   - **The families of Kiriath-jearim** (2:53): the Mishraites, Puthites, Shumathites and Zorathites stand under Shobal "אבי קרית יערים" (2:52), but are attached only to the book (M91).
   - **For M91:**
-    - **Achsah:** "ובת כלב עכסה" (2:49) is the daughter of Caleb son of Hezron. In Josh 15:16–17 and Judg 1:12–13, Achsah is the daughter of Caleb son of Jephunneh. TIPNR keeps two Achsahs and two Calebs. If each pair is one person, this is a Bible vs Bible conflict.
-    - **Salma** "אבי בית לחם", son of Hur (2:51), and Salma father of Boaz (2:11), who lived in Bethlehem, are two TIPNR keys.
+    - **Achsah:** "ובת כלב עכסה" (2:49) is the daughter of Caleb son of Hezron. In Josh 15:16–17 and Judg 1:12–13, Achsah is the daughter of Caleb son of Jephunneh. TIPNR keeps two Achsahs and two Calebs. If each pair is one person, this is a Bible vs Bible conflict. **Step 4:** the Achsahs are merged, with a conflict (Caleb son of Jephunneh drawn); the Calebs are a `possible` (Hur, Uri and Bezalel make Caleb son of Hezron three generations older).
+    - **Salma** "אבי בית לחם", son of Hur (2:51), and Salma father of Boaz (2:11), who lived in Bethlehem, are two TIPNR keys. **Step 4:** a `possible`.
     - **Hur** grandfather of Bezalel (2:19–20) is merged with the Hur of Ex 17:10 and 24:14, as TIPNR has it.
   - Ashhur "אבי תקוע" (2:24), Mesha "אבי זיף" (2:42), Maon "אבי בית צור" (2:45), Shobal "אבי קרית יערים" (2:50), Salma "אבי בית לחם" and Hareph "אבי בית גדר" (2:51): TIPNR does not make these towns persons, so no link is needed.
 - **I Chronicles 3–4** (b15b):
   - **Jeconiah's sons:** "ובני יכניה אסר שאלתיאל בנו ומלכירם ופדיה ושנאצר יקמיה הושמע ונדביה" (3:17–18). The list goes on with Jeconiah's sons, so the six of 3:18 are added as his sons. TIPNR's six links to Shealtiel are rejected, as block 10's note on Zerubbabel already read the verse. Pedaiah is then Shealtiel's brother, and Zerubbabel's conflict stays Bible vs Bible: Haggai's Shealtiel, or Shealtiel's brother Pedaiah. TIPNR reads "אסר" as "the captive", not as a son.
-  - **Zedekiah** (3:16): "ובני יהויקים יכניה בנו צדקיה בנו" is kept as TIPNR has it, Jeconiah's son, after the pattern "X בנו" of 3:10–14. In II Chr 36:10 King Zedekiah is Jehoiachin's "אחיו", and in II Kgs 24:17 his "דדו". If this is the king, that is a conflict (M91).
-  - **Josiah's sons** (3:15): TIPNR takes Johanan the firstborn for Jehoahaz and keeps Shallum apart. But Jehoahaz was 23 at his accession and Jehoiakim 25 three months later (II Kgs 23:31, 36), so Jehoahaz was not the firstborn; Jer 22:11 makes Shallum the king after Josiah (block 10's open question; M91). TIPNR's unnamed wife as Shallum's mother is rejected.
+  - **Zedekiah** (3:16): "ובני יהויקים יכניה בנו צדקיה בנו" is kept as TIPNR has it, Jeconiah's son, after the pattern "X בנו" of 3:10–14. In II Chr 36:10 King Zedekiah is Jehoiachin's "אחיו", and in II Kgs 24:17 his "דדו". If this is the king, that is a conflict (M91). **Step 4:** a `possible` with the king.
+  - **Josiah's sons** (3:15): TIPNR takes Johanan the firstborn for Jehoahaz and keeps Shallum apart. But Jehoahaz was 23 at his accession and Jehoiakim 25 three months later (II Kgs 23:31, 36), so Jehoahaz was not the firstborn; Jer 22:11 makes Shallum the king after Josiah (block 10's open question; M91). TIPNR's unnamed wife as Shallum's mother is rejected. **Step 4:** Shallum and Jehoahaz are a `possible`; Johanan stays on Jehoahaz's key.
   - **David's sons** (3:1–9): Daniel (3:1) is Chileab of II Sam 3:3 on one TIPNR key. "בת שוע בת עמיאל" (3:5) is Bathsheba daughter of Eliam (II Sam 11:3), also on one key. Elpelet and Nogah (3:6–7), absent from II Sam 5:14–16, are linked to the wives taken in Jerusalem on I Chr 14:3–6. Elpelet's father link has its best verse in I Chr 14:5 (block 18).
   - **Hananiah's line** (3:21): "בני רפיה בני ארנן בני עבדיה בני שכניה" are families named after Hananiah's sons Pelatiah and Jeshaiah. The text does not say whose sons they are, so their links to Hananiah are `unstated`. Shecaniah's line (3:22–24) follows; "ששה" (3:22) counts six where five sons are named.
   - **Hur's sons** (4:3–4): "ואלה אבי עיטם יזרעאל וישמא וידבש" are the sons of "the father of Etam". "אלה בני חור" (4:4) may take them in, so their links to Hur are `unstated`, and Penuel and Ezer are confirmed. Ezer "אבי חושה" is a `founder`, and so are Heber "אבי שוכו" (4:18), Er "אבי לכה" and Laadah "אבי מרשה" (4:21).
@@ -309,8 +310,8 @@ Each entry: the child, the readings with their verses, the block that found it.
     - Jabez (4:9–10) and Jehallelel (4:16) begin passages of their own; TIPNR's links to Koz and Elah are rejected.
   - **Mered's wives** (4:17–18): "ותהר את מרים ואת שמי ואת ישבח" names no parent. TIPNR takes the three for the sons of Bithiah "אשר לקח מרד", so those links are `unstated`. "ואשתו היהדיה" follows Mered, so she is kept as his wife and the mother of Jered, Heber and Jekuthiel. "ואלה בני בתיה" comes right after those three, so whose sons Bithiah's are is not clear.
   - **Hodiah** (4:19): "ובני אשת הודיה אחות נחם" reads "the sons of Hodiah's wife, Naham's sister". Hodiah is a man's name elsewhere (Neh 8:7, 10:11, 14, 19). TIPNR makes Hodiah the woman, Naham's sister and Ishbah's wife. Hodiah is made male and the father of the Garmite; the marriage to Ishbah, the Garmite <- Ishbah, and TIPNR's unnamed father of Hodiah and Naham are rejected.
-  - **Simeon** (4:24): "נמואל וימין יריב זרח שאול" against "ימואל וימין ואהד ויכין וצחר ושאול" (Gen 46:10, Ex 6:15) and Num 26:12–13. Nemuel, Jarib and Zerah here have no TIPNR keys of their own: Jemuel and Zerah are on the Genesis keys, and Jarib is not linked. Shallum son of Shaul (4:25) begins the line down to Shimei. Its Mibsam and Mishma are also the names of Ishmael's sons (Gen 25:13–14).
-  - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only.
+  - **Simeon** (4:24): "נמואל וימין יריב זרח שאול" against "ימואל וימין ואהד ויכין וצחר ושאול" (Gen 46:10, Ex 6:15) and Num 26:12–13. Nemuel, Jarib and Zerah here have no TIPNR keys of their own: Jemuel and Zerah are on the Genesis keys, and Jarib is not linked. Shallum son of Shaul (4:25) begins the line down to Shimei. Its Mibsam and Mishma are also the names of Ishmael's sons (Gen 25:13–14). **Step 4:** TIPNR's Jachin key holds 4:24, so Jarib is read as Jachin; nothing to merge.
+  - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only. **Step 4:** Hattush merged; Chelub left apart (nothing but the name).
 - **I Chronicles 5–6** (b16):
   - **Reuben** (5:1–10): "בני יואל" (5:4) follows Reuben's sons (5:3), but the text does not say whose son Joel is; his line down to Beerah is confirmed. Joel father of Shema (5:8) is a second TIPNR key, likely the same man (M91). Jeiel and Zechariah "ואחיו" (5:7) would be Beerah's brothers; they stay on the tribe.
   - **Gad** (5:11–17): the four heads of 5:12 have no father. "אלה בני אביחיל" (5:14) is read, as TIPNR reads it, as the seven of 5:13, not the four.
@@ -632,3 +633,12 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **One person, two keys:** none to merge. TIPNR keys all 77 people of Gen 36 and I Chr 1:35–54 so that each person named in both lists is one key, with the variants (Zepho / Zephi, Alvan / Alian, Shepho / Shephi, Hemam / Homam, Hemdan / Hamran, Akan / Jaakan, Hadar / Hadad, Alvah / Aliah). Amalek of I Chr 1:36 is on no key. One `possible`: Korah of 36:16 with Korah son of Oholibamah.
   - **Off Esau:** the loader now takes `tribe` in a `people:` correction; `tribe: ""` hangs a person on no eponym (a test covers it). Seir, Beor, Zerah of Bozrah, Husham, Bedad, Samlah, Shaul, Achbor, Hadar, Mezahab, the husband of Matred, Elon and Beeri are taken off "Edom": 12 more people under "unattached" (Hadar stays beside Mehetabel). The chiefs of 36:40–43 and Hadad the Edomite stay under Esau.
   - The variants of blocks 03 and 14 needed nothing; the conflicts on Timna and Anah (block 03) stand.
+- 2026-10-22, M91 step 4: Judah and Simeon against I Chr 2–4 (`x04-judah-simeon.yaml`, reviewed).
+  - **Probes:** every person of I Chr 2:1–4:43 against the keys of the same name in Gen 38, 46, Ex 6, Num 13, 26, 34, Josh 7, 14–15, Judg 1, Ruth 4, II Kgs 23–25, Jer 22 and Ezra 8. Most pairs share only a name (Korah son of Hebron and Korah the Levite, Nepheg, Heber); the rest are below.
+  - **Merged (6):**
+    - Achsah, with a conflict on her father: Caleb son of Jephunneh (drawn) or Caleb son of Hezron (2:49).
+    - Hattush (3:22; Ezra 8:2–3, "מבני דויד חטוש מבני שכניה").
+    - Zerah's sons Ethan, Heman, Calcol and Dara with the sages of I Kgs 5:11 (Darda), each with a conflict: Zerah drawn, Mahol the other reading.
+  - **Possible (4):** the two Calebs; Salma son of Hur and Salma son of Nahshon; Shallum son of Josiah and Jehoahaz (Jer 22:11); Zedekiah of 3:16 and the king (II Chr 36:10).
+  - **Left:** Simeon's sons need nothing (TIPNR's Genesis keys hold 4:24). Chelub "אחי שוחה" (4:11) is not tied to a Caleb. Jephunneh is filed under Judah ("למטה יהודה", Num 13:6), so Caleb son of Jephunneh, Kenaz and Othniel leave "Unattached".
+  - 6 fewer people (2,849), 38 conflicts, identities: 6 merged, 5 possible.
