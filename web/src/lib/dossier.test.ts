@@ -22,5 +22,6 @@ describe('the dossier', () => {
     expect(entryLink(entry({ count: 5 }), unit('c:0:3', 'chapter'))).toBe('/read/c%3A0%3A3?layers=gematria')
     expect(entryLink(entry({ kind: 'places', count: 2 }), unit('c:0:3', 'chapter'))).toBe('/places?unit=c%3A0%3A3')
     expect(entryLink(entry({ kind: 'ciphers', count: 1 }), unit('c:23:25', 'chapter'))).toBe('/ciphers?unit=c%3A23%3A25')
+    expect(entryLink(entry({ kind: 'people', count: 4, key: '17' }), unit('v:0', 'verse'))).toBe('/genealogy?p=17')
   })
 })

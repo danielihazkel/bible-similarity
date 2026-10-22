@@ -34,7 +34,8 @@
   names them. `root` (Adam) heads the tree. A cycle is an error.
 
 Writes `artifacts/genealogy/`: `persons.parquet`, `links.parquet`, `proofs.parquet`,
-`conflicts.parquet`, `identities.parquet`, `blocks.parquet` and `genealogy.meta.json`.
+`conflicts.parquet`, `identities.parquet`, `blocks.parquet`, `mentions.parquet` (each person's
+verses, for the unit dossier) and `genealogy.meta.json`.
 `bsim genealogy-review <block>` writes the block's review sheet to `review/<block>.md`
 (`run_genealogy_review`).
 """
@@ -900,6 +901,10 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     proofs_df = pd.DataFrame(
         proof_rows, columns=["link_id", "rank", "verse_id", "cue", "tokens", "source"]
     )
+    mentions_df = pd.DataFrame(
+        [(pid[p.key], v) for p in order if p.he for v in sorted(p.verses)],
+        columns=["person_id", "verse_id"],
+    )
 
     out.mkdir(parents=True, exist_ok=True)
     persons_df.to_parquet(out / "persons.parquet")
@@ -908,6 +913,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     conflicts_df.to_parquet(out / "conflicts.parquet")
     identities_df.to_parquet(out / "identities.parquet")
     blocks_df.to_parquet(out / "blocks.parquet")
+    mentions_df.to_parquet(out / "mentions.parquet")
     parent = links_df[links_df.role.isin(PARENT_ROLES) & (links_df.status != "rejected")]
     meta = {
         "config_hash": config_hash(cfg, "genealogy", "sources.tipnr"),

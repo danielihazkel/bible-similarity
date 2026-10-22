@@ -59,6 +59,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return `/forms?unit=${u}`
     case 'places':
       return `/places?unit=${u}`
+    case 'people':
+      return e.key ? `/genealogy?p=${e.key}` : '/genealogy'
     case 'ciphers':
       return `/ciphers?unit=${u}`
     case 'gematria':

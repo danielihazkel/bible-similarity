@@ -31,8 +31,8 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
                 ? c.network(e.count ?? 0, e.total ?? 0)
                 : e.kind === 'divisions'
                   ? c.divisions(e.count ?? 0, e.key)
-                  : e.kind === 'places'
-                    ? c.places(e.count ?? 0, e.label)
+                  : e.kind === 'places' || e.kind === 'people'
+                    ? c[e.kind](e.count ?? 0, e.label)
                     : e.kind === 'ciphers'
                       ? c.ciphers(e.count ?? 0, e.key, e.label)
                       : e.kind === 'gematria'

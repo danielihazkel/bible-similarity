@@ -373,6 +373,14 @@ CREATE TABLE genealogy_blocks (
     file TEXT
 );
 
+-- The verses that name each person (TIPNR's references, merged keys folded): the unit dossier's
+-- `people` entry.
+CREATE TABLE genealogy_mentions (
+    person_id INTEGER NOT NULL,
+    verse_id INTEGER NOT NULL,
+    PRIMARY KEY (person_id, verse_id)
+) WITHOUT ROWID;
+
 -- The base map (§16.57): Natural Earth's land, lakes and rivers in the region, simplified.
 CREATE TABLE map_shapes (
     shape_id INTEGER PRIMARY KEY,

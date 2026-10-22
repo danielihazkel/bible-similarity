@@ -197,6 +197,11 @@ def test_run_genealogy(tmp_path):
     assert p.set_index("key").kind["a_wife_of_Hezron@Gen.1.5"] == "anon"
     assert json.loads(p.set_index("key").founded["Abraham@Gen.1.2"]) == ["Hebron@Gen.1.5"]
     assert p.book_id.tolist()[-2:] == [0, 1]
+    # each named person's verses; the unnamed and the virtual nodes have none
+    mentions = pd.read_parquet(out / "mentions.parquet")
+    named = mentions.groupby("person_id").verse_id.apply(list).to_dict()
+    assert named[5] == sorted(named[5]) and set(named) == set(p[p.he != ""].person_id)
+    assert all(len(named[r.person_id]) == r.n_verses for r in p[p.he != ""].itertuples())
     links = pd.read_parquet(out / "links.parquet")
     proofs = pd.read_parquet(out / "proofs.parquet")
     by = {(r.child_id, r.parent_id, r.role): r for r in links.itertuples()}

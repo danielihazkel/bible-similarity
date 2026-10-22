@@ -11,7 +11,7 @@ DossierKind = Literal[
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
     "meter", "roots", "refrains", "psalms", "pentateuch", "dialogue", "forms", "places",
-    "ciphers", "gematria", "labels",
+    "people", "ciphers", "gematria", "labels",
 ]  # fmt: skip
 
 
@@ -27,11 +27,11 @@ class DossierEntry(ApiModel):
     # lowest q (acrostic, structure), score (dating), net fall (meter), a verse's letter value
     # (gematria)
     value: float | None = None
-    # speech: speaker lemma; voices: voice profile key; places: the most named place's id;
-    # ciphers: the first hit's words as written
+    # speech: speaker lemma; voices: voice profile key; places / people: the most named place's /
+    # person's id; ciphers: the first hit's words as written
     key: str | None = None
-    # speech / voices: the speaker's Hebrew form; places: the most named place; ciphers: the name
-    # the first hit reads as; gematria: the tradition's texts found (` · `)
+    # speech / voices: the speaker's Hebrew form; places / people: the most named place / person;
+    # ciphers: the name the first hit reads as; gematria: the tradition's texts found (` · `)
     label: str | None = None
     target_unit: str | None = None  # the chapter read for a chapter-scope entry
 

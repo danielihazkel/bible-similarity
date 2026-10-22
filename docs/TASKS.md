@@ -872,9 +872,12 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 ✔ Every family link that touches a verse has been read against the Hebrew, in 21 blocks: 1,969 links checked, 33 conflicts marked (Bible against Bible, or "בן" for a descendant), the cue verses no link uses each dismissed with a reason. The open identifications (one person under two keys) are left to M91.
 
 ## M91: The family tree, across books (§16.63; proposed F4)
-- [ ] The parallel genealogies against each other: Gen 36 / 1 Chr 1, Gen 46 / Num 26 / 1 Chr 2–8, Ezra 7 / 1 Chr 5:27–41, Samuel–Kings / Chronicles
-- [ ] Every tribe attachment checked; "Unattached" kept to the fragments with no known tribe
-- [ ] A People group in the jump box and a dossier entry for the people of a unit (the D99 / D100 pattern)
+- [x] The parallel genealogies against each other: Gen 36 / 1 Chr 1, Gen 46 / Num 26 / 1 Chr 2–8, Ezra 7 / 1 Chr 5:27–41, Samuel–Kings / Chronicles (`same:` merged / possible, steps 2–7)
+- [x] Every tribe attachment checked; "Unattached" kept to the fragments with no known tribe (steps 8–9; `Philistia` gains an eponym)
+- [x] A People group in the jump box and a dossier entry for the people of a unit (the D99 / D100 pattern; D102, `genealogy_mentions`)
+- [x] Tests: identities, adoption, tribe corrections, the mother headers, the mentions (pytest); the `people` entry on a verse and a chapter and "not computed" (pytest); the jump box's People group in both languages and the dossier chip (vitest)
+
+✔ The tree is read across books: 18 people merged from two or more TIPNR keys, 20 recorded as perhaps one, 47 conflicts; 323 people hang on a stated tribe or nation and "Unattached" fell from 1,076 to 908. A person's name opens the tree from anywhere (Ctrl+K), and every unit page names its people.
 
 ## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
 - [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
@@ -955,7 +958,7 @@ Family tree
 - [x] F1 (done, M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
 - [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
 - [x] F3 (done, M90) The review in 21 blocks, in canon order
-- [ ] F4 (M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
+- [x] F4 (done, M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
 - [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
 
 Suggested order: F1 → F2 → F3 → F4; F5 when asked.

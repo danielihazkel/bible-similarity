@@ -2,20 +2,22 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getJson } from '../api/client'
-import { useLemmaLookup, usePlaceLookup, useResolve } from '../api/hooks'
-import type { LemmaLookup, LemmaStat, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
+import { useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve } from '../api/hooks'
+import type { LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
 import { unitLink } from '../lib/links'
 import { matchPages } from '../lib/nav'
 import { unitLabel } from '../lib/names'
+import { personAbout } from '../lib/people'
 
 const MAX_WORDS = 6
 const MAX_PLACES = 4
+const MAX_PEOPLE = 4
 const MAX_PAGES = 6
 const DEBOUNCE_MS = 150
 
-type Kind = 'gematria' | 'passage' | 'places' | 'words' | 'pages' | 'search'
+type Kind = 'gematria' | 'passage' | 'places' | 'words' | 'people' | 'pages' | 'search'
 interface Option {
   kind: Kind
   to: string
@@ -37,7 +39,8 @@ function placesFirst(places: PlaceMatch[], lemmas: LemmaStat[]): boolean {
 }
 
 /** Every choice for a query, best first: a letter value (`= …`), the passage it names, the places and
- * the words (a place named exactly first, to the map), the pages, a text search. */
+ * the words (a place named exactly first, to the map), the people (to the family tree), the pages, a
+ * text search. */
 function buildOptions(
   m: Messages,
   locale: 'en' | 'he',
@@ -45,6 +48,7 @@ function buildOptions(
   unit: UnitSummary | null | undefined,
   lemmas: LemmaStat[],
   places: PlaceMatch[],
+  people: PersonMatch[] = [],
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
@@ -63,17 +67,25 @@ function buildOptions(
     detail: t.place(p.kind ? m.pl.kindOne[p.kind] : null, t.verses(p.n_verses), locale === 'he' ? p.first_label_he : p.first_label),
     hebrew: true,
   }))
+  const persons = people.slice(0, MAX_PEOPLE).map((x) => ({
+    kind: 'people' as const,
+    to: `/genealogy?p=${x.person_id}`,
+    label: x.he,
+    detail: personAbout(x, m.gt, locale) || undefined,
+    hebrew: true,
+  }))
   return [
     ...(gm ? [{ kind: 'gematria' as const, to: `/gematria?q=${encodeURIComponent(gm)}`, label: t.gematriaOf(gm) }] : []),
     ...(unit ? [{ kind: 'passage' as const, to: unitLink(unit.unit_id), label: unitLabel(unit, locale) }] : []),
     ...(placesFirst(places, lemmas) ? [...sites, ...words] : [...words, ...sites]),
+    ...persons,
     ...matchPages(m, q, MAX_PAGES).map((p) => ({ kind: 'pages' as const, to: p.to, label: p.label, detail: p.hint })),
     { kind: 'search', to: `/search?q=${encodeURIComponent(q.trim())}`, label: t.searchFor(q.trim()) },
   ]
 }
 
 /** Ctrl+K: a passage by its reference, a word by its form or Strong's number, a place by its name (to
- * the map), a page by its name, or else a search of the text. A modal combobox: arrows move, Enter opens, Escape closes. */
+ * the map), a person by their name (to the family tree), a page by its name, or else a search of the text. A modal combobox: arrows move, Enter opens, Escape closes. */
 export function JumpBox({ onClose }: { onClose: () => void }) {
   const { m, locale } = useLocale()
   const t = m.jump
@@ -98,10 +110,12 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const resolve = useResolve(settled)
   const lemmas = useLemmaLookup(settled)
   const places = usePlaceLookup(settled)
+  const people = usePersonLookup(settled)
   const unit = resolve.data?.query === settled ? resolve.data.unit : undefined
   const words = lemmas.data?.query === settled ? lemmas.data.items : []
   const sites = places.data?.query === settled ? places.data.items : []
-  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites)
+  const persons = people.data?.query === settled ? people.data.items : []
+  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons)
   const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [], [])
   const current = Math.min(active, shown.length - 1)
 
@@ -114,12 +128,13 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const goNow = async () => {
     const s = q.trim()
     if (!s) return
-    const [r, l, p] = await Promise.all([
+    const [r, l, p, f] = await Promise.all([
       client.fetchQuery({ queryKey: ['resolve', s], queryFn: ({ signal }) => getJson<ResolveResponse>('/resolve', { q: s }, signal) }),
       client.fetchQuery({ queryKey: ['lemma-lookup', s], queryFn: ({ signal }) => getJson<LemmaLookup>('/lemmas', { q: s }, signal) }),
       client.fetchQuery({ queryKey: ['place-lookup', s], queryFn: ({ signal }) => getJson<PlaceLookup>('/places/lookup', { q: s }, signal) }),
-    ]).catch(() => [undefined, undefined, undefined] as const)
-    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [])[0])
+      client.fetchQuery({ queryKey: ['person-lookup', s], queryFn: ({ signal }) => getJson<PersonLookup>('/genealogy/lookup', { q: s }, signal) }),
+    ]).catch(() => [undefined, undefined, undefined, undefined] as const)
+    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [], f?.items ?? [])[0])
   }
 
   const onKey = (e: KeyboardEvent) => {
@@ -132,7 +147,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
       if (n) setActive((current + (e.key === 'ArrowDown' ? 1 : n - 1)) % n)
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      if (settled === q.trim() && !resolve.isFetching && !lemmas.isFetching && !places.isFetching) go(shown[current])
+      if (settled === q.trim() && !resolve.isFetching && !lemmas.isFetching && !places.isFetching && !people.isFetching) go(shown[current])
       else void goNow()
     } else if (e.key === 'Tab') {
       e.preventDefault() // the input is the dialog's one stop; the list is reached with the arrows
@@ -141,7 +156,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
 
   // the groups in the order of their options (places before or after the words)
   const groups = [...new Set(shown.map((o) => o.kind))]
-  const heading: Record<Kind, string> = { gematria: t.gematria, passage: t.passage, places: t.places, words: t.words, pages: t.pages, search: t.search }
+  const heading: Record<Kind, string> = { gematria: t.gematria, passage: t.passage, places: t.places, words: t.words, people: t.people, pages: t.pages, search: t.search }
   const optionId = (i: number) => `${id}-o${i}`
   return (
     <div

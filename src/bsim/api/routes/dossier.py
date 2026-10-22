@@ -29,6 +29,9 @@ and what it found:
     forms                         count = graded numerical sayings + lists touching the unit
     places                        count = places named in the unit's verses; key / label = the
                                   most named one's id / Hebrew name
+    people                        count = people of the family tree named in the unit's verses;
+                                  key / label = the most named one's id / Hebrew name (ties: the
+                                  most named in the whole text)
     ciphers                       count = names read through atbash or albam in the unit's
                                   verses; key / label = the first one's words / the name
     gematria                      count = the tradition's valued texts (`gematria.known`) among
@@ -279,6 +282,21 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         count=len(places),
         key=str(places[0][0]) if places else None,
         label=places[0][1] if places else None,
+    )
+
+    people = conn.execute(
+        "SELECT p.person_id, p.he FROM genealogy_mentions m"
+        " JOIN genealogy_persons p ON p.person_id = m.person_id"
+        " WHERE m.verse_id BETWEEN ? AND ? GROUP BY p.person_id"
+        " ORDER BY COUNT(*) DESC, p.n_verses DESC, p.person_id",
+        span,
+    ).fetchall()
+    add(
+        "people",
+        computed=state.present(conn, "genealogy_mentions"),
+        count=len(people),
+        key=str(people[0][0]) if people else None,
+        label=people[0][1] if people else None,
     )
 
     n_hits, hits = queries.cipher_hits_page(conn, None, None, span, False, 1, 0)

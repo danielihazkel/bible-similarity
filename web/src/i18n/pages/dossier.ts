@@ -54,6 +54,7 @@ export const dosEn = {
     dialogue: (n: number) => countEn(n, 'exchange between two speakers', 'exchanges between two speakers'),
     forms: (n: number) => countEn(n, 'graded numerical saying or list', 'graded numerical sayings and lists'),
     places: (n: number, top: string | null) => `${countEn(n, 'place', 'places')} on the map${top ? `, most named ${top}` : ''}`,
+    people: (n: number, top: string | null) => `${countEn(n, 'person', 'people')} in the family tree${top ? `, most named ${top}` : ''}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countEn(n, 'name read through atbash or albam', 'names read through atbash or albam')}${words && name ? ` (${words} read as ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -98,6 +99,7 @@ export const dosEn = {
     dialogue: 'exchanges',
     forms: 'numerical sayings and lists',
     places: 'places on the map',
+    people: 'people in the family tree',
     ciphers: 'atbash and albam',
     gematria: 'letter values',
   } as Record<DossierKind, string>,
@@ -150,6 +152,7 @@ export const dosHe: typeof dosEn = {
     dialogue: (n: number) => countHe(n, 'שיחה אחת בין שני דוברים', 'שתי שיחות בין שני דוברים', 'שיחות בין שני דוברים'),
     forms: (n: number) => countHe(n, 'משל מספרי מדורג או רשימה', 'שני משלים מספריים או רשימות', 'משלים מספריים ורשימות'),
     places: (n: number, top: string | null) => `${countHe(n, 'מקום אחד', 'שני מקומות', 'מקומות')} במפה${top ? `, הנזכר ביותר ${top}` : ''}`,
+    people: (n: number, top: string | null) => `${countHe(n, 'אדם אחד', 'שני אנשים', 'אנשים')} באילן היוחסין${top ? `, הנזכר ביותר ${top}` : ''}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countHe(n, 'שם אחד הנקרא באת״ב״ש או באל״ב״ם', 'שני שמות הנקראים באת״ב״ש או באל״ב״ם', 'שמות הנקראים באת״ב״ש או באל״ב״ם')}${words && name ? ` (${words} נקרא ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -193,6 +196,7 @@ export const dosHe: typeof dosEn = {
     dialogue: 'שיחות',
     forms: 'משלים מספריים ורשימות',
     places: 'מקומות במפה',
+    people: 'אנשים באילן היוחסין',
     ciphers: 'את״ב״ש ואל״ב״ם',
     gematria: 'ערכי אותיות',
   },

@@ -239,6 +239,7 @@ SOURCES: tuple[Source, ...] = (
             Table("genealogy_conflicts", "conflicts"),
             Table("genealogy_identities", "identities"),
             Table("genealogy_blocks", "blocks"),
+            Table("genealogy_mentions", "mentions"),
         ),
         "genealogy.meta.json",
         keys(

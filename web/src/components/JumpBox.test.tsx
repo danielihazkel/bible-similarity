@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { LemmaLookup, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
+import type { LemmaLookup, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { LocaleProvider } from '../context/Locale'
 import { TextModeProvider } from '../context/TextMode'
 import { Layout } from './Layout'
@@ -40,6 +40,22 @@ const place = (place_id: number, he: string, lemma: string, n_verses: number, ex
 })
 // חברון the town and its name; עין the town, and עין the eye, commoner
 const PLACES: Record<string, PlaceMatch[]> = { חברון: [place(31, 'חברון', '2275', 54)], עין: [place(80, 'עין', '5871', 5)] }
+// יפתח: Jephthah son of Gilead
+const person = (person_id: number, of_he: string | null, first_label: string, first_label_he: string): PersonMatch => ({
+  person_id,
+  he: 'יפתח',
+  sex: 'm',
+  kind: 'person',
+  placement: 'tree',
+  first_vid: 600,
+  n_verses: 25,
+  exact: true,
+  relation: of_he ? 'child' : null,
+  of_he,
+  first_label,
+  first_label_he,
+})
+const PEOPLE: Record<string, PersonMatch[]> = { יפתח: [person(1700, 'גלעד', 'Judges 11:1', 'שופטים יא:א')] }
 const LEMMAS: Record<string, LemmaLookup['items']> = {
   שלום: [{ lemma: '7965', he_lemma: 'שלום', n_verses: 209 }],
   חברון: [{ lemma: '2275', he_lemma: 'חברון', n_verses: 62 }],
@@ -62,14 +78,16 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en') {
       calls.push(url)
       const u = new URL(url, 'http://x')
       const q = u.searchParams.get('q') ?? ''
-      const body: ResolveResponse | LemmaLookup | PlaceLookup | null =
+      const body: ResolveResponse | LemmaLookup | PlaceLookup | PersonLookup | null =
         u.pathname === '/api/resolve'
           ? { query: q, unit: /^(gen 1:1|בראשית א א)$/i.test(q) ? GEN : null }
           : u.pathname === '/api/lemmas'
             ? { query: q, items: LEMMAS[q] ?? [] }
             : u.pathname === '/api/places/lookup'
               ? { query: q, items: PLACES[q] ?? [] }
-              : null
+              : u.pathname === '/api/genealogy/lookup'
+                ? { query: q, items: PEOPLE[q] ?? [] }
+                : null
       return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
     }),
   )
@@ -187,6 +205,18 @@ describe('JumpBox', () => {
     expect(calls.some((c) => c.startsWith('/api/resolve?q=nothing'))).toBe(true)
   })
 
+  it('opens the family tree at a person, told apart by parent and first verse', async () => {
+    renderAt('/')
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true })
+    fireEvent.change(box(), { target: { value: 'יפתח' } })
+    const option = await screen.findByRole('option', { name: /יפתח.*son of גלעד · first in Judges 11:1/ })
+    const groups = screen.getAllByRole('group').map((g) => g.getAttribute('aria-labelledby'))
+    expect(groups.map((id) => document.getElementById(id!)?.textContent)).toEqual(['People in the family tree', 'Search the text'])
+    expect(option.getAttribute('aria-selected')).toBe('true')
+    fireEvent.keyDown(box(), { key: 'Enter' })
+    await waitFor(() => expect(loc()).toBe('/genealogy?p=1700'))
+  })
+
   it('works in Hebrew', async () => {
     renderAt('/', 'he')
     fireEvent.click(screen.getByRole('button', { name: /מעבר אל/ }))
@@ -197,5 +227,8 @@ describe('JumpBox', () => {
     fireEvent.change(box(), { target: { value: 'חברון' } })
     expect(await screen.findByRole('option', { name: /חברון.*עיר · 54 פסוקים · לראשונה ב־בראשית יג:יח/ })).toBeTruthy()
     expect(screen.getByText('מקומות במפה')).toBeTruthy()
+    fireEvent.change(box(), { target: { value: 'יפתח' } })
+    expect(await screen.findByRole('option', { name: /יפתח.*לראשונה ב.*שופטים יא:א/ })).toBeTruthy()
+    expect(screen.getByText('אנשים באילן היוחסין')).toBeTruthy()
   })
 })

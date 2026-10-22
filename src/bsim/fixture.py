@@ -720,6 +720,12 @@ def write_inputs(cfg, tmp_path):
         columns=["block", "first_vid", "last_vid", "status", "n_links", "n_conflicts", "n_missed",
                  "file"],
     ).to_parquet(gen_dir / "blocks.parquet")  # fmt: skip
+    # the verses naming each person (the unit dossier's `people`)
+    pd.DataFrame(
+        [(1, 0), (1, 1), (1, 2), (2, 0), (3, 1), (3, 2), (4, 2), (4, 3), (5, 3), (6, 3), (7, 3),
+         (8, 4), (9, 4), (10, 2), (12, 3), (13, 5)],
+        columns=["person_id", "verse_id"],
+    ).to_parquet(gen_dir / "mentions.parquet")  # fmt: skip
     # identities: Enosh read as one person from two entries; Shimei perhaps Balaam
     pd.DataFrame(
         [(1, "merged", 10, None, '["Enosh@Gen", "Enosh@Gen.5"]', '[{"verse_id": 2, "tokens": [0]}]',

@@ -277,11 +277,12 @@ export const he: Messages = {
 
   jump: {
     open: 'מעבר אל…',
-    openTitle: 'מעבר אל קטע, מילה, מקום או עמוד (Ctrl+K)',
-    label: 'מעבר אל קטע, מילה, מקום או עמוד',
-    placeholder: 'בראשית א · Gen 1:1 · שלום · 7965 · = 318 · חברון · רשת',
+    openTitle: 'מעבר אל קטע, מילה, מקום, אדם או עמוד (Ctrl+K)',
+    label: 'מעבר אל קטע, מילה, מקום, אדם או עמוד',
+    placeholder: 'בראשית א · Gen 1:1 · שלום · 7965 · = 318 · חברון · יפתח · רשת',
     passage: 'קטע',
     places: 'מקומות במפה',
+    people: 'אנשים באילן היוחסין',
     place: (kind: string | null, verses: string, first: string) => `${kind ? `${kind} · ` : ''}${verses} · לראשונה ב־${first}`,
     words: 'מילים',
     pages: 'עמודים',

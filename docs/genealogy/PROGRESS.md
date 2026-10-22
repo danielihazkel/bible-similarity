@@ -78,7 +78,7 @@ A person counts as reviewed when every parent link of theirs is checked.
 | M88 (F1) | Data: TIPNR family columns, `bsim genealogy`, automatic proofs, curated loader, `genealogy-review`, DB tables | done |
 | M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
 | M90 (F3) | Review block by block (below) | done |
-| M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry (below) | in progress |
+| M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry (below) | done |
 
 Review blocks (M90), in Jewish canon order:
 
@@ -119,15 +119,17 @@ Cross-book steps (M91), planned in step 1:
 | 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | done |
 | 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | done |
 | 9 | "Unattached": people whose tribe or family the text states | done |
-| 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
+| 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | done |
 
 ## Next step
-**M91, step 10: the people in the jump box and in the unit dossier (D99 / D100 for places).** No curated file; code, i18n and tests.
+**Series F is done (M88–M91).** Nothing is scheduled. F5, rabbinic identifications as a third kind of conflict with their sources from Sefaria, waits until the user asks for it (deferred, 2026-10-21; `docs/TASKS.md`).
 
-- **Jump box** (Ctrl+K): a People group beside the places (D99). A person's Hebrew name (`/api/genealogy/lookup?q=`, which exists) opens `/genealogy` at that person, the path to them expanded and the panel open. Several people of one name are told apart by their parent or first verse, as the search does.
-- **Dossier** (D64 / D100): a `people` entry for a unit: the people its verses name (persons whose verses fall in the unit), the most named first, each a link to `/genealogy` at that person; "nothing found" and "not computed in this build" (without `genealogy_persons`) like the other entries.
-- English and Hebrew strings in the catalogs; DESIGN §16.63 and a D-row (D102) for the decision; pytest for the API and dossier on the fixture, vitest for the jump box group and the dossier entry.
-- Then rebuild the web and DB as needed, run ruff, pytest and vitest, and update this file. M91 is then done: tick its boxes in `docs/TASKS.md`.
+If the user asks for more on the tree before then, the material is here:
+- The **Open questions** below. The items marked "(M91)" all carry a **Step N:** note saying how they were settled or why they were left.
+- The `possible` identities (20), which a later pass may merge or drop.
+- The 908 people still under "unattached", mostly people with no family in the text.
+
+New curated files follow the same format (above). A cross-book file needs its block added to `genealogy.cross_blocks`.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -684,3 +686,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **By descent (9):** Heber the Kenite <- Hobab ("מבני חבב", Judg 4:11); Meshezabel <- Zerah (Neh 11:24); Azariah "לבית צדוק" <- Zadok (II Chr 31:10); Jeshaiah "מבני מררי" <- Merari (Ezra 8:19); the families of Kiriath-jearim and the Zorathites <- Shobal (I Chr 2:52–53).
   - **Left:** gentilics of places (Gileadites, Carmelites, Anathothites), nations with no eponym (Babylon, Persia, the Kenites), Neh 8:4 and 8:7, the singers and gatekeepers of Ezra 10:24, Abihail, Jether, Hammath and the Simeonite princes (the file's comments).
   - 2,836 people, 1,808 parent links, 47 conflicts; placed on a tribe 323, unattached 908 (from 1,076).
+- 2026-10-22, M91 step 10: the people in the jump box and in the unit dossier (D102). M91 done.
+  - **Data:** `bsim genealogy` writes `mentions.parquet` (each named person's verses, merged keys folded), loaded as `genealogy_mentions` with an index by verse.
+  - **API:** a `people` entry in `/dossier/{unit}`: the people its verses name, the most named first (ties: the most named in the whole text), `key` / `label` that person's id / name, "not computed" without the table.
+  - **Viewer:** a People group in the jump box after the words and places, each with the parent (or tribe, or spouse) and the first verse that tell namesakes apart (`lib/people.ts`, shared with the tree's search), opening `/genealogy?p=`. Enter before the typing pause looks people up too. A dossier chip "N people in the family tree, most named X" links to the tree at X. English and Hebrew.
+  - **Tests:** the mentions (pytest, `test_run_genealogy`); the entry on a verse, a chapter and "not computed" (`test_dossier.py`); the People group in both languages, the chip and its link (vitest).
+  - DESIGN §16.63 ("From elsewhere"), the API table and D102; `docs/TASKS.md` M91 and F4 ticked.

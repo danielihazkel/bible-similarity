@@ -23,6 +23,7 @@ import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { usePanZoom } from '../lib/panZoom'
+import { personAbout } from '../lib/people'
 import { useQueryParams } from '../lib/urlState'
 
 const OPEN_GENERATIONS = 3 // the tree opens with Adam's first generations expanded
@@ -404,25 +405,6 @@ function PersonSearch({ t, onPick }: { t: T; onPick: (id: number) => void }) {
     setQ('')
     onPick(x.person_id)
   }
-  const about = (x: PersonMatch) => {
-    const of = x.of_he
-    const rel =
-      !of || !x.relation
-        ? undefined
-        : x.relation === 'spouse'
-          ? x.sex === 'm'
-            ? t.husbandOf(of)
-            : t.wifeOf(of)
-          : x.relation === 'tribe'
-            ? t.lineOf(of)
-            : x.sex === 'f'
-              ? t.daughterOf(of)
-              : x.sex === 'm'
-                ? t.sonOf(of)
-                : t.childOf(of)
-    const first = locale === 'he' ? x.first_label_he : x.first_label
-    return [rel, first ? t.firstIn(first) : undefined].filter(Boolean).join(' · ')
-  }
   return (
     <div className="gt-search">
       <label className="control">
@@ -451,7 +433,7 @@ function PersonSearch({ t, onPick }: { t: T; onPick: (id: number) => void }) {
                   </span>
                 </button>{' '}
                 <span className="muted small" dir="auto">
-                  {about(x)}
+                  {personAbout(x, t, locale)}
                 </span>
               </li>
             ))}

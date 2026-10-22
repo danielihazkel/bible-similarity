@@ -80,6 +80,25 @@ def test_dossier_places_ciphers_gematria(client, built):
     assert entries(client, "v:2")["places"]["count"] == 0
 
 
+def test_dossier_people(client, built):
+    # v0 names Adam and Eve: the one named more often in the whole text first
+    d = entries(client, "v:0")["people"]
+    assert (d["computed"], d["count"], d["key"], d["label"]) == (True, 2, "1", "אדם")
+    # v3: Seth, Lamech, Adah, Zillah, Shimei; the chapter v0-v2, where Adam is named three times
+    assert entries(client, "v:3")["people"]["count"] == 5
+    c = entries(client, "c:0:1")["people"]
+    _, db = built
+    conn = sqlite3.connect(db)
+    lo, hi = conn.execute(
+        "SELECT start_verse_id, end_verse_id FROM units WHERE unit_id = 'c:0:1'"
+    ).fetchone()
+    named = conn.execute(
+        "SELECT COUNT(DISTINCT person_id) FROM genealogy_mentions WHERE verse_id BETWEEN ? AND ?",
+        (lo, hi),
+    ).fetchone()[0]
+    assert c["count"] == named and c["label"] == "אדם"
+
+
 def test_known_texts_in(built):
     _, db = built
     conn = sqlite3.connect(db)
@@ -106,9 +125,11 @@ def test_dossier_not_computed(built):
         conn.execute("DELETE FROM voice_speakers")
         conn.execute("DELETE FROM borrowing_sequences")
         conn.execute("DELETE FROM cipher_hits")
+        conn.execute("DELETE FROM genealogy_mentions")
     conn.close()
     d = entries(_client(cfg), "v:1")
     assert not d["voices"]["computed"] and not d["borrowing"]["computed"]
+    assert not d["people"]["computed"]
     assert not d["ciphers"]["computed"] and d["places"]["computed"]
     assert d["phrases"]["computed"]
 

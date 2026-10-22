@@ -79,6 +79,7 @@ INDEXES = (
     "CREATE INDEX place_mentions_by_place ON place_mentions (place_id, verse_id)",
     "CREATE INDEX genealogy_links_by_parent ON genealogy_links (parent_id, role)",
     "CREATE INDEX genealogy_links_by_child ON genealogy_links (child_id, role)",
+    "CREATE INDEX genealogy_mentions_by_verse ON genealogy_mentions (verse_id, person_id)",
     "CREATE INDEX network_nodes_by_community ON network_nodes (unit_type, community)",
     "CREATE INDEX network_edges_by_a ON network_edges (unit_type, a)",
     "CREATE INDEX domain_verses_by_verse ON domain_verses (verse_id, code)",
