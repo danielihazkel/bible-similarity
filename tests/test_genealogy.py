@@ -439,6 +439,18 @@ def test_identity_errors(tmp_path):
     assert c.child_id.tolist() == [pid["Seth@Gen.1.1"]]
 
 
+def test_tribe_taken_off(tmp_path):
+    cfg = corpus(tmp_path)
+    x = tmp_path / "cur" / "genealogy" / "x1.yaml"
+    x.write_text('block: x1\npeople:\n  - {key: "Hezron@Gen.1.5", tribe: ""}\n', "utf-8")
+    out = run_genealogy(cfg, log=lambda _: None)
+    p = pd.read_parquet(out / "persons.parquet").set_index("key")
+    assert p.placement["Hezron@Gen.1.5"] == "unattached" and p.tribe.isna()["Hezron@Gen.1.5"]
+    x.write_text('block: x1\npeople:\n  - {key: "Hezron@Gen.1.5", tribe: 3}\n', "utf-8")
+    with pytest.raises(CurationError, match="a tribe is TIPNR's label"):
+        run_genealogy(cfg, log=lambda _: None)
+
+
 def test_missing_tipnr_fails_fast(tmp_path):
     cfg = corpus(tmp_path)
     for f in (tmp_path / "raw" / "geo").iterdir():

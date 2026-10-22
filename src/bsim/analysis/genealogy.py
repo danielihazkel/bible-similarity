@@ -19,8 +19,9 @@
 - **The review.** `curation/genealogy/*.yaml` (`paths.curation`), one file per block of
   `genealogy.blocks`, checks links against the Hebrew: each `confirmed`, `fixed`, `added` or
   `rejected`, with its own proof verses if given (Sefaria references, Hebrew numbering); added
-  people (`anon:` keys); conflicts, whose readings name a parent and its verses, the first drawn;
-  cue verses looked at and passed over (`missed`); identities (`same:`), one person under several
+  people (`anon:` keys) and corrections to TIPNR's (name, sex, tribe: `""` hangs a person on no
+  tribe's eponym); conflicts, whose readings name a parent and its verses, the first drawn; cue
+  verses looked at and passed over (`missed`); identities (`same:`), one person under several
   TIPNR keys, `merged` into one (before any link is decided; a merged person with two fathers
   needs a conflict) or `possible` (both kept, cross-referred). The cross-book steps' files
   (`cross_blocks`) have no verse range. Every key, reference and status is checked and any error
@@ -355,8 +356,11 @@ def apply_curation(
             if not isinstance(key, str):
                 err(where, "a person needs a key")
                 continue
-            if key in persons:  # a correction to TIPNR's
-                for k in ("he", "sex"):
+            if not isinstance(p.get("tribe", ""), str):
+                err(where, "a tribe is TIPNR's label, or \"\" for none")
+                continue
+            if key in persons:  # a correction to TIPNR's; tribe "": hung on no tribe's eponym
+                for k in ("he", "sex", "tribe"):
                     if k in p:
                         setattr(persons[key], k, p[k])
                 continue
@@ -367,7 +371,7 @@ def apply_curation(
             if kind not in ("person", "group", "anon") or p.get("sex") not in ("m", "f", None):
                 err(where, "kind is person, group or anon; sex m or f")
                 continue
-            persons[key] = Person(key, str(p.get("he", "")), p.get("sex"), kind)
+            persons[key] = Person(key, str(p.get("he", "")), p.get("sex"), kind, p.get("tribe", ""))
 
     # the identities: the merges first, so that every link is decided between merged persons
     possible = []

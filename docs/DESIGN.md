@@ -1470,7 +1470,7 @@ Status: data built (M88), viewer (M89); review M90–M91. Progress and hand-off:
 - **Placement:**
   - Each person has one primary parent: a conflict's first reading, else the father (an adoptive one last), else the mother. Other parents and other readings are cross-links (`drawn` = 0).
   - Someone without a parent who married in is drawn beside the spouse rather than as a node: a spouse, or a parent only of children drawn under the other parent (Eve, Sarah, Keturah). Of a couple neither of whom has a parent, the husband is placed and the wife is beside him.
-  - Anyone else without a parent hangs on the eponym of TIPNR's tribe or nation of the father (`genealogy.tribes`: the twelve tribes, Israel, Edom → Esau, Canaan, Egypt, Ammon, Moab, Midian, Aram, Asshur, Cush) by an `unstated` link. Otherwise they go under "unattached", grouped by the book that first names them.
+  - Anyone else without a parent hangs on the eponym of TIPNR's tribe or nation of the father (`genealogy.tribes`: the twelve tribes, Israel, Edom → Esau, Canaan, Egypt, Ammon, Moab, Midian, Aram, Asshur, Cush) by an `unstated` link. Otherwise they go under "unattached", grouped by the book that first names them. A review file's `people:` correction `tribe: ""` takes a person off TIPNR's tribe where the text does not support it (M91: Seir the Horite and the kings of Edom, off Esau).
   - A cycle is an error.
 - **The review sheet** (`bsim genealogy-review <block>`, `artifacts/genealogy/review/<block>.md`):
   - every link whose best verse is in the block (an unproved one by its child's first verse), as a `child <- parent` line with its verses and the names marked;

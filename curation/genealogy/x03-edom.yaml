@@ -1,0 +1,38 @@
+# M91 step 3: Edom, Genesis 36 against I Chronicles 1:35-54 (DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: x03-edom
+status: reviewed
+# One person, two keys: TIPNR keys every person of I Chr 1:35-54 to the Genesis 36 record
+# (Zepho / Zephi, Alvan / Alian, Shepho / Shephi, Hemam / Homam, Hemdan / Hamran, Akan / Jaakan,
+# Hadar / Hadad, Alvah / Aliah), so nothing is merged. Amalek of I Chr 1:36 is on no key: TIPNR's
+# Amalek has only Genesis 36:12, 16.
+#
+# Off Esau: TIPNR files these under the nation "Edom", which hung them on Esau by a link not stated.
+#  - Seir the Horite and his line were in Seir before Esau's sons (Gen 36:20; Deut 2:12, 22).
+#  - The kings "אשר מלכו בארץ אדום" (Gen 36:31-39) are not said to descend from Esau: Beor, Zerah
+#    of Bozrah, Bedad and Achbor are kings' fathers, Husham, Samlah, Shaul and Hadar kings with no
+#    father named (Hadar is drawn beside Mehetabel), Mezahab the father of Hadar's wife's mother.
+#  - Elon and Beeri are Hittites (Gen 26:34, 36:2), like Zohar (Gen 23:8), who has no tribe.
+#  - TIPNR's husband of Matred has no link left (block 03 rejected both).
+# Kept under Esau: the chiefs of Gen 36:40-43, "אלופי עשו למשפחתם" (36:40, 43), and Hadad
+# "האדמי" of I Kgs 11:14.
+people:
+  - {key: "Seir@Gen.36.20-1Ch", tribe: ""}
+  - {key: "Beor@Gen.36.32-1Ch", tribe: ""}
+  - {key: "Zerah@Gen.36.33-1Ch", tribe: ""}
+  - {key: "Husham@Gen.36.34-1Ch", tribe: ""}
+  - {key: "Bedad@Gen.36.35-1Ch", tribe: ""}
+  - {key: "Samlah@Gen.36.36-1Ch", tribe: ""}
+  - {key: "Shaul@Gen.36.37-1Ch", tribe: ""}
+  - {key: "Achbor@Gen.36.38-1Ch", tribe: ""}
+  - {key: "Hadad@Gen.36.39-1Ch", tribe: ""}
+  - {key: "Mezahab@Gen.36.39-1Ch", tribe: ""}
+  - {key: "husband_of_Matred@Gen.36.39", tribe: ""}
+  - {key: "Elon@Gen.26.34-", tribe: ""}
+  - {key: "Beeri@Gen.26.34", tribe: ""}
+same:
+  - keys: ["Korah@Gen.36.16", "Korah@Gen.36.5-1Ch"]
+    status: possible
+    proof: [Genesis 36:16, Genesis 36:11, Genesis 36:18]
+    note:
+      en: "Chief Korah is among Eliphaz's chiefs (Genesis 36:16), but not among Eliphaz's sons (36:11-12, I Chronicles 1:36). Korah son of Oholibamah is chief Korah of 36:18."
+      he: "אלוף קרח נמנה באלופי אליפז (בראשית לו:טז), ואינו בבני אליפז (לו:יא–יב, דברי הימים א א:לו). קרח בן אהליבמה הוא אלוף קרח של לו:יח."

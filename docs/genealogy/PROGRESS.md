@@ -36,7 +36,8 @@ One file per block, `curation/genealogy/NN-<block>.yaml`; the block's verse rang
 ```yaml
 block: b13-ezra-nehemiah
 status: reviewed          # draft | reviewed
-people:                   # added people (anon:…) or corrections to TIPNR (he, sex)
+people:                   # added people (anon:…) or corrections to TIPNR (he, sex, tribe)
+  - {key: "Seir@Gen.36.20-1Ch", tribe: ""}   # tribe "": hung on no tribe's eponym (M91)
   - {key: "anon:wife-of-hezron-2", he: "אשת חצרון", sex: f, kind: anon}
 links:
   # the short form: confirmed, with the automatic proof verses (copy the sheet's line)
@@ -64,6 +65,7 @@ Rules the build enforces, stopping on any error:
 - Every key and reference must resolve, and the tree must not get a cycle.
 - `same:` (M91): `merged` folds the other keys into the first before any link is decided, and the merged keys still name the person in every file. A link that two files decided under the two pairs of keys must have the same status there. A merged person with two fathers (or mothers) needs a conflict listing them as readings. `possible` keeps both persons; it cannot name two keys already merged. Both need proof verses.
 - The cross-book steps' files are `curation/genealogy/xNN-<topic>.yaml`, with `block` one of `genealogy.cross_blocks` (`x03-edom` … `x09-unattached`). They have no verse range and no review sheet.
+- A `people:` correction `tribe: ""` takes a person without a parent off TIPNR's tribe or nation: it goes under "unattached", by its book (M91 step 3).
 - An adoptive father is a link of kind `adopted` (`role: father`); it is never the one the tree draws while the child has another father.
 
 A person counts as reviewed when every parent link of theirs is checked.
@@ -110,7 +112,7 @@ Cross-book steps (M91), planned in step 1:
 |---|---|---|
 | 1 | The plan; the format for identifications and adoption, asked | done |
 | 2 | Build `same:` (`merged` / `possible`) and `adopted` cross-links: loader, tree, API, panel, DESIGN §16.63, tests | done |
-| 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | todo |
+| 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | done |
 | 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | todo |
 | 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | todo |
 | 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | todo |
@@ -120,11 +122,17 @@ Cross-book steps (M91), planned in step 1:
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 3: `x03-edom`, Gen 36 against I Chr 1.** Write `curation/genealogy/x03-edom.yaml` (`block: x03-edom`). There is no review sheet for a cross-book step, so build the lists with scratchpad probes:
+**M91, step 4: `x04-judah-simeon`, Gen 46 / Num 26 / Joshua–Judges / Ruth against I Chr 2–4.** Write `curation/genealogy/x04-judah-simeon.yaml` (`block: x04-judah-simeon`), with scratchpad probes as in step 3 (`state.py` pickles the persons and links after the review; `edom.py` lists the people of two passages with their keys, parents and tribe):
 
-- **One person, two keys:** for every person named in Gen 36 or I Chr 1:35–54, find TIPNR keys with the same name (with ו and י ignored) whose verses fall in the other passage. Read both verses, and record a `same:` entry: `merged` where the lists clearly name one person (same name or a known variant, same place in the list, same father), `possible` where it is only likely. A merge whose keys had different fathers needs a conflict in the same file.
-- **The variants** between the lists, against the M90 decisions of blocks 03 and 14: Alvah / Aliah, Jetheth, Shepho / Shephi, Homam / Hemam, Akan / Jaakan, Hadad's city Pau / Pai, Mehetabel. Block 14 found no links to check, because TIPNR already keys most of I Chr 1 to Genesis.
-- **The tribe attachments of Edom** (open question at the head of **Open questions**): Seir the Horite, and the kings' fathers Beor, Zerah of Bozrah, Bedad, Achbor and Mezahab, hang on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22), and the kings are not said to descend from him. The only tool for this so far is `genealogy.tribes` (a whole tribe's eponym), so decide whether a person can be taken off a tribe: say, a `people:` correction `tribe: ""`, which the loader would need. If that needs code, build it with a test, as step 2 did.
+- **One person, two keys:** for every person of I Chr 2:1–4:43, the TIPNR keys of the same name (ו and י ignored) whose verses fall in Gen 38, 46, Num 26, Joshua, Judges, Ruth, Samuel or Kings. Record `merged` or `possible`, with a conflict where a merged person has two fathers.
+- **The open questions for this step:**
+  - Caleb son of Hezron (2:9 Chelubai, 2:18, 42), Chelub "אחי שוחה" (4:11) and Caleb son of Jephunneh (Num 13:6, Josh 14–15, I Chr 4:15); Achsah daughter of each (2:49; Josh 15:16–17, Judg 1:12–13). If both pairs are one, Achsah gets a Bible vs Bible conflict. Jephunneh has no tribe (Caleb is of Judah, Num 13:6).
+  - Salma son of Hur "אבי בית לחם" (2:51) and Salma father of Boaz (2:11, Ruth 4:20–21).
+  - Zerah's sons Ethan, Heman, Calcol and Dara (2:6) and the Ezrahite sages "בני מחול" (I Kgs 5:11).
+  - Josiah's sons (3:15): Shallum and Jer 22:11, Johanan and Jehoahaz; Zedekiah (3:16) and the king (II Kgs 24:17, II Chr 36:10).
+  - Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2).
+  - Simeon's sons (4:24) against Gen 46:10, Ex 6:15 and Num 26:12–13: Nemuel / Jemuel, Jarib / Jachin, Zerah / Zohar.
+- Leave David's brothers (Elihu / Eliab) to step 7, and the tribe attachments (Hammath the Kenite, the families of Kiriath-jearim, Daniel "מבני יהודה") to steps 8–9.
 - Then rebuild (`bsim genealogy`, `bsim build-db`), check the merged people at `/genealogy`, run ruff and pytest, and update this file.
 
 ## Conflicts found
@@ -157,7 +165,13 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Zadok, Shallum's father** (b17b): "ואחיטוב הוליד את צדוק וצדוק הוליד את שלום" (I Chr 5:38), "בן שלום בן צדוק בן אחיטוב" (Ezra 7:2); "בן משלם בן צדוק בן מריות בן אחיטוב" (I Chr 9:11, Neh 11:11). Ahitub drawn. TIPNR's key for that Meraioth is Zerahiah's son (5:32), so the second reading shows him.
 - **Zetham and Joel** (b18): "בני לעדן הראש יחיאל וזתם ויואל שלשה" (I Chr 23:8), Jehiel's brothers; "בני יחיאלי זתם ויואל אחיו" (26:22), Jehieli's sons, unless יחיאלי names the clan. Ladan (TIPNR's Libni) drawn.
 ## Open questions
-- **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
+- **Edom** (M91 step 3, settled): Seir the Horite, the kings of Edom and their fathers, Elon and Beeri the Hittites, and TIPNR's husband of Matred are taken off TIPNR's tribe "Edom" (`tribe: ""` in `x03-edom.yaml`) and sit under "unattached". The chiefs of Gen 36:40–43 ("אלופי עשו") and Hadad "האדמי" (I Kgs 11:14) stay under Esau.
+- **Edom, left as TIPNR has it** (M91 step 3):
+  - TIPNR's Hori son of Lotan (Gen 36:22) is also the Horites of Gen 14:6 and Deut 2:12, 22, and "החרי" of 36:20–30, so the people is filed under Seir's grandson, while Seir himself is "החרי". There is no way to split a key.
+  - The chiefs Timna and Oholibamah (Gen 36:40–41, I Chr 1:51–52) are on the keys of Seir's daughter and Esau's wife; Teman also holds "התימני" (36:34, Job).
+  - Amalek of I Chr 1:36 is on no key (TIPNR's Amalek has only Gen 36:12, 16).
+  - Not recorded as identities: Judith daughter of Beeri the Hittite (26:34) and Oholibamah daughter of Anah the Hivite (36:2), the wife each list has left after the two TIPNR matches by father (other father, other people); Zerah of Bozrah (36:33) and Zerah son of Reuel (36:13); Hadad son of Bedad (36:35) and Hadad the Edomite (I Kgs 11:14). The names alone are the link.
+  - Korah of Gen 36:16, a chief of Eliphaz's line, is recorded as `possible` with Korah son of Oholibamah (36:5, 18): Eliphaz's sons (36:11–12, I Chr 1:36) have no Korah.
 - **More tribe attachments of TIPNR's** (for M91), found in block 06:
   - Zurishaddai is filed under Benjamin, but his son Shelumiel is Simeon's chieftain (Num 1:6, 2:12).
   - Og is filed under Ben-ammi (tribe "Ammon"), but he is king of Bashan "מיתר הרפאים" (Deut 3:11).
@@ -352,7 +366,7 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
 - **Esau's wives** follow TIPNR's identifications: Basemath daughter of Elon (Gen 26:34) is Adah (36:2), Mahalath (28:9) is Basemath daughter of Ishmael (36:3). The fathers agree, the names differ; no conflict recorded, only noted in the review file.
 - **One person in one list, two in another** (no conflict recordable): Gen 46:21 gives Naaman and Ard as Benjamin's sons, Num 26:40 as Bela's sons, and TIPNR has two people each (`Naaman@Gen.46.21-1Ch` / `Naaman@Num.26.40-1Ch`). A conflict needs one key with two parents; merging TIPNR keys is not supported. Revisit in M91, with Benjamin's sons in Num 26:38–40 and 1 Chr 7:6, 8:1–5.
-- **Adoption** (for M91): Jacob takes Ephraim and Manasseh as his own (Gen 48:5). An `adopted` father link beside Joseph would compete with him for the drawn parent; decide how adoption shows in the tree.
+- **Adoption** (settled in M91 step 2): Jacob takes Ephraim and Manasseh as his own (Gen 48:5), an `adopted` cross-link; Joseph stays the drawn father.
 - The skeleton is ~650 KB of JSON (gzipped in transit), fetched once per visit. Fine now; if M91 adds fields, consider a compact array form.
 - `bsim places` drops TIPNR's references marked by their occurrence (`Exo.7.10a`, 15% of all) and doesn't map English numbering (`data/kjv.py`). Fixing both might improve the gazetteer, but it is outside this series: raise it with the user, don't just do it.
 - 1,055 people are "unattached", mostly people with no family in the text. Most become reachable through search; the reviews may attach some.
@@ -614,3 +628,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Output:** `identities.parquet`, with each identity's verses and the names' tokens, goes to the DB table `genealogy_identities` and `meta.identities`. The review sheet lists the identities of the people first named in its block.
   - **API and viewer:** `PersonDetail.identities` (merged: how many entries; possible: the other person), with the proofs. The panel's section is "One person or two?" ("Read as one person, though STEPBible lists 2 entries"; "Perhaps the same person as …"), and an adopted link is tagged "by adoption". The panel's siblings leave out an adoptive father's children. English and Hebrew.
   - **Tests:** pytest covers a merge (verses, places, the marriages folded, a link named by both keys, adoption not drawn, identities, the sheet), the errors (two fathers without a conflict, a possible on merged keys, too few keys, no proof, a link decided two ways) and the API on the fixture. vitest covers the panel's section and the adoption tag in both languages. DESIGN §16.63 is updated.
+- 2026-10-22, M91 step 3: Edom, Gen 36 against I Chr 1 (`x03-edom.yaml`, reviewed).
+  - **One person, two keys:** none to merge. TIPNR keys all 77 people of Gen 36 and I Chr 1:35–54 so that each person named in both lists is one key, with the variants (Zepho / Zephi, Alvan / Alian, Shepho / Shephi, Hemam / Homam, Hemdan / Hamran, Akan / Jaakan, Hadar / Hadad, Alvah / Aliah). Amalek of I Chr 1:36 is on no key. One `possible`: Korah of 36:16 with Korah son of Oholibamah.
+  - **Off Esau:** the loader now takes `tribe` in a `people:` correction; `tribe: ""` hangs a person on no eponym (a test covers it). Seir, Beor, Zerah of Bozrah, Husham, Bedad, Samlah, Shaul, Achbor, Hadar, Mezahab, the husband of Matred, Elon and Beeri are taken off "Edom": 12 more people under "unattached" (Hadar stays beside Mehetabel). The chiefs of 36:40–43 and Hadad the Edomite stay under Esau.
+  - The variants of blocks 03 and 14 needed nothing; the conflicts on Timna and Anah (block 03) stand.
