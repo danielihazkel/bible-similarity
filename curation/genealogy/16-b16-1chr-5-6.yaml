@@ -1,0 +1,114 @@
+# Block 16: I Chronicles 5-6 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b16-1chr-5-6
+status: reviewed
+links:
+  - "Gog@1Ch.5.4 <- Shemaiah@1Ch.5.4"
+  - "Shemaiah@1Ch.5.4 <- Joel@1Ch.5.4"
+  - "Shimei@1Ch.5.4 <- Gog@1Ch.5.4"
+  - "Baal@1Ch.5.5 <- Reaiah@1Ch.5.5"
+  - {child: "Micah@1Ch.5.5", parent: "Shimei@1Ch.5.4", status: confirmed, proof: [I Chronicles 5:4, I Chronicles 5:5]}
+  - "Reaiah@1Ch.5.5 <- Micah@1Ch.5.5"
+  - {child: "Beerah@1Ch.5.6", parent: "Baal@1Ch.5.5", status: confirmed, proof: [I Chronicles 5:5, I Chronicles 5:6]}
+  - "Azaz@1Ch.5.8 <- Shema@1Ch.5.8"
+  - "Bela@1Ch.5.8 <- Azaz@1Ch.5.8"
+  - "Shema@1Ch.5.8 <- Joel@1Ch.5.8"
+  - {child: "Eber@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Jacan@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Jorai@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Meshullam@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Michael@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Sheba@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - {child: "Zia@1Ch.5.13", parent: "Abihail@1Ch.5.14", status: confirmed, proof: [I Chronicles 5:13, I Chronicles 5:14]}
+  - "Abihail@1Ch.5.14 <- Huri@1Ch.5.14"
+  - "Gilead@1Ch.5.14 <- Michael@1Ch.5.14"
+  - "Huri@1Ch.5.14 <- Jaroah@1Ch.5.14"
+  - "Jahdo@1Ch.5.14 <- Buz@1Ch.5.14"
+  - "Jaroah@1Ch.5.14 <- Gilead@1Ch.5.14"
+  - "Jeshishai@1Ch.5.14 <- Jahdo@1Ch.5.14"
+  - "Michael@1Ch.5.14 <- Jeshishai@1Ch.5.14"
+  - "Abdiel@1Ch.5.15 <- Guni@1Ch.5.15"
+  - "Ahi@1Ch.5.15 <- Abdiel@1Ch.5.15"
+  - "Bukki@1Ch.6.5-Ezr <- Abishua@1Ch.6.4-Ezr"
+  - "Amariah@1Ch.6.7- <- Meraioth@1Ch.6.6-Neh"
+  - "Johanan@1Ch.6.9- <- Azariah@1Ki.4.2-1Ch"
+  - "Ahitub@1Ch.6.11-Ezr <- Amariah@1Ch.6.11-Ezr"
+  - "Jehozadak@1Ch.6.14-Zec <- Seraiah@2Ki.25.18-Jer"
+  - "Iddo@1Ch.6.21- <- Joah@1Ch.6.21-"
+  - "Uriel@1Ch.6.24- <- Tahath@1Ch.6.24-"
+  - "Amasai@1Ch.6.25- <- Elkanah@1Ch.6.25-"
+  - "Libni@1Ch.6.29 <- Mahli@Exo.6.19-Ezr"
+  - "Shimei@1Ch.6.29 <- Libni@1Ch.6.29"
+  - "Uzzah@1Ch.6.29 <- Shimei@1Ch.6.29"
+  - "Asaiah@1Ch.6.30 <- Haggiah@1Ch.6.30"
+  - "Haggiah@1Ch.6.30 <- Shimea@1Ch.6.30"
+  - {child: "Shimea@1Ch.6.30", parent: "Uzzah@1Ch.6.29", status: confirmed, proof: [I Chronicles 6:14, I Chronicles 6:15]}
+  - "Zuph@1Sa.1.1-1Ch <- Elkanah@1Ch.6.26-"
+  - "Elkanah@1Ch.6.26- <- Ahimoth@1Ch.6.25-"
+  - "Shaul@1Ch.6.24- <- Uzziah@1Ch.6.24-"
+  - "Uzziah@1Ch.6.24- <- Uriel@1Ch.6.24-"
+  - "Elkanah@1Ch.6.25- <- Shaul@1Ch.6.24-"
+  - "Assir@1Ch.6.23- <- Ebiasaph@Exo.6.24-1Ch"
+  - "Tahath@1Ch.6.24- <- Assir@1Ch.6.23-"
+  - "Asaph@1Ch.6.39-Psa <- Berechiah@1Ch.6.39-"
+  - "Berechiah@1Ch.6.39- <- Shimea@1Ch.6.39"
+  - {child: "Shimea@1Ch.6.39", parent: "Michael@1Ch.6.40", status: confirmed, proof: [I Chronicles 6:24, I Chronicles 6:25]}
+  - "Baaseiah@1Ch.6.40 <- Malchijah@1Ch.6.40"
+  - {child: "Malchijah@1Ch.6.40", parent: "Jeatherai@1Ch.6.21-", status: confirmed, proof: [I Chronicles 6:25, I Chronicles 6:26]}
+  - "Michael@1Ch.6.40 <- Baaseiah@1Ch.6.40"
+  - "Jeatherai@1Ch.6.21- <- Zerah@1Ch.6.21-"
+  - "Zerah@1Ch.6.21- <- Iddo@1Ch.6.21-"
+  - {child: "Joah@1Ch.6.21-", parent: "Zimmah@1Ch.6.20-", status: confirmed, proof: [I Chronicles 6:5, I Chronicles 6:6, I Chronicles 6:27]}
+  - "Jeduthun@1Ch.6.44-Psa <- Kishi@1Ch.6.44-"
+  - "Abdi@1Ch.6.44 <- Malluch@1Ch.6.44"
+  - "Kishi@1Ch.6.44- <- Abdi@1Ch.6.44"
+  - {child: "Malluch@1Ch.6.44", parent: "Hashabiah@1Ch.6.45", status: confirmed, proof: [I Chronicles 6:29, I Chronicles 6:30]}
+  - "Amaziah@1Ch.6.45 <- Hilkiah@1Ch.6.45"
+  - "Hashabiah@1Ch.6.45 <- Amaziah@1Ch.6.45"
+  - {child: "Hilkiah@1Ch.6.45", parent: "Amzi@1Ch.6.46", status: confirmed, proof: [I Chronicles 6:30, I Chronicles 6:31]}
+  - "Amzi@1Ch.6.46 <- Bani@1Ch.6.46"
+  - "Bani@1Ch.6.46 <- Shemer@1Ch.6.46"
+  - {child: "Shemer@1Ch.6.46", parent: "Mahli@1Ch.6.47-", status: confirmed, proof: [I Chronicles 6:31, I Chronicles 6:32]}
+  - "Mahli@1Ch.6.47- <- Mushi@Exo.6.19-1Ch"
+  - "Ahitub@2Sa.8.17-1Ch <- Amariah@1Ch.6.7-"
+  # confirmed early, on this block's verse
+  - {child: "Heman@1Ch.6.33-2Ch", parent: "Joel@1Sa.8.2-1Ch", role: father, status: confirmed, proof: [I Chronicles 6:18, I Chronicles 15:17]}
+conflicts:
+  - kind: descendant
+    child: "Zimmah@1Ch.6.20-"
+    readings:
+      - {parent: "Shimei@1Ch.6.42-", proof: [I Chronicles 6:27, I Chronicles 6:28]}
+      - {parent: "Jehiel@1Ch.6.20-", kind: descendant, proof: [I Chronicles 6:5]}
+    note:
+      en: "\"זמה בן שמעי בן יחת בן גרשם\" (I Chronicles 6:27-28); \"לבני בנו יחת בנו זמה בנו\" (6:5), which has no Shimei between Jahath and Zimmah. TIPNR's key for Jahath is the Jehiel son of Ladan of 23:8."
+      he: "„זמה בן שמעי בן יחת בן גרשם” (דברי הימים א ו:כז–כח); „לבני בנו יחת בנו זמה בנו” (ו:ה), בלי שמעי בין יחת לזמה. TIPNR מזהה את יחת עם יחיאל בן לעדן (כג:ח)."
+  - kind: bible
+    child: "Ahimoth@1Ch.6.25-"
+    readings:
+      - {parent: "Amasai@1Ch.6.25-", proof: [I Chronicles 6:20]}
+      - {parent: "Elkanah@1Ch.6.25-", proof: [I Chronicles 6:10]}
+    note:
+      en: "\"אלקנה בן מחת בן עמשי\" (I Chronicles 6:20), where TIPNR takes Mahath for Ahimoth; \"ובני אלקנה עמשי ואחימות\" (6:10), where Ahimoth is Amasai's brother."
+      he: "„אלקנה בן מחת בן עמשי” (דברי הימים א ו:כ), ו־TIPNR מזהה את מחת עם אחימות; „ובני אלקנה עמשי ואחימות” (ו:י), ושם אחימות אחי עמשי."
+missed:
+  - {ref: I Chronicles 5:1, reason: "Reuben, Israel's firstborn, and the birthright given to Joseph's sons: Reuben and Joseph are proved in Genesis (block 03)"}
+  - {ref: I Chronicles 5:11, reason: "Gad's sons in Bashan: a place"}
+  - {ref: I Chronicles 5:16, reason: "Gilead, Bashan and Sharon: places"}
+  - {ref: I Chronicles 5:18, reason: "the tribes of Reuben, Gad and half Manasseh"}
+  - {ref: I Chronicles 5:27, reason: "Levi's sons: proved on Genesis 46:11 (block 04)"}
+  - {ref: I Chronicles 5:29, reason: "Amram's children and Aaron's sons: proved in Exodus and Numbers (blocks 05-06)"}
+  - {ref: I Chronicles 6:1, reason: "Levi's sons: proved on Genesis 46:11 (block 04)"}
+  - {ref: I Chronicles 6:13, reason: "Samuel's sons: proved on I Samuel 8:2 (block 08); \"ושני\" is read, as TIPNR reads it, as \"and the second\", with the firstborn Joel of 6:18 and I Samuel 8:2 left unnamed"}
+  - {ref: I Chronicles 6:23, reason: "Izhar, Kohath and Levi: proved in Genesis and Exodus (blocks 04-05)"}
+  - {ref: I Chronicles 6:28, reason: "\"בן יחת בן גרשם\" leaves out Libni (6:5); Jahath's link to Libni has its best verse in I Chronicles 23:8 (block 18), and Gershon's to Levi is proved on Genesis 46:11 (block 04)"}
+  - {ref: I Chronicles 6:34, reason: "Aaron and his sons at the altar, Moses: no family link"}
+  - {ref: I Chronicles 6:38, reason: "Zadok and Ahimaaz: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 6:41, reason: "Caleb son of Jephunneh: proved in Numbers (block 06)"}
+  - {ref: I Chronicles 6:42, reason: "the cities of refuge given to Aaron's sons: towns"}
+  - {ref: I Chronicles 6:46, reason: "the Levites' cities from half Manasseh: towns"}
+  - {ref: I Chronicles 6:47, reason: "the Levites' cities from Issachar, Asher, Naphtali and Manasseh: towns"}
+  - {ref: I Chronicles 6:48, reason: "the Levites' cities from Reuben, Gad and Zebulun: towns"}
+  - {ref: I Chronicles 6:50, reason: "the Levites' cities from Judah, Simeon and Benjamin: towns"}
+  - {ref: I Chronicles 6:51, reason: "the Levites' cities from Ephraim: towns"}
+  - {ref: I Chronicles 6:55, reason: "the Levites' cities from half Manasseh: towns"}
+  - {ref: I Chronicles 6:56, reason: "the Levites' cities from half Manasseh in Bashan: towns"}
+  - {ref: I Chronicles 6:62, reason: "the Levites' cities from Zebulun: towns"}

@@ -86,27 +86,26 @@ Review blocks (M90), in Jewish canon order:
 | 14 | b14-1chr-1 | 1 Chr 1 | reviewed | 0 | 0 |
 | 15 | b15-1chr-2 | 1 Chr 2 | reviewed | 134 | 0 |
 | 15b | b15b-1chr-3-4 | 1 Chr 3–4 | reviewed | 166 | 0 |
-| 16 | b16-1chr-5-6 | 1 Chr 5–6 | todo | | |
+| 16 | b16-1chr-5-6 | 1 Chr 5–6 | reviewed | 71 | 2 |
 | 17 | b17-1chr-7-9 | 1 Chr 7–9 | todo | | |
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | todo | | |
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 16: `b16-1chr-5-6` (I Chr 5–6).** Follow **How to resume** step 2. If its sheet is much larger than about 180 links, split it at I Chr 6:1 first, as block 15 was split.
+**M90, block 17: `b17-1chr-7-9` (I Chr 7–9).** Follow **How to resume** step 2. Its sheet has about 250 links (I Chr 7 about 120 lines of verses, 8 about 100, 9 about 80), so split it first at I Chr 8:1 into `b17-1chr-7` and `b17b-1chr-8-9`, in `configs/default.yaml`, the status table and `docs/TASKS.md`, as block 15 was split. Then review I Chr 7.
 
 Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Leave out lines whose flags include `status` anywhere: they were decided in an earlier block, and the build now stops on a link decided twice.
+- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Leave out lines whose flags include `status` anywhere: they were decided in an earlier block, and the build stops on a link decided twice.
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Links confirmed early, on this block's verses:** Azariah <- Johanan (5:36, block 13's conflict).
-- **Reuben, Gad and half Manasseh** (5:1–26): Reuben's birthright given to Joseph's sons (5:1–2); Joel's line down to Beerah, exiled by Tiglath-pileser (5:4–6); the heads of Gad and of half Manasseh, who are given no fathers.
-- **The high priests** (5:27–41), from Levi to Jehozadak, against Ex 6:16–25 and Ezra 7:1–5:
-  - Ahitub <- Amariah and Bukki <- Abishua, left over from block 13 (Ezra 7:2–5);
-  - the second Azariah, Amariah and Ahitub (5:36–38), and Meraioth between Zadok and Ahitub in Neh 11:11 and I Chr 9:11 (block 13's open question).
-- **The Levites** (6:1–38):
-  - Gershom / Gershon (6:1–2), and Libni and Shimei;
-  - Kohath's line down to Samuel (6:7–13) against I Sam 1:1: Elkanah, Jeroham, Elihu / Eliel, Tohu / Toah, Zuph / Zophai; Samuel's sons Vashni and Abijah against Joel and Abijah (I Sam 8:2; 6:13, 18);
-  - the singers Heman, Asaph and Ethan, with their lines back to Levi (6:16–32), against the lines of 6:5–15.
-- **The Levites' cities** (6:39–66): towns, not persons.
+- **Lists whose "בן" runs into the next verse:** the automatic proof is then missing ("no verse names both") or a nearby verse; give such links their own proof of both verses, as block 16 did.
+- **I Chr 7:**
+  - Issachar's sons (7:1–5) against Gen 46:13 and Num 26:23–24 (Puah / Puvah, Jashub / Iob);
+  - Benjamin's sons (7:6–12): Bela, Becher and Jediael, against Gen 46:21, Num 26:38–40 and I Chr 8:1–5 (the open question on Naaman and Ard); Shuppim and Huppim;
+  - Naphtali (7:13) against Gen 46:24 (Shallum / Shillem);
+  - Manasseh (7:14–19): the Aramean concubine, Machir and Maacah, Gilead, Zelophehad (Num 26:29–33, 27:1); Asriel, TIPNR's son of Manasseh (7:14), and Num 26:31;
+  - Ephraim (7:20–29): the line down to Joshua son of Nun (7:27), and the sons killed by the men of Gath (7:21–22); Beriah;
+  - Asher (7:30–40) against Gen 46:17 and Num 26:44–46.
+- **I Chr 8–9, for the second half:** Benjamin again (8:1–5); Ehud's sons (8:6); Saul's line (8:29–40), repeated in 9:35–44, with Ner, Kish and Abner, and the conflict on Kish (block 08); the returnees of I Chr 9, against Neh 11, with Meraioth between Zadok and Ahitub (9:11; block 13's open question; I Chr 5:38 has none).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -132,6 +131,8 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Mahli** (b13, `descendant`): Merari's son (Ex 6:19, Num 3:20, I Chr 6:4); "מחלי בן לוי בן ישראל" (Ezra 8:18). Merari drawn.
 - **Johanan the high priest** (b13, `descendant`): between Joiada and Jaddua, "ויוידע הוליד את יונתן" (Neh 12:11) and "אלישיב יוידע ויוחנן וידוע" (12:22); "יוחנן בן אלישיב" (12:23). Joiada drawn.
 - **Jeroham** (b13, `descendant`): "ירחם בן פלליה בן אמצי בן זכריה בן פשחור" (Neh 11:12); "ירחם בן פשחור" (I Chr 9:12). Pelaliah drawn.
+- **Zimmah** (b16, `descendant`): "זמה בן שמעי בן יחת בן גרשם" (I Chr 6:27–28); "לבני בנו יחת בנו זמה בנו" (6:5), with no Shimei between. Shimei drawn. TIPNR's key for Jahath is Jehiel son of Ladan (23:8), so that reading shows the name יחיאל; block 18 checks that identification.
+- **Ahimoth** (b16): "אלקנה בן מחת בן עמשי" (I Chr 6:20), where TIPNR takes Mahath for Ahimoth; "ובני אלקנה עמשי ואחימות" (6:10), where Ahimoth is Amasai's brother. Amasai drawn.
 ## Open questions
 - **Tribe attachments that the text does not support** (for M91): TIPNR's tribe "Edom" hangs Seir the Horite and the kings of Edom's fathers (Beor, Zerah of Bozrah, Bedad, Achbor, Mezahab) on Esau by a link not stated. The Horites were in Seir before Esau (Deut 2:12, 22); the kings are not said to descend from him.
 - **More tribe attachments of TIPNR's** (for M91), found in block 06:
@@ -273,6 +274,17 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Hodiah** (4:19): "ובני אשת הודיה אחות נחם" reads "the sons of Hodiah's wife, Naham's sister". Hodiah is a man's name elsewhere (Neh 8:7, 10:11, 14, 19). TIPNR makes Hodiah the woman, Naham's sister and Ishbah's wife. Hodiah is made male and the father of the Garmite; the marriage to Ishbah, the Garmite <- Ishbah, and TIPNR's unnamed father of Hodiah and Naham are rejected.
   - **Simeon** (4:24): "נמואל וימין יריב זרח שאול" against "ימואל וימין ואהד ויכין וצחר ושאול" (Gen 46:10, Ex 6:15) and Num 26:12–13. Nemuel, Jarib and Zerah here have no TIPNR keys of their own: Jemuel and Zerah are on the Genesis keys, and Jarib is not linked. Shallum son of Shaul (4:25) begins the line down to Shimei. Its Mibsam and Mishma are also the names of Ishmael's sons (Gen 25:13–14).
   - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only.
+- **I Chronicles 5–6** (b16):
+  - **Reuben** (5:1–10): "בני יואל" (5:4) follows Reuben's sons (5:3), but the text does not say whose son Joel is; his line down to Beerah is confirmed. Joel father of Shema (5:8) is a second TIPNR key, likely the same man (M91). Jeiel and Zechariah "ואחיו" (5:7) would be Beerah's brothers; they stay on the tribe.
+  - **Gad** (5:11–17): the four heads of 5:12 have no father. "אלה בני אביחיל" (5:14) is read, as TIPNR reads it, as the seven of 5:13, not the four.
+  - **The high priests** (5:27–41, 6:35–38) are confirmed; Bukki <- Abishua and Ahitub <- Amariah close block 13's gaps. The note "הוא אשר כהן בבית אשר בנה שלמה" (5:36) is on the second Azariah, as TIPNR has it. Meraioth between Zadok and Ahitub (Neh 11:11, I Chr 9:11) is not in 5:38; block 17b decides.
+  - **Gershon** is spelled "גרשם" in 6:1, 2, 5, 28 and "גרשום" in 6:47, 56; TIPNR keys them all to Levi's son, not to Moses' son Gershom.
+  - **Korah's line** (6:7–9): TIPNR takes Amminadab (6:7) for Izhar (6:23, Ex 6:18, 21). "אסיר בנו / אלקנה בנו ואביסף בנו ואסיר בנו" (6:7–8) reads as a chain, but Ex 6:24 makes Assir, Elkanah and Abiasaph Korah's sons, and 6:22 has "אסיר בן אביסף בן קרח". TIPNR keeps Exodus's three brothers and a second Assir, son of Ebiasaph; no conflict is recorded (M91).
+  - **The two lines from Kohath to Samuel** (6:7–13 and 6:18–23) run parallel, and TIPNR makes one person of each pair: Shaul / Joel, Uzziah / Azariah, Uriel / Zephaniah, Ahimoth / Mahath, Zophai / Zuph, Nahath / Toah / Tohu, Eliab / Eliel / Elihu. Samuel is missing in 6:12–13 ("אלקנה בנו / ובני שמואל"). Samuel is a Levite here, while Elkanah is "אפרתי" in I Sam 1:1 (M91).
+  - **Samuel's sons** (6:13): "הבכר ושני ואביה"; TIPNR reads "ושני" as "and the second" and keys it to Joel (6:18, I Sam 8:2), so there is no Vashni.
+  - **Heman** son of Joel son of Samuel (6:18) is confirmed early, on this block's verse (its best verse is I Chr 15:17).
+  - **Asaph's line** (6:24–28) against Gershon's line (6:5–6): TIPNR makes Ethni Jeatherai, Adaiah Iddo and Ethan Joah. "בן יחת בן גרשם" (6:28) leaves out Libni (6:5). Jahath <- Libni has its best verse in 23:8 (block 18), where TIPNR makes Jahath Ladan's son Jehiel, and Shimei son of Jahath (6:27–28) the Shimei of 23:9.
+  - **Ethan** (6:29) is TIPNR's Jeduthun; "איתן בן קישי" is "איתן בן קושיהו" in 15:17. His line runs to a second Mahli, son of Mushi (6:32); Merari's line of 6:14–15 runs through Mahli son of Merari and a second Libni.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -466,3 +478,16 @@ Each entry: the child, the readings with their verses, the block that found it.
     - Achsah as the mother of Hathath and Meonothai;
     - the marriage of Ishbah and Hodiah, the Garmite <- Ishbah, and the unnamed father of Hodiah and Naham.
   - **Added:** Malchiram, Pedaiah, Shenazzar, Jekamiah, Hoshama and Nedabiah <- Jeconiah (3:17–18).
+- 2026-10-22, M90 block 16 (I Chr 5–6): `curation/genealogy/16-b16-1chr-5-6.yaml`, reviewed. The sheet had 72 links besides 17 tribe attachments, so the block was not split.
+  - **Counts:** 71 links checked (all confirmed: 68 of the sheet, Heman <- Joel early, and the two TIPNR links that are the first readings of the conflicts), 2 conflicts, which add 2 readings, and 22 cue verses dismissed: Levi's and Amram's sons proved earlier, Samuel's sons (6:13), "בן יחת בן גרשם" (6:28), and the tribes and towns of the Levites' cities. 2 links of the sheet were decided earlier (Azariah <- Ahimaaz, Azariah <- Johanan).
+  - **Confirmed:**
+    - Reuben: Joel's line down to Beerah (5:4–6), and Bela's (5:8);
+    - Gad: the seven sons of Abihail (5:13–14), Abihail's line up to Buz (5:14), Ahi son of Abdiel (5:15);
+    - the high priests: Bukki <- Abishua, Amariah <- Meraioth and Ahitub <- Amariah (5:31–33, 6:37), Johanan <- Azariah (5:35), the second Amariah's Ahitub (5:37), Jehozadak <- Seraiah (5:40);
+    - Gershon's line through Libni to Jeatherai (6:5–6) and Asaph's line (6:24–28);
+    - Korah's line to Samuel (6:7–12, 6:20–22);
+    - Merari's line through Mahli and Libni (6:14–15), and Ethan's line (6:29–32);
+    - Heman <- Joel (6:18), early.
+  - **Own proofs** for the lists whose "בן" or "בנו" runs into the next verse: 5:4–6, 5:13–14, 6:5–6, 6:14–15, 6:24–26, 6:29–32.
+  - **Conflicts:** Zimmah (`descendant`, 6:5 against 6:27–28) and Ahimoth (6:10 against 6:20).
+  - Checked in the API: Abihail's seven sons, Zimmah's and Ahimoth's conflicts with both readings, Heman's father.
