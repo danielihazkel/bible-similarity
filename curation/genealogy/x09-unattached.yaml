@@ -1,0 +1,195 @@
+# M91 step 9: "Unattached", people whose tribe, nation or family the text states (DESIGN.md
+# §16.63, docs/genealogy/PROGRESS.md). The sweep: the 1,076 people under "unattached", each name
+# followed within a few words by a gentilic, "מלך X", "מבני X" or "הכהן" / "הלוי"; and the
+# priests' and Levites' lists of Ezra 8, 10 and Nehemiah 9-12.
+block: x09-unattached
+status: reviewed
+# Left: a gentilic of a place, not a people ("הגלעדי", "הכרמלי", "הענתותי", Barak "מקדש נפתלי");
+# a nation with no eponym in the tree (Babylon, Persia, the Kenites, the Ishmaelites, the Horonite
+# Sanballat); a gentilic on someone else in the verse (Eliam, Uriah's father-in-law; Elnaam, beside
+# Ithmah "המואבי"); Jether "הישמעאלי" / "הישראלי" (block 08); Abihail, Mordecai's "דד" (paternal or
+# maternal); Ezra's messengers (Ezra 8:16-17) and the men beside Ezra (Neh 8:4), not called
+# priests or Levites; Neh 8:7, where "והלוים" may or may not be the names before it; the singers
+# and gatekeepers of Ezra 10:24, listed apart from the Levites (10:23). Hammath the Kenite "אבי בית
+# רכב" (I Chr 2:55) keeps TIPNR's Judah, in whose list Chronicles puts the Kenites; the Simeonite
+# princes of I Chr 4:34-42 stay on Simeon.
+links:
+  - {child: "Heber@Jdg.4.11-", parent: "Hobab@Num.10.29-Jdg", role: father, kind: descendant, status: added, proof: [Judges 4:11]}  # "וחבר הקיני נפרד מקין מבני חבב חתן משה"
+  - {child: "Meshezabel@Neh.11.24", parent: "Zerah@Gen.38.30-Mat", role: father, kind: descendant, status: added, proof: [Nehemiah 11:24]}  # "ופתחיה בן משיזבאל מבני זרח בן יהודה"
+  - {child: "Azariah@2Ch.31.10-", parent: "Zadok@2Sa.8.17-Ezk", role: father, kind: descendant, status: added, proof: [II Chronicles 31:10]}  # "עזריהו הכהן הראש לבית צדוק"
+  - {child: "Jeshaiah@Ezr.8.19", parent: "Merari@Gen.46.11-Ezr", role: father, kind: descendant, status: added, proof: [Ezra 8:19]}  # "ואתו ישעיה מבני מררי"
+  # the families of Kiriath-jearim and those who came out of them, under "שובל אבי קרית יערים"
+  - {child: "Ithrites@2Sa.23.38-1Ch", parent: "Shobal@1Ch.2.50-", role: father, kind: descendant, status: added, proof: [I Chronicles 2:52, I Chronicles 2:53]}
+  - {child: "Puthites@1Ch.2.53", parent: "Shobal@1Ch.2.50-", role: father, kind: descendant, status: added, proof: [I Chronicles 2:52, I Chronicles 2:53]}
+  - {child: "Shumathites@1Ch.2.53", parent: "Shobal@1Ch.2.50-", role: father, kind: descendant, status: added, proof: [I Chronicles 2:52, I Chronicles 2:53]}
+  - {child: "Mishraites@1Ch.2.53", parent: "Shobal@1Ch.2.50-", role: father, kind: descendant, status: added, proof: [I Chronicles 2:52, I Chronicles 2:53]}
+  - {child: "Zorathites@1Ch.2.53-", parent: "Shobal@1Ch.2.50-", role: father, kind: descendant, status: added, proof: [I Chronicles 2:53, I Chronicles 4:2]}
+people:
+  # Canaan's sons (Gen 10:15-17): the Hittites, the Hivite, the Jebusite, the Amorite kings
+  - {key: "Zohar@Gen.23.8-", tribe: "Canaan"}  # "עפרון בן צחר החתי" (Gen 25:9)
+  - {key: "Beeri@Gen.26.34", tribe: "Canaan"}  # "יהודית בת בארי החתי" (Gen 26:34)
+  - {key: "Elon@Gen.26.34-", tribe: "Canaan"}  # "בשמת בת אילן החתי" (Gen 26:34); off Edom in step 3
+  - {key: "Ahimelech@1Sa.26.6", tribe: "Canaan"}  # "אחימלך החתי" (I Sam 26:6)
+  - {key: "Hamor@Gen.33.19-Act", tribe: "Canaan"}  # "שכם בן חמור החוי" (Gen 34:2)
+  - {key: "Shua@Gen.38.2-1Ch", tribe: "Canaan"}  # "בת איש כנעני ושמו שוע" (Gen 38:2), "בת שוע הכנענית" (I Chr 2:3)
+  - {key: "Ornan@2Sa.24.16-2Ch", tribe: "Canaan"}  # "ארונה היבוסי" (II Sam 24:16), "ארנן היבוסי" (I Chr 21:15)
+  - {key: "Sihon@Num.21.21-Jer", tribe: "Canaan"}  # "סיחן מלך האמרי" (Num 21:21)
+  - {key: "Og@Num.21.33-Psa", tribe: "Canaan"}  # "שני מלכי האמרי" (Deut 3:8, 4:47); off Ammon in step 8
+  # Aram
+  - {key: "Beor@Num.22.5-2Pe", tribe: "Syria"}  # Balaam "מפתור ארם נהרים" (Deut 23:5), "מן ארם ינחני בלק" (Num 23:7)
+  - {key: "Cushan-rishathaim@Jdg.3.8-", tribe: "Syria"}  # "מלך ארם נהרים" (Judg 3:8)
+  - {key: "Hezion@1Ki.15.18", tribe: "Syria"}  # "בן הדד בן טברמן בן חזיון מלך ארם" (I Kgs 15:18)
+  # Midian
+  - {key: "Evi@Num.31.8-Jos", tribe: "Midian"}  # "חמשת מלכי מדין" (Num 31:8)
+  - {key: "Rekem@Num.31.8-Jos", tribe: "Midian"}
+  - {key: "Zur@Num.31.8-Jos", tribe: "Midian"}
+  - {key: "Hur@Num.31.8-Jos", tribe: "Midian"}
+  - {key: "Reba@Num.31.8-Jos", tribe: "Midian"}
+  - {key: "Oreb@Jdg.7.25-Isa", tribe: "Midian"}  # "שני שרי מדין את ערב ואת זאב" (Judg 7:25)
+  - {key: "Zeeb@Jdg.7.25-Psa", tribe: "Midian"}
+  - {key: "Zebah@Jdg.8.5-Psa", tribe: "Midian"}  # "זבח וצלמנע מלכי מדין" (Judg 8:5)
+  - {key: "Zalmunna@Jdg.8.5-Psa", tribe: "Midian"}
+  # the other nations
+  - {key: "Doeg@1Sa.21.7-Psa", tribe: "Edom"}  # "דאג האדמי" (I Sam 21:8)
+  - {key: "Ittai@2Sa.15.19-", tribe: "Philistia"}  # "אתי הגתי" (II Sam 15:19)
+  - {key: "Phicol@Gen.21.22-", tribe: "Philistia"}  # Abimelech's captain; "וישבו אל ארץ פלשתים" (Gen 21:32)
+  - {key: "Ahuzzath@Gen.26.26", tribe: "Philistia"}  # Abimelech's friend (Gen 26:26)
+  - {key: "Sennacherib@2Ki.18.13-Isa", tribe: "Assyria"}  # "סנחריב מלך אשור" (II Kgs 18:13)
+  - {key: "Ebed-melech@Jer.38.7-", tribe: "Cush"}  # "עבד מלך הכושי" (Jer 38:7)
+  - {key: "Zerah@2Ch.14.9", tribe: "Cush"}  # "זרח הכושי" (II Chr 14:8)
+  # the tribes
+  - {key: "Dodo@Jdg.10.1", tribe: "Tribe of Issachar"}  # "תולע בן פואה בן דודו איש יששכר" (Judg 10:1)
+  - {key: "Manoah@Jdg.13.2-", tribe: "Tribe of Dan"}  # "ממשפחת הדני ושמו מנוח" (Judg 13:2)
+  - {key: "Gera@2Sa.16.5-1Ki", tribe: "Tribe of Benjamin"}  # "שמעי בן גרא בן הימיני" (II Sam 19:17)
+  - {key: "Abiezer@2Sa.23.27-1Ch", tribe: "Tribe of Benjamin"}  # "אביעזר הענתותי לבן ימיני" (I Chr 27:12)
+  - {key: "Ribai@2Sa.23.29-1Ch", tribe: "Tribe of Benjamin"}  # "אתי בן ריבי מגבעת בני בנימן" (II Sam 23:29)
+  - {key: "Kish@Est.2.5", tribe: "Tribe of Benjamin"}  # "מרדכי בן יאיר בן שמעי בן קיש איש ימיני" (Est 2:5)
+  - {key: "Zichri@Neh.11.9", tribe: "Tribe of Benjamin"}  # "ויואל בן זכרי" among "בני בנימן" (Neh 11:7-9)
+  - {key: "Bani@2Sa.23.36", tribe: "Tribe of Gad"}  # "בני הגדי" (II Sam 23:36)
+  - {key: "Shiza@1Ch.11.42", tribe: "Tribe of Reuben"}  # "עדינא בן שיזא הראובני" (I Chr 11:42)
+  # priests and Levites named as such
+  - {key: "Jehoiada@2Sa.8.18-1Ch", tribe: "Tribe of Levi"}  # "ויהוידע הנגיד לאהרן" (I Chr 12:28), "בניהו בן יהוידע הכהן" (27:5)
+  - {key: "Uriah@2Ki.16.10-Isa", tribe: "Tribe of Levi"}  # "אוריה הכהן" (II Kgs 16:10)
+  - {key: "Immer@1Ch.24.14-Jer", tribe: "Tribe of Levi"}  # the sixteenth course (I Chr 24:14), "פשחור בן אמר הכהן" (Jer 20:1)
+  - {key: "Jehoiada@Jer.29.26", tribe: "Tribe of Levi"}  # "יהוידע הכהן" (Jer 29:26)
+  - {key: "Buzi@Ezk.1.3", tribe: "Tribe of Levi"}  # "יחזקאל בן בוזי הכהן" (Ezek 1:3)
+  - {key: "Eliashib@Neh.13.4-", tribe: "Tribe of Levi"}  # "אלישיב הכהן" (Neh 13:4)
+  - {key: "Kadmiel@Ezr.2.40-Neh", tribe: "Tribe of Levi"}  # "הלוים בני ישוע וקדמיאל" (Ezra 2:40)
+  - {key: "Judah@Neh.12.8-", tribe: "Tribe of Levi"}  # "והלוים ... יהודה" (Neh 12:8)
+  - {key: "Milalai@Neh.12.36", tribe: "Tribe of Levi"}  # the brothers of Zechariah of Asaph's line, "בכלי שיר דויד" (Neh 12:35-36)
+  - {key: "Gilalai@Neh.12.36", tribe: "Tribe of Levi"}
+  - {key: "Maai@Neh.12.36", tribe: "Tribe of Levi"}
+  - {key: "Nethanel@Neh.12.36", tribe: "Tribe of Levi"}
+  - {key: "Nethanel@1Ch.24.6", tribe: "Tribe of Levi"}  # "שמעיה בן נתנאל הסופר מן הלוי" (I Chr 24:6)
+  - {key: "Azariah@2Ch.26.17-", tribe: "Tribe of Levi"}  # "עזריהו הכהן" (II Chr 26:17)
+  - {key: "Imnah@2Ch.31.14", tribe: "Tribe of Levi"}  # "קורא בן ימנה הלוי" (II Chr 31:14)
+  - {key: "Shabbethai@Ezr.10.15", tribe: "Tribe of Levi"}  # "ושבתי הלוי" (Ezra 10:15)
+  # the lists: "אלה הכהנים" / "והלוים" (Neh 10:3-14), Neh 9:4-5, 11:10-19, 12:1-21, 24-26,
+  # 41-42, "מבני הכהנים" and "ומן הלוים" (Ezra 10:18-23), "מבני מררי" (Ezra 8:19), the
+  # Levites' fathers of Ezra 8:33
+  - {key: "Binnui@Ezr.8.33", tribe: "Tribe of Levi"}  # בנוי: Ezra 8:33
+  - {key: "Jeshua@Ezr.8.33", tribe: "Tribe of Levi"}  # ישוע: Ezra 8:33
+  - {key: "Eliezer@Ezr.10.18", tribe: "Tribe of Levi"}  # אליעזר: Ezra 10:18
+  - {key: "Gedaliah@Ezr.10.18", tribe: "Tribe of Levi"}  # גדליה: Ezra 10:18
+  - {key: "Jarib@Ezr.10.18", tribe: "Tribe of Levi"}  # יריב: Ezra 10:18
+  - {key: "Jozadak@Ezr.10.18", tribe: "Tribe of Levi"}  # יוצדק: Ezra 10:18
+  - {key: "Maaseiah@Ezr.10.18", tribe: "Tribe of Levi"}  # מעשיהו: Ezra 10:18
+  - {key: "Hanani@Ezr.10.20", tribe: "Tribe of Levi"}  # חנני: Ezra 10:20
+  - {key: "Zebadiah@Ezr.10.20", tribe: "Tribe of Levi"}  # זבדיהו: Ezra 10:20
+  - {key: "Elijah@Ezr.10.21", tribe: "Tribe of Levi"}  # אליה: Ezra 10:21
+  - {key: "Jehiel@Ezr.10.21", tribe: "Tribe of Levi"}  # יחיאל: Ezra 10:21
+  - {key: "Maaseiah@Ezr.10.21", tribe: "Tribe of Levi"}  # מעשיהו: Ezra 10:21
+  - {key: "Shemaiah@Ezr.10.21", tribe: "Tribe of Levi"}  # שמעיהו: Ezra 10:21
+  - {key: "Uzziah@Ezr.10.21", tribe: "Tribe of Levi"}  # עזיהו: Ezra 10:21
+  - {key: "Elasah@Ezr.10.22", tribe: "Tribe of Levi"}  # אלעשה: Ezra 10:22
+  - {key: "Elioenai@Ezr.10.22", tribe: "Tribe of Levi"}  # אליועיני: Ezra 10:22
+  - {key: "Ishmael@Ezr.10.22", tribe: "Tribe of Levi"}  # ישמעאל: Ezra 10:22
+  - {key: "Jozabad@Ezr.10.22", tribe: "Tribe of Levi"}  # יוזבד: Ezra 10:22
+  - {key: "Maaseiah@Ezr.10.22", tribe: "Tribe of Levi"}  # מעשיהו: Ezra 10:22
+  - {key: "Nethanel@Ezr.10.22", tribe: "Tribe of Levi"}  # נתנאל: Ezra 10:22
+  - {key: "Eliezer@Ezr.10.23", tribe: "Tribe of Levi"}  # אליעזר: Ezra 10:23
+  - {key: "Jozabad@Ezr.10.23", tribe: "Tribe of Levi"}  # יוזבד: Ezra 10:23
+  - {key: "Judah@Ezr.10.23", tribe: "Tribe of Levi"}  # יהודה: Ezra 10:23
+  - {key: "Kelaiah@Ezr.10.23", tribe: "Tribe of Levi"}  # קליה: Ezra 10:23
+  - {key: "Pethahiah@Ezr.10.23", tribe: "Tribe of Levi"}  # פתחיה: Ezra 10:23
+  - {key: "Shimei@Ezr.10.23", tribe: "Tribe of Levi"}  # שמעי: Ezra 10:23
+  - {key: "Bani@Neh.8.7-", tribe: "Tribe of Levi"}  # בני: Neh 8:7, Neh 9:4, Neh 9:5
+  - {key: "Hanan@Neh.8.7-", tribe: "Tribe of Levi"}  # חנן: Neh 8:7, Neh 10:11
+  - {key: "Hodiah@Neh.8.7-", tribe: "Tribe of Levi"}  # הודיה: Neh 8:7, Neh 9:5, Neh 10:11
+  - {key: "Kelita@Neh.8.7-", tribe: "Tribe of Levi"}  # קליטא: Neh 8:7, Neh 10:11
+  - {key: "Pelaiah@Neh.8.7-", tribe: "Tribe of Levi"}  # פלאיה: Neh 8:7, Neh 10:11
+  - {key: "Bani@Neh.9.4b-", tribe: "Tribe of Levi"}  # בני: Neh 9:4, Neh 10:14
+  - {key: "Bunni@Neh.9.4", tribe: "Tribe of Levi"}  # בני: Neh 9:4
+  - {key: "Chenani@Neh.9.4", tribe: "Tribe of Levi"}  # כנני: Neh 9:4
+  - {key: "Shebaniah@Neh.9.4-", tribe: "Tribe of Levi"}  # שבניהו: Neh 9:4, Neh 9:5, Neh 10:11
+  - {key: "Hashabneiah@Neh.9.5", tribe: "Tribe of Levi"}  # חשבניה: Neh 9:5
+  - {key: "Pethahiah@Neh.9.5", tribe: "Tribe of Levi"}  # פתחיה: Neh 9:5
+  - {key: "Amariah@Neh.10.3-", tribe: "Tribe of Levi"}  # אמריהו: Neh 10:4, Neh 12:2, Neh 12:13
+  - {key: "Malchijah@Neh.10.3", tribe: "Tribe of Levi"}  # מלכיהו: Neh 10:4
+  - {key: "Pashhur@Neh.10.3", tribe: "Tribe of Levi"}  # פשחור: Neh 10:4
+  - {key: "Hattush@Neh.10.4-", tribe: "Tribe of Levi"}  # חטוש: Neh 10:5, Neh 12:2
+  - {key: "Malluch@Neh.10.4-", tribe: "Tribe of Levi"}  # מלוך: Neh 10:5, Neh 12:2, Neh 12:14
+  - {key: "Shebaniah@Neh.10.4-", tribe: "Tribe of Levi"}  # שבניהו: Neh 10:5, Neh 12:3, Neh 12:14
+  - {key: "Obadiah@Neh.10.5", tribe: "Tribe of Levi"}  # עבדיהו: Neh 10:6
+  - {key: "Baruch@Neh.10.6", tribe: "Tribe of Levi"}  # ברוך: Neh 10:7
+  - {key: "Ginnethon@Neh.10.6-", tribe: "Tribe of Levi"}  # גנתון: Neh 10:7, Neh 12:4, Neh 12:16
+  - {key: "Abijah@Neh.10.7-", tribe: "Tribe of Levi"}  # אביה: Neh 10:8, Neh 12:4, Neh 12:17
+  - {key: "Mijamin@Neh.10.7-", tribe: "Tribe of Levi"}  # מימן: Neh 10:8, Neh 12:5, Neh 12:17
+  - {key: "Bilgah@Neh.10.8-", tribe: "Tribe of Levi"}  # בלגה: Neh 10:9, Neh 12:5, Neh 12:18
+  - {key: "Maaziah@Neh.10.8-", tribe: "Tribe of Levi"}  # מעזיהו: Neh 10:9, Neh 12:5, Neh 12:17
+  - {key: "Azaniah@Neh.10.9", tribe: "Tribe of Levi"}  # אזניהו: Neh 10:10
+  - {key: "Mica@Neh.10.11", tribe: "Tribe of Levi"}  # מיכא: Neh 10:12
+  - {key: "Rehob@Neh.10.11", tribe: "Tribe of Levi"}  # רחוב: Neh 10:12
+  - {key: "Shebaniah@Neh.10.12", tribe: "Tribe of Levi"}  # שבניהו: Neh 10:13
+  - {key: "Sherebiah@Neh.10.12-", tribe: "Tribe of Levi"}  # שרביה: Neh 10:13, Neh 12:8, Neh 12:24
+  - {key: "Zaccur@Neh.10.12", tribe: "Tribe of Levi"}  # זכור: Neh 10:13
+  - {key: "Beninu@Neh.10.13", tribe: "Tribe of Levi"}  # בנינו: Neh 10:14
+  - {key: "Hodiah@Neh.10.13", tribe: "Tribe of Levi"}  # הודיה: Neh 10:14
+  - {key: "Haggedolim@Neh.11.14", tribe: "Tribe of Levi"}  # גדול: Neh 11:14
+  - {key: "Bunni@Neh.11.15", tribe: "Tribe of Levi"}  # בני: Neh 11:15
+  - {key: "Jozabad@Neh.11.16", tribe: "Tribe of Levi"}  # יוזבד: Neh 11:16
+  - {key: "Shabbethai@Neh.11.16", tribe: "Tribe of Levi"}  # שבתי: Neh 11:16
+  - {key: "Bakbukiah@Neh.11.17-", tribe: "Tribe of Levi"}  # בקבקיה: Neh 11:17, Neh 12:9, Neh 12:25
+  - {key: "Iddo@Neh.12.4-", tribe: "Tribe of Levi"}  # עדו: Neh 12:4, Neh 12:16
+  - {key: "Amok@Neh.12.7-", tribe: "Tribe of Levi"}  # עמוק: Neh 12:7, Neh 12:20
+  - {key: "Hilkiah@Neh.12.7-", tribe: "Tribe of Levi"}  # חלקיהו: Neh 12:7, Neh 12:21
+  - {key: "Jedaiah@Neh.12.7-", tribe: "Tribe of Levi"}  # ידעיה: Neh 12:7, Neh 12:21
+  - {key: "Sallu@Neh.12.7-", tribe: "Tribe of Levi"}  # סלו: Neh 12:7, Neh 12:20
+  - {key: "Unni@Neh.12.9", tribe: "Tribe of Levi"}  # עני: Neh 12:9
+  - {key: "Hananiah@Neh.12.12", tribe: "Tribe of Levi"}  # חנניהו: Neh 12:12
+  - {key: "Meraiah@Neh.12.12", tribe: "Tribe of Levi"}  # מריה: Neh 12:12
+  - {key: "Jehohanan@Neh.12.13", tribe: "Tribe of Levi"}  # יהוחנן: Neh 12:13
+  - {key: "Meshullam@Neh.12.13", tribe: "Tribe of Levi"}  # משלם: Neh 12:13
+  - {key: "Jonathan@Neh.12.14", tribe: "Tribe of Levi"}  # יונתן: Neh 12:14
+  - {key: "Joseph@Neh.12.14", tribe: "Tribe of Levi"}  # יוסף: Neh 12:14
+  - {key: "Adna@Neh.12.15", tribe: "Tribe of Levi"}  # עדנא: Neh 12:15
+  - {key: "Helkai@Neh.12.15", tribe: "Tribe of Levi"}  # חלקי: Neh 12:15
+  - {key: "Meshullam@Neh.12.16", tribe: "Tribe of Levi"}  # משלם: Neh 12:16
+  - {key: "Zechariah@Neh.12.16", tribe: "Tribe of Levi"}  # זכריהו: Neh 12:16
+  - {key: "Piltai@Neh.12.17", tribe: "Tribe of Levi"}  # פלטי: Neh 12:17
+  - {key: "Zichri@Neh.12.17", tribe: "Tribe of Levi"}  # זכרי: Neh 12:17
+  - {key: "Jehonathan@Neh.12.18", tribe: "Tribe of Levi"}  # יהונתן: Neh 12:18
+  - {key: "Shammua@Neh.12.18", tribe: "Tribe of Levi"}  # שמוע: Neh 12:18
+  - {key: "Mattenai@Neh.12.19", tribe: "Tribe of Levi"}  # מתני: Neh 12:19
+  - {key: "Uzzi@Neh.12.19", tribe: "Tribe of Levi"}  # עזי: Neh 12:19
+  - {key: "Eber@Neh.12.20", tribe: "Tribe of Levi"}  # עבר: Neh 12:20
+  - {key: "Kallai@Neh.12.20", tribe: "Tribe of Levi"}  # קלי: Neh 12:20
+  - {key: "Hashabiah@Neh.12.21", tribe: "Tribe of Levi"}  # חשביהו: Neh 12:21
+  - {key: "Nethanel@Neh.12.21", tribe: "Tribe of Levi"}  # נתנאל: Neh 12:21
+  - {key: "Meshullam@Neh.12.25", tribe: "Tribe of Levi"}  # משלם: Neh 12:25
+  - {key: "Eliakim@Neh.12.41", tribe: "Tribe of Levi"}  # אליקים: Neh 12:41
+  - {key: "Elioenai@Neh.12.41", tribe: "Tribe of Levi"}  # אליועיני: Neh 12:41
+  - {key: "Hananiah@Neh.12.41", tribe: "Tribe of Levi"}  # חנניהו: Neh 12:41
+  - {key: "Maaseiah@Neh.12.41", tribe: "Tribe of Levi"}  # מעשיהו: Neh 12:41
+  - {key: "Micaiah@Neh.12.41", tribe: "Tribe of Levi"}  # מיכיה: Neh 12:41
+  - {key: "Miniamin@Neh.12.41", tribe: "Tribe of Levi"}  # מנימין: Neh 12:41
+  - {key: "Zechariah@Neh.12.41", tribe: "Tribe of Levi"}  # זכריהו: Neh 12:41
+  - {key: "Elam@Neh.12.42", tribe: "Tribe of Levi"}  # עילם: Neh 12:42
+  - {key: "Eleazar@Neh.12.42", tribe: "Tribe of Levi"}  # אלעזר: Neh 12:42
+  - {key: "Ezer@Neh.12.42", tribe: "Tribe of Levi"}  # עזר: Neh 12:42
+  - {key: "Jehohanan@Neh.12.42", tribe: "Tribe of Levi"}  # יהוחנן: Neh 12:42
+  - {key: "Jezrahiah@Neh.12.42", tribe: "Tribe of Levi"}  # יזרחיה: Neh 12:42
+  - {key: "Maaseiah@Neh.12.42", tribe: "Tribe of Levi"}  # מעשיהו: Neh 12:42
+  - {key: "Malchijah@Neh.12.42", tribe: "Tribe of Levi"}  # מלכיהו: Neh 12:42
+  - {key: "Shemaiah@Neh.12.42", tribe: "Tribe of Levi"}  # שמעיהו: Neh 12:42
+  - {key: "Uzzi@Neh.12.42", tribe: "Tribe of Levi"}  # עזי: Neh 12:42

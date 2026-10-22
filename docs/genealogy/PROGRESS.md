@@ -118,19 +118,16 @@ Cross-book steps (M91), planned in step 1:
 | 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | done |
 | 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | done |
 | 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | done |
-| 9 | "Unattached": people whose tribe or family the text states | todo |
+| 9 | "Unattached": people whose tribe or family the text states | done |
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
 
 ## Next step
-**M91, step 9: `x09-unattached`, "Unattached": people whose tribe or family the text states.** Write `curation/genealogy/x09-unattached.yaml` (`block: x09-unattached`): a `people:` correction `{key, tribe: "<label>"}` hangs a person without a parent on a tribe's or nation's eponym (the labels of `genealogy.tribes`; step 8 added `Philistia`), and a stated descent is a link (`added`, kind `descendant`).
+**M91, step 10: the people in the jump box and in the unit dossier (D99 / D100 for places).** No curated file; code, i18n and tests.
 
-- **The sweep:** the 1,076 people under "unattached" (`placement` `unattached`), with the verses that name them. Pick out those whose verses give a tribe or nation: "מבני X", "ממטה / למטה X", "לבית X", "איש ימיני", the gentilics (האפרתי, הגלעדי, הכרמלי, העמוני, המואבי, המצרי, הפלשתי, החתי, ...), "מלך X". Most of the 1,076 have no family in the text and stay.
-- **The open questions for this step:**
-  - Kish "איש ימיני" (Est 2:5), Mordecai's forefather, attached only to Esther.
-  - Pethahiah son of Meshezabel "מבני זרח בן יהודה" (Neh 11:24).
-  - The families of Kiriath-jearim (I Chr 2:53) under Shobal; Hammath the Kenite (2:55), attached to Judah; the Simeonite princes of 4:34–37, 42.
-  - Achish's kin and the other kings of the Philistine cities (Gath, Gerar), now that `Philistia` has an eponym.
-- Then rebuild (`bsim genealogy`, `bsim build-db`), check the attached people at `/genealogy`, run ruff and pytest, and update this file.
+- **Jump box** (Ctrl+K): a People group beside the places (D99). A person's Hebrew name (`/api/genealogy/lookup?q=`, which exists) opens `/genealogy` at that person, the path to them expanded and the panel open. Several people of one name are told apart by their parent or first verse, as the search does.
+- **Dossier** (D64 / D100): a `people` entry for a unit: the people its verses name (persons whose verses fall in the unit), the most named first, each a link to `/genealogy` at that person; "nothing found" and "not computed in this build" (without `genealogy_persons`) like the other entries.
+- English and Hebrew strings in the catalogs; DESIGN §16.63 and a D-row (D102) for the decision; pytest for the API and dossier on the fixture, vitest for the jump box group and the dossier entry.
+- Then rebuild the web and DB as needed, run ruff, pytest and vitest, and update this file. M91 is then done: tick its boxes in `docs/TASKS.md`.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -260,7 +257,7 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **For M91** (b11): Cush "בן ימיני" (Ps 7:1) is of Benjamin, but is attached only to the book. TIPNR's Buzites <- Ram (Job 32:2, "הבוזי ממשפחת רם") is kept as a `descendant`; Buz son of Nahor (Gen 22:21) is not linked. "קהלת בן דוד" (Eccl 1:1) has no key. **Step 8:** Cush is filed under Benjamin.
 - **Esther and Daniel** (b12):
   - Esther is "בת אביחיל דד מרדכי" (2:15) and "בת דדו" (2:7): Abihail is Mordecai's uncle, but no link from Abihail to Shimei or Kish is recorded, as "דוד" does not say on which side.
-  - Mordecai's forefather Kish (2:5) is TIPNR's own key, not Saul's father; the text does not say.
+  - Mordecai's forefather Kish (2:5) is TIPNR's own key, not Saul's father; the text does not say. **Step 9:** filed under Benjamin ("איש ימיני").
   - Haman "האגגי" (3:1): whether Agag of I Sam 15 is meant is not stated, and nothing is linked.
   - Belshazzar is kept as Nebuchadnezzar's son: "נבוכדנצר אבוהי" (Dan 5:2, 11, 18), "ואנת ברה" (5:22). No other father is named, so no conflict.
   - "דריוש בן אחשורוש מזרע מדי" (Dan 9:1) is kept on TIPNR's one Ahasuerus, who is also Esther's king; an identification of TIPNR's.
@@ -281,7 +278,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - The priest who took a wife of the daughters of Barzillai the Gileadite (Ezra 2:61, Neh 7:63) is not named; nothing is added.
   - **For M91:**
     - TIPNR keeps one man under two keys: Mattaniah son of Mica of Neh 11:17 (= I Chr 9:15), and of 11:22 and 12:35. If they are one man, Mica's father is Zabdi / Zichri (Neh 11:17, I Chr 9:15) or Zaccur (Neh 12:35). Likewise Asaph@1Ch.9.15-Neh stands beside Asaph@1Ch.6.39-Psa. **Step 6:** Mattaniah, Mica and Asaph are merged; Mica's father is a conflict (Zichri drawn, Zaccur the other reading), and Zichri and Zaccur are a `possible`.
-    - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book. **Step 6:** Gershom <- Phinehas and Daniel <- Ithamar are added as `descendant`s; Pethahiah is left to step 9.
+    - The heads of Ezra 8:2 ("מבני פינחס גרשם מבני איתמר דניאל מבני דויד חטוש") and Pethahiah "מבני זרח בן יהודה" (Neh 11:24) are attached only by tribe or book. **Step 6:** Gershom <- Phinehas and Daniel <- Ithamar are added as `descendant`s; Pethahiah is left to step 9. **Step 9:** Meshezabel, Pethahiah's father, is a `descendant` of Zerah.
     - TIPNR's Shilonites ("People from Shelah(?)") have no link to Shelah.
     - TIPNR makes the father of Shemaiah, keeper of the East Gate (Neh 3:29), the same man as Shecaniah son of Jehiel (Ezra 10:2); the text does not say so.
 - **I Chronicles 1** (b14): Keturah is "פילגש אברהם" here (1:32) and "אשה" in Gen 25:1; Gen 25:6 speaks of Abraham's "פילגשים". The tree keeps her as a spouse, as it has no separate role for a concubine.
@@ -295,8 +292,8 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Sheshan:** "ובני ששן אחלי" (2:31), but "ולא היה לששן בנים כי אם בנות" (2:34). TIPNR takes Ahlai for the daughter given to Jarha (2:35). Their marriage is kept on 2:31, 34–35, and Ahlai as Attai's mother is `unstated`.
   - **Mareshah** (2:42) is among Caleb's sons but is not said to be Mesha's son; the link is `unstated`.
   - **Founders:** Hebron (2:42), Jorkeam (2:44), Madmannah, Machbenah and Gibea (2:49) are towns of Judah (Josh 15), linked as `founder`. Maon (2:45) is "בן", so a son.
-  - **Hammath** "אבי בית רכב" (2:55) is the forefather of the Rechabites, so Rechab <- Hammath is a `descendant`. Hammath is a Kenite, though TIPNR attaches him to Judah (M91).
-  - **The families of Kiriath-jearim** (2:53): the Mishraites, Puthites, Shumathites and Zorathites stand under Shobal "אבי קרית יערים" (2:52), but are attached only to the book (M91).
+  - **Hammath** "אבי בית רכב" (2:55) is the forefather of the Rechabites, so Rechab <- Hammath is a `descendant`. Hammath is a Kenite, though TIPNR attaches him to Judah (M91). **Step 9:** kept on Judah, in whose list Chronicles puts the Kenites.
+  - **The families of Kiriath-jearim** (2:53): the Mishraites, Puthites, Shumathites and Zorathites stand under Shobal "אבי קרית יערים" (2:52), but are attached only to the book (M91). **Step 9:** the Ithrites, Puthites, Shumathites, Mishraites and Zorathites are `descendant`s of Shobal.
   - **For M91:**
     - **Achsah:** "ובת כלב עכסה" (2:49) is the daughter of Caleb son of Hezron. In Josh 15:16–17 and Judg 1:12–13, Achsah is the daughter of Caleb son of Jephunneh. TIPNR keeps two Achsahs and two Calebs. If each pair is one person, this is a Bible vs Bible conflict. **Step 4:** the Achsahs are merged, with a conflict (Caleb son of Jephunneh drawn); the Calebs are a `possible` (Hur, Uri and Bezalel make Caleb son of Hezron three generations older).
     - **Salma** "אבי בית לחם", son of Hur (2:51), and Salma father of Boaz (2:11), who lived in Bethlehem, are two TIPNR keys. **Step 4:** a `possible`.
@@ -316,7 +313,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Mered's wives** (4:17–18): "ותהר את מרים ואת שמי ואת ישבח" names no parent. TIPNR takes the three for the sons of Bithiah "אשר לקח מרד", so those links are `unstated`. "ואשתו היהדיה" follows Mered, so she is kept as his wife and the mother of Jered, Heber and Jekuthiel. "ואלה בני בתיה" comes right after those three, so whose sons Bithiah's are is not clear.
   - **Hodiah** (4:19): "ובני אשת הודיה אחות נחם" reads "the sons of Hodiah's wife, Naham's sister". Hodiah is a man's name elsewhere (Neh 8:7, 10:11, 14, 19). TIPNR makes Hodiah the woman, Naham's sister and Ishbah's wife. Hodiah is made male and the father of the Garmite; the marriage to Ishbah, the Garmite <- Ishbah, and TIPNR's unnamed father of Hodiah and Naham are rejected.
   - **Simeon** (4:24): "נמואל וימין יריב זרח שאול" against "ימואל וימין ואהד ויכין וצחר ושאול" (Gen 46:10, Ex 6:15) and Num 26:12–13. Nemuel, Jarib and Zerah here have no TIPNR keys of their own: Jemuel and Zerah are on the Genesis keys, and Jarib is not linked. Shallum son of Shaul (4:25) begins the line down to Shimei. Its Mibsam and Mishma are also the names of Ishmael's sons (Gen 25:13–14). **Step 4:** TIPNR's Jachin key holds 4:24, so Jarib is read as Jachin; nothing to merge.
-  - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only. **Step 4:** Hattush merged; Chelub left apart (nothing but the name).
+  - **For M91:** Chelub "אחי שוחה" (4:11) and Caleb; Hattush son of Shemaiah (3:22) and Hattush "מבני דויד" (Ezra 8:2); Caleb son of Jephunneh's sons Iru, Elah and Naam (4:15) beside block 15's Calebs; and the Simeonite princes of 4:34–37, 42, attached to Simeon by tribe only. **Step 4:** Hattush merged; Chelub left apart (nothing but the name). **Step 9:** the Simeonite princes stay on Simeon.
 - **I Chronicles 5–6** (b16):
   - **Reuben** (5:1–10): "בני יואל" (5:4) follows Reuben's sons (5:3), but the text does not say whose son Joel is; his line down to Beerah is confirmed. Joel father of Shema (5:8) is a second TIPNR key, likely the same man (M91). Jeiel and Zechariah "ואחיו" (5:7) would be Beerah's brothers; they stay on the tribe. **Step 5:** the two Joels are merged; Shema and Shemaiah are a `possible`.
   - **Gad** (5:11–17): the four heads of 5:12 have no father. "אלה בני אביחיל" (5:14) is read, as TIPNR reads it, as the seven of 5:13, not the four.
@@ -375,7 +372,7 @@ Each entry: the child, the readings with their verses, the block that found it.
 - **Adoption** (settled in M91 step 2): Jacob takes Ephraim and Manasseh as his own (Gen 48:5), an `adopted` cross-link; Joseph stays the drawn father.
 - The skeleton is ~650 KB of JSON (gzipped in transit), fetched once per visit. Fine now; if M91 adds fields, consider a compact array form.
 - `bsim places` drops TIPNR's references marked by their occurrence (`Exo.7.10a`, 15% of all) and doesn't map English numbering (`data/kjv.py`). Fixing both might improve the gazetteer, but it is outside this series: raise it with the user, don't just do it.
-- 1,055 people are "unattached", mostly people with no family in the text. Most become reachable through search; the reviews may attach some.
+- 1,055 people are "unattached", mostly people with no family in the text. Most become reachable through search; the reviews may attach some. **Step 9:** 908 after the M91 sweeps.
 
 ## Log
 - 2026-10-21, F0: plan approved; hand-off file, DESIGN §16.63 (design) / D101, TASKS milestones M88–M91 and review block F.
@@ -680,3 +677,10 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Attached (5):** Cush "בן ימיני" to Benjamin; Daniel, Hananiah, Mishael and Azariah "מבני יהודה" to Judah. Joash, Gideon's father, is a `descendant` of Abiezer.
   - **Config:** `genealogy.tribes` gains `Philistia` -> the Philistines (Gen 10:14), so Achish's line now hangs on them too.
   - 2,836 people, 1,799 parent links, 47 conflicts; placed on a tribe 164, unattached 1,076.
+- 2026-10-22, M91 step 9: "Unattached", people whose tribe or family the text states (`x09-unattached.yaml`, reviewed).
+  - **The sweep:** the 1,076 unattached people, each name followed within four words by a gentilic, "מלך X", "מבני X", "הכהן" or "הלוי" (79 people), then the priests' and Levites' lists of Ezra 8, 10 and Neh 9–12 (107 people whose every verse is in them).
+  - **On a nation (28):** the Hittites Zohar, Beeri, Elon and Ahimelech, Hamor the Hivite, Shua "הכנעני", Ornan the Jebusite, and Sihon and Og, "שני מלכי האמרי" (Deut 3:8), under Canaan; Beor (Balaam "מארם"), Cushan-rishathaim and Hezion under Aram; the five kings of Midian, Oreb and Zeeb, Zebah and Zalmunna under Midian; Doeg "האדמי" under Esau; Ittai "הגתי", Phicol and Ahuzzath under the Philistines; Sennacherib under Asshur; Ebed-melech and Zerah "הכושי" under Cush.
+  - **On a tribe (131):** Dodo (Issachar), Manoah "ממשפחת הדני", Gera, Abiezer, Ribai, Kish and Zichri (Benjamin), Bani "הגדי", Shiza "הראובני"; the priests and Levites named so (Jehoiada, Uriah, Immer, Buzi, Kadmiel, Imnah, ...) and the 107 of the lists, under Levi.
+  - **By descent (9):** Heber the Kenite <- Hobab ("מבני חבב", Judg 4:11); Meshezabel <- Zerah (Neh 11:24); Azariah "לבית צדוק" <- Zadok (II Chr 31:10); Jeshaiah "מבני מררי" <- Merari (Ezra 8:19); the families of Kiriath-jearim and the Zorathites <- Shobal (I Chr 2:52–53).
+  - **Left:** gentilics of places (Gileadites, Carmelites, Anathothites), nations with no eponym (Babylon, Persia, the Kenites), Neh 8:4 and 8:7, the singers and gatekeepers of Ezra 10:24, Abihail, Jether, Hammath and the Simeonite princes (the file's comments).
+  - 2,836 people, 1,808 parent links, 47 conflicts; placed on a tribe 323, unattached 908 (from 1,076).
