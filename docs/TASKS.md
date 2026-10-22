@@ -867,7 +867,9 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 17 1 Chr 7
 - [x] 17b 1 Chr 8–9
 - [x] 18 1 Chr 10–29
-- [ ] 19 2 Chronicles
+- [x] 19 2 Chronicles
+
+✔ Every family link that touches a verse has been read against the Hebrew, in 21 blocks: 1,969 links checked, 33 conflicts marked (Bible against Bible, or "בן" for a descendant), the cue verses no link uses each dismissed with a reason. The open identifications (one person under two keys) are left to M91.
 
 ## M91: The family tree, across books (§16.63; proposed F4)
 - [ ] The parallel genealogies against each other: Gen 36 / 1 Chr 1, Gen 46 / Num 26 / 1 Chr 2–8, Ezra 7 / 1 Chr 5:27–41, Samuel–Kings / Chronicles
@@ -952,7 +954,7 @@ From the 2026-10-21 request: a family tree of everyone in the Hebrew Bible. Ever
 Family tree
 - [x] F1 (done, M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
 - [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
-- [ ] F3 (M90) The review in 19 blocks, in canon order
+- [x] F3 (done, M90) The review in 21 blocks, in canon order
 - [ ] F4 (M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
 - [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
 

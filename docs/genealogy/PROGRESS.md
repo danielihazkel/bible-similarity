@@ -63,7 +63,7 @@ A person counts as reviewed when every parent link of theirs is checked.
 | F0 | Hand-off file, DESIGN §16.63 / D101, TASKS milestones | done |
 | M88 (F1) | Data: TIPNR family columns, `bsim genealogy`, automatic proofs, curated loader, `genealogy-review`, DB tables | done |
 | M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
-| M90 (F3) | Review block by block (below) | in progress |
+| M90 (F3) | Review block by block (below) | done |
 | M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry | todo |
 
 Review blocks (M90), in Jewish canon order:
@@ -90,19 +90,14 @@ Review blocks (M90), in Jewish canon order:
 | 17 | b17-1chr-7 | 1 Chr 7 | reviewed | 114 | 0 |
 | 17b | b17b-1chr-8-9 | 1 Chr 8–9 | reviewed | 147 | 4 |
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | reviewed | 130 | 2 |
-| 19 | b19-2chr | 2 Chronicles | todo | | |
+| 19 | b19-2chr | 2 Chronicles | reviewed | 63 | 0 |
 
 ## Next step
-**M90, block 19: `b19-2chr` (II Chronicles), the last block of M90.** Follow **How to resume** step 2. Its sheet has 154 lines, but 89 are tribe attachments and 2 were decided earlier, so about 63 links are left to review, with 93 cue verses; no split is needed.
+**M91, step 1: the plan for the cross-book pass.** M90 is done: all 21 blocks are reviewed (1,969 links checked, 33 conflicts). M91 (F4 in `docs/TASKS.md`) has three parts: the parallel genealogies against each other, the tribe attachments, and the jump box and dossier entry. This first step only plans them.
 
-Things to look at in this block:
-- **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Leave out lines whose flags include `status` anywhere: they were decided in an earlier block, and the build stops on a link decided twice.
-- **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **The kings of Judah** against Kings (block 09): most father links were decided there and carry `status`; the queen mothers ("ושם אמו ...") and the kings' wives and sons (Rehoboam's, 11:18–23; Abijah's, 13:21; Jehoshaphat's, 21:2).
-- **Jeduthun's and Heman's sons** (29:12–14), which TIPNR links to the singers of block 18 (Shemaiah, Uzziel, Jehuel, Shimei).
-- **The priests:** Jehoiada and his son Zechariah (24:20), Azariah (26:17, 31:10), and Hilkiah's line (34:9).
-- **The cue verses** that end in "בן X" without a link (93): check each against Kings and Chronicles.
-- **After this block:** M90 is done when every block is reviewed; the next milestone is M91 (the identifications left open in the blocks' open questions).
+- **Collect the items marked "(M91)"** under **Open questions** (19 of them, plus the tribe attachments at its head). Most are one person under two TIPNR keys: Asriel, Abiezer and Shechem (I Chr 7 against Num 26), Naaman and Ard, the two lines from Kohath to Samuel, Meshelemiah / Shelemiah / Shallum, Obed-edom, Jahath / Jehiel, and Elihu / Eliab.
+- **The build has no way to say that two keys are one person.** A link can be confirmed, fixed, added or rejected, but keys cannot be merged. Propose a format for it (say, a `same:` list in the curated files, with proof verses and kind `bible`, so a merge that is only likely can be shown as a conflict) and **ask the user before building it**: it changes the data model, the tree and the API.
+- **Split the rest into steps of one session each**, in the order of `docs/TASKS.md`: Gen 36 / I Chr 1; Gen 46 / Num 26 / I Chr 2–8; Ezra 7 / I Chr 5:27–41; Samuel–Kings / Chronicles; then the tribe attachments (180 people placed on a tribe, 1,067 unattached), then the jump box and the dossier entry. Write the steps here as a table, as M90's blocks were.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -316,6 +311,14 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Meshelemiah son of Kore** (26:1) is added; "מן בני אסף" is Ebiasaph, as in 9:19.
   - **Elihu "מאחי דויד"** (27:18) is confirmed as Jesse's son, the eighth of I Sam 16:10, 17:12, as against the seven of I Chr 2:13–15; he may be Eliab (I Sam 16:6) (M91).
   - **Jaasiel son of Abner** (27:21) is TIPNR's Abner son of Ner. Jehoiada son of Benaiah (27:34) is kept apart from Jehoiada, Benaiah's father.
+- **II Chronicles** (b19):
+  - **Rehoboam's wives** (11:18–21): "את מחלת בת ירימות בן דויד אביהיל בת אליאב בן ישי" names one wife, "ותלד לו" (11:19) and "ואחריה" (11:20), so Abihail is Mahalath's mother and Jerimoth's wife, as TIPNR also has her. Her second TIPNR link, as Rehoboam's wife, is rejected. Jerimoth son of David is in no list of David's sons; his mother link to the Jerusalem wives is rejected (I Chr 3:9 has the concubines' sons, unnamed).
+  - **Maaseiah "בן המלך"** (28:7) is TIPNR's son of Ahaz, who was twenty when he began to reign (28:1); like "יואש בן המלך" (I Kgs 22:26, block 09) it may be a title, so the link is `unstated`. His mother link to Abi, Hezekiah's mother, is rejected.
+  - **Zechariah son of Jehoiada** (24:20): Jehosheba is Jehoiada's wife (22:11) but not said to be Zechariah's mother; the link is `unstated`.
+  - **The singers in Hezekiah's day** (29:13–14): "ומן בני הימן יחיאל ושמעי ומן בני ידותון שמעיה ועזיאל" are descendants, as "ומן בני אליצפן ... ומן בני אסף" in 29:13; the four links are `descendant`.
+  - **The Levites of 29:12**: "מחת בן עמשי ויואל בן עזריהו" repeats the pairs of Heman's line (I Chr 6:20–21), and "יואח בן זמה" those of Gershon's (6:6); TIPNR keeps them apart, as men of Hezekiah's day. "ועדן בן יואח" has its own Joah in TIPNR (M91).
+  - **Huram-abi** (2:13) is the son of "אשה מן בנות דן"; I Kgs 7:14 has "בן אשה אלמנה הוא ממטה נפתלי". Neither parent is named.
+  - **Jehozabad son of Shimrith the Moabitess** (24:26) is the son of Shomer in II Kgs 12:22, where block 09 confirmed the father; Chronicles makes the name a woman's (M91).
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -563,3 +566,13 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Fixed** (`descendant`): Mibhar <- Hagri (11:38).
   - **Added:** Meshelemiah <- Kore (26:1).
   - **Conflicts:** Zetham and Joel, sons of Ladan (23:8) or of Jehieli (26:22).
+- 2026-10-22, M90 block 19 (II Chronicles): `curation/genealogy/19-b19-2chr.yaml`, reviewed. **M90 is done**: 21 blocks, 1,969 links checked, 33 conflicts.
+  - **Counts:** 63 links checked (54 confirmed, 6 fixed, 3 rejected), no conflicts, 92 cue verses dismissed (the kings' successions and other links proved in Kings, the people, the nations, the clans' Levites of 29:13 and 34:12); 11:22 and 28:7 are proofs. 2 links of the sheet were decided earlier (Maacah <- Uriel, Uriel's wife).
+  - **Confirmed:**
+    - Rehoboam's wives Mahalath and Maacah and their sons (11:18–21), Mahalath's parents Jerimoth and Abihail, Abihail daughter of Eliab;
+    - the prophets and officers: Azariah son of Oded (15:1), Amasiah (17:16), Zebadiah son of Ishmael (19:11), Jahaziel's line to Mattaniah (20:14), Eliezer son of Dodavahu (20:37);
+    - Jehoshaphat's six sons (21:2), Jehosheba wife of Jehoiada (22:11), the captains of 23:1, Zechariah son of Jehoiada (24:20);
+    - the chiefs of Ephraim (28:12), the Levites of 29:12, Conaniah and his brother Shimei through an unnamed father (31:12), Kore son of Imnah (31:14), Joah son of Joahaz (34:8).
+  - **Own proofs** for Rehoboam's sons (11:18–19) and his marriage to Maacah (11:20–22).
+  - **Fixed:** `unstated`: Zechariah <- Jehosheba, Maaseiah <- Ahaz; `descendant`: Jehuel and Shimei <- Heman, Shemaiah and Uzziel <- Jeduthun (29:14).
+  - **Rejected:** Abihail as Rehoboam's wife; Jerimoth <- the Jerusalem wives; Maaseiah <- Abi.

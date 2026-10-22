@@ -1,0 +1,160 @@
+# Block 19: II Chronicles (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b19-2chr
+status: reviewed
+links:
+  - {child: "Rehoboam@1Ki.11.43-Mat", parent: "Abihail@2Ch.11.18", role: spouse, status: rejected}
+  - "Rehoboam@1Ki.11.43-Mat <- Mahalath@2Ch.11.18"
+  - "Abihail@2Ch.11.18 <- Eliab@1Sa.16.6-2Ch"
+  - "Jerimoth@2Ch.11.18 <- David@Rut.4.17-Rev"
+  - {child: "Jerimoth@2Ch.11.18", parent: "Jerusalem_wives@2Sa.5.13", status: rejected}
+  - "Jerimoth@2Ch.11.18 <- Abihail@2Ch.11.18"
+  - "Mahalath@2Ch.11.18 <- Jerimoth@2Ch.11.18"
+  - "Mahalath@2Ch.11.18 <- Abihail@2Ch.11.18"
+  - {child: "Jeush@2Ch.11.19", parent: "Rehoboam@1Ki.11.43-Mat", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - {child: "Jeush@2Ch.11.19", parent: "Mahalath@2Ch.11.18", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - {child: "Shemariah@2Ch.11.19", parent: "Rehoboam@1Ki.11.43-Mat", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - {child: "Shemariah@2Ch.11.19", parent: "Mahalath@2Ch.11.18", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - {child: "Zaham@2Ch.11.19", parent: "Rehoboam@1Ki.11.43-Mat", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - {child: "Zaham@2Ch.11.19", parent: "Mahalath@2Ch.11.18", status: confirmed, proof: [II Chronicles 11:18, II Chronicles 11:19]}
+  - "Attai@2Ch.11.20 <- Rehoboam@1Ki.11.43-Mat"
+  - "Attai@2Ch.11.20 <- Maacah@1Ki.15.2-2Ch"
+  - "Shelomith@2Ch.11.20 <- Rehoboam@1Ki.11.43-Mat"
+  - "Shelomith@2Ch.11.20 <- Maacah@1Ki.15.2-2Ch"
+  - "Ziza@2Ch.11.20 <- Rehoboam@1Ki.11.43-Mat"
+  - "Ziza@2Ch.11.20 <- Maacah@1Ki.15.2-2Ch"
+  - {child: "Rehoboam@1Ki.11.43-Mat", parent: "Maacah@1Ki.15.2-2Ch", role: spouse, status: confirmed, proof: [II Chronicles 11:20, II Chronicles 11:21, II Chronicles 11:22]}
+  - "Azariah@2Ch.15.1 <- Oded@2Ch.15.1-"
+  - "Amasiah@2Ch.17.16 <- Zichri@2Ch.17.16"
+  - "Zebadiah@2Ch.19.11 <- Ishmael@2Ch.19.11"
+  - "Benaiah@2Ch.20.14 <- Jeiel@2Ch.20.14"
+  - "Jahaziel@2Ch.20.14 <- Zechariah@2Ch.20.14"
+  - "Jeiel@2Ch.20.14 <- Mattaniah@2Ch.20.14"
+  - "Zechariah@2Ch.20.14 <- Benaiah@2Ch.20.14"
+  - "Eliezer@2Ch.20.37 <- Dodavahu@2Ch.20.37"
+  - "Azariah@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Azariahu@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Jehiel@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Michael@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Shephatiah@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Zechariah@2Ch.21.2 <- Jehoshaphat@1Ki.15.24-Mat"
+  - "Jehosheba@2Ki.11.2-2Ch <- Jehoiada@2Ki.11.4-Mat"
+  - "Azariah@2Ch.23.1a <- Jeroham@2Ch.23.1"
+  - "Azariah@2Ch.23.1b <- Obed@2Ch.23.1"
+  - "Elishaphat@2Ch.23.1 <- Zichri@2Ch.23.1"
+  - "Ishmael@2Ch.23.1 <- Jehohanan@2Ch.23.1"
+  - "Maaseiah@2Ch.23.1 <- Adaiah@2Ch.23.1"
+  - "Zechariah@2Ch.24.20-Luk <- Jehoiada@2Ki.11.4-Mat"
+  - {child: "Zechariah@2Ch.24.20-Luk", parent: "Jehosheba@2Ki.11.2-2Ch", kind: unstated, status: fixed, proof: [II Chronicles 22:11, II Chronicles 24:20]}
+  - {child: "Maaseiah@2Ch.28.7", parent: "Ahaz@2Ki.15.38-Mat", kind: unstated, status: fixed, proof: [II Chronicles 28:1, II Chronicles 28:7]}
+  - {child: "Maaseiah@2Ch.28.7", parent: "Abi@2Ki.18.2-2Ch", status: rejected}
+  - "Amasa@2Ch.28.12 <- Hadlai@2Ch.28.12"
+  - "Azariah@2Ch.28.12 <- Johanan@2Ch.28.12"
+  - "Berechiah@2Ch.28.12 <- Meshillemoth@2Ch.28.12"
+  - "Jehizkiah@2Ch.28.12 <- Shallum@2Ch.28.12"
+  - "Azariah@2Ch.29.12b <- Jehallelel@2Ch.29.12"
+  - "Eden@2Ch.29.12 <- Joah@2Ch.29.12b"
+  - "Joah@2Ch.29.12a <- Zimmah@2Ch.29.12"
+  - "Joel@2Ch.29.12 <- Azariah@2Ch.29.12a"
+  - "Kish@2Ch.29.12 <- Abdi@2Ch.29.12"
+  - "Mahath@2Ch.29.12 <- Amasai@2Ch.29.12"
+  - {child: "Jehuel@2Ch.29.14", parent: "Heman@1Ch.6.33-2Ch", kind: descendant, status: fixed, proof: [II Chronicles 29:14]}
+  - {child: "Shemaiah@2Ch.29.14", parent: "Jeduthun@1Ch.6.44-Psa", kind: descendant, status: fixed, proof: [II Chronicles 29:14]}
+  - {child: "Shimei@2Ch.29.14", parent: "Heman@1Ch.6.33-2Ch", kind: descendant, status: fixed, proof: [II Chronicles 29:14]}
+  - {child: "Uzziel@2Ch.29.14", parent: "Jeduthun@1Ch.6.44-Psa", kind: descendant, status: fixed, proof: [II Chronicles 29:14]}
+  - "Conaniah@2Ch.31.12- <- father_of_Conaniah@2Ch.31.12"
+  - "Shimei@2Ch.31.12- <- father_of_Conaniah@2Ch.31.12"
+  - "Kore@2Ch.31.14 <- Imnah@2Ch.31.14"
+  - "Joah@2Ch.34.8 <- Joahaz@2Ch.34.8"
+missed:
+  - {ref: II Chronicles 1:1, reason: "Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 1:5, reason: "Bezalel son of Uri son of Hur: proved in Exodus (block 05)"}
+  - {ref: II Chronicles 2:13, reason: "Huram-abi's mother, unnamed, \"מן בנות דן\" (of Naphtali in I Kings 7:14), and his Tyrian father, unnamed"}
+  - {ref: II Chronicles 5:2, reason: "Israel as the people"}
+  - {ref: II Chronicles 5:10, reason: "Israel as the people"}
+  - {ref: II Chronicles 5:12, reason: "the singers Asaph, Heman and Jeduthun, and their sons, unnamed"}
+  - {ref: II Chronicles 6:11, reason: "Israel as the people"}
+  - {ref: II Chronicles 7:3, reason: "Israel as the people"}
+  - {ref: II Chronicles 8:2, reason: "Israel as the people"}
+  - {ref: II Chronicles 8:8, reason: "the nations"}
+  - {ref: II Chronicles 8:9, reason: "Israel as the people"}
+  - {ref: II Chronicles 8:11, reason: "Pharaoh's daughter: proved in Kings (block 09)"}
+  - {ref: II Chronicles 9:29, reason: "the prophets; Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 9:31, reason: "Rehoboam son of Solomon: proved in Kings (block 09)"}
+  - {ref: II Chronicles 10:2, reason: "Jeroboam son of Nebat: proved in Kings (block 09)"}
+  - {ref: II Chronicles 10:15, reason: "Jeroboam son of Nebat: proved in Kings (block 09)"}
+  - {ref: II Chronicles 10:16, reason: "David son of Jesse: proved earlier"}
+  - {ref: II Chronicles 10:17, reason: "Israel as the people"}
+  - {ref: II Chronicles 10:18, reason: "Israel as the people"}
+  - {ref: II Chronicles 11:3, reason: "Rehoboam son of Solomon: proved in Kings (block 09)"}
+  - {ref: II Chronicles 11:14, reason: "Jeroboam's sons, unnamed"}
+  - {ref: II Chronicles 11:17, reason: "Rehoboam son of Solomon: proved in Kings (block 09)"}
+  - {ref: II Chronicles 12:16, reason: "Abijah son of Rehoboam: proved in Kings (block 09)"}
+  - {ref: II Chronicles 13:6, reason: "Jeroboam son of Nebat, Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 13:7, reason: "Rehoboam son of Solomon: proved in Kings (block 09)"}
+  - {ref: II Chronicles 13:8, reason: "David's descendants, as the dynasty"}
+  - {ref: II Chronicles 13:9, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 13:10, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 13:12, reason: "Israel as the people"}
+  - {ref: II Chronicles 13:16, reason: "Israel as the people"}
+  - {ref: II Chronicles 13:18, reason: "Israel and Judah as the people"}
+  - {ref: II Chronicles 13:19, reason: "the towns"}
+  - {ref: II Chronicles 13:23, reason: "Asa son of Abijah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 17:1, reason: "Jehoshaphat son of Asa: proved in Kings (block 09)"}
+  - {ref: II Chronicles 18:8, reason: "Micaiah son of Imlah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 18:23, reason: "Zedekiah son of Chenaanah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 18:25, reason: "Joash \"בן המלך\": decided in I Kings 22:26 (block 09)"}
+  - {ref: II Chronicles 20:1, reason: "the nations"}
+  - {ref: II Chronicles 20:10, reason: "the nations"}
+  - {ref: II Chronicles 20:22, reason: "the nations"}
+  - {ref: II Chronicles 20:23, reason: "the nations"}
+  - {ref: II Chronicles 20:34, reason: "Jehu son of Hanani: proved in Kings (block 09)"}
+  - {ref: II Chronicles 21:1, reason: "Jehoram son of Jehoshaphat: proved in Kings (block 09)"}
+  - {ref: II Chronicles 22:5, reason: "Jehoram son of Ahab: proved in Kings (block 09)"}
+  - {ref: II Chronicles 22:6, reason: "Azariah (Ahaziah) son of Jehoram: proved in Kings (block 09)"}
+  - {ref: II Chronicles 22:7, reason: "Jehu son of Nimshi: proved in Kings (block 09)"}
+  - {ref: II Chronicles 22:8, reason: "the sons of Ahaziah's brothers, unnamed"}
+  - {ref: II Chronicles 22:9, reason: "Ahaziah, Jehoshaphat's grandson: proved in Kings (block 09)"}
+  - {ref: II Chronicles 23:3, reason: "Joash \"בן המלך\", son of Ahaziah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 24:25, reason: "\"בני יהוידע\": his son Zechariah (24:20)"}
+  - {ref: II Chronicles 25:7, reason: "Ephraim as the people"}
+  - {ref: II Chronicles 25:11, reason: "the Edomites"}
+  - {ref: II Chronicles 25:12, reason: "Judah as the people"}
+  - {ref: II Chronicles 25:14, reason: "the Edomites"}
+  - {ref: II Chronicles 25:23, reason: "Amaziah son of Joash son of Jehoahaz: proved in Kings (block 09)"}
+  - {ref: II Chronicles 25:25, reason: "Amaziah son of Joash, Joash son of Jehoahaz: proved in Kings (block 09)"}
+  - {ref: II Chronicles 26:18, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 26:21, reason: "Jotham son of Uzziah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 26:22, reason: "Isaiah son of Amoz: proved earlier"}
+  - {ref: II Chronicles 26:23, reason: "Jotham son of Uzziah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 27:5, reason: "the Ammonites"}
+  - {ref: II Chronicles 27:9, reason: "Ahaz son of Jotham: proved in Kings (block 09)"}
+  - {ref: II Chronicles 28:3, reason: "the valley of Ben-hinnom"}
+  - {ref: II Chronicles 28:6, reason: "Pekah son of Remaliah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 28:8, reason: "Israel as the people"}
+  - {ref: II Chronicles 28:10, reason: "Judah as the people"}
+  - {ref: II Chronicles 28:18, reason: "the towns"}
+  - {ref: II Chronicles 28:27, reason: "Hezekiah son of Ahaz: proved in Kings (block 09)"}
+  - {ref: II Chronicles 29:13, reason: "Shimri and Jeiel of Elizaphan's descendants, Zechariah and Mattaniah of Asaph's: not said whose sons"}
+  - {ref: II Chronicles 29:21, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 30:6, reason: "Israel as the people"}
+  - {ref: II Chronicles 30:21, reason: "Israel as the people"}
+  - {ref: II Chronicles 30:26, reason: "Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 31:1, reason: "Israel as the people"}
+  - {ref: II Chronicles 31:6, reason: "Israel and Judah as the people"}
+  - {ref: II Chronicles 31:19, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 32:20, reason: "Isaiah son of Amoz: proved earlier"}
+  - {ref: II Chronicles 32:32, reason: "Isaiah son of Amoz: proved earlier"}
+  - {ref: II Chronicles 32:33, reason: "Manasseh son of Hezekiah: proved in Kings (block 09)"}
+  - {ref: II Chronicles 33:2, reason: "Israel as the people"}
+  - {ref: II Chronicles 33:6, reason: "the valley of Ben-hinnom"}
+  - {ref: II Chronicles 33:7, reason: "Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 33:9, reason: "Israel as the people"}
+  - {ref: II Chronicles 33:20, reason: "Amon son of Manasseh: proved in Kings (block 09)"}
+  - {ref: II Chronicles 33:25, reason: "Josiah son of Amon: proved in Kings (block 09)"}
+  - {ref: II Chronicles 34:12, reason: "Jahath and Obadiah of Merari's descendants, Zechariah and Meshullam of Kohath's: not said whose sons"}
+  - {ref: II Chronicles 34:33, reason: "Israel as the people"}
+  - {ref: II Chronicles 35:3, reason: "Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 35:4, reason: "Solomon son of David: proved earlier"}
+  - {ref: II Chronicles 35:14, reason: "Aaron's descendants, as a class"}
+  - {ref: II Chronicles 35:15, reason: "the singers, Asaph's descendants"}
+  - {ref: II Chronicles 36:8, reason: "Jehoiachin son of Jehoiakim: proved in Kings (block 09)"}
