@@ -87,25 +87,23 @@ Review blocks (M90), in Jewish canon order:
 | 15 | b15-1chr-2 | 1 Chr 2 | reviewed | 134 | 0 |
 | 15b | b15b-1chr-3-4 | 1 Chr 3–4 | reviewed | 166 | 0 |
 | 16 | b16-1chr-5-6 | 1 Chr 5–6 | reviewed | 71 | 2 |
-| 17 | b17-1chr-7-9 | 1 Chr 7–9 | todo | | |
+| 17 | b17-1chr-7 | 1 Chr 7 | reviewed | 114 | 0 |
+| 17b | b17b-1chr-8-9 | 1 Chr 8–9 | todo | | |
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | todo | | |
 | 19 | b19-2chr | 2 Chronicles | todo | | |
 
 ## Next step
-**M90, block 17: `b17-1chr-7-9` (I Chr 7–9).** Follow **How to resume** step 2. Its sheet has about 250 links (I Chr 7 about 120 lines of verses, 8 about 100, 9 about 80), so split it first at I Chr 8:1 into `b17-1chr-7` and `b17b-1chr-8-9`, in `configs/default.yaml`, the status table and `docs/TASKS.md`, as block 15 was split. Then review I Chr 7.
+**M90, block 17b: `b17b-1chr-8-9` (I Chr 8–9).** Follow **How to resume** step 2. Block 17 was split at I Chr 8:1 in the session that reviewed I Chr 7; this half has about 140 links.
 
 Things to look at in this block:
 - **Write the review file from the sheet as it is before the block has a file** (save a copy first; block 03). Leave out lines whose flags include `status` anywhere: they were decided in an earlier block, and the build stops on a link decided twice.
 - **Reminder:** the API reads `results.sqlite`, so run `bsim build-db` before checking people at `/genealogy` or through the API.
-- **Lists whose "בן" runs into the next verse:** the automatic proof is then missing ("no verse names both") or a nearby verse; give such links their own proof of both verses, as block 16 did.
-- **I Chr 7:**
-  - Issachar's sons (7:1–5) against Gen 46:13 and Num 26:23–24 (Puah / Puvah, Jashub / Iob);
-  - Benjamin's sons (7:6–12): Bela, Becher and Jediael, against Gen 46:21, Num 26:38–40 and I Chr 8:1–5 (the open question on Naaman and Ard); Shuppim and Huppim;
-  - Naphtali (7:13) against Gen 46:24 (Shallum / Shillem);
-  - Manasseh (7:14–19): the Aramean concubine, Machir and Maacah, Gilead, Zelophehad (Num 26:29–33, 27:1); Asriel, TIPNR's son of Manasseh (7:14), and Num 26:31;
-  - Ephraim (7:20–29): the line down to Joshua son of Nun (7:27), and the sons killed by the men of Gath (7:21–22); Beriah;
-  - Asher (7:30–40) against Gen 46:17 and Num 26:44–46.
-- **I Chr 8–9, for the second half:** Benjamin again (8:1–5); Ehud's sons (8:6); Saul's line (8:29–40), repeated in 9:35–44, with Ner, Kish and Abner, and the conflict on Kish (block 08); the returnees of I Chr 9, against Neh 11, with Meraioth between Zadok and Ahitub (9:11; block 13's open question; I Chr 5:38 has none).
+- **Lists whose "בן" runs into the next verse:** give such links their own proof of both verses, as blocks 16 and 17 did.
+- **Benjamin again** (8:1–5): "בכרו בלע אשבל השני ואחרח השלישי נוחה הרביעי ורפא החמישי", against Gen 46:21, Num 26:38–40 and I Chr 7:6; Bela's sons (8:3–5), with Gera, Naaman and Ahoah (Naaman and Ard as Bela's sons in Num 26:40; block 04's open question).
+- **Ehud's sons** (8:6–7) and Shaharaim's wives Hushim, Baara and Hodesh (8:8–11).
+- **The families of Jerusalem and Gibeon** (8:12–28), and Jeiel "אבי גבעון" (8:29, 9:35), a `founder`?
+- **Saul's line** (8:29–40) and its repeat (9:35–44): Ner, Kish and Abner; the conflict on Kish (block 08); Saul's sons Malchishua, Abinadab, Eshbaal (Ish-bosheth); Merib-baal (Mephibosheth) and Micah's line. Links already decided in block 08 carry `status`.
+- **The returnees** (9:1–34) against Neh 11: Azariah son of Hilkiah, with Meraioth between Zadok and Ahitub (9:11; block 13's open question; I Chr 5:38 has none), and Jeroham's conflict (9:12, block 13).
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -285,6 +283,17 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Heman** son of Joel son of Samuel (6:18) is confirmed early, on this block's verse (its best verse is I Chr 15:17).
   - **Asaph's line** (6:24–28) against Gershon's line (6:5–6): TIPNR makes Ethni Jeatherai, Adaiah Iddo and Ethan Joah. "בן יחת בן גרשם" (6:28) leaves out Libni (6:5). Jahath <- Libni has its best verse in 23:8 (block 18), where TIPNR makes Jahath Ladan's son Jehiel, and Shimei son of Jahath (6:27–28) the Shimei of 23:9.
   - **Ethan** (6:29) is TIPNR's Jeduthun; "איתן בן קישי" is "איתן בן קושיהו" in 15:17. His line runs to a second Mahli, son of Mushi (6:32); Merari's line of 6:14–15 runs through Mahli son of Merari and a second Libni.
+- **I Chronicles 7** (b17):
+  - **Benjamin's sons:** "בלע ובכר וידיעאל שלשה" (7:6), against ten in Gen 46:21, five in Num 26:38–39 and five in I Chr 8:1–2. Jediael is not named elsewhere. Bela's five sons (7:7) are not those of Num 26:40 or I Chr 8:3–5. TIPNR keeps all the lists apart, so there is no key with two parents (M91).
+  - **"ושפם וחפם בני עיר חשם בני אחר"** (7:12): TIPNR keeps Ir apart from Iri son of Bela (7:7), and Shuppim and Huppim apart from Muppim and Huppim, Benjamin's sons (Gen 46:21, Num 26:39). "חשם בני אחר" may be Dan's son Hushim (Gen 46:23), "בני אחר" standing for Dan, the tribe otherwise missing here; Naphtali's list that follows ends "בני בלהה" (7:13), and Bilhah is Dan's mother too; TIPNR reads a man Aher, and that link is confirmed as written (M91).
+  - **Maacah** (7:15–16) is Machir's wife. TIPNR makes her Ir's daughter, as Huppim's and Shuppim's sister ("ושם אחתו מעכה"); the link is `unstated`. Her mother links to Gilead and Hammolecheth are rejected: neither is said to be her child.
+  - **Hammolecheth** "ואחתו" (7:18) is the sister of Gilead (7:17) or of Machir; her link to Machir is `unstated`. Her husband is TIPNR's unnamed one, kept as the father of Ishhod, Abiezer and Mahlah.
+  - **Manasseh's sons and grandsons, two keys each** (M91): Asriel is Manasseh's son here (7:14), Gilead's in Num 26:31; Abiezer is Hammolecheth's son here (7:18), Gilead's (as Iezer) in Num 26:30 and Josh 17:2; Shechem is Shemida's son here (7:19), Gilead's in Num 26:31. TIPNR keeps the I Chr keys apart.
+  - **The Aramean concubine** (7:14) is kept as Manasseh's concubine and the mother of Asriel and Machir, as TIPNR reads "אשר ילדה פילגשו הארמיה ילדה את מכיר".
+  - **Ephraim** (7:20–27): the chain from Shuthelah to a second Shuthelah, then "ועזר ואלעד" killed by the men of Gath, whom Ephraim mourned as "אביהם" (7:22). Ezer and Elead are confirmed as Ephraim's sons, on 7:21–22. Beriah is born to Ephraim's wife (7:23).
+  - **Sheerah, Rephah and Resheph** (7:24–25): "ובתו", "ורפח בנו" may be Ephraim's or the newborn Beriah's; TIPNR's links to Beriah are `unstated`. The line then runs to Joshua son of Nun (7:27).
+  - **Elishama son of Ammihud** (7:26) is TIPNR's Ephraimite chieftain of Num 1:10, 2:18, 7:48, 10:22. That makes him Joshua's grandfather and his contemporary as chieftain (M91). Tahan (7:25) and Bered (7:20) are kept apart from Tahan and Becher, Ephraim's sons in Num 26:35.
+  - **Asher** (7:30–40): Birzaith "הוא אבי ברזית" is a town, so a `founder`. TIPNR takes Helem "אחיו" (7:35) for Hotham, Shomer's brother (7:32), and Jether (7:38) for Ithran (7:37); both are confirmed. It also takes Ulla (7:39) for Shual (7:36), which nothing in the text supports; the three sons' links to Shual are `unstated`.
 - **Moses' Cushite wife** (Num 12:1) is added as her own person, `anon:cushite-wife-of-moses`. The text does not say whether she is Zipporah, a Midianite.
 - **Name variants, Gen 46 against Num 26** (the parent agrees, so no conflict): Jemuel / Nemuel, Zohar / Zerah, Ezbon / Ozni, Iob / Jashub, Hushim / Shuham, Ehi / Ahiram, Muppim / Shephupham, Huppim / Hupham. Num 26 has no Ohad, Ishvah, Gera or Rosh. Also Deuel / Reuel (Num 1:14 / 2:14) and Abiezer / Iezer (Josh 17:2 / Num 26:30). TIPNR keeps each pair as one key; the Genesis form is the one shown.
 - **Two Zurs of Midian**: TIPNR has two keys, Cozbi's father "ראש אמות בית אב במדין" (Num 25:15) and one of the five kings (31:8). They are perhaps one man.
@@ -491,3 +500,17 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Own proofs** for the lists whose "בן" or "בנו" runs into the next verse: 5:4–6, 5:13–14, 6:5–6, 6:14–15, 6:24–26, 6:29–32.
   - **Conflicts:** Zimmah (`descendant`, 6:5 against 6:27–28) and Ahimoth (6:10 against 6:20).
   - Checked in the API: Abihail's seven sons, Zimmah's and Ahimoth's conflicts with both readings, Heman's father.
+- 2026-10-22, M90 block 17 (I Chr 7): `curation/genealogy/17-b17-1chr-7.yaml`, reviewed.
+  - **The split:** block 17 (I Chr 7–9, about 250 links) was split at I Chr 8:1 into `b17-1chr-7` and `b17b-1chr-8-9`, in `configs/default.yaml`, the table above and `docs/TASKS.md`.
+  - **Counts:** 114 links checked (103 confirmed, 9 fixed, 2 rejected), no conflicts, 2 cue verses dismissed (7:28–29, towns).
+  - **Confirmed:**
+    - Issachar: Tola's sons and Uzzi's line (7:2–3);
+    - Benjamin: Jediael (7:6), Bela's and Becher's sons (7:7–8), Jediael's line through Bilhan (7:10), and 7:12 as written;
+    - Manasseh: the Aramean concubine with Asriel and Machir (7:14), Machir's wife Maacah and her sons Peresh and Sheresh, Sheresh's sons, Bedan (7:15–17), Hammolecheth's children (7:18), Shemida's sons (7:19);
+    - Ephraim: Shuthelah's chain to the second Shuthelah (7:20–21), Ezer, Elead and Beriah as Ephraim's sons (7:21–23), and the line from Telah to Nun (7:25–27);
+    - Asher: Heber's children, Japhlet's, Shomer's, Helem's, Zophah's and Jether's sons (7:32–38).
+  - **Own proofs** for links whose "בנו" runs on into the next verse or whose father is named in the next verse: 7:20–21, 7:21–23, 7:25–27, 7:36–37.
+  - **Fixed:**
+    - `unstated`: Maacah <- Ir; Hammolecheth <- Machir; Sheerah, Rephah and Resheph <- Beriah; Ulla's three sons <- Shual.
+    - `founder`: Birzaith <- Malchiel.
+  - **Rejected:** Maacah as the mother of Gilead and of Hammolecheth.

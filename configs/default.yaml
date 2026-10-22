@@ -490,7 +490,8 @@ genealogy:                    # `bsim genealogy`: the family tree, every link wi
     b15-1chr-2: [I Chronicles 2:1, I Chronicles 2:55]
     b15b-1chr-3-4: [I Chronicles 3:1, I Chronicles 4:43]
     b16-1chr-5-6: [I Chronicles 5:1, I Chronicles 6:66]
-    b17-1chr-7-9: [I Chronicles 7:1, I Chronicles 9:44]
+    b17-1chr-7: [I Chronicles 7:1, I Chronicles 7:40]
+    b17b-1chr-8-9: [I Chronicles 8:1, I Chronicles 9:44]
     b18-1chr-10-29: [I Chronicles 10:1, I Chronicles 29:30]
     b19-2chr: [II Chronicles 1:1, II Chronicles 36:23]
 

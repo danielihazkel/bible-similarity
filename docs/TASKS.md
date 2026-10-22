@@ -864,7 +864,8 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 15 1 Chr 2
 - [x] 15b 1 Chr 3–4
 - [x] 16 1 Chr 5–6
-- [ ] 17 1 Chr 7–9
+- [x] 17 1 Chr 7
+- [ ] 17b 1 Chr 8–9
 - [ ] 18 1 Chr 10–29
 - [ ] 19 2 Chronicles
 

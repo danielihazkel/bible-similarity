@@ -1,0 +1,121 @@
+# Block 17: I Chronicles 7 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b17-1chr-7
+status: reviewed
+links:
+  - "Ibsam@1Ch.7.2 <- Tola@Gen.46.13-1Ch"
+  - "Jahmai@1Ch.7.2 <- Tola@Gen.46.13-1Ch"
+  - "Jeriel@1Ch.7.2 <- Tola@Gen.46.13-1Ch"
+  - "Rephaiah@1Ch.7.2 <- Tola@Gen.46.13-1Ch"
+  - "Shemuel@1Ch.7.2 <- Tola@Gen.46.13-1Ch"
+  - "Uzzi@1Ch.7.2- <- Tola@Gen.46.13-1Ch"
+  - "Isshiah@1Ch.7.3 <- Izrahiah@1Ch.7.3"
+  - "Izrahiah@1Ch.7.3 <- Uzzi@1Ch.7.2-"
+  - "Joel@1Ch.7.3 <- Izrahiah@1Ch.7.3"
+  - "Michael@1Ch.7.3 <- Izrahiah@1Ch.7.3"
+  - "Obadiah@1Ch.7.3 <- Izrahiah@1Ch.7.3"
+  - "Jediael@1Ch.7.6- <- Benjamin@Gen.35.18-Rev"
+  - "Ezbon@1Ch.7.7 <- Bela@Gen.46.21-1Ch"
+  - "Iri@1Ch.7.7 <- Bela@Gen.46.21-1Ch"
+  - "Jerimoth@1Ch.7.7 <- Bela@Gen.46.21-1Ch"
+  - "Uzzi@1Ch.7.7 <- Bela@Gen.46.21-1Ch"
+  - "Uzziel@1Ch.7.7 <- Bela@Gen.46.21-1Ch"
+  - "Abijah@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Alemeth@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Anathoth@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Eliezer@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Elioenai@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Jeremoth@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Joash@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Omri@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Zemirah@1Ch.7.8 <- Becher@Gen.46.21-1Ch"
+  - "Ahishahar@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Benjamin@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Bilhan@1Ch.7.10 <- Jediael@1Ch.7.6-"
+  - "Chenaanah@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Ehud@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Jeush@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Tarshish@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Zethan@1Ch.7.10 <- Bilhan@1Ch.7.10"
+  - "Huppim@1Ch.7.12- <- Ir@1Ch.7.12"
+  - "Hushim@1Ch.7.12 <- Aher@1Ch.7.12"
+  - "Shuppim@1Ch.7.12- <- Ir@1Ch.7.12"
+  - "Manasseh@Gen.41.51-Rev <- Aramitess@1Ch.7.14"
+  - "Machir@Gen.50.23-1Ch <- Aramitess@1Ch.7.14"
+  - "Asriel@1Ch.7.14 <- Manasseh@Gen.41.51-Rev"
+  - "Asriel@1Ch.7.14 <- Aramitess@1Ch.7.14"
+  - {child: "Maacah@1Ch.7.15-", parent: "Ir@1Ch.7.12", kind: unstated, status: fixed, proof: [I Chronicles 7:12, I Chronicles 7:15]}
+  - "Machir@Gen.50.23-1Ch <- Maacah@1Ch.7.15-"
+  - "Peresh@1Ch.7.16 <- Machir@Gen.50.23-1Ch"
+  - "Peresh@1Ch.7.16 <- Maacah@1Ch.7.15-"
+  - "Rakem@1Ch.7.16 <- Sheresh@1Ch.7.16"
+  - "Sheresh@1Ch.7.16 <- Machir@Gen.50.23-1Ch"
+  - "Sheresh@1Ch.7.16 <- Maacah@1Ch.7.15-"
+  - "Ulam@1Ch.7.16- <- Sheresh@1Ch.7.16"
+  - {child: "Gilead@Num.26.29-1Ch", parent: "Maacah@1Ch.7.15-", status: rejected}
+  - "Bedan@1Ch.7.17 <- Ulam@1Ch.7.16-"
+  - "Abiezer@1Ch.7.18 <- husband_of_Hammolecheth@1Ch.7.18"
+  - "Abiezer@1Ch.7.18 <- Hammolecheth@1Ch.7.18"
+  - {child: "Hammolecheth@1Ch.7.18", parent: "Machir@Gen.50.23-1Ch", kind: unstated, status: fixed, proof: [I Chronicles 7:17, I Chronicles 7:18]}
+  - {child: "Hammolecheth@1Ch.7.18", parent: "Maacah@1Ch.7.15-", status: rejected}
+  - "Ishhod@1Ch.7.18 <- husband_of_Hammolecheth@1Ch.7.18"
+  - "Ishhod@1Ch.7.18 <- Hammolecheth@1Ch.7.18"
+  - "Mahlah@1Ch.7.18 <- husband_of_Hammolecheth@1Ch.7.18"
+  - "Mahlah@1Ch.7.18 <- Hammolecheth@1Ch.7.18"
+  - "husband_of_Hammolecheth@1Ch.7.18 <- Hammolecheth@1Ch.7.18"
+  - "Ahian@1Ch.7.19 <- Shemida@Num.26.32-1Ch"
+  - "Aniam@1Ch.7.19 <- Shemida@Num.26.32-1Ch"
+  - "Likhi@1Ch.7.19 <- Shemida@Num.26.32-1Ch"
+  - "Shechem@1Ch.7.19 <- Shemida@Num.26.32-1Ch"
+  - "Bered@1Ch.7.20 <- Shuthelah@Num.26.35-1Ch"
+  - "Eleadah@1Ch.7.20 <- Tahath@1Ch.7.20a"
+  - "Tahath@1Ch.7.20a <- Bered@1Ch.7.20"
+  - "Tahath@1Ch.7.20b <- Eleadah@1Ch.7.20"
+  - {child: "Elead@1Ch.7.21", parent: "Ephraim@Gen.41.52-Zec", status: confirmed, proof: [I Chronicles 7:21, I Chronicles 7:22]}
+  - {child: "Ezer@1Ch.7.21", parent: "Ephraim@Gen.41.52-Zec", status: confirmed, proof: [I Chronicles 7:21, I Chronicles 7:22]}
+  - "Shuthelah@1Ch.7.21 <- Zabad@1Ch.7.21"
+  - {child: "Zabad@1Ch.7.21", parent: "Tahath@1Ch.7.20b", status: confirmed, proof: [I Chronicles 7:20, I Chronicles 7:21]}
+  - {child: "Beriah@1Ch.7.23", parent: "Ephraim@Gen.41.52-Zec", status: confirmed, proof: [I Chronicles 7:22, I Chronicles 7:23]}
+  - {child: "Sheerah@1Ch.7.24", parent: "Beriah@1Ch.7.23", kind: unstated, status: fixed, proof: [I Chronicles 7:23, I Chronicles 7:24]}
+  - {child: "Rephah@1Ch.7.25", parent: "Beriah@1Ch.7.23", kind: unstated, status: fixed, proof: [I Chronicles 7:23, I Chronicles 7:25]}
+  - {child: "Resheph@1Ch.7.25", parent: "Beriah@1Ch.7.23", kind: unstated, status: fixed, proof: [I Chronicles 7:23, I Chronicles 7:25]}
+  - "Tahan@1Ch.7.25 <- Telah@1Ch.7.25"
+  - "Telah@1Ch.7.25 <- Resheph@1Ch.7.25"
+  - "Ammihud@Num.1.10-1Ch <- Ladan@1Ch.7.26"
+  - {child: "Ladan@1Ch.7.26", parent: "Tahan@1Ch.7.25", status: confirmed, proof: [I Chronicles 7:25, I Chronicles 7:26]}
+  - {child: "Nun@Exo.33.11-Neh", parent: "Elishama@Num.1.10-1Ch", status: confirmed, proof: [I Chronicles 7:26, I Chronicles 7:27]}
+  - {child: "Birzaith@1Ch.7.31", parent: "Malchiel@Gen.46.17-1Ch", kind: founder, status: fixed, proof: [I Chronicles 7:31]}
+  - "Japhlet@Jos.16.3-1Ch <- Heber@Gen.46.17-1Ch"
+  - "Hotham@1Ch.7.32- <- Heber@Gen.46.17-1Ch"
+  - "Shomer@1Ch.7.32- <- Heber@Gen.46.17-1Ch"
+  - "Shua@1Ch.7.32 <- Heber@Gen.46.17-1Ch"
+  - "Ashvath@1Ch.7.33 <- Japhlet@Jos.16.3-1Ch"
+  - "Bimhal@1Ch.7.33 <- Japhlet@Jos.16.3-1Ch"
+  - "Pasach@1Ch.7.33 <- Japhlet@Jos.16.3-1Ch"
+  - "Ahi@1Ch.7.34 <- Shomer@1Ch.7.32-"
+  - "Aram@1Ch.7.34 <- Shomer@1Ch.7.32-"
+  - "Jehubbah@1Ch.7.34 <- Shomer@1Ch.7.32-"
+  - "Rohgah@1Ch.7.34 <- Shomer@1Ch.7.32-"
+  - "Amal@1Ch.7.35 <- Hotham@1Ch.7.32-"
+  - "Imna@1Ch.7.35 <- Hotham@1Ch.7.32-"
+  - "Shelesh@1Ch.7.35 <- Hotham@1Ch.7.32-"
+  - "Zophah@1Ch.7.35- <- Hotham@1Ch.7.32-"
+  - "Beri@1Ch.7.36 <- Zophah@1Ch.7.35-"
+  - "Harnepher@1Ch.7.36 <- Zophah@1Ch.7.35-"
+  - "Imrah@1Ch.7.36 <- Zophah@1Ch.7.35-"
+  - "Shual@1Ch.7.36- <- Zophah@1Ch.7.35-"
+  - "Suah@1Ch.7.36 <- Zophah@1Ch.7.35-"
+  - {child: "Beera@1Ch.7.37", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - {child: "Bezer@1Ch.7.37", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - {child: "Hod@1Ch.7.37", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - {child: "Ithran@1Ch.7.37-", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - {child: "Shamma@1Ch.7.37", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - {child: "Shilshah@1Ch.7.37", parent: "Zophah@1Ch.7.35-", status: confirmed, proof: [I Chronicles 7:36, I Chronicles 7:37]}
+  - "Ara@1Ch.7.38 <- Ithran@1Ch.7.37-"
+  - "Jephunneh@1Ch.7.38 <- Ithran@1Ch.7.37-"
+  - "Pispa@1Ch.7.38 <- Ithran@1Ch.7.37-"
+  - {child: "Arah@1Ch.7.39", parent: "Shual@1Ch.7.36-", kind: unstated, status: fixed, proof: [I Chronicles 7:36, I Chronicles 7:39]}
+  - {child: "Hanniel@1Ch.7.39", parent: "Shual@1Ch.7.36-", kind: unstated, status: fixed, proof: [I Chronicles 7:36, I Chronicles 7:39]}
+  - {child: "Rizia@1Ch.7.39", parent: "Shual@1Ch.7.36-", kind: unstated, status: fixed, proof: [I Chronicles 7:36, I Chronicles 7:39]}
+missed:
+  - {ref: I Chronicles 7:28, reason: "the towns of Ephraim's descendants"}
+  - {ref: I Chronicles 7:29, reason: "the towns of Manasseh's descendants; בני יוסף בן ישראל, proved in Genesis"}
