@@ -25,6 +25,12 @@ This is the hand-off file for the family tree of the Hebrew Bible (series F, M88
 - **Names** are shown in Hebrew only. TIPNR's English unique names (`Isaac@Gen.17.19-Jas`) are internal keys.
 - **References** in the curated files are Sefaria-style, in Hebrew numbering (`I Chronicles 5:27`).
 
+## Decisions (user, 2026-10-22, for M91)
+- **One person under two TIPNR keys** is recorded in a `same:` list, with proof verses and a status:
+  - `merged`: the keys become one node. Where the keys had different parents, the merged person gets a Bible-vs-Bible conflict.
+  - `possible`: both nodes stay, and the panel shows "may be the same as …" with the proofs.
+- **Adoption** (Jacob and Ephraim and Manasseh, Gen 48:5) is an `adopted` link from Jacob, shown in the panel as a cross-link. The tree keeps drawing them under Joseph.
+
 ## Curated file format
 One file per block, `curation/genealogy/NN-<block>.yaml`; the block's verse range is in `genealogy.blocks` (`configs/default.yaml`). Keys are TIPNR's unique names exactly as the review sheet prints them.
 ```yaml
@@ -64,7 +70,7 @@ A person counts as reviewed when every parent link of theirs is checked.
 | M88 (F1) | Data: TIPNR family columns, `bsim genealogy`, automatic proofs, curated loader, `genealogy-review`, DB tables | done |
 | M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
 | M90 (F3) | Review block by block (below) | done |
-| M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry | todo |
+| M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry (below) | in progress |
 
 Review blocks (M90), in Jewish canon order:
 
@@ -92,12 +98,45 @@ Review blocks (M90), in Jewish canon order:
 | 18 | b18-1chr-10-29 | 1 Chr 10–29 | reviewed | 130 | 2 |
 | 19 | b19-2chr | 2 Chronicles | reviewed | 63 | 0 |
 
-## Next step
-**M91, step 1: the plan for the cross-book pass.** M90 is done: all 21 blocks are reviewed (1,969 links checked, 33 conflicts). M91 (F4 in `docs/TASKS.md`) has three parts: the parallel genealogies against each other, the tribe attachments, and the jump box and dossier entry. This first step only plans them.
+Cross-book steps (M91), planned in step 1:
 
-- **Collect the items marked "(M91)"** under **Open questions** (19 of them, plus the tribe attachments at its head). Most are one person under two TIPNR keys: Asriel, Abiezer and Shechem (I Chr 7 against Num 26), Naaman and Ard, the two lines from Kohath to Samuel, Meshelemiah / Shelemiah / Shallum, Obed-edom, Jahath / Jehiel, and Elihu / Eliab.
-- **The build has no way to say that two keys are one person.** A link can be confirmed, fixed, added or rejected, but keys cannot be merged. Propose a format for it (say, a `same:` list in the curated files, with proof verses and kind `bible`, so a merge that is only likely can be shown as a conflict) and **ask the user before building it**: it changes the data model, the tree and the API.
-- **Split the rest into steps of one session each**, in the order of `docs/TASKS.md`: Gen 36 / I Chr 1; Gen 46 / Num 26 / I Chr 2–8; Ezra 7 / I Chr 5:27–41; Samuel–Kings / Chronicles; then the tribe attachments (180 people placed on a tribe, 1,067 unattached), then the jump box and the dossier entry. Write the steps here as a table, as M90's blocks were.
+| Step | What | Status |
+|---|---|---|
+| 1 | The plan; the format for identifications and adoption, asked | done |
+| 2 | Build `same:` (`merged` / `possible`) and `adopted` cross-links: loader, tree, API, panel, DESIGN §16.63, tests | todo |
+| 3 | Gen 36 / I Chr 1: Edom's chiefs and kings, the Horites | todo |
+| 4 | Gen 46 / Num 26 / I Chr 2–4: Judah and Simeon, Caleb and Achsah, Salma, Hur, Zerah's sons and the Ezrahite sages | todo |
+| 5 | Gen 46 / Num 26 / I Chr 5–8: Reuben, Levi (Korah's line, the two lines from Kohath to Samuel), Benjamin, Manasseh, Ephraim, Asher | todo |
+| 6 | Ezra 7 / I Chr 5:27–41, Neh 11–12 / I Chr 9: the priests, the Levites, the gatekeepers and the singers | todo |
+| 7 | Samuel–Kings / Chronicles: David's brothers, the kings' sons, Josiah's sons and Zedekiah, the Levites of David's lists | todo |
+| 8 | Tribe attachments: TIPNR's that the text does not support (blocks 01–13) | todo |
+| 9 | "Unattached": people whose tribe or family the text states | todo |
+| 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | todo |
+
+## Next step
+**M91, step 2: build identifications and adoption.** The format was decided (see **Decisions**, 2026-10-22). This step builds it with a test case each, and records no identification yet; steps 3–7 do that.
+
+- **The format,** in the curated files:
+  ```yaml
+  same:
+    - keys: ["Asriel@Num.26.31-Jos", "Asriel@1Ch.7.14"]   # the first key is kept
+      status: merged            # merged | possible
+      proof: [Numbers 26:31, I Chronicles 7:14]
+      note: {en: "…", he: "…"}  # optional; both languages or none
+  ```
+- **`merged`** (`apply_curation`, before links are decided):
+  - The other keys' verses and tokens join the first key's, and their links (as child and as parent) move to it.
+  - Two links that become one (the same parent and role) fold, keeping the one that was decided.
+  - A merged person left with two parents in one role is an error unless a conflict in the same file lists them as readings.
+  - The other keys still resolve, to the kept person, so the M90 files keep working. The review sheet lists the keys merged into a person.
+- **`possible`:** a `same` link between the two persons, with its proof; the panel's, like `sibling`, never the tree's.
+- **Where:** files for the cross-book steps, `curation/genealogy/xNN-<topic>.yaml`. Their `block` names a step, not a verse range: add a `genealogy.cross_blocks` list in `configs/default.yaml`, or let such files have no range.
+- **Adoption:** `kind: adopted` is already a link kind. Make sure `choose_primary` never draws an adopted link while the child has another father, and that the panel marks it. Then add Jacob -> Ephraim and Manasseh (Gen 48:5, "אפרים ומנשה כראובן ושמעון יהיו לי") as `added`, kind `adopted`, in the step's file.
+- **API and viewer:** the person payload gets the `possible` identifications with proofs, and the keys merged into the person. The panel gets a "May be the same as" section, with its strings in the catalogs (`en.ts`, `he.ts`). Regenerate the API types (`npm run gen:api`).
+- **Tests:**
+  - pytest: a merge (verses, links moved, links folded, the conflict required, old keys resolve), a possible link, adoption never drawn;
+  - vitest: the panel's section in both languages.
+- **Watch:** the skeleton's size (~650 KB) if fields are added.
 
 ## Conflicts found
 Each entry: the child, the readings with their verses, the block that found it.
@@ -576,3 +615,7 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Own proofs** for Rehoboam's sons (11:18–19) and his marriage to Maacah (11:20–22).
   - **Fixed:** `unstated`: Zechariah <- Jehosheba, Maaseiah <- Ahaz; `descendant`: Jehuel and Shimei <- Heman, Shemaiah and Uzziel <- Jeduthun (29:14).
   - **Rejected:** Abihail as Rehoboam's wife; Jerimoth <- the Jerusalem wives; Maaseiah <- Abi.
+- 2026-10-22, M91 step 1: the plan.
+  - **Asked the user:** one person under two keys becomes a `same:` list, `merged` (one node, with a conflict where the parents differ) or `possible` (a cross-link in the panel). Adoption is an `adopted` cross-link from Jacob, and the tree keeps Joseph.
+  - **Planned:** M91 split into 10 steps (table above). The "(M91)" items of **Open questions** fall under steps 3–9.
+  - The build has no `same:` yet; step 2 adds it.
