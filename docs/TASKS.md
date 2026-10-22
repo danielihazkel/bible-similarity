@@ -866,7 +866,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] 16 1 Chr 5–6
 - [x] 17 1 Chr 7
 - [x] 17b 1 Chr 8–9
-- [ ] 18 1 Chr 10–29
+- [x] 18 1 Chr 10–29
 - [ ] 19 2 Chronicles
 
 ## M91: The family tree, across books (§16.63; proposed F4)

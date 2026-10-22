@@ -1,0 +1,226 @@
+# Block 18: I Chronicles 10-29 (reviewed against the Hebrew; DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: b18-1chr-10-29
+status: reviewed
+links:
+  - "Jonathan@2Sa.23.32-1Ch <- Shammah@2Sa.23.33-1Ch"
+  - "Eliphal@1Ch.11.35 <- Ur@1Ch.11.35"
+  - "Naarai@1Ch.11.37 <- Ezbai@1Ch.11.37"
+  - "Nathan@2Sa.23.36-1Ch <- father_of_Nathan@1Ch.11.38"
+  - "Joel@1Ch.11.38 <- father_of_Nathan@1Ch.11.38"
+  - {child: "Mibhar@1Ch.11.38", parent: "Hagri@1Ch.5.10-Psa", kind: descendant, status: fixed, proof: [I Chronicles 11:38]}
+  - "Zabad@1Ch.11.41 <- Ahlai@1Ch.11.41"
+  - "Adina@1Ch.11.42 <- Shiza@1Ch.11.42"
+  - "Hanan@1Ch.11.43 <- Maacah@1Ch.11.43"
+  - "Jeiel@1Ch.11.44 <- Hotham@1Ch.11.44"
+  - "Shama@1Ch.11.44 <- Hotham@1Ch.11.44"
+  - "Jediael@1Ch.11.45 <- Shimri@1Ch.11.45"
+  - "Joha@1Ch.11.45 <- Shimri@1Ch.11.45"
+  - "Jeribai@1Ch.11.46 <- Elnaam@1Ch.11.46"
+  - "Joshaviah@1Ch.11.46 <- Elnaam@1Ch.11.46"
+  - "Ahiezer@1Ch.12.3 <- Shemaah@1Ch.12.3"
+  - "Jeziel@1Ch.12.3 <- Azmaveth@1Ch.12.3"
+  - "Joash@1Ch.12.3 <- Shemaah@1Ch.12.3"
+  - "Pelet@1Ch.12.3 <- Azmaveth@1Ch.12.3"
+  - "Joelah@1Ch.12.7 <- Jeroham@1Ch.12.7"
+  - "Zebadiah@1Ch.12.7 <- Jeroham@1Ch.12.7"
+  - {child: "Elpelet@1Ch.3.6-", parent: "David@Rut.4.17-Rev", status: confirmed, proof: [I Chronicles 14:3, I Chronicles 14:4, I Chronicles 14:5]}
+  - "Obed-edom@2Sa.6.10-2Ch <- Jeduthun@1Ch.6.44-Psa"
+  - "Jehiel@1Ch.6.20- <- Libni@Exo.6.17-1Ch"
+  - {child: "Shimei@1Ch.6.42-", parent: "Jehiel@1Ch.6.20-", status: confirmed, proof: [I Chronicles 6:27, I Chronicles 6:28]}
+  - "Haran@1Ch.23.9 <- Shimei@1Ch.6.42-"
+  - "Haziel@1Ch.23.9 <- Shimei@1Ch.6.42-"
+  - "Shelomoth@1Ch.23.9 <- Shimei@1Ch.6.42-"
+  - "Beriah@1Ch.23.10- <- Shimei@Exo.6.17-Zec"
+  - "Jahath@1Ch.23.10- <- Shimei@Exo.6.17-Zec"
+  - "Jeush@1Ch.23.10- <- Shimei@Exo.6.17-Zec"
+  - "Zizah@1Ch.23.10- <- Shimei@Exo.6.17-Zec"
+  - "Rehabiah@1Ch.23.17- <- Eliezer@Exo.18.4-1Ch"
+  - "Shelomith@1Ch.23.18- <- Izhar@Exo.6.18-1Ch"
+  - "Amariah@1Ch.23.19- <- Hebron@Exo.6.18-1Ch"
+  - "Jahaziel@1Ch.23.19- <- Hebron@Exo.6.18-1Ch"
+  - "Jekameam@1Ch.23.19- <- Hebron@Exo.6.18-1Ch"
+  - "Jeriah@1Ch.23.19- <- Hebron@Exo.6.18-1Ch"
+  - "Isshiah@1Ch.23.20- <- Uzziel@Exo.6.18-1Ch"
+  - "Micah@1Ch.23.20- <- Uzziel@Exo.6.18-1Ch"
+  - "Eleazar@1Ch.23.21- <- Mahli@Exo.6.19-Ezr"
+  - "Kish@1Ch.23.21- <- Mahli@Exo.6.19-Ezr"
+  - "Eder@1Ch.23.23- <- Mushi@Exo.6.19-1Ch"
+  - "Jerimoth@1Ch.23.23- <- Mushi@Exo.6.19-1Ch"
+  - "Shemaiah@1Ch.24.6 <- Nethanel@1Ch.24.6"
+  - "Jehdeiah@1Ch.24.20 <- Shebuel@1Ch.23.16-"
+  - "Isshiah@1Ch.24.21- <- Rehabiah@1Ch.23.17-"
+  - "Jahath@1Ch.24.22 <- Shelomith@1Ch.23.18-"
+  - "Shamir@1Ch.24.24 <- Micah@1Ch.23.20-"
+  - "Zechariah@1Ch.24.25 <- Isshiah@1Ch.23.20-"
+  - {child: "Beno@1Ch.24.26-", parent: "Jaaziah@1Ch.24.26-", status: confirmed, proof: [I Chronicles 24:26, I Chronicles 24:27]}
+  - "Jaaziah@1Ch.24.26- <- Merari@Gen.46.11-Ezr"
+  - "Ibri@1Ch.24.27 <- Jaaziah@1Ch.24.26-"
+  - "Shoham@1Ch.24.27 <- Jaaziah@1Ch.24.26-"
+  - "Zaccur@1Ch.24.27 <- Jaaziah@1Ch.24.26-"
+  - "Jerahmeel@1Ch.24.29 <- Kish@1Ch.23.21-"
+  - "Asharelah@1Ch.25.2- <- Asaph@1Ch.6.39-Psa"
+  - "Joseph@1Ch.25.2- <- Asaph@1Ch.6.39-Psa"
+  - "Nethaniah@1Ch.25.2- <- Asaph@1Ch.6.39-Psa"
+  - "Mattithiah@1Ch.15.18- <- Jeduthun@1Ch.6.44-Psa"
+  - "Gedaliah@1Ch.25.3- <- Jeduthun@1Ch.6.44-Psa"
+  - "Hashabiah@1Ch.25.3- <- Jeduthun@1Ch.6.44-Psa"
+  - "Jeshaiah@1Ch.25.3- <- Jeduthun@1Ch.6.44-Psa"
+  - "Zeri@1Ch.25.3- <- Jeduthun@1Ch.6.44-Psa"
+  - "Bukkiah@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Eliathah@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Giddalti@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Hanani@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Hananiah@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Hothir@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Jerimoth@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Joshbekashah@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Mahazioth@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Mallothi@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Mattaniah@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Romamti-ezer@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Shebuel@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Uzziel@1Ch.25.4- <- Heman@1Ch.6.33-2Ch"
+  - "Jathniel@1Ch.26.2 <- Meshelemiah@1Ch.9.21-"
+  - "Jediael@1Ch.26.2 <- Meshelemiah@1Ch.9.21-"
+  - "Zebadiah@1Ch.26.2 <- Meshelemiah@1Ch.9.21-"
+  - {child: "Elam@1Ch.26.3", parent: "Meshelemiah@1Ch.9.21-", status: confirmed, proof: [I Chronicles 26:2, I Chronicles 26:3]}
+  - {child: "Eliehoenai@1Ch.26.3", parent: "Meshelemiah@1Ch.9.21-", status: confirmed, proof: [I Chronicles 26:2, I Chronicles 26:3]}
+  - {child: "Jehohanan@1Ch.26.3", parent: "Meshelemiah@1Ch.9.21-", status: confirmed, proof: [I Chronicles 26:2, I Chronicles 26:3]}
+  - "Jehozabad@1Ch.26.4 <- Obed-edom@2Sa.6.10-2Ch"
+  - "Joah@1Ch.26.4 <- Obed-edom@2Sa.6.10-2Ch"
+  - "Nethanel@1Ch.26.4 <- Obed-edom@2Sa.6.10-2Ch"
+  - "Sachar@1Ch.26.4 <- Obed-edom@2Sa.6.10-2Ch"
+  - {child: "Shemaiah@1Ch.26.4-", parent: "Obed-edom@2Sa.6.10-2Ch", status: confirmed, proof: [I Chronicles 26:4, I Chronicles 26:6]}
+  - {child: "Ammiel@1Ch.26.5", parent: "Obed-edom@2Sa.6.10-2Ch", status: confirmed, proof: [I Chronicles 26:4, I Chronicles 26:5]}
+  - {child: "Issachar@1Ch.26.5", parent: "Obed-edom@2Sa.6.10-2Ch", status: confirmed, proof: [I Chronicles 26:4, I Chronicles 26:5]}
+  - {child: "Peullethai@1Ch.26.5", parent: "Obed-edom@2Sa.6.10-2Ch", status: confirmed, proof: [I Chronicles 26:4, I Chronicles 26:5]}
+  - "Elihu@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Elzabad@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Obed@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Othni@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Rephael@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Semachiah@1Ch.26.7 <- Shemaiah@1Ch.26.4-"
+  - "Shimri@1Ch.26.10 <- Hosah@1Ch.16.38-"
+  - {child: "Hilkiah@1Ch.26.11", parent: "Hosah@1Ch.16.38-", status: confirmed, proof: [I Chronicles 26:10, I Chronicles 26:11]}
+  - {child: "Tebaliah@1Ch.26.11", parent: "Hosah@1Ch.16.38-", status: confirmed, proof: [I Chronicles 26:10, I Chronicles 26:11]}
+  - {child: "Zechariah@1Ch.26.11", parent: "Hosah@1Ch.16.38-", status: confirmed, proof: [I Chronicles 26:10, I Chronicles 26:11]}
+  - "Shebuel@1Ch.23.16- <- Gershom@Exo.2.22-1Ch"
+  - "Joram@1Ch.26.25 <- Isshiah@1Ch.24.21-"
+  - "Shelomoth@1Ch.26.25- <- Zichri@1Ch.26.25"
+  - "Zichri@1Ch.26.25 <- Joram@1Ch.26.25"
+  - "Jashobeam@2Sa.23.8-1Ch <- Zabdiel@1Ch.27.2"
+  - "Ammizabad@1Ch.27.6 <- Benaiah@2Sa.8.18-1Ch"
+  - "Zebadiah@1Ch.27.7 <- Asahel@2Sa.2.18-1Ch"
+  - "Eliezer@1Ch.27.16 <- Zichri@1Ch.27.16"
+  - "Shephatiah@1Ch.27.16 <- Maacah@1Ch.27.16"
+  - "Hashabiah@1Ch.27.17 <- Kemuel@1Ch.27.17"
+  - {child: "Elihu@1Ch.27.18", parent: "Jesse@Rut.4.17-Rom", status: confirmed, proof: [I Chronicles 27:18, I Samuel 17:12]}
+  - "Omri@1Ch.27.18 <- Michael@1Ch.27.18"
+  - "Ishmaiah@1Ch.27.19 <- Obadiah@1Ch.27.19"
+  - "Jerimoth@1Ch.27.19 <- Azriel@1Ch.27.19"
+  - "Hoshea@1Ch.27.20 <- Azaziah@1Ch.27.20"
+  - "Joel@1Ch.27.20 <- Pedaiah@1Ch.27.20"
+  - "Iddo@1Ch.27.21 <- Zechariah@1Ch.27.21"
+  - "Jaasiel@1Ch.27.21 <- Abner@1Sa.14.50-1Ch"
+  - "Azarel@1Ch.27.22 <- Jeroham@1Ch.27.22"
+  - "Azmaveth@1Ch.27.25 <- Adiel@1Ch.27.25"
+  - "Jonathan@1Ch.27.25 <- Uzziah@1Ch.27.25"
+  - "Ezri@1Ch.27.26 <- Chelub@1Ch.27.26"
+  - "Shaphat@1Ch.27.29 <- Adlai@1Ch.27.29"
+  - "Jehiel@1Ch.27.32 <- Hachmoni@1Ch.27.32"
+  - "Jehoiada@1Ch.27.34 <- Benaiah@1Ch.27.34"
+  # Meshelemiah son of Kore (26:1)
+  - {child: "Meshelemiah@1Ch.9.21-", parent: "Kore@1Ch.9.19-", role: father, status: added, proof: [I Chronicles 26:1]}
+conflicts:
+  - kind: bible
+    child: "Zetham@1Ch.23.8-"
+    readings:
+      - {parent: "Libni@Exo.6.17-1Ch", proof: [I Chronicles 23:8]}
+      - {parent: "Jehiel@1Ch.6.20-", proof: [I Chronicles 26:21, I Chronicles 26:22]}
+    note:
+      en: "\"בני לעדן הראש יחיאל וזתם ויואל שלשה\" (I Chronicles 23:8), where Zetham is Jehiel's brother; \"בני יחיאלי זתם ויואל אחיו\" (26:22), where he is Jehieli's son, unless יחיאלי names the clan. TIPNR's key for Ladan is Libni."
+      he: "„בני לעדן הראש יחיאל וזתם ויואל שלשה” (דברי הימים א כג:ח), ושם זתם אחי יחיאל; „בני יחיאלי זתם ויואל אחיו” (כו:כב), ושם הוא בן יחיאלי, אלא אם יחיאלי הוא שם המשפחה. TIPNR מזהה את לעדן עם לבני."
+  - kind: bible
+    child: "Joel@1Ch.23.8-"
+    readings:
+      - {parent: "Libni@Exo.6.17-1Ch", proof: [I Chronicles 23:8]}
+      - {parent: "Jehiel@1Ch.6.20-", proof: [I Chronicles 26:21, I Chronicles 26:22]}
+    note:
+      en: "\"בני לעדן הראש יחיאל וזתם ויואל שלשה\" (I Chronicles 23:8); \"בני יחיאלי זתם ויואל אחיו\" (26:22), as for Zetham."
+      he: "„בני לעדן הראש יחיאל וזתם ויואל שלשה” (דברי הימים א כג:ח); „בני יחיאלי זתם ויואל אחיו” (כו:כב), כמו זתם."
+missed:
+  - {ref: I Chronicles 10:7, reason: "Saul and his sons: proved in I Samuel (block 08)"}
+  - {ref: I Chronicles 11:6, reason: "Joab son of Zeruiah: proved earlier"}
+  - {ref: I Chronicles 11:11, reason: "Jashobeam \"בן חכמוני\": the Hachmonite (\"תחכמני\", II Samuel 23:8), TIPNR's group key"}
+  - {ref: I Chronicles 11:22, reason: "Benaiah son of Jehoiada: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 11:24, reason: "Benaiah son of Jehoiada: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 11:39, reason: "Joab son of Zeruiah: proved earlier"}
+  - {ref: I Chronicles 12:1, reason: "Saul son of Kish: proved in I Samuel (block 08)"}
+  - {ref: I Chronicles 12:17, reason: "the tribes"}
+  - {ref: I Chronicles 12:19, reason: "David son of Jesse: proved earlier"}
+  - {ref: I Chronicles 12:30, reason: "the tribe of Benjamin"}
+  - {ref: I Chronicles 12:33, reason: "the tribe of Issachar"}
+  - {ref: I Chronicles 15:4, reason: "Aaron's sons and the Levites, as a class"}
+  - {ref: I Chronicles 15:5, reason: "Uriel, chief of Kohath's descendants: not said whose son"}
+  - {ref: I Chronicles 15:6, reason: "Asaiah, chief of Merari's descendants: not said whose son"}
+  - {ref: I Chronicles 15:7, reason: "Joel, chief of Gershom's descendants: not said whose son"}
+  - {ref: I Chronicles 15:8, reason: "Shemaiah, chief of Elizaphan's descendants: not said whose son"}
+  - {ref: I Chronicles 15:9, reason: "Eliel, chief of Hebron's descendants: not said whose son"}
+  - {ref: I Chronicles 15:10, reason: "Amminadab, chief of Uzziel's descendants: not said whose son"}
+  - {ref: I Chronicles 15:29, reason: "Michal daughter of Saul: proved in I Samuel (block 08)"}
+  - {ref: I Chronicles 16:13, reason: "Israel and Jacob as the people"}
+  - {ref: I Chronicles 16:42, reason: "Jeduthun's sons, unnamed"}
+  - {ref: I Chronicles 18:1, reason: "Gath and its towns"}
+  - {ref: I Chronicles 18:11, reason: "the nations"}
+  - {ref: I Chronicles 18:12, reason: "Abishai son of Zeruiah: proved earlier"}
+  - {ref: I Chronicles 18:15, reason: "Joab son of Zeruiah, Jehoshaphat son of Ahilud: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 18:17, reason: "Benaiah son of Jehoiada: proved in II Samuel (block 08); David's sons, unnamed"}
+  - {ref: I Chronicles 19:1, reason: "Hanun son of Nahash: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 19:3, reason: "the Ammonites; Hanun's father: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 19:6, reason: "the Ammonites and Arameans"}
+  - {ref: I Chronicles 19:7, reason: "the Ammonites and the king of Maacah"}
+  - {ref: I Chronicles 19:11, reason: "the Ammonites; Abishai, Joab's brother: proved earlier"}
+  - {ref: I Chronicles 19:12, reason: "the Arameans and Ammonites"}
+  - {ref: I Chronicles 19:15, reason: "the Ammonites; Abishai, Joab's brother: proved earlier"}
+  - {ref: I Chronicles 19:19, reason: "the Ammonites and Arameans"}
+  - {ref: I Chronicles 20:1, reason: "the Ammonites"}
+  - {ref: I Chronicles 20:3, reason: "the Ammonites"}
+  - {ref: I Chronicles 20:6, reason: "the giant \"נולד להרפא\": decided in II Samuel 21:20, 22 (block 08)"}
+  - {ref: I Chronicles 20:7, reason: "Jonathan son of Shimea, TIPNR's Jonadab: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 22:5, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 22:6, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 22:7, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 22:9, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 22:17, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 23:1, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 23:6, reason: "Levi's sons: proved in Genesis and Exodus"}
+  - {ref: I Chronicles 23:12, reason: "Kohath's sons: proved in Exodus (block 05)"}
+  - {ref: I Chronicles 23:13, reason: "Amram's sons: proved in Exodus (block 05)"}
+  - {ref: I Chronicles 23:15, reason: "Moses' sons: proved in Exodus (block 05)"}
+  - {ref: I Chronicles 23:22, reason: "Eleazar's daughters, unnamed, married to Kish's sons, unnamed"}
+  - {ref: I Chronicles 23:24, reason: "Levi's descendants, as a class"}
+  - {ref: I Chronicles 23:27, reason: "Levi's descendants, as a class"}
+  - {ref: I Chronicles 23:28, reason: "Aaron's descendants, as a class"}
+  - {ref: I Chronicles 23:32, reason: "Aaron's descendants, as a class"}
+  - {ref: I Chronicles 24:1, reason: "Aaron's sons: proved in Exodus (block 05)"}
+  - {ref: I Chronicles 24:4, reason: "Eleazar's and Ithamar's descendants, unnamed"}
+  - {ref: I Chronicles 24:5, reason: "Eleazar's and Ithamar's descendants, unnamed"}
+  - {ref: I Chronicles 24:23, reason: "\"ובני יריהו אמריהו השני\": Hebron's sons as in 23:19, Jeriah the first of them (the name חברון is missing)"}
+  - {ref: I Chronicles 24:31, reason: "Aaron's descendants; Zadok and Ahimelech: proved earlier"}
+  - {ref: I Chronicles 25:1, reason: "the guilds of Asaph, Heman and Jeduthun"}
+  - {ref: I Chronicles 25:5, reason: "Heman's fourteen sons, named in 25:4, and three daughters, unnamed"}
+  - {ref: I Chronicles 25:31, reason: "Romamti-ezer's sons, unnamed"}
+  - {ref: I Chronicles 26:8, reason: "Obed-edom's sons and grandsons, unnamed"}
+  - {ref: I Chronicles 26:28, reason: "Saul son of Kish, Abner son of Ner, Joab son of Zeruiah: proved earlier"}
+  - {ref: I Chronicles 26:29, reason: "Chenaniah of the Izharites: not said whose son"}
+  - {ref: I Chronicles 27:5, reason: "Benaiah son of Jehoiada: proved in II Samuel (block 08)"}
+  - {ref: I Chronicles 27:10, reason: "Helez of the tribe of Ephraim"}
+  - {ref: I Chronicles 27:14, reason: "Benaiah of the tribe of Ephraim"}
+  - {ref: I Chronicles 27:24, reason: "Joab son of Zeruiah: proved earlier"}
+  - {ref: I Chronicles 28:5, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 28:9, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 28:11, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 28:20, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 29:1, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 29:22, reason: "Solomon son of David: proved earlier"}
+  - {ref: I Chronicles 29:26, reason: "David son of Jesse: proved earlier"}
