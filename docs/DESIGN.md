@@ -1486,7 +1486,7 @@ Status: data built (M88), viewer (M89); review M90–M91. Progress and hand-off:
 - **Viewer** (Overview → Family tree, `/genealogy?p=`):
   - **Layout:** a tidy tree laid out by `d3-hierarchy` over the expanded part only. Nodes are HTML buttons over an SVG edge layer, and nodes off screen are not drawn.
   - **Collapsing:** any node collapses or expands, showing a count of the descendants it hides. Search opens the path to a person.
-  - **Children by mother** are grouped under mother headers.
+  - **Children by mother** are grouped under mother headers. A mother who is the wife of the child's other father, a conflict's reading not drawn, heads no group under the drawn one (M91: Asriel, drawn under Gilead, born of Manasseh's concubine).
   - **Markers**, each a colour token plus a second cue:
     - a conflict is amber with ⚠;
     - a descendant link is violet and dashed;

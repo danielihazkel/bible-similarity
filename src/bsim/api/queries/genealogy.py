@@ -29,11 +29,20 @@ def genealogy_nodes(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 
 
 def genealogy_mothers(conn: sqlite3.Connection) -> dict[int, int]:
-    """child -> its mother, for children drawn under their father (the mother headers)."""
+    """child -> its mother, for children drawn under their father (the mother headers). A mother
+    who is the wife of the child's other father (a conflict's reading not drawn) heads no group
+    under the drawn one: she belongs to the other reading (M91, Asriel and Abiezer)."""
     cur = conn.execute(
         "SELECT m.child_id, m.parent_id FROM genealogy_links m JOIN genealogy_links f"
         " ON f.child_id = m.child_id AND f.drawn = 1 AND f.role = 'father'"
-        f" WHERE m.role = 'mother' AND m.{_LIVE} ORDER BY m.child_id, m.link_id"
+        f" WHERE m.role = 'mother' AND m.{_LIVE}"
+        " AND NOT EXISTS (SELECT 1 FROM genealogy_links o JOIN genealogy_links s"
+        " ON s.role = 'spouse' AND s.status != 'rejected'"
+        " AND ((s.parent_id = o.parent_id AND s.child_id = m.parent_id)"
+        " OR (s.child_id = o.parent_id AND s.parent_id = m.parent_id))"
+        " WHERE o.child_id = m.child_id AND o.role = 'father' AND o.drawn = 0"
+        f" AND o.{_LIVE} AND o.parent_id != f.parent_id)"
+        " ORDER BY m.child_id, m.link_id"
     )
     out: dict[int, int] = {}
     for child, mother in cur.fetchall():

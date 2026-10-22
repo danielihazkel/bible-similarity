@@ -491,6 +491,28 @@ def test_api_skeleton(client):
     assert r["meta"]["placement"]["spouse"] == 3
 
 
+def test_mother_of_the_other_reading():
+    # Asriel (M91): drawn under Gilead, born of Manasseh's concubine, Manasseh the other reading;
+    # Perez: Tamar is Er's wife, not of a father of Perez's, so she heads his group under Judah
+    import sqlite3
+
+    from bsim.api.queries.genealogy import genealogy_mothers
+
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE genealogy_links (link_id INTEGER, parent_id INTEGER,"
+                 " child_id INTEGER, role TEXT, drawn INTEGER, status TEXT)")  # fmt: skip
+    conn.executemany("INSERT INTO genealogy_links VALUES (?, ?, ?, ?, ?, ?)", [
+        (1, 1, 3, "father", 1, "confirmed"),  # Gilead -> Asriel, drawn
+        (2, 2, 3, "father", 0, "confirmed"),  # Manasseh -> Asriel
+        (3, 4, 3, "mother", 0, "confirmed"),  # the concubine -> Asriel
+        (4, 2, 4, "spouse", 0, "confirmed"),  # Manasseh - the concubine
+        (5, 5, 6, "father", 1, "confirmed"),  # Judah -> Perez
+        (6, 7, 6, "mother", 0, "tipnr"),  # Tamar -> Perez
+        (7, 8, 7, "spouse", 0, "tipnr"),  # Er - Tamar
+    ])  # fmt: skip
+    assert genealogy_mothers(conn) == {6: 7}
+
+
 def test_api_person(client):
     d = client.get("/api/genealogy/person/5").json()
     assert d["person"]["he"] == "למך" and not d["person"]["reviewed"]

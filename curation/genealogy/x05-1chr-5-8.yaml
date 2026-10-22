@@ -1,0 +1,133 @@
+# M91 step 5: Reuben, Levi, Benjamin, Manasseh, Ephraim and Asher, Gen 46 / Ex 6 / Num 26 /
+# Joshua 17 / Samuel against I Chronicles 5-8 (DESIGN.md §16.63, docs/genealogy/PROGRESS.md)
+block: x05-1chr-5-8
+status: reviewed
+# Left as TIPNR has it:
+#  - The two lines from Kohath to Samuel (6:7-13, 6:18-23) are already one key per pair, and
+#    Ahimoth / Mahath has its conflict (block 16). Elkanah "אפרתי" (I Sam 1:1) is the Levite of
+#    6:12, 19: "אפרתי" names where he lived ("מן הרמתים צופים מהר אפרים"), not a father.
+#  - Jediael (7:6) is named nowhere else; Bela's sons of 7:7 are not those of Num 26:40 / 8:3-5.
+#  - Mahlah daughter of Hammolecheth (7:18) is not Zelophehad's daughter, born generations later.
+#  - Ephraim: Elishama son of Ammihud (7:26) is the chieftain of Num 1:10 on one key; father and
+#    tribe agree, though it makes Joshua's grandfather his contemporary. Tahan son of Telah (7:25)
+#    stands eight generations below Ephraim, so he is not Tahan son of Ephraim (Num 26:35); Bered
+#    (7:20) is Shuthelah's son, Becher (Num 26:35) Ephraim's.
+#  - Asher (7:30-31): TIPNR keys every son and grandson to Gen 46:17 / Num 26:44-45.
+same:
+  # Reuben: "בני יואל" (5:4) with no father, then "ובלע בן עזז בן שמע בן יואל" (5:8), the only Joel
+  - keys: ["Joel@1Ch.5.4", "Joel@1Ch.5.8"]
+    status: merged
+    proof: [I Chronicles 5:4, I Chronicles 5:8]
+    note:
+      en: "Reuben's line begins \"בני יואל\" (I Chronicles 5:4) without naming Joel's father; \"ובלע בן עזז בן שמע בן יואל\" (5:8) goes back to the same Joel, the only one in Reuben's list."
+      he: "שושלת ראובן נפתחת ב„בני יואל” (דברי הימים א ה:ד) בלי שם אביו; „ובלע בן עזז בן שמע בן יואל” (ה:ח) חוזר לאותו יואל, היחיד ברשימת ראובן."
+  - keys: ["Shemaiah@1Ch.5.4", "Shema@1Ch.5.8"]
+    status: possible
+    proof: [I Chronicles 5:4, I Chronicles 5:8]
+    note:
+      en: "Both are Joel's sons (I Chronicles 5:4, 8), Shemaiah the father of Gog and Shema the father of Azaz; the names may be one."
+      he: "שניהם בני יואל (דברי הימים א ה:ד, ח), שמעיה אבי גוג ושמע אבי עזז; ייתכן שהשמות שם אחד."
+  # Benjamin: Ard and Naaman, Benjamin's sons (Gen 46:21) and Bela's (Num 26:40, I Chr 8:3-4),
+  # as Gera, Muppim and Huppim already are (block 17b)
+  - keys: ["Ard@Gen.46.21", "Ard@Num.26.40", "Addar@1Ch.8.3"]
+    status: merged
+    proof: [Genesis 46:21, Numbers 26:40, I Chronicles 8:3]
+    note:
+      en: "Ard is among Benjamin's sons (Genesis 46:21) and is Bela's first son, \"ויהיו בני בלע ארד ונעמן\" (Numbers 26:40); \"ויהיו בנים לבלע אדר\" (I Chronicles 8:3) opens Bela's sons with Addar, the same letters."
+      he: "ארד נמנה בבני בנימן (בראשית מו:כא) והוא בכור בני בלע, „ויהיו בני בלע ארד ונעמן” (במדבר כו:מ); „ויהיו בנים לבלע אדר” (דברי הימים א ח:ג) פותח את בני בלע באדר, באותיות אלה."
+  - keys: ["Naaman@Gen.46.21-1Ch", "Naaman@Num.26.40-1Ch"]
+    status: merged
+    proof: [Genesis 46:21, Numbers 26:40, I Chronicles 8:4]
+    note:
+      en: "Naaman is among Benjamin's sons (Genesis 46:21) and Bela's (Numbers 26:40, I Chronicles 8:4), in both with the clan \"משפחת הנעמי\" (Numbers 26:40)."
+      he: "נעמן נמנה בבני בנימן (בראשית מו:כא) ובבני בלע (במדבר כו:מ, דברי הימים א ח:ד), עם „משפחת הנעמי” (במדבר כו:מ)."
+  # "ושפם וחפם בני עיר חשם בני אחר" (7:12)
+  - keys: ["Ir@1Ch.7.12", "Iri@1Ch.7.7"]
+    status: possible
+    proof: [I Chronicles 7:7, I Chronicles 7:12]
+    note:
+      en: "Iri is Bela's fifth son (I Chronicles 7:7); Ir, the father of Shuppim and Huppim, closes Benjamin's list (7:12)."
+      he: "עירי הוא החמישי בבני בלע (דברי הימים א ז:ז); עיר, אבי שפים וחפים, חותם את רשימת בנימן (ז:יב)."
+  - keys: ["Shuppim@1Ch.7.12-", "Muppim@Gen.46.21-1Ch"]
+    status: possible
+    proof: [I Chronicles 7:12, Genesis 46:21, Numbers 26:39]
+    note:
+      en: "\"שפם וחפם\" (I Chronicles 7:12) beside Benjamin's \"מפים וחפים\" (Genesis 46:21), \"שפופם ... חופם\" (Numbers 26:39). Here they are Ir's sons."
+      he: "„שפם וחפם” (דברי הימים א ז:יב) לצד „מפים וחפים” של בנימן (בראשית מו:כא), „שפופם ... חופם” (במדבר כו:לט). כאן הם בני עיר."
+  - keys: ["Huppim@1Ch.7.12-", "Huppim@Gen.46.21-1Ch"]
+    status: possible
+    proof: [I Chronicles 7:12, Genesis 46:21, Numbers 26:39]
+    note:
+      en: "\"שפם וחפם\" (I Chronicles 7:12) beside Benjamin's \"מפים וחפים\" (Genesis 46:21), \"שפופם ... חופם\" (Numbers 26:39). Here they are Ir's sons."
+      he: "„שפם וחפם” (דברי הימים א ז:יב) לצד „מפים וחפים” של בנימן (בראשית מו:כא), „שפופם ... חופם” (במדבר כו:לט). כאן הם בני עיר."
+  - keys: ["Hushim@1Ch.7.12", "Hushim@Gen.46.23-Num"]
+    status: possible
+    proof: [I Chronicles 7:12, Genesis 46:23, I Chronicles 7:13]
+    note:
+      en: "\"חשם בני אחר\" (I Chronicles 7:12): Dan's only son is \"חשים\" (Genesis 46:23), and Dan, missing from these lists, may be the \"other\"; Naphtali's sons follow, \"בני בלהה\" (7:13), Dan's mother too. Read as written, Aher is a man."
+      he: "„חשם בני אחר” (דברי הימים א ז:יב): בנו היחיד של דן הוא „חשים” (בראשית מו:כג), ודן, החסר ברשימות אלה, אולי הוא ה„אחר”; אחריו בני נפתלי, „בני בלהה” (ז:יג), אם דן. כפשוטו, אחר הוא איש."
+  # Manasseh: Gilead's sons in Num 26:30-31 and Josh 17:2, others' in I Chr 7:14-19
+  - keys: ["Asriel@Num.26.31-Jos", "Asriel@1Ch.7.14"]
+    status: merged
+    proof: [Numbers 26:31, Joshua 17:2, I Chronicles 7:14]
+  - keys: ["Abiezer@Num.26.30-Jdg", "Abiezer@1Ch.7.18"]
+    status: merged
+    proof: [Numbers 26:30, Joshua 17:2, I Chronicles 7:18]
+  - keys: ["Shechem@Num.26.31-Jos", "Shechem@1Ch.7.19"]
+    status: merged
+    proof: [Numbers 26:31, Joshua 17:2, I Chronicles 7:19]
+conflicts:
+  - kind: bible
+    child: "Ard@Gen.46.21"
+    readings:
+      - {parent: "Benjamin@Gen.35.18-Rev", proof: [Genesis 46:21]}
+      - {parent: "Bela@Gen.46.21-1Ch", proof: [Numbers 26:40, I Chronicles 8:3]}
+    note: &bela
+      en: "Benjamin's son in the list of those who came to Egypt (Genesis 46:21); Bela's son in the census (Numbers 26:40) and in I Chronicles 8:3-4. Gera, Muppim and Huppim stand in both lists too."
+      he: "בן בנימן ברשימת הבאים מצרימה (בראשית מו:כא); בן בלע במפקד (במדבר כו:מ) ובדברי הימים א ח:ג–ד. גם גרא, מפים וחפים עומדים בשתי הרשימות."
+  - kind: bible
+    child: "Naaman@Gen.46.21-1Ch"
+    readings:
+      - {parent: "Benjamin@Gen.35.18-Rev", proof: [Genesis 46:21]}
+      - {parent: "Bela@Gen.46.21-1Ch", proof: [Numbers 26:40, I Chronicles 8:4]}
+    note: *bela
+  - kind: bible
+    child: "Asriel@Num.26.31-Jos"
+    readings:
+      - {parent: "Gilead@Num.26.29-1Ch", proof: [Numbers 26:30, Numbers 26:31]}
+      - {parent: "Manasseh@Gen.41.51-Rev", proof: [I Chronicles 7:14]}
+    note:
+      en: "Asriel is Gilead's son (Numbers 26:30-31); \"בני מנשה אשריאל אשר ילדה פילגשו הארמיה\" (I Chronicles 7:14) makes him Manasseh's, born of the Aramean concubine, Machir's mother. Joshua 17:2 counts him among the clans of \"בני מנשה\"."
+      he: "אשריאל הוא בן גלעד (במדבר כו:ל–לא); „בני מנשה אשריאל אשר ילדה פילגשו הארמיה” (דברי הימים א ז:יד) עושה אותו בן מנשה, מן הפילגש הארמייה, אם מכיר. יהושע יז:ב מונה אותו במשפחות „בני מנשה”."
+  - kind: bible
+    child: "Abiezer@Num.26.30-Jdg"
+    readings:
+      - {parent: "Gilead@Num.26.29-1Ch", proof: [Numbers 26:30]}
+      - {parent: "husband_of_Hammolecheth@1Ch.7.18", proof: [I Chronicles 7:18]}
+    note:
+      en: "Iezer (Abiezer) is Gilead's son (Numbers 26:30, Joshua 17:2); in I Chronicles 7:18 Abiezer is the son of Hammolecheth, \"ואחתו\", the sister of Gilead (7:17) or of Machir, which makes him Gilead's nephew or cousin."
+      he: "איעזר (אביעזר) הוא בן גלעד (במדבר כו:ל, יהושע יז:ב); בדברי הימים א ז:יח אביעזר הוא בן המלכת, „ואחתו”, אחות גלעד (ז:יז) או מכיר, ולפי זה בן אחותו או בן דודו של גלעד."
+  - kind: bible
+    child: "Shechem@Num.26.31-Jos"
+    readings:
+      - {parent: "Gilead@Num.26.29-1Ch", proof: [Numbers 26:30, Numbers 26:31]}
+      - {parent: "Shemida@Num.26.32-1Ch", proof: [I Chronicles 7:19]}
+    note:
+      en: "Shechem is Gilead's son, the brother of Shemida (Numbers 26:30-32, Joshua 17:2); \"ויהיו בני שמידע אחין ושכם\" (I Chronicles 7:19) makes him Shemida's son."
+      he: "שכם הוא בן גלעד, אחי שמידע (במדבר כו:ל–לב, יהושע יז:ב); „ויהיו בני שמידע אחין ושכם” (דברי הימים א ז:יט) עושה אותו בן שמידע."
+  # Korah's line: "קרח בנו אסיר בנו / אלקנה בנו ואביסף בנו ואסיר בנו" (6:7-8) as a chain, against
+  # Korah's three sons (Ex 6:24) and "אסיר בן אביסף בן קרח" (6:22)
+  - kind: bible
+    child: "Elkanah@Exo.6.24-1Ch"
+    readings:
+      - {parent: "Korah@Exo.6.21-Jud", proof: [Exodus 6:24]}
+      - {parent: "Assir@Exo.6.24-1Ch", proof: [I Chronicles 6:7, I Chronicles 6:8]}
+    note: &korah
+      en: "\"ובני קרח אסיר ואלקנה ואביאסף\" (Exodus 6:24) makes Elkanah and Ebiasaph Korah's sons, and \"אסיר בן אביסף בן קרח\" (I Chronicles 6:22) agrees for Ebiasaph. Read as a chain like the verses after it, \"קרח בנו אסיר בנו אלקנה בנו ואביסף בנו ואסיר בנו\" (6:7-8) makes Elkanah Assir's son and Ebiasaph Elkanah's."
+      he: "„ובני קרח אסיר ואלקנה ואביאסף” (שמות ו:כד) עושה את אלקנה ואביסף בני קרח, ו„אסיר בן אביסף בן קרח” (דברי הימים א ו:כב) מסכים לגבי אביסף. בקריאה כשרשרת, כמו הפסוקים שאחריו, „קרח בנו אסיר בנו אלקנה בנו ואביסף בנו ואסיר בנו” (ו:ז–ח) עושה את אלקנה בן אסיר ואת אביסף בן אלקנה."
+  - kind: bible
+    child: "Ebiasaph@Exo.6.24-1Ch"
+    readings:
+      - {parent: "Korah@Exo.6.21-Jud", proof: [Exodus 6:24, I Chronicles 6:22]}
+      - {parent: "Elkanah@Exo.6.24-1Ch", proof: [I Chronicles 6:8]}
+    note: *korah
