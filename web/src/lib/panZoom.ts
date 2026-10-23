@@ -8,10 +8,21 @@ export interface PanZoomOptions {
   onPan?: (dx: number, dy: number) => void
   /** Zoomed by `factor` (> 1: in) about (x, y), in CSS pixels from the element's top left. */
   onZoom?: (factor: number, x: number, y: number) => void
+  /** What a wheel does: 'ctrl' (the default) zooms only with Ctrl and leaves a plain wheel to
+   * scroll the page; 'zoom' zooms with a plain wheel too, Shift + wheel or a sideways swipe pans. */
+  wheel?: 'ctrl' | 'zoom'
 }
 
 const SLOP = 4 // CSS pixels a pointer moves before a press becomes a drag
 const WHEEL = 0.002 // zoom per wheel pixel (Ctrl + wheel, a touchpad's pinch)
+const LINE = 16 // CSS pixels a wheel "line" counts as (Firefox's line mode)
+const STEP_MAX = 1.5 // the most one wheel event zooms by (a mouse's notches can be large)
+
+/** A wheel event's (dx, dy) in CSS pixels, whatever its unit. */
+const wheelPixels = (w: WheelEvent): [number, number] => {
+  const f = w.deltaMode === 1 ? LINE : w.deltaMode === 2 ? 800 : 1
+  return [w.deltaX * f, w.deltaY * f]
+}
 
 interface Centre {
   x: number
@@ -21,8 +32,9 @@ interface Centre {
 
 /**
  * Pointer handlers for an element that pans and zooms, and `dragged()`: whether the press that
- * ends in a click was a drag (its click should then do nothing). A plain wheel still scrolls the
- * page; Ctrl + wheel zooms. The element wants `touch-action: none`.
+ * ends in a click was a drag (its click should then do nothing). By default a plain wheel still
+ * scrolls the page and Ctrl + wheel zooms (`wheel: 'zoom'` zooms with any wheel). The element wants
+ * `touch-action: none`.
  */
 export function usePanZoom(ref: RefObject<Element | null>, options: PanZoomOptions) {
   const opts = useRef(options)
@@ -39,10 +51,22 @@ export function usePanZoom(ref: RefObject<Element | null>, options: PanZoomOptio
     if (!el) return
     const onWheel = (e: Event) => {
       const w = e as WheelEvent
-      if (!(w.ctrlKey || w.metaKey) || !opts.current.onZoom) return
+      const o = opts.current
+      const ctrl = w.ctrlKey || w.metaKey
+      if (!ctrl && o.wheel !== 'zoom') return
+      const [dx, dy] = wheelPixels(w)
+      // Shift + wheel, or a touchpad's sideways swipe: move across
+      if (!ctrl && (w.shiftKey || Math.abs(dx) > Math.abs(dy))) {
+        if (!o.onPan) return
+        w.preventDefault()
+        o.onPan(-(w.shiftKey && !dx ? dy : dx), 0)
+        return
+      }
+      if (!o.onZoom) return
       w.preventDefault()
       const r = el.getBoundingClientRect()
-      opts.current.onZoom(Math.exp(-w.deltaY * WHEEL), w.clientX - r.left, w.clientY - r.top)
+      const f = Math.min(STEP_MAX, Math.max(1 / STEP_MAX, Math.exp(-dy * WHEEL)))
+      o.onZoom(f, w.clientX - r.left, w.clientY - r.top)
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)

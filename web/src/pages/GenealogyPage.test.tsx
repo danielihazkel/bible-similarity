@@ -172,20 +172,65 @@ describe('GenealogyPage', () => {
     // three generations open, so four shown; the unattached closed
     expect(names(container)).toContain('יבל')
     expect(names(container)).toContain('Unattached')
-    const lamech = [...container.querySelectorAll('.gt-node')].find((n) => n.textContent?.includes('למך'))
-    expect(lamech?.querySelector('.gt-spouses')?.textContent).toContain('עדה')
+    // the spouses as avatars of their own, joined to the person by a dashed line
+    expect([...container.querySelectorAll('.gt-spouse')].map((s) => s.textContent)).toEqual(['חוה', 'עדה', 'צלה'])
+    expect(container.querySelector('.gt-spouse')?.classList.contains('sex-f')).toBe(true)
+    expect(container.querySelectorAll('.gt-edges .gt-couple')).toHaveLength(3)
+    expect([...container.querySelectorAll('.gt-node.sex-f')].map((n) => n.textContent)).toEqual(['daughter of למך'])
+    expect(container.querySelector('.gt-node.kind-virtual .gt-avatar svg')).toBeTruthy()
+    expect(container.querySelector('.gt-node.conflict .gt-badge')).toBeTruthy()
     expect(container.querySelector('.gt-node.conflict')?.textContent).toContain('אנוש')
     expect(container.querySelector('.gt-node.unreviewed')?.textContent).toContain('שת')
     expect(container.querySelector('.gt-edges .gt-edge.desc')).toBeTruthy()
     expect(container.querySelector('.gt-edges .gt-cross')).toBeTruthy()
-    expect(screen.getByRole('list', { name: 'Legend' }).querySelectorAll('li')).toHaveLength(8)
+    // nothing chosen: no line lit, a hint instead of the card
+    expect(container.querySelector('.gt-node.on')).toBeNull()
+    expect(screen.getByText('Choose a person to see their family and the verses that state it.')).toBeTruthy()
+    // the legend behind its button
+    expect(screen.queryByRole('list', { name: 'Legend' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Legend' }))
+    expect(screen.getByRole('list', { name: 'Legend' }).querySelectorAll('li')).toHaveLength(11)
+  })
+
+  it('zooms with the wheel and the buttons, and fits the tree in view', async () => {
+    const { container } = renderAt('/genealogy')
+    await waitFor(() => expect(names(container)).toContain('אנוש'))
+    const canvas = container.querySelector<HTMLElement>('.gt-canvas')!
+    const viewport = container.querySelector<HTMLElement>('.gt-viewport')!
+    const scale = () => Number(/scale\(([\d.]+)\)/.exec(canvas.style.transform)?.[1])
+    expect(scale()).toBe(1)
+    expect(screen.getByRole('button', { name: '100%: back to full size' })).toBeTruthy()
+    // a plain wheel zooms, about the pointer, at once
+    fireEvent.wheel(viewport, { deltaY: -100 })
+    expect(scale()).toBeGreaterThan(1)
+    expect(canvas.classList.contains('glide')).toBe(false)
+    fireEvent.wheel(viewport, { deltaY: 300 })
+    expect(scale()).toBeLessThan(1)
+    // Shift + wheel moves across, not zooming
+    const k = scale()
+    const x = canvas.style.transform
+    fireEvent.wheel(viewport, { deltaY: 100, shiftKey: true })
+    expect(scale()).toBe(k)
+    expect(canvas.style.transform).not.toBe(x)
+    // the buttons ease; the readout goes back to full size
+    fireEvent.click(screen.getByRole('button', { name: /back to full size/ }))
+    expect(scale()).toBe(1)
+    expect(canvas.classList.contains('glide')).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Fit the tree in view' }))
+    expect(scale()).toBeLessThan(1)
+    // far out, people become dots
+    for (let i = 0; i < 14; i++) fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }))
+    expect(scale()).toBe(0.02)
+    expect(container.querySelectorAll('.gt-node')).toHaveLength(0)
+    expect(container.querySelectorAll('.gt-dots .gt-dot').length).toBeGreaterThan(0)
   })
 
   it('opens and closes a branch: children under their mothers', async () => {
     const { container } = renderAt('/genealogy')
     await waitFor(() => expect(names(container)).toContain('יבל'))
     expect(names(container)).toContain('daughter of למך') // unnamed: what she is to her father
-    expect([...container.querySelectorAll('.gt-header')].map((h) => h.textContent)).toEqual(['by עדה', 'by צלה', 'mother not named'])
+    // Adah's and Zillah's children hang from the line to each, beside Lamech: only the unnamed mother has a header
+    expect([...container.querySelectorAll('.gt-header')].map((h) => h.textContent)).toEqual(['mother not named'])
     fireEvent.click(screen.getAllByRole('button', { name: 'Hide those below' }).find((b) => b.closest('.gt-node')?.textContent?.includes('למך'))!)
     await waitFor(() => expect(names(container)).not.toContain('יבל'))
     expect(container.querySelectorAll('.gt-header')).toHaveLength(0)
@@ -227,6 +272,11 @@ describe('GenealogyPage', () => {
     expect(within(panel).getByText('by adoption')).toBeTruthy()
     expect(panel.querySelector('.gt-identity p')?.textContent).toBe('Perhaps the same person as בלעם')
     expect(container.querySelector('.gt-node.selected')?.textContent).toContain('למך')
+    // the line back to Adam lit, through Eve beside him (Cain's mother)
+    expect([...container.querySelectorAll('.gt-node.on')].map((n) => n.querySelector('.he')?.textContent)).toEqual(['אדם', 'קין', 'למך'])
+    expect([...container.querySelectorAll('.gt-spouse.on')].map((n) => n.textContent)).toEqual(['חוה'])
+    expect(container.querySelectorAll('.gt-edges .gt-line-on')).toHaveLength(3)
+    expect(screen.queryByText('Choose a person to see their family and the verses that state it.')).toBeNull()
     fireEvent.click(within(panel).getByRole('button', { name: 'Open all below' }))
     await waitFor(() => expect(names(container)).toContain('תובל'))
     fireEvent.click(within(panel).getByRole('button', { name: 'בלעם' }))

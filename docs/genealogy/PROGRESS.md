@@ -692,3 +692,8 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Viewer:** a People group in the jump box after the words and places, each with the parent (or tribe, or spouse) and the first verse that tell namesakes apart (`lib/people.ts`, shared with the tree's search), opening `/genealogy?p=`. Enter before the typing pause looks people up too. A dossier chip "N people in the family tree, most named X" links to the tree at X. English and Hebrew.
   - **Tests:** the mentions (pytest, `test_run_genealogy`); the entry on a verse, a chapter and "not computed" (`test_dossier.py`); the People group in both languages, the chip and its link (vitest).
   - DESIGN §16.63 ("From elsewhere"), the API table and D102; `docs/TASKS.md` M91 and F4 ticked.
+- 2026-10-23, M92 (F6): the look of the tree (D103), asked for with a reference PDF of a printed tree (not committed).
+  - **Size:** full width, the screen's height; the search, the zoom bar and the legend float over the tree; the person's card over its far side, the person brought into the part it leaves.
+  - **Look:** round avatars (man, woman, nation, book) with the name under them; spouses beside as avatars joined by a dashed line, the first on the first-born's side; a mother's children hang from the line between her and the father, so her header is gone; the chosen person's line back to Adam lit in yellow.
+  - **Zoom:** a plain wheel (the map keeps Ctrl + wheel), double-click, fit (down to 2%), 100%, full screen; names alone below 45%, dots below 22%.
+  - Web only: `lib/familyTree.ts`, `lib/panZoom.ts`, `components/Avatar.tsx`, `pages/GenealogyPage.tsx`, the stylesheet, the strings in both languages.

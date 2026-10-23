@@ -1,16 +1,22 @@
-// The family tree's layout (DESIGN.md §16.63): the drawn tree indexed once, then laid out by
-// d3-hierarchy over the expanded part only. Every expanded person's children hang from a header
-// row: one header per mother when the children have more than one (the attached, by a link not
-// stated, apart), else an unseen one. So each generation is two levels of the hierarchy and the
+// The family tree's layout (DESIGN.md §16.63, D103): the drawn tree indexed once, then laid out by
+// d3-hierarchy over the expanded part only. A person and the spouses drawn beside them are one
+// unit, as wide as its avatars. Every expanded person's children hang from a header row: one
+// header per mother when the children have more than one (the attached, by a link not stated,
+// apart), else an unseen one; a mother drawn beside her husband needs no header, her children hang
+// from the line between them. So each generation is two levels of the hierarchy and the
 // generations line up across the tree.
 
 import { hierarchy, tree } from 'd3-hierarchy'
 import type { CrossLink, SkeletonResponse, TreeNode, TreeSpouse } from '../api/types'
 
-export const NODE_W = 104 // a node's width, CSS pixels
-export const NODE_H = 46 // ... its height (a name and a line of spouses)
-export const COL = 116 // the distance between two sibling nodes
-export const ROW = 140 // the distance between generations
+export const NODE_W = 108 // a person's width (their avatar and name), CSS pixels
+export const NODE_H = 84 // ... its height (the avatar, a name and a line under it)
+export const AVATAR = 44 // the avatar's diameter, at the top of a person
+export const COUPLE = NODE_W + 16 // between a person's avatar and a spouse's beside them
+export const SPOUSES_SHOWN = 2 // spouses drawn beside a person (one on each side); the rest a count
+export const GAP = 12 // between two siblings' units
+export const GAP_COUSINS = 40 // ... between two units of different parents
+export const ROW = 180 // the distance between generations
 export const HEADER_H = 22 // a mother header's height
 export const HEADER_Y = NODE_H + 40 // its middle, below its parent's top (under the open / close button)
 export const BUS_Y = HEADER_Y + 24 // the line the children's drops start from
@@ -110,10 +116,17 @@ export function childGroups(kids: TreeNode[]): { key: GroupKey; kids: TreeNode[]
 
 export interface LaidNode {
   node: TreeNode
-  x: number // its centre
+  x: number // its avatar's centre
   y: number // its top
   expanded: boolean
   hidden: number // descendants not drawn (collapsed)
+  spouses: { id: number; x: number }[] // those drawn beside, their avatars' centres
+  route?: string // the line down to it from its parent (or from the parent and its mother)
+}
+export interface LaidSpouse {
+  x: number
+  y: number
+  host: number // the person drawn beside
 }
 export interface LaidHeader {
   key: string
@@ -136,6 +149,7 @@ export interface TreeLayout {
   width: number
   height: number
   at: Map<number, LaidNode>
+  spouseAt: Map<number, LaidSpouse>
 }
 
 interface H {
@@ -148,13 +162,21 @@ interface H {
 /** The edge class of the link a child hangs by: a descendant, a link not stated or a son. */
 export const edgeClass = (n: TreeNode) => (n.role === 'unstated' ? 'gt-edge unstated' : n.link_kind === 'descendant' ? 'gt-edge desc' : 'gt-edge')
 
+/** The spouses drawn beside a person: the first on the side of the first-born (so her children
+ * hang below her without crossing another's line), the second on the other side. */
+export const besides = (n: TreeNode) => n.spouses.slice(0, SPOUSES_SHOWN)
+
+/** Half a unit's width: a person with the spouses beside them. */
+const halfUnit = (n: TreeNode) => [0, COUPLE / 2, COUPLE][besides(n).length] + NODE_W / 2
+
 function segment(key: string, cls: string, x0: number, y0: number, x1: number, y1: number): LaidEdge {
   return { key, cls, d: `M${x0} ${y0}L${x1} ${y1}`, box: [Math.min(x0, x1), Math.min(y0, y1), Math.max(x0, x1), Math.max(y0, y1)] }
 }
 
-/** The expanded part laid out: node centres and tops, headers, edges (as segments, each with its
- * box, to draw only those in view) and cross-links between nodes both drawn; mirrored for a
- * right-to-left page (the first-born on the right). */
+/** The expanded part laid out: avatar centres and tops (a person's, their spouses'), headers,
+ * edges (as segments, each with its box, to draw only those in view), the line down to each
+ * person and cross-links between nodes both drawn; mirrored for a right-to-left page (the
+ * first-born on the right, and a first wife on that side of her husband). */
 export function layoutTree(ix: FamilyIndex, expanded: Set<number>, cross: CrossLink[], rtl: boolean): TreeLayout {
   const build = (n: TreeNode): H => {
     const kids = ix.kids.get(n.person_id) ?? []
@@ -165,23 +187,29 @@ export function layoutTree(ix: FamilyIndex, expanded: Set<number>, cross: CrossL
       node: n,
       children: groups.map((g) => ({
         key: `h${n.person_id}:${g.key}`,
-        group: { key: g.key, parent: n.person_id, visible: groups.length > 1, n: g.kids.length },
+        group: {
+          key: g.key,
+          parent: n.person_id,
+          visible: groups.length > 1 && !(typeof g.key === 'number' && besides(n).includes(g.key)),
+          n: g.kids.length,
+        },
         children: g.kids.map(build),
       })),
     }
   }
   const root = hierarchy<H>({ key: 'top', children: ix.roots.map(build) })
+  const half = (h: H) => (h.node ? halfUnit(h.node) : NODE_W / 2)
   const laid = tree<H>()
-    .nodeSize([COL, 1])
-    .separation((a, b) => (a.parent === b.parent ? 1 : 1.25))(root)
+    .nodeSize([1, 1])
+    .separation((a, b) => half(a.data) + half(b.data) + (a.parent === b.parent ? GAP : GAP_COUSINS))(root)
   const all = laid.descendants().filter((d) => d.depth > 0)
   let lo = Infinity
   let hi = -Infinity
   for (const d of all) {
-    lo = Math.min(lo, d.x)
-    hi = Math.max(hi, d.x)
+    lo = Math.min(lo, d.x - half(d.data))
+    hi = Math.max(hi, d.x + half(d.data))
   }
-  const X = (x: number) => (rtl ? hi - x : x - lo) + PAD + NODE_W / 2
+  const X = (x: number) => (rtl ? hi - x : x - lo) + PAD
   // depth 1, 3, 5, ... are people (generation (depth - 1) / 2); 2, 4, ... their headers
   const top = (depth: number) => PAD + ((depth - 1) / 2) * ROW
 
@@ -189,31 +217,50 @@ export function layoutTree(ix: FamilyIndex, expanded: Set<number>, cross: CrossL
   const headers: LaidHeader[] = []
   const edges: LaidEdge[] = []
   const at = new Map<number, LaidNode>()
+  const spouseAt = new Map<number, LaidSpouse>()
   for (const d of all) {
     const n = d.data.node
-    if (n) {
-      const x = X(d.x)
-      const ln = { node: n, x, y: top(d.depth), expanded: !!d.children, hidden: d.children ? 0 : (ix.size.get(n.person_id) ?? 0) }
-      nodes.push(ln)
-      at.set(n.person_id, ln)
-      continue
+    if (!n) continue
+    // a unit's avatars, before mirroring: [first spouse] person [second spouse]
+    const s = besides(n)
+    const px = d.x + (s.length === 1 ? COUPLE / 2 : 0)
+    const y = top(d.depth)
+    const spouses = s.map((id, i) => ({ id, x: X(i === 0 ? px - COUPLE : px + COUPLE) }))
+    const ln: LaidNode = { node: n, x: X(px), y, expanded: !!d.children, hidden: d.children ? 0 : (ix.size.get(n.person_id) ?? 0), spouses }
+    nodes.push(ln)
+    at.set(n.person_id, ln)
+    for (const sp of spouses) {
+      // drawn beside two husbands: where the index puts her (`host`), else wherever she is drawn
+      if (ix.host.get(sp.id) === n.person_id || !spouseAt.has(sp.id)) spouseAt.set(sp.id, { x: sp.x, y, host: n.person_id })
+      const [a, b] = sp.x > ln.x ? [ln.x + AVATAR / 2, sp.x - AVATAR / 2] : [sp.x + AVATAR / 2, ln.x - AVATAR / 2]
+      edges.push(segment(`s${n.person_id}:${sp.id}`, 'gt-couple', a, y + AVATAR / 2, b, y + AVATAR / 2))
     }
+  }
+  const trunks = new Set<string>()
+  for (const d of all) {
+    if (d.data.node) continue
     const g = d.data.group!
-    const p = d.parent!
-    const px = X(p.x)
-    const py = top(p.depth)
+    const p = at.get(g.parent)!
+    const beside = typeof g.key === 'number' ? p.spouses.find((sp) => sp.id === g.key) : undefined
+    // a mother beside: from the middle of the line between them; else from under the parent
+    const [sx, sy] = beside ? [(p.x + beside.x) / 2, p.y + AVATAR / 2] : [p.x, p.y + NODE_H]
     const hx = X(d.x)
-    const hy = py + HEADER_Y
-    const bus = py + BUS_Y
-    // the parent's trunk, out to the header, down to the bus, along it and down to each child
-    if (d === p.children![0]) edges.push(segment(`t${g.parent}`, 'gt-edge', px, py + NODE_H, px, hy))
-    if (hx !== px) edges.push(segment(`a${d.data.key}`, 'gt-edge', px, hy, hx, hy))
+    const hy = p.y + HEADER_Y
+    const bus = p.y + BUS_Y
+    // the trunk, out to the header, down to the bus, along it and down to each child
+    const tk = `t${g.parent}:${beside ? beside.id : 'p'}`
+    if (!trunks.has(tk)) {
+      trunks.add(tk)
+      edges.push(segment(tk, 'gt-edge', sx, sy, sx, hy))
+    }
+    if (hx !== sx) edges.push(segment(`a${d.data.key}`, 'gt-edge', sx, hy, hx, hy))
     edges.push(segment(`b${d.data.key}`, 'gt-edge', hx, hy, hx, bus))
-    const xs = (d.children ?? []).map((c) => X(c.x))
+    const kids = (d.children ?? []).map((c) => at.get(c.data.node!.person_id)!)
+    const xs = kids.map((c) => c.x)
     edges.push(segment(`c${d.data.key}`, 'gt-edge', Math.min(hx, ...xs), bus, Math.max(hx, ...xs), bus))
-    for (const c of d.children ?? []) {
-      const cn = c.data.node!
-      edges.push(segment(`k${cn.person_id}`, edgeClass(cn), X(c.x), bus, X(c.x), top(c.depth)))
+    for (const c of kids) {
+      edges.push(segment(`k${c.node.person_id}`, edgeClass(c.node), c.x, bus, c.x, c.y))
+      c.route = `M${sx} ${sy}V${hy}H${hx}V${bus}H${c.x}V${c.y}`
     }
     if (g.visible) headers.push({ key: d.data.key, parent: g.parent, group: g.key, n: g.n, x: hx, y: hy })
   }
@@ -230,7 +277,7 @@ export function layoutTree(ix: FamilyIndex, expanded: Set<number>, cross: CrossL
       box: [Math.min(a.x, b.x), Math.min(y0, b.y) - bend, Math.max(a.x, b.x), Math.max(y0, b.y) + bend],
     })
   }
-  const width = (hi - lo || 0) + NODE_W + 2 * PAD
+  const width = (nodes.length ? hi - lo : NODE_W) + 2 * PAD
   const height = Math.max(0, ...nodes.map((n) => n.y)) + NODE_H + PAD
-  return { nodes, headers, edges, width, height, at }
+  return { nodes, headers, edges, width, height, at, spouseAt }
 }

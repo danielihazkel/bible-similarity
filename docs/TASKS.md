@@ -879,6 +879,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree is read across books: 18 people merged from two or more TIPNR keys, 20 recorded as perhaps one, 47 conflicts; 323 people hang on a stated tribe or nation and "Unattached" fell from 1,076 to 908. A person's name opens the tree from anywhere (Ctrl+K), and every unit page names its people.
 
+## M92: The family tree, the look (§16.63, D103; F6)
+- [x] On most of the screen: full width, the screen's height, the search / zoom bar / legend over the tree, the person's card over its far side
+- [x] Round avatars (man, woman, nation, book), spouses beside as avatars joined by a dashed line, a mother's children from the line between her and the father
+- [x] The chosen person's line back to Adam lit
+- [x] Zoom: a plain wheel, double-click, fit, 100%, full screen, eased buttons; names alone and then dots when far out
+- [x] Tests: couples and routes (`familyTree.test.ts`), the wheel modes (`panZoom.test.tsx`), the avatars, the lit line, the wheel, fit and dots, the legend (`GenealogyPage.test.tsx`)
+
+✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
+
 ## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
 - [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
 - [x] Viewer: three dossier chips on unit pages, linking to the map of the unit, the cipher hits of the unit, and the verses of a verse's value or the reader's letter-value layer; English and Hebrew. `DossierKind` now comes from the API schema
@@ -960,5 +969,6 @@ Family tree
 - [x] F3 (done, M90) The review in 21 blocks, in canon order
 - [x] F4 (done, M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
 - [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
+- [x] F6 (done, M92) The look: on most of the screen, avatars, couples, the chosen person's line, wheel zoom
 
 Suggested order: F1 → F2 → F3 → F4; F5 when asked.
