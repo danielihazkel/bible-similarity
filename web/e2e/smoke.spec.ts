@@ -97,6 +97,8 @@ const PAGES: [string, RegExp][] = [
   ['/genealogy', /Family tree/],
   ['/genealogy?p=194', /Family tree/],
   ['/query?q=%5Bform%3Dimperative%5D+..4+%5Bfunction%3DVoct+pos%3Dname%5D', /Pattern search/],
+  ['/workbench?a=chapters%3A26%3A42-83&b=book%3A26', /Workbench/],
+  ['/divine', /Names of God/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
   ['/borrowing', /Who borrowed/],
@@ -165,7 +167,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -188,6 +190,28 @@ test('who speaks to whom: the checks, a book’s conversations, and an exchange 
   await first.getByRole('link').click()
   await expect(page).toHaveURL(/\/read\/c%3A7%3A\d+\?layers=speakers/)
   await expect(page.locator('.reader-legend')).toContainText(' to ')
+})
+
+test('names of God: the Elohistic Psalter found, the doubled psalms, Psalm 53 in the reader', async ({ page }) => {
+  await page.goto('/divine')
+  const elo = page.locator('.dv-check').first()
+  await expect(elo.locator('.dv-verdict')).toHaveText('Borne out')
+  await expect(elo).toContainText('42–84')
+  await expect(page.locator('.dv-check').nth(1).locator('.dv-verdict')).toHaveText('Not borne out')
+  await expect(page.locator('rect.dv-cell')).toHaveCount(929)
+  await expect(page.getByRole('region', { name: /Psalms 53:1-7 and Psalms 14:1-7/ }).locator('tr.dv-kind-e_ward')).toHaveCount(4)
+  await page.goto('/read/c%3A26%3A53?layers=divine')
+  await expect(page.locator('.reader-text .dv-elohim')).toHaveCount(7)
+  await expect(page.locator('.reader-text .dv-yhwh')).toHaveCount(0)
+})
+
+test('workbench: the Elohistic Psalter against the rest of Psalms, and אלהים checked on it', async ({ page }) => {
+  await page.goto('/workbench?a=chapters%3A26%3A42-83&b=book%3A26')
+  const a = page.getByRole('region', { name: 'Commoner in A' })
+  await expect(a.locator('tbody tr').first()).toContainText('אלהים', { timeout: 30_000 })
+  await expect(page.getByRole('region', { name: 'Commoner in B' }).locator('tbody tr').first()).toContainText('יהוה')
+  await page.goto('/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83')
+  await expect(page.getByText(/Denser than chance/)).toBeVisible({ timeout: 30_000 })
 })
 
 test('pattern search finds the infinitive absolute with its finite verb, as the roots stage counts it', async ({ page }) => {

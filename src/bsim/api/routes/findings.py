@@ -409,6 +409,33 @@ def _ciphers(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
     return build
 
 
+def _divine(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The divine names: Psalms' best three-part split by the mix of יהוה and אלהים finds the
+    Elohistic Psalter named in advance and beats its shuffles; in the doubled psalms the side
+    inside it has אלהים for the other's יהוה more often than the reverse (sign test)."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        d = meta.get("divine") or {}
+        if key == "divine_elohistic":
+            e = d.get("elohistic") or {}
+            if e.get("p") is None:
+                return None
+            values = {k: e.get(k) for k in ("first", "last", "p", "gain")}
+            values |= {"named_first": e["named"][0], "named_last": e["named"][1]}
+            values |= {f"share{i + 1}": s for i, s in enumerate(e.get("shares") or [])}
+            holds = bool(e.get("found")) and e["p"] <= alpha
+        else:
+            c = d.get("doubled") or {}
+            if not c.get("pairs"):
+                return None
+            values = {k: c.get(k) for k in ("e_ward", "y_ward", "p")}
+            values["pairs"] = len(c["pairs"])
+            holds = c["e_ward"] > c["y_ward"] and c["p"] <= alpha
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -631,6 +658,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _ciphers("ciphers_jeremiah"),
     _ciphers("ciphers_elsewhere"),
     _ciphers("ciphers_albam"),
+    _divine("divine_elohistic"),
+    _divine("divine_doubled"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

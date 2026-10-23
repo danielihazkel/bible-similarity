@@ -55,6 +55,8 @@ export const dosEn = {
     forms: (n: number) => countEn(n, 'graded numerical saying or list', 'graded numerical sayings and lists'),
     places: (n: number, top: string | null) => `${countEn(n, 'place', 'places')} on the map${top ? `, most named ${top}` : ''}`,
     people: (n: number, top: string | null) => `${countEn(n, 'person', 'people')} in the family tree${top ? `, most named ${top}` : ''}`,
+    divine: (n: number, top: string | null, share: number | null) =>
+      `${countEn(n, 'name of God', 'names of God')}${top ? `, most often ${top}` : ''}${share === null ? '' : ` (\u2068יהוה\u2069 ${Math.round(share * 100)}% of \u2068יהוה\u2069 and \u2068אלהים\u2069)`}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countEn(n, 'name read through atbash or albam', 'names read through atbash or albam')}${words && name ? ` (${words} read as ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -101,6 +103,7 @@ export const dosEn = {
     places: 'places on the map',
     people: 'people in the family tree',
     ciphers: 'atbash and albam',
+    divine: 'names of God',
     gematria: 'letter values',
   } as Record<DossierKind, string>,
 }
@@ -153,6 +156,8 @@ export const dosHe: typeof dosEn = {
     forms: (n: number) => countHe(n, 'משל מספרי מדורג או רשימה', 'שני משלים מספריים או רשימות', 'משלים מספריים ורשימות'),
     places: (n: number, top: string | null) => `${countHe(n, 'מקום אחד', 'שני מקומות', 'מקומות')} במפה${top ? `, הנזכר ביותר ${top}` : ''}`,
     people: (n: number, top: string | null) => `${countHe(n, 'אדם אחד', 'שני אנשים', 'אנשים')} באילן היוחסין${top ? `, הנזכר ביותר ${top}` : ''}`,
+    divine: (n: number, top: string | null, share: number | null) =>
+      `${countHe(n, 'שם אחד של האל', 'שני שמות של האל', 'שמות של האל')}${top ? `, לרוב ${top}` : ''}${share === null ? '' : ` (יהוה ${Math.round(share * 100)}% מבין יהוה ואלהים)`}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countHe(n, 'שם אחד הנקרא באת״ב״ש או באל״ב״ם', 'שני שמות הנקראים באת״ב״ש או באל״ב״ם', 'שמות הנקראים באת״ב״ש או באל״ב״ם')}${words && name ? ` (${words} נקרא ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -198,6 +203,7 @@ export const dosHe: typeof dosEn = {
     places: 'מקומות במפה',
     people: 'אנשים באילן היוחסין',
     ciphers: 'את״ב״ש ואל״ב״ם',
+    divine: 'שמות האל',
     gematria: 'ערכי אותיות',
   },
 }

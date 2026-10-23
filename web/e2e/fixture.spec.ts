@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, type Page, test } from '@playwright/test'
+import { expect, type Locator, type Page, test } from '@playwright/test'
 
 // CI end-to-end tests against `bsim fixture-serve`: the tiny synthetic DB of `bsim.fixture` (six
 // verses in Genesis and Exodus, verse and chapter units, made-up lists, analyses and word senses). Every page
@@ -113,6 +113,12 @@ const PAGES = [
   '/genealogy?p=10',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
+  '/workbench',
+  '/divine',
+  '/divine?book=0',
+  '/read/c%3A0%3A1?layers=divine',
+  '/workbench?a=chapters%3A0%3A1&feature=domain',
+  '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
   '/map?color=lists',
   '/unit/v%3A1?syntax=1',
@@ -354,14 +360,37 @@ test('places named together: the test, the decay, the leads and the pairs', asyn
   await expect(page).toHaveURL(/\/place-links/)
 })
 
+/** Drag the family tree until an element inside it is in the middle part of the view. */
+async function dragIntoView(page: Page, target: Locator) {
+  for (let i = 0; i < 6; i++) {
+    const vp = (await page.locator('.gt-viewport').boundingBox())!
+    const b = (await target.boundingBox())!
+    const cx = vp.x + vp.width / 2
+    const cy = vp.y + vp.height / 2
+    const dx = cx - (b.x + b.width / 2)
+    const dy = cy - (b.y + b.height / 2)
+    if (Math.abs(dx) < vp.width / 4 && Math.abs(dy) < vp.height / 4) return
+    const step = (d: number, room: number) => Math.max(-room, Math.min(room, d))
+    await page.mouse.move(cx, cy)
+    await page.mouse.down()
+    await page.mouse.move(cx + step(dx, vp.width / 2 - 10), cy + step(dy, vp.height / 2 - 10), { steps: 8 })
+    await page.mouse.up()
+  }
+}
+
 test('the family tree: open and close, a person and the verses, search, a phone', async ({ page }) => {
   await page.goto('/genealogy')
   await expect(page.getByText(/13 people and 12 parent links/)).toBeVisible()
   const node = (he: string) => page.locator('.gt-node').filter({ has: page.locator('.gt-name', { hasText: he }) })
   await expect(node('יבל')).toHaveCount(1)
-  for (const h of ['by עדה', 'by צלה', 'not stated (1)']) await expect(page.locator('.gt-header', { hasText: h })).toHaveCount(1)
+  // spouses beside as avatars (D103): Adah's and Zillah's children hang from the line to each, so no mother headers
+  await expect(page.locator('.gt-spouse')).toHaveText(['חוה', 'עדה', 'צלה'])
+  await expect(page.locator('.gt-header', { hasText: /^by / })).toHaveCount(0)
+  await expect(page.locator('.gt-header', { hasText: 'not stated (1)' })).toHaveCount(1)
   await expect(node('אנוש')).toHaveClass(/conflict/)
   await expect(page.locator('.gt-edges .gt-edge.desc')).toHaveCount(1)
+  // the tree fills the screen (D103): on a phone, drag Lamech into view first, as a reader would
+  await dragIntoView(page, node('למך').getByRole('button', { name: 'Hide those below' }))
   await node('למך').getByRole('button', { name: 'Hide those below' }).click()
   await expect(node('יבל')).toHaveCount(0)
   await page.getByRole('button', { name: 'Show 3 people below' }).click()
@@ -384,10 +413,13 @@ test('the family tree: open and close, a person and the verses, search, a phone'
   const before = await canvas.getAttribute('style')
   await page.locator('.gt-viewport').scrollIntoViewIfNeeded()
   const box = (await page.locator('.gt-viewport').boundingBox())!
-  // from the middle: the sticky top bar may cover its top edge
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  // between the tree's top edge and whatever covers its lower part (a phone's bottom sheet)
+  const side = await page.locator('.gt-side').boundingBox()
+  const bottom = side && side.y > box.y ? Math.min(side.y, box.y + box.height) : box.y + box.height
+  const y = (box.y + bottom) / 2
+  await page.mouse.move(box.x + box.width / 2, y)
   await page.mouse.down()
-  await page.mouse.move(box.x + box.width / 2 + 100, box.y + box.height / 2 + 60, { steps: 6 })
+  await page.mouse.move(box.x + box.width / 2 + 100, y + 60, { steps: 6 })
   await page.mouse.up()
   await expect(canvas).not.toHaveAttribute('style', before!)
   await expect(page).toHaveURL(/p=13$/)
@@ -499,6 +531,43 @@ test('pattern search: a query, its verses with the words marked, a book, and a b
   await page.getByRole('button', { name: '[form=imperative] ..4 [function=Voct pos=name]' }).click()
   await expect(page).toHaveURL(/\/query\?q=%5Bform%3Dimperative%5D/)
   await expect(page.getByText('Nothing matches this pattern.')).toBeVisible()
+})
+
+test('names of God: the checks, the strip, a book and the reader layer', async ({ page }) => {
+  await page.goto('/divine')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('rect.dv-cell')).toHaveCount(3)
+  await expect(page.locator('rect.dv-cell.dv-mid')).toHaveCount(1) // Genesis 1: יהוה 2, אלהים 2
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.getByRole('region', { name: 'Books' }).getByRole('button').first().click()
+  await expect(page).toHaveURL(/\/divine\?book=0/)
+  await page.locator('#chapters').getByRole('link', { name: '1', exact: true }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=divine/)
+  await expect(page.locator('.reader-text .dv')).toHaveCount(3)
+  await expect(page.locator('.reader-text .dv-yhwh')).toHaveCount(1)
+})
+
+test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {
+  await page.goto('/workbench')
+  await expect(page.getByText(/Build set A to begin/)).toBeVisible()
+  const add = page.getByRole('form', { name: 'Add to the set: Set A' })
+  await add.getByLabel('Add to the set').selectOption('chapters')
+  await add.getByLabel('From chapter').fill('1')
+  await add.getByRole('button', { name: 'Add' }).click()
+  await expect(page).toHaveURL(/a=chapters%3A0%3A1/)
+  // only ראשית reaches 5 words over both sets, and it is commoner in the rest
+  await expect(page.getByRole('region', { name: 'Commoner in B' }).getByRole('link', { name: 'ראשית' })).toBeVisible()
+  await expect(page.getByText('Nothing scored on this side.')).toBeVisible()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.goto('/workbench?a=book%3A0&b=pattern%3A%5Blemma%3D430')
+  await expect(page.getByRole('alert')).toContainText('Set B: The pattern')
+  await page.getByRole('radio', { name: 'Check a pattern' }).click()
+  await page.getByRole('textbox', { name: 'Pattern search query' }).fill('[lemma=430]')
+  await page.getByRole('button', { name: 'Check' }).click()
+  await expect(page.getByText(/Write a pattern and build a set/)).toBeVisible()
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {

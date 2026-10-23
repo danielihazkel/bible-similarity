@@ -100,6 +100,13 @@ from bsim.api.queries.dialogue import (
     dialogue_books,
     dialogue_exchanges_page,
 )
+from bsim.api.queries.divine import (
+    divine_books,
+    divine_chapters,
+    divine_counts,
+    divine_pairs,
+    divine_tokens,
+)
 from bsim.api.queries.domains import (
     _domain_range,
     domain_books,
@@ -272,6 +279,10 @@ from bsim.api.queries.syntax import (
     voice_pairs,
     voice_speakers,
 )
+from bsim.api.queries.workbench import (
+    book_sections,
+    value_labels,
+)
 
 __all__ = [
     "ENTITY_COLS",
@@ -306,6 +317,7 @@ __all__ = [
     "allusions_page",
     "book_affinity",
     "book_examples",
+    "book_sections",
     "book_spans",
     "books",
     "borrowing_between",
@@ -333,6 +345,11 @@ __all__ = [
     "display_map",
     "display_of_words",
     "display_span",
+    "divine_books",
+    "divine_chapters",
+    "divine_counts",
+    "divine_pairs",
+    "divine_tokens",
     "domain_books",
     "domain_page",
     "domain_tree",
@@ -470,6 +487,7 @@ __all__ = [
     "unit_entities",
     "units_by_id",
     "units_of_type",
+    "value_labels",
     "verse_at",
     "verse_labels",
     "verse_lemmas",

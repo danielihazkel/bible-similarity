@@ -14,6 +14,8 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage').then((m) => ({ defaul
 const RefrainsPage = lazy(() => import('./pages/RefrainsPage').then((m) => ({ default: m.RefrainsPage })))
 const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ default: m.NotebookPage })))
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
+const DivinePage = lazy(() => import('./pages/DivinePage').then((m) => ({ default: m.DivinePage })))
+const WorkbenchPage = lazy(() => import('./pages/WorkbenchPage').then((m) => ({ default: m.WorkbenchPage })))
 const FormsPage = lazy(() => import('./pages/FormsPage').then((m) => ({ default: m.FormsPage })))
 const GematriaPage = lazy(() => import('./pages/GematriaPage').then((m) => ({ default: m.GematriaPage })))
 const GematriaLinksPage = lazy(() => import('./pages/GematriaLinksPage').then((m) => ({ default: m.GematriaLinksPage })))
@@ -108,6 +110,8 @@ export function App() {
           <Route path="place-links" element={<PlaceLinksPage />} />
           <Route path="genealogy" element={<GenealogyPage />} />
           <Route path="query" element={<QueryPage />} />
+          <Route path="workbench" element={<WorkbenchPage />} />
+          <Route path="divine" element={<DivinePage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />

@@ -33,6 +33,8 @@ import { plsEn } from './pages/placeLists'
 import { geoEn, plEn } from './pages/places'
 import { gtEn } from './pages/genealogy'
 import { qryEn } from './pages/query'
+import { dvEn } from './pages/divine'
+import { wbEn } from './pages/workbench'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
 import { refEn } from './pages/refrains'
@@ -108,9 +110,11 @@ export const en = {
     refrains: { label: 'Refrains', hint: 'Phrases that come back inside a passage' },
     notebook: 'Notebook',
     query: { label: 'Pattern search', hint: 'Find a construction: lemma, root, form and syntax, word by word' },
+    workbench: { label: 'Workbench', hint: 'Contrast two sets of verses; check a pattern of your own' },
     forms: { label: 'Numbers and lists', hint: 'Three, and four: graded numerical sayings; genealogies and other lists' },
     gematria: { label: 'Gematria', hint: 'Letter values: what adds up to what' },
     gematriaLinks: { label: 'Equal values, related words?', hint: 'Do words of equal gematria mean alike? Genesis 1:1’s numbers' },
+    divine: { label: 'Names of God', hint: 'יהוה and אלהים chapter by chapter: where the mix changes, the Elohistic Psalter' },
     els: { label: 'Letters at equal skips', hint: 'Names at equal skips in the Torah, counted against shuffles: no codes' },
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
@@ -475,6 +479,8 @@ export const en = {
   plk: plkEn,
   gt: gtEn,
   qry: qryEn,
+  dv: dvEn,
+  wb: wbEn,
   nb: nbEn,
   echo: echoEn,
   find: findEn,

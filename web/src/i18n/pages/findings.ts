@@ -281,6 +281,16 @@ export const findEn = {
       text: (v: V) =>
         `Does the Torah hold more names at equal skips (${numEn(n(v, 'terms'))} names, skips up to 1,000 either way) than its letters shuffled, its verses shuffled or stretches of the other books as long? Its hits run at ${x3(n(v, 'torah_r'))} on a log scale against the shuffles’ expectation; p ${fp(n(v, 'torah_letters_p'))} against shuffled letters, ${fp(n(v, 'torah_verses_p'))} against shuffled verses, ${fp(n(v, 'torah_blocks_p'))} against the other books; Genesis alone ${x3(n(v, 'genesis_r'))}.`,
     },
+    divine_elohistic: {
+      title: 'The Elohistic Psalter, found without being named',
+      text: (v: V) =>
+        `Cut in three where the mix of \u2068יהוה\u2069 and \u2068אלהים\u2069 changes most, does Psalms set apart the psalms that scholars call the Elohistic Psalter (${numEn(n(v, 'named_first'))}–${numEn(n(v, 'named_last'))})? The middle part found is ${numEn(n(v, 'first'))}–${numEn(n(v, 'last'))}, with \u2068יהוה\u2069 ${pct(n(v, 'share2'))} of the two against ${pct(n(v, 'share1'))} and ${pct(n(v, 'share3'))} around it (p ${fp(n(v, 'p'))} against the psalms shuffled).`,
+    },
+    divine_doubled: {
+      title: 'The doubled psalms: \u2068אלהים\u2069 for \u2068יהוה\u2069',
+      text: (v: V) =>
+        `Where a psalm is found twice (${numEn(n(v, 'pairs'))} pairs), does the copy inside the Elohistic Psalter have \u2068אלהים\u2069 where the other has \u2068יהוה\u2069 more often than the reverse? ${numEn(n(v, 'e_ward'))} against ${numEn(n(v, 'y_ward'))} (sign test, p ${fp(n(v, 'p'))}).`,
+    },
     els_known: {
       title: 'The tradition’s sequences in our letters',
       text: (v: V) =>
@@ -558,6 +568,16 @@ export const findHe: typeof findEn = {
       title: 'לא יותר שמות בדילוג שווה ממה שהמקרה נותן',
       text: (v: V) =>
         `האם יש בתורה יותר שמות בדילוג שווה (${numHe(n(v, 'terms'))} שמות, דילוגים עד 1,000 לשני הכיוונים) מאשר באותיותיה מעורבבות, בפסוקיה מעורבבים או בקטעים מן הספרים האחרים באורך שווה? המופעים בה עומדים על ${x3(n(v, 'torah_r'))} בסולם לוגריתמי מול הצפוי בערבוב; p ${fp(n(v, 'torah_letters_p'))} מול אותיות מעורבבות, ${fp(n(v, 'torah_verses_p'))} מול פסוקים מעורבבים, ${fp(n(v, 'torah_blocks_p'))} מול הספרים האחרים; בראשית לבדו ${x3(n(v, 'genesis_r'))}.`,
+    },
+    divine_elohistic: {
+      title: 'ספר התהלים האלוהיסטי, נמצא בלי שנאמר היכן',
+      text: (v: V) =>
+        `כשספר תהלים נחתך לשלושה במקום שבו התמהיל של יהוה ואלהים משתנה יותר מכול, האם הוא מבדיל את המזמורים שהחוקרים מכנים "ספר התהלים האלוהיסטי" (${numHe(n(v, 'named_first'))}–${numHe(n(v, 'named_last'))})? החלק האמצעי שנמצא הוא ${numHe(n(v, 'first'))}–${numHe(n(v, 'last'))}, ובו יהוה ${pct(n(v, 'share2'))} מבין השניים לעומת ${pct(n(v, 'share1'))} ו־${pct(n(v, 'share3'))} סביבו (p ${fp(n(v, 'p'))} מול המזמורים בסדר מעורבב).`,
+    },
+    divine_doubled: {
+      title: 'המזמורים הכפולים: אלהים במקום יהוה',
+      text: (v: V) =>
+        `כשמזמור מופיע פעמיים (${numHe(n(v, 'pairs'))} זוגות), האם בעותק שבתוך ספר התהלים האלוהיסטי כתוב אלהים במקום שבו בשני כתוב יהוה יותר מאשר ההפך? ${numHe(n(v, 'e_ward'))} מול ${numHe(n(v, 'y_ward'))} (מבחן הסימן, p ${fp(n(v, 'p'))}).`,
     },
     els_known: {
       title: 'רצפי המסורת באותיות שלנו',

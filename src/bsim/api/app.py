@@ -54,6 +54,7 @@ from bsim.api.search import (
     load_hubness,
     load_surface_index,
 )
+from bsim.api.workbench import DomainTable
 from bsim.config import resolve_path
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
 from bsim.store.db import connect_readonly
@@ -102,13 +103,16 @@ class ServeState:
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     dossier_cache: LruCache = field(default_factory=lambda: LruCache(0))
     pattern_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    workbench_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _present: dict[str, bool] = field(default_factory=dict)
     _lemma_total: int | None = None
     _roots: queries.RootIndex | None = None
     _verse_books: np.ndarray | None = None
+    _verse_chapters: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
     _words: WordTable | None = None
     _words_lock: threading.Lock = field(default_factory=threading.Lock)
+    _domains: DomainTable | None = None
 
     def word_table(self) -> WordTable:
         """Every word's features for pattern search (`api/patterns.py`), built once (a few
@@ -122,6 +126,19 @@ class ServeState:
                     finally:
                         conn.close()
         return self._words
+
+    def domain_table(self) -> DomainTable:
+        """Every word's SDBH domains for the workbench (`api/workbench.py`), in the word table's
+        order, read once."""
+        if self._domains is None:
+            with self._words_lock:
+                if self._domains is None:
+                    conn = self.connect()
+                    try:
+                        self._domains = DomainTable.load(conn)
+                    finally:
+                        conn.close()
+        return self._domains
 
     def lemma_total(self, conn: sqlite3.Connection) -> int:
         """Corpus word count over lemmas (`queries.corpus_lemma_total`), read once."""
@@ -164,6 +181,18 @@ class ServeState:
                 conn.close()
             self._verse_books = np.array([b for (b,) in rows], dtype=np.int64)
         return self._verse_books
+
+    @property
+    def verse_chapters(self) -> np.ndarray:
+        """chapter of every verse (by verse id), read once."""
+        if self._verse_chapters is None:
+            conn = self.connect()
+            try:
+                rows = conn.execute("SELECT chapter FROM verses ORDER BY verse_id").fetchall()
+            finally:
+                conn.close()
+            self._verse_chapters = np.array([c for (c,) in rows], dtype=np.int64)
+        return self._verse_chapters
 
     def acquire(self) -> sqlite3.Connection:
         """An idle pooled connection, or a new one."""
@@ -280,6 +309,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         dossier_cache=LruCache(serve["dossier_cache"]),
         query_cache=LruCache(serve["search"]["query_cache"]),
         pattern_cache=LruCache(serve["patterns"]["cache"]),
+        workbench_cache=LruCache(serve["workbench"]["cache"]),
     )
     if serve["patterns"]["preload"]:
         threading.Thread(target=state.word_table, name="word-table", daemon=True).start()

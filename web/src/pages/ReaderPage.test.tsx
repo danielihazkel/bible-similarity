@@ -45,7 +45,7 @@ const VERSE_DETAIL: UnitDetail = {
 const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
-  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true, places: true },
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true, places: true, divine: true },
   speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2, to: ['אדם'] }],
   refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
   places: [{ place_id: 5, he: 'ראשית', kind: 'region' }],
@@ -74,7 +74,7 @@ const READER: ReaderResponse = {
       ketiv: [],
       gap: null,
       gematria: [913, 203, 86],
-      places: { '0': 5 },
+      places: { '0': 5 }, divine: { '1': 'elohim' },
     },
     {
       verse_id: 1,
@@ -88,7 +88,7 @@ const READER: ReaderResponse = {
       ketiv: [{ display: [3], ketiv: 'אר', qere: 'אוֹר', cls: 'vowel_letter' }],
       gap: { score: 0.98, kind: 'turn', mam: 'pe', chapter: false },
       gematria: [257, 86, 25, 207],
-      places: {},
+      places: {}, divine: {},
     },
   ],
 }
@@ -239,6 +239,14 @@ describe('ReaderPage', () => {
     expect(container.querySelector('.reader-text .pl')?.getAttribute('title')).toContain('ראשית: Region')
     expect(screen.getByRole('link', { name: 'ראשית' }).getAttribute('href')).toBe('/places?unit=c%3A0%3A1&p=5')
     expect(screen.getByRole('link', { name: 'all on the map' }).getAttribute('href')).toBe('/places?unit=c%3A0%3A1')
+  })
+
+  it('draws a line above each name of God', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=divine')
+    await waitFor(() => expect(container.querySelector('.reader-text .dv.dv-elohim')).not.toBeNull())
+    expect(container.querySelector('.reader-text .dv')?.getAttribute('title')).toContain('a name of God: אלהים')
+    expect(container.querySelectorAll('.reader-text .dv')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'the mix of every chapter' }).getAttribute('href')).toBe('/divine')
   })
 
   it('marks the refrains and links to them', async () => {

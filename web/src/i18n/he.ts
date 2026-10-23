@@ -40,6 +40,8 @@ import { plsHe } from './pages/placeLists'
 import { geoHe, plHe } from './pages/places'
 import { gtHe } from './pages/genealogy'
 import { qryHe } from './pages/query'
+import { dvHe } from './pages/divine'
+import { wbHe } from './pages/workbench'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
 import { refHe } from './pages/refrains'
@@ -115,9 +117,11 @@ export const he: Messages = {
     refrains: { label: 'פזמונים חוזרים', hint: 'צירופים החוזרים בתוך קטע' },
     notebook: 'מחברת',
     query: { label: 'חיפוש תבניות', hint: 'חיפוש מבנה: ערך, שורש, צורה ותחביר, מילה אחר מילה' },
+    workbench: { label: 'שולחן עבודה', hint: 'השוואת שתי קבוצות פסוקים; בדיקת תבנית משלכם' },
     forms: { label: 'מספרים ורשימות', hint: 'שלשה וארבעה: משלים מספריים מדורגים; יחסים ורשימות אחרות' },
     gematria: { label: 'גימטריה', hint: 'ערכי אותיות: מה שווה למה' },
     gematriaLinks: { label: 'שווים במספר, קרובים במשמעות?', hint: 'האם מילים שוות בגימטריה קרובות במשמעותן? המספרים של בראשית א:א' },
+    divine: { label: 'שמות האל', hint: 'יהוה ואלהים פרק אחר פרק: היכן התמהיל משתנה, ספר התהלים האלוהיסטי' },
     els: { label: 'אותיות בדילוג שווה', hint: 'שמות בדילוג שווה בתורה, נספרים מול ערבובים: אין צפנים' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
@@ -476,6 +480,8 @@ export const he: Messages = {
   plk: plkHe,
   gt: gtHe,
   qry: qryHe,
+  dv: dvHe,
+  wb: wbHe,
   nb: nbHe,
   echo: echoHe,
   find: findHe,

@@ -1509,6 +1509,71 @@ CREATE TABLE masorah_books (
     letters_qere INTEGER NOT NULL
 );
 
+-- the divine names across the canon (`bsim divine`, §16.65); one column per name of `divine.names`
+CREATE TABLE divine_chapters (
+    unit_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    words INTEGER NOT NULL,
+    yhwh INTEGER NOT NULL,
+    elohim INTEGER NOT NULL,
+    adonai INTEGER NOT NULL,
+    el INTEGER NOT NULL,
+    eloah INTEGER NOT NULL,
+    shaddai INTEGER NOT NULL,
+    yah INTEGER NOT NULL,
+    elyon INTEGER NOT NULL,
+    tsevaot INTEGER NOT NULL,
+    share REAL,                     -- יהוה among יהוה and אלהים (`divine.measure`); NULL without either
+    part INTEGER                    -- 1-3: the part of its book's split; NULL when the book is not split
+) WITHOUT ROWID;
+
+CREATE TABLE divine_books (
+    book_id INTEGER PRIMARY KEY,
+    chapters INTEGER NOT NULL,
+    words INTEGER NOT NULL,
+    yhwh INTEGER NOT NULL,
+    elohim INTEGER NOT NULL,
+    adonai INTEGER NOT NULL,
+    el INTEGER NOT NULL,
+    eloah INTEGER NOT NULL,
+    shaddai INTEGER NOT NULL,
+    yah INTEGER NOT NULL,
+    elyon INTEGER NOT NULL,
+    tsevaot INTEGER NOT NULL,
+    share REAL,
+    split INTEGER NOT NULL,         -- 1: enough names and chapters to be split in three parts
+    cut1 INTEGER,                   -- first chapter of the second part
+    cut2 INTEGER,                   -- first chapter of the third part
+    share1 REAL,
+    share2 REAL,
+    share3 REAL,
+    gain REAL,                      -- log-likelihood of the three parts' rates over one rate
+    p REAL,                         -- against the same split of the chapters shuffled
+    q REAL                          -- BH over the books split
+);
+
+CREATE TABLE divine_pairs (
+    pair INTEGER NOT NULL,          -- index into `divine.doubled`
+    e_vid INTEGER,                  -- the side inside the Elohistic Psalter (NULL: no word aligned)
+    e_idx INTEGER,
+    e_word TEXT,
+    e_name TEXT,
+    y_vid INTEGER,
+    y_idx INTEGER,
+    y_word TEXT,
+    y_name TEXT,
+    kind TEXT NOT NULL              -- e_ward | y_ward | same | other
+);
+
+CREATE TABLE divine_words (
+    verse_id INTEGER NOT NULL,
+    idx INTEGER NOT NULL,           -- words.idx
+    book_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (verse_id, idx)
+) WITHOUT ROWID;
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

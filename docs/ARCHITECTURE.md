@@ -184,6 +184,7 @@ bible-similarity/
 │   │   ├── gematria.py             # `bsim gematria`: letter values of every written form, lemma and verse (§16.53)
 │   │   ├── gematria_links.py       # `bsim gematria-links`: equal values against matched pairs on domains, roots and BEREL vectors; Gen 1:1's numbers (§16.59)
 │   │   ├── els.py                  # `bsim els`: names at equal skips against shuffled letters, shuffled verses and other books; the tradition's sequences (§16.62)
+│   │   ├── divine.py               # `bsim divine`: the names of God per chapter, books cut where the mix changes, the Elohistic Psalter, the doubled psalms (§16.65)
 │   │   ├── ciphers.py              # `bsim ciphers`: names hidden by atbash and albam, against random letter swaps (§16.54)
 │   │   ├── masorah.py              # `bsim masorah`: the Masorah's middles and verse totals on our text, written and read (§16.55)
 │   │   └── speech.py               # narration / speech shares and speakers, built by build-db (§16.26)
@@ -210,9 +211,10 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, masorah, els, places, patterns, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
+│       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)
 │       ├── queries/                # read-only SQL helpers, one module per route module + common (re-exported: `queries.fn`)
 │       ├── resolve.py              # reference parsing for /resolve
 │       └── search.py               # free-text search (dense + surface BM25)
@@ -226,7 +228,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
 │       └── styles/global.css
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
 ├── .github/workflows/ci.yml        # CI: ruff, pytest, viewer lint / tests / types / build, fixture e2e
@@ -300,6 +302,7 @@ bible-similarity/
 | 11e¹⁵ | `bsim gematria` | verses (display tokens), words, HebrewStrong.xml | `artifacts/gematria/{forms,lemmas,verses}.parquet` + `gematria.meta.json` (§16.53) |
 | 11e¹⁵' | `bsim gematria-links` | gematria lemmas and verses, roots, word senses, words (BEREL on the GPU) | `artifacts/gematria_links/{pairs,tests,equivalences,properties,verses}.parquet` + `gematria_links.meta.json` (§16.59) |
 | 11e¹⁶ | `bsim ciphers` | verses (display tokens), words (`Np` names) | `artifacts/ciphers/{hits,chapters}.parquet` + `ciphers.meta.json` (§16.54) |
+| 11e¹⁶'' | `bsim divine` | verses, words, diffs config | `artifacts/divine/{chapters,books,pairs,words}.parquet` + `divine.meta.json` (§16.65) |
 | 11e¹⁷ | `bsim masorah` | verses (display tokens), words, ketiv pairs | `artifacts/masorah/{middles,totals,books}.parquet` + `masorah.meta.json` (§16.55) |
 | 11e¹⁶' | `bsim els` | ketiv pairs, words, verses (the written letters, as `bsim masorah`; GPU) | `artifacts/els/{terms,draws}.parquet` + `els.meta.json` (§16.62) |
 | 11f' | `bsim eval-etcbc` | ETCBC pairs, final verse top-k, sequences, phrases | `artifacts/eval/etcbc.{json,md}` (§16.34) |
@@ -307,7 +310,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, masorah, els, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, divine, masorah, els, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

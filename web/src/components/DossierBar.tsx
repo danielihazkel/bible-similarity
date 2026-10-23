@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import type { Dossier, DossierEntry, UnitSummary } from '../api/types'
+import type { DivineName, Dossier, DossierEntry, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { entryLink, isFound } from '../lib/dossier'
 import { PanelError } from './Status'
@@ -35,6 +35,8 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
                     ? c[e.kind](e.count ?? 0, e.label)
                     : e.kind === 'ciphers'
                       ? c.ciphers(e.count ?? 0, e.key, e.label)
+                      : e.kind === 'divine'
+                        ? c.divine(e.count ?? 0, e.key ? m.dv.names[e.key as DivineName] : null, e.value)
                       : e.kind === 'gematria'
                         ? c.gematria(e.count ?? 0, e.label, e.value, e.total)
                         : c[e.kind](e.count ?? 0)

@@ -14,6 +14,7 @@ import pandas as pd
 from bsim.analysis.acrostic import run_acrostics
 from bsim.analysis.corpus_map import run_map
 from bsim.analysis.diffs import run_diffs
+from bsim.analysis.divine import run_divine
 from bsim.analysis.gematria import run_gematria
 from bsim.analysis.network import run_network
 from bsim.analysis.sound import run_sound
@@ -99,6 +100,9 @@ def fixture_cfg(tmp_path, semantic="sm"):
     cfg["acrostics"] = {**cfg["acrostics"], "null_reps": 99, "null_screen": 19, "known": ["Gen 1"]}
     # the reader's mood layer: ראשית ("Begin") counts as distress, אלהים / יהוה ("Deities") praise
     cfg["psalms"] = {**cfg["psalms"], "distress": ["002001001"], "praise": ["001001002"]}
+    # the divine names: v0 and v1 hold אלהים and יהוה each; the doubled pair is v0 / v1
+    cfg["divine"] = {**cfg["divine"], "shuffles": 9,
+                     "doubled": [{"e": "Genesis 1:1", "y": "Genesis 1:2"}]}  # fmt: skip
     return cfg
 
 
@@ -1712,6 +1716,18 @@ def write_gematria_links(cfg):
     (out / "gematria_links.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_divine(cfg):
+    """The divine names (`bsim divine`) on the fixture's verses, run for real; its two chapters
+    cannot be split in three, so the Elohistic check is made up as if Genesis 1–2 were split."""
+    run_divine(cfg, log=lambda _: None)
+    out = resolve_path(cfg, "artifacts") / "divine"
+    meta = json.loads((out / "divine.meta.json").read_text("utf-8"))
+    meta["elohistic"] = {"book_id": 0, "named": [1, 1], "tolerance": 0, "first": 1, "last": 1,
+                         "shares": [0.5, 0.2, 0.9], "gain": 12.5, "p": 0.01, "found": True,
+                         "holds": True}  # fmt: skip
+    (out / "divine.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1725,6 +1741,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     run_stylometry(cfg, log=lambda _: None)
     run_gematria(cfg, log=lambda _: None)
     write_gematria_links(cfg)
+    write_divine(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

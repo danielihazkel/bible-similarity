@@ -60,6 +60,9 @@
   --gt-on: #f6c445;
   --gt-on-ink: #2e2412;
   --gt-on-line: #d9961a;
+  --dv-yhwh: #2a78d6; /* the divine names (§16.65): a diverging pair checked for colour blindness */
+  --dv-elohim: #c96a1b;
+  --dv-mid: #e6e3dc;
 
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-he: 'Ezra SIL', 'SBL Hebrew', 'Noto Serif Hebrew', 'Times New Roman', serif;
@@ -124,6 +127,9 @@
     --gt-on: #e8b440;
     --gt-on-ink: #24190a;
     --gt-on-line: #f0b54a;
+    --dv-yhwh: #3987e5;
+    --dv-elohim: #d4782a;
+    --dv-mid: #3d3a33;
     --shadow: none;
     color-scheme: dark;
   }
@@ -3255,3 +3261,72 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
   /* the card becomes a bottom sheet */
   .gt-side.open { position: fixed; inset: auto 0 0 0; top: auto; width: auto; max-height: 55vh; z-index: 30; padding: 0.75rem 1rem 1.5rem; border: 0; border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; box-shadow: 0 -4px 18px rgb(0 0 0 / 0.18); }
 }
+
+/* Workbench (§16.64): sets side by side, then the two sides of a contrast */
+.workbench-page .segmented { margin-block: 0.6rem; }
+.wb-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 0.8rem; margin-block: 0.8rem; }
+.wb-set { border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.8rem 0.7rem; min-width: 0; }
+.wb-set legend { font-weight: 600; padding-inline: 0.3rem; }
+.wb-items { list-style: none; padding: 0; margin: 0.2rem 0 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.wb-items .chip { display: inline-flex; align-items: center; gap: 0.3rem; max-width: 100%; overflow-wrap: anywhere; }
+.wb-remove { font-size: 1.05rem; line-height: 1; padding-inline: 0.2rem; }
+.wb-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.4rem 0.7rem; margin-block: 0.3rem; }
+.wb-add input[type="number"] { width: 5.5rem; }
+.wb-pattern { flex: 1 1 16rem; }
+.wb-pattern input { width: 100%; }
+.wb-text { margin-top: 0.4rem; }
+.wb-text summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+.wb-counts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
+.wb-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+.wb-side { min-width: 0; }
+.wb-side h2 { font-size: 1.1rem; }
+.wb-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.wb-table tr.wb-sig td:first-child { border-inline-start: 3px solid var(--accent); }
+.wb-examples { font-size: 0.85rem; min-width: 8rem; }
+.wb-verdict { font-size: 1.05rem; }
+.wb-table td.num, .wb-table th.num { white-space: nowrap; }
+/* the set editor's own buttons and fields take the page's colours, not the browser's (dark scheme contrast) */
+.workbench-page button[type='submit']:not(.primary),
+.wb-add input { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.3rem 0.6rem; }
+
+/* Names of God (§16.65): chapters by the mix of יהוה and אלהים, two arms of two steps around a neutral middle */
+.dv-y2 { fill: var(--dv-yhwh); background: var(--dv-yhwh); }
+.dv-y1 { fill: color-mix(in oklab, var(--dv-yhwh) 55%, var(--dv-mid)); background: color-mix(in oklab, var(--dv-yhwh) 55%, var(--dv-mid)); }
+.dv-mid { fill: var(--dv-mid); background: var(--dv-mid); }
+.dv-e1 { fill: color-mix(in oklab, var(--dv-elohim) 55%, var(--dv-mid)); background: color-mix(in oklab, var(--dv-elohim) 55%, var(--dv-mid)); }
+.dv-e2 { fill: var(--dv-elohim); background: var(--dv-elohim); }
+.dv-none { fill: transparent; stroke: var(--border); stroke-width: 1; background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.dv-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0.8rem; }
+.dv-check { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.9rem; background: var(--surface); }
+.dv-check h3 { font-size: 1rem; margin: 0 0 0.3rem; }
+.dv-verdict { font-size: 0.8rem; font-weight: 600; padding: 0.05rem 0.45rem; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; }
+.dv-verdict.holds { color: var(--known); border-color: var(--known); }
+.dv-verdict.fails { color: var(--muted); }
+.dv-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: 0.5rem 0; }
+.dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.dv-ramp-step { display: inline-flex; align-items: center; gap: 0.25rem; }
+.dv-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; }
+.dv-strip { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 0.25rem 0.8rem; align-items: start; }
+.dv-row { display: contents; }
+.dv-book { font-size: 0.85rem; text-align: end; line-height: 12px; padding-top: 0; }
+.dv-cells { max-width: 100%; height: auto; display: block; }
+.dv-cell { cursor: pointer; }
+.dv-cell:hover { stroke: var(--text); stroke-width: 1.5; }
+.dv-cut { fill: var(--text); }
+.dv-table tr.dv-sig td:first-child { border-inline-start: 3px solid var(--accent); }
+.dv-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.dv-count + .dv-count { margin-inline-start: 0.7rem; }
+.dv-count [lang='he'] { font-family: var(--font-he); }
+.dv-pair { margin-block: 0.8rem; }
+.dv-pair h3 { font-size: 1rem; margin-bottom: 0.1rem; }
+/* a change keeps the text colour; the series colour is a bar beside it */
+.dv-kind-e_ward td:last-child, .dv-kind-y_ward td:last-child { font-weight: 600; border-inline-start: 4px solid var(--dv-elohim); }
+.dv-kind-y_ward td:last-child { border-inline-start-color: var(--dv-yhwh); }
+@media (max-width: 600px) {
+  .dv-strip { grid-template-columns: 1fr; }
+  .dv-book { text-align: start; margin-top: 0.4rem; }
+}
+/* the reader's layer: a line above each name */
+.reader-text .dv, .layer-key.dv { border-top: 2.5px solid var(--muted); }
+.reader-text .dv-yhwh, .layer-key.dv-yhwh { border-top-color: var(--dv-yhwh); }
+.reader-text .dv-elohim, .layer-key.dv-elohim { border-top-color: var(--dv-elohim); }

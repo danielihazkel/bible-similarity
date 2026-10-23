@@ -34,6 +34,8 @@ and what it found:
                                   most named in the whole text)
     ciphers                       count = names read through atbash or albam in the unit's
                                   verses; key / label = the first one's words / the name
+    divine                        count = divine names in the unit's verses; key = the
+                                  commonest; value = יהוה's share among יהוה and אלהים
     gematria                      count = the tradition's valued texts (`gematria.known`) among
                                   the unit's words, label = those texts; a verse: value = its
                                   standard value, total = the other verses of that value
@@ -306,6 +308,17 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         count=n_hits,
         key=hits[0]["span"] if hits else None,
         label=hits[0]["reads"] if hits else None,
+    )
+
+    counts = queries.divine_counts(conn, *span) if state.present(conn, "divine_words") else {}
+    measure = (state.meta.get("divine") or {}).get("measure") or ["yhwh", "elohim"]
+    both = counts.get(measure[0], 0) + counts.get(measure[1], 0)
+    add(
+        "divine",
+        computed=state.present(conn, "divine_words"),
+        count=sum(counts.values()),
+        key=next(iter(counts), None),
+        value=counts.get(measure[0], 0) / both if both else None,
     )
 
     texts = [k["text"] for k in (state.meta.get("gematria") or {}).get("known") or []]

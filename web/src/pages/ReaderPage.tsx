@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router'
 import { useReader, useStructure, useUnit, useUnitParallelism } from '../api/hooks'
-import type { PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
+import type { DivineName, PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText, type WordLook } from '../components/HebrewText'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -16,7 +16,7 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -27,6 +27,7 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   sources: 'sources',
   turns: 'gaps',
   places: 'places',
+  divine: 'divine',
 }
 const LEITWORTE_SHOWN = 6
 const REFRAINS_SHOWN = 4
@@ -140,6 +141,11 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       if (site) {
         cls.push('pl', `pl-${site.kind ?? 'none'}`)
         titles.push(t.placeTitle(site.he, site.kind ? m.pl.kindOne[site.kind as PlaceKind] : m.pl.panel))
+      }
+      const dv = on('divine') ? (r?.divine[i] as DivineName | undefined) : undefined
+      if (dv) {
+        cls.push('dv', `dv-${dv === 'yhwh' || dv === 'elohim' ? dv : 'other'}`)
+        titles.push(t.divineTitle(m.dv.names[dv]))
       }
       const kq = on('ketiv') ? r?.ketiv.find((k) => k.display.includes(i)) : undefined
       if (kq) {
@@ -399,6 +405,21 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
             <Link to={`/places?unit=${encodeURIComponent(reader.unit.unit_id)}`}>{t.allPlaces}</Link>
           </>
         ),
+      )}
+      {row(
+        'divine',
+        <>
+          {t.divineKey}{' '}
+          {(['yhwh', 'elohim'] as const).map((n) => (
+            <span key={n} className={`layer-key dv dv-${n}`} dir="rtl" lang="he">
+              {m.dv.names[n]}
+            </span>
+          ))}{' '}
+          <span className="layer-key dv dv-other" dir="rtl" lang="he">
+            {m.dv.names.shaddai}
+          </span>{' '}
+          <Link to="/divine">{t.allDivine}</Link>
+        </>,
       )}
     </ul>
   )

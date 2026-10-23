@@ -16,7 +16,8 @@ FindingKey = Literal[
     "ciphers_albam", "masorah_letter", "masorah_words", "masorah_verse", "masorah_books",
     "gematria_links", "gematria_measures", "gematria_genesis", "place_lists_order",
     "place_lists_districts", "place_arc_order", "place_arc_moves", "place_arc_oracles",
-    "place_links_decay", "place_links_known", "els_counts", "els_known",
+    "place_links_decay", "place_links_known", "els_counts", "els_known", "divine_elohistic",
+    "divine_doubled",
 ]  # fmt: skip
 
 

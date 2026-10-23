@@ -378,6 +378,12 @@ def stage_ciphers(cfg: dict[str, Any], log: Log) -> None:
     run_ciphers(cfg, log=log)
 
 
+def stage_divine(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.divine import run_divine
+
+    run_divine(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -460,6 +466,7 @@ STAGES: dict[str, str] = {
     "gematria": "stage_gematria",
     "gematria-links": "stage_gematria_links",
     "ciphers": "stage_ciphers",
+    "divine": "stage_divine",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -532,6 +539,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "gematria": (*_CORPUS,),
     "gematria-links": (*_CORPUS, "lexicon", "gematria", "roots", *_MODELS),
     "ciphers": (*_CORPUS,),
+    "divine": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

@@ -888,6 +888,22 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M94: The names of God (§16.65, D105; proposed D1)
+- [x] `bsim divine` (`analysis/divine.py`, after ciphers, 11 s): the names of `divine.names` per chapter and book from the OSHB lemmas; each book cut in three where the mix of יהוה and אלהים changes most, against shuffled chapter orders, BH over books; the Elohistic Psalter and the doubled psalms as checks fixed in config before the first run
+- [x] DB `divine_chapters`, `divine_books`, `divine_pairs`, `divine_words` (+ `meta.divine`); API `/divine`, `/divine/pairs`; findings `divine_elohistic`, `divine_doubled`; dossier `divine`; reader layer `divine`
+- [x] Viewer: Patterns → Names of God (`/divine`): the checks, the canon as a diverging strip of chapters (palette validated for colour blindness in both schemes), the books and a book's chapters, the doubled psalms name by name; a line over each name in the reader; English and Hebrew
+- [x] Tests: lemma parts, the three-part cut and its shuffles, the sign test, both checks (a book not split, a passage missing), the endpoints, findings, dossier and reader (pytest); the strip, the cuts, the tables, the pairs, the reader layer, the dossier link, Hebrew (vitest); e2e on the fixture (axe) and the real build (Psalms 42–84, Psalm 53 in the reader)
+
+✔ The Elohistic Psalter is found without being named: Psalms falls into 1–41, 42–84 and 85–150 with יהוה at 85 %, 17 % and 85 % of the two names (p 0.001). The doubled psalms point the expected way, 6 places of אלהים for יהוה against 1, but p 0.06 does not pass. Isaiah 35–37, the Hezekiah narrative, is the only other cut beyond chance.
+
+## M93: The workbench (§16.64, D104; proposed T1)
+- [x] `api/workbench.py`: sets (book, chapters, section, unit, notebook collection, pattern; only speech / narration), contrast by G² with BH q over nine word features (lemma, root, SDBH domain, part of speech, stem, form, person, phrase function, clause type), a pattern checked on a set against its verses drawn again within book, chapter or canon; errors as codes with the item at fault
+- [x] API `/workbench/contrast`, `/workbench/check`; `serve.workbench` in config; the domain table and verse chapters read once by the server
+- [x] Viewer: Patterns → Workbench (`/workbench`): two tabs, sets built item by item or as text, both sides linked to lemma, root, domain and pattern search, CSV, the check's verdict in words; English and Hebrew
+- [x] Tests: set parsing and errors, the check's draws on exact cases, contrast counts and G² on the fixture, speech and narration, collections read live, the endpoints (pytest); set editing, both tabs, problems, Hebrew (vitest); e2e on the fixture (a set built from the form, axe) and the real build (the Elohistic Psalter)
+
+✔ Psalms 42–83 against the rest of Psalms puts אלהים first on A's side (245 against 117, G² 222) and יהוה first on B's (40 against 647, G² 260); `[lemma=430]` checked on it is 41.7 per 1,000 words against 18.5 for Psalms verses drawn at random (p 0.001). A contrast answers in under 0.1 s once the word table is loaded.
+
 ## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
 - [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
 - [x] Viewer: three dossier chips on unit pages, linking to the map of the unit, the cipher hits of the unit, and the verses of a verse's value or the reader's letter-value layer; English and Hebrew. `DossierKind` now comes from the API schema
@@ -972,3 +988,22 @@ Family tree
 - [x] F6 (done, M92) The look: on most of the screen, avatars, couples, the chosen person's line, wheel zoom
 
 Suggested order: F1 → F2 → F3 → F4; F5 when asked.
+
+From the 2026-10-23 review: more hidden patterns and tools to look with. Each analysis has a claim fixed in advance, known answers and a control, for the Findings page, as before.
+
+Analyses
+- [x] D1 (done, M94) Divine names across the canon: יהוה / אלהים / אדני / שדי / צבאות / אל per chapter, change points (`analysis/seams.py`). Claims: the Elohistic Psalter (Ps 42–83) comes out as one segment without its bounds; in the doubled psalms (Ps 14 / 53, Ps 40:14–18 / 70) the Elohistic side has אלהים for יהוה more than the reverse (`analysis/diffs.py`). A heat strip per book, a reader layer
+- [ ] D2 Naming etiologies: the naming formula (ויקרא / ותקרא (את) שמו / שם המקום X + כי / לאמר / על כן) found with the pattern language (`api/patterns.py`); the name's consonants in its explanation (skeletons of `analysis/wordplay.py`) against names paired with the other explanations. Known: Jacob's sons (Gen 29:32–30:24), נח (Gen 5:29), משה (Exod 2:10), שת (Gen 4:25), באר שבע, בית אל
+- [ ] D3 Resumptive repetition (Wiederaufnahme): a near-identical clause repeated 3–40 verses later in a book, the block between less cohesive with its surroundings than the frame (`analysis/phrases.py`, `analysis/segments.py`), against random brackets of the same span, BH q. Known: Gen 37:36 / 39:1, Exod 6:10–12 / 6:29–30, Ezra 4:5 / 4:24. Leads beside seams and divisions
+- [ ] D4 Retold speech: quotations (`analysis/dialogue.py`) that retell an earlier speech or narration of the same book, aligned and word-diffed (`diffs.py`). Claim: speech retold by another speaker changes more than command → execution of the same length (§16.7). Known: Gen 2:16–17 / 3:2–3, Gen 24:2–8 / 24:37–41, Gen 41:1–7 / 41:17–24
+- [ ] D5 The text's own chronology: years from Adam by Gen 5 and 11 and the stated spans (Exod 12:40, 1 Kgs 6:1); Kings' synchronisms and reign lengths (numbers as `analysis/forms.py`). Claims: Flood 1656, Abraham 1948, Exodus 2448 (Seder Olam) as known answers; synchronisms agree with reign lengths under a per-kingdom accession rule more than with reign lengths shuffled, conflicts listed; Gen 5's ages end in 0 / 2 / 5 / 7 above chance. A timeline page
+- [ ] D6 Narrative frameworks: Judges' cycle slots (ויעשו הרע / וימכרם / ויזעקו / ויקם מושיע / ותשקט הארץ) and Kings' regnal slots (age, length, mother, verdict, high places, burial). Claims: the cycle grows less complete through Judges (Spearman against shuffled orders; Othniel full, Samson broken); Kings' verdict wording divides by kingdom. After D5
+- [ ] D7 Fixed word pairs and their order: "A ו B" pairs found both ways, how fixed each order is. Claims: the shorter word first above chance (syllables, letters); reversals commoner in the late books (`analysis/dating.py`; כסף וזהב / זהב וכסף). Known: שמים וארץ, איש ואשה
+- [ ] D8 Haftarot against their parashot: the sages' pairing as a gold set for parashot (which have none). Claims: the haftarah ranks above other prophetic chapters in its parasha's fused list; which mode explains the pairing. Known: Noach → Isa 54, Vayera → 2 Kgs 4. Availability and license of Sefaria's haftarah list checked first
+
+Tools
+- [x] T1 (done, M93) Workbench: two verse sets (books, ranges, a notebook collection, a pattern-search result) contrasted on lemmas, roots, SDBH domains, morphology and clause shapes (G², BH q, example verses); one pattern query tested on a set against shuffles that keep book and chapter (`analysis/stats.py`)
+- [ ] T2 Why semantic: BEREL token alignments (`retrieve/maxsim.py`) drawn between the two passages in Compare, for semantic matches that share no words
+- [ ] T3 Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
+
+Suggested order: T1 → D1 → D2 → D3 → D4 → D8 → D5 → D6 → D7 → T2 → T3.

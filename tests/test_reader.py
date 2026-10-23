@@ -68,12 +68,13 @@ def test_reader_without_stages(built):
         conn.execute("DELETE FROM pentateuch_verses")
         conn.execute("DELETE FROM places")
         conn.execute("DELETE FROM place_mentions")
+        conn.execute("DELETE FROM divine_words")
         conn.execute("UPDATE words SET domains = NULL")
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()
     assert not any(r["computed"].values()) and r["speakers"] == []
     assert all(
         not v["speech"] and not v["wordplay"] and v["gap"] is None and not v["mood"]
-        and not v["places"]
+        and not v["places"] and not v["divine"]
         for v in r["verses"]
     ) and r["places"] == []

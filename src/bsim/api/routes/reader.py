@@ -50,7 +50,8 @@ def _speech(
 def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
-    non-P split, the turns and MAM breaks before each verse, and each word's letter value."""
+    non-P split, the turns and MAM breaks before each verse, each word's letter value, the
+    places named and the divine names."""
     u = unit_or_404(conn, unit_id)
     limit = state.cfg["serve"]["max_compare_verses"]
     if u["n_verses"] > limit:
@@ -179,9 +180,12 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     for r in queries.place_tokens(conn, first, last):
         place_at[r["verse_id"]].setdefault(r["display_idx"], r["place_id"])
     named = Counter(p for toks in place_at.values() for p in set(toks.values()))
-    sites = {
-        p: queries.place(conn, p) for p in sorted(named, key=lambda p: (-named[p], p))
-    }
+    sites = {p: queries.place(conn, p) for p in sorted(named, key=lambda p: (-named[p], p))}
+    # divine names (§16.65): each token that is one
+    divine: dict[int, dict[int, str]] = defaultdict(dict)
+    if state.present(conn, "divine_words"):
+        for r in queries.divine_tokens(conn, first, last):
+            divine[r["verse_id"]].setdefault(r["display_idx"], r["name"])
 
     return {
         "unit": UnitSummary(**u),
@@ -196,6 +200,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "mood": state.present(conn, "domains"),
             "sources": state.present(conn, "pentateuch_verses"),
             "places": state.present(conn, "places"),
+            "divine": state.present(conn, "divine_words"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
@@ -218,6 +223,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 gap=gaps.get(v),
                 gematria=[value(t) for t in tokens.get(v, [])],
                 places={str(t): p for t, p in sorted(place_at.get(v, {}).items())},
+                divine={str(t): n for t, n in sorted(divine.get(v, {}).items())},
             )
             for v in vids
         ],

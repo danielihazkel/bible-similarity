@@ -902,6 +902,8 @@ export type FindingKey =
   | 'place_links_known'
   | 'els_counts'
   | 'els_known'
+  | 'divine_elohistic'
+  | 'divine_doubled'
 
 export type Finding = S['Finding']
 
@@ -1227,6 +1229,25 @@ export type PatternMatch = S['PatternMatch']
 export type PatternVerse = S['PatternVerse']
 export type PatternBook = S['PatternBook']
 export type PatternResponse = S['PatternResponse']
+
+// The divine names (`/divine`, DESIGN.md §16.65).
+export type DivineName = S['DivineResponse']['names'][number]
+export type DivineChapter = S['DivineChapter']
+export type DivineBook = S['DivineBook']
+export type DivineResponse = S['DivineResponse']
+export type DivinePlace = S['DivinePlace']
+export type DivinePairDetail = S['DivinePairDetail']
+export type DivinePairsResponse = S['DivinePairsResponse']
+
+// The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
+export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'
+export type WorkbenchWithin = 'corpus' | 'book' | 'chapter'
+export type SetErrorCode = S['SetProblem']['code']
+export type SetProblem = S['SetProblem']
+export type SetSummary = S['SetSummary']
+export type ContrastRow = S['ContrastRow']
+export type ContrastResponse = S['ContrastResponse']
+export type CheckResponse = S['CheckResponse']
 
 // Letter values (`/gematria`, DESIGN.md §16.53).
 export type GematriaSystem = 'standard' | 'gadol' | 'ordinal' | 'katan'

@@ -189,6 +189,14 @@ def ciphers(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def divine(config: ConfigOpt = None) -> None:
+    """The divine names across the canon: where the mix changes; the Elohistic Psalter."""
+    from bsim.analysis.divine import run_divine
+
+    run_divine(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

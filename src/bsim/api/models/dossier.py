@@ -11,7 +11,7 @@ DossierKind = Literal[
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
     "meter", "roots", "refrains", "psalms", "pentateuch", "dialogue", "forms", "places",
-    "people", "ciphers", "gematria", "labels",
+    "people", "ciphers", "divine", "gematria", "labels",
 ]  # fmt: skip
 
 
@@ -25,10 +25,10 @@ class DossierEntry(ApiModel):
     # divisions: count = flagged gaps in the unit; value / key = score / kind of its opening gap
     total: int | None = None  # network: units ranked; gematria: other verses of the verse's value
     # lowest q (acrostic, structure), score (dating), net fall (meter), a verse's letter value
-    # (gematria)
+    # (gematria), the share of יהוה among יהוה and אלהים (divine)
     value: float | None = None
     # speech: speaker lemma; voices: voice profile key; places / people: the most named place's /
-    # person's id; ciphers: the first hit's words as written
+    # person's id; ciphers: the first hit's words as written; divine: the commonest name
     key: str | None = None
     # speech / voices: the speaker's Hebrew form; places / people: the most named place / person;
     # ciphers: the name the first hit reads as; gematria: the tradition's texts found (` · `)

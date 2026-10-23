@@ -232,4 +232,8 @@ Who echoes whom (§16.36, D72): 459 of 2,422 cross-book chapter pairs directed (
 
 ETCBC parallel passages (§16.34, D70), a string-similarity gold: 1,973 parallels (13,645 formula and list pairs set apart). Dev nDCG@10: lexical 0.853, fused 0.832, semantic 0.749; fused recall@10 0.90 / 0.96 / 1.00 by similarity band. All parallels: 94 % in the fused top 10, 80 % share a phrase, 38 % in a strong sequence; 56 % of strong-sequence pairs are ETCBC parallels; 11 % are Sefaria links, 20 % OpenBible.
 
+The names of God (§16.65, D105), two checks fixed in advance: יהוה 6,827, אלהים 2,599 words. Psalms cut in three where the mix changes most: 1–41, 42–84, 85–150 with יהוה at 85 %, 17 %, 85 % of the two (named 42–83, tolerance 2; p 0.001 against 999 shuffled orders): the Elohistic Psalter, found, holds. The doubled psalms (53 / 14, 70 / 40, 57 and 60 / 108): the copy inside 42–83 has אלהים for יהוה 6 times, the reverse once (sign test p 0.0625): not borne out. 26 books split; Psalms and Isaiah (35–37) at q ≤ 0.05. 11 s; four tables, 10,590 name words.
+
+The workbench (§16.64, D104), a known answer: Psalms 42–83 (740 verses, 5,879 words) against the rest of Psalms (1,787, 13,710) by lemma, 671 scored: 7 commoner in A and 20 in B at q ≤ 0.05; first in A אלהים (245 / 117, G² 222), first in B יהוה (40 / 647, G² 260). `[lemma=430]` checked on the same set: 41.7 per 1,000 words against 18.5 for Psalms verses drawn at random (999 draws, p 0.001). A contrast takes under 0.1 s and a check 0.02–0.3 s once the word table is loaded.
+
 Unit dossier (D64): `/dossier/{unit}` computed in ~12 ms in-process on the real DB (40 cold chapters, 0.48 s), then cached; `results.sqlite` 652 MB with the voices tables and the new indexes.

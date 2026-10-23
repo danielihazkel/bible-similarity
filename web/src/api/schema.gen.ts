@@ -2174,6 +2174,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/divine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Divine
+         * @description Every chapter's and book's names, the books' splits and the two checks (404: the stage
+         *     did not run).
+         */
+        get: operations["divine_api_divine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/divine/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Divine Pairs
+         * @description The doubled passages of check 2, each with the places where a name stands on either side
+         *     as the word alignment pairs them.
+         */
+        get: operations["divine_pairs_api_divine_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -2526,6 +2568,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workbench/contrast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Workbench Contrast
+         * @description Each value of a feature scored by how much commoner it is in set A than in set B (empty B:
+         *     every word not in A), by G² with BH q; the strongest of each side with example verses.
+         */
+        get: operations["workbench_contrast_api_workbench_contrast_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workbench/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Workbench Check
+         * @description Whether a pattern matches more often (or less) in the set's verses than in the set's
+         *     verses drawn again at random within each book, chapter or the whole corpus.
+         */
+        get: operations["workbench_check_api_workbench_check_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notebook": {
         parameters: {
             query?: never;
@@ -2646,7 +2730,8 @@ export interface paths {
          * Reader
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
          *     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
-         *     non-P split, the turns and MAM breaks before each verse, and each word's letter value.
+         *     non-P split, the turns and MAM breaks before each verse, each word's letter value, the
+         *     places named and the divine names.
          */
         get: operations["reader_api_reader__unit_id__get"];
         put?: never;
@@ -3271,6 +3356,60 @@ export interface components {
             /** Items */
             items: components["schemas"]["ChangeGroup"][];
         };
+        /** CheckBook */
+        CheckBook: {
+            /** Book Id */
+            book_id: number;
+            /** Matches */
+            matches: number;
+            /** Words */
+            words: number;
+        };
+        /** CheckResponse */
+        CheckResponse: {
+            /** Q */
+            q: string;
+            /**
+             * Within
+             * @enum {string}
+             */
+            within: "corpus" | "book" | "chapter";
+            /** Draws */
+            draws: number;
+            error: components["schemas"]["SetProblem"] | null;
+            pattern_error: components["schemas"]["PatternProblem"] | null;
+            set: components["schemas"]["SetSummary"] | null;
+            /** Testable */
+            testable: boolean;
+            /** Matches */
+            matches: number;
+            /** Words */
+            words: number;
+            /** Rate */
+            rate: number;
+            /** Rest Matches */
+            rest_matches: number;
+            /** Rest Words */
+            rest_words: number;
+            /** Rest Rate */
+            rest_rate: number;
+            /** Null Mean */
+            null_mean: number;
+            /** Null Low */
+            null_low: number;
+            /** Null High */
+            null_high: number;
+            /** P High */
+            p_high: number;
+            /** P Low */
+            p_low: number;
+            /** Groups */
+            groups: number;
+            /** Fixed Verses */
+            fixed_verses: number;
+            /** Books */
+            books: components["schemas"]["CheckBook"][];
+        };
         /** ChildGroup */
         ChildGroup: {
             other: components["schemas"]["PersonRef"] | null;
@@ -3604,6 +3743,62 @@ export interface components {
             note_en: string | null;
             /** Note He */
             note_he: string | null;
+        };
+        /** ContrastResponse */
+        ContrastResponse: {
+            /**
+             * Feature
+             * @enum {string}
+             */
+            feature: "lemma" | "root" | "domain" | "pos" | "stem" | "form" | "person" | "function" | "clause";
+            error: components["schemas"]["SetProblem"] | null;
+            a: components["schemas"]["SetSummary"] | null;
+            b: components["schemas"]["SetSummary"] | null;
+            /** Overlap */
+            overlap: number;
+            /** Total A */
+            total_a: number;
+            /** Total B */
+            total_b: number;
+            /** Tested */
+            tested: number;
+            /** Min Count */
+            min_count: number;
+            /** Alpha */
+            alpha: number;
+            /** Significant A */
+            significant_a: number;
+            /** Significant B */
+            significant_b: number;
+            /** Over A */
+            over_a: components["schemas"]["ContrastRow"][];
+            /** Over B */
+            over_b: components["schemas"]["ContrastRow"][];
+        };
+        /** ContrastRow */
+        ContrastRow: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string | null;
+            /** A */
+            a: number;
+            /** B */
+            b: number;
+            /** Rate A */
+            rate_a: number;
+            /** Rate B */
+            rate_b: number;
+            /** Log Ratio */
+            log_ratio: number;
+            /** G2 */
+            g2: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number;
+            /** Examples */
+            examples: components["schemas"]["WorkbenchExample"][];
         };
         /**
          * CrossLink
@@ -3974,6 +4169,132 @@ export interface components {
             /** Sure */
             sure: boolean;
         };
+        /** DivineBook */
+        DivineBook: {
+            /** Book Id */
+            book_id: number;
+            /** Chapters */
+            chapters: number;
+            /** Words */
+            words: number;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Share */
+            share: number | null;
+            /** Split */
+            split: boolean;
+            /** Cut1 */
+            cut1: number | null;
+            /** Cut2 */
+            cut2: number | null;
+            /** Shares */
+            shares: (number | null)[];
+            /** Gain */
+            gain: number | null;
+            /** P */
+            p: number | null;
+            /** Q */
+            q: number | null;
+        };
+        /** DivineChapter */
+        DivineChapter: {
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** Words */
+            words: number;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Share */
+            share: number | null;
+            /** Part */
+            part: number | null;
+        };
+        /** DivinePairDetail */
+        DivinePairDetail: {
+            /** Pair */
+            pair: number;
+            /** E */
+            e: string;
+            /** Y */
+            y: string;
+            /** E Ward */
+            e_ward: number;
+            /** Y Ward */
+            y_ward: number;
+            /** Same */
+            same: number;
+            /** Other */
+            other: number;
+            /** Places */
+            places: components["schemas"]["DivinePlace"][];
+        };
+        /** DivinePairsResponse */
+        DivinePairsResponse: {
+            /** Pairs */
+            pairs: components["schemas"]["DivinePairDetail"][];
+        };
+        /**
+         * DivinePlace
+         * @description One aligned place of a doubled passage with a name on either side.
+         */
+        DivinePlace: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "e_ward" | "y_ward" | "same" | "other";
+            /** E Vid */
+            e_vid: number | null;
+            /** E Label */
+            e_label: string | null;
+            /** E Label He */
+            e_label_he: string | null;
+            /** E Word */
+            e_word: string | null;
+            /** E Name */
+            e_name: ("yhwh" | "elohim" | "adonai" | "el" | "eloah" | "shaddai" | "yah" | "elyon" | "tsevaot") | null;
+            /** Y Vid */
+            y_vid: number | null;
+            /** Y Label */
+            y_label: string | null;
+            /** Y Label He */
+            y_label_he: string | null;
+            /** Y Word */
+            y_word: string | null;
+            /** Y Name */
+            y_name: ("yhwh" | "elohim" | "adonai" | "el" | "eloah" | "shaddai" | "yah" | "elyon" | "tsevaot") | null;
+        };
+        /** DivineResponse */
+        DivineResponse: {
+            /** Names */
+            names: ("yhwh" | "elohim" | "adonai" | "el" | "eloah" | "shaddai" | "yah" | "elyon" | "tsevaot")[];
+            /** Measure */
+            measure: ("yhwh" | "elohim" | "adonai" | "el" | "eloah" | "shaddai" | "yah" | "elyon" | "tsevaot")[];
+            /** Totals */
+            totals: {
+                [key: string]: number;
+            };
+            /** Alpha */
+            alpha: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Min Segment */
+            min_segment: number;
+            elohistic: components["schemas"]["ElohisticCheck"];
+            doubled: components["schemas"]["DoubledCheck"];
+            /** Books */
+            books: components["schemas"]["DivineBook"][];
+            /** Chapters */
+            chapters: components["schemas"]["DivineChapter"][];
+        };
         /** DomainHit */
         DomainHit: {
             verse: components["schemas"]["Verse"];
@@ -4052,7 +4373,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "gematria" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -4072,6 +4393,38 @@ export interface components {
             label: string | null;
             /** Target Unit */
             target_unit: string | null;
+        };
+        /** DoubledCheck */
+        DoubledCheck: {
+            /** Pairs */
+            pairs: components["schemas"]["DoubledPair"][];
+            /** Missing */
+            missing: string[];
+            /** E Ward */
+            e_ward: number;
+            /** Y Ward */
+            y_ward: number;
+            /** P */
+            p: number;
+            /** Holds */
+            holds: boolean;
+        };
+        /** DoubledPair */
+        DoubledPair: {
+            /** Pair */
+            pair: number;
+            /** E */
+            e: string;
+            /** Y */
+            y: string;
+            /** E Ward */
+            e_ward: number;
+            /** Y Ward */
+            y_ward: number;
+            /** Same */
+            same: number;
+            /** Other */
+            other: number;
         };
         /** Echo */
         Echo: {
@@ -4166,6 +4519,29 @@ export interface components {
             books: components["schemas"]["EchoBook"][];
             /** Sources */
             sources: components["schemas"]["EchoChapter"][];
+        };
+        /** ElohisticCheck */
+        ElohisticCheck: {
+            /** Book Id */
+            book_id: number;
+            /** Named */
+            named: number[];
+            /** Tolerance */
+            tolerance: number;
+            /** First */
+            first: number | null;
+            /** Last */
+            last: number | null;
+            /** Shares */
+            shares: number[] | null;
+            /** Gain */
+            gain: number | null;
+            /** P */
+            p: number | null;
+            /** Found */
+            found: boolean | null;
+            /** Holds */
+            holds: boolean;
         };
         /** ElsBlock */
         ElsBlock: {
@@ -4478,7 +4854,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled";
             /**
              * Verdict
              * @enum {string}
@@ -6836,6 +7212,13 @@ export interface components {
             places: {
                 [key: string]: number;
             };
+            /**
+             * Divine
+             * @default {}
+             */
+            divine: {
+                [key: string]: string;
+            };
         };
         /** ReaderWordplay */
         ReaderWordplay: {
@@ -7587,6 +7970,41 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["SequenceSummary"][];
+        };
+        /**
+         * SetProblem
+         * @description Why a set could not be read: which set (`a`, `b` or the check's `set`), which item (its
+         *     index among the `;`-separated items) and on what; a pattern item's own problem in `pattern`.
+         */
+        SetProblem: {
+            /**
+             * Set
+             * @enum {string}
+             */
+            set: "a" | "b" | "set";
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "empty" | "too_long" | "bad_item" | "unknown_kind" | "unknown_book" | "bad_range" | "unknown_unit" | "unknown_collection" | "pattern" | "no_words" | "filter_in_check";
+            /** Item */
+            item: number;
+            /** Token */
+            token: string;
+            pattern: components["schemas"]["PatternProblem"] | null;
+        };
+        /** SetSummary */
+        SetSummary: {
+            /** Spec */
+            spec: string;
+            /** Verses */
+            verses: number;
+            /** Words */
+            words: number;
+            /** Books */
+            books: number[];
+            /** Filtered */
+            filtered: boolean;
         };
         /** SharedLemma */
         SharedLemma: {
@@ -8514,6 +8932,15 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["WordplayPair"][];
+        };
+        /** WorkbenchExample */
+        WorkbenchExample: {
+            /** Verse Id */
+            verse_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
         };
     };
     responses: never;
@@ -11799,6 +12226,46 @@ export interface operations {
             };
         };
     };
+    divine_api_divine_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DivineResponse"];
+                };
+            };
+        };
+    };
+    divine_pairs_api_divine_pairs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DivinePairsResponse"];
+                };
+            };
+        };
+    };
     els_api_els_get: {
         parameters: {
             query?: never;
@@ -12262,6 +12729,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PatternResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workbench_contrast_api_workbench_contrast_get: {
+        parameters: {
+            query?: {
+                a?: string;
+                b?: string;
+                feature?: "lemma" | "root" | "domain" | "pos" | "stem" | "form" | "person" | "function" | "clause";
+                rows?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContrastResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workbench_check_api_workbench_check_get: {
+        parameters: {
+            query?: {
+                q?: string;
+                set?: string;
+                within?: "corpus" | "book" | "chapter";
+                draws?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckResponse"];
                 };
             };
             /** @description Validation Error */

@@ -16,6 +16,12 @@ import type {
   RefrainsResponse,
   FormsListsResponse,
   PatternResponse,
+  CheckResponse,
+  DivinePairsResponse,
+  DivineResponse,
+  ContrastResponse,
+  WorkbenchFeature,
+  WorkbenchWithin,
   NotebookCollection,
   NotebookEntry,
   NotebookResponse,
@@ -662,6 +668,45 @@ export const usePatterns = (q: PatternQuery) =>
     enabled: q.q.trim() !== '',
     placeholderData: keepPreviousData,
     ...forever,
+  })
+
+export const useDivine = () =>
+  useQuery({ queryKey: ['divine'], queryFn: ({ signal }) => getJson<DivineResponse>('/divine', {}, signal), ...forever })
+
+export const useDivinePairs = () =>
+  useQuery({ queryKey: ['divine-pairs'], queryFn: ({ signal }) => getJson<DivinePairsResponse>('/divine/pairs', {}, signal), ...forever })
+
+export interface ContrastQuery {
+  a: string
+  b: string
+  feature: WorkbenchFeature
+}
+
+/** Two sets contrasted value by value (§16.64); nothing until set A is written. */
+export const useContrast = (q: ContrastQuery) =>
+  useQuery({
+    queryKey: ['workbench-contrast', q],
+    queryFn: ({ signal }) => getJson<ContrastResponse>('/workbench/contrast', { a: q.a, b: q.b || undefined, feature: q.feature }, signal),
+    enabled: q.a.trim() !== '',
+    placeholderData: keepPreviousData,
+    // a set may name a notebook collection, which changes while the server runs
+    staleTime: 60_000,
+  })
+
+export interface CheckQuery {
+  q: string
+  set: string
+  within: WorkbenchWithin
+}
+
+/** A pattern checked on a set against its shuffled surroundings (§16.64). */
+export const useCheck = (q: CheckQuery) =>
+  useQuery({
+    queryKey: ['workbench-check', q],
+    queryFn: ({ signal }) => getJson<CheckResponse>('/workbench/check', { q: q.q, set: q.set, within: q.within }, signal),
+    enabled: q.q.trim() !== '' && q.set.trim() !== '',
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
   })
 
 export const useForms = () =>

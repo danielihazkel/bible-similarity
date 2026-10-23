@@ -1209,6 +1209,31 @@ ciphers:                      # `bsim ciphers`: names hidden by atbash and albam
     elsewhere: more           # ... and in the rest of the Bible (expected not to hold: a device of these oracles, not a code of the whole text)
     albam: more               # albam, the other swap of the tradition, anywhere (expected not to hold; Isa 7:6 טבאל → רמלא, Rashi's Remaliah, is not a name as written: listed, not tested)
 
+divine:                       # `bsim divine`: the divine names across the canon (DESIGN.md §16.65); everything below fixed before the first run
+  names:                      # each name's OSHB lemmas (Strong's); a word counts once, for the first of its parts that is a name
+    yhwh: ["3068", "3069"]    # יהוה, also where it is pointed as אלהים (after אדני)
+    elohim: ["430"]           # אלהים (OSHB does not tell God from gods: both count)
+    adonai: ["136"]           # אדני, the title (not אדון of a man, 113)
+    el: ["410"]
+    eloah: ["433"]
+    shaddai: ["7706"]
+    yah: ["3050"]
+    elyon: ["5945b"]          # עליון as a name (5945a is the adjective)
+    tsevaot: ["6635b"]        # צבאות as a title
+  measure: [yhwh, elohim]     # a chapter's mix: the share of the first among the two
+  min_segment: 3              # a segment of a book holds at least this many chapters
+  min_names: 20               # a book is split when it has this many names of the measure ...
+  min_chapters: 9             # ... and this many chapters (three segments of min_segment)
+  shuffles: 999               # chapter orders shuffled within the book: the null of a split's gain
+  seed: 31
+  alpha: 0.05
+  elohistic: {book: Psalms, first: 42, last: 83, tolerance: 2}   # check 1: Psalms' best three-part split by the mix finds this middle part (each end within tolerance) and beats its shuffles
+  doubled:                    # check 2: a psalm found twice, the side inside Psalms 42–83 first; across the pairs it has אלהים where the other has יהוה more often than the reverse (one-sided sign test)
+    - {e: "Psalms 53:1-7", y: "Psalms 14:1-7"}
+    - {e: "Psalms 70:2-6", y: "Psalms 40:14-18"}
+    - {e: "Psalms 57:8-12", y: "Psalms 108:2-6"}
+    - {e: "Psalms 60:7-14", y: "Psalms 108:7-14"}
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)
@@ -1322,6 +1347,18 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     max_matches: 2000000      # partial matches at any step; a broader query is refused (too_broad)
     cache: 64                 # queries whose matches are kept
     preload: true             # build the word table in the background when the server starts
+  workbench:                  # /workbench: your sets contrasted and checked (DESIGN.md §16.64)
+    max_items: 24             # items in one set
+    max_chars: 2000           # characters in one set
+    min_count: 5              # a value is scored when A and B hold at least this many words of it
+    alpha: 0.05               # q at or below: counted as significant
+    rows: 30                  # values listed per side by default
+    max_rows: 200
+    examples: 3               # verses shown per value
+    draws: 999                # shuffles of a check
+    max_draws: 9999
+    seed: 23
+    cache: 32                 # contrasts and checks kept
   places:                     # /places/{id}: a place's panel (DESIGN.md §16.57)
     partners: 15              # places named in the same verses, most shared first
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)

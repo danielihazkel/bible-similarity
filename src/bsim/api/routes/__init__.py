@@ -11,6 +11,7 @@ from bsim.api.routes import (
     corpus,
     dating,
     dialogue,
+    divine,
     domains,
     dossier,
     echoes,
@@ -39,6 +40,7 @@ from bsim.api.routes import (
     segments,
     senses,
     syntax,
+    workbench,
 )
 
 router = APIRouter(prefix="/api")
@@ -69,10 +71,12 @@ for _module in (
     gematria,
     ciphers,
     masorah,
+    divine,
     els,
     places,
     genealogy,
     patterns,
+    workbench,
     notebook,
     reader,
     dossier,

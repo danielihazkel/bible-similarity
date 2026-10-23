@@ -713,6 +713,21 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "divine",
+        "divine",
+        (
+            Table("divine_chapters", "chapters"),
+            Table("divine_books", "books", fix=as_int("split")),
+            Table("divine_pairs", "pairs"),
+            Table("divine_words", "words"),
+        ),
+        "divine.meta.json",
+        keys(
+            "divine", "names", "measure", "min_segment", "shuffles", "alpha", "totals",
+            "books_split", "books_q", "elohistic", "doubled",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (
