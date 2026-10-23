@@ -1287,6 +1287,26 @@ brackets:                     # `bsim brackets`: resumptive repetition (Wiederau
     - {a: "Exodus 6:10-12", b: "Exodus 6:29-30"}   # "uncircumcised lips", around the genealogy of Moses and Aaron
     - {a: "Ezra 4:5", b: "Ezra 4:24"}              # the work stopped until Darius, around the Aramaic letters
 
+retold:                       # `bsim retold`: what changes when something said or told is told again (DESIGN.md §16.68); everything below fixed before the first run
+  chunk_tokens: 60            # the text cut into runs of one teller (a speaker's words with what they quote, or the narrator's), at most this many content tokens a piece
+  max_back: 400               # a retelling's source lies in the same book, at most this many verses before it (Exodus 25 to 36)
+  seed_min: 12                # a window of earlier verses (the piece's span + margin either side) is a seed when the piece shares this much idf with it (lemmas in more than `seed_df` of verses left out); single verses in the first run, windows since (DESIGN.md §16.68)
+  seed_df: 0.02
+  seeds: 3                    # seeds tried per piece, the strongest first; each opens a window of the piece's length + `margin` verses on either side
+  margin: 2
+  min_tokens: 5               # aligned tokens (Smith-Waterman as `bsim phrases`, a token matching by lemma or form) ...
+  min_score: 18               # ... and score
+  per_piece: 2                # retellings looked for in one piece (the part aligned is masked before the next)
+  bins: 4                     # aligned length quantiles: the claim's strata
+  shuffles: 9999
+  seed: 43
+  alpha: 0.05
+  claim: [retold, carried]    # fixed in advance: speech retold by another speaker changes more (substitutions, omissions, additions per word aligned) than speech carried out in narration (command -> execution), labels shuffled within length strata
+  known:                      # retellings the commentaries read side by side; each must be found (a pair with its source in `source` and its retelling in `retelling`)
+    - {source: "Genesis 2:16-17", retelling: "Genesis 3:2-3"}     # God's command as the woman tells it to the serpent
+    - {source: "Genesis 24:2-8", retelling: "Genesis 24:37-41"}   # Abraham's charge as his servant tells it to Laban
+    - {source: "Genesis 41:1-7", retelling: "Genesis 41:17-24"}   # the dreams as Pharaoh tells them to Joseph
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

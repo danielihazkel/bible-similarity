@@ -18,7 +18,7 @@ FindingKey = Literal[
     "place_lists_districts", "place_arc_order", "place_arc_moves", "place_arc_oracles",
     "place_links_decay", "place_links_known", "els_counts", "els_known", "divine_elohistic",
     "divine_doubled", "etiology_echo", "etiology_known",
-    "brackets_insertion", "brackets_known",
+    "brackets_insertion", "brackets_known", "retold_claim", "retold_known",
 ]  # fmt: skip
 
 

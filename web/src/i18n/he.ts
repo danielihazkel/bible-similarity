@@ -43,6 +43,7 @@ import { qryHe } from './pages/query'
 import { dvHe } from './pages/divine'
 import { etyHe } from './pages/etiologies'
 import { brkHe } from './pages/brackets'
+import { rtHe } from './pages/retold'
 import { wbHe } from './pages/workbench'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -126,6 +127,7 @@ export const he: Messages = {
     divine: { label: 'שמות האל', hint: 'יהוה ואלהים פרק אחר פרק: היכן התמהיל משתנה, ספר התהלים האלוהיסטי' },
     etiologies: { label: 'מדרשי שמות', hint: 'שמות שהכתוב נותן, והמילה בפסוק שנשמעת כמו השם' },
     brackets: { label: 'חזרה מסגרת', hint: 'משפט שחוזר אחרי קטע: האם הקטע קוטע את הסיפור?' },
+    retold: { label: 'דיבור שמסופר שוב', hint: 'מה משתנה כשדבר שנאמר מסופר שוב, בפי דובר אחר או כמעשה' },
     els: { label: 'אותיות בדילוג שווה', hint: 'שמות בדילוג שווה בתורה, נספרים מול ערבובים: אין צפנים' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
@@ -487,6 +489,7 @@ export const he: Messages = {
   dv: dvHe,
   ety: etyHe,
   brk: brkHe,
+  rt: rtHe,
   wb: wbHe,
   nb: nbHe,
   echo: echoHe,

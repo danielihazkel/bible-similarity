@@ -2277,6 +2277,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/retold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retold
+         * @description The groups, their change rates and the two checks (404: the stage did not run).
+         */
+        get: operations["retold_api_retold_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/retold/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retold Items
+         * @description A page of retellings, each with its source and retelling verses and the changed words.
+         */
+        get: operations["retold_items_api_retold_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -5057,7 +5097,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known";
             /**
              * Verdict
              * @enum {string}
@@ -5590,6 +5630,21 @@ export interface components {
             rank: number | null;
             /** Holds */
             holds: boolean;
+        };
+        /** KnownRetelling */
+        KnownRetelling: {
+            /** Source */
+            source: string;
+            /** Retelling */
+            retelling: string;
+            /** Found */
+            found: boolean;
+            /** Pairs */
+            pairs: number[];
+            /** Group */
+            group: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
+            /** Rate */
+            rate: number | null;
         };
         /** KqBook */
         KqBook: {
@@ -7655,6 +7710,106 @@ export interface components {
             /** Query */
             query: string;
             unit: components["schemas"]["UnitSummary"] | null;
+        };
+        /** RetoldPage */
+        RetoldPage: {
+            /** Group */
+            group: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
+            /** Book */
+            book: number | null;
+            /**
+             * Order
+             * @enum {string}
+             */
+            order: "canon" | "most" | "least";
+            /** Known */
+            known: boolean;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["RetoldPair"][];
+        };
+        /** RetoldPair */
+        RetoldPair: {
+            /** Pair */
+            pair: number;
+            /** Book Id */
+            book_id: number;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "retold" | "repeated" | "carried" | "told" | "narrated" | "unclear";
+            source: components["schemas"]["RetoldSide"];
+            retelling: components["schemas"]["RetoldSide"];
+            /** Unit Id */
+            unit_id: string;
+            /** N Ops */
+            n_ops: number;
+            /** N Changed */
+            n_changed: number;
+            /** Rate */
+            rate: number;
+            /** Ops */
+            ops: {
+                [key: string]: number;
+            };
+            /** Score */
+            score: number;
+            /** Known */
+            known: boolean;
+        };
+        /** RetoldResponse */
+        RetoldResponse: {
+            /** Pairs */
+            pairs: number;
+            /** Groups */
+            groups: {
+                [key: string]: number;
+            };
+            /** Rates */
+            rates: {
+                [key: string]: number | null;
+            };
+            /** Claim */
+            claim: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear")[];
+            /** Difference */
+            difference: number | null;
+            /** P */
+            p: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Bins */
+            bins: number;
+            /** Alpha */
+            alpha: number;
+            /** Holds */
+            holds: boolean;
+            /** Known */
+            known: components["schemas"]["KnownRetelling"][];
+            /** Known Found */
+            known_found: number;
+            /** Known Holds */
+            known_holds: boolean;
+        };
+        /** RetoldSide */
+        RetoldSide: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "speech" | "narration";
+            teller: components["schemas"]["DialogueParty"] | null;
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+            /** Marks */
+            marks: {
+                [key: string]: "spelling" | "form" | "substitution" | "omitted" | "added" | "moved";
+            }[];
         };
         /**
          * Rewrite
@@ -12602,6 +12757,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BracketsPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retold_api_retold_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetoldResponse"];
+                };
+            };
+        };
+    };
+    retold_items_api_retold_items_get: {
+        parameters: {
+            query?: {
+                group?: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
+                book?: number | null;
+                known?: boolean;
+                order?: "canon" | "most" | "least";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetoldPage"];
                 };
             };
             /** @description Validation Error */

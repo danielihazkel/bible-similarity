@@ -12,7 +12,7 @@ export type EtyOrder = 'canon' | 'strongest'
 
 export const etyEn = {
   title: 'Naming etiologies',
-  lede: 'When the text names someone or somewhere, it often says why, in words that sound like the name: ⁨ותקרא שמו ראובן כי אמרה כי ראה יהוה בעניי⁩ (Genesis 29:32). Every naming formula (⁨ויקרא שמו⁩, ⁨ויקרא שם המקום⁩, ⁨קרא למקום⁩) is found here, and its verse is searched for the word that echoes the name best.',
+  lede: 'When the text names someone or somewhere, it often says why, in words that sound like the name: \u2068ותקרא שמו ראובן כי אמרה כי ראה יהוה בעניי\u2069 (Genesis 29:32). Every naming formula (\u2068ויקרא שמו\u2069, \u2068ויקרא שם המקום\u2069, \u2068קרא למקום\u2069) is found here, and its verse is searched for the word that echoes the name best.',
   notComputed: 'The naming etiologies were not computed in this build (run bsim etiologies).',
   checksTitle: 'Checks fixed in advance',
   holds: 'Borne out',
@@ -25,7 +25,7 @@ export const etyEn = {
   known: {
     title: 'The etiologies everyone agrees on',
     text: (found: number, echo: number, n: number, rank: number, share: number) =>
-      `The formula finds ${numEn(found)} of the ${numEn(n)} named in advance (Jacob’s sons, ⁨נח⁩, ⁨שת⁩, ⁨משה⁩, ⁨באר שבע⁩, ⁨בית אל⁩); ${numEn(echo)} of them echo their name better than all but ${pct(rank, 'en-US')} of the other explanations. The check asked for ${pct(share, 'en-US')}.`,
+      `The formula finds ${numEn(found)} of the ${numEn(n)} named in advance (Jacob’s sons, \u2068נח\u2069, \u2068שת\u2069, \u2068משה\u2069, \u2068באר שבע\u2069, \u2068בית אל\u2069); ${numEn(echo)} of them echo their name better than all but ${pct(rank, 'en-US')} of the other explanations. The check asked for ${pct(share, 'en-US')}.`,
     missing: (refs: string) => `Not found: ${refs}.`,
   },
   listTitle: 'The namings',
@@ -40,7 +40,7 @@ export const etyEn = {
   knownTag: 'named in advance',
   empty: 'No naming here.',
   method:
-    'A naming: a form of ⁨קרא⁩, then within three words ⁨שמו⁩ / ⁨שם⁩ + a noun, ⁨למקום⁩ or a pronoun object, then a proper noun (not a name of God; not after ⁨לא⁩). Its explanation: the other content words of its verse, without their prefixes. The echo: the most of a name word’s consonants found in order in one of them. p: the echo against 9,999 verses without a naming; q: Benjamini–Hochberg over the namings.',
+    'A naming: a form of \u2068קרא\u2069, then within three words \u2068שמו\u2069 / \u2068שם\u2069 + a noun, \u2068למקום\u2069 or a pronoun object, then a proper noun (not a name of God; not after \u2068לא\u2069). Its explanation: the other content words of its verse, without their prefixes. The echo: the most of a name word’s consonants found in order in one of them. p: the echo against 9,999 verses without a naming; q: Benjamini–Hochberg over the namings.',
 }
 
 export const etyHe: typeof etyEn = {

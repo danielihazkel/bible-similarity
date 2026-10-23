@@ -250,6 +250,7 @@ from bsim.api.queries.refrains import (
     refrain_verses,
     refrains_page,
 )
+from bsim.api.queries.retold import retold_marks, retold_page
 from bsim.api.queries.roots import (
     hidden_roots_page,
     lemmas_books,
@@ -463,6 +464,8 @@ __all__ = [
     "refrains_in",
     "refrains_page",
     "rewrite_profiles",
+    "retold_marks",
+    "retold_page",
     "rewrites_page",
     "rhymes_page",
     "root_index",

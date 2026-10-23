@@ -24,6 +24,10 @@ import type {
   BracketShow,
   BracketsPage,
   BracketsResponse,
+  RetoldGroup,
+  RetoldOrder,
+  RetoldPage,
+  RetoldResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -700,6 +704,26 @@ export const useBracketItems = (q: BracketsQuery) =>
     queryKey: ['bracket-items', q],
     queryFn: ({ signal }) =>
       getJson<BracketsPage>('/brackets/items', { show: q.show, order: q.order, book: q.book, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+export const useRetold = () =>
+  useQuery({ queryKey: ['retold'], queryFn: ({ signal }) => getJson<RetoldResponse>('/retold', {}, signal), ...forever })
+
+export interface RetoldQuery {
+  group?: RetoldGroup
+  known: boolean
+  order: RetoldOrder
+  limit: number
+  offset: number
+}
+
+export const useRetoldItems = (q: RetoldQuery) =>
+  useQuery({
+    queryKey: ['retold-items', q],
+    queryFn: ({ signal }) =>
+      getJson<RetoldPage>('/retold/items', { group: q.group, known: q.known ? 'true' : undefined, order: q.order, limit: q.limit, offset: q.offset }, signal),
     placeholderData: keepPreviousData,
     ...forever,
   })

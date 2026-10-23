@@ -750,6 +750,20 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "retold",
+        "retold",
+        (
+            Table("retold_pairs", "pairs",
+                  fix=then(as_int("known"), lambda d, ctx: d.rename(columns={"group": "grp"}))),
+            Table("retold_marks", "marks"),
+        ),  # fmt: skip
+        "retold.meta.json",
+        keys(
+            "retold", "pairs", "groups", "rates", "claim", "difference", "p", "shuffles", "bins",
+            "alpha", "holds", "known", "known_found", "known_holds",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

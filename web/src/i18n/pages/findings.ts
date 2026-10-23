@@ -291,6 +291,16 @@ export const findEn = {
       text: (v: V) =>
         `Where a psalm is found twice (${numEn(n(v, 'pairs'))} pairs), does the copy inside the Elohistic Psalter have \u2068אלהים\u2069 where the other has \u2068יהוה\u2069 more often than the reverse? ${numEn(n(v, 'e_ward'))} against ${numEn(n(v, 'y_ward'))} (sign test, p ${fp(n(v, 'p'))}).`,
     },
+    retold_claim: {
+      title: 'Speech retold by another speaker changes more than speech carried out',
+      text: (v: V) =>
+        `When one speaker tells again what another said (${numEn(n(v, 'a_n'))} retellings), are more of the words changed (substituted, left out, added or moved) than when the narrator tells a speech again as done, command and execution (${numEn(n(v, 'b_n'))})? ${pct(n(v, 'a_rate'))} of the words against ${pct(n(v, 'b_rate'))}, within the same lengths (p ${fp(n(v, 'p'))}).`,
+    },
+    retold_known: {
+      title: 'The retellings the commentaries read side by side',
+      text: (v: V) =>
+        `Of the ${numEn(n(v, 'known'))} named in advance (God’s command as the woman tells it, Abraham’s charge as his servant tells it, Pharaoh’s dreams as he tells them), the alignment finds ${numEn(n(v, 'known_found'))}; all of them were asked for.`,
+    },
     brackets_insertion: {
       title: 'A repeated clause brackets a block that interrupts',
       text: (v: V) =>
@@ -309,7 +319,7 @@ export const findEn = {
     etiology_known: {
       title: 'The etiologies everyone agrees on',
       text: (v: V) =>
-        `Of the ${numEn(n(v, 'known'))} named in advance (Jacob’s sons, ⁨נח⁩, ⁨משה⁩, ⁨באר שבע⁩ …), the formula finds ${numEn(n(v, 'known_found'))}, and ${numEn(n(v, 'known_echo'))} echo their name better than all but ${pct(n(v, 'known_rank'))} of the other explanations; three in four were asked for. Short names of common letters (⁨שת⁩, ⁨לוי⁩) are echoed by chance too often to stand out.`,
+        `Of the ${numEn(n(v, 'known'))} named in advance (Jacob’s sons, \u2068נח\u2069, \u2068משה\u2069, \u2068באר שבע\u2069 …), the formula finds ${numEn(n(v, 'known_found'))}, and ${numEn(n(v, 'known_echo'))} echo their name better than all but ${pct(n(v, 'known_rank'))} of the other explanations; three in four were asked for. Short names of common letters (\u2068שת\u2069, \u2068לוי\u2069) are echoed by chance too often to stand out.`,
     },
     els_known: {
       title: 'The tradition’s sequences in our letters',
@@ -598,6 +608,16 @@ export const findHe: typeof findEn = {
       title: 'המזמורים הכפולים: אלהים במקום יהוה',
       text: (v: V) =>
         `כשמזמור מופיע פעמיים (${numHe(n(v, 'pairs'))} זוגות), האם בעותק שבתוך ספר התהלים האלוהיסטי כתוב אלהים במקום שבו בשני כתוב יהוה יותר מאשר ההפך? ${numHe(n(v, 'e_ward'))} מול ${numHe(n(v, 'y_ward'))} (מבחן הסימן, p ${fp(n(v, 'p'))}).`,
+    },
+    retold_claim: {
+      title: 'דיבור שמסופר בפי דובר אחר משתנה יותר מדיבור שמתבצע',
+      text: (v: V) =>
+        `כשדובר אחד מספר שוב מה שאמר אחר (${numHe(n(v, 'a_n'))} סיפורים חוזרים), האם משתנות יותר מילים (מוחלפות, נשמטות, נוספות או זזות) מאשר כשהמספר מספר שוב דיבור כמעשה, ציווי וביצוע (${numHe(n(v, 'b_n'))})? ${pct(n(v, 'a_rate'))} מן המילים לעומת ${pct(n(v, 'b_rate'))}, באותם אורכים (p ${fp(n(v, 'p'))}).`,
+    },
+    retold_known: {
+      title: 'הסיפורים החוזרים שהפרשנים קוראים זה מול זה',
+      text: (v: V) =>
+        `מתוך ${numHe(n(v, 'known'))} שנקבעו מראש (ציווי האל בפי האשה, שבועת אברהם בפי עבדו, חלומות פרעה בפיו), היישור מוצא ${numHe(n(v, 'known_found'))}; נדרשו כולם.`,
     },
     brackets_insertion: {
       title: 'משפט חוזר עוטף קטע שקוטע את הסיפור',

@@ -1804,6 +1804,53 @@ def write_brackets(cfg):
     (out / "brackets.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_retold(cfg):
+    """Retold speech (`bsim retold`), made up: v1 retells v0 (God's words told again by another
+    speaker, named in advance: בראשית dropped); v3 carries out v1 in narration."""
+    out = resolve_path(cfg, "artifacts") / "retold"
+    out.mkdir(parents=True, exist_ok=True)
+    ops = {"same": [2, 1], "spelling": [0, 0], "form": [0, 1], "substitution": [0, 0],
+           "omitted": [1, 0], "added": [0, 1], "moved": [0, 0]}  # fmt: skip
+    pd.DataFrame(
+        {
+            "pair": [0, 1],
+            "book_id": [0, 0],
+            "group": ["retold", "carried"],
+            "src_first": [0, 1],
+            "src_last": [0, 1],
+            "src_unit": [10, 11],
+            "src_teller": ["divine", "7225"],
+            "later_first": [1, 3],
+            "later_last": [1, 3],
+            "later_unit": [11, -1],
+            "later_teller": ["7225", None],
+            "n_tokens": [3, 2],
+            "score": [21.0, 14.5],
+            "n_ops": [3, 3],
+            "n_changed": [1, 1],
+            "rate": [1 / 3, 1 / 3],
+            **ops,
+            "known": [True, False],
+        }
+    ).to_parquet(out / "pairs.parquet", index=False)
+    pd.DataFrame(
+        {"pair": [0, 1, 1], "side": ["a", "b", "b"], "verse_id": [0, 3, 3],
+         "display_idx": [0, 0, 1], "op": ["omitted", "form", "added"]}  # fmt: skip
+    ).to_parquet(out / "marks.parquet", index=False)
+    known = [{"source": "B0 1:1", "retelling": "B0 1:2", "found": True, "pairs": [0],
+              "group": "retold", "rate": 1 / 3},
+             {"source": "B0 2:1", "retelling": "B1 1:1", "found": False, "pairs": [],
+              "group": None, "rate": None}]  # fmt: skip
+    meta = {"pairs": 2, "groups": {"retold": 1, "repeated": 0, "carried": 1, "told": 0,
+                                   "narrated": 0, "unclear": 0},
+            "rates": {"retold": 1 / 3, "repeated": None, "carried": 1 / 3, "told": None,
+                      "narrated": None, "unclear": None},
+            "claim": ["retold", "carried"], "difference": 0.0, "p": 0.6, "shuffles": 99,
+            "bins": 4, "alpha": 0.05, "holds": False, "known": known, "known_found": 1,
+            "known_holds": False}  # fmt: skip
+    (out / "retold.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1820,6 +1867,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_divine(cfg)
     write_etiologies(cfg)
     write_brackets(cfg)
+    write_retold(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

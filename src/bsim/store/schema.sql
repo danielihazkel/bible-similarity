@@ -1618,6 +1618,42 @@ CREATE TABLE brackets (
     known INTEGER NOT NULL          -- 1: one of `brackets.known`
 );
 
+-- retold speech: a passage told again, word by word (`bsim retold`, §16.68)
+CREATE TABLE retold_pairs (
+    pair INTEGER PRIMARY KEY,
+    book_id INTEGER NOT NULL,
+    grp TEXT NOT NULL,              -- retold | repeated | carried | told | narrated | unclear
+    src_first INTEGER NOT NULL,     -- verse ids of the source span
+    src_last INTEGER NOT NULL,
+    src_unit INTEGER NOT NULL,      -- its teller's quotation (-1: the narrator)
+    src_teller TEXT,                -- the speaker's lemma, or divine (NULL: the narrator or not known)
+    later_first INTEGER NOT NULL,   -- ... of the retelling
+    later_last INTEGER NOT NULL,
+    later_unit INTEGER NOT NULL,
+    later_teller TEXT,
+    n_tokens INTEGER NOT NULL,      -- content tokens aligned
+    score REAL NOT NULL,
+    n_ops INTEGER NOT NULL,         -- word positions of the word-by-word diff
+    n_changed INTEGER NOT NULL,     -- substituted, omitted, added or moved
+    rate REAL NOT NULL,
+    same INTEGER NOT NULL,
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,
+    added INTEGER NOT NULL,
+    moved INTEGER NOT NULL,
+    known INTEGER NOT NULL          -- 1: one of `retold.known`
+);
+
+CREATE TABLE retold_marks (
+    pair INTEGER NOT NULL,
+    side TEXT NOT NULL,             -- a: the source, b: the retelling
+    verse_id INTEGER NOT NULL,
+    display_idx INTEGER NOT NULL,
+    op TEXT NOT NULL                -- spelling | form | substitution | omitted | added | moved
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

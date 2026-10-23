@@ -908,6 +908,8 @@ export type FindingKey =
   | 'etiology_known'
   | 'brackets_insertion'
   | 'brackets_known'
+  | 'retold_claim'
+  | 'retold_known'
 
 export type Finding = S['Finding']
 
@@ -1254,6 +1256,14 @@ export type BracketShow = S['BracketsPage']['show']
 export type BracketOrder = S['BracketsPage']['order']
 export type BracketsPage = S['BracketsPage']
 export type BracketsResponse = S['BracketsResponse']
+
+// Retold speech (`/retold`, DESIGN.md §16.68).
+export type RetoldGroup = S['RetoldPair']['group']
+export type RetoldOrder = S['RetoldPage']['order']
+export type RetoldSide = S['RetoldSide']
+export type RetoldPair = S['RetoldPair']
+export type RetoldPage = S['RetoldPage']
+export type RetoldResponse = S['RetoldResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

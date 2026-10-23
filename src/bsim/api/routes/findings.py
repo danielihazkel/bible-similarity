@@ -477,6 +477,29 @@ def _brackets(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding |
     return build
 
 
+def _retold(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Retold speech: a speech retold by another speaker changes more than one carried out in
+    narration (labels shuffled within length strata); the retellings named in advance are
+    found."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        r = meta.get("retold") or {}
+        if not r.get("pairs"):
+            return None
+        if key == "retold_claim":
+            a, b = r["claim"]
+            values = {"pairs": r["pairs"], "difference": r.get("difference"), "p": r["p"],
+                      "a_rate": r["rates"].get(a), "b_rate": r["rates"].get(b),
+                      "a_n": r["groups"].get(a), "b_n": r["groups"].get(b)}  # fmt: skip
+            holds = bool(r.get("holds"))
+        else:
+            values = {"known_found": r.get("known_found"), "known": len(r.get("known") or [])}
+            holds = bool(r.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -705,6 +728,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _etiologies("etiology_known"),
     _brackets("brackets_insertion"),
     _brackets("brackets_known"),
+    _retold("retold_claim"),
+    _retold("retold_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

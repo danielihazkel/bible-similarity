@@ -14,6 +14,7 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage').then((m) => ({ defaul
 const RefrainsPage = lazy(() => import('./pages/RefrainsPage').then((m) => ({ default: m.RefrainsPage })))
 const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ default: m.NotebookPage })))
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
+const RetoldPage = lazy(() => import('./pages/RetoldPage').then((m) => ({ default: m.RetoldPage })))
 const BracketsPage = lazy(() => import('./pages/BracketsPage').then((m) => ({ default: m.BracketsPage })))
 const EtiologiesPage = lazy(() => import('./pages/EtiologiesPage').then((m) => ({ default: m.EtiologiesPage })))
 const DivinePage = lazy(() => import('./pages/DivinePage').then((m) => ({ default: m.DivinePage })))
@@ -116,6 +117,7 @@ export function App() {
           <Route path="divine" element={<DivinePage />} />
           <Route path="etiologies" element={<EtiologiesPage />} />
           <Route path="brackets" element={<BracketsPage />} />
+          <Route path="retold" element={<RetoldPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />

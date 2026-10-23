@@ -42,6 +42,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   etiology_known: { to: '/etiologies?show=known', nav: 'etiologies' },
   brackets_insertion: { to: '/brackets', nav: 'brackets' },
   brackets_known: { to: '/brackets?show=known', nav: 'brackets' },
+  retold_claim: { to: '/retold', nav: 'retold' },
+  retold_known: { to: '/retold?known=1', nav: 'retold' },
   ciphers_known: { to: '/ciphers?known=1', nav: 'ciphers' },
   ciphers_jeremiah: { to: '/ciphers', nav: 'ciphers' },
   ciphers_elsewhere: { to: '/ciphers', nav: 'ciphers' },

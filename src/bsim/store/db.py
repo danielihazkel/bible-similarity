@@ -126,6 +126,9 @@ INDEXES = (
     "CREATE INDEX etiologies_by_verse ON etiologies (verse_id)",
     "CREATE INDEX brackets_by_book ON brackets (book_id, a)",
     "CREATE INDEX brackets_by_p ON brackets (p, insertion)",
+    "CREATE INDEX retold_pairs_by_group ON retold_pairs (grp, later_first)",
+    "CREATE INDEX retold_pairs_by_book ON retold_pairs (book_id, later_first)",
+    "CREATE INDEX retold_marks_by_pair ON retold_marks (pair)",
     # /gematria: what has a value, in each system
     *(
         f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"

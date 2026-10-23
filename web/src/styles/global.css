@@ -3308,6 +3308,10 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .brk-bracket.brk-strong { border-inline-start: 3px solid var(--known); padding-inline-start: 0.6rem; }
 .brk-known { margin: 0.3rem 0 0; padding-inline-start: 1.1rem; }
 .brk-links { margin: 0.2rem 0 0; }
+/* retold speech (§16.68): who tells each side, and the two groups the claim compares */
+.rt-teller { margin: 0.4rem 0 0; color: var(--muted); }
+.rt-groups th[scope='row'] { font-weight: normal; }
+.rt-groups tr.rt-claim th[scope='row'] { font-weight: 600; }
 .dv-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: 0.5rem 0; }
 .dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .dv-ramp-step { display: inline-flex; align-items: center; gap: 0.25rem; }

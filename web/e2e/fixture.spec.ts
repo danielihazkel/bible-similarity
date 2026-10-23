@@ -121,6 +121,8 @@ const PAGES = [
   '/etiologies?show=leads&order=strongest',
   '/brackets',
   '/brackets?show=strong&order=strongest&book=0',
+  '/retold',
+  '/retold?group=carried&order=most&known=1',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -581,6 +583,21 @@ test('resumptive repetition: the checks, the repetitions, a filter', async ({ pa
   await expect(page.locator('li.brk-bracket')).toHaveCount(1)
   await page.locator('li.brk-bracket').getByRole('link', { name: 'compare the two' }).click()
   await expect(page).toHaveURL(/\/compare\?a=v%3A0&b=v%3A4/)
+})
+
+test('retold speech: the checks, the groups, the passages and their changes, a filter', async ({ page }) => {
+  await page.goto('/retold')
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(2)
+  await expect(page.locator('table.rt-groups tbody tr')).toHaveCount(6)
+  await expect(page.locator('li.rt-pair')).toHaveCount(2)
+  await expect(page.locator('li.rt-pair').first().locator('.rt-teller').first()).toHaveText('First told by God')
+  await expect(page.locator('li.rt-pair').first().locator('.w-diff-omitted')).toHaveCount(1)
+  await expect(page.locator('li.rt-pair').nth(1).locator('.rt-teller').nth(1)).toHaveText('Told again by the narrator')
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.getByRole('radio', { name: 'Carried out by the narrator' }).click()
+  await expect(page).toHaveURL(/\/retold\?group=carried/)
+  await expect(page.locator('li.rt-pair')).toHaveCount(1)
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

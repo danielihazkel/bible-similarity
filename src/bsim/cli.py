@@ -213,6 +213,14 @@ def brackets(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def retold(config: ConfigOpt = None) -> None:
+    """Retold speech: what changes when something said or told is told again."""
+    from bsim.analysis.retold import run_retold
+
+    run_retold(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places
