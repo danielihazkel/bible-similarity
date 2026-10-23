@@ -20,6 +20,10 @@ import type {
   DivinePairsResponse,
   DivineResponse,
   EtiologiesResponse,
+  BracketOrder,
+  BracketShow,
+  BracketsPage,
+  BracketsResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -679,6 +683,26 @@ export const useDivinePairs = () =>
 
 export const useEtiologies = () =>
   useQuery({ queryKey: ['etiologies'], queryFn: ({ signal }) => getJson<EtiologiesResponse>('/etiologies', {}, signal), ...forever })
+
+export const useBrackets = () =>
+  useQuery({ queryKey: ['brackets'], queryFn: ({ signal }) => getJson<BracketsResponse>('/brackets', {}, signal), ...forever })
+
+export interface BracketsQuery {
+  show: BracketShow
+  order: BracketOrder
+  book?: number
+  limit: number
+  offset: number
+}
+
+export const useBracketItems = (q: BracketsQuery) =>
+  useQuery({
+    queryKey: ['bracket-items', q],
+    queryFn: ({ signal }) =>
+      getJson<BracketsPage>('/brackets/items', { show: q.show, order: q.order, book: q.book, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
 
 export interface ContrastQuery {
   a: string

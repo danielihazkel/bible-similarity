@@ -1271,6 +1271,22 @@ etiologies:                   # `bsim etiologies`: names given in the text and t
     - {ref: "Genesis 35:7", name: "בית אל"}
     - {ref: "Exodus 2:10", name: "משה"}
 
+brackets:                     # `bsim brackets`: resumptive repetition (Wiederaufnahme): a clause repeated after an insertion (DESIGN.md §16.67); everything below fixed before the first run
+  min_gap: 3                  # the repeat stands this many verses after the first at least (two verses between) ...
+  max_gap: 40                 # ... and at most this many
+  min_tokens: 3               # aligned tokens (Smith-Waterman as `bsim phrases`: idf x formula weight, its mismatch and gap); a token matches by its lemma or by its form without prefixes (Hebrew / Aramaic: Ezra 4:5 / 4:24)
+  min_score: 14
+  mutual: true                # a verse and its repeat are each other's best partner (a clause said three times: its strongest pair)
+  window: 4                   # verses before the first and after the repeat (the two frame verses left out): the text the block interrupts
+  lex_dims: 512               # the lemma counts (idf) randomly projected to this many dimensions, so window sums are prefix differences
+  draws: 999                  # random brackets of the same span in the same book, per repetition
+  seed: 41
+  alpha: 0.05
+  known:                      # editors' brackets the commentaries name; each must be found (a pair with its first verse in `a`, its repeat in `b`) and beat its random brackets at alpha
+    - {a: "Genesis 37:36", b: "Genesis 39:1"}      # Joseph sold to Potiphar, around Judah and Tamar
+    - {a: "Exodus 6:10-12", b: "Exodus 6:29-30"}   # "uncircumcised lips", around the genealogy of Moses and Aaron
+    - {a: "Ezra 4:5", b: "Ezra 4:24"}              # the work stopped until Darius, around the Aramaic letters
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

@@ -119,6 +119,8 @@ const PAGES = [
   '/read/c%3A0%3A1?layers=divine',
   '/etiologies',
   '/etiologies?show=leads&order=strongest',
+  '/brackets',
+  '/brackets?show=strong&order=strongest&book=0',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -564,6 +566,21 @@ test('naming etiologies: the checks, the namings, a filter', async ({ page }) =>
   await expect(page).toHaveURL(/\/etiologies\?show=leads/)
   await expect(page.locator('li.ety-naming')).toHaveCount(1)
   await expect(page.locator('li.ety-lead')).toHaveCount(1)
+})
+
+test('resumptive repetition: the checks, the repetitions, a filter', async ({ page }) => {
+  await page.goto('/brackets')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('li.brk-bracket')).toHaveCount(2)
+  await expect(page.locator('li.brk-bracket').first().locator('.w-shared')).toHaveCount(3)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.getByRole('radio', { name: 'p ≤ 0.05' }).click()
+  await expect(page).toHaveURL(/\/brackets\?show=strong/)
+  await expect(page.locator('li.brk-bracket')).toHaveCount(1)
+  await page.locator('li.brk-bracket').getByRole('link', { name: 'compare the two' }).click()
+  await expect(page).toHaveURL(/\/compare\?a=v%3A0&b=v%3A4/)
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

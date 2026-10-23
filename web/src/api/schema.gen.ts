@@ -2237,6 +2237,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/brackets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Brackets
+         * @description The checks and the brackets of each book (404: the stage did not run).
+         */
+        get: operations["brackets_api_brackets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/brackets/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bracket Items
+         * @description A page of brackets, each with its two verses and the repeated clause marked.
+         */
+        get: operations["bracket_items_api_brackets_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -3309,6 +3349,108 @@ export interface components {
              * @enum {string}
              */
             direction: "a_to_b" | "b_to_a" | "unclear";
+        };
+        /** Bracket */
+        Bracket: {
+            /** Bracket */
+            bracket: number;
+            /** Book Id */
+            book_id: number;
+            a: components["schemas"]["Verse"];
+            b: components["schemas"]["Verse"];
+            /** A Disp */
+            a_disp: number[];
+            /** B Disp */
+            b_disp: number[];
+            /** Between */
+            between: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Score */
+            score: number;
+            /** N Tokens */
+            n_tokens: number;
+            /** Lex */
+            lex: number;
+            /** Sem */
+            sem: number;
+            /** Insertion */
+            insertion: number;
+            /** P */
+            p: number;
+            /** Q */
+            q: number | null;
+            /** Known */
+            known: boolean;
+        };
+        /** BracketBook */
+        BracketBook: {
+            /** Book Id */
+            book_id: number;
+            /** Brackets */
+            brackets: number;
+            /** Strong */
+            strong: number;
+        };
+        /** BracketsPage */
+        BracketsPage: {
+            /**
+             * Show
+             * @enum {string}
+             */
+            show: "all" | "strong" | "known";
+            /**
+             * Order
+             * @enum {string}
+             */
+            order: "canon" | "strongest";
+            /** Book */
+            book: number | null;
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Bracket"][];
+        };
+        /** BracketsResponse */
+        BracketsResponse: {
+            /** Candidates */
+            candidates: number;
+            /** Repetitions */
+            repetitions: number;
+            /** Brackets */
+            brackets: number;
+            /** Mean */
+            mean: number | null;
+            /** Mean Null */
+            mean_null: number | null;
+            /** P */
+            p: number;
+            /** Draws */
+            draws: number;
+            /** Window */
+            window: number;
+            /** Alpha */
+            alpha: number;
+            /** Holds */
+            holds: boolean;
+            /** Leads */
+            leads: number;
+            /** Strong */
+            strong: number;
+            /** Known */
+            known: components["schemas"]["KnownBracket"][];
+            /** Known Found */
+            known_found: number;
+            /** Known Beat */
+            known_beat: number;
+            /** Known Holds */
+            known_holds: boolean;
+            /** Books */
+            books: components["schemas"]["BracketBook"][];
         };
         /** ChangeExample */
         ChangeExample: {
@@ -4915,7 +5057,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known";
             /**
              * Verdict
              * @enum {string}
@@ -5400,6 +5542,23 @@ export interface components {
             books: components["schemas"]["KqBook"][];
             /** Letters */
             letters: components["schemas"]["KqLetter"][];
+        };
+        /** KnownBracket */
+        KnownBracket: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /** Found */
+            found: boolean;
+            /** Bracket */
+            bracket: number | null;
+            /** Insertion */
+            insertion: number | null;
+            /** P */
+            p: number | null;
+            /** Beats */
+            beats: boolean;
         };
         /** KnownEtiology */
         KnownEtiology: {
@@ -12397,6 +12556,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EtiologiesResponse"];
+                };
+            };
+        };
+    };
+    brackets_api_brackets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BracketsResponse"];
+                };
+            };
+        };
+    };
+    bracket_items_api_brackets_items_get: {
+        parameters: {
+            query?: {
+                show?: "all" | "strong" | "known";
+                order?: "canon" | "strongest";
+                book?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BracketsPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

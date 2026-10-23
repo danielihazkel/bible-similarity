@@ -40,6 +40,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   divine_doubled: { to: '/divine#pairs', nav: 'divine' },
   etiology_echo: { to: '/etiologies', nav: 'etiologies' },
   etiology_known: { to: '/etiologies?show=known', nav: 'etiologies' },
+  brackets_insertion: { to: '/brackets', nav: 'brackets' },
+  brackets_known: { to: '/brackets?show=known', nav: 'brackets' },
   ciphers_known: { to: '/ciphers?known=1', nav: 'ciphers' },
   ciphers_jeremiah: { to: '/ciphers', nav: 'ciphers' },
   ciphers_elsewhere: { to: '/ciphers', nav: 'ciphers' },

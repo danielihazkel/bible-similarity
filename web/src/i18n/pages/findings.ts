@@ -291,6 +291,16 @@ export const findEn = {
       text: (v: V) =>
         `Where a psalm is found twice (${numEn(n(v, 'pairs'))} pairs), does the copy inside the Elohistic Psalter have \u2068אלהים\u2069 where the other has \u2068יהוה\u2069 more often than the reverse? ${numEn(n(v, 'e_ward'))} against ${numEn(n(v, 'y_ward'))} (sign test, p ${fp(n(v, 'p'))}).`,
     },
+    brackets_insertion: {
+      title: 'A repeated clause brackets a block that interrupts',
+      text: (v: V) =>
+        `When a clause is said again a few verses later (${numEn(n(v, 'brackets'))} repetitions, 3 to 40 verses apart), do the verses between cohere with the text around them less than any stretch as long in the same book? Their bracket score averages ${x3(n(v, 'mean'))}, random brackets ${x3(n(v, 'mean_null'))} (p ${fp(n(v, 'p'))}); ${numEn(n(v, 'leads'))} brackets beyond chance one by one after correction.`,
+    },
+    brackets_known: {
+      title: 'The editors’ brackets the commentaries name',
+      text: (v: V) =>
+        `Of the ${numEn(n(v, 'known'))} named in advance (Genesis 37:36 and 39:1 around Judah and Tamar, Exodus 6:12 and 6:30 around the genealogy, Ezra 4:5 and 4:24 around the Aramaic letters), the alignment finds ${numEn(n(v, 'known_found'))} and ${numEn(n(v, 'known_beat'))} beat their random brackets; all three were asked for.`,
+    },
     etiology_echo: {
       title: 'A name sounds like its own explanation',
       text: (v: V) =>
@@ -588,6 +598,16 @@ export const findHe: typeof findEn = {
       title: 'המזמורים הכפולים: אלהים במקום יהוה',
       text: (v: V) =>
         `כשמזמור מופיע פעמיים (${numHe(n(v, 'pairs'))} זוגות), האם בעותק שבתוך ספר התהלים האלוהיסטי כתוב אלהים במקום שבו בשני כתוב יהוה יותר מאשר ההפך? ${numHe(n(v, 'e_ward'))} מול ${numHe(n(v, 'y_ward'))} (מבחן הסימן, p ${fp(n(v, 'p'))}).`,
+    },
+    brackets_insertion: {
+      title: 'משפט חוזר עוטף קטע שקוטע את הסיפור',
+      text: (v: V) =>
+        `כשמשפט נאמר שוב כמה פסוקים אחר כך (${numHe(n(v, 'brackets'))} חזרות, בהפרש של 3 עד 40 פסוקים), האם הפסוקים שביניהם מתלכדים עם הטקסט שסביבם פחות מכל קטע באותו אורך באותו ספר? ציון המסגרת שלהם בממוצע ${x3(n(v, 'mean'))}, ושל מסגרות אקראיות ${x3(n(v, 'mean_null'))} (p ${fp(n(v, 'p'))}); ${numHe(n(v, 'leads'))} מסגרות מעבר למקרה כל אחת לעצמה אחרי תיקון.`,
+    },
+    brackets_known: {
+      title: 'מסגרות העורכים שהפרשנים מונים',
+      text: (v: V) =>
+        `מתוך ${numHe(n(v, 'known'))} שנקבעו מראש (בראשית לז:לו ו־לט:א סביב יהודה ותמר, שמות ו:יב ו־ו:ל סביב היחס, עזרא ד:ה ו־ד:כד סביב האיגרות הארמיות), היישור מוצא ${numHe(n(v, 'known_found'))}, ו־${numHe(n(v, 'known_beat'))} עולות על המסגרות האקראיות שלהן; נדרשו שלושתן.`,
     },
     etiology_echo: {
       title: 'השם נשמע כמו ההסבר שלו',

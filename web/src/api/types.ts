@@ -906,6 +906,8 @@ export type FindingKey =
   | 'divine_doubled'
   | 'etiology_echo'
   | 'etiology_known'
+  | 'brackets_insertion'
+  | 'brackets_known'
 
 export type Finding = S['Finding']
 
@@ -1245,6 +1247,13 @@ export type DivinePairsResponse = S['DivinePairsResponse']
 export type Naming = S['Naming']
 export type KnownEtiology = S['KnownEtiology']
 export type EtiologiesResponse = S['EtiologiesResponse']
+
+// Resumptive repetition (`/brackets`, DESIGN.md §16.67).
+export type Bracket = S['Bracket']
+export type BracketShow = S['BracketsPage']['show']
+export type BracketOrder = S['BracketsPage']['order']
+export type BracketsPage = S['BracketsPage']
+export type BracketsResponse = S['BracketsResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

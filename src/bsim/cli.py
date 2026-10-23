@@ -205,6 +205,14 @@ def etiologies(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def brackets(config: ConfigOpt = None) -> None:
+    """Resumptive repetition: a clause repeated after a block that interrupts its story."""
+    from bsim.analysis.brackets import run_brackets
+
+    run_brackets(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

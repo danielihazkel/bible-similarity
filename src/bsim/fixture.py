@@ -1767,6 +1767,43 @@ def write_etiologies(cfg):
     (out / "etiologies.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_brackets(cfg):
+    """Resumptive repetition (`bsim brackets`), made up: v4 repeats v0 with three verses
+    between, a known bracket beyond chance; v1 / v4 another, not beyond chance."""
+    out = resolve_path(cfg, "artifacts") / "brackets"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "bracket": [0, 1],
+            "book_id": [0, 0],
+            "a": [0, 1],
+            "b": [4, 4],
+            "n_between": [3, 2],
+            "score": [21.5, 14.2],
+            "n_tokens": [3, 3],
+            "a_words": ["[1, 2]", "[0, 1]"],
+            "b_words": ["[0]", "[0]"],
+            "a_disp": ["[1, 2]", "[0, 1]"],
+            "b_disp": ["[0]", "[0]"],
+            "lex": [0.3, -0.1],
+            "sem": [0.2, -0.05],
+            "insertion": [0.25, -0.075],
+            "p": [0.002, 0.6],
+            "q": [0.004, 0.6],
+            "known": [True, False],
+        }
+    ).to_parquet(out / "brackets.parquet", index=False)
+    known = [{"a": "B0 1:1", "b": "B0 2:2", "found": True, "bracket": 0, "insertion": 0.25,
+              "p": 0.002, "beats": True},
+             {"a": "B1 1:1", "b": "B1 1:1", "found": False, "bracket": None, "insertion": None,
+              "p": None, "beats": False}]  # fmt: skip
+    meta = {"candidates": 4, "repetitions": 3, "brackets": 2, "books": {"0": 2}, "mean": 0.0875,
+            "mean_null": -0.05, "p": 0.01, "draws": 99, "window": 1, "alpha": 0.05, "holds": True,
+            "leads": 1, "known": known, "known_found": 1, "known_beat": 1,
+            "known_holds": False}  # fmt: skip
+    (out / "brackets.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1782,6 +1819,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_gematria_links(cfg)
     write_divine(cfg)
     write_etiologies(cfg)
+    write_brackets(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

@@ -456,6 +456,27 @@ def _etiologies(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
     return build
 
 
+def _brackets(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Resumptive repetition: the blocks inside repeated clauses interrupt their surroundings
+    more than random brackets of the same span; the editors' brackets named in advance are found
+    and each beats its random brackets."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        b = meta.get("brackets") or {}
+        if not b.get("brackets"):
+            return None
+        if key == "brackets_insertion":
+            values = {k: b.get(k) for k in ("brackets", "mean", "mean_null", "p", "leads")}
+            holds = b["mean"] > b["mean_null"] and b["p"] <= alpha
+        else:
+            values = {k: b.get(k) for k in ("known_found", "known_beat")}
+            values["known"] = len(b.get("known") or [])
+            holds = bool(b.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -682,6 +703,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _divine("divine_doubled"),
     _etiologies("etiology_echo"),
     _etiologies("etiology_known"),
+    _brackets("brackets_insertion"),
+    _brackets("brackets_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

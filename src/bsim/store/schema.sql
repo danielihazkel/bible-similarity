@@ -1597,6 +1597,27 @@ CREATE TABLE etiologies (
     known INTEGER NOT NULL          -- 1: one of `etiologies.known`
 );
 
+-- resumptive repetition: a clause repeated after a block (`bsim brackets`, §16.67)
+CREATE TABLE brackets (
+    bracket INTEGER PRIMARY KEY,    -- canon order of the first verse
+    book_id INTEGER NOT NULL,
+    a INTEGER NOT NULL,             -- verse_id of the first
+    b INTEGER NOT NULL,             -- verse_id of the repeat
+    n_between INTEGER NOT NULL,     -- verses between
+    score REAL NOT NULL,            -- Smith-Waterman score of the repeated clause
+    n_tokens INTEGER NOT NULL,
+    a_words TEXT NOT NULL,          -- words.idx of the aligned words, JSON
+    b_words TEXT NOT NULL,
+    a_disp TEXT NOT NULL,           -- their display tokens, JSON
+    b_disp TEXT NOT NULL,
+    lex REAL NOT NULL,              -- bracket score, lexical: cos(before, after) - cos(block, before + after)
+    sem REAL NOT NULL,              -- ... semantic
+    insertion REAL NOT NULL,        -- their mean
+    p REAL NOT NULL,                -- against random brackets of the same span in the book
+    q REAL,                         -- BH over the brackets
+    known INTEGER NOT NULL          -- 1: one of `brackets.known`
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

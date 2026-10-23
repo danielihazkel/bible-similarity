@@ -390,6 +390,12 @@ def stage_etiologies(cfg: dict[str, Any], log: Log) -> None:
     run_etiologies(cfg, log=log)
 
 
+def stage_brackets(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.brackets import run_brackets
+
+    run_brackets(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -474,6 +480,7 @@ STAGES: dict[str, str] = {
     "ciphers": "stage_ciphers",
     "divine": "stage_divine",
     "etiologies": "stage_etiologies",
+    "brackets": "stage_brackets",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -548,6 +555,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "ciphers": (*_CORPUS,),
     "divine": (*_CORPUS,),
     "etiologies": (*_CORPUS,),
+    "brackets": (*_CORPUS, "embed"),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

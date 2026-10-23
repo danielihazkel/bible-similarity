@@ -3304,6 +3304,10 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .dv-verdict.fails { color: var(--muted); }
 /* naming etiologies (§16.66): a naming beyond chance carries a bar at its start */
 .ety-naming.ety-lead { border-inline-start: 3px solid var(--known); padding-inline-start: 0.6rem; }
+/* resumptive repetition (§16.67): a bracket beyond chance carries the same bar; the known, a short list */
+.brk-bracket.brk-strong { border-inline-start: 3px solid var(--known); padding-inline-start: 0.6rem; }
+.brk-known { margin: 0.3rem 0 0; padding-inline-start: 1.1rem; }
+.brk-links { margin: 0.2rem 0 0; }
 .dv-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: 0.5rem 0; }
 .dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .dv-ramp-step { display: inline-flex; align-items: center; gap: 0.25rem; }

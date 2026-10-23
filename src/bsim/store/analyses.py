@@ -739,6 +739,17 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "brackets",
+        "brackets",
+        (Table("brackets", "brackets", fix=as_int("known")),),
+        "brackets.meta.json",
+        keys(
+            "brackets", "candidates", "repetitions", "brackets", "books", "mean", "mean_null", "p",
+            "draws", "window", "alpha", "holds", "leads", "known", "known_found", "known_beat",
+            "known_holds",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

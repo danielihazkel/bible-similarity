@@ -42,6 +42,7 @@ import { gtHe } from './pages/genealogy'
 import { qryHe } from './pages/query'
 import { dvHe } from './pages/divine'
 import { etyHe } from './pages/etiologies'
+import { brkHe } from './pages/brackets'
 import { wbHe } from './pages/workbench'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -124,6 +125,7 @@ export const he: Messages = {
     gematriaLinks: { label: 'שווים במספר, קרובים במשמעות?', hint: 'האם מילים שוות בגימטריה קרובות במשמעותן? המספרים של בראשית א:א' },
     divine: { label: 'שמות האל', hint: 'יהוה ואלהים פרק אחר פרק: היכן התמהיל משתנה, ספר התהלים האלוהיסטי' },
     etiologies: { label: 'מדרשי שמות', hint: 'שמות שהכתוב נותן, והמילה בפסוק שנשמעת כמו השם' },
+    brackets: { label: 'חזרה מסגרת', hint: 'משפט שחוזר אחרי קטע: האם הקטע קוטע את הסיפור?' },
     els: { label: 'אותיות בדילוג שווה', hint: 'שמות בדילוג שווה בתורה, נספרים מול ערבובים: אין צפנים' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
@@ -484,6 +486,7 @@ export const he: Messages = {
   qry: qryHe,
   dv: dvHe,
   ety: etyHe,
+  brk: brkHe,
   wb: wbHe,
   nb: nbHe,
   echo: echoHe,

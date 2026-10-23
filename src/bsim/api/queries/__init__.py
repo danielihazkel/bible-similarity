@@ -10,6 +10,7 @@ from bsim.api.queries.borrowing import (
     borrowing_sequences,
     borrowing_touching,
 )
+from bsim.api.queries.brackets import bracket_books, brackets_page
 from bsim.api.queries.ciphers import (
     cipher_chapters,
     cipher_hits_page,
@@ -320,6 +321,8 @@ __all__ = [
     "book_examples",
     "book_sections",
     "book_spans",
+    "bracket_books",
+    "brackets_page",
     "books",
     "borrowing_between",
     "borrowing_books",
