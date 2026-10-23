@@ -102,8 +102,9 @@ const LAMECH: PersonDetail = {
   parents: [link(6, ref(3, 'קין'), { kind: 'descendant', marker: 'a' }), link(20, ref(4, 'שת'), { kind: 'adopted', drawn: false, status: 'added', source: 'curated' })],
   spouses: [link(7, ref(6, 'עדה', 'spouse'), { role: 'spouse', kind: 'spouse', drawn: false })],
   children: [
-    { other: { ...ref(6, 'עדה', 'spouse'), sex: 'f' }, children: [link(9, ref(8, 'יבל'), { cue: 'sons_of', proofs: [{ verse: verse(20, 'יָבָל הוּא'), tokens: [0], cue: 'sons_of', source: 'auto' }] })] },
-    { other: null, children: [link(13, { ...ref(11, ''), sex: 'f', kind: 'anon' }, { doubt: true })] },
+    { other: { ...ref(6, 'עדה', 'spouse'), sex: 'f' }, adopted: false, children: [link(9, ref(8, 'יבל'), { cue: 'sons_of', proofs: [{ verse: verse(20, 'יָבָל הוּא'), tokens: [0], cue: 'sons_of', source: 'auto' }] })] },
+    { other: null, adopted: false, children: [link(13, { ...ref(11, ''), sex: 'f', kind: 'anon' }, { doubt: true })] },
+    { other: null, adopted: true, children: [link(14, ref(12, 'תובל'), { kind: 'adopted', drawn: false, status: 'added', source: 'curated' })] },
   ],
   conflicts: [],
   identities: [{ identity_id: 2, status: 'possible', person: ref(13, 'בלעם', 'unattached'), n_keys: 2, proofs: [], note_en: null, note_he: null }],
@@ -267,9 +268,10 @@ describe('GenealogyPage', () => {
     expect(await within(panel).findByText('a descendant, not a child')).toBeTruthy()
     expect(within(panel).getByText('an ancestor, not the parent')).toBeTruthy()
     expect(within(panel).getByText('Mother not named')).toBeTruthy()
-    expect(panel.querySelector('.gt-child-group h4')?.textContent).toBe('By עדה')
+    expect([...panel.querySelectorAll('.gt-child-group h4')].map((h) => h.textContent)).toEqual(['By עדה', 'Mother not named', 'By adoption'])
     // an adoptive father, not drawn; perhaps the same person as another
-    expect(within(panel).getByText('by adoption')).toBeTruthy()
+    // the adoptive father's link and the adopted child's carry the tag
+    expect(within(panel).getAllByText('by adoption')).toHaveLength(2)
     expect(panel.querySelector('.gt-identity p')?.textContent).toBe('Perhaps the same person as בלעם')
     expect(container.querySelector('.gt-node.selected')?.textContent).toContain('למך')
     // the line back to Adam lit, through Eve beside him (Cain's mother)
@@ -299,7 +301,8 @@ describe('GenealogyPage', () => {
     const panel = await screen.findByRole('region', { name: 'אדם' })
     expect(await within(panel).findByText('צאצא ולא בן')).toBeTruthy()
     expect(panel.querySelector('.gt-child-group h4')?.textContent).toBe('ילדי עדה')
-    expect(within(panel).getByText('באימוץ')).toBeTruthy()
+    // the two tags and the adopted children's heading
+    expect(within(panel).getAllByText('באימוץ')).toHaveLength(3)
     expect(panel.querySelector('.gt-identity p')?.textContent).toBe('אולי אותו אדם כמו בלעם')
   })
 

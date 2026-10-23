@@ -1,6 +1,7 @@
 """The family tree (TIPNR's family columns, `data/kjv.py`, `bsim genealogy`, DESIGN.md §16.63)."""
 
 import json
+import sqlite3
 
 import pandas as pd
 import pytest
@@ -516,6 +517,24 @@ def test_mother_of_the_other_reading():
         (7, 8, 7, "spouse", 0, "tipnr"),  # Er - Tamar
     ])  # fmt: skip
     assert genealogy_mothers(conn) == {6: 7}
+
+
+
+def test_api_person_adopted(built):
+    """Children by adoption form their own group, after the others, not one by their mother (who
+    is another man's wife: Jacob's Ephraim and Manasseh, Asenath's by Joseph)."""
+    cfg, db = built
+    with sqlite3.connect(db) as conn:  # Adam (1) takes Jabal (8), Adah's by Lamech, as his own
+        conn.execute(
+            "INSERT INTO genealogy_links VALUES (900, 1, 8, 'father', 'adopted', 0, 0, '',"
+            " 'added', 'curated', NULL, NULL, NULL, 0, NULL)"
+        )
+    client = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
+    a = client.get("/api/genealogy/person/1").json()
+    groups = [((g["other"] or {}).get("he"), g["adopted"], [c["person"]["person_id"] for c in
+               g["children"]]) for g in a["children"]]  # fmt: skip
+    assert groups[0][:2] == ("חוה", False) and groups[-1] == (None, True, [8])
+    assert a["children"][-1]["children"][0]["kind"] == "adopted"
 
 
 def test_api_person(client):

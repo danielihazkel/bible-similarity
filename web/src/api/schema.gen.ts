@@ -3434,6 +3434,11 @@ export interface components {
         /** ChildGroup */
         ChildGroup: {
             other: components["schemas"]["PersonRef"] | null;
+            /**
+             * Adopted
+             * @default false
+             */
+            adopted: boolean;
             /** Children */
             children: components["schemas"]["FamilyLink"][];
         };

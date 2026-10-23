@@ -375,14 +375,18 @@ test('places named together lie together, and Dan and Beersheba are a far pair',
 test('the family tree: Jacob’s sons under their four mothers, with verses', async ({ page }) => {
   await page.goto('/genealogy?p=194')
   const panel = page.getByRole('region', { name: 'Person' })
-  await expect(panel.locator('.gt-child-group h4')).toHaveText(['By לאה', 'By בלהה', 'By זלפה', 'By רחל'])
-  await expect(panel.locator('.gt-proof').first()).toContainText('I Chronicles 1:34')
-  await expect(page.locator('.gt-node.selected')).toContainText('ישראל')
+  await expect(panel.locator('.gt-child-group h4')).toHaveText(['By לאה', 'By בלהה', 'By זלפה', 'By רחל', 'By adoption'])
+  // Gen 48:5: Joseph's sons taken as his own, apart from his wives' children
+  await expect(panel.locator('.gt-child-group').last().locator('.gt-link-name, button').filter({ hasText: /אפרים|מנשה/ })).toHaveCount(2)
+  await expect(panel.locator('.gt-proof').first()).toContainText('Genesis 25:26') // chosen in the review (M91)
+  await expect(page.locator('.gt-node.selected')).toContainText('יעקב')
   // by the keyboard: on a phone the bottom sheet covers the tree's lower half
   await page.locator('.gt-node.selected .gt-toggle').press('Enter')
-  // twenty children are wider than the view, and only what is in view is drawn: zoom out
-  for (let i = 0; i < 5; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
-  for (const h of ['by לאה', 'by בלהה', 'by זלפה', 'by רחל']) await expect(page.locator('.gt-header.mother', { hasText: h })).toHaveCount(1)
+  // twenty children are wider than the view, and only what is in view is drawn: zoom out, but
+  // not so far that the cards turn to dots (M92)
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
+  // each mother once: a header over her children, or an avatar beside him
+  for (const h of ['לאה', 'בלהה', 'זלפה', 'רחל']) await expect(page.locator('.gt-header.mother, .gt-spouse').filter({ hasText: h })).toHaveCount(1)
 })
 
 test('letters at equal skips: no more names in the Torah than its controls, and תורה at 50 from Genesis 1:1', async ({ page }) => {

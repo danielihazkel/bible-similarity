@@ -99,7 +99,8 @@ class FamilyLink(ApiModel):
 
 
 class ChildGroup(ApiModel):
-    other: PersonRef | None  # the children's other parent (None: not named)
+    other: PersonRef | None  # the children's other parent (None: not named, or adopted)
+    adopted: bool = False  # children taken as one's own (Gen 48:5), whoever bore them
     children: list[FamilyLink]  # the parent's links to them, in the parent's order
 
 

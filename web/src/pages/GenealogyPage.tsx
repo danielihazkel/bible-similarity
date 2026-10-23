@@ -823,9 +823,11 @@ function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAll, onCl
         <>
           <h3>{t.children}</h3>
           {d.children.map((g) => (
-            <div key={g.other?.person_id ?? 0} className="gt-child-group">
+            <div key={g.adopted ? 'adopted' : (g.other?.person_id ?? 0)} className="gt-child-group">
               <h4 className="small">
-                {g.other ? (
+                {g.adopted ? (
+                  t.childrenAdopted
+                ) : g.other ? (
                   <>
                     {g.other.sex === 'f' ? t.childrenBy : t.childrenOf} {who(g.other.person_id)}
                   </>

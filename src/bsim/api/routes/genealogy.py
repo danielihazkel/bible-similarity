@@ -160,9 +160,15 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
                                source=v["source"]) for v in proofs.get(lk["link_id"], [])],
         )  # fmt: skip
 
+    # by their other parent; children by adoption apart, after them (their mother is another's
+    # wife: Jacob's Ephraim and Manasseh are Asenath's by Joseph)
     groups: dict[int | None, list[FamilyLink]] = {}
+    adopted: list[FamilyLink] = []
     for lk in down:
-        groups.setdefault(other_of.get(lk["child_id"]), []).append(family(lk))
+        if lk["kind"] == "adopted":
+            adopted.append(family(lk))
+        else:
+            groups.setdefault(other_of.get(lk["child_id"]), []).append(family(lk))
     labels = queries.verse_labels(conn, [p["first_vid"]] if p["first_vid"] is not None else [])
     first = labels.get(p["first_vid"], (None, None))
     return {
@@ -173,8 +179,9 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
         "attached": family(attached) if attached else None,
         "spouses": [family(lk) for lk in wed],
         "children": [
-            ChildGroup(other=ref(o) if o is not None else None, children=c)
-            for o, c in groups.items()
+            *(ChildGroup(other=ref(o) if o is not None else None, children=c)
+              for o, c in groups.items()),
+            *([ChildGroup(other=None, adopted=True, children=adopted)] if adopted else []),
         ],  # fmt: skip
         "siblings": [ref(s) for s in sibs],
         "members": [ref(h) for h in hung],
