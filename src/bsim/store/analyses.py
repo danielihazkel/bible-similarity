@@ -728,6 +728,17 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "etiologies",
+        "etiologies",
+        (Table("etiologies", "namings", fix=as_int("known")),),
+        "etiologies.meta.json",
+        keys(
+            "etiologies", "namings", "places", "explained", "mean_own", "mean_null", "p",
+            "shuffles", "alpha", "holds", "leads", "known", "known_found", "known_echo",
+            "known_rank", "known_share", "known_holds",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

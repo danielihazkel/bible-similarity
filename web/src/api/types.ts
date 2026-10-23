@@ -904,6 +904,8 @@ export type FindingKey =
   | 'els_known'
   | 'divine_elohistic'
   | 'divine_doubled'
+  | 'etiology_echo'
+  | 'etiology_known'
 
 export type Finding = S['Finding']
 
@@ -1238,6 +1240,11 @@ export type DivineResponse = S['DivineResponse']
 export type DivinePlace = S['DivinePlace']
 export type DivinePairDetail = S['DivinePairDetail']
 export type DivinePairsResponse = S['DivinePairsResponse']
+
+// Naming etiologies (`/etiologies`, DESIGN.md §16.66).
+export type Naming = S['Naming']
+export type KnownEtiology = S['KnownEtiology']
+export type EtiologiesResponse = S['EtiologiesResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

@@ -2216,6 +2216,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/etiologies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Etiologies
+         * @description Every naming with its verse, its name and the word that echoes it (404: the stage did
+         *     not run).
+         */
+        get: operations["etiologies_api_etiologies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -4760,6 +4781,41 @@ export interface components {
             /** G2 */
             g2: number;
         };
+        /** EtiologiesResponse */
+        EtiologiesResponse: {
+            /** Namings */
+            namings: components["schemas"]["Naming"][];
+            /** Places */
+            places: number;
+            /** Explained */
+            explained: number;
+            /** Mean Own */
+            mean_own: number | null;
+            /** Mean Null */
+            mean_null: number | null;
+            /** P */
+            p: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+            /** Holds */
+            holds: boolean;
+            /** Leads */
+            leads: number;
+            /** Known */
+            known: components["schemas"]["KnownEtiology"][];
+            /** Known Found */
+            known_found: number;
+            /** Known Echo */
+            known_echo: number;
+            /** Known Rank */
+            known_rank: number;
+            /** Known Share */
+            known_share: number;
+            /** Known Holds */
+            known_holds: boolean;
+        };
         /** EvalResponse */
         EvalResponse: {
             /** Splits */
@@ -4854,7 +4910,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known";
             /**
              * Verdict
              * @enum {string}
@@ -5339,6 +5395,23 @@ export interface components {
             books: components["schemas"]["KqBook"][];
             /** Letters */
             letters: components["schemas"]["KqLetter"][];
+        };
+        /** KnownEtiology */
+        KnownEtiology: {
+            /** Ref */
+            ref: string;
+            /** Name */
+            name: string;
+            /** Found */
+            found: boolean;
+            /** Naming */
+            naming: number | null;
+            /** Score */
+            score: number | null;
+            /** Rank P */
+            rank_p: number | null;
+            /** Echoes */
+            echoes: boolean;
         };
         /** KnownLink */
         KnownLink: {
@@ -6187,6 +6260,43 @@ export interface components {
             meta: {
                 [key: string]: unknown;
             };
+        };
+        /** Naming */
+        Naming: {
+            /** Naming */
+            naming: number;
+            /** Unit Id */
+            unit_id: string;
+            verse: components["schemas"]["Verse"];
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "place";
+            /** Name First */
+            name_first: number | null;
+            /** Name Last */
+            name_last: number | null;
+            /** Echo Word */
+            echo_word: string | null;
+            /** Echo Disp */
+            echo_disp: number | null;
+            /** Words */
+            words: number;
+            /** Score */
+            score: number;
+            /** Chance */
+            chance: number | null;
+            /** Rank P */
+            rank_p: number | null;
+            /** P */
+            p: number | null;
+            /** Q */
+            q: number | null;
+            /** Known */
+            known: boolean;
         };
         /** NetworkCommunity */
         NetworkCommunity: {
@@ -12262,6 +12372,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DivinePairsResponse"];
+                };
+            };
+        };
+    };
+    etiologies_api_etiologies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EtiologiesResponse"];
                 };
             };
         };

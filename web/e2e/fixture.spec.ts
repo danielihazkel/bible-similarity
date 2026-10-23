@@ -117,6 +117,8 @@ const PAGES = [
   '/divine',
   '/divine?book=0',
   '/read/c%3A0%3A1?layers=divine',
+  '/etiologies',
+  '/etiologies?show=leads&order=strongest',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -547,6 +549,21 @@ test('names of God: the checks, the strip, a book and the reader layer', async (
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=divine/)
   await expect(page.locator('.reader-text .dv')).toHaveCount(3)
   await expect(page.locator('.reader-text .dv-yhwh')).toHaveCount(1)
+})
+
+test('naming etiologies: the checks, the namings, a filter', async ({ page }) => {
+  await page.goto('/etiologies')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('li.ety-naming')).toHaveCount(2)
+  await expect(page.locator('li.ety-naming').first().locator('.w-focus')).toHaveText('דָּגָן')
+  await expect(page.locator('li.ety-naming').first().locator('.w-shared')).toHaveText('רֵאשִׁית')
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.getByRole('radio', { name: 'Beyond chance (1)' }).click()
+  await expect(page).toHaveURL(/\/etiologies\?show=leads/)
+  await expect(page.locator('li.ety-naming')).toHaveCount(1)
+  await expect(page.locator('li.ety-lead')).toHaveCount(1)
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

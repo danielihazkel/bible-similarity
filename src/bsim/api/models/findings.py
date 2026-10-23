@@ -17,7 +17,7 @@ FindingKey = Literal[
     "gematria_links", "gematria_measures", "gematria_genesis", "place_lists_order",
     "place_lists_districts", "place_arc_order", "place_arc_moves", "place_arc_oracles",
     "place_links_decay", "place_links_known", "els_counts", "els_known", "divine_elohistic",
-    "divine_doubled",
+    "divine_doubled", "etiology_echo", "etiology_known",
 ]  # fmt: skip
 
 

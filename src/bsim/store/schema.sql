@@ -1574,6 +1574,29 @@ CREATE TABLE divine_words (
     PRIMARY KEY (verse_id, idx)
 ) WITHOUT ROWID;
 
+-- names given in the text and the words that explain them (`bsim etiologies`, §16.66)
+CREATE TABLE etiologies (
+    naming INTEGER PRIMARY KEY,     -- canon order
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    name TEXT NOT NULL,             -- consonantal, the words of a multi-word name space-separated
+    kind TEXT NOT NULL,             -- person | place
+    name_idx INTEGER NOT NULL,      -- words.idx of its first word
+    name_len INTEGER NOT NULL,
+    name_first INTEGER,             -- display tokens of the name
+    name_last INTEGER,
+    echo_idx INTEGER,               -- words.idx of the explanation word that echoes it best (NULL: none)
+    echo_word TEXT,
+    echo_disp INTEGER,
+    words INTEGER NOT NULL,         -- explanation words in the verse
+    score REAL NOT NULL,            -- share of a name word's consonants in order in one explanation word
+    chance REAL,                    -- the name's mean echo with the other namings' explanations
+    rank_p REAL,                    -- its own explanation's rank among all of them (ties against it)
+    p REAL,                         -- its echo against random verses without a naming
+    q REAL,                         -- BH over the namings (of p)
+    known INTEGER NOT NULL          -- 1: one of `etiologies.known`
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

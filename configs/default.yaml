@@ -1234,6 +1234,43 @@ divine:                       # `bsim divine`: the divine names across the canon
     - {e: "Psalms 57:8-12", y: "Psalms 108:2-6"}
     - {e: "Psalms 60:7-14", y: "Psalms 108:7-14"}
 
+etiologies:                   # `bsim etiologies`: names given in the text and the words that explain them (DESIGN.md §16.66); everything below fixed before the first run
+  call: "7121"                # קרא: the naming verb (any stem; a לא up to `negation_before` words before it: not a naming)
+  name_noun: "8034"           # שם: "called his name X" (with a 2nd / 3rd person suffix) or "the name of the place / city / son" (construct), without a preposition
+  place_noun: "4725"          # מקום: "called the place X" (with ל)
+  place_words: ["4725", "5892b", "875"]   # מקום, עיר, באר between the verb and the name: a place's name
+  negation: "3808"
+  negation_before: 2
+  trigger_within: 3           # the verb to שם / למקום / a pronoun object, in words
+  name_within: 4              # שם to the name's first word, in words
+  skip_names: ["3068", "3069", "430"]   # a "name" that is God's (קרא בשם יהוה is another formula)
+  skip_pos: [C, R, T, P]      # an explanation word is a content word: not a conjunction, preposition, particle or pronoun, not a proper noun
+  min_letters: 2              # a name's word and an explanation word count with at least this many consonants ...
+  min_shared: 2               # ... and an echo needs this many of the name's consonants in order in one word
+  shuffles: 9999              # explanations shuffled among the names: the null of the mean echo
+  verse_draws: 9999           # random verses without a naming: each naming's own null (added after the first run: a rank among 112 explanations, or a p floored at 0.001, cannot pass BH over 112)
+  seed: 37
+  alpha: 0.05
+  known_rank: 0.1             # a known etiology echoes when its own explanation beats all but this share of the others ...
+  known_share: 0.75           # ... and the check holds when every one is found and this share of them echo
+  known:                      # etiologies the tradition and the commentaries agree on; the formula must find each, with this name
+    - {ref: "Genesis 4:25", name: "שת"}
+    - {ref: "Genesis 5:29", name: "נח"}
+    - {ref: "Genesis 21:31", name: "באר שבע"}
+    - {ref: "Genesis 29:32", name: "ראובן"}
+    - {ref: "Genesis 29:33", name: "שמעון"}
+    - {ref: "Genesis 29:34", name: "לוי"}
+    - {ref: "Genesis 29:35", name: "יהודה"}
+    - {ref: "Genesis 30:6", name: "דן"}
+    - {ref: "Genesis 30:8", name: "נפתלי"}
+    - {ref: "Genesis 30:11", name: "גד"}
+    - {ref: "Genesis 30:13", name: "אשר"}
+    - {ref: "Genesis 30:18", name: "יששכר"}
+    - {ref: "Genesis 30:20", name: "זבלון"}
+    - {ref: "Genesis 30:24", name: "יוסף"}
+    - {ref: "Genesis 35:7", name: "בית אל"}
+    - {ref: "Exodus 2:10", name: "משה"}
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

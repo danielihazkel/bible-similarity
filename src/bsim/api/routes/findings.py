@@ -436,6 +436,26 @@ def _divine(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | N
     return build
 
 
+def _etiologies(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Naming etiologies: a name echoes its own explanation more than the explanations shuffled
+    among the names; the etiologies named in advance are found, and most of them echo."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        e = meta.get("etiologies") or {}
+        if not e.get("namings"):
+            return None
+        if key == "etiology_echo":
+            values = {k: e.get(k) for k in ("namings", "mean_own", "mean_null", "p", "leads")}
+            holds = e["mean_own"] > e["mean_null"] and e["p"] <= alpha
+        else:
+            values = {k: e.get(k) for k in ("known_found", "known_echo", "known_rank")}
+            values["known"] = len(e.get("known") or [])
+            holds = bool(e.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -660,6 +680,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _ciphers("ciphers_albam"),
     _divine("divine_elohistic"),
     _divine("divine_doubled"),
+    _etiologies("etiology_echo"),
+    _etiologies("etiology_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

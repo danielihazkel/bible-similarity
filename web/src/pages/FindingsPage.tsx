@@ -38,6 +38,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   forms_lists: { to: '/forms?view=lists', nav: 'forms' },
   divine_elohistic: { to: '/divine', nav: 'divine' },
   divine_doubled: { to: '/divine#pairs', nav: 'divine' },
+  etiology_echo: { to: '/etiologies', nav: 'etiologies' },
+  etiology_known: { to: '/etiologies?show=known', nav: 'etiologies' },
   ciphers_known: { to: '/ciphers?known=1', nav: 'ciphers' },
   ciphers_jeremiah: { to: '/ciphers', nav: 'ciphers' },
   ciphers_elsewhere: { to: '/ciphers', nav: 'ciphers' },

@@ -384,6 +384,12 @@ def stage_divine(cfg: dict[str, Any], log: Log) -> None:
     run_divine(cfg, log=log)
 
 
+def stage_etiologies(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.etiologies import run_etiologies
+
+    run_etiologies(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -467,6 +473,7 @@ STAGES: dict[str, str] = {
     "gematria-links": "stage_gematria_links",
     "ciphers": "stage_ciphers",
     "divine": "stage_divine",
+    "etiologies": "stage_etiologies",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -540,6 +547,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "gematria-links": (*_CORPUS, "lexicon", "gematria", "roots", *_MODELS),
     "ciphers": (*_CORPUS,),
     "divine": (*_CORPUS,),
+    "etiologies": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

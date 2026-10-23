@@ -19,6 +19,7 @@ import type {
   CheckResponse,
   DivinePairsResponse,
   DivineResponse,
+  EtiologiesResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -675,6 +676,9 @@ export const useDivine = () =>
 
 export const useDivinePairs = () =>
   useQuery({ queryKey: ['divine-pairs'], queryFn: ({ signal }) => getJson<DivinePairsResponse>('/divine/pairs', {}, signal), ...forever })
+
+export const useEtiologies = () =>
+  useQuery({ queryKey: ['etiologies'], queryFn: ({ signal }) => getJson<EtiologiesResponse>('/etiologies', {}, signal), ...forever })
 
 export interface ContrastQuery {
   a: string

@@ -1728,6 +1728,45 @@ def write_divine(cfg):
     (out / "divine.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_etiologies(cfg):
+    """Naming etiologies (`bsim etiologies`), made up: the fixture has no naming formula. דגן
+    (v3) is echoed by ראשית and is a known etiology; חכמה (v5) has no echo."""
+    out = resolve_path(cfg, "artifacts") / "etiologies"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "naming": [0, 1],
+            "verse_id": [3, 5],
+            "book_id": [0, 1],
+            "name": ["דגן", "חכמה"],
+            "kind": ["person", "place"],
+            "name_idx": [1, 1],
+            "name_len": [1, 1],
+            "name_first": pd.array([1, 1], dtype="Int64"),
+            "name_last": pd.array([1, 1], dtype="Int64"),
+            "echo_idx": pd.array([0, None], dtype="Int64"),
+            "echo_word": ["ראשית", None],
+            "echo_disp": pd.array([0, None], dtype="Int64"),
+            "words": [1, 0],
+            "score": [0.5, 0.0],
+            "chance": [0.1, 0.25],
+            "rank_p": [0.5, 1.0],
+            "p": [0.001, 1.0],
+            "q": [0.002, 1.0],
+            "known": [True, False],
+        }
+    ).to_parquet(out / "namings.parquet", index=False)
+    known = [{"ref": "B0 2:1", "name": "דגן", "found": True, "naming": 0, "score": 0.5,
+              "rank_p": 0.5, "echoes": False},
+             {"ref": "B0 1:1", "name": "שת", "found": False, "naming": None, "score": None,
+              "rank_p": None, "echoes": False}]  # fmt: skip
+    meta = {"namings": 2, "places": 1, "explained": 1, "mean_own": 0.25, "mean_null": 0.175,
+            "p": 0.02, "shuffles": 99, "verse_draws": 3, "alpha": 0.05, "holds": True, "leads": 1,
+            "known": known, "known_found": 1, "known_echo": 0, "known_rank": 0.1,
+            "known_share": 0.75, "known_holds": False}  # fmt: skip
+    (out / "etiologies.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1742,6 +1781,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     run_gematria(cfg, log=lambda _: None)
     write_gematria_links(cfg)
     write_divine(cfg)
+    write_etiologies(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

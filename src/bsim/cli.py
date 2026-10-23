@@ -197,6 +197,14 @@ def divine(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def etiologies(config: ConfigOpt = None) -> None:
+    """Names given in the text: does the explanation sound like the name?"""
+    from bsim.analysis.etiologies import run_etiologies
+
+    run_etiologies(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

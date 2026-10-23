@@ -291,6 +291,16 @@ export const findEn = {
       text: (v: V) =>
         `Where a psalm is found twice (${numEn(n(v, 'pairs'))} pairs), does the copy inside the Elohistic Psalter have \u2068אלהים\u2069 where the other has \u2068יהוה\u2069 more often than the reverse? ${numEn(n(v, 'e_ward'))} against ${numEn(n(v, 'y_ward'))} (sign test, p ${fp(n(v, 'p'))}).`,
     },
+    etiology_echo: {
+      title: 'A name sounds like its own explanation',
+      text: (v: V) =>
+        `When the text names someone or somewhere (${numEn(n(v, 'namings'))} namings), does the name echo the words of its own verse more than the explanations given for the other names? On average ${pct(n(v, 'mean_own'))} of a name’s consonants stand in order in one word of its own verse, against ${pct(n(v, 'mean_null'))} with the explanations shuffled (p ${fp(n(v, 'p'))}); ${numEn(n(v, 'leads'))} namings beyond chance one by one.`,
+    },
+    etiology_known: {
+      title: 'The etiologies everyone agrees on',
+      text: (v: V) =>
+        `Of the ${numEn(n(v, 'known'))} named in advance (Jacob’s sons, ⁨נח⁩, ⁨משה⁩, ⁨באר שבע⁩ …), the formula finds ${numEn(n(v, 'known_found'))}, and ${numEn(n(v, 'known_echo'))} echo their name better than all but ${pct(n(v, 'known_rank'))} of the other explanations; three in four were asked for. Short names of common letters (⁨שת⁩, ⁨לוי⁩) are echoed by chance too often to stand out.`,
+    },
     els_known: {
       title: 'The tradition’s sequences in our letters',
       text: (v: V) =>
@@ -578,6 +588,16 @@ export const findHe: typeof findEn = {
       title: 'המזמורים הכפולים: אלהים במקום יהוה',
       text: (v: V) =>
         `כשמזמור מופיע פעמיים (${numHe(n(v, 'pairs'))} זוגות), האם בעותק שבתוך ספר התהלים האלוהיסטי כתוב אלהים במקום שבו בשני כתוב יהוה יותר מאשר ההפך? ${numHe(n(v, 'e_ward'))} מול ${numHe(n(v, 'y_ward'))} (מבחן הסימן, p ${fp(n(v, 'p'))}).`,
+    },
+    etiology_echo: {
+      title: 'השם נשמע כמו ההסבר שלו',
+      text: (v: V) =>
+        `כשהכתוב קורא שם לאדם או למקום (${numHe(n(v, 'namings'))} קריאות שם), האם השם מהדהד את מילות הפסוק שלו יותר מן ההסברים שניתנו לשמות האחרים? בממוצע ${pct(n(v, 'mean_own'))} מעיצורי השם עומדים לפי הסדר במילה אחת של הפסוק שלו, לעומת ${pct(n(v, 'mean_null'))} כשההסברים מעורבבים (p ${fp(n(v, 'p'))}); ${numHe(n(v, 'leads'))} קריאות שם מעבר למקרה כל אחת לעצמה.`,
+    },
+    etiology_known: {
+      title: 'המדרשים שהכול מסכימים עליהם',
+      text: (v: V) =>
+        `מתוך ${numHe(n(v, 'known'))} שנקבעו מראש (בני יעקב, נח, משה, באר שבע …), הנוסחה מוצאת ${numHe(n(v, 'known_found'))}, ו־${numHe(n(v, 'known_echo'))} מהדהדים את שמם טוב יותר מכל ההסברים האחרים מלבד ${pct(n(v, 'known_rank'))}; נדרשו שלושה מכל ארבעה. שמות קצרים של אותיות שכיחות (שת, לוי) מהודהדים במקרה לעתים קרובות מדי כדי לבלוט.`,
     },
     els_known: {
       title: 'רצפי המסורת באותיות שלנו',

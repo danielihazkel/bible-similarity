@@ -124,6 +124,7 @@ from bsim.api.queries.echoes import (
     echoes_page,
 )
 from bsim.api.queries.els import els_tables
+from bsim.api.queries.etiologies import etiologies, etiology_tokens
 from bsim.api.queries.forms import (
     forms_books,
     forms_lists_page,
@@ -364,6 +365,8 @@ __all__ = [
     "entity_links_among",
     "entity_partners",
     "entity_sites",
+    "etiologies",
+    "etiology_tokens",
     "form_counts",
     "forms_books",
     "forms_lists_page",
