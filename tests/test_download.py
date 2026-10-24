@@ -95,7 +95,7 @@ def session(cfg):
         for b in BOOKS
     }
     for key in ("sdbh", "hebrew_lexicon", "bhsa", "etcbc_parallels", "tipnr", "openbible_geo",
-                "natural_earth"):
+                "natural_earth", "hebcal_leyning"):
         s = cfg["sources"][key]
         for file in s["files"]:
             other[s["raw_url"].format(commit=s["commit"], file=quote(file))] = file.encode()
@@ -133,11 +133,14 @@ def test_plan_targets(cfg, session):
         "geo/ne_10m_rivers_lake_centerlines.geojson",
     ]
     assert "Proper%20Nouns/TIPNR%20-%20" in geo[0].url  # the path quoted
+    (leyning,) = [t for t in targets if t.group == "leyning"]
+    assert leyning.rel == "leyning/aliyot.json" and "hebcal-leyning" in leyning.url
 
 
 def test_run_download_is_idempotent(cfg, session, tmp_path):
     m1 = run_download(cfg, session, raw_dir=tmp_path, log=lambda *_: None)
-    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1 + 5
+    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1 + 5 + 1
+    assert (tmp_path / "leyning" / "aliyot.json").exists()  # Hebcal's haftarot (§16.69)
     assert (tmp_path / "oshb" / "Gen.xml").read_bytes() == b"<osis Gen/>"
     assert (tmp_path / "sefaria" / "text" / "Song of Songs.json").exists()
     assert load_manifest(tmp_path)["oshb_commit"] == cfg["sources"]["oshb"]["commit"]

@@ -123,6 +123,8 @@ const PAGES = [
   '/brackets?show=strong&order=strongest&book=0',
   '/retold',
   '/retold?group=carried&order=most&known=1',
+  '/haftarot',
+  '/haftarot?p=p%3ABereshit',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -598,6 +600,20 @@ test('retold speech: the checks, the groups, the passages and their changes, a f
   await page.getByRole('radio', { name: 'Carried out by the narrator' }).click()
   await expect(page).toHaveURL(/\/retold\?group=carried/)
   await expect(page.locator('li.rt-pair')).toHaveCount(1)
+})
+
+test('haftarot: the checks, the systems, a parasha and its chapters', async ({ page }) => {
+  await page.goto('/haftarot')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(2)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('table.hf-modes tbody tr')).toHaveCount(3)
+  await expect(page.locator('table.hf-table tbody tr')).toHaveCount(2)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.locator('table.hf-table tbody tr').first().getByRole('button').click()
+  await expect(page).toHaveURL(/\/haftarot\?p=p%3ABereshit/)
+  await expect(page.locator('.hf-chapters li')).toHaveCount(2)
+  await expect(page.locator('.hf-chapters li.hf-hit')).toHaveCount(1)
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

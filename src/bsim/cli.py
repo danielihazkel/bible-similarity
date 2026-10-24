@@ -32,7 +32,7 @@ def download(
         list[str] | None,
         typer.Option(
             help="Restrict to groups: oshb, text, schemas, links, lexicon, syntax, parallels,"
-            " geo (repeatable)"
+            " geo, leyning (repeatable)"
         ),
     ] = None,
     workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
@@ -218,6 +218,14 @@ def retold(config: ConfigOpt = None) -> None:
     from bsim.analysis.retold import run_retold
 
     run_retold(load_config(config), log=typer.echo)
+
+
+@app.command()
+def haftarot(config: ConfigOpt = None) -> None:
+    """Each parasha's haftarah against the Prophets as the systems rank them."""
+    from bsim.analysis.haftarot import run_haftarot
+
+    run_haftarot(load_config(config), log=typer.echo)
 
 
 @app.command()

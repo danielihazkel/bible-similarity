@@ -1654,6 +1654,33 @@ CREATE TABLE retold_marks (
     op TEXT NOT NULL                -- spelling | form | substitution | omitted | added | moved
 );
 
+-- each parasha's haftarah against the Prophets (`bsim haftarot`, §16.69; Hebcal leyning, BSD 2-Clause)
+CREATE TABLE haftarot (
+    parasha TEXT PRIMARY KEY,       -- unit id
+    num INTEGER NOT NULL,           -- its order
+    name TEXT NOT NULL,             -- Hebcal's name
+    theme TEXT,                     -- admonition | consolation: fixed by the calendar (NULL: chosen for the parasha)
+    haft TEXT NOT NULL,             -- the Ashkenazi haftarah, refs (+ joins parts)
+    seph TEXT,                      -- the Sephardi, where it differs
+    chapters TEXT NOT NULL,         -- JSON: the chapter units holding the haftarah
+    rank_lexical INTEGER NOT NULL,  -- the best rank of its chapters among the Prophets' chapters
+    rank_semantic INTEGER NOT NULL,
+    rank_fused INTEGER NOT NULL,
+    pct REAL NOT NULL,              -- rank percentile in the claim's mode (0: first)
+    known INTEGER NOT NULL          -- 1: one of `haftarot.known`
+);
+
+CREATE TABLE haftarah_lists (
+    parasha TEXT NOT NULL,
+    rank INTEGER NOT NULL,          -- fused
+    chapter TEXT NOT NULL,          -- unit id
+    fused REAL NOT NULL,
+    lex_rank INTEGER NOT NULL,
+    sem_rank INTEGER NOT NULL,
+    haftarah INTEGER NOT NULL,      -- 1: holds the haftarah
+    PRIMARY KEY (parasha, rank)
+) WITHOUT ROWID;
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

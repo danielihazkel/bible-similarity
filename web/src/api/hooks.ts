@@ -28,6 +28,7 @@ import type {
   RetoldOrder,
   RetoldPage,
   RetoldResponse,
+  HaftarotResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -727,6 +728,9 @@ export const useRetoldItems = (q: RetoldQuery) =>
     placeholderData: keepPreviousData,
     ...forever,
   })
+
+export const useHaftarot = () =>
+  useQuery({ queryKey: ['haftarot'], queryFn: ({ signal }) => getJson<HaftarotResponse>('/haftarot', {}, signal), ...forever })
 
 export interface ContrastQuery {
   a: string

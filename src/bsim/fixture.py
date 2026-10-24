@@ -1851,6 +1851,50 @@ def write_retold(cfg):
     (out / "retold.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_haftarot(cfg):
+    """Haftarot (`bsim haftarot`), made up: the fixture has no parasha units, so two parashot by
+    name; the first's haftarah is chapter c:1:1 (ranked first), the second's, fixed by the
+    calendar, c:0:2 (ranked second)."""
+    out = resolve_path(cfg, "artifacts") / "haftarot"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "parasha": ["p:Bereshit", "p:Devarim"],
+            "num": [1, 44],
+            "name": ["Bereshit", "Devarim"],
+            "theme": [None, "admonition"],
+            "haft": ["Isaiah 42:5-43:10", "Isaiah 1:1-1:27"],
+            "seph": ["Isaiah 42:5-42:21", None],
+            "chapters": ['["c:1:1"]', '["c:0:2"]'],
+            "rank_lexical": [1, 3],
+            "rank_semantic": [2, 2],
+            "rank_fused": [1, 2],
+            "pct": [0.0, 0.5],
+            "known": [True, False],
+        }
+    ).to_parquet(out / "pairs.parquet", index=False)
+    pd.DataFrame(
+        {
+            "parasha": ["p:Bereshit", "p:Bereshit", "p:Devarim", "p:Devarim"],
+            "rank": [1, 2, 1, 2],
+            "chapter": ["c:1:1", "c:0:2", "c:1:1", "c:0:2"],
+            "fused": [0.03, 0.02, 0.03, 0.02],
+            "lex_rank": [1, 2, 1, 3],
+            "sem_rank": [2, 1, 1, 2],
+            "haftarah": [True, False, False, True],
+        }
+    ).to_parquet(out / "lists.parquet", index=False)
+    modes = {m: {"mrr": 1.0, "hits": 1, "median": 1.0, "pct": 0.0}
+             for m in ("lexical", "semantic", "fused")}  # fmt: skip
+    meta = {"parashot": 2, "candidates": 3, "thematic": 1, "claim_mode": "fused", "shuffles": 99,
+            "alpha": 0.05, "list": 2, "thematic_pct": 0.0, "shuffled_pct": 0.25, "p": 0.01,
+            "holds": True, "calendar_pct": 0.5, "difference": 0.5, "calendar_p": 0.3,
+            "calendar_holds": False, "modes": modes,
+            "known": [{"parasha": "Bereshit", "rank": 1, "holds": True}], "known_rank": 10,
+            "known_holds": True}  # fmt: skip
+    (out / "haftarot.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1868,6 +1912,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_etiologies(cfg)
     write_brackets(cfg)
     write_retold(cfg)
+    write_haftarot(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

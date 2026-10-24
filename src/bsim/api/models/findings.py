@@ -19,6 +19,7 @@ FindingKey = Literal[
     "place_links_decay", "place_links_known", "els_counts", "els_known", "divine_elohistic",
     "divine_doubled", "etiology_echo", "etiology_known",
     "brackets_insertion", "brackets_known", "retold_claim", "retold_known",
+    "haftarot_claim", "haftarot_calendar", "haftarot_known",
 ]  # fmt: skip
 
 

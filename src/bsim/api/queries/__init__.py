@@ -155,6 +155,7 @@ from bsim.api.queries.genealogy import (
     genealogy_person,
     genealogy_proofs,
 )
+from bsim.api.queries.haftarot import haftarah_lists, haftarot
 from bsim.api.queries.ketiv import (
     kq_books,
     kq_letters,
@@ -383,6 +384,8 @@ __all__ = [
     "gematria_pairs_page",
     "known_texts_in",
     "gloss",
+    "haftarah_lists",
+    "haftarot",
     "hidden_roots_page",
     "kq_books",
     "kq_in",

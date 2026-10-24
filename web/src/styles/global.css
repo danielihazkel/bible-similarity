@@ -3312,6 +3312,16 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .rt-teller { margin: 0.4rem 0 0; color: var(--muted); }
 .rt-groups th[scope='row'] { font-weight: normal; }
 .rt-groups tr.rt-claim th[scope='row'] { font-weight: 600; }
+/* haftarot (§16.69): a haftarah within the first chapters, the parasha shown, its list */
+.hf-table tr.hf-top td:last-child { font-weight: 600; }
+.hf-table tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--known); }
+.hf-table tr.selected button { font-weight: 600; }
+.hf-list { margin-top: 1rem; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.9rem; background: var(--surface); }
+.hf-list h3 { font-size: 1rem; margin: 0 0 0.3rem; }
+.hf-chapters { margin: 0.4rem 0; padding-inline-start: 1.6rem; }
+.hf-chapters li { margin: 0.15rem 0; }
+.hf-chapters a { text-decoration: underline; }
+.hf-chapters li.hf-hit { border-inline-start: 3px solid var(--known); padding-inline-start: 0.4rem; }
 .dv-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: 0.5rem 0; }
 .dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .dv-ramp-step { display: inline-flex; align-items: center; gap: 0.25rem; }

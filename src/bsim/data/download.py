@@ -39,7 +39,7 @@ from bsim.config import resolve_path
 from bsim.data.canon import BOOKS
 
 MANIFEST = "manifest.json"
-GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels", "geo")
+GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels", "geo", "leyning")
 _CHUNK = 1 << 20
 _TIMEOUT = 60
 
@@ -136,6 +136,12 @@ def plan_targets(
         for file in s["files"]:
             url = s["raw_url"].format(commit=s["commit"], file=file)
             targets.append(Target("parallels", f"etcbc_parallels/{file}", url))
+
+    if "leyning" in groups:
+        s = src["hebcal_leyning"]
+        for file in s["files"]:
+            url = s["raw_url"].format(commit=s["commit"], file=file)
+            targets.append(Target("leyning", f"leyning/{Path(file).name}", url))
 
     if "geo" in groups:
         for key in ("tipnr", "openbible_geo", "natural_earth"):
@@ -301,6 +307,7 @@ def run_download(
     manifest["tipnr_commit"] = cfg["sources"]["tipnr"]["commit"]
     manifest["openbible_geo_commit"] = cfg["sources"]["openbible_geo"]["commit"]
     manifest["natural_earth_commit"] = cfg["sources"]["natural_earth"]["commit"]
+    manifest["hebcal_leyning_commit"] = cfg["sources"]["hebcal_leyning"]["commit"]
     manifest["sefaria_text_version"] = cfg["sources"]["sefaria"]["text_version"]
     manifest["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     save_manifest(raw_dir, manifest)

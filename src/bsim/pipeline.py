@@ -402,6 +402,12 @@ def stage_retold(cfg: dict[str, Any], log: Log) -> None:
     run_retold(cfg, log=log)
 
 
+def stage_haftarot(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.haftarot import run_haftarot
+
+    run_haftarot(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -488,6 +494,7 @@ STAGES: dict[str, str] = {
     "etiologies": "stage_etiologies",
     "brackets": "stage_brackets",
     "retold": "stage_retold",
+    "haftarot": "stage_haftarot",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -564,6 +571,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "etiologies": (*_CORPUS,),
     "brackets": (*_CORPUS, "embed"),
     "retold": (*_CORPUS, "syntax", "dialogue"),
+    "haftarot": (*_CORPUS, "embed"),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

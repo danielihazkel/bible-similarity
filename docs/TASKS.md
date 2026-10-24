@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M98: Haftarot (§16.69, D109; proposed D8)
+- [x] Data: Hebcal leyning (`src/aliyot.json`, v10.1.0, BSD 2-Clause) as download group `leyning`: Sefaria's export has no haftarah list (the user chose Hebcal)
+- [x] `bsim haftarot` (`analysis/haftarot.py`, after retold, 6 s): every parasha against the 380 chapters of the Prophets by words, meaning and both; the haftarah's rank; the two claims and the known fixed in config before the first run; each system as retrieval of the haftarah
+- [x] DB `haftarot`, `haftarah_lists` (+ `meta.haftarot`); API `/haftarot`; findings `haftarot_claim`, `haftarot_calendar`, `haftarot_known`
+- [x] Viewer: Patterns → Haftarot (`/haftarot`): the checks, the systems, every parasha with its haftarah and ranks, a parasha's first chapters with the haftarah marked; the credit to Hebcal; English and Hebrew
+- [x] Tests: Hebcal's parts and refs, a haftarah's chapters, ranks and fusion, both shuffles, a small canon end to end, the count check, the endpoint and findings (pytest); the checks, the systems, the table, a parasha's chapters, Hebrew (vitest); e2e on the fixture (axe) and the real build (Tetzaveh first, Vayera's II Kings 4 third)
+
+✔ The haftarot chosen for their parasha stand at percentile 12 % among the Prophets' 380 chapters, against 32 % shuffled (p 0.0001); the ten the calendar fixes stand at 33 %, no better than chance. Noach's Isaiah 54 is 17th (6th by meaning, 98th by words). The parashot have their first gold: words MRR 0.24, meaning 0.20, both 0.20.
+
 ## M97: Retold speech (§16.68, D108; proposed D4)
 - [x] `bsim retold` (`analysis/retold.py`, after brackets, 68 s): every run of one teller cut into pieces, aligned with the earlier text of its book where it shares the most rare words, diffed word by word as `bsim diffs`; grouped by who tells it first and again; the claim (retold against carried, within length strata) and the known retellings fixed in config before the first run; seeds became windows after it
 - [x] DB `retold_pairs`, `retold_marks` (+ `meta.retold`); API `/retold`, `/retold/items` (paged: a group, named in advance; canon, most or least changed); findings `retold_claim`, `retold_known`
@@ -1023,7 +1032,7 @@ Analyses
 - [ ] D5 The text's own chronology: years from Adam by Gen 5 and 11 and the stated spans (Exod 12:40, 1 Kgs 6:1); Kings' synchronisms and reign lengths (numbers as `analysis/forms.py`). Claims: Flood 1656, Abraham 1948, Exodus 2448 (Seder Olam) as known answers; synchronisms agree with reign lengths under a per-kingdom accession rule more than with reign lengths shuffled, conflicts listed; Gen 5's ages end in 0 / 2 / 5 / 7 above chance. A timeline page
 - [ ] D6 Narrative frameworks: Judges' cycle slots (ויעשו הרע / וימכרם / ויזעקו / ויקם מושיע / ותשקט הארץ) and Kings' regnal slots (age, length, mother, verdict, high places, burial). Claims: the cycle grows less complete through Judges (Spearman against shuffled orders; Othniel full, Samson broken); Kings' verdict wording divides by kingdom. After D5
 - [ ] D7 Fixed word pairs and their order: "A ו B" pairs found both ways, how fixed each order is. Claims: the shorter word first above chance (syllables, letters); reversals commoner in the late books (`analysis/dating.py`; כסף וזהב / זהב וכסף). Known: שמים וארץ, איש ואשה
-- [ ] D8 Haftarot against their parashot: the sages' pairing as a gold set for parashot (which have none). Claims: the haftarah ranks above other prophetic chapters in its parasha's fused list; which mode explains the pairing. Known: Noach → Isa 54, Vayera → 2 Kgs 4. Availability and license of Sefaria's haftarah list checked first
+- [x] D8 (done, M98) Haftarot against their parashot: the sages' pairing as a gold set for parashot (which have none). Claims: the haftarah ranks above other prophetic chapters in its parasha's fused list; which mode explains the pairing. Known: Noach → Isa 54, Vayera → 2 Kgs 4. Availability and license of Sefaria's haftarah list checked first
 
 Tools
 - [x] T1 (done, M93) Workbench: two verse sets (books, ranges, a notebook collection, a pattern-search result) contrasted on lemmas, roots, SDBH domains, morphology and clause shapes (G², BH q, example verses); one pattern query tested on a set against shuffles that keep book and chapter (`analysis/stats.py`)

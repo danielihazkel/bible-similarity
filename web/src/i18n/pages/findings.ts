@@ -291,6 +291,21 @@ export const findEn = {
       text: (v: V) =>
         `Where a psalm is found twice (${numEn(n(v, 'pairs'))} pairs), does the copy inside the Elohistic Psalter have \u2068אלהים\u2069 where the other has \u2068יהוה\u2069 more often than the reverse? ${numEn(n(v, 'e_ward'))} against ${numEn(n(v, 'y_ward'))} (sign test, p ${fp(n(v, 'p'))}).`,
     },
+    haftarot_claim: {
+      title: 'The sages’ haftarot are where the systems look',
+      text: (v: V) =>
+        `Ranking all ${numEn(n(v, 'candidates'))} chapters of the Prophets for each parasha, where do the ${numEn(n(v, 'thematic'))} haftarot chosen for their parasha fall? At percentile ${pct(n(v, 'thematic_pct'))} on average (0 the first chapter), against ${pct(n(v, 'shuffled_pct'))} with the haftarot shuffled among the parashot (p ${fp(n(v, 'p'))}). ${numEn(n(v, 'fused_hits'))} lie in the first ${numEn(n(v, 'list'))} chapters; words put the most first (MRR ${x2(n(v, 'lexical_mrr'))}, against ${x2(n(v, 'semantic_mrr'))} for meaning and ${x2(n(v, 'fused_mrr'))} for both).`,
+    },
+    haftarot_calendar: {
+      title: 'The calendar’s haftarot do not follow their parasha',
+      text: (v: V) =>
+        `The ten haftarot fixed by the calendar (three of rebuke before the Ninth of Av, seven of consolation after) are not chosen for their parasha. Do they rank lower than the rest? At percentile ${pct(n(v, 'calendar_pct'))} against ${pct(n(v, 'thematic_pct'))} (p ${fp(n(v, 'calendar_p'))}).`,
+    },
+    haftarot_known: {
+      title: 'Noah’s waters and the Shunammite’s son',
+      text: (v: V) =>
+        `Are the haftarot of Noach (Isaiah 54, \u2068כי מי נח זאת לי\u2069) and Vayera (II Kings 4, a son promised to a woman without one) among the first ${numEn(n(v, 'known_rank'))} of the 380 chapters for their parasha? Ranked ${numEn(n(v, 'rank_0'))} and ${numEn(n(v, 'rank_1'))}.`,
+    },
     retold_claim: {
       title: 'Speech retold by another speaker changes more than speech carried out',
       text: (v: V) =>
@@ -608,6 +623,21 @@ export const findHe: typeof findEn = {
       title: 'המזמורים הכפולים: אלהים במקום יהוה',
       text: (v: V) =>
         `כשמזמור מופיע פעמיים (${numHe(n(v, 'pairs'))} זוגות), האם בעותק שבתוך ספר התהלים האלוהיסטי כתוב אלהים במקום שבו בשני כתוב יהוה יותר מאשר ההפך? ${numHe(n(v, 'e_ward'))} מול ${numHe(n(v, 'y_ward'))} (מבחן הסימן, p ${fp(n(v, 'p'))}).`,
+    },
+    haftarot_claim: {
+      title: 'ההפטרות של חז״ל הן היכן שהמערכות מחפשות',
+      text: (v: V) =>
+        `כשמדרגים לכל פרשה את כל ${numHe(n(v, 'candidates'))} פרקי הנביאים, היכן נופלות ${numHe(n(v, 'thematic'))} ההפטרות שנבחרו בגלל הפרשה? באחוזון ${pct(n(v, 'thematic_pct'))} בממוצע (0 הפרק הראשון), לעומת ${pct(n(v, 'shuffled_pct'))} כשההפטרות מעורבבות בין הפרשות (p ${fp(n(v, 'p'))}). ${numHe(n(v, 'fused_hits'))} מהן בין ${numHe(n(v, 'list'))} הפרקים הראשונים; המילים מעמידות הכי הרבה מהן בראש (MRR ${x2(n(v, 'lexical_mrr'))}, לעומת ${x2(n(v, 'semantic_mrr'))} למשמעות ו־${x2(n(v, 'fused_mrr'))} לשתיהן).`,
+    },
+    haftarot_calendar: {
+      title: 'הפטרות לוח השנה אינן הולכות אחר הפרשה',
+      text: (v: V) =>
+        `עשר ההפטרות שלוח השנה קובע (שלוש דפורענותא לפני תשעה באב, שבע דנחמתא אחריו) לא נבחרו בגלל הפרשה. האם הן מדורגות נמוך יותר משאר ההפטרות? באחוזון ${pct(n(v, 'calendar_pct'))} לעומת ${pct(n(v, 'thematic_pct'))} (p ${fp(n(v, 'calendar_p'))}).`,
+    },
+    haftarot_known: {
+      title: 'מי נח ובן השונמית',
+      text: (v: V) =>
+        `האם ההפטרות של נח (ישעיה נד, כי מי נח זאת לי) ושל וירא (מלכים ב ד, בן שהובטח לאשה שאין לה) נמצאות בין ${numHe(n(v, 'known_rank'))} הפרקים הראשונים מתוך 380 לפרשתן? בדירוג ${numHe(n(v, 'rank_0'))} ו־${numHe(n(v, 'rank_1'))}.`,
     },
     retold_claim: {
       title: 'דיבור שמסופר בפי דובר אחר משתנה יותר מדיבור שמתבצע',

@@ -37,6 +37,7 @@ import { dvEn } from './pages/divine'
 import { etyEn } from './pages/etiologies'
 import { brkEn } from './pages/brackets'
 import { rtEn } from './pages/retold'
+import { hfEn } from './pages/haftarot'
 import { wbEn } from './pages/workbench'
 import { nbEn } from './pages/notebook'
 import { psaEn } from './pages/psalms'
@@ -121,6 +122,7 @@ export const en = {
     etiologies: { label: 'Naming etiologies', hint: 'Names given in the text, and the word of the verse that sounds like the name' },
     brackets: { label: 'Resumptive repetition', hint: 'A clause said again after a block: does the block interrupt its story?' },
     retold: { label: 'Retold speech', hint: 'What changes when something said is told again, by another speaker or as done' },
+    haftarot: { label: 'Haftarot', hint: 'Each parasha’s reading from the Prophets: where the systems rank it among all the chapters' },
     els: { label: 'Letters at equal skips', hint: 'Names at equal skips in the Torah, counted against shuffles: no codes' },
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
@@ -489,6 +491,7 @@ export const en = {
   ety: etyEn,
   brk: brkEn,
   rt: rtEn,
+  hf: hfEn,
   wb: wbEn,
   nb: nbEn,
   echo: echoEn,

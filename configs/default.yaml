@@ -65,6 +65,11 @@ sources:
     commit: ca96624a56bd078437bca8184e78163e5039ad19   # master @ 2022-06-02 (v5.1.2)
     raw_url: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/{commit}/{file}
     files: [geojson/ne_10m_land.geojson, geojson/ne_10m_lakes.geojson, geojson/ne_10m_rivers_lake_centerlines.geojson]
+  hebcal_leyning:             # Hebcal leyning, BSD 2-Clause ("Copyright (c) 2020, hebcal"): each parasha's haftarah, Ashkenazi and Sephardi (DESIGN.md §16.69)
+    repo: hebcal/hebcal-leyning
+    commit: 3d905450c80abc531f0ca903ddd93c7da527693e   # v10.1.0
+    raw_url: https://raw.githubusercontent.com/hebcal/hebcal-leyning/{commit}/{file}
+    files: [src/aliyot.json]
 
 lexicon:                      # `bsim lexicon`: SDBH senses and domains per word, Strong's name types (DESIGN.md §16.22)
   search_window: 2            # an SDBH word reference may sit this many morphemes off OSHB's count
@@ -1306,6 +1311,19 @@ retold:                       # `bsim retold`: what changes when something said 
     - {source: "Genesis 2:16-17", retelling: "Genesis 3:2-3"}     # God's command as the woman tells it to the serpent
     - {source: "Genesis 24:2-8", retelling: "Genesis 24:37-41"}   # Abraham's charge as his servant tells it to Laban
     - {source: "Genesis 41:1-7", retelling: "Genesis 41:17-24"}   # the dreams as Pharaoh tells them to Joseph
+
+haftarot:                     # `bsim haftarot`: the sages' haftarah for each parasha, against the Prophets as the systems rank them (DESIGN.md §16.69); everything below fixed before the first run
+  pairing: haft               # Hebcal's Ashkenazi haftarot (the gold); the Sephardi, where they differ, are shown, not scored
+  min_verses: 3               # a chapter of the Prophets is the haftarah's when it holds this many of its verses
+  modes: [lexical, semantic, fused]   # tfidf (lemmas, idf over the parashot and the chapters), the final semantic system's best-match average, their RRF (fusion.rrf_k, w_lex, w_sem)
+  claim_mode: fused
+  shuffles: 9999
+  seed: 47
+  alpha: 0.05
+  list: 10                    # chapters shown per parasha
+  known_rank: 10              # the known haftarot rank in the top this many of the Prophets' 380 chapters (fused)
+  known: [Noach, Vayera]      # Isaiah 54 (מי נח, 54:9) and II Kings 4 (a son to a woman without one, כעת חיה)
+  # claims fixed in advance (fused): (1) the haftarot not fixed by the calendar rank their parasha's chapters higher than haftarot shuffled among those parashot; (2) they rank higher than the ten the calendar fixes (Hebcal's haftTheme: three of rebuke, seven of consolation), labels shuffled
 
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours

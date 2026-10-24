@@ -764,6 +764,20 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "haftarot",
+        "haftarot",
+        (
+            Table("haftarot", "pairs", fix=as_int("known")),
+            Table("haftarah_lists", "lists", fix=as_int("haftarah")),
+        ),
+        "haftarot.meta.json",
+        keys(
+            "haftarot", "parashot", "candidates", "thematic", "claim_mode", "shuffles", "alpha",
+            "list", "thematic_pct", "shuffled_pct", "p", "holds", "calendar_pct", "difference",
+            "calendar_p", "calendar_holds", "modes", "known", "known_rank", "known_holds",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

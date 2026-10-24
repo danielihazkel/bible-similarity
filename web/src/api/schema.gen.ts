@@ -2317,6 +2317,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/haftarot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Haftarot
+         * @description Every parasha with its haftarah's ranks and its first chapters (404: the stage did not
+         *     run).
+         */
+        get: operations["haftarot_api_haftarot_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -5097,7 +5118,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known";
             /**
              * Verdict
              * @enum {string}
@@ -5487,6 +5508,112 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** Haftarah */
+        Haftarah: {
+            /** Parasha */
+            parasha: string;
+            /** Num */
+            num: number;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Theme */
+            theme: ("admonition" | "consolation") | null;
+            /** Haft */
+            haft: string;
+            /** Seph */
+            seph: string | null;
+            /** Chapters */
+            chapters: string[];
+            /** Chapter Labels */
+            chapter_labels: string[];
+            /** Chapter Labels He */
+            chapter_labels_he: string[];
+            /** Rank Lexical */
+            rank_lexical: number;
+            /** Rank Semantic */
+            rank_semantic: number;
+            /** Rank Fused */
+            rank_fused: number;
+            /** Pct */
+            pct: number;
+            /** Known */
+            known: boolean;
+            /** Top */
+            top: components["schemas"]["HaftarahChapter"][];
+        };
+        /** HaftarahChapter */
+        HaftarahChapter: {
+            /** Rank */
+            rank: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Label En */
+            label_en: string;
+            /** Label He */
+            label_he: string;
+            /** Lex Rank */
+            lex_rank: number;
+            /** Sem Rank */
+            sem_rank: number;
+            /** Haftarah */
+            haftarah: boolean;
+        };
+        /** HaftarahMode */
+        HaftarahMode: {
+            /** Mrr */
+            mrr: number;
+            /** Hits */
+            hits: number;
+            /** Median */
+            median: number;
+            /** Pct */
+            pct: number;
+        };
+        /** HaftarotResponse */
+        HaftarotResponse: {
+            /** Candidates */
+            candidates: number;
+            /** Thematic */
+            thematic: number;
+            /** Claim Mode */
+            claim_mode: string;
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+            /** List */
+            list: number;
+            /** Thematic Pct */
+            thematic_pct: number;
+            /** Shuffled Pct */
+            shuffled_pct: number;
+            /** P */
+            p: number;
+            /** Holds */
+            holds: boolean;
+            /** Calendar Pct */
+            calendar_pct: number;
+            /** Difference */
+            difference: number;
+            /** Calendar P */
+            calendar_p: number;
+            /** Calendar Holds */
+            calendar_holds: boolean;
+            /** Modes */
+            modes: {
+                [key: string]: components["schemas"]["HaftarahMode"];
+            };
+            /** Known */
+            known: components["schemas"]["KnownHaftarah"][];
+            /** Known Rank */
+            known_rank: number;
+            /** Known Holds */
+            known_holds: boolean;
+            /** Parashot */
+            parashot: components["schemas"]["Haftarah"][];
+        };
         /**
          * HiddenRoot
          * @description A chapter Leitwort that only shows when its words are counted as one root.
@@ -5616,6 +5743,15 @@ export interface components {
             rank_p: number | null;
             /** Echoes */
             echoes: boolean;
+        };
+        /** KnownHaftarah */
+        KnownHaftarah: {
+            /** Parasha */
+            parasha: string;
+            /** Rank */
+            rank: number;
+            /** Holds */
+            holds: boolean;
         };
         /** KnownLink */
         KnownLink: {
@@ -12822,6 +12958,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    haftarot_api_haftarot_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HaftarotResponse"];
                 };
             };
         };

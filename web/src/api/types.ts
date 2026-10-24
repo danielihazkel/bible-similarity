@@ -910,6 +910,9 @@ export type FindingKey =
   | 'brackets_known'
   | 'retold_claim'
   | 'retold_known'
+  | 'haftarot_claim'
+  | 'haftarot_calendar'
+  | 'haftarot_known'
 
 export type Finding = S['Finding']
 
@@ -1264,6 +1267,11 @@ export type RetoldSide = S['RetoldSide']
 export type RetoldPair = S['RetoldPair']
 export type RetoldPage = S['RetoldPage']
 export type RetoldResponse = S['RetoldResponse']
+
+// Haftarot (`/haftarot`, DESIGN.md §16.69).
+export type Haftarah = S['Haftarah']
+export type HaftarahChapter = S['HaftarahChapter']
+export type HaftarotResponse = S['HaftarotResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'
