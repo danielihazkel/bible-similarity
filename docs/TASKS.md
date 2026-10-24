@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M101: Fixed word pairs (§16.72, D112; proposed D7)
+- [x] `bsim binomials` (`analysis/binomials.py`, after frameworks, 5 s): every A וB pair of one kind; the binomials, their order, fixedness and words' lengths (letters, syllables); the turns by period; the claims and known answers fixed in config before the first run; one described sensitivity added (without כסף וזהב)
+- [x] DB `binomials`, `binomial_occurrences` (+ `meta.binomials`); API `/binomials`, `/binomials/occurrences`; findings `binomials_short`, `binomials_late`, `binomials_known`
+- [x] Viewer: Patterns → Word pairs (`/binomials`): the checks, every binomial (filter both ways, sort by turns), a binomial's occurrences in each order spread through the canon, the words marked; English and Hebrew
+- [x] Tests: prefixes and lengths, the construct state, finding pairs, the sign test, a small canon end to end, the endpoints and findings (pytest); the checks, the list and its controls, a pair's occurrences, Hebrew (vitest); e2e on the fixture (axe) and the real build (כסף וזהב first, 14 of 25 turned in the late books)
+
+✔ The shorter word first holds in letters (60 of 87, p 0.0003) but not in syllables (39 of 64, p 0.052): not borne out, both were fixed. The rarer order is commoner in the late books (17 % against 7 %, p 0.029), though without כסף וזהב p 0.19. שמים וארץ and איש ואשה are fixed; זהב וכסף rises from 25 % early to 56 % late.
+
 ## M100: Narrative frameworks (§16.71, D111; proposed D6)
 - [x] `bsim frameworks` (`analysis/frameworks.py`, after chronology, 3 s): the judges' cycle slots in six episodes; the kings' verdicts (on `chronology.kings`) and regnal slots; the claims and known answers fixed in config before the first run; one fix after it (the negation rule; both runs documented)
 - [x] DB `frameworks_episodes`, `frameworks_slots`, `frameworks_kings` (+ `meta.frameworks`); API `/frameworks`; findings `frameworks_cycle`, `frameworks_cycle_known`, `frameworks_verdicts`, `frameworks_verdicts_known`
@@ -1047,7 +1055,7 @@ Analyses
 - [x] D4 (done, M97) Retold speech: quotations (`analysis/dialogue.py`) that retell an earlier speech or narration of the same book, aligned and word-diffed (`diffs.py`). Claim: speech retold by another speaker changes more than command → execution of the same length (§16.7). Known: Gen 2:16–17 / 3:2–3, Gen 24:2–8 / 24:37–41, Gen 41:1–7 / 41:17–24
 - [x] D5 (done, M99) The text's own chronology: years from Adam by Gen 5 and 11 and the stated spans (Exod 12:40, 1 Kgs 6:1); Kings' synchronisms and reign lengths (numbers as `analysis/forms.py`). Claims: Flood 1656, Abraham 1948, Exodus 2448 (Seder Olam) as known answers; synchronisms agree with reign lengths under a per-kingdom accession rule more than with reign lengths shuffled, conflicts listed; Gen 5's ages end in 0 / 2 / 5 / 7 above chance. A timeline page
 - [x] D6 (done, M100) Narrative frameworks: Judges' cycle slots (ויעשו הרע / וימכרם / ויזעקו / ויקם מושיע / ותשקט הארץ) and Kings' regnal slots (age, length, mother, verdict, high places, burial). Claims: the cycle grows less complete through Judges (Spearman against shuffled orders; Othniel full, Samson broken); Kings' verdict wording divides by kingdom. After D5
-- [ ] D7 Fixed word pairs and their order: "A ו B" pairs found both ways, how fixed each order is. Claims: the shorter word first above chance (syllables, letters); reversals commoner in the late books (`analysis/dating.py`; כסף וזהב / זהב וכסף). Known: שמים וארץ, איש ואשה
+- [x] D7 (done, M101) Fixed word pairs and their order: "A ו B" pairs found both ways, how fixed each order is. Claims: the shorter word first above chance (syllables, letters); reversals commoner in the late books (`analysis/dating.py`; כסף וזהב / זהב וכסף). Known: שמים וארץ, איש ואשה
 - [x] D8 (done, M98) Haftarot against their parashot: the sages' pairing as a gold set for parashot (which have none). Claims: the haftarah ranks above other prophetic chapters in its parasha's fused list; which mode explains the pairing. Known: Noach → Isa 54, Vayera → 2 Kgs 4. Availability and license of Sefaria's haftarah list checked first
 
 Tools

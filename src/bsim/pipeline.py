@@ -420,6 +420,12 @@ def stage_frameworks(cfg: dict[str, Any], log: Log) -> None:
     run_frameworks(cfg, log=log)
 
 
+def stage_binomials(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.binomials import run_binomials
+
+    run_binomials(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -509,6 +515,7 @@ STAGES: dict[str, str] = {
     "haftarot": "stage_haftarot",
     "chronology": "stage_chronology",
     "frameworks": "stage_frameworks",
+    "binomials": "stage_binomials",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -588,6 +595,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "haftarot": (*_CORPUS, "embed"),
     "chronology": (*_CORPUS,),
     "frameworks": (*_CORPUS,),
+    "binomials": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

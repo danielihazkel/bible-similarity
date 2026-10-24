@@ -4,6 +4,7 @@ Split by feature: one module per route module (`api/routes/`), `common` for what
 share. Every name is re-exported here, so `bsim.api.queries` imports stay as they were.
 """
 
+from bsim.api.queries.binomials import binomial_occurrences, binomials
 from bsim.api.queries.borrowing import (
     borrowing_between,
     borrowing_books,
@@ -330,6 +331,8 @@ __all__ = [
     "acrostics_page",
     "alliteration_page",
     "allusions_page",
+    "binomial_occurrences",
+    "binomials",
     "book_affinity",
     "book_examples",
     "book_sections",

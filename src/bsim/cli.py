@@ -245,6 +245,14 @@ def frameworks(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def binomials(config: ConfigOpt = None) -> None:
+    """Fixed word pairs (A and B) and their order: the shorter first, the late books' turns."""
+    from bsim.analysis.binomials import run_binomials
+
+    run_binomials(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

@@ -129,6 +129,7 @@ INDEXES = (
     "CREATE INDEX retold_pairs_by_group ON retold_pairs (grp, later_first)",
     "CREATE INDEX retold_pairs_by_book ON retold_pairs (book_id, later_first)",
     "CREATE INDEX retold_marks_by_pair ON retold_marks (pair)",
+    "CREATE INDEX binomial_occurrences_by_pair ON binomial_occurrences (pair, own)",
     # /gematria: what has a value, in each system
     *(
         f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"

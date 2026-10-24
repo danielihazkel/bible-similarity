@@ -920,6 +920,9 @@ export type FindingKey =
   | 'frameworks_cycle_known'
   | 'frameworks_verdicts'
   | 'frameworks_verdicts_known'
+  | 'binomials_short'
+  | 'binomials_late'
+  | 'binomials_known'
 
 export type Finding = S['Finding']
 
@@ -1290,6 +1293,12 @@ export type ChronologyResponse = S['ChronologyResponse']
 export type SlotHit = S['SlotHit']
 export type FrameworkKing = S['FrameworkKing']
 export type FrameworksResponse = S['FrameworksResponse']
+
+// Word pairs (`/binomials`, DESIGN.md §16.72).
+export type Binomial = S['Binomial']
+export type BinomialOccurrence = S['BinomialOccurrence']
+export type BinomialsResponse = S['BinomialsResponse']
+export type BinomialOccurrencesResponse = S['BinomialOccurrencesResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

@@ -4,6 +4,7 @@ ids -> 404."""
 from fastapi import APIRouter
 
 from bsim.api.routes import (
+    binomials,
     borrowing,
     brackets,
     chronology,
@@ -84,6 +85,7 @@ for _module in (
     haftarot,
     chronology,
     frameworks,
+    binomials,
     els,
     places,
     genealogy,

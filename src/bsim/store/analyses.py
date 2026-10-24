@@ -811,6 +811,21 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "binomials",
+        "binomials",
+        (
+            Table("binomials", "types"),
+            Table("binomial_occurrences", "occurrences", fix=as_int("own")),
+        ),
+        "binomials.meta.json",
+        keys(
+            "binomials", "pairs", "binomials", "min_pairs", "both_ways", "letters", "syllables",
+            "short_holds", "rate_early", "rate_late", "n_early", "n_late", "difference",
+            "expected", "late_p", "late_holds", "without_known", "known", "known_late",
+            "known_holds", "examples", "shuffles", "alpha",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

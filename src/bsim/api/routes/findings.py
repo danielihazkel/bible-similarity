@@ -593,6 +593,38 @@ def _frameworks(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
     return build
 
 
+def _binomials(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Fixed word pairs: the shorter word first (letters and syllables); the rarer order commoner
+    in the late books; שמים וארץ and איש ואשה fixed, זהב וכסף turning late."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        b = meta.get("binomials") or {}
+        if not b.get("binomials"):
+            return None
+        if key == "binomials_short":
+            le, sy = b.get("letters") or {}, b.get("syllables") or {}
+            values = {"binomials": b.get("binomials"), "letters_k": le.get("shorter_first"),
+                      "letters_m": le.get("differ"), "letters_p": le.get("p"),
+                      "syll_k": sy.get("shorter_first"), "syll_m": sy.get("differ"),
+                      "syll_p": sy.get("p")}  # fmt: skip
+            holds = bool(b.get("short_holds"))
+        elif key == "binomials_late":
+            w = b.get("without_known") or {}
+            values = {k: b.get(k) for k in ("rate_early", "rate_late", "n_early", "n_late")}
+            values |= {"p": b.get("late_p"), "without_p": w.get("p")}
+            holds = bool(b.get("late_holds"))
+        else:
+            known = b.get("known") or []
+            kl = b.get("known_late") or {}
+            values = {f"share_{i}": k["share"] for i, k in enumerate(known)}
+            values |= {f"n_{i}": k["n"] for i, k in enumerate(known)}
+            values |= {"gold_early": kl.get("share_early"), "gold_late": kl.get("share_late")}
+            holds = bool(b.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -833,6 +865,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _frameworks("frameworks_cycle_known"),
     _frameworks("frameworks_verdicts"),
     _frameworks("frameworks_verdicts_known"),
+    _binomials("binomials_short"),
+    _binomials("binomials_late"),
+    _binomials("binomials_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

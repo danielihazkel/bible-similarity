@@ -166,6 +166,7 @@ bible-similarity/
 │   │   ├── corpus_map.py           # `bsim map`: t-SNE layout, clusters, book affinity (§16.4)
 │   │   ├── network.py              # `bsim network`: echo graph, PageRank, communities (§16.17)
 │   │   ├── stylometry.py           # `bsim stylometry`: style profiles, Delta, PCA (§16.6)
+│   │   ├── binomials.py            # `bsim binomials`: fixed word pairs (A וB), their order, length and the late books' turns (§16.72)
 │   │   ├── borrowing.py            # `bsim borrowing`: which side of a parallel looks later (§16.27)
 │   │   ├── voices.py               # `bsim voices`: each speaker's style against the same books (§16.28)
 │   │   ├── segments.py             # `bsim segments`: paragraphs, chapters and seams against cohesion (§16.29)
@@ -217,7 +218,7 @@ bible-similarity/
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)
@@ -315,6 +316,7 @@ bible-similarity/
 | 11e¹⁶'''''' | `bsim haftarot` | units, words, verse embeddings, `leyning/aliyot.json` | `artifacts/haftarot/{pairs,lists}.parquet` + `haftarot.meta.json` (§16.69) |
 | 11e¹⁶''''''' | `bsim chronology` | verses, words | `artifacts/chronology/{events,kings,syncs,numbers}.parquet` + `chronology.meta.json` (§16.70) |
 | 11e¹⁶'''''''' | `bsim frameworks` | verses, words, `chronology.kings` | `artifacts/frameworks/{episodes,slots,kings}.parquet` + `frameworks.meta.json` (§16.71) |
+| 11e¹⁶''''''''' | `bsim binomials` | verses, words, `dating.early` / `late` | `artifacts/binomials/{types,occurrences}.parquet` + `binomials.meta.json` (§16.72) |
 | 11e¹⁷ | `bsim masorah` | verses (display tokens), words, ketiv pairs | `artifacts/masorah/{middles,totals,books}.parquet` + `masorah.meta.json` (§16.55) |
 | 11e¹⁶' | `bsim els` | ketiv pairs, words, verses (the written letters, as `bsim masorah`; GPU) | `artifacts/els/{terms,draws}.parquet` + `els.meta.json` (§16.62) |
 | 11f' | `bsim eval-etcbc` | ETCBC pairs, final verse top-k, sequences, phrases | `artifacts/eval/etcbc.{json,md}` (§16.34) |
@@ -322,7 +324,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, masorah, els, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, masorah, els, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

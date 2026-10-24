@@ -1761,6 +1761,35 @@ CREATE TABLE frameworks_kings (
     burial INTEGER
 );
 
+-- fixed word pairs and their order (`bsim binomials`, §16.72)
+CREATE TABLE binomials (
+    pair TEXT PRIMARY KEY,          -- the two lemmas, sorted, joined by +
+    first TEXT NOT NULL,            -- the lemma first in the pair's own (commoner) order
+    second TEXT NOT NULL,
+    first_form TEXT NOT NULL,       -- consonantal, the commonest form as written (prefixes off)
+    second_form TEXT NOT NULL,
+    kind TEXT NOT NULL,             -- noun | name | adjective
+    n INTEGER NOT NULL,             -- occurrences in either order
+    n_own INTEGER NOT NULL,         -- ... in its own order
+    fixed REAL NOT NULL,            -- n_own / n
+    first_letters REAL NOT NULL,    -- median letters and syllables of each word
+    second_letters REAL NOT NULL,
+    first_syll REAL NOT NULL,
+    second_syll REAL NOT NULL,
+    n_early INTEGER NOT NULL,       -- occurrences in the early books, and of those in the rarer order
+    rev_early INTEGER NOT NULL,
+    n_late INTEGER NOT NULL,        -- ... in the late books
+    rev_late INTEGER NOT NULL
+);
+
+CREATE TABLE binomial_occurrences (
+    pair TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    own INTEGER NOT NULL,           -- 1: in the pair's own order
+    a_tok INTEGER,                  -- the two words' display tokens
+    b_tok INTEGER
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

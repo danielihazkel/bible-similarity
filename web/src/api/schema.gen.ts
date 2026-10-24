@@ -2379,6 +2379,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/binomials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Binomials
+         * @description Every binomial, the commonest first (404: the stage did not run).
+         */
+        get: operations["binomials_api_binomials_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/binomials/occurrences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Binomial Occurrences
+         * @description A binomial's listed occurrences, its own order first (404: no such binomial).
+         */
+        get: operations["binomial_occurrences_api_binomials_occurrences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -3317,6 +3357,108 @@ export interface components {
             box: number[];
             /** Shapes */
             shapes: components["schemas"]["MapShape"][];
+        };
+        /** Binomial */
+        Binomial: {
+            /** Pair */
+            pair: string;
+            /** First */
+            first: string;
+            /** Second */
+            second: string;
+            /** First Form */
+            first_form: string;
+            /** Second Form */
+            second_form: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "noun" | "name" | "adjective";
+            /** N */
+            n: number;
+            /** N Own */
+            n_own: number;
+            /** Fixed */
+            fixed: number;
+            /** First Letters */
+            first_letters: number;
+            /** Second Letters */
+            second_letters: number;
+            /** First Syll */
+            first_syll: number;
+            /** Second Syll */
+            second_syll: number;
+            /** N Early */
+            n_early: number;
+            /** Rev Early */
+            rev_early: number;
+            /** N Late */
+            n_late: number;
+            /** Rev Late */
+            rev_late: number;
+        };
+        /** BinomialOccurrence */
+        BinomialOccurrence: {
+            verse: components["schemas"]["Verse"];
+            /** Own */
+            own: boolean;
+            /** A Tok */
+            a_tok: number | null;
+            /** B Tok */
+            b_tok: number | null;
+        };
+        /** BinomialOccurrencesResponse */
+        BinomialOccurrencesResponse: {
+            /** Pair */
+            pair: string;
+            /** Items */
+            items: components["schemas"]["BinomialOccurrence"][];
+        };
+        /** BinomialsResponse */
+        BinomialsResponse: {
+            /** Pairs */
+            pairs: number;
+            /** Binomials */
+            binomials: number;
+            /** Min Pairs */
+            min_pairs: number;
+            /** Both Ways */
+            both_ways: number;
+            letters: components["schemas"]["ShorterFirst"];
+            syllables: components["schemas"]["ShorterFirst"];
+            /** Short Holds */
+            short_holds: boolean;
+            /** Rate Early */
+            rate_early: number | null;
+            /** Rate Late */
+            rate_late: number | null;
+            /** N Early */
+            n_early: number;
+            /** N Late */
+            n_late: number;
+            /** Difference */
+            difference: number;
+            /** Expected */
+            expected: number;
+            /** Late P */
+            late_p: number;
+            /** Late Holds */
+            late_holds: boolean;
+            without_known: components["schemas"]["RarerWithout"];
+            /** Known */
+            known: components["schemas"]["KnownBinomial"][];
+            known_late: components["schemas"]["KnownLate"];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Examples */
+            examples: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+            /** Items */
+            items: components["schemas"]["Binomial"][];
         };
         /** Book */
         Book: {
@@ -5346,7 +5488,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known";
             /**
              * Verdict
              * @enum {string}
@@ -6028,6 +6170,21 @@ export interface components {
             /** Letters */
             letters: components["schemas"]["KqLetter"][];
         };
+        /** KnownBinomial */
+        KnownBinomial: {
+            /** First */
+            first: string;
+            /** Second */
+            second: string;
+            /** N */
+            n: number;
+            /** Share */
+            share: number | null;
+            /** Fixed */
+            fixed: number;
+            /** Holds */
+            holds: boolean;
+        };
         /** KnownBracket */
         KnownBracket: {
             /** A */
@@ -6090,6 +6247,23 @@ export interface components {
             parasha: string;
             /** Rank */
             rank: number;
+            /** Holds */
+            holds: boolean;
+        };
+        /** KnownLate */
+        KnownLate: {
+            /** First */
+            first: string;
+            /** Second */
+            second: string;
+            /** N Early */
+            n_early: number;
+            /** Share Early */
+            share_early: number | null;
+            /** N Late */
+            n_late: number;
+            /** Share Late */
+            share_late: number | null;
             /** Holds */
             holds: boolean;
         };
@@ -7900,6 +8074,17 @@ export interface components {
             /** Known */
             known: components["schemas"]["PsalmKnownTurn"][];
         };
+        /** RarerWithout */
+        RarerWithout: {
+            /** Difference */
+            difference: number;
+            /** P */
+            p: number;
+            /** Rate Early */
+            rate_early: number | null;
+            /** Rate Late */
+            rate_late: number | null;
+        };
         /**
          * ReaderGap
          * @description The gap before a verse (§16.29): its cohesion drop and how the text divides there.
@@ -8969,6 +9154,17 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["LemmaShift"][];
+        };
+        /** ShorterFirst */
+        ShorterFirst: {
+            /** Differ */
+            differ: number;
+            /** Shorter First */
+            shorter_first: number;
+            /** Share */
+            share: number | null;
+            /** P */
+            p: number;
         };
         /** SignCheck */
         SignCheck: {
@@ -13391,6 +13587,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FrameworksResponse"];
+                };
+            };
+        };
+    };
+    binomials_api_binomials_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinomialsResponse"];
+                };
+            };
+        };
+    };
+    binomial_occurrences_api_binomials_occurrences_get: {
+        parameters: {
+            query: {
+                pair: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinomialOccurrencesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

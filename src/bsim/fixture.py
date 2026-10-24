@@ -2027,6 +2027,55 @@ def write_frameworks(cfg):
     (out / "frameworks.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_binomials(cfg):
+    """The binomials (`bsim binomials`), made up: שמים וארץ always in its order (v0, v1), כסף
+    וזהב turned once (v3 as זהב וכסף)."""
+    out = resolve_path(cfg, "artifacts") / "binomials"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "pair": ["776+8064", "2091+3701"],
+            "first": ["8064", "3701"],
+            "second": ["776", "2091"],
+            "first_form": ["שמים", "כסף"],
+            "second_form": ["ארץ", "זהב"],
+            "kind": ["noun", "noun"],
+            "n": [6, 5],
+            "n_own": [6, 3],
+            "fixed": [1.0, 0.6],
+            "first_letters": [4.0, 3.0],
+            "second_letters": [3.0, 3.0],
+            "first_syll": [3.0, 2.0],
+            "second_syll": [2.0, 2.0],
+            "n_early": [4, 3],
+            "rev_early": [0, 0],
+            "n_late": [0, 2],
+            "rev_late": [0, 2],
+        }
+    ).to_parquet(out / "types.parquet", index=False)
+    pd.DataFrame(
+        {
+            "pair": ["776+8064", "776+8064", "2091+3701", "2091+3701"],
+            "verse_id": [0, 1, 2, 3],
+            "own": [True, True, True, False],
+            "a_tok": pd.array([4, 0, 0, 1], dtype="Int64"),
+            "b_tok": pd.array([5, 1, 1, 2], dtype="Int64"),
+        }
+    ).to_parquet(out / "occurrences.parquet", index=False)
+    meta = {"pairs": 40, "binomials": 2, "min_pairs": 5, "both_ways": 1,
+            "letters": {"differ": 1, "shorter_first": 0, "share": 0.0, "p": 1.0},
+            "syllables": {"differ": 1, "shorter_first": 0, "share": 0.0, "p": 1.0},
+            "short_holds": False, "rate_early": 0.0, "rate_late": 1.0, "n_early": 7,
+            "n_late": 2, "difference": 1.0, "expected": 0.2, "late_p": 0.03, "late_holds": True,
+            "without_known": {"difference": 0.0, "p": 1.0, "rate_early": 0.0, "rate_late": None},
+            "known": [{"first": "8064", "second": "776", "n": 6, "share": 1.0, "fixed": 0.9,
+                       "holds": True}],
+            "known_late": {"first": "2091", "second": "3701", "n_early": 3, "share_early": 0.0,
+                           "n_late": 2, "share_late": 1.0, "holds": True},
+            "known_holds": True, "examples": 12, "shuffles": 99, "alpha": 0.05}  # fmt: skip
+    (out / "binomials.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -2047,6 +2096,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_haftarot(cfg)
     write_chronology(cfg)
     write_frameworks(cfg)
+    write_binomials(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

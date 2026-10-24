@@ -3401,3 +3401,10 @@ line.ch-sync:hover { stroke-width: 3.5; }
 .fw-kings tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
 .fw-kings tr.fw-israel th .muted { font-style: italic; }
 .fw-panel .hit-text { margin: 0.3rem 0; }
+
+/* word pairs (§16.72) */
+.bn-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.bn-table td.bn-turned { font-weight: 600; }
+.bn-table tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
+.bn-panel { margin-bottom: 1rem; }
+.bn-panel h4 { font-size: 0.95rem; margin: 0.6rem 0 0.2rem; }

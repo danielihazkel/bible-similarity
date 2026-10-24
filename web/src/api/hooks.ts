@@ -31,6 +31,8 @@ import type {
   HaftarotResponse,
   ChronologyResponse,
   FrameworksResponse,
+  BinomialsResponse,
+  BinomialOccurrencesResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -739,6 +741,16 @@ export const useChronology = () =>
 
 export const useFrameworks = () =>
   useQuery({ queryKey: ['frameworks'], queryFn: ({ signal }) => getJson<FrameworksResponse>('/frameworks', {}, signal), ...forever })
+
+export const useBinomials = () =>
+  useQuery({ queryKey: ['binomials'], queryFn: ({ signal }) => getJson<BinomialsResponse>('/binomials', {}, signal), ...forever })
+
+export const useBinomialOccurrences = (pair: string) =>
+  useQuery({
+    queryKey: ['binomial-occurrences', pair],
+    queryFn: ({ signal }) => getJson<BinomialOccurrencesResponse>('/binomials/occurrences', { pair }, signal),
+    ...forever,
+  })
 
 export interface ContrastQuery {
   a: string

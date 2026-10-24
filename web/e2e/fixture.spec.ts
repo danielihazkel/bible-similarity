@@ -128,6 +128,8 @@ const PAGES = [
   '/chronology',
   '/frameworks',
   '/frameworks?k=asa',
+  '/binomials',
+  '/binomials?pair=2091%2B3701&show=both&order=turned',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -646,6 +648,20 @@ test('frameworks: the checks, the cycle slot by slot, a king and his verdict', a
   await page.locator('table.fw-kings tbody tr').nth(1).getByRole('button').click()
   await expect(page).toHaveURL(/\/frameworks\?k=asa/)
   await expect(page.locator('.fw-panel .type-tag.fw-good')).toBeVisible()
+})
+
+test('word pairs: the checks, the pairs, a pair turned round', async ({ page }) => {
+  await page.goto('/binomials')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(2)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('table.bn-table tbody tr')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'Found both ways' }).click()
+  await expect(page.locator('table.bn-table tbody tr')).toHaveCount(1)
+  await page.locator('table.bn-table tbody tr').first().getByRole('button').click()
+  await expect(page).toHaveURL(/pair=2091%2B3701/)
+  await expect(page.locator('.bn-panel li.hit')).toHaveCount(2)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

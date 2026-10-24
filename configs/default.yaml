@@ -1576,6 +1576,23 @@ frameworks:                   # `bsim frameworks`: the narrative frameworks of J
   seed: 49
   alpha: 0.05
 
+binomials:                    # `bsim binomials`: fixed word pairs and their order (DESIGN.md §16.72); everything below fixed before the first run
+  kinds:                      # a pair is two words side by side, the second with ו, of one kind (morphology): common nouns, proper names or adjectives; numbers, gentilics and Aramaic left out; the first not in the construct state
+    Nc: noun
+    Np: name
+    Aa: adjective
+  min_pairs: 5                # a binomial: a pair of lemmas found at least this many times, in either order
+  # length: letters (consonants) and syllables (full vowels and shureq; shewa and hataf not counted) of each word as written, its prefixes (and the ו) taken off
+  known:                      # [first, second, fixed]: the order expected, and the share of the pair's occurrences in it at least `fixed`
+    - ["8064", "776", 0.9]    # שמים וארץ
+    - ["376", "802", 0.9]     # איש ואשה
+  known_late: ["2091", "3701"]   # זהב וכסף: commoner in the late books than in the early ones (against כסף וזהב)
+  # claims fixed in advance: (1) in a binomial's commoner order the shorter word comes first more often than the longer (types whose two words differ in length; one-sided sign test), in letters and in syllables both; (2) the rarer order of a binomial is commoner in the late books (dating.late) than in the early ones (dating.early), the period labels permuted within each binomial (`shuffles`)
+  examples: 12                # occurrences listed per binomial and order, evenly spaced through the canon
+  shuffles: 9999
+  seed: 50
+  alpha: 0.05
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

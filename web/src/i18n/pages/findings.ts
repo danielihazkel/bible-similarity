@@ -10,6 +10,7 @@ const n = (v: V, k: string) => v[k] ?? 0
 const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 const x2 = (r: number) => r.toFixed(2)
 const x1 = (r: number) => r.toFixed(1)
+const fp3 = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.1 ? p.toFixed(3) : p.toFixed(2))
 const x3 = (r: number) => r.toFixed(3)
 /** How far the tradition's middle falls from ours: "4,829 letters after ours". */
 const away = (d: number, one: string, many: string, after: string, before: string, num: (n: number) => string) =>
@@ -306,6 +307,21 @@ export const findEn = {
       title: 'Noah’s waters and the Shunammite’s son',
       text: (v: V) =>
         `Are the haftarot of Noach (Isaiah 54, \u2068כי מי נח זאת לי\u2069) and Vayera (II Kings 4, a son promised to a woman without one) among the first ${numEn(n(v, 'known_rank'))} of the 380 chapters for their parasha? Ranked ${numEn(n(v, 'rank_0'))} and ${numEn(n(v, 'rank_1'))}.`,
+    },
+    binomials_short: {
+      title: 'In a fixed pair the shorter word comes first',
+      text: (v: V) =>
+        `Of the ${numEn(n(v, 'binomials'))} pairs of words joined by \u2068ו\u2069 that recur (\u2068שמים וארץ\u2069), those whose words differ in length put the shorter first ${numEn(n(v, 'letters_k'))} times of ${numEn(n(v, 'letters_m'))} in letters (p ${fp3(n(v, 'letters_p'))}) and ${numEn(n(v, 'syll_k'))} of ${numEn(n(v, 'syll_m'))} in syllables (p ${fp3(n(v, 'syll_p'))}); both were to hold.`,
+    },
+    binomials_late: {
+      title: 'The late books turn the pairs round',
+      text: (v: V) =>
+        `A pair stands in its rarer order ${pct(n(v, 'rate_early'))} of the time in the early books and ${pct(n(v, 'rate_late'))} in the late, with the periods shuffled within each pair (p ${fp(n(v, 'p'))}). Without \u2068כסף וזהב\u2069, whose turn is the textbook case, p ${fp(n(v, 'without_p'))}.`,
+    },
+    binomials_known: {
+      title: 'Heaven and earth fixed; gold before silver late',
+      text: (v: V) =>
+        `\u2068שמים וארץ\u2069 stands in that order ${pct(n(v, 'share_0'))} of ${numEn(n(v, 'n_0'))} times, \u2068איש ואשה\u2069 ${pct(n(v, 'share_1'))} of ${numEn(n(v, 'n_1'))}; \u2068זהב וכסף\u2069 rather than \u2068כסף וזהב\u2069 ${pct(n(v, 'gold_early'))} of the time in the early books, ${pct(n(v, 'gold_late'))} in the late.`,
     },
     frameworks_cycle: {
       title: 'The judges’ cycle breaks down through the book',
@@ -673,6 +689,21 @@ export const findHe: typeof findEn = {
       title: 'מי נח ובן השונמית',
       text: (v: V) =>
         `האם ההפטרות של נח (ישעיה נד, כי מי נח זאת לי) ושל וירא (מלכים ב ד, בן שהובטח לאשה שאין לה) נמצאות בין ${numHe(n(v, 'known_rank'))} הפרקים הראשונים מתוך 380 לפרשתן? בדירוג ${numHe(n(v, 'rank_0'))} ו־${numHe(n(v, 'rank_1'))}.`,
+    },
+    binomials_short: {
+      title: 'בצמד קבוע המילה הקצרה באה ראשונה',
+      text: (v: V) =>
+        `מתוך ${numHe(n(v, 'binomials'))} צמדי המילים שמחוברים בו׳ וחוזרים (שמים וארץ), אלה שמילותיהם שונות באורכן מעמידים את הקצרה ראשונה ${numHe(n(v, 'letters_k'))} פעמים מתוך ${numHe(n(v, 'letters_m'))} באותיות (p ${fp3(n(v, 'letters_p'))}) ו־${numHe(n(v, 'syll_k'))} מתוך ${numHe(n(v, 'syll_m'))} בהברות (p ${fp3(n(v, 'syll_p'))}); שתיהן היו צריכות להתקיים.`,
+    },
+    binomials_late: {
+      title: 'הספרים המאוחרים הופכים את הצמדים',
+      text: (v: V) =>
+        `צמד עומד בסדרו הנדיר ב־${pct(n(v, 'rate_early'))} מהפעמים בספרים המוקדמים וב־${pct(n(v, 'rate_late'))} במאוחרים, מול תקופות מעורבבות בתוך כל צמד (p ${fp(n(v, 'p'))}). בלי כסף וזהב, שההיפוך שלו הוא הדוגמה הידועה, p ${fp(n(v, 'without_p'))}.`,
+    },
+    binomials_known: {
+      title: 'שמים וארץ קבוע; זהב לפני כסף במאוחרים',
+      text: (v: V) =>
+        `שמים וארץ בסדר הזה ב־${pct(n(v, 'share_0'))} מתוך ${numHe(n(v, 'n_0'))} פעמים, איש ואשה ב־${pct(n(v, 'share_1'))} מתוך ${numHe(n(v, 'n_1'))}; זהב וכסף במקום כסף וזהב ב־${pct(n(v, 'gold_early'))} מהפעמים בספרים המוקדמים, ב־${pct(n(v, 'gold_late'))} במאוחרים.`,
     },
     frameworks_cycle: {
       title: 'מחזור השופטים מתפרק לאורך הספר',

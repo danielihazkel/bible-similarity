@@ -22,7 +22,7 @@ FindingKey = Literal[
     "haftarot_claim", "haftarot_calendar", "haftarot_known",
     "chronology_known", "chronology_syncs", "chronology_digits",
     "frameworks_cycle", "frameworks_cycle_known", "frameworks_verdicts",
-    "frameworks_verdicts_known",
+    "frameworks_verdicts_known", "binomials_short", "binomials_late", "binomials_known",
 ]  # fmt: skip
 
 
