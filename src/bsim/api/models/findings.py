@@ -21,6 +21,8 @@ FindingKey = Literal[
     "brackets_insertion", "brackets_known", "retold_claim", "retold_known",
     "haftarot_claim", "haftarot_calendar", "haftarot_known",
     "chronology_known", "chronology_syncs", "chronology_digits",
+    "frameworks_cycle", "frameworks_cycle_known", "frameworks_verdicts",
+    "frameworks_verdicts_known",
 ]  # fmt: skip
 
 

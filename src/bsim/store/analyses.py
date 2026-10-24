@@ -795,6 +795,22 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "frameworks",
+        "frameworks",
+        (
+            Table("frameworks_episodes", "episodes"),
+            Table("frameworks_slots", "slots"),
+            Table("frameworks_kings", "kings"),
+        ),
+        "frameworks.meta.json",
+        keys(
+            "frameworks", "episodes", "slots", "open", "rho", "cycle_p", "cycle_holds",
+            "known_cycle", "known_cycle_holds", "kings", "verdicts", "good", "bad", "within",
+            "within_all", "between", "difference", "expected", "verdict_p", "verdict_holds",
+            "known_verdicts", "known_verdicts_holds", "regnal", "by_kingdom", "shuffles", "alpha",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

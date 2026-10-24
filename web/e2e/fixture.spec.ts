@@ -126,6 +126,8 @@ const PAGES = [
   '/haftarot',
   '/haftarot?p=p%3ABereshit',
   '/chronology',
+  '/frameworks',
+  '/frameworks?k=asa',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -632,6 +634,20 @@ test('chronology: the checks, the dates and their conflict, the reigns and the s
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })
 
+test('frameworks: the checks, the cycle slot by slot, a king and his verdict', async ({ page }) => {
+  await page.goto('/frameworks')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(3)
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('table.fw-cycle tbody tr')).toHaveCount(2)
+  await expect(page.locator('table.fw-cycle tbody tr').first().locator('a.fw-hit')).toHaveCount(6)
+  await expect(page.locator('table.fw-kings tbody tr')).toHaveCount(3)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  await page.locator('table.fw-kings tbody tr').nth(1).getByRole('button').click()
+  await expect(page).toHaveURL(/\/frameworks\?k=asa/)
+  await expect(page.locator('.fw-panel .type-tag.fw-good')).toBeVisible()
+})
+
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {
   await page.goto('/workbench')
   await expect(page.getByText(/Build set A to begin/)).toBeVisible()
@@ -806,7 +822,7 @@ test('the Hebrew interface is right to left and loads every page cleanly', async
 
 for (const locale of ['en', 'he'] as const) {
   test(`no serious accessibility violations (${locale})`, async ({ page }) => {
-    test.setTimeout(300_000)
+    test.setTimeout(600_000) // every page of the viewer, each checked by axe
     await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
     for (const path of PAGES) {
       await loads(page, path)

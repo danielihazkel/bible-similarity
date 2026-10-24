@@ -1964,6 +1964,69 @@ def write_chronology(cfg):
     (out / "chronology.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_frameworks(cfg):
+    """The frameworks (`bsim frameworks`), made up: Othniel (v0-v1) with every slot, Samson
+    (v2-v5) with three; three kings, Asa good (v3), Nadab bad (v4), Jeroboam with no verdict."""
+    out = resolve_path(cfg, "artifacts") / "frameworks"
+    out.mkdir(parents=True, exist_ok=True)
+    slots = ["evil", "oppression", "years", "cry", "deliverer", "rest"]
+    pd.DataFrame(
+        {
+            "episode": ["othniel", "samson"],
+            "judge": ["עתניאל", "שמשון"],
+            "seq": [0, 1],
+            "first_vid": [0, 2],
+            "last_vid": [1, 5],
+            "n_slots": [6, 3],
+            "share": [1.0, 0.5],
+        }
+    ).to_parquet(out / "episodes.parquet", index=False)
+    hits = {"othniel": [0, 0, 0, 1, 1, 1], "samson": [2, 2, 2, None, None, None]}
+    pd.DataFrame(
+        {
+            "episode": [e for e in hits for _ in slots],
+            "slot": slots * 2,
+            "verse_id": pd.array([v for vs in hits.values() for v in vs], dtype="Int64"),
+        }
+    ).to_parquet(out / "slots.parquet", index=False)
+    pd.DataFrame(
+        {
+            "king": ["jeroboam", "asa", "nadab"],
+            "name": ["ירבעם", "אסא", "נדב"],
+            "kingdom": ["israel", "judah", "israel"],
+            "seq": [0, 1, 2],
+            "first_vid": [2, 3, 4],
+            "last_vid": [2, 3, 5],
+            "verdict": [None, "good", "bad"],
+            "verdict_vid": pd.array([None, 3, 4], dtype="Int64"),
+            "age": pd.array([None, 3, None], dtype="Int64"),
+            "mother": pd.array([None, 3, None], dtype="Int64"),
+            "high_places": pd.array([None, None, None], dtype="Int64"),
+            "jeroboam": pd.array([None, None, 4], dtype="Int64"),
+            "burial": pd.array([None, 3, 5], dtype="Int64"),
+        }
+    ).to_parquet(out / "kings.parquet", index=False)
+    meta = {"episodes": 2, "slots": slots, "open": 10, "rho": -1.0, "cycle_p": 0.5,
+            "cycle_holds": False,
+            "known_cycle": [{"episode": "othniel", "expect": "complete", "missing": [],
+                             "holds": True},
+                            {"episode": "samson", "expect": "missing cry, rest",
+                             "missing": ["cry", "deliverer", "rest"], "holds": True}],
+            "known_cycle_holds": True, "kings": 3, "verdicts": 2, "good": 1, "bad": 1,
+            "within": {"israel": 0.4, "judah": 0.3}, "within_all": 0.35, "between": 0.25,
+            "difference": 0.1, "expected": 0.0, "verdict_p": 0.01, "verdict_holds": True,
+            "known_verdicts": [{"king": "asa", "expected": "good", "found": "good",
+                                "holds": True}],
+            "known_verdicts_holds": True,
+            "regnal": ["age", "mother", "high_places", "jeroboam", "burial"],
+            "by_kingdom": {"judah": {"verdict_vid": 1.0, "age": 1.0, "mother": 1.0,
+                                     "high_places": 0.0, "jeroboam": 0.0, "burial": 1.0},
+                           "israel": {"verdict_vid": 0.5, "age": 0.0, "mother": 0.0,
+                                      "high_places": 0.0, "jeroboam": 0.5, "burial": 0.5}},
+            "shuffles": 99, "alpha": 0.05}  # fmt: skip
+    (out / "frameworks.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1983,6 +2046,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_retold(cfg)
     write_haftarot(cfg)
     write_chronology(cfg)
+    write_frameworks(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

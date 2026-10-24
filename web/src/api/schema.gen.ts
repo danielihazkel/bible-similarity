@@ -2358,6 +2358,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/frameworks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Frameworks
+         * @description The episodes with their slots and the kings with their verdicts (404: the stage did not
+         *     run).
+         */
+        get: operations["frameworks_api_frameworks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -5173,6 +5194,29 @@ export interface components {
             /** G2 */
             g2: number;
         };
+        /** Episode */
+        Episode: {
+            /** Episode */
+            episode: string;
+            /** Judge */
+            judge: string;
+            /** Seq */
+            seq: number;
+            /** Ref */
+            ref: string;
+            /** Ref He */
+            ref_he: string;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            /** N Slots */
+            n_slots: number;
+            /** Share */
+            share: number;
+            /** Slots */
+            slots: components["schemas"]["SlotHit"][];
+        };
         /** EtiologiesResponse */
         EtiologiesResponse: {
             /** Namings */
@@ -5302,7 +5346,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known";
             /**
              * Verdict
              * @enum {string}
@@ -5471,6 +5515,86 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["FormsSaying"][];
+        };
+        /** FrameworkKing */
+        FrameworkKing: {
+            /** King */
+            king: string;
+            /** Name */
+            name: string;
+            /**
+             * Kingdom
+             * @enum {string}
+             */
+            kingdom: "judah" | "israel";
+            /** Seq */
+            seq: number;
+            /** First Vid */
+            first_vid: number;
+            /** Verdict */
+            verdict: ("good" | "bad") | null;
+            verdict_verse: components["schemas"]["Verse"] | null;
+            /** Slots */
+            slots: components["schemas"]["SlotHit"][];
+        };
+        /** FrameworksResponse */
+        FrameworksResponse: {
+            /** Episodes */
+            episodes: components["schemas"]["Episode"][];
+            /** Slots */
+            slots: string[];
+            /** Open */
+            open: number;
+            /** Rho */
+            rho: number;
+            /** Cycle P */
+            cycle_p: number;
+            /** Cycle Holds */
+            cycle_holds: boolean;
+            /** Known Cycle */
+            known_cycle: components["schemas"]["KnownCycle"][];
+            /** Known Cycle Holds */
+            known_cycle_holds: boolean;
+            /** Kings */
+            kings: components["schemas"]["FrameworkKing"][];
+            /** Verdicts */
+            verdicts: number;
+            /** Good */
+            good: number;
+            /** Bad */
+            bad: number;
+            /** Within */
+            within: {
+                [key: string]: number;
+            };
+            /** Within All */
+            within_all: number | null;
+            /** Between */
+            between: number | null;
+            /** Difference */
+            difference: number;
+            /** Expected */
+            expected: number;
+            /** Verdict P */
+            verdict_p: number;
+            /** Verdict Holds */
+            verdict_holds: boolean;
+            /** Known Verdicts */
+            known_verdicts: components["schemas"]["KnownVerdict"][];
+            /** Known Verdicts Holds */
+            known_verdicts_holds: boolean;
+            /** Regnal */
+            regnal: string[];
+            /** By Kingdom */
+            by_kingdom: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
         };
         /** GematriaForm */
         GematriaForm: {
@@ -5921,6 +6045,17 @@ export interface components {
             /** Beats */
             beats: boolean;
         };
+        /** KnownCycle */
+        KnownCycle: {
+            /** Episode */
+            episode: string;
+            /** Expect */
+            expect: string;
+            /** Missing */
+            missing: string[];
+            /** Holds */
+            holds: boolean;
+        };
         /** KnownDate */
         KnownDate: {
             /** Event */
@@ -5986,6 +6121,17 @@ export interface components {
             group: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
             /** Rate */
             rate: number | null;
+        };
+        /** KnownVerdict */
+        KnownVerdict: {
+            /** King */
+            king: string;
+            /** Expected */
+            expected: string;
+            /** Found */
+            found: string | null;
+            /** Holds */
+            holds: boolean;
         };
         /** KqBook */
         KqBook: {
@@ -8867,6 +9013,17 @@ export interface components {
             spouses: components["schemas"]["TreeSpouse"][];
             /** Cross */
             cross: components["schemas"]["CrossLink"][];
+        };
+        /** SlotHit */
+        SlotHit: {
+            /** Slot */
+            slot: string;
+            /** Verse Id */
+            verse_id: number | null;
+            /** Ref */
+            ref: string | null;
+            /** Ref He */
+            ref_he: string | null;
         };
         /** SourceChapter */
         SourceChapter: {
@@ -13214,6 +13371,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ChronologyResponse"];
+                };
+            };
+        };
+    };
+    frameworks_api_frameworks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrameworksResponse"];
                 };
             };
         };

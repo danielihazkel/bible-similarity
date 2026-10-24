@@ -1536,6 +1536,46 @@ chronology:                   # `bsim chronology`: the text's own dates, from Ad
   alpha: 0.05
   # claims fixed in advance: (1) `known`: the Flood, Abram and the Exodus at Seder Olam's years; (2) the intervals between consecutive synchronisms agree, counted by Judah's reigns and by Israel's, more often than with the reign lengths shuffled within each kingdom (the best pair of rules each time); (3) Gen 5's year numbers end in `digits.ends` more often than the year numbers elsewhere, labels permuted
 
+frameworks:                   # `bsim frameworks`: the narrative frameworks of Judges and Kings (DESIGN.md §16.71); everything below fixed before the first run
+  episodes:                   # [episode, judge (Hebrew), verses]: the major judges' cycles, in book order (Abimelech, Shamgar and the minor judges have no cycle)
+    - [othniel, עתניאל, "Judges 3:7-11"]
+    - [ehud, אהוד, "Judges 3:12-30"]
+    - [deborah, דבורה, "Judges 4:1-5:31"]
+    - [gideon, גדעון, "Judges 6:1-8:35"]
+    - [jephthah, יפתח, "Judges 10:6-12:7"]
+    - [samson, שמשון, "Judges 13:1-16:31"]
+  open: 10                    # the opening slots are looked for in an episode's first this many verses; `rest` in the whole episode
+  slots:                      # [slot, window, alternatives, years]: present when one verse of the window holds every lemma of one alternative (and, with years, a span of years read as chronology.numbers)
+    - [evil, open, [["6213", "7451", "5869"]], false]                              # ויעשו בני ישראל הרע בעיני יהוה
+    - [oppression, open, [["4376", "3027"], ["5414", "3027"], ["2388", "5921"]], false]   # וימכרם ביד / ויתנם ביד / ויחזק ... על ישראל
+    - [years, open, [["5647"], ["3905"], ["4376"], ["5414", "3027"], ["7492"], ["7533"]], true]   # ויעבדו ... N שנה: the years of the oppression
+    - [cry, open, [["2199"], ["6817"]], false]                                     # ויזעקו / ויצעקו אל יהוה
+    - [deliverer, open, [["6965", "3467"]], false]                                 # ויקם יהוה מושיע
+    - [rest, all, [["8252", "776"]], false]                                        # ותשקט הארץ N שנה
+  known_complete: [othniel]   # the paradigm: every slot
+  known_missing: {samson: [cry, rest]}   # the cycle broken: no cry, no rest
+  # claim (1), fixed in advance: an episode's share of the slots falls through the book (Spearman's rho with its order below 0), against every order of the episodes (exact)
+  verdict_within: 6           # a king's verdict: the first verse within this many of his regnal formula (and within his section, up to the next king's formula) holding עשה, עין and רע or ישר
+  verdict_span: 3             # the verdict verse and the next ones: the verdict's wording
+  verdict:
+    verb: "6213"              # עשה
+    eyes: "5869"              # עין
+    bad: "7451"               # הרע
+    good: "3477"              # הישר (with לא right before עשה: bad, Ahaz; after the first run, which took any לא in the verse and so read Jehoshaphat's and Josiah's לא סר as a negation, DESIGN §16.71)
+    negation: "3808"
+  stop: ["853", "834", "5921", "413", "3605", "1931", "1961"]   # את, אשר, על, אל, כל, הוא, היה: left out of the verdicts' wording
+  regnal:                     # [slot, where, lemmas]: what each king's account holds (described): `formula` (his verses and the next), `verdict` (the verdict span), `section` (to the next king's formula); every lemma in one verse; age: an age phrase
+    - [age, formula, []]
+    - [mother, formula, ["8034", "517"]]                  # ושם אמו
+    - [high_places, verdict, ["1116"]]                    # הבמות
+    - [jeroboam, verdict, ["3379", "2403"]]               # חטאות ירבעם
+    - [burial, section, ["6912"]]                         # ויקבר
+  known_verdicts: {asa: good, jehoshaphat: good, hezekiah: good, josiah: good, ahaz: bad, ahab: bad, manasseh: bad}
+  # claim (2), fixed in advance: the verdicts' wording (their lemmas, binary, cosine) is closer within a kingdom than across, against the kingdoms' labels permuted (`shuffles`)
+  shuffles: 9999
+  seed: 49
+  alpha: 0.05
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

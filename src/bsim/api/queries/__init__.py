@@ -138,6 +138,11 @@ from bsim.api.queries.forms import (
     forms_pairs,
     forms_sayings_page,
 )
+from bsim.api.queries.frameworks import (
+    frameworks_episodes,
+    frameworks_kings,
+    frameworks_slots,
+)
 from bsim.api.queries.gematria import (
     gematria_counts,
     gematria_lemma_heads,
@@ -387,6 +392,9 @@ __all__ = [
     "forms_lists_page",
     "forms_pairs",
     "forms_sayings_page",
+    "frameworks_episodes",
+    "frameworks_kings",
+    "frameworks_slots",
     "gaps_in",
     "gematria_counts",
     "gematria_lemma_heads",

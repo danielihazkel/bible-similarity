@@ -916,6 +916,10 @@ export type FindingKey =
   | 'chronology_known'
   | 'chronology_syncs'
   | 'chronology_digits'
+  | 'frameworks_cycle'
+  | 'frameworks_cycle_known'
+  | 'frameworks_verdicts'
+  | 'frameworks_verdicts_known'
 
 export type Finding = S['Finding']
 
@@ -1281,6 +1285,11 @@ export type ChronEvent = S['ChronEvent']
 export type ChronKing = S['ChronKing']
 export type ChronSync = S['ChronSync']
 export type ChronologyResponse = S['ChronologyResponse']
+
+// The narrative frameworks (`/frameworks`, DESIGN.md §16.71).
+export type SlotHit = S['SlotHit']
+export type FrameworkKing = S['FrameworkKing']
+export type FrameworksResponse = S['FrameworksResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

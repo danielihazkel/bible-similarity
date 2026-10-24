@@ -292,30 +292,32 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
       </div>
       <h3>{t.rulesTitle}</h3>
       <p className="muted small">{t.rulesLede}</p>
-      <table className="change-table ch-rules">
-        <thead>
-          <tr>
-            <th scope="col">{t.cols.rules}</th>
-            <th scope="col" className="num">
-              {t.cols.agree}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {RULES.flatMap((j) =>
-            RULES.map((i) => (
-              <tr key={`${j}/${i}`} className={`${j}/${i}` === best ? 'selected' : undefined}>
-                <th scope="row">
-                  {t.rule[j]} / {t.rule[i]}
-                </th>
-                <td className="num">
-                  {d.rule_counts[`${j}/${i}`] ?? 0} / {d.intervals}
-                </td>
-              </tr>
-            )),
-          )}
-        </tbody>
-      </table>
+      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.rulesTitle}>
+        <table className="change-table ch-rules">
+          <thead>
+            <tr>
+              <th scope="col">{t.cols.rules}</th>
+              <th scope="col" className="num">
+                {t.cols.agree}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {RULES.flatMap((j) =>
+              RULES.map((i) => (
+                <tr key={`${j}/${i}`} className={`${j}/${i}` === best ? 'selected' : undefined}>
+                  <th scope="row">
+                    {t.rule[j]} / {t.rule[i]}
+                  </th>
+                  <td className="num">
+                    {d.rule_counts[`${j}/${i}`] ?? 0} / {d.intervals}
+                  </td>
+                </tr>
+              )),
+            )}
+          </tbody>
+        </table>
+      </div>
       <details className="ch-reigns">
         <summary>{t.kingsTable}</summary>
         <div className="table-wrap" tabIndex={0} role="region" aria-label={t.kingsTable}>
@@ -417,32 +419,34 @@ function Digits({ d }: { d: ChronologyResponse }) {
     <section aria-labelledby="ch-digits">
       <h2 id="ch-digits">{t.digitsTitle}</h2>
       <p className="muted small">{t.digitsLede(g.n, d.digits_min)}</p>
-      <table className="change-table ch-digits">
-        <thead>
-          <tr>
-            <th scope="col" className="num">
-              {t.digit}
-            </th>
-            <th scope="col" className="num">
-              {t.gen5}
-            </th>
-            <th scope="col" className="num">
-              {t.rest}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: 10 }, (_, i) => (
-            <tr key={i} className={ends.has(i) ? 'ch-end' : undefined}>
-              <th scope="row" className="num">
-                {i}
+      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.digitsTitle}>
+        <table className="change-table ch-digits">
+          <thead>
+            <tr>
+              <th scope="col" className="num">
+                {t.digit}
               </th>
-              <td className="num">{g.by_digit[String(i)] ?? 0}</td>
-              <td className="num">{Math.round(((g.rest_by_digit[String(i)] ?? 0) / rest) * 100)}%</td>
+              <th scope="col" className="num">
+                {t.gen5}
+              </th>
+              <th scope="col" className="num">
+                {t.rest}
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {Array.from({ length: 10 }, (_, i) => (
+              <tr key={i} className={ends.has(i) ? 'ch-end' : undefined}>
+                <th scope="row" className="num">
+                  {i}
+                </th>
+                <td className="num">{g.by_digit[String(i)] ?? 0}</td>
+                <td className="num">{Math.round(((g.rest_by_digit[String(i)] ?? 0) / rest) * 100)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <p className="small">
         {t.uniform(g.uniform_p)} {g.compare_share !== null && t.compare(g.compare_share, g.compare_n)}
       </p>

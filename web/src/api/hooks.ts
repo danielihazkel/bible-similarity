@@ -30,6 +30,7 @@ import type {
   RetoldResponse,
   HaftarotResponse,
   ChronologyResponse,
+  FrameworksResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -735,6 +736,9 @@ export const useHaftarot = () =>
 
 export const useChronology = () =>
   useQuery({ queryKey: ['chronology'], queryFn: ({ signal }) => getJson<ChronologyResponse>('/chronology', {}, signal), ...forever })
+
+export const useFrameworks = () =>
+  useQuery({ queryKey: ['frameworks'], queryFn: ({ signal }) => getJson<FrameworksResponse>('/frameworks', {}, signal), ...forever })
 
 export interface ContrastQuery {
   a: string

@@ -414,6 +414,12 @@ def stage_chronology(cfg: dict[str, Any], log: Log) -> None:
     run_chronology(cfg, log=log)
 
 
+def stage_frameworks(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.frameworks import run_frameworks
+
+    run_frameworks(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -502,6 +508,7 @@ STAGES: dict[str, str] = {
     "retold": "stage_retold",
     "haftarot": "stage_haftarot",
     "chronology": "stage_chronology",
+    "frameworks": "stage_frameworks",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -580,6 +587,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "retold": (*_CORPUS, "syntax", "dialogue"),
     "haftarot": (*_CORPUS, "embed"),
     "chronology": (*_CORPUS,),
+    "frameworks": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

@@ -560,6 +560,39 @@ def _chronology(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
     return build
 
 
+def _frameworks(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The narrative frameworks: the judges' cycle grows less complete through the book;
+    Othniel's is whole and Samson's broken; the kings' verdicts are worded alike within a kingdom;
+    the known verdicts are read."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        f = meta.get("frameworks") or {}
+        if not f.get("episodes"):
+            return None
+        if key == "frameworks_cycle":
+            values = {"rho": f.get("rho"), "p": f.get("cycle_p"), "episodes": f.get("episodes"),
+                      "slots": len(f.get("slots") or [])}  # fmt: skip
+            holds = bool(f.get("cycle_holds"))
+        elif key == "frameworks_cycle_known":
+            known = f.get("known_cycle") or []
+            values = {f"{k['episode']}_missing": len(k["missing"]) for k in known}
+            values["slots"] = len(f.get("slots") or [])
+            holds = bool(f.get("known_cycle_holds"))
+        elif key == "frameworks_verdicts":
+            values = {k: f.get(k) for k in ("verdicts", "within_all", "between", "difference",
+                                             "expected")}  # fmt: skip
+            values["p"] = f.get("verdict_p")
+            values |= {f"within_{k}": v for k, v in (f.get("within") or {}).items()}
+            holds = bool(f.get("verdict_holds"))
+        else:
+            known = f.get("known_verdicts") or []
+            values = {"known": len(known), "found": sum(bool(k["holds"]) for k in known)}
+            holds = bool(f.get("known_verdicts_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -796,6 +829,10 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _chronology("chronology_known"),
     _chronology("chronology_syncs"),
     _chronology("chronology_digits"),
+    _frameworks("frameworks_cycle"),
+    _frameworks("frameworks_cycle_known"),
+    _frameworks("frameworks_verdicts"),
+    _frameworks("frameworks_verdicts_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

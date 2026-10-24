@@ -1727,6 +1727,40 @@ CREATE TABLE chronology_numbers (
     tok_last INTEGER
 );
 
+-- the narrative frameworks of Judges and Kings (`bsim frameworks`, §16.71)
+CREATE TABLE frameworks_episodes (
+    episode TEXT PRIMARY KEY,
+    judge TEXT NOT NULL,            -- Hebrew
+    seq INTEGER NOT NULL,           -- book order
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_slots INTEGER NOT NULL,       -- the cycle's slots present
+    share REAL NOT NULL
+);
+
+CREATE TABLE frameworks_slots (
+    episode TEXT NOT NULL,
+    slot TEXT NOT NULL,             -- evil | oppression | years | cry | deliverer | rest
+    verse_id INTEGER,               -- where it is found (NULL: absent)
+    PRIMARY KEY (episode, slot)
+) WITHOUT ROWID;
+
+CREATE TABLE frameworks_kings (
+    king TEXT PRIMARY KEY,
+    name TEXT NOT NULL,             -- Hebrew
+    kingdom TEXT NOT NULL,          -- judah | israel
+    seq INTEGER NOT NULL,           -- the order of the formulas in the text
+    first_vid INTEGER NOT NULL,     -- the section: the formula to the next king's
+    last_vid INTEGER NOT NULL,
+    verdict TEXT,                   -- good | bad (NULL: none found)
+    verdict_vid INTEGER,
+    age INTEGER,                    -- the verse of each regnal slot (NULL: absent)
+    mother INTEGER,
+    high_places INTEGER,
+    jeroboam INTEGER,
+    burial INTEGER
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

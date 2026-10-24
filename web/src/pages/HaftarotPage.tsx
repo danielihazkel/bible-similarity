@@ -82,42 +82,44 @@ function Modes({ d }: { d: HaftarotResponse }) {
     <section aria-labelledby="hf-modes">
       <h2 id="hf-modes">{t.modesTitle}</h2>
       <p className="muted small">{t.modesLede(d.thematic)}</p>
-      <table className="change-table hf-modes">
-        <thead>
-          <tr>
-            <th scope="col">{t.cols.system}</th>
-            <th scope="col" className="num">
-              {t.cols.mrr}
-            </th>
-            <th scope="col" className="num">
-              {t.cols.hits(d.list)}
-            </th>
-            <th scope="col" className="num">
-              {t.cols.median}
-            </th>
-            <th scope="col" className="num">
-              {t.cols.pct}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {MODES.map((mode) => {
-            const e = d.modes[mode]
-            if (!e) return null
-            return (
-              <tr key={mode}>
-                <th scope="row">{t.modes[mode]}</th>
-                <td className="num">{e.mrr.toFixed(3)}</td>
-                <td className="num">
-                  {e.hits} / {d.thematic}
-                </td>
-                <td className="num">{e.median}</td>
-                <td className="num">{Math.round(e.pct * 100)}%</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.modesTitle}>
+        <table className="change-table hf-modes">
+          <thead>
+            <tr>
+              <th scope="col">{t.cols.system}</th>
+              <th scope="col" className="num">
+                {t.cols.mrr}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.hits(d.list)}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.median}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.pct}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {MODES.map((mode) => {
+              const e = d.modes[mode]
+              if (!e) return null
+              return (
+                <tr key={mode}>
+                  <th scope="row">{t.modes[mode]}</th>
+                  <td className="num">{e.mrr.toFixed(3)}</td>
+                  <td className="num">
+                    {e.hits} / {d.thematic}
+                  </td>
+                  <td className="num">{e.median}</td>
+                  <td className="num">{Math.round(e.pct * 100)}%</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
   )
 }

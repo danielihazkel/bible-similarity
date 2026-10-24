@@ -307,6 +307,25 @@ export const findEn = {
       text: (v: V) =>
         `Are the haftarot of Noach (Isaiah 54, \u2068כי מי נח זאת לי\u2069) and Vayera (II Kings 4, a son promised to a woman without one) among the first ${numEn(n(v, 'known_rank'))} of the 380 chapters for their parasha? Ranked ${numEn(n(v, 'rank_0'))} and ${numEn(n(v, 'rank_1'))}.`,
     },
+    frameworks_cycle: {
+      title: 'The judges’ cycle breaks down through the book',
+      text: (v: V) =>
+        `Each major judge’s story is searched for the cycle’s ${numEn(n(v, 'slots'))} slots: did evil, given into a hand, years of servitude, cried out, a deliverer raised, the land at rest. Does the share fall through the book? Spearman’s rho with the order of the ${numEn(n(v, 'episodes'))} episodes ${x2(n(v, 'rho'))}, against every order (p ${fp(n(v, 'p'))}).`,
+    },
+    frameworks_cycle_known: {
+      title: 'Othniel’s cycle whole, Samson’s broken',
+      text: (v: V) =>
+        `Othniel’s story (Judges 3:7–11) is the paradigm: it lacks ${numEn(n(v, 'othniel_missing'))} of the ${numEn(n(v, 'slots'))} slots. Samson’s lacks the cry and the rest (${numEn(n(v, 'samson_missing'))} missing in all).`,
+    },
+    frameworks_verdicts: {
+      title: 'Each kingdom’s verdicts have their own wording',
+      text: (v: V) =>
+        `The ${numEn(n(v, 'verdicts'))} verdicts of Kings (he did evil, or right, in the eyes of the LORD) with the verses after them, compared word by word: alike ${x2(n(v, 'within_all'))} within a kingdom (Judah ${x2(n(v, 'within_judah'))}, Israel ${x2(n(v, 'within_israel'))}), ${x2(n(v, 'between'))} across, with the kingdoms shuffled (p ${fp(n(v, 'p'))}).`,
+    },
+    frameworks_verdicts_known: {
+      title: 'The known verdicts are read right',
+      text: (v: V) => `Kings whose verdict is known in advance (Asa, Jehoshaphat, Hezekiah and Josiah right; Ahaz, Ahab and Manasseh evil): ${numEn(n(v, 'found'))} of ${numEn(n(v, 'known'))} read so.`,
+    },
     chronology_known: {
       title: 'The text’s numbers give the tradition’s years',
       text: (v: V) =>
@@ -654,6 +673,25 @@ export const findHe: typeof findEn = {
       title: 'מי נח ובן השונמית',
       text: (v: V) =>
         `האם ההפטרות של נח (ישעיה נד, כי מי נח זאת לי) ושל וירא (מלכים ב ד, בן שהובטח לאשה שאין לה) נמצאות בין ${numHe(n(v, 'known_rank'))} הפרקים הראשונים מתוך 380 לפרשתן? בדירוג ${numHe(n(v, 'rank_0'))} ו־${numHe(n(v, 'rank_1'))}.`,
+    },
+    frameworks_cycle: {
+      title: 'מחזור השופטים מתפרק לאורך הספר',
+      text: (v: V) =>
+        `בסיפור של כל שופט גדול מחפשים את ${numHe(n(v, 'slots'))} רכיבי המחזור: עשו הרע, נתנם ביד, שנות שעבוד, זעקו, הקים מושיע, שקטה הארץ. האם החלק יורד לאורך הספר? מקדם ספירמן עם סדר ${numHe(n(v, 'episodes'))} הסיפורים ${x2(n(v, 'rho'))}, מול כל הסדרים (p ${fp(n(v, 'p'))}).`,
+    },
+    frameworks_cycle_known: {
+      title: 'המחזור של עתניאל שלם, של שמשון שבור',
+      text: (v: V) =>
+        `הסיפור של עתניאל (שופטים ג:ז–יא) הוא הדגם: חסרים בו ${numHe(n(v, 'othniel_missing'))} מתוך ${numHe(n(v, 'slots'))} הרכיבים. בשל שמשון אין זעקה ואין שקט (${numHe(n(v, 'samson_missing'))} חסרים בסך הכול).`,
+    },
+    frameworks_verdicts: {
+      title: 'להערכות של כל ממלכה ניסוח משלה',
+      text: (v: V) =>
+        `${numHe(n(v, 'verdicts'))} ההערכות של ספר מלכים (עשה הרע, או הישר, בעיני יהוה) עם הפסוקים שאחריהן, מושוות מילה במילה: דמיון ${x2(n(v, 'within_all'))} בתוך ממלכה (יהודה ${x2(n(v, 'within_judah'))}, ישראל ${x2(n(v, 'within_israel'))}), ${x2(n(v, 'between'))} בין ממלכות, מול ממלכות מעורבבות (p ${fp(n(v, 'p'))}).`,
+    },
+    frameworks_verdicts_known: {
+      title: 'ההערכות הידועות נקראות נכון',
+      text: (v: V) => `מלכים שהערכתם ידועה מראש (אסא, יהושפט, חזקיהו ויאשיהו הישר; אחז, אחאב ומנשה הרע): ${numHe(n(v, 'found'))} מתוך ${numHe(n(v, 'known'))} נקראים כך.`,
     },
     chronology_known: {
       title: 'המספרים של הכתוב נותנים את שנות המסורת',

@@ -237,6 +237,14 @@ def chronology(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def frameworks(config: ConfigOpt = None) -> None:
+    """The narrative frameworks: the judges' cycle and the kings' regnal accounts."""
+    from bsim.analysis.frameworks import run_frameworks
+
+    run_frameworks(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places
