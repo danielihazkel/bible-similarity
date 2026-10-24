@@ -229,6 +229,14 @@ def haftarot(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def chronology(config: ConfigOpt = None) -> None:
+    """The text's own dates: years from Adam, the kings' synchronisms, Gen 5's numbers."""
+    from bsim.analysis.chronology import run_chronology
+
+    run_chronology(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

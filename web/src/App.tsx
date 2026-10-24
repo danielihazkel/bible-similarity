@@ -14,6 +14,7 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage').then((m) => ({ defaul
 const RefrainsPage = lazy(() => import('./pages/RefrainsPage').then((m) => ({ default: m.RefrainsPage })))
 const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ default: m.NotebookPage })))
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
+const ChronologyPage = lazy(() => import('./pages/ChronologyPage').then((m) => ({ default: m.ChronologyPage })))
 const HaftarotPage = lazy(() => import('./pages/HaftarotPage').then((m) => ({ default: m.HaftarotPage })))
 const RetoldPage = lazy(() => import('./pages/RetoldPage').then((m) => ({ default: m.RetoldPage })))
 const BracketsPage = lazy(() => import('./pages/BracketsPage').then((m) => ({ default: m.BracketsPage })))
@@ -120,6 +121,7 @@ export function App() {
           <Route path="brackets" element={<BracketsPage />} />
           <Route path="retold" element={<RetoldPage />} />
           <Route path="haftarot" element={<HaftarotPage />} />
+          <Route path="chronology" element={<ChronologyPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />

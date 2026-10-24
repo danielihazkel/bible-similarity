@@ -913,6 +913,9 @@ export type FindingKey =
   | 'haftarot_claim'
   | 'haftarot_calendar'
   | 'haftarot_known'
+  | 'chronology_known'
+  | 'chronology_syncs'
+  | 'chronology_digits'
 
 export type Finding = S['Finding']
 
@@ -1272,6 +1275,12 @@ export type RetoldResponse = S['RetoldResponse']
 export type Haftarah = S['Haftarah']
 export type HaftarahChapter = S['HaftarahChapter']
 export type HaftarotResponse = S['HaftarotResponse']
+
+// The text's own chronology (`/chronology`, DESIGN.md §16.70).
+export type ChronEvent = S['ChronEvent']
+export type ChronKing = S['ChronKing']
+export type ChronSync = S['ChronSync']
+export type ChronologyResponse = S['ChronologyResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

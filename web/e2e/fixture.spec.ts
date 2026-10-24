@@ -125,6 +125,7 @@ const PAGES = [
   '/retold?group=carried&order=most&known=1',
   '/haftarot',
   '/haftarot?p=p%3ABereshit',
+  '/chronology',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -614,6 +615,21 @@ test('haftarot: the checks, the systems, a parasha and its chapters', async ({ p
   await expect(page).toHaveURL(/\/haftarot\?p=p%3ABereshit/)
   await expect(page.locator('.hf-chapters li')).toHaveCount(2)
   await expect(page.locator('.hf-chapters li.hf-hit')).toHaveCount(1)
+})
+
+test('chronology: the checks, the dates and their conflict, the reigns and the synchronisms', async ({ page }) => {
+  await page.goto('/chronology')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(3)
+  await expect(page.locator('table.ch-events tbody tr')).toHaveCount(5)
+  await expect(page.locator('table.ch-events tbody tr.ch-conflict')).toHaveCount(1)
+  await expect(page.locator('.ch-life')).toHaveCount(2)
+  await expect(page.locator('.ch-reign')).toHaveCount(4)
+  await expect(page.locator('svg.ch-chart line.ch-sync')).toHaveCount(2)
+  await expect(page.locator('table.ch-syncs tbody tr').last()).toContainText('agrees')
+  await page.locator('.ch-reigns summary').click()
+  await expect(page.locator('.ch-reigns tbody tr')).toHaveCount(4)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })
 
 test('workbench: a set built from the form, its contrast, a broken pattern item, and a check', async ({ page }) => {

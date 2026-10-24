@@ -63,6 +63,8 @@
   --dv-yhwh: #2a78d6; /* the divine names (§16.65): a diverging pair checked for colour blindness */
   --dv-elohim: #c96a1b;
   --dv-mid: #e6e3dc;
+  --ch-judah: #2a78d6; /* the two kingdoms (§16.70): the divine names' pair, checked for colour blindness */
+  --ch-israel: #c96a1b;
 
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-he: 'Ezra SIL', 'SBL Hebrew', 'Noto Serif Hebrew', 'Times New Roman', serif;
@@ -130,6 +132,8 @@
     --dv-yhwh: #3987e5;
     --dv-elohim: #d4782a;
     --dv-mid: #3d3a33;
+    --ch-judah: #3987e5;
+    --ch-israel: #d4782a;
     --shadow: none;
     color-scheme: dark;
   }
@@ -3350,3 +3354,39 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .reader-text .dv, .layer-key.dv { border-top: 2.5px solid var(--muted); }
 .reader-text .dv-yhwh, .layer-key.dv-yhwh { border-top-color: var(--dv-yhwh); }
 .reader-text .dv-elohim, .layer-key.dv-elohim { border-top-color: var(--dv-elohim); }
+
+/* the text's own chronology (§16.70) */
+.ch-scroll { overflow-x: auto; }
+.ch-chart { width: 100%; min-width: 600px; height: auto; display: block; margin: 0.6rem 0; direction: ltr; }
+.ch-grid { stroke: var(--border); stroke-width: 1; }
+.ch-axis { fill: var(--muted); font-size: 11px; }
+.ch-mark { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.ch-mark-label { fill: var(--muted); font-size: 11px; font-weight: 600; }
+.ch-name { fill: var(--text); font-family: var(--font-he); font-size: 13px; }
+.ch-bar { fill: var(--accent); }
+.ch-hit { fill: transparent; }
+.ch-life:hover .ch-bar { fill: var(--focus); }
+.ch-life:hover .ch-name { font-weight: 700; }
+.ch-row-label { fill: var(--text); font-size: 12px; font-weight: 600; }
+.ch-reign rect { fill: color-mix(in oklab, var(--ch-judah) 18%, var(--surface)); stroke: var(--ch-judah); stroke-width: 1; }
+.ch-reign.odd rect { fill: color-mix(in oklab, var(--ch-judah) 34%, var(--surface)); }
+.ch-reign.israel rect { fill: color-mix(in oklab, var(--ch-israel) 18%, var(--surface)); stroke: var(--ch-israel); }
+.ch-reign.israel.odd rect { fill: color-mix(in oklab, var(--ch-israel) 34%, var(--surface)); }
+.ch-reign:hover rect { stroke-width: 2; }
+.ch-reign-name { fill: var(--text); font-family: var(--font-he); font-size: 11px; pointer-events: none; }
+.ch-sync { stroke-width: 2; }
+.ch-sync.agrees { stroke: var(--known); }
+.ch-sync.differs { stroke: var(--gt-conflict); stroke-dasharray: 4 3; }
+.ch-sync.first { stroke: var(--muted); stroke-dasharray: 1 3; }
+line.ch-sync:hover { stroke-width: 3.5; }
+.ch-events .he, .ch-numbers .he, .ch-reigns .he { font-family: var(--font-he); font-size: 1.05rem; }
+.ch-events th { font-weight: normal; }
+.ch-events tr.ch-conflict th, .ch-syncs tr.ch-conflict td:first-child { border-inline-start: 3px solid var(--gt-conflict); }
+.ch-rules tr.selected th { font-weight: 600; border-inline-start: 3px solid var(--known); }
+.ch-digits tr.ch-end th { border-inline-start: 3px solid var(--known); font-weight: 600; }
+.ch-conflicts li { margin: 0.2rem 0; }
+.ch-conflicts a, .ch-numbers a { text-decoration: underline; }
+.ch-numbers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0.2rem 1rem; }
+.ch-numbers li.ch-odd-end b { color: var(--gt-conflict-ink); }
+.ch-reigns { margin-top: 0.8rem; }
+.ch-reigns summary { cursor: pointer; }

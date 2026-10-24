@@ -531,6 +531,35 @@ def _haftarot(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding |
     return build
 
 
+def _chronology(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The text's own chronology: the Flood, Abram and the Exodus at Seder Olam's years; the
+    years between the kings' synchronisms agree in both kingdoms' counts more often than with the
+    reigns shuffled; Gen 5's year numbers end in 0 / 2 / 5 / 7 more often than the others."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        c = meta.get("chronology") or {}
+        if not c.get("events"):
+            return None
+        if key == "chronology_known":
+            known = c.get("known") or []
+            values = {f"{k['event']}": k["year"] for k in known}
+            values |= {f"{k['event']}_expected": k["expected"] for k in known}
+            values["conflicts"] = c.get("conflicts")
+            holds = bool(c.get("known_holds"))
+        elif key == "chronology_syncs":
+            values = {k: c.get(k) for k in ("agree", "intervals", "expected", "p", "tolerance")}
+            rules = c.get("rules") or {}
+            values |= {f"{k}_accession": float(v == "accession") for k, v in rules.items()}
+            holds = bool(c.get("holds"))
+        else:
+            d = c.get("digits") or {}
+            values = {k: d.get(k) for k in ("hits", "n", "share", "rest_share", "p")}
+            holds = bool(d.get("holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build
+
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -764,6 +793,9 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _haftarot("haftarot_claim"),
     _haftarot("haftarot_calendar"),
     _haftarot("haftarot_known"),
+    _chronology("chronology_known"),
+    _chronology("chronology_syncs"),
+    _chronology("chronology_digits"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

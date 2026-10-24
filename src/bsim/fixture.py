@@ -1895,6 +1895,75 @@ def write_haftarot(cfg):
     (out / "haftarot.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_chronology(cfg):
+    """The chronology (`bsim chronology`), made up: Adam, Seth (v0's number), Seth's death (v1)
+    and the flood twice (v2, then a conflicting check on v3); two kings in each kingdom (v3, v4)
+    with two synchronisms (v4, v5), the second agreeing; Gen 5's numbers on v0 and v1."""
+    out = resolve_path(cfg, "artifacts") / "chronology"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "seq": [0, 1, 2, 3, 4],
+            "event": ["adam", "seth", "seth.death", "flood", "flood"],
+            "name": ["אדם", "שת", "שת", None, None],
+            "from_event": [None, "adam", "seth", "seth", "adam"],
+            "verse_id": pd.array([None, 0, 1, 2, 3], dtype="Int64"),
+            "value": pd.array([None, 130, 912, 1526, 1600], dtype="Int64"),
+            "sign": [1, 1, 1, 1, 1],
+            "year": [0, 130, 1042, 1656, 1600],
+            "used": [True, True, True, True, False],
+            "conflict": [False, False, False, False, True],
+            "tok_first": pd.array([None, 0, 1, 0, 2], dtype="Int64"),
+            "tok_last": pd.array([None, 1, 1, 0, 2], dtype="Int64"),
+        }
+    ).to_parquet(out / "events.parquet", index=False)
+    pd.DataFrame(
+        {
+            "king": ["rehoboam", "abijam", "jeroboam", "nadab"],
+            "name": ["רחבעם", "אבים", "ירבעם", "נדב"],
+            "kingdom": ["judah", "judah", "israel", "israel"],
+            "seq": [0, 1, 0, 1],
+            "verse_id": [3, 4, 3, 4],
+            "reign": [17, 3, 22, 0],
+            "short": [False, False, False, True],
+            "start": [1, 18, 1, 23],
+            "am": [2965, 2982, 2965, 2987],
+        }
+    ).to_parquet(out / "kings.parquet", index=False)
+    pd.DataFrame(
+        {
+            "seq": [0, 1],
+            "king": ["abijam", "nadab"],
+            "of": ["jeroboam", "abijam"],
+            "verse_id": [4, 5],
+            "year": [18, 2],
+            "t_judah": [17, 22],
+            "t_israel": [18, 22],
+            "agrees": pd.array([None, True], dtype="boolean"),
+        }
+    ).to_parquet(out / "syncs.parquet", index=False)
+    pd.DataFrame(
+        {"verse_id": [0, 1], "value": [130, 912], "tok_first": [0, 1], "tok_last": [1, 1]}
+    ).to_parquet(out / "numbers.parquet", index=False)
+    digits = {"n": 2, "hits": 2, "share": 1.0, "rest_n": 10, "rest_share": 0.6, "p": 0.02,
+              "uniform": 0.4, "uniform_p": 0.16, "compare_n": 3, "compare_share": 0.67,
+              "by_digit": {str(d): int(d in (0, 2)) for d in range(10)},
+              "rest_by_digit": {str(d): 1 for d in range(10)}, "holds": True}  # fmt: skip
+    meta = {"events": 5, "conflicts": 1,
+            "known": [{"event": "flood", "year": 1656, "expected": 1656, "holds": True}],
+            "known_holds": True, "kings": {"judah": 2, "israel": 2}, "syncs": 2, "intervals": 1,
+            "agree": 1, "rules": {"judah": "accession", "israel": "non-accession"},
+            "rule_counts": {"accession/accession": 0, "accession/non-accession": 1,
+                            "non-accession/accession": 0, "non-accession/non-accession": 0},
+            "tolerance": 1, "shuffles": 99, "alpha": 0.05, "expected": 0.3, "p": 0.04,
+            "holds": True, "absolute": 1, "division": 2964,
+            "ends": {"judah": 2984, "israel": 2987},
+            "tradition": {"temple": 2928, "division": 2964, "destruction": 3338},
+            "digits": digits, "digits_chapter": "Genesis 5", "digits_compare": "Genesis 11:10-26",
+            "digits_ends": [0, 2, 5, 7], "digits_min": 10}  # fmt: skip
+    (out / "chronology.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -1913,6 +1982,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_brackets(cfg)
     write_retold(cfg)
     write_haftarot(cfg)
+    write_chronology(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

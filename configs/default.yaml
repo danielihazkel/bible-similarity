@@ -1325,6 +1325,217 @@ haftarot:                     # `bsim haftarot`: the sages' haftarah for each pa
   known: [Noach, Vayera]      # Isaiah 54 (מי נח, 54:9) and II Kings 4 (a son to a woman without one, כעת חיה)
   # claims fixed in advance (fused): (1) the haftarot not fixed by the calendar rank their parasha's chapters higher than haftarot shuffled among those parashot; (2) they rank higher than the ten the calendar fixes (Hebcal's haftTheme: three of rebuke, seven of consolation), labels shuffled
 
+chronology:                   # `bsim chronology`: the text's own dates, from Adam to the Exile (DESIGN.md §16.70); everything below fixed before the first run
+  numbers:                    # lemma -> value: the cardinals (as forms.numbers, but עשר of the teens is ten), the duals מאתים / אלפים doubled by the morphology, the ordinals second..tenth (not ראשון)
+    "259": 1
+    "8147": 2
+    "7969": 3
+    "702": 4
+    "2568": 5
+    "8337": 6
+    "7651": 7
+    "8083": 8
+    "8672": 9
+    "6235": 10
+    "6240": 10                # עשר / עשרה of the teens: added to the unit beside it (שלש עשרה)
+    "6249": 1                 # עשתי (עשתי עשרה)
+    "6242": 20
+    "7970": 30
+    "705": 40
+    "2572": 50
+    "8346": 60
+    "7657": 70
+    "8084": 80
+    "8673": 90
+    "3967": 100
+    "505": 1000
+    "7233": 10000
+    "7239": 10000
+    "2298": 1                 # Aramaic חד
+    "8648": 2                 # Aramaic תרין
+    "8532": 3                 # Aramaic תלת
+    "703": 4                  # Aramaic ארבע
+    "7655": 7                 # Aramaic שבעה
+    "6236": 10                # Aramaic עשר
+    "8361": 60                # Aramaic שתין
+    "3969": 100               # Aramaic מאה
+    "506": 1000               # Aramaic אלף
+    "7240": 10000             # Aramaic רבו
+    "8145": 2                 # שני (ordinal)
+    "7992": 3                 # שלישי
+    "7243": 4                 # רביעי
+    "2549": 5                 # חמישי
+    "8345": 6                 # שישי
+    "7637": 7                 # שביעי
+    "8066": 8                 # שמיני
+    "8671": 9                 # תשיעי
+    "6224": 10                # עשירי
+  names:                      # the people of `events`, in Hebrew
+    adam: אדם
+    seth: שת
+    enosh: אנוש
+    kenan: קינן
+    mahalalel: מהללאל
+    jared: ירד
+    enoch: חנוך
+    methuselah: מתושלח
+    lamech: למך
+    noah: נח
+    shem: שם
+    arpachshad: ארפכשד
+    shelah: שלח
+    eber: עבר
+    peleg: פלג
+    reu: רעו
+    serug: שרוג
+    nahor: נחור
+    terah: תרח
+    abram: אברם
+    isaac: יצחק
+    jacob: יעקב
+    moses: משה
+  events:                     # [event, from, verse, n, sign]: the year of `from` plus (sign -1: minus) the verse's n-th number phrase; the first is year 0; `.death` ends a life; an event given again is a check (a conflict when it disagrees), the first way is used
+    - [adam, null, null]
+    - [seth, adam, "Genesis 5:3", 1]
+    - [adam.death, adam, "Genesis 5:5", 1]
+    - [enosh, seth, "Genesis 5:6", 1]
+    - [seth.death, seth, "Genesis 5:8", 1]
+    - [kenan, enosh, "Genesis 5:9", 1]
+    - [enosh.death, enosh, "Genesis 5:11", 1]
+    - [mahalalel, kenan, "Genesis 5:12", 1]
+    - [kenan.death, kenan, "Genesis 5:14", 1]
+    - [jared, mahalalel, "Genesis 5:15", 1]
+    - [mahalalel.death, mahalalel, "Genesis 5:17", 1]
+    - [enoch, jared, "Genesis 5:18", 1]
+    - [jared.death, jared, "Genesis 5:20", 1]
+    - [methuselah, enoch, "Genesis 5:21", 1]
+    - [enoch.death, enoch, "Genesis 5:23", 1]   # ואיננו כי לקח אתו אלהים
+    - [lamech, methuselah, "Genesis 5:25", 1]
+    - [methuselah.death, methuselah, "Genesis 5:27", 1]
+    - [noah, lamech, "Genesis 5:28", 1]
+    - [lamech.death, lamech, "Genesis 5:31", 1]
+    - [shem, noah, "Genesis 5:32", 1]         # the first of the three sons at Noah's 500
+    - [flood, noah, "Genesis 7:6", 1]
+    - [noah.death, noah, "Genesis 9:29", 1]
+    - [arpachshad, flood, "Genesis 11:10", 2]  # שנתים אחר המבול
+    - [arpachshad, shem, "Genesis 11:10", 1]   # check: Shem was 100, born at Noah's 500
+    - [shem.death, arpachshad, "Genesis 11:11", 1]
+    - [shelah, arpachshad, "Genesis 11:12", 1]
+    - [arpachshad.death, shelah, "Genesis 11:13", 1]
+    - [eber, shelah, "Genesis 11:14", 1]
+    - [shelah.death, eber, "Genesis 11:15", 1]
+    - [peleg, eber, "Genesis 11:16", 1]
+    - [eber.death, peleg, "Genesis 11:17", 1]
+    - [reu, peleg, "Genesis 11:18", 1]
+    - [peleg.death, reu, "Genesis 11:19", 1]
+    - [serug, reu, "Genesis 11:20", 1]
+    - [reu.death, serug, "Genesis 11:21", 1]
+    - [nahor, serug, "Genesis 11:22", 1]
+    - [serug.death, nahor, "Genesis 11:23", 1]
+    - [terah, nahor, "Genesis 11:24", 1]
+    - [nahor.death, terah, "Genesis 11:25", 1]
+    - [abram, terah, "Genesis 11:26", 1]       # the first of the three sons at Terah's 70
+    - [terah.death, terah, "Genesis 11:32", 1]
+    - [isaac, abram, "Genesis 21:5", 1]
+    - [abram.death, abram, "Genesis 25:7", 1]
+    - [jacob, isaac, "Genesis 25:26", 1]
+    - [isaac.death, isaac, "Genesis 35:28", 1]
+    - [descent, jacob, "Genesis 47:9", 1]      # Jacob before Pharaoh at 130
+    - [jacob.death, jacob, "Genesis 47:28", 2]
+    - [exodus, isaac, "Genesis 15:13", 1]      # the tradition's reading (Seder Olam 3): Abraham's seed is a stranger 400 years from Isaac's birth
+    - [exodus, descent, "Exodus 12:40", 1]     # check: the plain reading, 430 years dwelling in Egypt
+    - [moses, exodus, "Exodus 7:7", 1, -1]     # Moses was 80 before Pharaoh
+    - [moses.death, moses, "Deuteronomy 34:7", 1]
+    - [temple, exodus, "I Kings 6:1", 1]       # in the 480th year after the Exodus
+    - [solomon, temple, "I Kings 6:1", 2, -1]  # ... in the fourth year of Solomon
+    - [division, solomon, "I Kings 11:42", 1]  # Solomon reigned 40 years
+  known: {flood: 1656, abram: 1948, exodus: 2448}   # Seder Olam (1, 3): the reading of the numbers checked against the tradition's sums
+  tradition: {temple: 2928, division: 2964, destruction: 3338}   # Seder Olam, shown beside ours, not claimed (the tradition overlaps reigns)
+  division: division          # the event the kingdoms count their years from
+  kings:                      # [king, name, kingdom, verses]: in order within each kingdom; the reign's length is the first span with a unit there (not an age after בן, not a date after בשנת)
+    - [rehoboam, רחבעם, judah, "I Kings 14:21"]
+    - [abijam, אבים, judah, "I Kings 15:1-2"]
+    - [asa, אסא, judah, "I Kings 15:9-10"]
+    - [jehoshaphat, יהושפט, judah, "I Kings 22:41-42"]
+    - [jehoram_j, יהורם, judah, "II Kings 8:16-17"]
+    - [ahaziah_j, אחזיהו, judah, "II Kings 8:25-26"]
+    - [athaliah, עתליה, judah, "II Kings 11:3"]
+    - [joash_j, יהואש, judah, "II Kings 12:1-2"]
+    - [amaziah, אמציהו, judah, "II Kings 14:1-2"]
+    - [azariah, עזריה, judah, "II Kings 15:1-2"]
+    - [jotham, יותם, judah, "II Kings 15:32-33"]
+    - [ahaz, אחז, judah, "II Kings 16:1-2"]
+    - [hezekiah, חזקיה, judah, "II Kings 18:1-2"]
+    - [manasseh, מנשה, judah, "II Kings 21:1"]
+    - [amon, אמון, judah, "II Kings 21:19"]
+    - [josiah, יאשיהו, judah, "II Kings 22:1"]
+    - [jehoahaz_j, יהואחז, judah, "II Kings 23:31"]
+    - [jehoiakim, יהויקים, judah, "II Kings 23:36"]
+    - [jehoiachin, יהויכין, judah, "II Kings 24:8"]
+    - [zedekiah, צדקיהו, judah, "II Kings 24:18"]
+    - [jeroboam, ירבעם, israel, "I Kings 14:20"]
+    - [nadab, נדב, israel, "I Kings 15:25"]
+    - [baasha, בעשא, israel, "I Kings 15:33"]
+    - [elah, אלה, israel, "I Kings 16:8"]
+    - [zimri, זמרי, israel, "I Kings 16:15"]
+    - [omri, עמרי, israel, "I Kings 16:23"]
+    - [ahab, אחאב, israel, "I Kings 16:29"]
+    - [ahaziah_i, אחזיהו, israel, "I Kings 22:52"]
+    - [joram_i, יהורם, israel, "II Kings 3:1"]
+    - [jehu, יהוא, israel, "II Kings 10:36"]
+    - [jehoahaz_i, יהואחז, israel, "II Kings 13:1"]
+    - [jehoash_i, יהואש, israel, "II Kings 13:10"]
+    - [jeroboam2, ירבעם, israel, "II Kings 14:23"]
+    - [zechariah, זכריהו, israel, "II Kings 15:8"]
+    - [shallum, שלום, israel, "II Kings 15:13"]
+    - [menahem, מנחם, israel, "II Kings 15:17"]
+    - [pekahiah, פקחיה, israel, "II Kings 15:23"]
+    - [pekah, פקח, israel, "II Kings 15:27"]
+    - [hoshea, הושע, israel, "II Kings 17:1"]
+  syncs:                      # [king, of, verse]: "in year N of `of`, `king` became king" (N the first number after בשנת there); taken in the text's order
+    - [abijam, jeroboam, "I Kings 15:1"]
+    - [asa, jeroboam, "I Kings 15:9"]
+    - [nadab, asa, "I Kings 15:25"]
+    - [baasha, asa, "I Kings 15:33"]
+    - [elah, asa, "I Kings 16:8"]
+    - [zimri, asa, "I Kings 16:15"]
+    - [omri, asa, "I Kings 16:23"]
+    - [ahab, asa, "I Kings 16:29"]
+    - [jehoshaphat, ahab, "I Kings 22:41"]
+    - [ahaziah_i, jehoshaphat, "I Kings 22:52"]
+    - [joram_i, jehoram_j, "II Kings 1:17"]
+    - [joram_i, jehoshaphat, "II Kings 3:1"]
+    - [jehoram_j, joram_i, "II Kings 8:16"]
+    - [ahaziah_j, joram_i, "II Kings 8:25"]
+    - [ahaziah_j, joram_i, "II Kings 9:29"]
+    - [joash_j, jehu, "II Kings 12:2"]
+    - [jehoahaz_i, joash_j, "II Kings 13:1"]
+    - [jehoash_i, joash_j, "II Kings 13:10"]
+    - [amaziah, jehoash_i, "II Kings 14:1"]
+    - [jeroboam2, amaziah, "II Kings 14:23"]
+    - [azariah, jeroboam2, "II Kings 15:1"]
+    - [zechariah, azariah, "II Kings 15:8"]
+    - [shallum, azariah, "II Kings 15:13"]
+    - [menahem, azariah, "II Kings 15:17"]
+    - [pekahiah, azariah, "II Kings 15:23"]
+    - [pekah, azariah, "II Kings 15:27"]
+    - [hoshea, jotham, "II Kings 15:30"]
+    - [jotham, pekah, "II Kings 15:32"]
+    - [ahaz, pekah, "II Kings 16:1"]
+    - [hoshea, ahaz, "II Kings 17:1"]
+    - [hezekiah, hoshea, "II Kings 18:1"]
+  rules: [accession, non-accession]   # each kingdom counts by one of them; the best pair is taken (and for each shuffle)
+  tolerance: 1                # years: the two kingdoms began their years in different months (Thiele), so one year apart is agreement
+  digits:
+    chapter: "Genesis 5"      # its year numbers: ages at the first son, the years after, whole lives
+    compare: "Genesis 11:10-26"   # described: the same for Shem to Terah
+    ends: [0, 2, 5, 7]        # Cassuto's observation: multiples of five, or of five plus seven
+    min: 10                   # year numbers of at least this (one digit is no choice of ending); dates (בשנת N) left out
+  shuffles: 9999
+  seed: 48
+  alpha: 0.05
+  # claims fixed in advance: (1) `known`: the Flood, Abram and the Exodus at Seder Olam's years; (2) the intervals between consecutive synchronisms agree, counted by Judah's reigns and by Israel's, more often than with the reign lengths shuffled within each kingdom (the best pair of rules each time); (3) Gen 5's year numbers end in `digits.ends` more often than the year numbers elsewhere, labels permuted
+
 masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)

@@ -1681,6 +1681,52 @@ CREATE TABLE haftarah_lists (
     PRIMARY KEY (parasha, rank)
 ) WITHOUT ROWID;
 
+-- the text's own dates (`bsim chronology`, §16.70)
+CREATE TABLE chronology_events (
+    seq INTEGER PRIMARY KEY,        -- the order of `chronology.events`
+    event TEXT NOT NULL,            -- a person's id (birth), `<id>.death`, or an event (flood, exodus, ...)
+    name TEXT,                      -- the person's name in Hebrew
+    from_event TEXT,                -- counted from (NULL: Adam, year 0)
+    verse_id INTEGER,               -- the verse whose number is added
+    value INTEGER,                  -- the number read there
+    sign INTEGER NOT NULL,          -- 1: added; -1: taken away
+    year INTEGER NOT NULL,          -- from Adam, this way
+    used INTEGER NOT NULL,          -- 1: the event's first way (its year); 0: a check
+    conflict INTEGER NOT NULL,      -- 1: a check giving another year
+    tok_first INTEGER,              -- the number's display tokens
+    tok_last INTEGER
+);
+
+CREATE TABLE chronology_kings (
+    king TEXT PRIMARY KEY,
+    name TEXT NOT NULL,             -- Hebrew
+    kingdom TEXT NOT NULL,          -- judah | israel
+    seq INTEGER NOT NULL,           -- order within the kingdom
+    verse_id INTEGER NOT NULL,      -- the first verse of the regnal formula
+    reign INTEGER NOT NULL,         -- years (0 with short)
+    short INTEGER NOT NULL,         -- 1: days or months
+    start INTEGER NOT NULL,         -- year 1 of the reign, counted from the division (the kingdom's rule)
+    am INTEGER NOT NULL             -- the same from Adam
+);
+
+CREATE TABLE chronology_syncs (
+    seq INTEGER PRIMARY KEY,        -- the text's order
+    king TEXT NOT NULL,             -- who became king
+    of TEXT NOT NULL,               -- in a year of this king of the other kingdom
+    verse_id INTEGER NOT NULL,
+    year INTEGER NOT NULL,          -- that year (N)
+    t_judah INTEGER NOT NULL,       -- the moment in Judah's count from the division
+    t_israel INTEGER NOT NULL,      -- ... in Israel's
+    agrees INTEGER                  -- the interval since the one before: the same years in both counts (NULL: the first)
+);
+
+CREATE TABLE chronology_numbers (
+    verse_id INTEGER NOT NULL,      -- a year number of `chronology.digits.chapter` (Gen 5)
+    value INTEGER NOT NULL,
+    tok_first INTEGER,
+    tok_last INTEGER
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

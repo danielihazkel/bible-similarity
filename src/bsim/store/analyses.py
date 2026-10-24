@@ -778,6 +778,23 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "chronology",
+        "chronology",
+        (
+            Table("chronology_events", "events", fix=as_int("used", "conflict")),
+            Table("chronology_kings", "kings", fix=as_int("short")),
+            Table("chronology_syncs", "syncs"),
+            Table("chronology_numbers", "numbers"),
+        ),
+        "chronology.meta.json",
+        keys(
+            "chronology", "events", "conflicts", "known", "known_holds", "kings", "syncs",
+            "intervals", "agree", "rules", "rule_counts", "tolerance", "shuffles", "alpha",
+            "expected", "p", "holds", "absolute", "division", "ends", "tradition", "digits",
+            "digits_chapter", "digits_compare", "digits_ends", "digits_min",
+        ),
+    ),
+    Source(
         "masorah",
         "masorah",
         (

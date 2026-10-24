@@ -9,6 +9,7 @@ type V = Record<string, number | null>
 const n = (v: V, k: string) => v[k] ?? 0
 const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 const x2 = (r: number) => r.toFixed(2)
+const x1 = (r: number) => r.toFixed(1)
 const x3 = (r: number) => r.toFixed(3)
 /** How far the tradition's middle falls from ours: "4,829 letters after ours". */
 const away = (d: number, one: string, many: string, after: string, before: string, num: (n: number) => string) =>
@@ -305,6 +306,21 @@ export const findEn = {
       title: 'Noah’s waters and the Shunammite’s son',
       text: (v: V) =>
         `Are the haftarot of Noach (Isaiah 54, \u2068כי מי נח זאת לי\u2069) and Vayera (II Kings 4, a son promised to a woman without one) among the first ${numEn(n(v, 'known_rank'))} of the 380 chapters for their parasha? Ranked ${numEn(n(v, 'rank_0'))} and ${numEn(n(v, 'rank_1'))}.`,
+    },
+    chronology_known: {
+      title: 'The text’s numbers give the tradition’s years',
+      text: (v: V) =>
+        `Adding up the fathers’ ages of Genesis 5 and 11 from Adam, then the stated spans: the Flood falls in ${n(v, 'flood')}, Abram is born in ${n(v, 'abram')} and the Exodus in ${n(v, 'exodus')}, the years of Seder Olam (${n(v, 'flood_expected')}, ${n(v, 'abram_expected')}, ${n(v, 'exodus_expected')}). Where the text counts the same event twice, ${numEn(n(v, 'conflicts'))} give another year.`,
+    },
+    chronology_syncs: {
+      title: 'The kings’ synchronisms agree with their reigns',
+      text: (v: V) =>
+        `Kings dates each accession by a year of the other kingdom’s king. Between two synchronisms in a row, are the years counted by Judah’s reigns those counted by Israel’s, within ${numEn(n(v, 'tolerance'))}? ${numEn(n(v, 'agree'))} of ${numEn(n(v, 'intervals'))} intervals are, against ${x1(n(v, 'expected'))} with the reign lengths shuffled within each kingdom (p ${fp(n(v, 'p'))}).`,
+    },
+    chronology_digits: {
+      title: 'Genesis 5’s numbers end in 0, 2, 5 or 7',
+      text: (v: V) =>
+        `${numEn(n(v, 'hits'))} of the ${numEn(n(v, 'n'))} year numbers of Genesis 5 end in 0, 2, 5 or 7 (${pct(n(v, 'share'))}), against ${pct(n(v, 'rest_share'))} of the year numbers elsewhere in the Bible (p ${fp(n(v, 'p'))}).`,
     },
     retold_claim: {
       title: 'Speech retold by another speaker changes more than speech carried out',
@@ -638,6 +654,21 @@ export const findHe: typeof findEn = {
       title: 'מי נח ובן השונמית',
       text: (v: V) =>
         `האם ההפטרות של נח (ישעיה נד, כי מי נח זאת לי) ושל וירא (מלכים ב ד, בן שהובטח לאשה שאין לה) נמצאות בין ${numHe(n(v, 'known_rank'))} הפרקים הראשונים מתוך 380 לפרשתן? בדירוג ${numHe(n(v, 'rank_0'))} ו־${numHe(n(v, 'rank_1'))}.`,
+    },
+    chronology_known: {
+      title: 'המספרים של הכתוב נותנים את שנות המסורת',
+      text: (v: V) =>
+        `כשמסכמים מאדם את גילי האבות של בראשית ה ו־יא ואחר כך את התקופות שהכתוב מציין: המבול חל בשנת ${n(v, 'flood')}, אברם נולד בשנת ${n(v, 'abram')} ויציאת מצרים בשנת ${n(v, 'exodus')}, השנים של סדר עולם (${n(v, 'flood_expected')}, ${n(v, 'abram_expected')}, ${n(v, 'exodus_expected')}). היכן שהכתוב מונה את אותו אירוע פעמיים, ${numHe(n(v, 'conflicts'))} נותנים שנה אחרת.`,
+    },
+    chronology_syncs: {
+      title: 'הסנכרונים של המלכים מתאימים לשנות מלכותם',
+      text: (v: V) =>
+        `ספר מלכים מתארך כל המלכה בשנה של מלך הממלכה האחרת. בין שני סנכרונים רצופים, האם השנים שנמנות לפי מלכי יהודה הן השנים שנמנות לפי מלכי ישראל, בהפרש של ${numHe(n(v, 'tolerance'))} לכל היותר? ${numHe(n(v, 'agree'))} מתוך ${numHe(n(v, 'intervals'))} מרווחים, לעומת ${x1(n(v, 'expected'))} כששנות המלכות מעורבבות בתוך כל ממלכה (p ${fp(n(v, 'p'))}).`,
+    },
+    chronology_digits: {
+      title: 'המספרים של בראשית ה מסתיימים ב־0, 2, 5 או 7',
+      text: (v: V) =>
+        `${numHe(n(v, 'hits'))} מתוך ${numHe(n(v, 'n'))} מספרי השנים של בראשית ה מסתיימים ב־0, 2, 5 או 7 (${pct(n(v, 'share'))}), לעומת ${pct(n(v, 'rest_share'))} ממספרי השנים בשאר המקרא (p ${fp(n(v, 'p'))}).`,
     },
     retold_claim: {
       title: 'דיבור שמסופר בפי דובר אחר משתנה יותר מדיבור שמתבצע',

@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from bsim.api.routes import (
     borrowing,
     brackets,
+    chronology,
     ciphers,
     citations,
     core,
@@ -80,6 +81,7 @@ for _module in (
     brackets,
     retold,
     haftarot,
+    chronology,
     els,
     places,
     genealogy,

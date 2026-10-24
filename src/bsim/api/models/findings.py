@@ -20,6 +20,7 @@ FindingKey = Literal[
     "divine_doubled", "etiology_echo", "etiology_known",
     "brackets_insertion", "brackets_known", "retold_claim", "retold_known",
     "haftarot_claim", "haftarot_calendar", "haftarot_known",
+    "chronology_known", "chronology_syncs", "chronology_digits",
 ]  # fmt: skip
 
 

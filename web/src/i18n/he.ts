@@ -45,6 +45,7 @@ import { etyHe } from './pages/etiologies'
 import { brkHe } from './pages/brackets'
 import { rtHe } from './pages/retold'
 import { hfHe } from './pages/haftarot'
+import { chHe } from './pages/chronology'
 import { wbHe } from './pages/workbench'
 import { nbHe } from './pages/notebook'
 import { psaHe } from './pages/psalms'
@@ -130,6 +131,7 @@ export const he: Messages = {
     brackets: { label: 'חזרה מסגרת', hint: 'משפט שחוזר אחרי קטע: האם הקטע קוטע את הסיפור?' },
     retold: { label: 'דיבור שמסופר שוב', hint: 'מה משתנה כשדבר שנאמר מסופר שוב, בפי דובר אחר או כמעשה' },
     haftarot: { label: 'הפטרות', hint: 'ההפטרה של כל פרשה: היכן המערכות מדרגות אותה בין כל פרקי הנביאים' },
+    chronology: { label: 'מניין השנים', hint: 'השנים מאדם כפי שהפסוקים מונים אותן, ומלכי שתי הממלכות מול הסנכרונים שביניהם' },
     els: { label: 'אותיות בדילוג שווה', hint: 'שמות בדילוג שווה בתורה, נספרים מול ערבובים: אין צפנים' },
     ciphers: { label: 'את״ב״ש ואל״ב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
@@ -493,6 +495,7 @@ export const he: Messages = {
   brk: brkHe,
   rt: rtHe,
   hf: hfHe,
+  ch: chHe,
   wb: wbHe,
   nb: nbHe,
   echo: echoHe,

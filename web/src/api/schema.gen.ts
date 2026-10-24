@@ -2338,6 +2338,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/chronology": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Chronology
+         * @description Every date, reign and synchronism with its verse (404: the stage did not run).
+         */
+        get: operations["chronology_api_chronology_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -3645,6 +3665,137 @@ export interface components {
             /** Children */
             children: components["schemas"]["FamilyLink"][];
         };
+        /** ChronEvent */
+        ChronEvent: {
+            /** Seq */
+            seq: number;
+            /** Event */
+            event: string;
+            /** Name */
+            name: string | null;
+            /** From Event */
+            from_event: string | null;
+            verse: components["schemas"]["Verse"] | null;
+            /** Value */
+            value: number | null;
+            /** Sign */
+            sign: number;
+            /** Year */
+            year: number;
+            /** Used */
+            used: boolean;
+            /** Conflict */
+            conflict: boolean;
+            /** Tok First */
+            tok_first: number | null;
+            /** Tok Last */
+            tok_last: number | null;
+        };
+        /** ChronKing */
+        ChronKing: {
+            /** King */
+            king: string;
+            /** Name */
+            name: string;
+            /**
+             * Kingdom
+             * @enum {string}
+             */
+            kingdom: "judah" | "israel";
+            /** Seq */
+            seq: number;
+            verse: components["schemas"]["Verse"];
+            /** Reign */
+            reign: number;
+            /** Short */
+            short: boolean;
+            /** Start */
+            start: number;
+            /** Am */
+            am: number;
+        };
+        /** ChronSync */
+        ChronSync: {
+            /** Seq */
+            seq: number;
+            /** King */
+            king: string;
+            /** Of */
+            of: string;
+            verse: components["schemas"]["Verse"];
+            /** Year */
+            year: number;
+            /** T Judah */
+            t_judah: number;
+            /** T Israel */
+            t_israel: number;
+            /** Agrees */
+            agrees: boolean | null;
+        };
+        /** ChronologyResponse */
+        ChronologyResponse: {
+            /** Events */
+            events: components["schemas"]["ChronEvent"][];
+            /** Lives */
+            lives: components["schemas"]["Life"][];
+            /** Kings */
+            kings: components["schemas"]["ChronKing"][];
+            /** Syncs */
+            syncs: components["schemas"]["ChronSync"][];
+            /** Numbers */
+            numbers: components["schemas"]["Gen5Number"][];
+            /** Conflicts */
+            conflicts: number;
+            /** Known */
+            known: components["schemas"]["KnownDate"][];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Intervals */
+            intervals: number;
+            /** Agree */
+            agree: number;
+            /** Rules */
+            rules: {
+                [key: string]: string;
+            };
+            /** Rule Counts */
+            rule_counts: {
+                [key: string]: number;
+            };
+            /** Tolerance */
+            tolerance: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+            /** Expected */
+            expected: number;
+            /** P */
+            p: number;
+            /** Holds */
+            holds: boolean;
+            /** Absolute */
+            absolute: number;
+            /** Division */
+            division: number;
+            /** Ends */
+            ends: {
+                [key: string]: number;
+            };
+            /** Tradition */
+            tradition: {
+                [key: string]: number;
+            };
+            digits: components["schemas"]["Digits"];
+            /** Digits Chapter */
+            digits_chapter: string;
+            /** Digits Compare */
+            digits_compare: string;
+            /** Digits Ends */
+            digits_ends: number[];
+            /** Digits Min */
+            digits_min: number;
+        };
         /** CipherChapter */
         CipherChapter: {
             /**
@@ -4276,6 +4427,39 @@ export interface components {
             };
             /** Books */
             books: components["schemas"]["DialogueBook"][];
+        };
+        /** Digits */
+        Digits: {
+            /** N */
+            n: number;
+            /** Hits */
+            hits: number;
+            /** Share */
+            share: number;
+            /** Rest N */
+            rest_n: number;
+            /** Rest Share */
+            rest_share: number;
+            /** P */
+            p: number;
+            /** Uniform */
+            uniform: number;
+            /** Uniform P */
+            uniform_p: number;
+            /** Compare N */
+            compare_n: number;
+            /** Compare Share */
+            compare_share: number | null;
+            /** By Digit */
+            by_digit: {
+                [key: string]: number;
+            };
+            /** Rest By Digit */
+            rest_by_digit: {
+                [key: string]: number;
+            };
+            /** Holds */
+            holds: boolean;
         };
         /** DiscoveriesResponse */
         DiscoveriesResponse: {
@@ -5118,7 +5302,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits";
             /**
              * Verdict
              * @enum {string}
@@ -5489,6 +5673,16 @@ export interface components {
             /** Items */
             items: components["schemas"]["GematriaVerse"][];
         };
+        /** Gen5Number */
+        Gen5Number: {
+            verse: components["schemas"]["Verse"];
+            /** Value */
+            value: number;
+            /** Tok First */
+            tok_first: number | null;
+            /** Tok Last */
+            tok_last: number | null;
+        };
         /**
          * GoldLink
          * @description A Sefaria link between the two units: `verse` = a direct verse-to-verse link, `unit` =
@@ -5726,6 +5920,17 @@ export interface components {
             p: number | null;
             /** Beats */
             beats: boolean;
+        };
+        /** KnownDate */
+        KnownDate: {
+            /** Event */
+            event: string;
+            /** Year */
+            year: number | null;
+            /** Expected */
+            expected: number;
+            /** Holds */
+            holds: boolean;
         };
         /** KnownEtiology */
         KnownEtiology: {
@@ -6135,6 +6340,17 @@ export interface components {
             he_lemma: string;
             /** N Verses */
             n_verses: number;
+        };
+        /** Life */
+        Life: {
+            /** Person */
+            person: string;
+            /** Name */
+            name: string;
+            /** Born */
+            born: number;
+            /** Died */
+            died: number | null;
         };
         /**
          * LinkEquivalence
@@ -12978,6 +13194,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HaftarotResponse"];
+                };
+            };
+        };
+    };
+    chronology_api_chronology_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChronologyResponse"];
                 };
             };
         };

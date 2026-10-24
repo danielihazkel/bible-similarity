@@ -11,6 +11,12 @@ from bsim.api.queries.borrowing import (
     borrowing_touching,
 )
 from bsim.api.queries.brackets import bracket_books, brackets_page
+from bsim.api.queries.chronology import (
+    chronology_events,
+    chronology_kings,
+    chronology_numbers,
+    chronology_syncs,
+)
 from bsim.api.queries.ciphers import (
     cipher_chapters,
     cipher_hits_page,
@@ -333,6 +339,10 @@ __all__ = [
     "change_examples",
     "change_groups",
     "change_totals",
+    "chronology_events",
+    "chronology_kings",
+    "chronology_numbers",
+    "chronology_syncs",
     "cipher_chapters",
     "cipher_hits_page",
     "citation_books",
