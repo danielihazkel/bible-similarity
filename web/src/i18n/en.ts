@@ -106,6 +106,7 @@ export const en = {
     borrowing: { label: 'Who borrowed', hint: 'Which side of a parallel looks later' },
     phrases: { label: 'Phrases', hint: 'Shared runs of words' },
     sequences: { label: 'Sequences', hint: 'Passages parallel verse by verse' },
+    synopses: { label: 'Synopses', hint: 'Three or more parallel passages side by side, verse by verse' },
     changes: { label: 'Changes', hint: 'How parallel passages differ' },
     typescenes: { label: 'Action sequences', hint: 'The same actions in the same order' },
     citations: { label: 'Citations', hint: '"As it is written", "according to the word of the LORD": resolved' },

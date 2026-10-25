@@ -167,6 +167,16 @@ def sequence(conn: sqlite3.Connection, seq_id: int) -> dict[str, Any] | None:
     return rows[0] if rows else None
 
 
+def synopsis_chains(conn: sqlite3.Connection, max_q: float) -> list[dict[str, Any]]:
+    """Same-order chains with q <= max_q, pairs still JSON, strongest first."""
+    cur = conn.execute(
+        "SELECT seq_id, a_book, b_book, direction, same_chapter, q, pairs FROM sequences"
+        " WHERE direction = 'forward' AND q <= ? ORDER BY seq_id",
+        (max_q,),
+    )
+    return _dicts(cur)
+
+
 def rewrites_page(
     conn: sqlite3.Connection,
     a_book: int | None,

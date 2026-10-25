@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M103: Synopses (§16.74, D114; proposed T3)
+- [x] `api/synopsis.py`: strong same-order chains joined through shared passages; rows through the aligned pairs (transitively, one passage once a row), in the lead book's order with the chains' own orders kept; columns, one book's passages sharing one; cells flagged where their column goes back
+- [x] API `/synopses` and `/synopses/{id}?base=` (every column diffed against the base column; cached)
+- [x] Viewer: *Synopses* under Parallels (the list; the columns side by side, stacked on a phone; the marks against a chosen column); the Sequences page and a chain's ladder link to them
+- [x] Tests: passages, groups, rows (three witnesses, transitive, skipped verses), a shared column out of order, one passage once a row; the endpoints (pytest); the list, the columns, the marks and the base in the URL, Hebrew, the ladder's link (vitest); e2e on the fixture (two chains in three columns, the base, axe) and the real build (Jeremiah 52 / 39 / II Kings 25:1 in one row; I Chronicles 16 with Psalms 105 + 96)
+
+✔ Thirteen synopses: the fall of Jerusalem in Jeremiah 52, Jeremiah 39 and II Kings 24–25 reads row by row in three columns, I Chronicles 16 against the two psalms it joins, Kings against both Isaiah passages and the close of II Chronicles 32.
+
 ## M102: Words linked in meaning (§16.73, D113; proposed T2)
 - [x] `api/align.py`: a verse's words as the encoder reads them, word vectors from the tokens' last hidden states, mutual best links above `serve.align.min_cos`, stop lemmas left out; the encoders' `tokens()` (and the fixture's stand-in)
 - [x] API `/align` (cached; 503 while the encoder loads or without token vectors)
@@ -1069,6 +1077,6 @@ Analyses
 Tools
 - [x] T1 (done, M93) Workbench: two verse sets (books, ranges, a notebook collection, a pattern-search result) contrasted on lemmas, roots, SDBH domains, morphology and clause shapes (G², BH q, example verses); one pattern query tested on a set against shuffles that keep book and chapter (`analysis/stats.py`)
 - [x] T2 (done, M102) Why semantic: BEREL token alignments (`retrieve/maxsim.py`) drawn between the two passages in Compare, for semantic matches that share no words
-- [ ] T3 Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
+- [x] T3 (done, M103) Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
 
 Suggested order: T1 → D1 → D2 → D3 → D4 → D8 → D5 → D6 → D7 → T2 → T3.

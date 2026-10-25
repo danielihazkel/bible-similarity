@@ -84,7 +84,9 @@ def fixture_cfg(tmp_path, semantic="sm"):
     }
     cfg["lexical"] = {**cfg["lexical"], "formulas": {**cfg["lexical"]["formulas"], "min_verses": 1}}
     cfg["store"] = {**cfg["store"], "bench_queries": 2}
-    cfg["serve"] = {**cfg["serve"], "device": "cpu"}
+    # the two sequences joined into one synopsis of three columns (the second's q is 0.30)
+    synopsis = {**cfg["serve"]["synopsis"], "max_q": 0.5, "join": 0}
+    cfg["serve"] = {**cfg["serve"], "device": "cpu", "synopsis": synopsis}
     cfg["structure"] = {**cfg["structure"], "unit_types": ["chapter"], "leitwort_min_count": 2}
     cfg["map"] = {**cfg["map"], "clusters": {"chapter": 2}}
     cfg["network"] = {**cfg["network"], "unit_types": ["chapter"]}

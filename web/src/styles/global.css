@@ -1593,6 +1593,70 @@ svg[tabindex]:focus-visible {
   }
 }
 
+/* synopses: three or more parallel passages in columns (§16.74) */
+.syn-head,
+.syn-row {
+  display: grid;
+  grid-template-columns: repeat(var(--syn-cols, 3), minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.syn-head {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.syn-head .base {
+  color: var(--text);
+}
+.synopsis {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.syn-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+  min-width: 0;
+}
+.syn-cell.base {
+  border-color: var(--accent);
+}
+.syn-cell.empty {
+  background: transparent;
+  border-style: dashed;
+}
+.syn-cell .hit-text {
+  font-size: 1.1rem;
+  margin: 0.15rem 0 0;
+}
+.syn-flag {
+  margin-inline-start: 0.4rem;
+  color: var(--muted);
+}
+.synopses-table .syn-passages span {
+  display: block;
+}
+@media (max-width: 720px) {
+  .syn-head {
+    display: none;
+  }
+  .syn-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .syn-cell.empty {
+    display: none;
+  }
+}
+
 /* word-level diff marks (parallel sequences, §16.8) */
 .w-diff-substitution { background: var(--diff-sub); }
 .w-diff-added { background: var(--diff-add); }

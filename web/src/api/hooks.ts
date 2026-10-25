@@ -32,6 +32,8 @@ import type {
   ChronologyResponse,
   FrameworksResponse,
   AlignResponse,
+  SynopsesResponse,
+  SynopsisDetail,
   BinomialsResponse,
   BinomialOccurrencesResponse,
   ContrastResponse,
@@ -1349,6 +1351,22 @@ export const useSequence = (id: number | undefined) =>
     queryKey: ['sequence', id],
     queryFn: ({ signal }) => getJson<SequenceDetail>(`/sequences/${id}`, {}, signal),
     enabled: id !== undefined,
+    ...forever,
+  })
+
+export const useSynopses = () =>
+  useQuery({
+    queryKey: ['synopses'],
+    queryFn: ({ signal }) => getJson<SynopsesResponse>('/synopses', {}, signal),
+    ...forever,
+  })
+
+export const useSynopsis = (id: number | undefined, base: number) =>
+  useQuery({
+    queryKey: ['synopsis', id, base],
+    queryFn: ({ signal }) => getJson<SynopsisDetail>(`/synopses/${id}`, { base }, signal),
+    enabled: id !== undefined,
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

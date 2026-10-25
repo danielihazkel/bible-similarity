@@ -78,6 +78,7 @@ export const parEn = {
       arc: (a: string, b: string, n: number) => `${a} ↔ ${b}, ${numEn(n)} verse pairs`,
     },
     page: (n: number, page: number, pages: number) => `${numEn(n)} sequences · page ${page} of ${pages}`,
+    synopses: 'Where three or more passages run parallel, read them side by side as a synopsis.',
   },
 
   sequence: {
@@ -162,6 +163,34 @@ export const parEn = {
     qTitle: 'Expected share of chance alignments among those at least this strong (verb order shuffled inside each passage)',
     textualTag: 'textual parallel',
   },
+
+  synopses: {
+    title: 'Synopses',
+    lede: 'Where a passage runs parallel to two or more others, their parallel sequences are joined into one synopsis: verses aligned by any of the chains share a row, so Jeremiah 52, Jeremiah 39 and II Kings 24–25 on the fall of Jerusalem, or I Chronicles 16 with the two psalms it quotes, are read side by side. Only strong same-order chains (q ≤ 0.05) are joined; two passages with a single chain between them are read as its ladder under Parallel sequences.',
+    passages: 'Passages',
+    rows: 'Rows',
+    aligned: 'Aligned rows',
+    chains: 'Chains',
+    count: (n: number) => (n === 1 ? 'One synopsis' : `${numEn(n)} synopses`),
+    none: 'No parallel sequences join into a synopsis in this build.',
+  },
+
+  synopsis: {
+    notId: 'Not a synopsis id.',
+    summary: (rows: number, aligned: number, cols: number) =>
+      `${numEn(rows)} rows, ${numEn(aligned)} with verses in two or more of the ${cols} columns.`,
+    order: 'The rows follow the first column; a verse marked ↶ goes back in its own book’s order.',
+    joined: 'Joined from the parallel sequences',
+    breaks: (n: number) => `${n} row(s) placed against a chain’s order, where the chains disagree.`,
+    dropped: (n: number) => `${n} aligned pair(s) left out: they would put one passage twice in a row.`,
+    base: 'Mark against',
+    baseHint: 'Every column is marked against this one; its own words are marked where any column differs.',
+    loose: '≈ too different from the marked-against verse to diff word by word',
+    looseTitle: 'Too different from the verse it is marked against to diff word by word',
+    reordered: '↶ goes back in its book’s order',
+    rows: 'Verses side by side',
+    partOf: (n: number) => `Part of a synopsis of ${n} passages`,
+  },
 }
 
 export const parHe: typeof parEn = {
@@ -238,6 +267,7 @@ export const parHe: typeof parEn = {
     mirroredHint: ' שרשראות בסדר הפוך או משתנה אינן עוברות לעולם את קו הבסיס של סדר מעורבב: בחרו „כל השרשראות”.',
     page: (n: number, page: number, pages: number) =>
       `${countHe(n, 'רצף אחד', 'שני רצפים', 'רצפים')} · עמוד ${page} מתוך ${pages}`,
+    synopses: 'כששלושה קטעים או יותר מקבילים, קראו אותם זה לצד זה בסינופסיס.',
   },
 
   sequence: {
@@ -325,5 +355,33 @@ export const parHe: typeof parEn = {
     actions: (n: number) => `${n} פעולות באותו סדר`,
     qTitle: 'השיעור הצפוי של יישורים מקריים מבין היישורים החזקים לפחות כמו זה (סדר הפעלים מעורבב בתוך כל קטע)',
     textualTag: 'מקבילה טקסטואלית',
+  },
+
+  synopses: {
+    title: 'סינופסיס',
+    lede: 'כשקטע מקביל לשני קטעים או יותר, הרצפים המקבילים שלהם מחוברים לסינופסיס אחד: פסוקים שאחת השרשראות מיישרת עומדים באותה שורה, וכך ירמיהו נב, ירמיהו לט ומלכים ב כד–כה על חורבן ירושלים, או דברי הימים א טז עם שני המזמורים שהוא מצטט, נקראים זה לצד זה. רק שרשראות חזקות באותו סדר (q ≤ 0.05) מחוברות; שני קטעים שביניהם שרשרת אחת נקראים כסולם שלה ברצפים המקבילים.',
+    passages: 'קטעים',
+    rows: 'שורות',
+    aligned: 'שורות מיושרות',
+    chains: 'שרשראות',
+    count: (n: number) => countHe(n, 'סינופסיס אחד', 'שני סינופסיסים', 'סינופסיסים'),
+    none: 'אין רצפים מקבילים המתחברים לסינופסיס בבנייה זו.',
+  },
+
+  synopsis: {
+    notId: 'אין זה מזהה של סינופסיס.',
+    summary: (rows: number, aligned: number, cols: number) =>
+      `${numHe(rows)} שורות, ${numHe(aligned)} מהן עם פסוקים בשניים או יותר מתוך ${cols} הטורים.`,
+    order: 'השורות הולכות לפי הטור הראשון; פסוק המסומן ↶ חוזר לאחור בסדר ספרו.',
+    joined: 'מחובר מהרצפים המקבילים',
+    breaks: (n: number) => `${n} שורות הוצבו נגד סדר אחת השרשראות, במקום שהשרשראות חלוקות.`,
+    dropped: (n: number) => `${n} זוגות מיושרים הושמטו: הם היו מציבים קטע אחד פעמיים באותה שורה.`,
+    base: 'סימון לעומת',
+    baseHint: 'כל טור מסומן לעומת טור זה; מילותיו שלו מסומנות במקום שטור כלשהו שונה.',
+    loose: '≈ שונה מדי מהפסוק שלעומתו מסמנים, לא מסומן מילה במילה',
+    looseTitle: 'שונה מדי מהפסוק שלעומתו מסמנים לסימון מילה במילה',
+    reordered: '↶ חוזר לאחור בסדר ספרו',
+    rows: 'פסוקים זה לצד זה',
+    partOf: (n: number) => `חלק מסינופסיס של ${n} קטעים`,
   },
 }

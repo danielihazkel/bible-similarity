@@ -514,6 +514,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/synopses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Synopses
+         * @description Every synopsis, in order of its strongest chain.
+         */
+        get: operations["synopses_api_synopses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/synopses/{syn_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Synopsis
+         * @description One synopsis row by row, every column's verse marked against the `base` column's (cached).
+         */
+        get: operations["synopsis_api_synopses__syn_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/parallelism/{unit_id}": {
         parameters: {
             query?: never;
@@ -9536,6 +9576,76 @@ export interface components {
             /** Delta */
             delta: components["schemas"]["StyloDelta"][];
         };
+        /** SynopsesResponse */
+        SynopsesResponse: {
+            /** Max Q */
+            max_q: number;
+            /** Items */
+            items: components["schemas"]["SynopsisSummary"][];
+        };
+        /** SynopsisCell */
+        SynopsisCell: {
+            /** Verse */
+            verse: number | null;
+            /**
+             * Marks
+             * @default {}
+             */
+            marks: {
+                [key: string]: "spelling" | "form" | "substitution" | "omitted" | "added" | "moved";
+            };
+            /**
+             * Loose
+             * @default false
+             */
+            loose: boolean;
+            /**
+             * Reordered
+             * @default false
+             */
+            reordered: boolean;
+        };
+        /** SynopsisColumn */
+        SynopsisColumn: {
+            /** Book Id */
+            book_id: number;
+            /** Label */
+            label: string;
+            /** Label He */
+            label_he: string;
+        };
+        /** SynopsisDetail */
+        SynopsisDetail: {
+            synopsis: components["schemas"]["SynopsisSummary"];
+            /** Base */
+            base: number;
+            /** Rows */
+            rows: components["schemas"]["SynopsisCell"][][];
+            /** Verses */
+            verses: {
+                [key: string]: components["schemas"]["Verse"];
+            };
+        };
+        /**
+         * SynopsisSummary
+         * @description Parallel sequences joined through shared passages (DESIGN.md §16.74).
+         */
+        SynopsisSummary: {
+            /** Syn Id */
+            syn_id: number;
+            /** Seq Ids */
+            seq_ids: number[];
+            /** Columns */
+            columns: components["schemas"]["SynopsisColumn"][];
+            /** N Rows */
+            n_rows: number;
+            /** N Aligned */
+            n_aligned: number;
+            /** Breaks */
+            breaks: number;
+            /** Dropped */
+            dropped: number;
+        };
         /**
          * SynopticExample
          * @description A Samuel–Kings passage and its Chronicles parallel, scored by models that saw neither.
@@ -10945,6 +11055,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TypeScenesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    synopses_api_synopses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SynopsesResponse"];
+                };
+            };
+        };
+    };
+    synopsis_api_synopses__syn_id__get: {
+        parameters: {
+            query?: {
+                base?: number;
+            };
+            header?: never;
+            path: {
+                syn_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SynopsisDetail"];
                 };
             };
             /** @description Validation Error */

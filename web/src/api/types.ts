@@ -1297,6 +1297,11 @@ export type FrameworksResponse = S['FrameworksResponse']
 // Words linked through the encoder (`/align`, DESIGN.md §16.73).
 export type WordLink = S['WordLink']
 export type AlignResponse = S['AlignResponse']
+export type SynopsisColumn = S['SynopsisColumn']
+export type SynopsisSummary = S['SynopsisSummary']
+export type SynopsesResponse = S['SynopsesResponse']
+export type SynopsisCell = S['SynopsisCell']
+export type SynopsisDetail = S['SynopsisDetail']
 
 // Word pairs (`/binomials`, DESIGN.md §16.72).
 export type Binomial = S['Binomial']

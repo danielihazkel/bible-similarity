@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { useSequence } from '../api/hooks'
-import type { LadderRow, Verse } from '../api/types'
+import { useSequence, useSynopses } from '../api/hooks'
+import type { LadderRow, SynopsisSummary, Verse } from '../api/types'
 import { BorrowLineForSequence } from '../components/BorrowLine'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
@@ -19,6 +19,7 @@ export function SequencePage() {
   const id = Number(seqId)
   const valid = Number.isInteger(id) && id > 0
   const res = useSequence(valid ? id : undefined)
+  const synopses = useSynopses()
   const [showChanges, setShowChanges] = useState(true)
   if (!valid) return <p className="status">{m.par.sequence.notId}</p>
   if (res.isPending) return <Loading />
@@ -56,6 +57,7 @@ export function SequencePage() {
         {onlyA + onlyB > 0 && m.par.sequence.onlySides(onlyA, onlyB)}
       </p>
       <BorrowLineForSequence seqId={s.seq_id} />
+      <SynopsisLine synopsis={synopses.data?.items.find((x) => x.seq_ids.includes(s.seq_id))} />
       <div className="toolbar">
         <label className="check">
           <input type="checkbox" checked={showChanges} onChange={(e) => setShowChanges(e.target.checked)} />
@@ -70,6 +72,16 @@ export function SequencePage() {
         ))}
       </ol>
     </div>
+  )
+}
+
+function SynopsisLine({ synopsis }: { synopsis?: SynopsisSummary }) {
+  const m = useT()
+  if (!synopsis) return null
+  return (
+    <p className="muted">
+      <Link to={`/synopses/${synopsis.syn_id}`}>{m.par.synopsis.partOf(synopsis.columns.length)}</Link>
+    </p>
   )
 }
 

@@ -48,12 +48,12 @@ from bsim.api.routes._common import (
 router = APIRouter()
 
 
-_OP_RANK = {
+OP_RANK = {
     op: i for i, op in enumerate(("substitution", "added", "omitted", "moved", "form", "spelling"))
 }
 
 
-def _verse_diff(
+def diff_marks(
     state: ServeState, conn: sqlite3.Connection, a: int, b: int
 ) -> tuple[dict[int, str], dict[int, str], Counter, float]:
     """(A display marks, B display marks, op counts, shared ratio) of the word alignment of
@@ -76,7 +76,7 @@ def _verse_diff(
         if pos is None or op == "same":
             return
         di = seq[v][pos]["display_idx"]
-        if di is not None and (di not in marks[v] or _OP_RANK[op] < _OP_RANK[marks[v][di]]):
+        if di is not None and (di not in marks[v] or OP_RANK[op] < OP_RANK[marks[v][di]]):
             marks[v][di] = op
 
     for o in ops:
@@ -97,7 +97,7 @@ def verse_diff(a: int, b: int, state: State, conn: Conn) -> dict[str, Any]:
     """Word-level changes from verse a to verse b (any two verses; DESIGN.md §16.8)."""
     verse_or_404(state, a)
     verse_or_404(state, b)
-    am, bm, counts, shared = _verse_diff(state, conn, a, b)
+    am, bm, counts, shared = diff_marks(state, conn, a, b)
     return {
         "a": a,
         "b": b,
@@ -288,7 +288,7 @@ def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -
             elif r["direction"] == "reverse":
                 rows += [LadderRow(a=None, b=y) for y in range(pb - 1, b, -1)]
         cos = float(np.dot(state.emb[a], state.emb[b]))
-        am, bm, _, shared = _verse_diff(state, conn, a, b)
+        am, bm, _, shared = diff_marks(state, conn, a, b)
         rows.append(
             LadderRow(
                 a=a,

@@ -47,6 +47,7 @@ from bsim.api.routes import (
     roots,
     segments,
     senses,
+    synopsis,
     syntax,
     workbench,
 )
@@ -57,6 +58,7 @@ for _module in (
     align,
     phrases,
     parallels,
+    synopsis,
     poetics,
     corpus,
     domains,

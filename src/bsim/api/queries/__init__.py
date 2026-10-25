@@ -196,6 +196,7 @@ from bsim.api.queries.parallels import (
     rewrites_page,
     sequence,
     sequences_page,
+    synopsis_chains,
     typescenes_page,
 )
 from bsim.api.queries.pentateuch import (
@@ -512,6 +513,7 @@ __all__ = [
     "stylo_features",
     "stylo_points",
     "surfaces",
+    "synopsis_chains",
     "syntax_neighbors",
     "syntax_phrases_of",
     "typescenes_page",

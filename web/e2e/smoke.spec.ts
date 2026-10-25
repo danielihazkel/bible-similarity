@@ -106,6 +106,8 @@ const PAGES: [string, RegExp][] = [
   ['/chronology', /The text’s own chronology/],
   ['/frameworks', /Narrative frameworks/],
   ['/binomials', /Word pairs/],
+  ['/synopses', /Synopses/],
+  ['/synopses/13', /Jeremiah 52/],
   ['/forms?view=lists&book=37', /Numbers and lists/],
   ['/map?color=lists', /Map of the Tanakh/],
   ['/borrowing', /Who borrowed/],
@@ -174,7 +176,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/synopses', '/synopses/13']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -299,6 +301,19 @@ test('word pairs: silver and gold first of all, turned round in Chronicles', asy
   await first.getByRole('button').click()
   await expect(page.locator('.bn-panel h4')).toHaveText(['In its own order', 'Turned round'])
   await expect(page.locator('.bn-panel')).toContainText('Chronicles')
+})
+
+test('synopsis: the fall of Jerusalem in Jeremiah 52, Jeremiah 39 and II Kings 24–25', async ({ page }) => {
+  await page.goto('/synopses')
+  await page.getByRole('link', { name: /Jeremiah 52:1–27/ }).click()
+  await expect(page.locator('h1')).toContainText('II Kings 24:18–25:21')
+  // the siege: one row, three witnesses
+  const row = page.locator('.syn-row').filter({ hasText: /Jeremiah 39:1(?!\d)/ })
+  await expect(row.locator('.hit-ref')).toHaveText(['Jeremiah 52:4', 'Jeremiah 39:1', 'II Kings 25:1'])
+  // I Chronicles 16 against Psalms 105 and then 96: the psalms share a column
+  await page.goto('/synopses/26')
+  await expect(page.locator('h1')).toHaveText('I Chronicles 16:8–33 · Psalms 105:1–15 + 96:2–12')
+  await expect(page.locator('.syn-flag')).toHaveCount(1)
 })
 
 test('compare: in the hollow of his hand, its measures: a link of meaning (Isa 40:12, Job 38:5)', async ({ page }) => {

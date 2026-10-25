@@ -131,6 +131,9 @@ const PAGES = [
   '/binomials',
   '/binomials?pair=2091%2B3701&show=both&order=turned',
   '/compare?a=v%3A0&b=v%3A1&marks=meaning',
+  '/synopses',
+  '/synopses/1',
+  '/synopses/1?base=2',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -661,6 +664,20 @@ test('word pairs: the checks, the pairs, a pair turned round', async ({ page }) 
   await page.locator('table.bn-table tbody tr').first().getByRole('button').click()
   await expect(page).toHaveURL(/pair=2091%2B3701/)
   await expect(page.locator('.bn-panel li.hit')).toHaveCount(2)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+})
+
+test('synopses: two chains joined into three columns, marked against a chosen one', async ({ page }) => {
+  await page.goto('/synopses')
+  await page.locator('.synopses-table a').first().click()
+  await expect(page).toHaveURL(/\/synopses\/1$/)
+  await expect(page.locator('.syn-row')).toHaveCount(3)
+  await expect(page.locator('.syn-row').nth(1).locator('.syn-cell:not(.empty)')).toHaveCount(3)
+  await expect(page.locator('.syn-cell.base')).toHaveCount(3)
+  await page.getByLabel('Mark against').selectOption('1')
+  await expect(page).toHaveURL(/base=1/)
+  await expect(page.locator('.syn-cell.base')).toHaveCount(2)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })

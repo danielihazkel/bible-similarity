@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
 import { PagedList } from '../components/Pager'
@@ -49,7 +50,9 @@ export function SequencesPage() {
   return (
     <div className="page sequences-page">
       <h1>{m.par.sequences.title}</h1>
-      <p className="lede">{m.par.sequences.lede}</p>
+      <p className="lede">
+        {m.par.sequences.lede} <Link to="/synopses">{m.par.sequences.synopses}</Link>
+      </p>
       <Segmented
         label={m.par.sequences.viewLabel}
         value={arcs ? 'arcs' : 'list'}

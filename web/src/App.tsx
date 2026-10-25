@@ -57,6 +57,8 @@ const NamesPage = lazy(() => import('./pages/NamesPage').then((m) => ({ default:
 const PhrasesPage = lazy(() => import('./pages/PhrasesPage').then((m) => ({ default: m.PhrasesPage })))
 const PoetryPage = lazy(() => import('./pages/PoetryPage').then((m) => ({ default: m.PoetryPage })))
 const SequencePage = lazy(() => import('./pages/SequencePage').then((m) => ({ default: m.SequencePage })))
+const SynopsesPage = lazy(() => import('./pages/SynopsesPage').then((m) => ({ default: m.SynopsesPage })))
+const SynopsisPage = lazy(() => import('./pages/SynopsisPage').then((m) => ({ default: m.SynopsisPage })))
 const SequencesPage = lazy(() => import('./pages/SequencesPage').then((m) => ({ default: m.SequencesPage })))
 const StructurePage = lazy(() => import('./pages/StructurePage').then((m) => ({ default: m.StructurePage })))
 const StylometryPage = lazy(() => import('./pages/StylometryPage').then((m) => ({ default: m.StylometryPage })))
@@ -89,6 +91,8 @@ export function App() {
           <Route path="phrases" element={<PhrasesPage />} />
           <Route path="sequences" element={<SequencesPage />} />
           <Route path="sequences/:seqId" element={<SequencePage />} />
+          <Route path="synopses" element={<SynopsesPage />} />
+          <Route path="synopses/:synId" element={<SynopsisPage />} />
           <Route path="changes" element={<ChangesPage />} />
           <Route path="borrowing" element={<BorrowingPage />} />
           <Route path="typescenes" element={<TypeScenesPage />} />

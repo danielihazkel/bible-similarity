@@ -113,6 +113,7 @@ export const he: Messages = {
     borrowing: { label: 'מי שאל ממי', hint: 'איזה צד של מקבילה נראה מאוחר' },
     phrases: { label: 'צירופים', hint: 'רצפי מילים משותפים' },
     sequences: { label: 'רצפים', hint: 'קטעים מקבילים פסוק אחר פסוק' },
+    synopses: { label: 'סינופסיס', hint: 'שלושה קטעים מקבילים או יותר זה לצד זה, פסוק אחר פסוק' },
     changes: { label: 'שינויים', hint: 'במה נבדלים קטעים מקבילים' },
     typescenes: { label: 'רצפי פעולות', hint: 'אותן פעולות באותו סדר' },
     citations: { label: 'הפניות', hint: '"ככתוב", "כדבר יהוה": אל מה הן מפנות' },
