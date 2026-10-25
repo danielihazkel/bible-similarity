@@ -102,6 +102,7 @@ class ServeState:
     sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
     query_cache: LruCache = field(default_factory=lambda: LruCache(0))
     dossier_cache: LruCache = field(default_factory=lambda: LruCache(0))
+    align_cache: LruCache = field(default_factory=lambda: LruCache(0))
     pattern_cache: LruCache = field(default_factory=lambda: LruCache(0))
     workbench_cache: LruCache = field(default_factory=lambda: LruCache(0))
     _present: dict[str, bool] = field(default_factory=dict)
@@ -307,6 +308,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         structure_cache=LruCache(serve["structure_cache"]),
         sequence_cache=LruCache(serve["sequence_cache"]),
         dossier_cache=LruCache(serve["dossier_cache"]),
+        align_cache=LruCache(serve["align"]["cache"]),
         query_cache=LruCache(serve["search"]["query_cache"]),
         pattern_cache=LruCache(serve["patterns"]["cache"]),
         workbench_cache=LruCache(serve["workbench"]["cache"]),

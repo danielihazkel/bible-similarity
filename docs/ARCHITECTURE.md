@@ -217,8 +217,9 @@ bible-similarity/
 │   │   └── labels.py               # your labels: a small writable SQLite file (paths.labels, §16.25)
 │   └── api/
 │       ├── app.py                  # FastAPI app factory, startup loading
+│       ├── align.py                # two verses' words linked through the encoder's token vectors, for Compare (§16.73)
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   align, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)

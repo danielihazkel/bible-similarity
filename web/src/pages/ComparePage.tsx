@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useCompare, useExplain, useVerseDiff } from '../api/hooks'
+import { useAlign, useCompare, useExplain, useVerseDiff } from '../api/hooks'
 import type { CompareResponse, Pair, UnitSummary, Verse, VerseDiff } from '../api/types'
+import { AlignChips } from '../components/AlignChips'
 import { BorrowLineBetween } from '../components/BorrowLine'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
@@ -11,14 +12,16 @@ import { UnitPicker } from '../components/UnitPicker'
 import { useLocale, useT } from '../context/localeContext'
 import { similarityBand } from '../lib/format'
 import { unitLabel, verseRef } from '../lib/names'
-import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
+import { alignHighlight, diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 
 /** The hovered verse pair, always as (verse in A, verse in B). */
 type Active = { a: number; b: number; from: 'a' | 'b' }
-/** What the active pair's words are marked by: shared lemmas, or the word-level changes A → B. */
-type Marks = 'shared' | 'changes'
+/** What the active pair's words are marked by: shared lemmas, the word-level changes A → B, or
+ * the words linked in meaning through the encoder (§16.73). */
+type Marks = 'shared' | 'changes' | 'meaning'
+const MARKS: Marks[] = ['shared', 'changes', 'meaning']
 
 export function ComparePage() {
   const m = useT()
@@ -55,8 +58,8 @@ export function ComparePage() {
         <Alignment
           key={`${a}|${b}`}
           data={cmp.data}
-          marks={params.get('marks') === 'changes' ? 'changes' : 'shared'}
-          onMarks={(m) => update({ marks: m === 'changes' ? m : null }, false)}
+          marks={MARKS.find((k) => k === params.get('marks')) ?? 'shared'}
+          onMarks={(m) => update({ marks: m === 'shared' ? null : m }, false)}
         />
       )}
     </div>
@@ -71,12 +74,25 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
   const ex = explain.data && active && explain.data.a === active.a && explain.data.b === active.b ? explain.data : undefined
   const diff = useVerseDiff(active?.a, active?.b, marks === 'changes')
   const df = diff.data && active && diff.data.a === active.a && diff.data.b === active.b ? diff.data : undefined
+  const [focusLink, setFocusLink] = useState<number>()
+  const align = useAlign(active?.a, active?.b, marks === 'meaning')
+  const al = align.data && active && align.data.a === active.a && align.data.b === active.b ? align.data : undefined
   const highlight = (side: 'a' | 'b'): Highlight | undefined =>
-    marks === 'changes' ? diffHighlight(side === 'a' ? df?.a_marks : df?.b_marks) : highlightFor(ex, side, focusLemma)
+    marks === 'changes'
+      ? diffHighlight(side === 'a' ? df?.a_marks : df?.b_marks)
+      : marks === 'meaning'
+        ? alignHighlight(al, side, focusLink)
+        : highlightFor(ex, side, focusLemma)
 
   const bestOfB = new Map(data.b_to_a.map((p) => [p.src, p.tgt]))
   const bestOfA = new Map(data.a_to_b.map((p) => [p.src, p.tgt]))
   const verse = (id: number): Verse => data.verses[String(id)]
+  // the pair stays while the pointer moves from its verse onto the panel (to use its chips)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const leave = (to: EventTarget | null) => {
+    if (to instanceof Node && panelRef.current?.contains(to)) return
+    setActive(undefined)
+  }
   const pairOf = (side: 'a' | 'b', id: number): Pair | undefined =>
     (side === 'a' ? data.a_to_b : data.b_to_a).find((p) => p.src === id)
 
@@ -105,6 +121,7 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
           active={active}
           highlight={highlight}
           onHover={(p) => setActive(p && { a: p.src, b: p.tgt, from: 'a' })}
+          onLeave={leave}
         />
         <Column
           side="b"
@@ -116,25 +133,35 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
           active={active}
           highlight={highlight}
           onHover={(p) => setActive(p && { a: p.tgt, b: p.src, from: 'b' })}
+          onLeave={leave}
         />
       </div>
       {active && (
-        <div className="pair-panel" aria-live="polite">
+        <div
+          className="pair-panel"
+          aria-live="polite"
+          ref={panelRef}
+          onMouseLeave={(e) => {
+            if (!(e.relatedTarget instanceof Element && e.relatedTarget.closest('.align-list'))) setActive(undefined)
+          }}
+        >
           <span className="small">
             {verseRef(verse(active.a), locale)} ↔ {verseRef(verse(active.b), locale)} · {m.compare.cosine}{' '}
             {(pairOf(active.from, active.from === 'a' ? active.a : active.b)?.cosine ?? 0).toFixed(3)}
           </span>
           <span className="segmented" role="group" aria-label={m.hit.markBy}>
-            {(['shared', 'changes'] as const).map((k) => (
+            {MARKS.map((k) => (
               <button key={k} type="button" className={marks === k ? 'on' : ''} aria-pressed={marks === k} onClick={() => onMarks(k)}>
-                {k === 'shared' ? m.hit.sharedWords : m.compare.changes}
+                {k === 'shared' ? m.hit.sharedWords : k === 'changes' ? m.compare.changes : m.compare.meaning}
               </button>
             ))}
           </span>
           {marks === 'shared' ? (
             <LemmaChips explain={ex} loading={explain.isFetching} focus={focusLemma} onFocus={setFocusLemma} />
-          ) : (
+          ) : marks === 'changes' ? (
             <ChangesNote diff={df} loading={diff.isFetching} error={diff.error} />
+          ) : (
+            <AlignChips align={al} loading={align.isFetching} error={align.error} focus={focusLink} onFocus={setFocusLink} />
           )}
         </div>
       )}
@@ -152,9 +179,10 @@ interface ColumnProps {
   active?: Active
   highlight: (side: 'a' | 'b') => Highlight | undefined
   onHover: (p: Pair | undefined) => void
+  onLeave: (to: EventTarget | null) => void
 }
 
-function Column({ side, unit, other, pairs, mutual, verse, active, highlight, onHover }: ColumnProps) {
+function Column({ side, unit, other, pairs, mutual, verse, active, highlight, onHover, onLeave }: ColumnProps) {
   const { m, locale } = useLocale()
   const listRef = useRef<HTMLOListElement>(null)
   const mine = active ? (side === 'a' ? active.a : active.b) : undefined
@@ -185,7 +213,7 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
         )}
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h2>
-      <ol className="align-list" ref={listRef} onMouseLeave={() => onHover(undefined)}>
+      <ol className="align-list" ref={listRef} onMouseLeave={(e) => onLeave(e.relatedTarget)}>
         {pairs.map((p) => {
           const v = verse(p.src)
           const t = verse(p.tgt)

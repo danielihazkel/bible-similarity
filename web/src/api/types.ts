@@ -1294,6 +1294,10 @@ export type SlotHit = S['SlotHit']
 export type FrameworkKing = S['FrameworkKing']
 export type FrameworksResponse = S['FrameworksResponse']
 
+// Words linked through the encoder (`/align`, DESIGN.md §16.73).
+export type WordLink = S['WordLink']
+export type AlignResponse = S['AlignResponse']
+
 // Word pairs (`/binomials`, DESIGN.md §16.72).
 export type Binomial = S['Binomial']
 export type BinomialOccurrence = S['BinomialOccurrence']

@@ -70,19 +70,30 @@ const COMPARE: CompareResponse = {
 }
 
 const DIFF = { a: 1, b: 2, a_marks: {}, b_marks: { '1': 'substitution' }, counts: { same: 1, substitution: 1 }, shared: 0.5, loose: false }
+const ALIGN = {
+  a: 1,
+  b: 2,
+  encoder: 'berel_sup',
+  min_cos: 0.4,
+  links: [
+    { a_display: 1, b_display: 1, a_form: 'נבל', b_form: 'נבל', cos: 0.97, same_lemma: true },
+    { a_display: 0, b_display: 0, a_form: 'אמר', b_form: 'דבר', cos: 0.61, same_lemma: false },
+  ],
+}
 
 function Location() {
   const l = useLocation()
   return <output data-testid="loc">{l.pathname + l.search}</output>
 }
 
-function mockApi(encoderReady: boolean, encoderError: string | null = null) {
+function mockApi(encoderReady: boolean, encoderError: string | null = null, alignStatus = 200) {
   const calls: string[] = []
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
       calls.push(url)
       const p = new URL(url, 'http://x').pathname
+      if (p === '/api/align' && alignStatus !== 200) return new Response(JSON.stringify({ detail: 'loading' }), { status: alignStatus })
       const body =
         p === '/api/books'
           ? BOOKS
@@ -98,7 +109,9 @@ function mockApi(encoderReady: boolean, encoderError: string | null = null) {
                     ? { unit: COMPARE.a, verses: [], parents: [], prev_id: null, next_id: null }
                     : p === '/api/diff'
                       ? DIFF
-                      : null
+                      : p === '/api/align'
+                        ? ALIGN
+                        : null
       return new Response(JSON.stringify(body ?? { detail: 'nope' }), { status: body ? 200 : 404 })
     }),
   )
@@ -216,5 +229,31 @@ describe('ComparePage', () => {
     expect(page.getByText(/50% of the words keep their lemma/)).toBeTruthy()
     fireEvent.click(page.getByRole('button', { name: 'Shared words' }))
     await waitFor(() => expect(page.getByTestId('loc').textContent).toBe('/compare?a=c%3A26%3A14&b=c%3A26%3A53'))
+  })
+
+  it('links the words of the hovered pair in meaning', async () => {
+    Element.prototype.scrollIntoView = vi.fn()
+    const calls = mockApi(true)
+    const page = renderAt('/compare?a=c:26:14&b=c:26:53&marks=meaning', <Route path="/compare" element={<ComparePage />} />)
+    await page.findByText('0.912')
+    fireEvent.mouseEnter(page.container.querySelector('.align-row')!)
+    const chips = await page.findAllByRole('button', { name: /↔/ })
+    expect(chips.map((c) => c.className.includes('meaning'))).toEqual([false, true])
+    expect(calls.some((c) => c.startsWith('/api/align?a=1&b=2'))).toBe(true)
+    const row = page.container.querySelector('.align-row')!
+    expect(row.querySelectorAll('.w-meaning')).toHaveLength(1)
+    expect(row.querySelectorAll('.w-shared')).toHaveLength(1)
+    fireEvent.mouseEnter(chips[1])
+    expect(row.querySelectorAll('.w-focus')).toHaveLength(1)
+    expect(chips[1].title).toBe('cosine 0.610, a link of meaning')
+  })
+
+  it('says when the encoder is not ready to link the words', async () => {
+    Element.prototype.scrollIntoView = vi.fn()
+    mockApi(false, null, 503)
+    const page = renderAt('/compare?a=c:26:14&b=c:26:53&marks=meaning', <Route path="/compare" element={<ComparePage />} />)
+    await page.findByText('0.912')
+    fireEvent.mouseEnter(page.container.querySelector('.align-row')!)
+    expect(await page.findByText(/encoder is still loading/)).toBeTruthy()
   })
 })

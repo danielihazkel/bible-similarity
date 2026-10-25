@@ -130,6 +130,7 @@ const PAGES = [
   '/frameworks?k=asa',
   '/binomials',
   '/binomials?pair=2091%2B3701&show=both&order=turned',
+  '/compare?a=v%3A0&b=v%3A1&marks=meaning',
   '/workbench?a=chapters%3A0%3A1&feature=domain',
   '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A0%3A1&within=corpus',
   '/forms?view=lists&kind=genealogy',
@@ -660,6 +661,17 @@ test('word pairs: the checks, the pairs, a pair turned round', async ({ page }) 
   await page.locator('table.bn-table tbody tr').first().getByRole('button').click()
   await expect(page).toHaveURL(/pair=2091%2B3701/)
   await expect(page.locator('.bn-panel li.hit')).toHaveCount(2)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+})
+
+test('compare: the words of a hovered pair linked in meaning', async ({ page }) => {
+  await page.goto('/compare?a=v%3A0&b=v%3A1&marks=meaning')
+  await page.locator('.column').first().locator('.align-row').first().hover()
+  await expect(page.locator('.align-chip').first()).toBeVisible()
+  await expect(page.locator('.column').first().locator('.align-row .w-shared').first()).toBeVisible()
+  await page.locator('.align-chip').first().hover()
+  await expect(page.locator('.column').first().locator('.align-row .w-focus')).toHaveCount(1)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })

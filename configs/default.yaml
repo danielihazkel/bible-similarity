@@ -1693,6 +1693,10 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   sequence_cache: 256         # /sequences/{id}: responses kept in memory (LRU; deterministic)
   max_arcs: 2000              # /sequences/arcs: the most chains drawn across the canon (strongest first)
   dossier_cache: 1024         # /dossier/{unit}: responses kept in memory (LRU; labels are read live)
+  align:                      # /align: two verses' words linked through the final encoder's token vectors (DESIGN.md §16.73)
+    min_cos: 0.4              # a link: each word the other's best match, at least this cosine (set by eye on known pairs: real links of meaning from about 0.44, noise below 0.3)
+    stop: ["853", "834", "3588", "5921", "413", "3605", "1931", "1961", "3808", "518", "1571"]   # את, אשר, כי, על, אל, כל, הוא, היה, לא, אם, גם: encoded with their verse, not linked
+    cache: 512                # responses kept in memory (LRU; deterministic per encoder)
   dossier:                    # /dossier/{unit}: what the analyses say about one unit (DESIGN.md §10)
     max_q: 0.05               # acrostic / structure q counted as found; type scenes listed at this q
     meter_pct: 0.9            # a chapter's lines fall like a lament at or above this share of the poetry pool

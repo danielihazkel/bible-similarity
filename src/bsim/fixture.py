@@ -2103,3 +2103,22 @@ def build_fixture_db(tmp_path, semantic="sm"):
 def fixture_encoder(texts):
     """A stand-in query encoder: every query lands exactly on verse 3."""
     return np.stack([EMB[3] for _ in texts])
+
+
+def fixture_tokens(texts):
+    """Stand-in token vectors for `/align`: one token per word, its vector seeded by the word, so
+    the same word in two verses links at cosine 1 and different words hardly at all."""
+    out = []
+    for text in texts:
+        vecs, offs, pos = [], [], 0
+        for w in text.split(" "):
+            seed = sum(ord(c) * (i + 1) for i, c in enumerate(w))
+            v = np.random.default_rng(seed).normal(size=16)
+            vecs.append(v / np.linalg.norm(v))
+            offs.append((pos, pos + len(w)))
+            pos += len(w) + 1
+        out.append((np.array(vecs, np.float32), np.array(offs, np.int64)))
+    return out
+
+
+fixture_encoder.tokens = fixture_tokens

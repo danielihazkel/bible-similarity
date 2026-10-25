@@ -265,6 +265,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/align": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Align
+         * @description The word links between verses a and b (503 while the encoder loads, or without one).
+         */
+        get: operations["align_api_align_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/allusions": {
         parameters: {
             query?: never;
@@ -3079,6 +3099,19 @@ export interface components {
             order: number[];
             /** Cells */
             cells: components["schemas"]["AffinityCell"][];
+        };
+        /** AlignResponse */
+        AlignResponse: {
+            /** A */
+            a: number;
+            /** B */
+            b: number;
+            /** Encoder */
+            encoder: string | null;
+            /** Min Cos */
+            min_cos: number;
+            /** Links */
+            links: components["schemas"]["WordLink"][];
         };
         /** AlignedVerb */
         AlignedVerb: {
@@ -9961,6 +9994,21 @@ export interface components {
              */
             roots: components["schemas"]["RootRef"][];
         };
+        /** WordLink */
+        WordLink: {
+            /** A Display */
+            a_display: number | null;
+            /** B Display */
+            b_display: number | null;
+            /** A Form */
+            a_form: string;
+            /** B Form */
+            b_form: string;
+            /** Cos */
+            cos: number;
+            /** Same Lemma */
+            same_lemma: boolean;
+        };
         /**
          * WordPair
          * @description Two lemmas that answer each other across the members of parallel lines (§16.18).
@@ -10506,6 +10554,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvalResponse"];
+                };
+            };
+        };
+    };
+    align_api_align_get: {
+        parameters: {
+            query: {
+                a: number;
+                b: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -240,6 +240,13 @@ h2 {
   background: var(--hl-focus);
   color: var(--hl-focus-text);
 }
+.w-meaning {
+  background: var(--diff-move);
+  color: var(--text);
+  box-shadow: inset 0 -2px var(--lex);
+}
+.align-chip.meaning { box-shadow: inset 0 -2px var(--lex); }
+.align-chip .cos { font-size: 0.75em; } /* the chip's own ink: muted text fails contrast on its fill */
 .w-acrostic {
   background: var(--accent-soft);
   box-shadow: inset 0 -2px var(--accent);
@@ -1387,6 +1394,11 @@ button.chip {
   color: var(--muted);
   direction: ltr;
   text-align: left;
+}
+/* on the highlighted rows the muted ink falls below 4.5:1 against --accent-soft */
+.align-row.active .align-meta,
+.align-row.partner .align-meta {
+  color: var(--text);
 }
 /* the Hebrew interface reads the meta line (verse, partner, cosine) right to left too */
 :root[dir='rtl'] .align-meta {

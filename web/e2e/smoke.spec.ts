@@ -301,6 +301,17 @@ test('word pairs: silver and gold first of all, turned round in Chronicles', asy
   await expect(page.locator('.bn-panel')).toContainText('Chronicles')
 })
 
+test('compare: in the hollow of his hand, its measures: a link of meaning (Isa 40:12, Job 38:5)', async ({ page }) => {
+  test.setTimeout(120_000) // the encoder loads on first use
+  await page.goto('/compare?a=v%3A10941&b=v%3A19512&marks=meaning')
+  await page.locator('.column').first().locator('.align-row').first().hover()
+  const meaning = page.locator('.align-chip.meaning')
+  await expect(meaning).toHaveCount(1, { timeout: 90_000 })
+  await expect(meaning).toContainText('בשעלו')
+  await expect(meaning).toContainText('ממדיה')
+  await expect(page.locator('.column').first().locator('.w-meaning')).toHaveCount(1)
+})
+
 test('workbench: the Elohistic Psalter against the rest of Psalms, and אלהים checked on it', async ({ page }) => {
   await page.goto('/workbench?a=chapters%3A26%3A42-83&b=book%3A26')
   const a = page.getByRole('region', { name: 'Commoner in A' })

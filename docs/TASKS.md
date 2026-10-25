@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M102: Words linked in meaning (§16.73, D113; proposed T2)
+- [x] `api/align.py`: a verse's words as the encoder reads them, word vectors from the tokens' last hidden states, mutual best links above `serve.align.min_cos`, stop lemmas left out; the encoders' `tokens()` (and the fixture's stand-in)
+- [x] API `/align` (cached; 503 while the encoder loads or without token vectors)
+- [x] Viewer: Compare's third mark mode, *Linked in meaning*: links of meaning blue, shared words yellow, a chip per link; the pair kept while the pointer moves onto the panel; the highlighted rows' meta line in full ink (contrast)
+- [x] Tests: the words and their spans, word vectors, mutual links, stop lemmas, the encoder errors, the endpoint (pytest); the mode, its chips and focus, the encoder loading (vitest); e2e on the fixture (hover, chips, axe) and the real build (בשעלו ~ ממדיה, Isa 40:12 / Job 38:5)
+
+✔ Compare now says which words carry a semantic match that shares none: in Isaiah 40:12 and Job 38:5, בשעלו (the hollow of his hand) and ממדיה (its measures) are each other's best match (0.44).
+
 ## M101: Fixed word pairs (§16.72, D112; proposed D7)
 - [x] `bsim binomials` (`analysis/binomials.py`, after frameworks, 5 s): every A וB pair of one kind; the binomials, their order, fixedness and words' lengths (letters, syllables); the turns by period; the claims and known answers fixed in config before the first run; one described sensitivity added (without כסף וזהב)
 - [x] DB `binomials`, `binomial_occurrences` (+ `meta.binomials`); API `/binomials`, `/binomials/occurrences`; findings `binomials_short`, `binomials_late`, `binomials_known`
@@ -1060,7 +1068,7 @@ Analyses
 
 Tools
 - [x] T1 (done, M93) Workbench: two verse sets (books, ranges, a notebook collection, a pattern-search result) contrasted on lemmas, roots, SDBH domains, morphology and clause shapes (G², BH q, example verses); one pattern query tested on a set against shuffles that keep book and chapter (`analysis/stats.py`)
-- [ ] T2 Why semantic: BEREL token alignments (`retrieve/maxsim.py`) drawn between the two passages in Compare, for semantic matches that share no words
+- [x] T2 (done, M102) Why semantic: BEREL token alignments (`retrieve/maxsim.py`) drawn between the two passages in Compare, for semantic matches that share no words
 - [ ] T3 Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
 
 Suggested order: T1 → D1 → D2 → D3 → D4 → D8 → D5 → D6 → D7 → T2 → T3.

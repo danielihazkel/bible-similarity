@@ -158,6 +158,23 @@ class StEncoder:
             )
         return np.asarray(emb, dtype=np.float32)
 
+    def tokens(self, texts: list[str]) -> list[tuple[np.ndarray, np.ndarray]]:
+        """Per text: its non-special tokens' last hidden states, L2-normalized, and their char
+        offsets (as `bsim maxsim` reads them, §16.21)."""
+        from bsim.embed.context import token_batches
+
+        out = []
+        with self._lock:
+            for _, hidden, enc in token_batches(
+                self.model, texts, self.model.max_seq_length, max(len(texts), 1)
+            ):
+                keep = enc["attention_mask"] & ~enc["special"]
+                for j in range(len(hidden)):
+                    v = hidden[j][keep[j]]
+                    v = v / np.maximum(np.linalg.norm(v, axis=1, keepdims=True), 1e-12)
+                    out.append((v.astype(np.float32), enc["offsets"][j][keep[j]]))
+        return out
+
 
 class BackgroundEncoder:
     """An `Encoder` loaded on a daemon thread. Calls fail fast instead of holding a worker:
@@ -194,16 +211,30 @@ class BackgroundEncoder:
         """Block until loading has finished (either way); False on timeout."""
         return self._done.wait(timeout)
 
-    def __call__(self, texts: list[str]) -> np.ndarray:
+    def _ready(self) -> Encoder:
         if not self._done.is_set():
             raise EncoderLoading("the query encoder is still loading; retry shortly")
         if self._encoder is None:
             raise EncoderUnavailable(f"the query encoder failed to load: {self._error}")
-        return self._encoder(texts)
+        return self._encoder
+
+    def __call__(self, texts: list[str]) -> np.ndarray:
+        return self._ready()(texts)
+
+    def tokens(self, texts: list[str]) -> list[tuple[np.ndarray, np.ndarray]]:
+        return token_encoder(self._ready())(texts)
 
 
 class EncoderUnavailable(RuntimeError):
     pass
+
+
+def token_encoder(encoder: Any) -> Callable[[list[str]], list[tuple[np.ndarray, np.ndarray]]]:
+    """The encoder's token vectors (`tokens`), or `EncoderUnavailable` when it has none."""
+    fn = getattr(encoder, "tokens", None)
+    if fn is None:
+        raise EncoderUnavailable("the encoder gives no token vectors")
+    return fn
 
 
 class EncoderLoading(EncoderUnavailable):

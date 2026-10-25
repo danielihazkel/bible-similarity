@@ -4,6 +4,7 @@ ids -> 404."""
 from fastapi import APIRouter
 
 from bsim.api.routes import (
+    align,
     binomials,
     borrowing,
     brackets,
@@ -53,6 +54,7 @@ from bsim.api.routes import (
 router = APIRouter(prefix="/api")
 for _module in (
     core,
+    align,
     phrases,
     parallels,
     poetics,

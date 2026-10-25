@@ -31,6 +31,7 @@ import type {
   HaftarotResponse,
   ChronologyResponse,
   FrameworksResponse,
+  AlignResponse,
   BinomialsResponse,
   BinomialOccurrencesResponse,
   ContrastResponse,
@@ -203,6 +204,16 @@ export const useSimilar = (id: string, mode: Mode, k: number, exclude: Exclude[]
     queryFn: ({ signal }) =>
       getJson<SimilarResponse>(`/similar/${encodeURIComponent(id)}`, { mode, k, exclude: exclude.join(',') }, signal),
     placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Two verses' words linked through the encoder's token vectors (§16.73). */
+export const useAlign = (a: number | undefined, b: number | undefined, enabled: boolean) =>
+  useQuery({
+    queryKey: ['align', a, b],
+    queryFn: ({ signal }) => getJson<AlignResponse>('/align', { a, b }, signal),
+    enabled: enabled && a !== undefined && b !== undefined,
+    retry: false,
     ...forever,
   })
 
