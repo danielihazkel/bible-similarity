@@ -1545,7 +1545,8 @@ export interface paths {
         };
         /**
          * Echoes
-         * @description The checks, directed pairs per book pair and the chapters other books draw on most.
+         * @description The checks, directed pairs per book pair and the chapters other books draw on most
+         *     (`top`: how many chapters).
          */
         get: operations["echoes_api_echoes_get"];
         put?: never;
