@@ -35,6 +35,7 @@ const PAIRS: WordPairsResponse = {
       b: { lemma: '776', he_lemma: 'אֶרֶץ' },
       n: 12,
       expected: 1.5,
+      g2: 31.4,
       q: 0.001,
       reverse: 2,
       examples: [{ verse_id: 7, label_en: 'Psalms 69:35', label_he: 'תהלים סט לה' }],
