@@ -3095,12 +3095,6 @@ export interface components {
         };
         /** AcrosticsResponse */
         AcrosticsResponse: {
-            /** Max Q */
-            max_q: number | null;
-            /** Book */
-            book: number | null;
-            /** Known Recall */
-            known_recall: number | null;
             /** Total */
             total: number;
             /** Offset */
@@ -3109,6 +3103,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Acrostic"][];
+            /** Max Q */
+            max_q: number | null;
+            /** Book */
+            book: number | null;
+            /** Known Recall */
+            known_recall: number | null;
         };
         /** AffinityCell */
         AffinityCell: {
@@ -3191,10 +3191,6 @@ export interface components {
         };
         /** AlliterationResponse */
         AlliterationResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -3203,6 +3199,10 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Alliteration"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /**
          * Allusion
@@ -3259,6 +3259,14 @@ export interface components {
         };
         /** AllusionsResponse */
         AllusionsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Allusion"][];
             /** Meta */
             meta: {
                 [key: string]: unknown;
@@ -3269,14 +3277,6 @@ export interface components {
             book: number | null;
             /** Unit */
             unit: string | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["Allusion"][];
         };
         /** ArcBook */
         ArcBook: {
@@ -3711,6 +3711,14 @@ export interface components {
         };
         /** BracketsPage */
         BracketsPage: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Bracket"][];
             /**
              * Show
              * @enum {string}
@@ -3723,14 +3731,6 @@ export interface components {
             order: "canon" | "strongest";
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["Bracket"][];
         };
         /** BracketsResponse */
         BracketsResponse: {
@@ -3812,6 +3812,14 @@ export interface components {
         };
         /** ChangesResponse */
         ChangesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ChangeGroup"][];
             /**
              * Op
              * @enum {string}
@@ -3827,14 +3835,6 @@ export interface components {
             totals: {
                 [key: string]: number;
             };
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["ChangeGroup"][];
         };
         /** CheckBook */
         CheckBook: {
@@ -4088,14 +4088,6 @@ export interface components {
         };
         /** CipherHitsResponse */
         CipherHitsResponse: {
-            /** Cipher */
-            cipher: ("atbash" | "albam") | null;
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
-            /** Known */
-            known: boolean;
             /** Total */
             total: number;
             /** Offset */
@@ -4104,6 +4096,14 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["CipherHit"][];
+            /** Cipher */
+            cipher: ("atbash" | "albam") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Known */
+            known: boolean;
         };
         /**
          * CipherKnown
@@ -4204,14 +4204,6 @@ export interface components {
         };
         /** CitationListResponse */
         CitationListResponse: {
-            /** Family */
-            family: ("written" | "word" | "command") | null;
-            /** Resolved */
-            resolved: boolean | null;
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -4220,6 +4212,14 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Citation"][];
+            /** Family */
+            family: ("written" | "word" | "command") | null;
+            /** Resolved */
+            resolved: boolean | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /** CitationsResponse */
         CitationsResponse: {
@@ -4321,6 +4321,14 @@ export interface components {
         };
         /** ConcordanceResponse */
         ConcordanceResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ConcordanceHit"][];
             /** Lemma */
             lemma: string;
             /** He Lemma */
@@ -4333,14 +4341,6 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["ConcordanceHit"][];
         };
         /** Conflict */
         Conflict: {
@@ -4620,12 +4620,6 @@ export interface components {
         };
         /** DialogueExchangesResponse */
         DialogueExchangesResponse: {
-            /** Book */
-            book: number | null;
-            /** Party */
-            party: string | null;
-            /** Unequal */
-            unequal: boolean;
             /** Total */
             total: number;
             /** Offset */
@@ -4634,6 +4628,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["DialogueExchange"][];
+            /** Book */
+            book: number | null;
+            /** Party */
+            party: string | null;
+            /** Unequal */
+            unequal: boolean;
         };
         /** DialoguePair */
         DialoguePair: {
@@ -4699,6 +4699,14 @@ export interface components {
         };
         /** DiscoveriesResponse */
         DiscoveriesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Discovery"][];
             /**
              * Unit Type
              * @enum {string}
@@ -4715,14 +4723,6 @@ export interface components {
             cross_book: boolean;
             /** Unit */
             unit: string | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["Discovery"][];
         };
         /**
          * Discovery
@@ -4976,6 +4976,14 @@ export interface components {
         };
         /** DomainResponse */
         DomainResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["DomainHit"][];
             domain: components["schemas"]["DomainInfo"];
             /** Path */
             path: components["schemas"]["DomainInfo"][];
@@ -4985,14 +4993,6 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["DomainHit"][];
         };
         /** DomainShare */
         DomainShare: {
@@ -5139,6 +5139,14 @@ export interface components {
         };
         /** EchoListResponse */
         EchoListResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["EchoEdge"][];
             /** Basis */
             basis: ("cited" | "borrowed" | "language" | "conflict" | "none") | null;
             /** Directed */
@@ -5149,14 +5157,6 @@ export interface components {
             book: number | null;
             /** Unit */
             unit: string | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["EchoEdge"][];
         };
         /** EchoesResponse */
         EchoesResponse: {
@@ -5310,12 +5310,6 @@ export interface components {
         };
         /** EntitiesResponse */
         EntitiesResponse: {
-            /** Kind */
-            kind: string | null;
-            /** Book */
-            book: number | null;
-            /** Q */
-            q: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -5324,6 +5318,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Entity"][];
+            /** Kind */
+            kind: string | null;
+            /** Book */
+            book: number | null;
+            /** Q */
+            q: string | null;
         };
         /**
          * Entity
@@ -5656,12 +5656,6 @@ export interface components {
         };
         /** FormsListsResponse */
         FormsListsResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
-            /** Kind */
-            kind: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -5670,6 +5664,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["FormsList"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Kind */
+            kind: string | null;
         };
         /** FormsPair */
         FormsPair: {
@@ -5716,12 +5716,6 @@ export interface components {
         };
         /** FormsSayingsResponse */
         FormsSayingsResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
-            /** Known */
-            known: boolean;
             /** Total */
             total: number;
             /** Offset */
@@ -5730,6 +5724,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["FormsSaying"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Known */
+            known: boolean;
         };
         /** FrameworkKing */
         FrameworkKing: {
@@ -5825,13 +5825,6 @@ export interface components {
         };
         /** GematriaFormsResponse */
         GematriaFormsResponse: {
-            /** Value */
-            value: number;
-            /**
-             * System
-             * @enum {string}
-             */
-            system: "standard" | "gadol" | "ordinal" | "katan";
             /** Total */
             total: number;
             /** Offset */
@@ -5840,6 +5833,13 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["GematriaForm"][];
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
         };
         /**
          * GematriaKnown
@@ -5863,13 +5863,6 @@ export interface components {
         };
         /** GematriaLemmasResponse */
         GematriaLemmasResponse: {
-            /** Value */
-            value: number;
-            /**
-             * System
-             * @enum {string}
-             */
-            system: "standard" | "gadol" | "ordinal" | "katan";
             /** Total */
             total: number;
             /** Offset */
@@ -5878,6 +5871,13 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["GematriaLemma"][];
+            /** Value */
+            value: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "standard" | "gadol" | "ordinal" | "katan";
         };
         /** GematriaLinksResponse */
         GematriaLinksResponse: {
@@ -5914,6 +5914,14 @@ export interface components {
         };
         /** GematriaPairsResponse */
         GematriaPairsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaPair"][];
             /** Value */
             value: number | null;
             /**
@@ -5923,14 +5931,6 @@ export interface components {
             sort: "vector" | "domains" | "value";
             /** Same Letters */
             same_letters: boolean;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["GematriaPair"][];
         };
         /**
          * GematriaResponse
@@ -5994,6 +5994,14 @@ export interface components {
         };
         /** GematriaVersesResponse */
         GematriaVersesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["GematriaVerse"][];
             /** Value */
             value: number;
             /**
@@ -6003,14 +6011,6 @@ export interface components {
             system: "standard" | "gadol" | "ordinal" | "katan";
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["GematriaVerse"][];
         };
         /** Gen5Number */
         Gen5Number: {
@@ -6172,10 +6172,6 @@ export interface components {
         };
         /** HiddenRootsResponse */
         HiddenRootsResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -6184,6 +6180,10 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["HiddenRoot"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /** Hit */
         Hit: {
@@ -6472,6 +6472,14 @@ export interface components {
         };
         /** KqPairsResponse */
         KqPairsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["KqPair"][];
             /** Cls */
             cls: ("vowel_letter" | "swap" | "vowel_position" | "metathesis" | "division" | "qere_only" | "ketiv_only" | "same_letters" | "other") | null;
             /** Grammar */
@@ -6484,14 +6492,6 @@ export interface components {
             book: number | null;
             /** Unit */
             unit: string | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["KqPair"][];
         };
         /**
          * Label
@@ -7096,6 +7096,14 @@ export interface components {
         };
         /** MeterResponse */
         MeterResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MeterChapter"][];
             /** Meta */
             meta: {
                 [key: string]: unknown;
@@ -7110,14 +7118,6 @@ export interface components {
             group: ("test" | "control" | "pool" | "poetic" | "prose") | null;
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["MeterChapter"][];
         };
         /** MeterVerse */
         MeterVerse: {
@@ -7157,6 +7157,14 @@ export interface components {
         };
         /** MirrorClausesResponse */
         MirrorClausesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MirrorClause"][];
             /** Pair */
             pair: string | null;
             /** Mirrored */
@@ -7167,14 +7175,6 @@ export interface components {
             book: number | null;
             /** Unit */
             unit: string | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["MirrorClause"][];
         };
         /**
          * MirrorVerse
@@ -7205,10 +7205,6 @@ export interface components {
         };
         /** MirrorVersesResponse */
         MirrorVersesResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -7217,6 +7213,10 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["MirrorVerse"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /** MirrorsResponse */
         MirrorsResponse: {
@@ -7430,6 +7430,14 @@ export interface components {
         };
         /** ParallelismResponse */
         ParallelismResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ParallelUnit"][];
             /**
              * Unit Type
              * @enum {string}
@@ -7462,14 +7470,6 @@ export interface components {
             } | null;
             /** Books */
             books: components["schemas"]["ParallelBook"][];
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["ParallelUnit"][];
         };
         /** PatternBook */
         PatternBook: {
@@ -7504,23 +7504,23 @@ export interface components {
         };
         /** PatternResponse */
         PatternResponse: {
-            /** Q */
-            q: string;
-            error: components["schemas"]["PatternProblem"] | null;
-            /** Patterns */
-            patterns: number;
             /** Total */
             total: number;
-            /** Matches */
-            matches: number;
-            /** Books */
-            books: components["schemas"]["PatternBook"][];
             /** Offset */
             offset: number;
             /** Limit */
             limit: number;
             /** Items */
             items: components["schemas"]["PatternVerse"][];
+            /** Q */
+            q: string;
+            error: components["schemas"]["PatternProblem"] | null;
+            /** Patterns */
+            patterns: number;
+            /** Matches */
+            matches: number;
+            /** Books */
+            books: components["schemas"]["PatternBook"][];
         };
         /** PatternVerse */
         PatternVerse: {
@@ -7540,8 +7540,6 @@ export interface components {
         };
         /** PentateuchChaptersResponse */
         PentateuchChaptersResponse: {
-            /** Book */
-            book: number | null;
             /** Total */
             total: number;
             /** Offset */
@@ -7550,6 +7548,8 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["SourceChapter"][];
+            /** Book */
+            book: number | null;
         };
         /** PentateuchResponse */
         PentateuchResponse: {
@@ -7703,6 +7703,14 @@ export interface components {
         };
         /** PhrasesResponse */
         PhrasesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["PhrasePair"][];
             /** Book */
             book: number | null;
             /** Unit */
@@ -7713,14 +7721,6 @@ export interface components {
             min_tokens: number;
             /** Max Spread */
             max_spread: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["PhrasePair"][];
         };
         /** PlaceArcBookResponse */
         PlaceArcBookResponse: {
@@ -7779,6 +7779,14 @@ export interface components {
         };
         /** PlaceLinkPairsResponse */
         PlaceLinkPairsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["PlaceLinkPair"][];
             /** Place */
             place: number | null;
             /**
@@ -7788,14 +7796,6 @@ export interface components {
             sort: "g2" | "km" | "near";
             /** Far */
             far: boolean;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["PlaceLinkPair"][];
         };
         /** PlaceLinksResponse */
         PlaceLinksResponse: {
@@ -7994,8 +7994,6 @@ export interface components {
         };
         /** PlaceVersesResponse */
         PlaceVersesResponse: {
-            /** Place Id */
-            place_id: number;
             /** Total */
             total: number;
             /** Offset */
@@ -8004,6 +8002,8 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["PlaceVerse"][];
+            /** Place Id */
+            place_id: number;
         };
         /** PlacesResponse */
         PlacesResponse: {
@@ -8119,6 +8119,14 @@ export interface components {
         };
         /** PsalmsListResponse */
         PsalmsListResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Psalm"][];
             /** Genre */
             genre: string | null;
             /** Cluster */
@@ -8129,14 +8137,6 @@ export interface components {
             unit: string | null;
             /** Sort */
             sort: string;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["Psalm"][];
         };
         /** PsalmsResponse */
         PsalmsResponse: {
@@ -8413,14 +8413,6 @@ export interface components {
         };
         /** RefrainsListResponse */
         RefrainsListResponse: {
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
-            /** Strongest */
-            strongest: boolean;
-            /** Known */
-            known: boolean;
             /** Total */
             total: number;
             /** Offset */
@@ -8429,6 +8421,14 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Refrain"][];
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Strongest */
+            strongest: boolean;
+            /** Known */
+            known: boolean;
         };
         /** RefrainsResponse */
         RefrainsResponse: {
@@ -8469,6 +8469,14 @@ export interface components {
         };
         /** RetoldPage */
         RetoldPage: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["RetoldPair"][];
             /** Group */
             group: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
             /** Book */
@@ -8480,14 +8488,6 @@ export interface components {
             order: "canon" | "most" | "least";
             /** Known */
             known: boolean;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["RetoldPair"][];
         };
         /** RetoldPair */
         RetoldPair: {
@@ -8633,14 +8633,6 @@ export interface components {
         };
         /** RewritesResponse */
         RewritesResponse: {
-            /** A Book */
-            a_book: number | null;
-            /** B Book */
-            b_book: number | null;
-            /** Op */
-            op: ("substitution" | "omitted" | "added") | null;
-            /** Max Q */
-            max_q: number | null;
             /** Total */
             total: number;
             /** Offset */
@@ -8649,6 +8641,14 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Rewrite"][];
+            /** A Book */
+            a_book: number | null;
+            /** B Book */
+            b_book: number | null;
+            /** Op */
+            op: ("substitution" | "omitted" | "added") | null;
+            /** Max Q */
+            max_q: number | null;
         };
         /**
          * Rhyme
@@ -8681,12 +8681,6 @@ export interface components {
         };
         /** RhymesResponse */
         RhymesResponse: {
-            /** Book */
-            book: number | null;
-            /** Max Q */
-            max_q: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -8695,6 +8689,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["Rhyme"][];
+            /** Book */
+            book: number | null;
+            /** Max Q */
+            max_q: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /** RootBook */
         RootBook: {
@@ -8714,6 +8714,14 @@ export interface components {
          * @description A root family and a page of the verses holding any of its words (`/root/{root}`).
          */
         RootFamily: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ConcordanceHit"][];
             /** Root */
             root: string;
             /** Root He */
@@ -8730,14 +8738,6 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Book */
             book: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["ConcordanceHit"][];
         };
         /**
          * RootKnown
@@ -8810,12 +8810,6 @@ export interface components {
         };
         /** RootPairsResponse */
         RootPairsResponse: {
-            /** Kind */
-            kind: ("cognate" | "other" | "inf_abs") | null;
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -8824,6 +8818,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["RootPair"][];
+            /** Kind */
+            kind: ("cognate" | "other" | "inf_abs") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /**
          * RootRef
@@ -9006,12 +9006,6 @@ export interface components {
         };
         /** SegmentGapsResponse */
         SegmentGapsResponse: {
-            /** Kind */
-            kind: ("turn" | "cut" | "quiet") | null;
-            /** Book */
-            book: number | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -9020,6 +9014,12 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["SegmentGap"][];
+            /** Kind */
+            kind: ("turn" | "cut" | "quiet") | null;
+            /** Book */
+            book: number | null;
+            /** Unit */
+            unit: string | null;
         };
         /** SegmentPoint */
         SegmentPoint: {
@@ -9133,6 +9133,14 @@ export interface components {
         };
         /** SequencesResponse */
         SequencesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["SequenceSummary"][];
             /** Book */
             book: number | null;
             /** Cross Book */
@@ -9147,14 +9155,6 @@ export interface components {
             unit: string | null;
             /** Direction */
             direction: ("forward" | "reverse" | "mixed") | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["SequenceSummary"][];
         };
         /**
          * SetProblem
@@ -9206,6 +9206,14 @@ export interface components {
         };
         /** ShiftsResponse */
         ShiftsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["LemmaShift"][];
             /**
              * By
              * @enum {string}
@@ -9219,14 +9227,6 @@ export interface components {
             nmi_mean: number | null;
             /** Nmi Null Mean */
             nmi_null_mean: number | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["LemmaShift"][];
         };
         /** ShorterFirst */
         ShorterFirst: {
@@ -9463,6 +9463,14 @@ export interface components {
         };
         /** StructureRankingResponse */
         StructureRankingResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["StructureRank"][];
             /**
              * Unit Type
              * @enum {string}
@@ -9479,14 +9487,6 @@ export interface components {
             leitwort_numbers: {
                 [key: string]: unknown;
             } | null;
-            /** Total */
-            total: number;
-            /** Offset */
-            offset: number;
-            /** Limit */
-            limit: number;
-            /** Items */
-            items: components["schemas"]["StructureRank"][];
         };
         /** StructureResponse */
         StructureResponse: {
@@ -9757,14 +9757,6 @@ export interface components {
         };
         /** TypeScenesResponse */
         TypeScenesResponse: {
-            /** Book */
-            book: number | null;
-            /** Max Q */
-            max_q: number | null;
-            /** Hide Textual */
-            hide_textual: boolean;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -9773,6 +9765,14 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["TypeScene"][];
+            /** Book */
+            book: number | null;
+            /** Max Q */
+            max_q: number | null;
+            /** Hide Textual */
+            hide_textual: boolean;
+            /** Unit */
+            unit: string | null;
         };
         /** UnitDetail */
         UnitDetail: {
@@ -10141,10 +10141,6 @@ export interface components {
         };
         /** WordPairsResponse */
         WordPairsResponse: {
-            /** Max Q */
-            max_q: number | null;
-            /** Lemma */
-            lemma: string | null;
             /** Total */
             total: number;
             /** Offset */
@@ -10153,6 +10149,10 @@ export interface components {
             limit: number;
             /** Items */
             items: components["schemas"]["WordPair"][];
+            /** Max Q */
+            max_q: number | null;
+            /** Lemma */
+            lemma: string | null;
         };
         /** WordRef */
         WordRef: {
@@ -10208,22 +10208,22 @@ export interface components {
         };
         /** WordplayResponse */
         WordplayResponse: {
-            /** Book */
-            book: number | null;
-            /** Kind */
-            kind: string | null;
-            /** Unit */
-            unit: string | null;
             /** Total */
             total: number;
-            /** Expected By Chance */
-            expected_by_chance: number | null;
             /** Offset */
             offset: number;
             /** Limit */
             limit: number;
             /** Items */
             items: components["schemas"]["WordplayPair"][];
+            /** Book */
+            book: number | null;
+            /** Kind */
+            kind: string | null;
+            /** Unit */
+            unit: string | null;
+            /** Expected By Chance */
+            expected_by_chance: number | null;
         };
         /** WorkbenchExample */
         WorkbenchExample: {

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel, VerseLabel
+from bsim.api.models.common import ApiModel, Page, VerseLabel
 
 
 class DialogueParty(ApiModel):
@@ -53,11 +53,7 @@ class DialogueExchange(ApiModel):
     last: str  # the key of who speaks last
 
 
-class DialogueExchangesResponse(ApiModel):
+class DialogueExchangesResponse(Page[DialogueExchange]):
     book: int | None
     party: str | None
     unequal: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[DialogueExchange]

@@ -888,6 +888,13 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M108: One pagination shape (§10.2; proposed I5)
+- [x] `Page[T]` (`api/models/common.py`): the 44 paged responses subclass `Page[Item]` instead of each declaring `total`, `offset`, `limit`, `items`; the OpenAPI schema keeps every name and field (the generated types differ only in field order)
+- [x] The lookups' and overviews' caps from the config: `serve.max_lookup` (50: /lemmas, /places/lookup, /genealogy/lookup, a name's partners) and `serve.max_top` (100: /echoes `top`, /network `central`, /unit-entities), checked by `check_cap`
+- [x] Not done, by choice: `top` on /echoes stays (a top-N of chapters, not a page); `X-Total-Count` stays on /phrases only (every paged body carries `total`); bounds stay in `check_page` / `check_cap`, whose 422 messages the viewer prints as they are (FastAPI's own validation answers a list)
+
+✔ Same API: `schema.gen.ts` has the same lines in another order; pytest green.
+
 ## M107: Errors the viewer tells apart (§10.2, D117; proposed I4)
 - [x] `stage(name)` route dependency: 98 summary and list routes of the analysis pages answer 503 `{code: "stage_missing", stage, message}` when their stage did not run (the nine that said 404 "not computed" among them); per-unit panels, the dossier and the reader keep answering empty
 - [x] build-db writes `meta.stages_run` (the stages whose files it found), so a stage that ran and found nothing is an empty list, not "not computed"; older DBs fall back to the meta entry or the table's rows
@@ -1132,7 +1139,7 @@ Pipeline and data
 API
 - [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
 - [x] I4 (done, M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
-- [ ] I5 (M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
+- [x] I5 (done, M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
 - [ ] I6 (M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
 
 Viewer

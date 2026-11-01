@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, Verse, VerseLabel
+from bsim.api.models.common import ApiModel, Page, Verse, VerseLabel
 
 GematriaSystem = Literal["standard", "gadol", "ordinal", "katan"]
 
@@ -52,13 +52,9 @@ class GematriaForm(ApiModel):
     verses: list[VerseLabel]  # its first verses
 
 
-class GematriaFormsResponse(ApiModel):
+class GematriaFormsResponse(Page[GematriaForm]):
     value: int
     system: GematriaSystem
-    total: int
-    offset: int
-    limit: int
-    items: list[GematriaForm]  # commonest first
 
 
 class GematriaLemma(ApiModel):
@@ -68,13 +64,9 @@ class GematriaLemma(ApiModel):
     n_words: int
 
 
-class GematriaLemmasResponse(ApiModel):
+class GematriaLemmasResponse(Page[GematriaLemma]):
     value: int
     system: GematriaSystem
-    total: int
-    offset: int
-    limit: int
-    items: list[GematriaLemma]  # commonest first
 
 
 class GematriaVerse(ApiModel):
@@ -86,14 +78,10 @@ class GematriaVerse(ApiModel):
     n_words: int
 
 
-class GematriaVersesResponse(ApiModel):
+class GematriaVersesResponse(Page[GematriaVerse]):
     value: int
     system: GematriaSystem
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[GematriaVerse]  # canon order
 
 
 LinkMeasure = Literal["domains", "root", "vector"]
@@ -178,11 +166,7 @@ class GematriaPair(ApiModel):
     vector: float
 
 
-class GematriaPairsResponse(ApiModel):
+class GematriaPairsResponse(Page[GematriaPair]):
     value: int | None
     sort: Literal["vector", "domains", "value"]
     same_letters: bool  # pairs spelled alike included
-    total: int
-    offset: int
-    limit: int
-    items: list[GematriaPair]

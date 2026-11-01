@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel, GoldLink, UnitSummary, Verse
+from bsim.api.models.common import ApiModel, GoldLink, Page, UnitSummary, Verse
 
 
 class PhrasePair(ApiModel):
@@ -22,16 +22,12 @@ class PhrasePair(ApiModel):
     link: GoldLink | None = None
 
 
-class PhrasesResponse(ApiModel):
+class PhrasesResponse(Page[PhrasePair]):
     book: int | None
     unit: str | None  # only phrases with a side in this unit
     cross_book: bool
     min_tokens: int
     max_spread: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[PhrasePair]
 
 
 class AllusionLemma(ApiModel):
@@ -62,12 +58,8 @@ class Allusion(ApiModel):
     b_marks: dict[int, list[int]]
 
 
-class AllusionsResponse(ApiModel):
+class AllusionsResponse(Page[Allusion]):
     meta: dict[str, Any]  # rare_lemmas, window, pairs, known, max_q, strong, best_new_q
     known: bool | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Allusion]

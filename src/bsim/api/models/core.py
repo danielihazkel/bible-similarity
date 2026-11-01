@@ -12,6 +12,7 @@ from bsim.api.models.common import (
     GoldLink,
     LemmaForm,
     LemmaStat,
+    Page,
     UnitSummary,
     UnitType,
     Verse,
@@ -84,16 +85,12 @@ class Discovery(ApiModel):
     b_preview: str | None = None
 
 
-class DiscoveriesResponse(ApiModel):
+class DiscoveriesResponse(Page[Discovery]):
     unit_type: UnitType
     mode: Mode
     book: int | None
     cross_book: bool
     unit: str | None  # only the pairs this unit is in
-    total: int  # pairs matching the filters
-    offset: int
-    limit: int
-    items: list[Discovery]
 
 
 class WordRef(ApiModel):
@@ -180,17 +177,13 @@ class WordDetail(ApiModel):
     roots: list[RootRef] = []  # its content lemmas' root families (`bsim roots`)
 
 
-class ConcordanceResponse(ApiModel):
+class ConcordanceResponse(Page[ConcordanceHit]):
     lemma: str
     he_lemma: str
     n_words: int
     n_verses: int
     by_book: list[BookCount]  # canon order, books without it left out
     book: int | None
-    total: int  # verses after the book filter
-    offset: int
-    limit: int
-    items: list[ConcordanceHit]
 
 
 class Meta(ApiModel):

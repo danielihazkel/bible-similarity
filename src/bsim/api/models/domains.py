@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from bsim.api.models.common import ApiModel, BookCount, UnitSummary, Verse
+from bsim.api.models.common import ApiModel, BookCount, Page, UnitSummary, Verse
 
 
 class DomainInfo(ApiModel):
@@ -24,16 +24,12 @@ class DomainHit(ApiModel):
     weight: float
 
 
-class DomainResponse(ApiModel):
+class DomainResponse(Page[DomainHit]):
     domain: DomainInfo
     path: list[DomainInfo]  # its broader domains, from the top
     children: list[DomainInfo]
     by_book: list[BookCount]
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[DomainHit]
 
 
 class DomainShare(ApiModel):

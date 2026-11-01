@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, Verse, VerseLabel
+from bsim.api.models.common import ApiModel, Page, Verse, VerseLabel
 
 FormsKind = Literal["genealogy", "itinerary", "census", "offering", "kings", "names", "other"]
 
@@ -65,14 +65,10 @@ class FormsSaying(ApiModel):
     verse: Verse
 
 
-class FormsSayingsResponse(ApiModel):
+class FormsSayingsResponse(Page[FormsSaying]):
     book: int | None
     unit: str | None
     known: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[FormsSaying]
 
 
 class FormsList(ApiModel):
@@ -91,11 +87,7 @@ class FormsList(ApiModel):
     verses: list[Verse]  # its first few verses (`serve.list_verses`)
 
 
-class FormsListsResponse(ApiModel):
+class FormsListsResponse(Page[FormsList]):
     book: int | None
     unit: str | None
     kind: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[FormsList]

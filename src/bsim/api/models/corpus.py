@@ -9,6 +9,7 @@ from bsim.api.models.common import (
     BookCount,
     GoldLink,
     LemmaForm,
+    Page,
     UnitSummary,
     UnitType,
     Verse,
@@ -34,14 +35,10 @@ class Entity(ApiModel):
     kind_source: Literal["lexicon", "cues"]  # Strong's part of speech, or the context cues
 
 
-class EntitiesResponse(ApiModel):
+class EntitiesResponse(Page[Entity]):
     kind: str | None
     book: int | None
     q: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Entity]
 
 
 class EntityPartner(ApiModel):

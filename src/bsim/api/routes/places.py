@@ -58,11 +58,11 @@ from bsim.api.routes._common import (
     BookFilter,
     Conn,
     State,
+    check_cap,
     check_page,
     span_label,
     stage,
     unit_span,
-    unprocessable,
 )
 from bsim.data.canon import BOOKS, hebrew_numeral
 from bsim.data.refs import parse_ref
@@ -100,11 +100,10 @@ def basemap(state: State, conn: Conn) -> dict[str, Any]:
 
 
 @router.get("/places/lookup", dependencies=[stage("places")], response_model=PlaceLookup)
-def place_lookup(q: str, conn: Conn, limit: int = 6) -> dict[str, Any]:
+def place_lookup(q: str, state: State, conn: Conn, limit: int = 6) -> dict[str, Any]:
     """Places by a Hebrew name (pointing ignored, prefixes dropped as for `/lemmas`) or a name's
     Strong's number, for the jump box: exact matches first, the most named first."""
-    if not 1 <= limit <= 50:
-        raise unprocessable("limit must be between 1 and 50")
+    check_cap(state, limit, "limit", "max_lookup")
     rows = queries.place_lookup(conn, q, limit)
     labels = queries.verse_labels(conn, [r["first_vid"] for r in rows])
     return {

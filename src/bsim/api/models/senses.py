@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from bsim.api.models.common import ApiModel, LemmaForm, Verse
+from bsim.api.models.common import ApiModel, LemmaForm, Page, Verse
 
 
 class LemmaShift(ApiModel):
@@ -51,13 +51,9 @@ class LemmaSensesResponse(ApiModel):
     senses: list[LemmaSense]
 
 
-class ShiftsResponse(ApiModel):
+class ShiftsResponse(Page[LemmaShift]):
     by: Literal["sense", "use"]
     max_q: float | None
     group_order: list[str]
     nmi_mean: float | None  # clusters vs SDBH meanings over the lemmas with both
     nmi_null_mean: float | None
-    total: int
-    offset: int
-    limit: int
-    items: list[LemmaShift]

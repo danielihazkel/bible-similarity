@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, Verse, VerseLabel
+from bsim.api.models.common import ApiModel, Page, Verse, VerseLabel
 
 CipherName = Literal["atbash", "albam"]
 
@@ -60,12 +60,8 @@ class CipherHit(ApiModel):
     known: str | None  # the case named in advance it is
 
 
-class CipherHitsResponse(ApiModel):
+class CipherHitsResponse(Page[CipherHit]):
     cipher: CipherName | None
     book: int | None
     unit: str | None
     known: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[CipherHit]  # canon order

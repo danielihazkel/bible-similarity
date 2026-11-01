@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, KqClass, Verse
+from bsim.api.models.common import ApiModel, KqClass, Page, Verse
 
 
 class KqBook(ApiModel):
@@ -62,14 +62,10 @@ class KqPair(ApiModel):
     display: list[int]  # display tokens of the read words
 
 
-class KqPairsResponse(ApiModel):
+class KqPairsResponse(Page[KqPair]):
     cls: KqClass | None
     grammar: str | None
     parallel: str | None
     euphemism: bool | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[KqPair]

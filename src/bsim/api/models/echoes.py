@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, UnitSummary
+from bsim.api.models.common import ApiModel, Page, UnitSummary
 
 EchoBasis = Literal["cited", "borrowed", "language", "conflict", "none"]
 
@@ -47,13 +47,9 @@ class EchoEdge(ApiModel):
     basis: EchoBasis
 
 
-class EchoListResponse(ApiModel):
+class EchoListResponse(Page[EchoEdge]):
     basis: EchoBasis | None
     directed: bool | None
     backward: bool | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[EchoEdge]

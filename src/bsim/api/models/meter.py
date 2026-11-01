@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, UnitSummary
+from bsim.api.models.common import ApiModel, Page, UnitSummary
 
 MeterGroup = Literal["test", "control", "pool", "poetic", "prose"]
 
@@ -23,17 +23,13 @@ class MeterChapter(ApiModel):
     pct: float | None  # share of the pool chapters with a lower net fall
 
 
-class MeterResponse(ApiModel):
+class MeterResponse(Page[MeterChapter]):
     meta: dict[str, Any]  # lengths, the tests (test, test_poetic, named, grid), groups
     test_chapters: list[MeterChapter]
     control_chapters: list[MeterChapter]
     named_chapters: list[MeterChapter]  # chapters that name a lament (קינה)
     group: MeterGroup | None
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[MeterChapter]  # highest net fall first
 
 
 class MeterLine(ApiModel):

@@ -24,7 +24,7 @@ from bsim.api.models.genealogy import (
     TreeNode,
     TreeSpouse,
 )
-from bsim.api.routes._common import Conn, State, stage, unprocessable
+from bsim.api.routes._common import Conn, State, check_cap, stage
 
 router = APIRouter()
 
@@ -75,11 +75,10 @@ def skeleton(state: State, conn: Conn) -> dict[str, Any]:
 
 
 @router.get("/genealogy/lookup", dependencies=[stage("genealogy")], response_model=PersonLookup)
-def lookup(q: str, conn: Conn, limit: int = 8) -> dict[str, Any]:
+def lookup(q: str, state: State, conn: Conn, limit: int = 8) -> dict[str, Any]:
     """People by a Hebrew name (pointing ignored), whole names first, the most named first, each
     with the parent, tribe or spouse that tells namesakes apart."""
-    if not 1 <= limit <= 50:
-        raise unprocessable("limit must be between 1 and 50")
+    check_cap(state, limit, "limit", "max_lookup")
     rows = queries.genealogy_lookup(conn, q, limit)
     labels = queries.verse_labels(
         conn, [r["first_vid"] for r in rows if r["first_vid"] is not None]

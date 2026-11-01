@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 from bsim.api.models.dialogue import DialogueParty
 from bsim.api.models.parallels import DiffOp
 
@@ -59,12 +59,8 @@ class RetoldPair(ApiModel):
     known: bool
 
 
-class RetoldPage(ApiModel):
+class RetoldPage(Page[RetoldPair]):
     group: RetoldGroup | None
     book: int | None
     order: RetoldOrder
     known: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[RetoldPair]

@@ -9,6 +9,7 @@ from bsim.api.models.common import (
     BookCount,
     ConcordanceHit,
     LemmaStat,
+    Page,
     UnitSummary,
     Verse,
 )
@@ -56,14 +57,10 @@ class RootPair(ApiModel):
     marks: dict[int, int]  # display token -> 0 (the first word) or 1
 
 
-class RootPairsResponse(ApiModel):
+class RootPairsResponse(Page[RootPair]):
     kind: RootPairKind | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[RootPair]
 
 
 class HiddenRoot(ApiModel):
@@ -80,16 +77,12 @@ class HiddenRoot(ApiModel):
     lemmas: list[LemmaStat]  # the family's words
 
 
-class HiddenRootsResponse(ApiModel):
+class HiddenRootsResponse(Page[HiddenRoot]):
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[HiddenRoot]
 
 
-class RootFamily(ApiModel):
+class RootFamily(Page[ConcordanceHit]):
     """A root family and a page of the verses holding any of its words (`/root/{root}`)."""
 
     root: str
@@ -99,7 +92,3 @@ class RootFamily(ApiModel):
     n_verses: int
     by_book: list[BookCount]
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[ConcordanceHit]

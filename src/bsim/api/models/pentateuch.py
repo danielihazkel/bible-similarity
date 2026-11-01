@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel
+from bsim.api.models.common import ApiModel, Page
 
 
 class SourceWord(ApiModel):
@@ -40,9 +40,5 @@ class SourceChapter(ApiModel):
     p_ref: float | None  # share of its assigned verses the reference calls P
 
 
-class PentateuchChaptersResponse(ApiModel):
+class PentateuchChaptersResponse(Page[SourceChapter]):
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[SourceChapter]

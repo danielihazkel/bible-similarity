@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -15,6 +15,19 @@ class ApiModel(BaseModel):
     response, so the OpenAPI schema (the viewer's generated types) marks it required."""
 
     model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
+
+T = TypeVar("T")
+
+
+class Page(ApiModel, Generic[T]):
+    """One page of a list: the whole list's size, where the page starts, its size, its items.
+    A list's response subclasses `Page[Item]` and adds its filters (the schema keeps its name)."""
+
+    total: int
+    offset: int
+    limit: int
+    items: list[T]
 
 
 class Book(ApiModel):

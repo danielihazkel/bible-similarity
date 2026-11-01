@@ -49,6 +49,7 @@ from bsim.api.routes._common import (
     BookFilter,
     Conn,
     State,
+    check_cap,
     check_k,
     check_page,
     check_unit_type,
@@ -370,10 +371,9 @@ def resolve(q: str, conn: Conn) -> dict[str, Any]:
 
 
 @router.get("/lemmas", response_model=LemmaLookup)
-def lemmas(q: str, conn: Conn, limit: int = 8) -> dict[str, Any]:
+def lemmas(q: str, state: State, conn: Conn, limit: int = 8) -> dict[str, Any]:
     """Lemmas by Strong's number (`7965`, `H1350a`) or Hebrew form (`שלום`, pointing ignored)."""
-    if not 1 <= limit <= 50:
-        raise unprocessable("limit must be between 1 and 50")
+    check_cap(state, limit, "limit", "max_lookup")
     return {"query": q, "items": [LemmaStat(**r) for r in queries.lemma_lookup(conn, q, limit)]}
 
 

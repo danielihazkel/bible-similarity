@@ -45,6 +45,7 @@ from bsim.api.routes._common import (
     Conn,
     State,
     book_or_404,
+    check_cap,
     check_page,
     check_unit_type,
     gold_link,
@@ -88,13 +89,12 @@ def entities(
 
 
 @router.get("/entities/{lemma}", dependencies=[stage("entities")], response_model=EntityDetail)
-def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
+def entity_detail(lemma: str, state: State, conn: Conn, partners: int = 15) -> dict[str, Any]:
     """One name: its mentions per book and the names it appears with (G² over verses)."""
     e = queries.entity(conn, lemma)
     if e is None:
         raise HTTPException(status_code=404, detail=f"unknown name {lemma!r}")
-    if not 1 <= partners <= 50:
-        raise unprocessable("partners must be between 1 and 50")
+    check_cap(state, partners, "partners", "max_lookup")
     ps = queries.entity_partners(conn, lemma, partners)
     labels = queries.verse_labels(conn, [e["first_vid"], e["last_vid"]])
     return {
@@ -117,11 +117,10 @@ def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
 
 
 @router.get("/unit-entities/{unit_id}", response_model=list[Entity])
-def unit_entities(unit_id: str, conn: Conn, limit: int = 30) -> list[Entity]:
+def unit_entities(unit_id: str, state: State, conn: Conn, limit: int = 30) -> list[Entity]:
     """The names in a unit, most mentioned there first."""
     u = unit_or_404(conn, unit_id)
-    if not 1 <= limit <= 100:
-        raise unprocessable("limit must be between 1 and 100")
+    check_cap(state, limit, "limit", "max_top")
     rows = queries.unit_entities(conn, u["start_verse_id"], u["end_verse_id"], limit)
     return [Entity(**r) for r in rows]
 
@@ -304,8 +303,7 @@ def network(unit_type: str, state: State, conn: Conn, central: int = 20) -> dict
     """Communities of passages that echo each other, and the most central passages
     (DESIGN.md §16.17)."""
     _network_type(state, unit_type)
-    if not 1 <= central <= 100:
-        raise unprocessable("central must be between 1 and 100")
+    check_cap(state, central, "central", "max_top")
     return {
         "unit_type": unit_type,
         "communities": [_community(conn, r) for r in queries.network_communities(conn, unit_type)],

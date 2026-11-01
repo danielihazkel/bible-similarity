@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 
 
 class RefrainVerse(ApiModel):
@@ -61,12 +61,8 @@ class RefrainsResponse(ApiModel):
     books: list[RefrainBook]  # canon order
 
 
-class RefrainsListResponse(ApiModel):
+class RefrainsListResponse(Page[Refrain]):
     book: int | None
     unit: str | None
     strongest: bool
     known: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[Refrain]

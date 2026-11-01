@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 
 
 class MirrorsResponse(ApiModel):
@@ -26,13 +26,9 @@ class MirrorVerse(ApiModel):
     marks: dict[int, int]  # display token -> 0-based nesting depth of its lemma
 
 
-class MirrorVersesResponse(ApiModel):
+class MirrorVersesResponse(Page[MirrorVerse]):
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[MirrorVerse]
 
 
 class MirrorClause(ApiModel):
@@ -51,13 +47,9 @@ class MirrorClause(ApiModel):
     marks: dict[int, int]  # display token -> 0 (the first clause's first constituent) or 1
 
 
-class MirrorClausesResponse(ApiModel):
+class MirrorClausesResponse(Page[MirrorClause]):
     pair: str | None
     mirrored: bool | None
     poetic: bool | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[MirrorClause]

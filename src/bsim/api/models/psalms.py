@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bsim.api.models.common import ApiModel
+from bsim.api.models.common import ApiModel, Page
 
 
 class PsalmVerse(ApiModel):
@@ -61,13 +61,9 @@ class PsalmsResponse(ApiModel):
     known: list[PsalmKnownTurn]
 
 
-class PsalmsListResponse(ApiModel):
+class PsalmsListResponse(Page[Psalm]):
     genre: str | None
     cluster: int | None
     turned: bool
     unit: str | None
     sort: str
-    total: int
-    offset: int
-    limit: int
-    items: list[Psalm]

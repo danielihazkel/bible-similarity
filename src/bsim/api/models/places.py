@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, BookCount, Verse, VerseLabel
+from bsim.api.models.common import ApiModel, BookCount, Page, Verse, VerseLabel
 
 PlaceKind = Literal["town", "region", "landform", "water"]
 NameKind = Literal["person", "people", "location", "landform", "water"]
@@ -86,12 +86,8 @@ class PlaceVerse(ApiModel):
     tokens: list[int]  # display tokens naming the place
 
 
-class PlaceVersesResponse(ApiModel):
+class PlaceVersesResponse(Page[PlaceVerse]):
     place_id: int
-    total: int
-    offset: int
-    limit: int
-    items: list[PlaceVerse]  # canon order
 
 
 PlaceListKind = Literal["itinerary", "boundary", "towns", "nations"]
@@ -391,11 +387,7 @@ class PlaceLinksResponse(ApiModel):
 PlaceLinkSort = Literal["g2", "km", "near"]
 
 
-class PlaceLinkPairsResponse(ApiModel):
+class PlaceLinkPairsResponse(Page[PlaceLinkPair]):
     place: int | None
     sort: PlaceLinkSort
     far: bool
-    total: int
-    offset: int
-    limit: int
-    items: list[PlaceLinkPair]

@@ -121,6 +121,14 @@ def check_page(state: ServeState, limit: int, offset: int) -> None:
         raise unprocessable("offset must not be negative")
 
 
+def check_cap(state: ServeState, value: int, name: str, cap: str) -> int:
+    """1 ≤ value ≤ `serve.{cap}` (`max_lookup`, `max_top`), else 422."""
+    high = state.cfg["serve"][cap]
+    if not 1 <= value <= high:
+        raise unprocessable(f"{name} must be between 1 and {high}")
+    return value
+
+
 def check_min(value: int | None, name: str, low: int = 1) -> None:
     if value is not None and value < low:
         raise unprocessable(f"{name} must be at least {low}")

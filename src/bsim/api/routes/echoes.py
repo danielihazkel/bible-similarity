@@ -21,10 +21,10 @@ from bsim.api.routes._common import (
     BookFilter,
     Conn,
     State,
+    check_cap,
     check_page,
     stage,
     unit_span,
-    unprocessable,
 )
 
 router = APIRouter()
@@ -32,9 +32,9 @@ router = APIRouter()
 
 @router.get("/echoes", dependencies=[stage("echoes")], response_model=EchoesResponse)
 def echoes(state: State, conn: Conn, top: int = 20) -> dict[str, Any]:
-    """The checks, directed pairs per book pair and the chapters other books draw on most."""
-    if not 1 <= top <= 100:
-        raise unprocessable("top must be between 1 and 100")
+    """The checks, directed pairs per book pair and the chapters other books draw on most
+    (`top`: how many chapters)."""
+    check_cap(state, top, "top", "max_top")
     rows = queries.echo_sources(conn, top)
     units = queries.units_by_id(conn, [r["unit_id"] for r in rows])
     return {

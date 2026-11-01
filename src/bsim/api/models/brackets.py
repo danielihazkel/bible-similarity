@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 
 BracketShow = Literal["all", "strong", "known"]
 BracketOrder = Literal["canon", "strongest"]
@@ -65,11 +65,7 @@ class Bracket(ApiModel):
     known: bool
 
 
-class BracketsPage(ApiModel):
+class BracketsPage(Page[Bracket]):
     show: BracketShow
     order: BracketOrder
     book: int | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Bracket]

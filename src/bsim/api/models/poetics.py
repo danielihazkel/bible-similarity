@@ -9,6 +9,7 @@ from bsim.api.models.common import (
     Leitwort,
     LemmaForm,
     LemmaStat,
+    Page,
     UnitSummary,
     UnitType,
     Verse,
@@ -75,7 +76,7 @@ class ParallelBook(ApiModel):
     n_scored: int
 
 
-class ParallelismResponse(ApiModel):
+class ParallelismResponse(Page[ParallelUnit]):
     unit_type: UnitType
     book: int | None
     exclude_poetic: bool
@@ -86,10 +87,6 @@ class ParallelismResponse(ApiModel):
     min_parallel: int  # parallel verses a unit needs (0 unless sorted by antithetic share)
     typing: dict[str, Any] | None  # antithetic / synonymous typing check (§16.22), None without it
     books: list[ParallelBook]
-    total: int
-    offset: int
-    limit: int
-    items: list[ParallelUnit]
 
 
 class WordplayPair(ApiModel):
@@ -114,15 +111,11 @@ class WordplayPair(ApiModel):
     verses: list[Verse]  # one verse, or two when the pair crosses a verse boundary
 
 
-class WordplayResponse(ApiModel):
+class WordplayResponse(Page[WordplayPair]):
     book: int | None
     kind: str | None
     unit: str | None
-    total: int
     expected_by_chance: float | None  # pairs per shuffled text (whole corpus)
-    offset: int
-    limit: int
-    items: list[WordplayPair]
 
 
 class StructureScore(ApiModel):
@@ -185,16 +178,12 @@ class StructureRank(ApiModel):
     lexical_chiasm_q: float | None = None
 
 
-class StructureRankingResponse(ApiModel):
+class StructureRankingResponse(Page[StructureRank]):
     unit_type: UnitType
     by: StructureSort
     min_verses: int
     # multiples-of-m check of Leitwort counts (`structure.leitwort_numbers`), m -> stats
     leitwort_numbers: dict[str, Any] | None = None
-    total: int
-    offset: int
-    limit: int
-    items: list[StructureRank]
 
 
 class AcrosticLine(ApiModel):
@@ -220,14 +209,10 @@ class Acrostic(ApiModel):
     chain: list[AcrosticLine]
 
 
-class AcrosticsResponse(ApiModel):
+class AcrosticsResponse(Page[Acrostic]):
     max_q: float | None
     book: int | None
     known_recall: float | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Acrostic]
 
 
 class WordPair(ApiModel):
@@ -243,13 +228,9 @@ class WordPair(ApiModel):
     examples: list[VerseLabel]
 
 
-class WordPairsResponse(ApiModel):
+class WordPairsResponse(Page[WordPair]):
     max_q: float | None
     lemma: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[WordPair]
 
 
 class Alliteration(ApiModel):
@@ -267,13 +248,9 @@ class Alliteration(ApiModel):
     q: float
 
 
-class AlliterationResponse(ApiModel):
+class AlliterationResponse(Page[Alliteration]):
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Alliteration]
 
 
 class Rhyme(ApiModel):
@@ -291,11 +268,7 @@ class Rhyme(ApiModel):
     q: float
 
 
-class RhymesResponse(ApiModel):
+class RhymesResponse(Page[Rhyme]):
     book: int | None
     max_q: float | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Rhyme]

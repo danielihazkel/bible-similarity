@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 
 CitationFamily = Literal["written", "word", "command"]
 
@@ -49,12 +49,8 @@ class Citation(ApiModel):
     named: bool  # scholarship names a source for this citation
 
 
-class CitationListResponse(ApiModel):
+class CitationListResponse(Page[Citation]):
     family: CitationFamily | None
     resolved: bool | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Citation]

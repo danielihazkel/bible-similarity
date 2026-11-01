@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from bsim.api.models.common import ApiModel, UnitSummary, Verse
+from bsim.api.models.common import ApiModel, Page, UnitSummary, Verse
 
 DiffOp = Literal["spelling", "form", "substitution", "omitted", "added", "moved"]
 
@@ -37,16 +37,12 @@ class ChangeGroup(ApiModel):
     examples: list[ChangeExample]
 
 
-class ChangesResponse(ApiModel):
+class ChangesResponse(Page[ChangeGroup]):
     op: DiffOp
     a_book: int | None
     b_book: int | None
     unit: str | None  # only verse pairs with a side in this unit
     totals: dict[str, int]  # changes per op under the book filters
-    total: int  # groups
-    offset: int
-    limit: int
-    items: list[ChangeGroup]
 
 
 class VerseDiff(ApiModel):
@@ -99,7 +95,7 @@ class SequenceArcsResponse(ApiModel):
     items: list[SequenceSummary]
 
 
-class SequencesResponse(ApiModel):
+class SequencesResponse(Page[SequenceSummary]):
     book: int | None
     cross_book: bool
     hide_same_chapter: bool
@@ -107,10 +103,6 @@ class SequencesResponse(ApiModel):
     min_pairs: int
     unit: str | None
     direction: SequenceDirection | None = None
-    total: int
-    offset: int
-    limit: int
-    items: list[SequenceSummary]
 
 
 class LadderRow(ApiModel):
@@ -166,15 +158,11 @@ class RewriteProfile(ApiModel):
     to_defective: int
 
 
-class RewritesResponse(ApiModel):
+class RewritesResponse(Page[Rewrite]):
     a_book: int | None
     b_book: int | None
     op: RewriteOp | None
     max_q: float | None
-    total: int
-    offset: int
-    limit: int
-    items: list[Rewrite]
 
 
 class AlignedVerb(ApiModel):
@@ -196,12 +184,8 @@ class TypeScene(ApiModel):
     q: float
 
 
-class TypeScenesResponse(ApiModel):
+class TypeScenesResponse(Page[TypeScene]):
     book: int | None
     max_q: float | None
     hide_textual: bool
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[TypeScene]

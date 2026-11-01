@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from bsim.api.models.common import ApiModel, Verse
+from bsim.api.models.common import ApiModel, Page, Verse
 
 PatternErrorCode = Literal[
     "empty", "expected_pattern", "unclosed", "bad_condition", "unknown_key", "bad_value",
@@ -41,13 +41,9 @@ class PatternBook(ApiModel):
     verses: int
 
 
-class PatternResponse(ApiModel):
+class PatternResponse(Page[PatternVerse]):
     q: str
     error: PatternProblem | None
     patterns: int  # word patterns in the query
-    total: int  # verses with a match (the paged list)
     matches: int
     books: list[PatternBook]  # canon order
-    offset: int
-    limit: int
-    items: list[PatternVerse]

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from bsim.api.models.common import ApiModel, SegmentKind, Verse
+from bsim.api.models.common import ApiModel, Page, SegmentKind, Verse
 
 
 class SegmentBook(ApiModel):
@@ -44,14 +44,10 @@ class SegmentGap(ApiModel):
     verses: list[Verse]  # the verse before and the verse after
 
 
-class SegmentGapsResponse(ApiModel):
+class SegmentGapsResponse(Page[SegmentGap]):
     kind: SegmentKind | None
     book: int | None
     unit: str | None
-    total: int
-    offset: int
-    limit: int
-    items: list[SegmentGap]
 
 
 class SegmentPoint(ApiModel):
