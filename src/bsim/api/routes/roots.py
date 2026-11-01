@@ -81,9 +81,10 @@ def root_pairs(
     verses, labels = queries.verses_by_id(conn, vids), queries.verse_labels(conn, vids)
     stats = queries.lemma_stats(conn, (x for r in rows for x in (r["a_lemma"], r["b_lemma"])))
     index = state.roots(conn)
+    disps = queries.display_maps(conn, vids)
     items = []
     for r in rows:
-        disp = queries.display_map(conn, r["verse_id"])
+        disp = disps[r["verse_id"]]
         marks = {disp[i]: side for side, i in enumerate((r["a_idx"], r["b_idx"])) if i in disp}
         items.append(
             RootPair(

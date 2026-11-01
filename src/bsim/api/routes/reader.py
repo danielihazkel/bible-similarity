@@ -180,7 +180,8 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     for r in queries.place_tokens(conn, first, last):
         place_at[r["verse_id"]].setdefault(r["display_idx"], r["place_id"])
     named = Counter(p for toks in place_at.values() for p in set(toks.values()))
-    sites = {p: queries.place(conn, p) for p in sorted(named, key=lambda p: (-named[p], p))}
+    rows = queries.places_by_id(conn, sorted(named))
+    sites = {p: rows.get(p) for p in sorted(named, key=lambda p: (-named[p], p))}
     # divine names (§16.65): each token that is one
     divine: dict[int, dict[int, str]] = defaultdict(dict)
     if state.present(conn, "divine_words"):

@@ -41,10 +41,11 @@ def mirror_verses(
     total, rows = queries.mirror_verses_page(conn, book, unit_span(conn, unit), limit, offset)
     verses = queries.verses_by_id(conn, [r["verse_id"] for r in rows])
     labels = queries.verse_labels(conn, [r["verse_id"] for r in rows])
+    disps = queries.display_maps(conn, [r["verse_id"] for r in rows])
     items = []
     for r in rows:
         lemmas, idxs = json.loads(r["lemmas"]), json.loads(r["idxs"])
-        disp = queries.display_map(conn, r["verse_id"])
+        disp = disps[r["verse_id"]]
         # depth of nesting: the outermost pair is 0
         order = list(dict.fromkeys(lemmas))
         marks = {
@@ -83,9 +84,10 @@ def mirror_clauses(
     )
     verses = queries.verses_by_id(conn, [r["verse_id"] for r in rows])
     labels = queries.verse_labels(conn, [r["verse_id"] for r in rows])
+    disps = queries.display_maps(conn, [r["verse_id"] for r in rows])
     items = []
     for r in rows:
-        disp = queries.display_map(conn, r["verse_id"])
+        disp = disps[r["verse_id"]]
         marks: dict[int, int] = {}
         for side in ("a_words", "b_words"):
             for fn, idxs in json.loads(r[side]).items():

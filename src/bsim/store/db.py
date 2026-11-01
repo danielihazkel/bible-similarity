@@ -61,6 +61,8 @@ SYNTAX_TABLES = (
 MODES = ("lexical", "semantic", "fused", "structural", "domain", "syntax")
 SIMILAR_EXCLUDES = (*EXCLUDES, "known")
 INDEXES = (
+    # a verse by reference (/resolve, the jump box) and a book's verses (every `book=` filter)
+    "CREATE INDEX verses_by_ref ON verses (book_id, chapter, verse)",
     "CREATE INDEX units_by_type_book ON units (unit_type, book_id, start_verse_id)",
     "CREATE INDEX members_by_verse ON unit_members (verse_id, unit_id)",
     "CREATE INDEX discoveries_by_score ON discoveries (unit_type, mode, score DESC, tie DESC)",
@@ -89,6 +91,18 @@ INDEXES = (
     "CREATE INDEX diff_changes_by_a ON diff_changes (a)",
     "CREATE INDEX diff_changes_by_b ON diff_changes (b)",
     "CREATE INDEX discoveries_by_b ON discoveries (unit_type, mode, b_id)",
+    # /discoveries?book=: one search per side, in score order and covering what it filters on
+    # (queries.core._discoveries_of_book: the b side drops pairs whose a side is the book)
+    "CREATE INDEX discoveries_by_a_book ON discoveries (unit_type, mode, a_book, score DESC,"
+    " tie DESC, b_book)",
+    "CREATE INDEX discoveries_by_b_book ON discoveries (unit_type, mode, b_book, score DESC,"
+    " tie DESC, a_book)",
+    "CREATE INDEX genealogy_conflicts_by_child ON genealogy_conflicts (child_id)",
+    "CREATE INDEX genealogy_identities_by_person ON genealogy_identities (person_id)",
+    "CREATE INDEX genealogy_identities_by_other ON genealogy_identities (other_id)",
+    "CREATE INDEX voice_pairs_by_b ON voice_pairs (b)",
+    "CREATE INDEX dating_chapters_by_book ON dating_chapters (book_id, chapter)",
+    "CREATE INDEX speech_chapters_by_book ON speech_chapters (book_id, chapter)",
     "CREATE INDEX typescenes_by_a ON typescenes (a_unit)",
     "CREATE INDEX typescenes_by_b ON typescenes (b_unit)",
     "CREATE INDEX seams_by_verse ON seams (verse_id)",

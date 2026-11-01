@@ -388,8 +388,8 @@ def place_links(state: State, conn: Conn) -> dict[str, Any]:
     for k in meta.get("known") or []:
         pair = None
         if k.get("a_id") is not None:
-            rows = queries.place_links_page(conn, k["a_id"], "g2", False, 1000, 0)[1]
-            pair = next((_link_pair(r) for r in rows if k["b_id"] in (r["a"], r["b"])), None)
+            rows = queries.place_links_page(conn, k["a_id"], "g2", False, 1, 0, k["b_id"])[1]
+            pair = _link_pair(rows[0]) if rows else None
         known.append(KnownLink(a=k["a"], b=k["b"], found=k["found"], pair=pair, rank=k["rank"],
                                holds=k["holds"]))  # fmt: skip
     labels = [_ref_labels(conn, ref, [0, 0]) for ref in meta.get("lists") or []]

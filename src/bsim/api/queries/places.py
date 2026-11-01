@@ -7,7 +7,7 @@ import re
 import sqlite3
 from typing import Any
 
-from bsim.api.queries.common import _dicts, count
+from bsim.api.queries.common import _dicts, _marks, count
 from bsim.api.queries.core import form_keys
 from bsim.text.normalize import match_key
 
@@ -79,6 +79,17 @@ def place(conn: sqlite3.Connection, place_id: int) -> dict[str, Any] | None:
                        (place_id,))  # fmt: skip
     rows = _sites(_dicts(cur))
     return rows[0] if rows else None
+
+
+def places_by_id(conn: sqlite3.Connection, place_ids: list[int]) -> dict[int, dict[str, Any]]:
+    """place id -> its row (as `place`), in one query."""
+    if not place_ids:
+        return {}
+    marks = _marks(len(place_ids))
+    cur = conn.execute(
+        f"SELECT {_COLS}, NULL AS n_here FROM places p WHERE p.place_id IN ({marks})", place_ids
+    )
+    return {r["place_id"]: r for r in _sites(_dicts(cur))}
 
 
 _PLACE_INDEX: dict[str, list[tuple[int, tuple[str, ...], list[str]]]] = {}
@@ -290,11 +301,21 @@ def place_link_points(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 
 
 def place_links_page(
-    conn: sqlite3.Connection, place: int | None, sort: str, far: bool, limit: int, offset: int
+    conn: sqlite3.Connection,
+    place: int | None,
+    sort: str,
+    far: bool,
+    limit: int,
+    offset: int,
+    other: int | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
-    """Linked pairs of places (one place's, or all; far ones only: leads), with both sites."""
+    """Linked pairs of places (one place's, or all; far ones only: leads), with both sites;
+    `other` with `place`: that one pair."""
     where, args = [], []
-    if place is not None:
+    if place is not None and other is not None:
+        where.append("((l.a = ? AND l.b = ?) OR (l.a = ? AND l.b = ?))")
+        args += [place, other, other, place]
+    elif place is not None:
         where.append("(l.a = ? OR l.b = ?)")
         args += [place, place]
     if far:

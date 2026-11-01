@@ -69,6 +69,8 @@ def discoveries(
     unit_id: str | None = None,
 ) -> tuple[int, list[dict[str, Any]]]:
     """(total, page) of `discoveries` rows, strongest first; `unit_id`: the pairs it is in."""
+    if book_id is not None and unit_id is None:
+        return _discoveries_of_book(conn, unit_type, mode, book_id, cross_book, limit, offset)
     where, args = "unit_type = ? AND mode = ?", [unit_type, mode]
     if unit_id is not None:
         where += " AND (a_id = ? OR b_id = ?)"
@@ -83,6 +85,38 @@ def discoveries(
         "SELECT a_id, b_id, score, tie, rank_ab, rank_ba FROM discoveries"
         f" WHERE {where} ORDER BY score DESC, tie DESC, a_id, b_id LIMIT ? OFFSET ?",
         [*args, limit, offset],
+    )
+    return total, _dicts(cur)
+
+
+def _discoveries_of_book(
+    conn: sqlite3.Connection,
+    unit_type: str,
+    mode: str,
+    book_id: int,
+    cross_book: bool,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
+    """A book's pairs as two index searches (`a_book`, then `b_book` with `a_book` another), the
+    page's keys sorted on the covering indexes, the rest joined for those keys only. `a_book = ?
+    OR b_book = ?` searches neither index and sorts the whole mode (60 ms against 2 ms)."""
+    other = " AND b_book != a_book" if cross_book else ""
+    hits = (
+        "SELECT a_id, b_id, score, tie FROM discoveries"
+        f" WHERE unit_type = ? AND mode = ? AND a_book = ?{other}"
+        " UNION ALL SELECT a_id, b_id, score, tie FROM discoveries"
+        " WHERE unit_type = ? AND mode = ? AND b_book = ? AND a_book != ?"
+    )
+    args = [unit_type, mode, book_id, unit_type, mode, book_id, book_id]
+    total = count(conn, f"SELECT COUNT(*) FROM ({hits})", args)
+    cur = conn.execute(
+        "SELECT d.a_id, d.b_id, d.score, d.tie, d.rank_ab, d.rank_ba"
+        f" FROM (SELECT a_id, b_id FROM ({hits})"
+        "       ORDER BY score DESC, tie DESC, a_id, b_id LIMIT ? OFFSET ?) h"
+        " JOIN discoveries d ON d.unit_type = ? AND d.mode = ? AND d.a_id = h.a_id"
+        " AND d.b_id = h.b_id ORDER BY d.score DESC, d.tie DESC, d.a_id, d.b_id",
+        [*args, limit, offset, unit_type, mode],
     )
     return total, _dicts(cur)
 

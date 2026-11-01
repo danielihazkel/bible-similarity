@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M106: Query speed (§9; proposed I3)
+- [x] Indexes: verses by reference (`book_id, chapter, verse`); discoveries by `a_book` and by `b_book` (with score, tie and the other book, so each side's search covers its filter and order); genealogy conflicts by child and identities by either person, voice pairs by `b`, dating and speech chapters by book and chapter
+- [x] `/discoveries?book=` as two index searches and a join for the page's keys (`_discoveries_of_book`); totals were already cached across pages (`queries.count`)
+- [x] One query per page, not per row: the word → display maps of mirrors, mirrored clauses and root pairs (`display_maps`), the reader's places (`places_by_id`); a place-links known pair looked up directly instead of from 1,000 rows
+- [x] The plan's `books` span columns were not needed: the verses index already makes a book's verses an index-only read
+- [x] Tests: query plans of a verse by reference, a chapter's units, the book filter and a book's discoveries (with and without `cross_book`) search an index and never scan verses, discoveries, words or matches (pytest, fixture statistics removed); the API tests unchanged
+
+✔ Real DB, best of 7: a verse by reference 20.7 → 0.7 ms, a chapter's pericopes 21.5 → 0.7 ms, a book's verse discoveries 86 → 3.6 ms, mirrors of a book 66 → 2.7 ms. `bsim compare-builds`: all 134 tables the same; the DB 686 → 805 MB, build-db 2:16 → 4:02.
+
 ## M105: Reproducible runs (§6.2, D116; proposed I2)
 - [x] `units`: each unit's best-match rows summed apart and added in order; `index_add_` added with CUDA atomics, so two runs differed in the last bits and reordered tied neighbours (chapter, pericope, parasha; PageRank and discoveries after them)
 - [x] `word_pairs` ties broken by the lemma pair (the pairs come from sets, whose order changes between runs)
@@ -1110,7 +1119,7 @@ Pipeline and data
 - [ ] I14 (M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
 
 API
-- [ ] I3 (M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
+- [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
 - [ ] I4 (M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
 - [ ] I5 (M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
 - [ ] I6 (M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style

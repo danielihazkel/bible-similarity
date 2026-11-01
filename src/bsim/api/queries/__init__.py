@@ -45,6 +45,7 @@ from bsim.api.queries.common import (
     count,
     dialogue_pairs,
     display_map,
+    display_maps,
     display_of_words,
     gloss,
     lemma_stats,
@@ -229,6 +230,7 @@ from bsim.api.queries.places import (
     place_partners,
     place_tokens,
     place_verses_page,
+    places_by_id,
     places_list,
 )
 from bsim.api.queries.poetics import (
@@ -368,6 +370,7 @@ __all__ = [
     "dialogue_targets",
     "discoveries",
     "display_map",
+    "display_maps",
     "display_of_words",
     "display_span",
     "divine_books",
@@ -451,6 +454,7 @@ __all__ = [
     "phrases_page",
     "phrases_touching",
     "place",
+    "places_by_id",
     "place_arc_books",
     "place_arc_chapters",
     "place_books",

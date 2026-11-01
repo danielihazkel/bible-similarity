@@ -287,11 +287,23 @@ def root_index(conn: sqlite3.Connection) -> RootIndex:
 
 def display_map(conn: sqlite3.Connection, verse_id: int) -> dict[int, int]:
     """word idx -> display token of one verse (aligned words only)."""
+    return display_maps(conn, [verse_id]).get(verse_id, {})
+
+
+def display_maps(conn: sqlite3.Connection, verse_ids: Iterable[int]) -> dict[int, dict[int, int]]:
+    """verse id -> {word idx -> display token} (aligned words only), in one query."""
+    ids = list(dict.fromkeys(int(i) for i in verse_ids))
+    out: dict[int, dict[int, int]] = {v: {} for v in ids}
+    if not ids:
+        return out
     cur = conn.execute(
-        "SELECT idx, display_idx FROM words WHERE verse_id = ? AND display_idx IS NOT NULL",
-        (verse_id,),
+        f"SELECT verse_id, idx, display_idx FROM words WHERE verse_id IN ({_marks(len(ids))})"
+        " AND display_idx IS NOT NULL",
+        ids,
     )
-    return {int(i): int(d) for i, d in cur}
+    for v, i, d in cur:
+        out[int(v)][int(i)] = int(d)
+    return out
 
 
 def dialogue_pairs(conn: sqlite3.Connection, book_id: int) -> list[dict[str, Any]]:
