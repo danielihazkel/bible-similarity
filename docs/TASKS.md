@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M109: Caching and startup (§10.2; proposed I6)
+- [x] Weak ETag of the build on GET `/api` answers; `If-None-Match` → 304 before the handler runs; labels, notebook, `/meta` and `/dossier` `no-store` and untagged (`app.NO_STORE_PATHS`, one `NO_STORE` for the routes)
+- [x] `/dossier` no longer cached for 5 minutes: its label count is read live
+- [x] The surface index on a background thread (`app.Deferred`): `load_state` 2.7 → 0.1 s on the real DB; startup steps timed in the log and `/meta`
+- [x] The domain table has its own lock (the first workbench request waited for the word-table preload)
+- [x] Not done, by choice: one shared labels connection (opening one per request costs about a millisecond and needs no lock); the hubness off the main path (about 1 s, once per new embedding file); the query modules' DB-keyed caches folded into `ServeState` (they work and would need the state passed to every query)
+- [x] Tests: the ETag and 304, the four `no-store` routes; the surface index cached and reused once its thread is done (pytest)
+
+✔ Real DB: `bsim serve` answers after 0.1 s of loading (plus imports); a revalidated list page is an empty 304.
+
 ## M108: One pagination shape (§10.2; proposed I5)
 - [x] `Page[T]` (`api/models/common.py`): the 44 paged responses subclass `Page[Item]` instead of each declaring `total`, `offset`, `limit`, `items`; the OpenAPI schema keeps every name and field (the generated types differ only in field order)
 - [x] The lookups' and overviews' caps from the config: `serve.max_lookup` (50: /lemmas, /places/lookup, /genealogy/lookup, a name's partners) and `serve.max_top` (100: /echoes `top`, /network `central`, /unit-entities), checked by `check_cap`
@@ -1140,7 +1150,7 @@ API
 - [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
 - [x] I4 (done, M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
 - [x] I5 (done, M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
-- [ ] I6 (M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
+- [x] I6 (done, M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
 
 Viewer
 - [ ] I7 (M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`

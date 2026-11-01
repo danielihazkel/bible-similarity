@@ -11,13 +11,16 @@ missing DB or embedding file:
   thread (its imports dominate startup): everything else serves at once, semantic / fused search
   waits for it, and a failed load makes those searches 503;
 - the surface-form BM25 index for lexical `/search` (cached next to the hubness, pinned to the DB
-  file).
+  file), loaded on a background thread too; a lexical search waits for it (a second or two).
 
 `/structure/{unit}` responses are kept in a bounded in-memory LRU (`serve.structure_cache`); they
 are deterministic for a given DB. Query embeddings of `/search` are cached the same way
 (`serve.search.query_cache`). Connections use a `serve.sqlite_cache_mb` page cache and mmap.
 Responses of at least `serve.gzip_min_bytes` are gzipped, and GET `/api` responses carry
-`Cache-Control: max-age=serve.api_max_age` (hashed viewer assets are cached as immutable).
+`Cache-Control: max-age=serve.api_max_age` and a weak ETag of the build (the DB's build time, the
+encoder and the server's start: an answer only changes when one of them does), so a browser's
+revalidation is a 304 that skips the handler; the routes whose answers change while the server
+runs (`NO_STORE_PATHS`) are `no-store` instead (hashed viewer assets are cached as immutable).
 
 The production viewer build (`paths.web_dist`) is served at `/` when present; any non-`/api` path
 without a file falls back to its `index.html` (client-side routes).
@@ -27,6 +30,8 @@ Tests pass a stub `encoder` instead of loading the model.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import queue
 import sqlite3
 import threading
@@ -41,7 +46,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from bsim.api import queries
@@ -60,6 +65,11 @@ from bsim.retrieve.topk import CSLS_SUFFIX, get_device
 from bsim.store.db import connect_readonly
 
 Log = Callable[[str], None]
+
+# GET routes whose answers change while the server runs (your labels and notebook, the encoder's
+# state, a unit's label count): `no-store`, never an ETag
+NO_STORE_PATHS = ("/api/labels", "/api/notebook", "/api/meta", "/api/dossier/")
+NO_STORE = {"Cache-Control": "no-store"}
 
 
 class LruCache:
@@ -87,6 +97,37 @@ class LruCache:
                 self._items.popitem(last=False)
 
 
+class Deferred:
+    """A value built on a daemon thread; reading an attribute waits for it (and raises what the
+    build raised). Stands in for the surface index, so lexical search waits a moment at startup
+    instead of the whole server."""
+
+    def __init__(self, name: str, build: Callable[[], Any], done: Callable[[Any], None]):
+        self._ready = threading.Event()
+        self._value: Any = None
+        self._error: BaseException | None = None
+
+        def run() -> None:
+            try:
+                self._value = build()
+                done(self._value)
+            except Exception as e:  # raised on use
+                self._error = e
+            finally:
+                self._ready.set()
+
+        threading.Thread(target=run, name=name, daemon=True).start()
+
+    def get(self) -> Any:
+        self._ready.wait()
+        if self._error is not None:
+            raise self._error
+        return self._value
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.get(), name)
+
+
 @dataclass
 class ServeState:
     cfg: dict[str, Any]
@@ -96,7 +137,7 @@ class ServeState:
     emb: np.ndarray
     hubness: np.ndarray | None
     encoder: Encoder
-    surface: SurfaceIndex
+    surface: SurfaceIndex | Deferred
     runtime: dict[str, Any] = field(default_factory=dict)
     structure_cache: LruCache = field(default_factory=lambda: LruCache(0))
     sequence_cache: LruCache = field(default_factory=lambda: LruCache(0))
@@ -116,6 +157,7 @@ class ServeState:
     _words: WordTable | None = None
     _words_lock: threading.Lock = field(default_factory=threading.Lock)
     _domains: DomainTable | None = None
+    _domains_lock: threading.Lock = field(default_factory=threading.Lock)
 
     def word_table(self) -> WordTable:
         """Every word's features for pattern search (`api/patterns.py`), built once (a few
@@ -134,7 +176,7 @@ class ServeState:
         """Every word's SDBH domains for the workbench (`api/workbench.py`), in the word table's
         order, read once."""
         if self._domains is None:
-            with self._words_lock:
+            with self._domains_lock:  # not the word table's: the preload may hold that one
                 if self._domains is None:
                     conn = self.connect()
                     try:
@@ -238,6 +280,13 @@ def _encoder_loader(cfg: dict[str, Any], base: str, device: str) -> Callable[[],
 
 def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = print) -> ServeState:
     t0 = time.perf_counter()
+    steps: dict[str, float] = {}
+
+    def step(name: str, since: float) -> float:
+        now = time.perf_counter()
+        steps[name] = round(now - since, 2)
+        return now
+
     serve, retrieval = cfg["serve"], cfg["retrieval"]
     db = resolve_path(cfg, "db")
     if not db.exists():
@@ -258,6 +307,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         raise RuntimeError(f"{emb_path} has {emb.shape[0]} rows, the DB has {n} verses")
     device = get_device(serve["device"])
     log(f"embeddings {emb_path.name}: {emb.shape[0]} x {emb.shape[1]} (memory-mapped)")
+    t = step("db_and_embeddings", t0)
 
     if encoder is None:
         # Importing sentence-transformers alone takes ~15-25 s: load it while the rest starts and
@@ -277,6 +327,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
             device,
         )
         log(f"CSLS hubness for {len(hub)} verses")
+    t = step("hubness", t)
 
     s, bm = serve["search"], cfg["lexical"]["bm25"]
 
@@ -287,27 +338,32 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         finally:
             conn.close()
 
-    surface = load_surface_index(
-        texts,
-        db,
-        art / serve["cache_dir"],
-        bm["k1"],
-        bm["b"],
-        s["min_root_letters"],
-        s["bigrams"],
-    )
-    log(f"surface BM25: {len(surface.terms)} terms")
-
-    runtime = {
+    runtime: dict[str, Any] = {
         "device": str(device),
         "semantic_system": meta["semantic_system"],
         "encoder": meta.get("semantic_encoder"),
         "embeddings_shape": list(emb.shape),
         "csls": hub is not None,
-        "surface_terms": len(surface.terms),
-        "startup_s": round(time.perf_counter() - t0, 2),
+        "surface_terms": None,  # set when the surface index has loaded
+        "started_at": time.time(),
     }
-    log(f"ready in {runtime['startup_s']:.1f} s")
+
+    def surface_loaded(index: SurfaceIndex) -> None:
+        runtime["surface_terms"] = len(index.terms)
+        log(f"surface BM25: {len(index.terms)} terms ({time.perf_counter() - t:.1f} s)")
+
+    surface = Deferred(
+        "surface-index",
+        lambda: load_surface_index(
+            texts, db, art / serve["cache_dir"], bm["k1"], bm["b"], s["min_root_letters"],
+            s["bigrams"],
+        ),
+        surface_loaded,
+    )  # fmt: skip
+    runtime["startup_s"] = round(time.perf_counter() - t0, 2)
+    runtime["startup_steps"] = steps
+    parts = ", ".join(f"{k} {v} s" for k, v in steps.items())
+    log(f"ready in {runtime['startup_s']:.1f} s ({parts}; surface index loading)")
     state = ServeState(
         cfg,
         db,
@@ -353,16 +409,30 @@ def create_app(
 
     app.add_middleware(GZipMiddleware, minimum_size=cfg["serve"]["gzip_min_bytes"])
     max_age = cfg["serve"]["api_max_age"]
+    serve = app.state.serve
+    build = json.dumps([serve.meta.get("built_at"), serve.meta.get("semantic_encoder"),
+                        serve.runtime.get("started_at")])  # fmt: skip
+    etag = f'W/"{hashlib.sha256(build.encode()).hexdigest()[:16]}"'
 
     @app.middleware("http")
     async def server_timing(request: Request, call_next):
         t0 = time.perf_counter()
-        response = await call_next(request)
+        path = request.url.path
+        cacheable = (
+            request.method == "GET" and path.startswith("/api/")
+            and not path.startswith(NO_STORE_PATHS)
+        )  # fmt: skip
+        if cacheable and etag in request.headers.get("if-none-match", ""):
+            response = Response(status_code=304, headers={"ETag": etag})  # the handler is skipped
+        else:
+            response = await call_next(request)
         response.headers["Server-Timing"] = f"app;dur={(time.perf_counter() - t0) * 1000:.1f}"
         if request.method == "GET" and response.status_code == 200:
-            path = request.url.path
-            if path.startswith("/api/"):
+            if path.startswith(NO_STORE_PATHS):
+                response.headers.update(NO_STORE)
+            elif path.startswith("/api/"):
                 response.headers.setdefault("Cache-Control", f"public, max-age={max_age}")
+                response.headers["ETag"] = etag
             elif path.startswith("/assets/"):  # content-hashed file names
                 response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         return response

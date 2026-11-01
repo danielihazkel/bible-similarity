@@ -192,14 +192,16 @@ def test_csls_hubness_cached(tmp_path):
 def test_surface_index_cached(built):
     cfg, _ = built
     cache = Path(cfg["paths"]["artifacts"]) / "api" / "surface_bm25.pkl"
-    create_app(cfg, encoder=fake_encoder, log=lambda _: None)
-    assert cache.exists()
+    create_app(cfg, encoder=fake_encoder, log=lambda _: None).state.serve.surface.get()
+    assert cache.exists()  # built on a background thread, written once it is done
     stamp = cache.stat().st_mtime_ns
     client = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    client.app.state.serve.surface.get()
     assert cache.stat().st_mtime_ns == stamp  # reused, not rebuilt
+    assert client.get("/api/meta").json()["runtime"]["surface_terms"] > 0
     assert client.get("/api/search?q=חָכְמָה&mode=lexical").json()["hits"][0]["verse"]["verse_id"] == 5
     cfg["serve"]["search"]["bigrams"] = False  # parameters are part of the key
-    create_app(cfg, encoder=fake_encoder, log=lambda _: None)
+    create_app(cfg, encoder=fake_encoder, log=lambda _: None).state.serve.surface.get()
     assert cache.stat().st_mtime_ns != stamp
 
 
@@ -954,3 +956,16 @@ def test_dating(client):
     assert client.get("/api/dating/book/99").status_code == 404
     assert client.get("/api/unit-dating/v:4").json()["unit_id"] == "c:0:2"
     assert client.get("/api/unit-dating/c:1:1").json()["score"] is None
+
+
+def test_etag_skips_unchanged_answers(client):
+    r = client.get("/api/books")
+    tag = r.headers["etag"]
+    assert tag.startswith('W/"') and "max-age" in r.headers["cache-control"]
+    again = client.get("/api/books", headers={"If-None-Match": tag})
+    assert again.status_code == 304 and again.content == b""
+    assert client.get("/api/books", headers={"If-None-Match": 'W/"other"'}).status_code == 200
+    for path in ("/api/meta", "/api/dossier/c:0:1", "/api/labels"):
+        r = client.get(path, headers={"If-None-Match": tag})
+        assert r.status_code == 200, path
+        assert r.headers["cache-control"] == "no-store" and "etag" not in r.headers, path

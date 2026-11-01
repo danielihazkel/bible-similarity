@@ -13,6 +13,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from bsim.api import queries
+from bsim.api.app import NO_STORE
 from bsim.api.models.common import UnitSummary
 from bsim.api.models.notebook import (
     CollectionIn,
@@ -26,7 +27,6 @@ from bsim.config import resolve_path
 from bsim.store import notebook as store
 
 router = APIRouter()
-NO_STORE = {"Cache-Control": "no-store"}
 
 
 def get_notebook_conn(state: State) -> Iterator[sqlite3.Connection]:
