@@ -897,6 +897,13 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ 349 vitest; 376 fixture and 294 real-data e2e without retries.
 
+## M118: Test gaps (proposed I15)
+- [x] Checked first: of the pages the audit named untested, Search, Compare, Sequence, Synopses, Type scenes, Root and Books already have tests (some in `CorePages.test.tsx`), and the voices, rewrites and spread views are tested through their pages; every one of the 145 GET routes is named in the pytest suite, and `/verse-domains` and `/book-pairs` do not exist
+- [x] New (`PatternViews.test.tsx`): the fixed word pairs view (lemmas, example, "include all" in the URL and the request), alliteration (the four words marked) and rhyme (the ending, the verse, Hebrew), the About page (sources and licences, a link, Hebrew prose)
+- [x] Not done, by choice: `tests/test_api.py` stays one file (splitting it would move tests, not add any)
+
+✔ 5 new vitest tests; the gaps the audit found were mostly not there.
+
 ## M115: Gold and alignment (§3.4, §16.13, §16.26, §16.41; proposed I12)
 - [x] OSHB ↔ MAM: words divided otherwise matched by their letters joined (בל אמים / בלאמים: two or three OSHB words to one MAM token, one to two or three); unaligned OSHB words 134 → 32 (20 of them Joshua 21:36–37, which MAM does not have); the encoder's text unchanged (decided before: alignment only)
 - [x] BHSA ↔ OSHB: where OSHB reads the qere (`text.kq`), BHSA's read consonants (`qere_utf8`, one more file at the pinned commit); the words given a neighbour's OSHB word counted in `syntax_meta.json`, those without letters (the hidden article) apart from those unmatched
@@ -1203,6 +1210,6 @@ Viewer
 - [x] I8 (done, M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
 - [x] I9 (done, M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
 - [x] I10 (done, M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
-- [ ] I15 (M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
+- [x] I15 (done, M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
 
 Suggested order: I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I10 → I9 → I11 → I12 → I13 → I14 → I15.
