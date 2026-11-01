@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -143,7 +143,18 @@ describe('BooksPage', () => {
     renderAt('/', <Route path="/" element={<BooksPage />} />)
     expect(await screen.findByRole('heading', { name: /Torah/ })).toBeTruthy()
     expect(screen.getByRole('heading', { name: /Writings/ })).toBeTruthy()
-    expect(screen.getByRole('link', { name: /Psalms/ }).getAttribute('href')).toBe('/browse/26')
+    expect(screen.getByRole('link', { name: /^תהלים\s*Psalms/ }).getAttribute('href')).toBe('/browse/26')
+  })
+
+  it('lists every menu group’s pages with their hints under Explore', async () => {
+    mockApi(true)
+    renderAt('/', <Route path="/" element={<BooksPage />} />)
+    const explore = within((await screen.findByRole('heading', { name: 'Explore' })).closest('section')!)
+    expect(explore.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Parallels', 'Patterns', 'Overview'])
+    expect(explore.getByRole('heading', { name: 'Letters and numbers' })).toBeTruthy()
+    const psalms = explore.getByRole('link', { name: 'Psalms' })
+    expect(psalms.getAttribute('href')).toBe('/psalms')
+    expect(psalms.parentElement?.textContent?.length).toBeGreaterThan('Psalms'.length + 10) // its hint
   })
 })
 
@@ -154,7 +165,7 @@ describe('Hebrew interface', () => {
     expect(await screen.findByRole('heading', { name: 'תורה' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'עיון' })).toBeTruthy()
     expect(screen.queryByText('Genesis')).toBeNull()
-    expect(screen.getByRole('link', { name: /תהלים/ }).textContent).toContain('150 פרקים')
+    expect(screen.getByRole('link', { name: /תהלים.*150 פרקים/ })).toBeTruthy()
   })
 
   it('labels search hits and controls in Hebrew', async () => {

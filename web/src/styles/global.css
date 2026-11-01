@@ -335,7 +335,6 @@ h2 {
   top: calc(100% + 0.3rem);
   inset-inline-start: 0;
   min-width: 16rem;
-  list-style: none;
   margin: 0;
   padding: 0.3rem;
   background: var(--surface);
@@ -353,12 +352,37 @@ h2 {
 .nav-group.open .nav-menu {
   display: block;
 }
+.nav-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .nav-group.open .nav-menu.wide {
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+}
+.nav-menu.wide .nav-items {
   display: grid;
   grid-template-columns: repeat(2, minmax(14rem, 19rem));
   column-gap: 0.3rem;
+}
+/* a sectioned group (Patterns): a column per heading */
+.nav-group.open .nav-menu.sectioned {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(11rem, 15rem));
+  column-gap: 0.5rem;
+  align-items: start;
   width: max-content;
   max-width: calc(100vw - 1rem);
+}
+.nav-section-title {
+  display: block;
+  margin: 0.35rem 0.6rem 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
 }
 .nav-menu a {
   display: flex;
@@ -410,24 +434,32 @@ h2 {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+  /* each group a disclosure: the current page's opens with the menu, the others on a tap */
   .nav-group-button {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     text-align: start;
-    pointer-events: none;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding-top: 0.6rem;
   }
   .nav-group-button span {
-    display: none;
+    font-size: 0.95rem;
+    line-height: 1;
+    opacity: 0.8;
+    transition: transform 0.15s;
+  }
+  .nav-group.open .nav-group-button span {
+    transform: rotate(180deg);
   }
   .nav-group-button.active {
     background: none;
+    color: var(--text);
   }
   .nav-menu {
-    display: block;
+    display: none;
     position: static;
     min-width: 0;
     padding: 0 0 0 0.6rem;
@@ -438,10 +470,14 @@ h2 {
     overflow: visible;
     transform: none;
   }
-  .nav-group.open .nav-menu.wide {
+  .nav-group.open .nav-menu,
+  .nav-group.open .nav-menu.sectioned {
     display: block;
     width: auto;
     max-width: none;
+  }
+  .nav-menu.wide .nav-items {
+    display: block;
   }
   .nav-item-hint {
     display: none;
@@ -3484,3 +3520,38 @@ line.ch-sync:hover { stroke-width: 3.5; }
 .bn-table tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
 .bn-panel { margin-bottom: 1rem; }
 .bn-panel h4 { font-size: 0.95rem; margin: 0.6rem 0 0.2rem; }
+
+/* the home page's Explore panel: every menu group and its pages with their hints */
+.explore-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem 1.5rem;
+  align-items: start;
+}
+.explore-group h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+.explore-group h4 {
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.explore-pages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.explore-pages li {
+  margin: 0.25rem 0;
+  line-height: 1.35;
+}
+/* each link sits in a line with its hint: told apart by more than colour (axe link-in-text-block) */
+.explore-pages a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}

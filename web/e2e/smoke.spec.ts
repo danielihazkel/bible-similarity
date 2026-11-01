@@ -146,19 +146,29 @@ test('navigation menus work at the current width', async ({ page }, info) => {
     await expect(toggle).toBeVisible()
     await expect(page.locator('#main-nav')).toBeHidden()
     await toggle.click()
-    await expect(page.locator('#main-nav')).toBeVisible()
-    await page.getByRole('link', { name: /Wordplay/ }).click()
+    const nav = page.locator('#main-nav')
+    await expect(nav).toBeVisible()
+    // each group a disclosure: closed on the home page, which is in none of them
+    const wordplay = nav.getByRole('link', { name: /Wordplay/ })
+    await expect(wordplay).toBeHidden()
+    await nav.getByRole('button', { name: /Patterns/ }).click()
+    await expect(nav.getByText('Letters and numbers')).toBeVisible()
+    await wordplay.click()
     await expect(page).toHaveURL(/\/wordplay$/)
-    await expect(page.locator('#main-nav')).toBeHidden() // closes after navigating
+    await expect(nav).toBeHidden() // closes after navigating
+    await toggle.click()
+    await expect(wordplay).toBeVisible() // the current page's group opens with the menu
   } else {
     await expect(page.getByRole('button', { name: /Menu/ })).toBeHidden()
-    await page.getByRole('button', { name: /Patterns/ }).click()
+    const nav = page.locator('#main-nav')
+    await nav.getByRole('button', { name: /Patterns/ }).click()
     const menu = page.locator('#menu-patterns')
     await expect(menu).toBeVisible()
+    await expect(menu.getByText('Narrative', { exact: true })).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(menu).toBeHidden()
-    await page.getByRole('button', { name: /Parallels/ }).click()
-    await page.getByRole('link', { name: /Sequences/ }).click()
+    await nav.getByRole('button', { name: /Parallels/ }).click()
+    await nav.getByRole('link', { name: /Sequences/ }).click()
     await expect(page).toHaveURL(/\/sequences$/)
     await expect(page.getByRole('button', { name: /Parallels/ })).toHaveClass(/active/)
   }

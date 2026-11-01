@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M111: Navigation and the home page (§11.1; proposed I8)
+- [x] Patterns under four headings (`lib/nav.ts` `sectioned`): poetry and form (with the query page and the workbench first), words and names, letters and numbers, narrative; one top-bar menu as before, its dropdown a column per heading; `items` stays the flat list, so the jump box and the active group are unchanged
+- [x] Phone menu: each group a disclosure (closed until tapped, the current page's group open with the menu; a tap elsewhere in the menu leaves it open), Patterns' headings inside it
+- [x] Home page: *Explore*, every menu group and heading with each page's link and its one-line hint (the nav's own texts, English and Hebrew)
+- [x] Tests: the four headings and 27 pages, the phone menu opening the current group and staying open (vitest); the Explore panel and the book links (vitest); the e2e menu test opens Patterns before tapping a page on a phone and checks a heading on the desktop
+
+✔ The Explore links are underlined: each sits in a line with its hint, which axe's `link-in-text-block` caught in the first e2e run. 376 fixture and 294 real-data e2e (accessibility in both languages and themes), 348 vitest.
+
 ## M110: Faster first load (§11.1; proposed I7)
 - [x] The Hebrew interface on demand: each page catalog's Hebrew object moved to `i18n/pages/he/` (46 objects in 45 files, typed against their English shape as before); `he.ts` and those files are one chunk, fetched when Hebrew is chosen; the locale provider keeps the current language on screen until it arrives (English on a first Hebrew load, a few ms locally: rendering nothing instead let a Ctrl+K pressed at once miss the jump box, seen as a flaky Hebrew e2e test)
 - [x] The libraries in a `vendor` chunk (React, the router, react-query), which the browser keeps across viewer rebuilds
@@ -1163,7 +1171,7 @@ API
 
 Viewer
 - [x] I7 (done, M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
-- [ ] I8 (M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
+- [x] I8 (done, M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
 - [ ] I9 (M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
 - [ ] I10 (M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
 - [ ] I15 (M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router

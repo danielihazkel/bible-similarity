@@ -99,6 +99,13 @@ export const he: Messages = {
     backToBooks: 'חזרה לספרים',
   },
 
+  navSections: {
+    poetryForm: 'שירה וצורה',
+    wordsNames: 'מילים ושמות',
+    lettersNumbers: 'אותיות ומספרים',
+    narrative: 'סיפור',
+  },
+
   nav: {
     browse: 'עיון',
     findings: 'ממצאים',
@@ -367,6 +374,8 @@ export const he: Messages = {
     title: 'עיון',
     lede: 'בחרו ספר, ואחר כך פרק, פרשה או פיסקה. כל יחידה מציגה את היחידות הדומות לה ביותר בניסוח, במשמעות או בשניהם.',
     findings: 'מה מצאו הניתוחים: הטענות שכל אחד בדק, ואילו מהן עומדות במבחן',
+    explore: 'סיור',
+    exploreLede: 'כל דרכי ההתבוננות בטקסט, לפי התפריט: מה כל אחת מראה.',
   },
 
   unit: {

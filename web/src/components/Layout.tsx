@@ -1,7 +1,7 @@
 import { type RefObject, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
-import { isGroup, NAV, type NavGroup, navText } from '../lib/nav'
+import { isGroup, NAV, type NavGroup, type NavItem, navText } from '../lib/nav'
 import { LocaleToggle, TextModeToggle } from './Controls'
 import { JumpBox } from './JumpBox'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -57,7 +57,7 @@ export function Layout() {
         <nav id="main-nav" className={`nav ${mobileOpen ? 'open' : ''}`} aria-label={m.site.mainNav}>
           {NAV.map((e) =>
             isGroup(e) ? (
-              <NavMenu key={e.key} group={e} pathname={pathname} />
+              <NavMenu key={e.key} group={e} pathname={pathname} mobileOpen={mobileOpen} />
             ) : (
               <NavLink key={e.to} to={e.to} end={e.to === '/'}>
                 {navText(m, e.key).label}
@@ -100,25 +100,34 @@ export function Layout() {
 }
 
 /** A dropdown of related pages: opens on click, closes on Escape, outside click or navigation. A
- * big group is laid out in two columns so it fits under the sticky top bar. On narrow screens
- * (inside the open mobile menu) the group is shown as a plain labelled list. */
-function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
+ * big group is laid out in two columns, a sectioned one (Patterns) in a column per heading, so it
+ * fits under the sticky top bar. On narrow screens (inside the open mobile menu) each group is a
+ * disclosure: the current page's group opens with the menu, the others on a tap. */
+function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: string; mobileOpen: boolean }) {
   const m = useT()
   const label = m.nav[group.key]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLUListElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const active = group.items.some((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
   const [seenPath, setSeenPath] = useState(pathname)
   if (seenPath !== pathname) {
     setSeenPath(pathname)
     setOpen(false)
   }
+  // the phone menu opens with the current page's group expanded
+  const [seenMobile, setSeenMobile] = useState(mobileOpen)
+  if (seenMobile !== mobileOpen) {
+    setSeenMobile(mobileOpen)
+    setOpen(mobileOpen && active)
+  }
 
   useEffect(() => {
     if (!open) return
     const onDown = (e: MouseEvent) => {
+      // inside the phone menu the groups are disclosures: a tap elsewhere leaves this one open
+      if (mobileOpen) return
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
     const onKey = (e: KeyboardEvent) => {
@@ -133,7 +142,7 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
       document.removeEventListener('mousedown', onDown)
       document.removeEventListener('keydown', onKey)
     }
-  }, [open])
+  }, [open, mobileOpen])
 
   // an open menu that would spill past the window's edge is slid back inside it
   useLayoutEffect(() => {
@@ -166,20 +175,42 @@ function NavMenu({ group, pathname }: { group: NavGroup; pathname: string }) {
       >
         {label} <span aria-hidden="true">▾</span>
       </button>
-      <ul id={id} ref={menuRef} className={`nav-menu ${group.items.length > 10 ? 'wide' : ''}`} aria-label={label}>
-        {group.items.map((i) => {
-          const { label, hint } = navText(m, i.key)
-          return (
-            <li key={i.to}>
-              <NavLink to={i.to}>
-                <span className="nav-item-label">{label}</span>
-                {hint && <span className="nav-item-hint">{hint}</span>}
-              </NavLink>
-            </li>
-          )
-        })}
-      </ul>
+      {group.sections ? (
+        <div id={id} ref={menuRef} className="nav-menu sectioned">
+          {group.sections.map((sec) => (
+            <div key={sec.key} className="nav-section">
+              <span className="nav-section-title" id={`${id}-${sec.key}`}>
+                {m.navSections[sec.key]}
+              </span>
+              <NavItems items={sec.items} labelledBy={`${id}-${sec.key}`} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div id={id} ref={menuRef} className={`nav-menu ${group.items.length > 10 ? 'wide' : ''}`}>
+          <NavItems items={group.items} label={label} />
+        </div>
+      )}
     </div>
+  )
+}
+
+function NavItems({ items, label, labelledBy }: { items: NavItem[]; label?: string; labelledBy?: string }) {
+  const m = useT()
+  return (
+    <ul className="nav-items" aria-label={label} aria-labelledby={labelledBy}>
+      {items.map((i) => {
+        const { label, hint } = navText(m, i.key)
+        return (
+          <li key={i.to}>
+            <NavLink to={i.to}>
+              <span className="nav-item-label">{label}</span>
+              {hint && <span className="nav-item-hint">{hint}</span>}
+            </NavLink>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

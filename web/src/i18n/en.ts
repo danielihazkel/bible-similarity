@@ -92,6 +92,14 @@ export const en = {
     backToBooks: 'Back to the books',
   },
 
+  // headings of a big menu's pages (Patterns), in the menu and the home page's Explore panel
+  navSections: {
+    poetryForm: 'Poetry and form',
+    wordsNames: 'Words and names',
+    lettersNumbers: 'Letters and numbers',
+    narrative: 'Narrative',
+  },
+
   nav: {
     browse: 'Browse',
     findings: 'Findings',
@@ -368,6 +376,8 @@ export const en = {
     title: 'Browse',
     lede: 'Pick a book, then a chapter, parasha or pericope. Every unit lists its most similar units by shared wording, meaning, or both.',
     findings: 'What the analyses found: the claims each one tested, and which of them hold',
+    explore: 'Explore',
+    exploreLede: 'Every view of the text, by menu: what each one shows.',
   },
 
   unit: {

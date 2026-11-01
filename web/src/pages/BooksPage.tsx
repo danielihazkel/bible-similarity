@@ -3,6 +3,7 @@ import { useBooks } from '../api/hooks'
 import type { Book } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
+import { isGroup, NAV, type NavItem, navText } from '../lib/nav'
 
 export function BooksPage() {
   const m = useT()
@@ -48,6 +49,46 @@ export function BooksPage() {
           </ul>
         </section>
       ))}
+      <Explore />
     </div>
+  )
+}
+
+/** Every menu group's pages with their one-line hints (the nav's own list and texts). */
+function Explore() {
+  const m = useT()
+  const pages = (items: NavItem[]) => (
+    <ul className="explore-pages">
+      {items.map((i) => {
+        const { label, hint } = navText(m, i.key)
+        return (
+          <li key={i.to}>
+            <Link to={i.to}>{label}</Link>
+            {hint && <span className="muted small"> {hint}</span>}
+          </li>
+        )
+      })}
+    </ul>
+  )
+  return (
+    <section className="section explore" aria-labelledby="explore-title">
+      <h2 id="explore-title">{m.books.explore}</h2>
+      <p className="muted">{m.books.exploreLede}</p>
+      <div className="explore-groups">
+        {NAV.filter(isGroup).map((g) => (
+          <div key={g.key} className="explore-group">
+            <h3>{m.nav[g.key]}</h3>
+            {g.sections
+              ? g.sections.map((sec) => (
+                  <div key={sec.key}>
+                    <h4>{m.navSections[sec.key]}</h4>
+                    {pages(sec.items)}
+                  </div>
+                ))
+              : pages(g.items)}
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }

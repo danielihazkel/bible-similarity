@@ -5,15 +5,28 @@ import type { Messages } from '../i18n'
 
 export type GroupKey = 'parallels' | 'patterns' | 'overview'
 export type NavKey = Exclude<keyof Messages['nav'], GroupKey>
+export type SectionKey = keyof Messages['navSections']
 
 export interface NavItem {
   to: string
   key: NavKey
 }
-export interface NavGroup {
-  key: GroupKey
+export interface NavSection {
+  key: SectionKey
   items: NavItem[]
 }
+export interface NavGroup {
+  key: GroupKey
+  items: NavItem[] // every page of the group (its sections' pages, in order)
+  sections?: NavSection[] // a big group's pages under headings
+}
+
+/** A group whose pages sit under headings. */
+const sectioned = (key: GroupKey, sections: NavSection[]): NavGroup => ({
+  key,
+  sections,
+  items: sections.flatMap((s) => s.items),
+})
 export type NavEntry = NavItem | NavGroup
 
 export const NAV: NavEntry[] = [
@@ -36,38 +49,55 @@ export const NAV: NavEntry[] = [
       { to: '/citations', key: 'citations' },
     ],
   },
-  {
-    key: 'patterns',
-    items: [
-      { to: '/query', key: 'query' },
-      { to: '/workbench', key: 'workbench' },
-      { to: '/structure', key: 'structure' },
-      { to: '/acrostics', key: 'acrostics' },
-      { to: '/divisions', key: 'divisions' },
-      { to: '/ketiv', key: 'ketiv' },
-      { to: '/roots', key: 'roots' },
-      { to: '/refrains', key: 'refrains' },
-      { to: '/forms', key: 'forms' },
-      { to: '/gematria', key: 'gematria' },
-      { to: '/gematria-links', key: 'gematriaLinks' },
-      { to: '/els', key: 'els' },
-      { to: '/ciphers', key: 'ciphers' },
-      { to: '/divine', key: 'divine' },
-      { to: '/etiologies', key: 'etiologies' },
-      { to: '/brackets', key: 'brackets' },
-      { to: '/retold', key: 'retold' },
-      { to: '/haftarot', key: 'haftarot' },
-      { to: '/chronology', key: 'chronology' },
-      { to: '/frameworks', key: 'frameworks' },
-      { to: '/binomials', key: 'binomials' },
-      { to: '/masorah', key: 'masorah' },
-      { to: '/psalms', key: 'psalms' },
-      { to: '/poetry', key: 'poetry' },
-      { to: '/wordplay', key: 'wordplay' },
-      { to: '/names', key: 'names' },
-      { to: '/domains', key: 'domains' },
-    ],
-  },
+  sectioned('patterns', [
+    {
+      key: 'poetryForm',
+      items: [
+        { to: '/query', key: 'query' },
+        { to: '/workbench', key: 'workbench' },
+        { to: '/poetry', key: 'poetry' },
+        { to: '/structure', key: 'structure' },
+        { to: '/acrostics', key: 'acrostics' },
+        { to: '/refrains', key: 'refrains' },
+        { to: '/forms', key: 'forms' },
+        { to: '/psalms', key: 'psalms' },
+        { to: '/wordplay', key: 'wordplay' },
+        { to: '/brackets', key: 'brackets' },
+        { to: '/divisions', key: 'divisions' },
+      ],
+    },
+    {
+      key: 'wordsNames',
+      items: [
+        { to: '/roots', key: 'roots' },
+        { to: '/binomials', key: 'binomials' },
+        { to: '/domains', key: 'domains' },
+        { to: '/names', key: 'names' },
+        { to: '/divine', key: 'divine' },
+        { to: '/etiologies', key: 'etiologies' },
+        { to: '/ketiv', key: 'ketiv' },
+      ],
+    },
+    {
+      key: 'lettersNumbers',
+      items: [
+        { to: '/gematria', key: 'gematria' },
+        { to: '/gematria-links', key: 'gematriaLinks' },
+        { to: '/els', key: 'els' },
+        { to: '/ciphers', key: 'ciphers' },
+        { to: '/masorah', key: 'masorah' },
+      ],
+    },
+    {
+      key: 'narrative',
+      items: [
+        { to: '/retold', key: 'retold' },
+        { to: '/chronology', key: 'chronology' },
+        { to: '/frameworks', key: 'frameworks' },
+        { to: '/haftarot', key: 'haftarot' },
+      ],
+    },
+  ]),
   {
     key: 'overview',
     items: [

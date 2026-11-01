@@ -56,10 +56,31 @@ describe('Layout navigation', () => {
     expect(patterns.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('lays out big groups in two columns', () => {
+  it('lays out big groups in two columns, Patterns under its four headings', () => {
     const { container } = renderAt('/')
-    expect(container.querySelector('#menu-patterns')?.classList.contains('wide')).toBe(true)
+    expect(container.querySelector('#menu-overview')?.classList.contains('wide')).toBe(true)
     expect(container.querySelector('#menu-parallels')?.classList.contains('wide')).toBe(false)
+    const patterns = container.querySelector('#menu-patterns')!
+    expect(patterns.classList.contains('sectioned')).toBe(true)
+    const lists = [...patterns.querySelectorAll('ul')]
+    expect(lists.map((l) => document.getElementById(l.getAttribute('aria-labelledby')!)?.textContent)).toEqual([
+      'Poetry and form',
+      'Words and names',
+      'Letters and numbers',
+      'Narrative',
+    ])
+    expect(lists.reduce((n, l) => n + l.querySelectorAll('a').length, 0)).toBe(27)
+  })
+
+  it('opens the current page’s group with the phone menu', () => {
+    renderAt('/chronology')
+    const patterns = screen.getByRole('button', { name: /Patterns/ })
+    expect(patterns.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(screen.getByRole('button', { name: /Menu/ }))
+    expect(patterns.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('button', { name: /Parallels/ }).getAttribute('aria-expanded')).toBe('false')
+    fireEvent.mouseDown(document.body) // a tap elsewhere in the phone menu leaves it open
+    expect(patterns.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('toggles the narrow-screen menu', () => {
