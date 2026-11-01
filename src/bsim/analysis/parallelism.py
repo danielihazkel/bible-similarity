@@ -160,7 +160,9 @@ def word_pairs(
         rows, columns=["a_lemma", "b_lemma", "n", "expected", "g2", "p", "reverse", "examples"]
     )
     df["q"] = bh_q(df.p.to_numpy()) if len(df) else []
-    return df.sort_values(["q", "g2"], ascending=[True, False], ignore_index=True)
+    # the lemma pair breaks ties: the pairs come from sets, whose order changes between runs
+    order = ["q", "g2", "a_lemma", "b_lemma"]
+    return df.sort_values(order, ascending=[True, False, True, True], ignore_index=True)
 
 
 Relations = tuple[set[tuple[str, str]], set[tuple[str, str]]]  # antonym, synonym (Strong keys)

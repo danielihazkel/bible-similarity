@@ -249,14 +249,14 @@ def poetic_chapters(cfg: dict[str, Any], verses: pd.DataFrame) -> set[str]:
     return {f"{b}:{c}" for (b, c), s in share.items() if s >= cfg["dating"]["poetic_share"]}
 
 
-def drivers(model: Any, x: pd.DataFrame, top: int) -> list[str]:
+def drivers(model: Any, x: pd.DataFrame, top: int, min_contrib: float) -> list[str]:
     """Per row the features pushing the score up most (coefficient × standardized value)."""
     scaler, lr = model[0], model[-1]
     contrib = (x.to_numpy() - scaler.mean_) / scaler.scale_ * lr.coef_[0]
     out = []
     for row in contrib:
         order = np.argsort(-row)
-        out.append(json.dumps([FEATURES[i] for i in order[:top] if row[i] > 0.25]))
+        out.append(json.dumps([FEATURES[i] for i in order[:top] if row[i] > min_contrib]))
     return out
 
 
@@ -321,7 +321,7 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
             chapters.book_id.isin(poetic) | chapters.index.isin(poetic_chapters(cfg, verses))
         ).to_numpy(),
         score=score.to_numpy(),
-        drivers=drivers(model, x, dc["drivers"]),
+        drivers=drivers(model, x, dc["drivers"], dc["driver_min"]),
     )
     for f in FEATURES:
         out_df[f] = x[f].to_numpy()

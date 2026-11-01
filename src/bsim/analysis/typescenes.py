@@ -167,7 +167,7 @@ def run_typescenes(cfg: dict[str, Any], log: Log = print) -> Path:
     book = dict(zip(units.unit_id, units.book_id.astype(int), strict=True))
     span = {u.unit_id: (u.start_verse_id, u.end_verse_id) for u in units.itertuples(index=False)}
     seqs = pd.read_parquet(seq_path)
-    strong = seqs[seqs.q <= 0.05]
+    strong = seqs[seqs.q <= tc["sequence_max_q"]]
     linked = {(int(a), int(b)) for p in strong.pairs for a, b, *_ in json.loads(p)}
 
     rows = []

@@ -402,6 +402,7 @@ typescenes:                   # `bsim typescenes`: recurring plot skeletons (DES
   min_matches: 4              # aligned verbs
   null_reps: 5                # verb-order shuffles inside pericopes for q-values
   seed: 13
+  sequence_max_q: 0.05        # a pair inside a parallel sequence this strong (§16.7) is marked as already linked
 
 sound:                        # `bsim sound`: alliteration and rhyme (DESIGN.md §16.19)
   min_words: 3                # cola with fewer content words are not scored for alliteration
@@ -635,6 +636,7 @@ dating:                       # `bsim dating`: a Late Biblical Hebrew profile pe
   poetic: [Ps, Prov, Job, Song, Lam]         # flagged out of domain: the model is calibrated on prose
   poetic_share: 0.5           # ... and any chapter with this share of parallel verse halves (poems inside prose)
   drivers: 3                  # features listed per chapter as pushing its score up
+  driver_min: 0.25            # a driver's contribution (coefficient × standardized value) must exceed this
   lexemes: [4438, 107, 1002, 4082, 1881, 6901, 948, 3187, 3791, 3664, 2165, 1595, 7980]   # מלכות אגרת בירה מדינה דת קבל בוץ יחש כתב כנס זמן גנזים שלט
   min_words: 150              # Hebrew words a chapter needs to be scored
   shrink: 20                  # pseudo-counts pulling a chapter's rates towards the training mean

@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M105: Reproducible runs (§6.2, D116; proposed I2)
+- [x] `units`: each unit's best-match rows summed apart and added in order; `index_add_` added with CUDA atomics, so two runs differed in the last bits and reordered tied neighbours (chapter, pericope, parasha; PageRank and discoveries after them)
+- [x] `word_pairs` ties broken by the lemma pair (the pairs come from sets, whose order changes between runs)
+- [x] Thresholds still in code moved to the config: `typescenes.sequence_max_q`, `dating.driver_min`; diffs' `rewrites_q_below_0.05` counts `q < 0.05` like the other "below" counts
+- [x] Corpus report: the ketiv / qere counts explained (1,102 verses with an OSHB qere, 942 with a MAM note, 916 both; `bsim ketiv` groups the 1,278 qere words into 1,260 readings); the 2 verses MAM does not have (Joshua 21:36–37, 20 words) shown apart from alignment misses and left out of the least-aligned list
+- [x] Tests: tied word pairs in lemma order whatever the input order; three GPU runs of the BMA matrix bitwise equal on the real chapters and pericopes (0.3–0.6 s, as before)
+
+✔ `bsim all --rerun units --rerun parallelism --rerun entities` reruns those three and nothing after them; before, units and parallelism rewrote different bytes and set off a 20-minute cascade. The rebuild changed the DB once: chapter, pericope and parasha scores in their last bits, tied neighbours and discoveries reordered, `word_pairs` in lemma order.
+
 ## M104: Incremental runs without false staleness (§16.35, D115; proposed I1)
 - [x] Downloads as inputs by pattern (`pipeline.RAW`), not through `data/raw/manifest.json` (ignored: any download rewrites it); `download` no longer in `_CORPUS`; a read of a download `RAW` does not list is noted
 - [x] JSON inputs and outputs hashed without `pipeline.volatile_keys` (build times, durations); the state records the list and restates matching JSON hashes when it changes; Markdown reports (`pipeline.reports`) are their stage's outputs, no stage's input
@@ -1094,7 +1103,7 @@ From the 2026-11-01 review: improvements to what exists, no new features. Three 
 
 Pipeline and data
 - [x] I1 (done, M104) Stop false staleness: downloads as inputs by pattern (`pipeline.RAW`), not through the manifest every download rewrites; JSON times and durations left out of hashes (`pipeline.volatile_keys`); each stage's own `sources.*` keys; models adopted with their own config and folders as outputs; `gematria-links` stops recording the whole config
-- [ ] I2 (M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
+- [x] I2 (done, M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
 - [ ] I11 (M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
 - [ ] I12 (M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
 - [ ] I13 (M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50

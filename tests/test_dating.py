@@ -83,7 +83,7 @@ def test_held_out_auc_drivers_and_sign_test():
     out = held_out_auc(x, y, books, 1.0)
     assert out["auc"] > 0.9 and set(out["books"]) == {str(b) for b in range(8)}
     model = fit(x.to_numpy(), y, 1.0)
-    d = json.loads(drivers(model, x.iloc[[39]], 3)[0])
+    d = json.loads(drivers(model, x.iloc[[39]], 3, 0.25)[0])
     assert d[0] == "david_plene"
     assert sign_test(26, 26) < 1e-7 and sign_test(5, 10) == 1.0
 

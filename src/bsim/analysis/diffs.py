@@ -343,7 +343,7 @@ def run_diffs(cfg: dict[str, Any], log: Log = print) -> Path:
         "loose_pairs": n_loose,
         "ops": {op: totals[op] for op in OPS},
         "rewrites": int(len(rw)),
-        "rewrites_q_below_0.05": int((rw.q <= 0.05).sum()),
+        "rewrites_q_below_0.05": int((rw.q < 0.05).sum()),
         "seconds": round(time.perf_counter() - t0, 1),
     }
     (out / "diffs.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")

@@ -157,3 +157,13 @@ def test_typing_check_compares_the_checked_chapters_and_a_shuffle():
     assert out["check_lines"] == 6 and out["check_share"] == pytest.approx(5 / 6, abs=1e-4)
     assert out["rest_share"] == 0 and out["check_p"] < 0.01
     assert out["pair_antithetic_share"] == 0.25 and out["null_share"] < 0.25
+
+
+def test_word_pairs_break_ties_by_lemma():
+    """Pairs tied on q and G² come in lemma order, whatever order the sets gave them."""
+    members = [({lem}, {f"{lem}2"}, i) for i in range(4) for lem in ("c", "a", "b")]
+    first = word_pairs(members, skip=set(), min_count=2)
+    again = word_pairs(list(reversed(members)), skip=set(), min_count=2)
+    tied = first[first.a_lemma.isin(["a", "b", "c"]) & (first.b_lemma == first.a_lemma + "2")]
+    assert tied.a_lemma.tolist() == ["a", "b", "c"]
+    pd.testing.assert_frame_equal(first.drop(columns="examples"), again.drop(columns="examples"))

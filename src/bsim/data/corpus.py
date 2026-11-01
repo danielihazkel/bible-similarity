@@ -168,6 +168,11 @@ def write_report(
 ) -> None:
     aligned = words.display_idx.notna()
     coverage = aligned.mean()
+    # verses MAM does not have (its text is a dash: Joshua 21:36-37), apart from alignment misses
+    absent = verses[~verses.text_display.str.contains("[א-ת]", regex=True)]
+    in_absent = words.verse_id.isin(absent.verse_id).to_numpy()
+    q_verses = set(words.verse_id[words.kq == "q"])
+    note_verses = set(verses.verse_id[verses.ketiv_note.notna()])
     by_type = units.unit_type.value_counts()
     pericopes = units[units.unit_type == "pericope"]
     kq = words.kq.value_counts()
@@ -212,8 +217,26 @@ def write_report(
             ],
         ),
         "",
+        "## Ketiv and qere",
+        "OSHB marks each qere word (read; the text follows `text.kq`); MAM notes the ketiv in"
+        " its verse. A reading can span words: `bsim ketiv` groups the qere words into ketiv /"
+        " qere pairs (a word divided otherwise, a word read but not written or written but not"
+        " read), so it counts fewer pairs than qere words.",
+        md_table(
+            ["item", "count"],
+            [
+                ["verses with an OSHB qere", len(q_verses)],
+                ["verses with a MAM ketiv note", len(note_verses)],
+                ["both", len(q_verses & note_verses)],
+                ["OSHB qere only", len(q_verses - note_verses)],
+                ["MAM note only", len(note_verses - q_verses)],
+            ],
+        ),
+        "",
         f"## Alignment coverage: {coverage:.2%} of OSHB words "
-        f"(threshold {cfg['corpus']['min_alignment_coverage']:.0%})",
+        f"(threshold {cfg['corpus']['min_alignment_coverage']:.0%}); "
+        f"{aligned[~in_absent].mean():.2%} outside the {len(absent)} verse(s) MAM does not have"
+        + (f" ({', '.join(absent.ref)}: {int(in_absent.sum())} words)" if len(absent) else ""),
     ]
 
     words_book = words.merge(verses[["verse_id", "book_id", "ref"]], on="verse_id")
@@ -224,7 +247,8 @@ def write_report(
             ["book", "coverage"], [[BOOKS[b].sefaria, f"{c:.2%}"] for b, c in per_book.items()]
         )
     )
-    per_verse = words_book.groupby("ref", sort=False).aligned.agg(["mean", "size"])
+    present = words_book[~in_absent]
+    per_verse = present.groupby("ref", sort=False).aligned.agg(["mean", "size"])
     worst = per_verse.sort_values(["mean", "size"], ascending=[True, False]).head(20)
     parts += [
         "",

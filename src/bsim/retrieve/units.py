@@ -87,7 +87,11 @@ def bma_matrix(
         block = block[keep][:, cols]
         best = torch.full((len(block), n_units), -torch.inf, dtype=torch.float32, device=device)
         best.scatter_reduce_(1, col_unit.expand(len(block), -1), block, "amax")
-        s_dir.index_add_(0, ru[keep], best)
+        # each unit's rows summed apart and added in order: `index_add_` adds with CUDA atomics,
+        # whose order (and so the last bits) changes from run to run
+        units_here, counts = torch.unique_consecutive(ru[keep], return_counts=True)
+        for u, part in zip(units_here.tolist(), best.split(counts.tolist()), strict=True):
+            s_dir[u] += part.sum(0)
     sizes = torch.as_tensor(units.end - units.start + 1, dtype=torch.float32, device=device)
     s_dir /= sizes[:, None]
     return ((s_dir + s_dir.T) / 2).cpu().numpy()
