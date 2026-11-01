@@ -888,6 +888,12 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M113: Split overgrown files (proposed I10)
+- [x] `pages/GenealogyPage.tsx` (947 lines) → the page (132) and `pages/genealogy/`: `TreeView.tsx` (the drawing, its figures, the legend; 450), `PersonPanel.tsx` (the side panel, links, proofs; 278), `PersonSearch.tsx`, `Name.tsx`, `shared.ts` (view constants, how a person is named)
+- [x] `api/routes/findings.py` (896 lines) → `api/routes/findings/`: the router, the builders' order and the endpoint in `__init__.py`; the builders by area in `poetry.py`, `language.py`, `narrative.py`, `numbers.py`, `places.py`
+- [x] Not done, by choice: `api/queries/__init__.py`'s hand-kept `__all__` stays (ruff already rejects a name imported but not listed, F401, and one listed but not imported, F822; a generated list would hide the exports from editors and ruff)
+- [x] Checks: the real DB's `/findings` byte-identical before and after (10,287 bytes); the family tree's vitest and e2e unchanged
+
 ## M111: Navigation and the home page (§11.1; proposed I8)
 - [x] Patterns under four headings (`lib/nav.ts` `sectioned`): poetry and form (with the query page and the workbench first), words and names, letters and numbers, narrative; one top-bar menu as before, its dropdown a column per heading; `items` stays the flat list, so the jump box and the active group are unchanged
 - [x] Phone menu: each group a disclosure (closed until tapped, the current page's group open with the menu; a tap elsewhere in the menu leaves it open), Patterns' headings inside it
@@ -1173,7 +1179,7 @@ Viewer
 - [x] I7 (done, M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
 - [x] I8 (done, M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
 - [ ] I9 (M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
-- [ ] I10 (M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
+- [x] I10 (done, M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
 - [ ] I15 (M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
 
 Suggested order: I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I10 → I9 → I11 → I12 → I13 → I14 → I15.
