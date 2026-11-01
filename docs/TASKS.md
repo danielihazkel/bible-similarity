@@ -897,6 +897,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ 349 vitest; 376 fixture and 294 real-data e2e without retries.
 
+## M114: Faster slow stages (§16.54, §16.67; proposed I11)
+- [x] `ciphers` 169 → 8 s: each random pairing translates the names by its inverse (a swap is a permutation, so a span becomes a name exactly when it is a name turned back) and binary-searches them among the sorted spans; checked equal to the old lookup on both ciphers and 20 random pairings, the parquets byte-identical
+- [x] `brackets` 232 → 100 s: the 999 random brackets drawn in order from one stream, then scored on `pipeline.threads` (8) threads; the parquet byte-identical
+- [x] Profiled and left: `els` (302 s) waits on the GPU, a compaction per letter of each of 43k term × draw calls; counting through a mask is exact but only 20 % faster, and batching the draws into one call is a rewrite for a stage I1 keeps from rerunning needlessly. The Smith-Waterman aligner (phrases, brackets, retold) is pure Python: precomputing its match and score matrices in numpy gave 11 %; a compiled version would need a new dependency. `sequences` (123 s) not taken up
+- [x] `bsim all` after the change reran `retold` (its module imports `brackets`), wrote the same bytes and skipped build-db (I1's cut-off)
+
+✔ Two stages 6 min → under 2; every output byte-identical.
+
 ## M113: Split overgrown files (proposed I10)
 - [x] `pages/GenealogyPage.tsx` (947 lines) → the page (132) and `pages/genealogy/`: `TreeView.tsx` (the drawing, its figures, the legend; 450), `PersonPanel.tsx` (the side panel, links, proofs; 278), `PersonSearch.tsx`, `Name.tsx`, `shared.ts` (view constants, how a person is named)
 - [x] `api/routes/findings.py` (896 lines) → `api/routes/findings/`: the router, the builders' order and the endpoint in `__init__.py`; the builders by area in `poetry.py`, `language.py`, `narrative.py`, `numbers.py`, `places.py`
@@ -1173,7 +1181,7 @@ From the 2026-11-01 review: improvements to what exists, no new features. Three 
 Pipeline and data
 - [x] I1 (done, M104) Stop false staleness: downloads as inputs by pattern (`pipeline.RAW`), not through the manifest every download rewrites; JSON times and durations left out of hashes (`pipeline.volatile_keys`); each stage's own `sources.*` keys; models adopted with their own config and folders as outputs; `gematria-links` stops recording the whole config
 - [x] I2 (done, M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
-- [ ] I11 (M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
+- [x] I11 (done, M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
 - [ ] I12 (M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
 - [ ] I13 (M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
 - [ ] I14 (M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs

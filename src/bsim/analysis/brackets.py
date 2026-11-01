@@ -31,9 +31,11 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 from collections import Counter
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -219,9 +221,16 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
         span = b - a
         lo = first.reindex(book[a]).to_numpy() + w  # the first verse can be lo..hi
         hi = last.reindex(book[a]).to_numpy() - w - span
-        for r in range(reps):
-            ra = lo + np.floor(rng.random(m) * (hi - lo + 1)).astype(int)
-            null[r] = score_brackets(prefixes, ra, ra + span, w)[2]
+        # the draws in order (one stream), then scored on threads: numpy's gathers and sums
+        # release the GIL, and each draw's arithmetic is the same as on one thread
+        starts = [lo + np.floor(rng.random(m) * (hi - lo + 1)).astype(int) for _ in range(reps)]
+
+        def score(r: int) -> None:
+            null[r] = score_brackets(prefixes, starts[r], starts[r] + span, w)[2]
+
+        threads = min(int(cfg["pipeline"]["threads"]), os.cpu_count() or 1)
+        with ThreadPoolExecutor(max_workers=threads) as pool:
+            list(pool.map(score, range(reps)))
     p_each = np.array([empirical_p(s_all[i] - 1e-12, null[:, i]) for i in range(m)])
     q = bh_q(p_each)
     obs = float(s_all.mean()) if m else float("nan")

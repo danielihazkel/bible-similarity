@@ -84,9 +84,23 @@ def spans(verses: pd.DataFrame, rare_form: int, min_letters: int, max_letters: i
     return pd.DataFrame(rows, columns=["verse_id", "first_tok", "last_tok", "span", "letters"])
 
 
-def hits_of(unique: list[str], tab: dict[int, str], names: dict[str, Any]) -> np.ndarray:
-    """Which of the unique span strings a swap turns into a name."""
-    return np.fromiter((s.translate(tab) in names for s in unique), bool, len(unique))
+def hits_of(unique: np.ndarray, tab: dict[int, str], names: dict[str, Any]) -> np.ndarray:
+    """Which of the unique span strings (sorted, as `np.unique` gives them) a swap turns into a
+    name. A swap is a permutation of the letters, so a span turns into a name exactly when it is a
+    name turned back: the names (two thousand) are translated by the inverse table and looked up
+    among the spans, instead of every span (170 thousand) being translated."""
+    inverse = {ord(v): chr(k) for k, v in tab.items()}
+    if len(inverse) != len(tab):  # not a permutation: translate the spans themselves
+        return np.fromiter((str(s).translate(tab) in names for s in unique), bool, len(unique))
+    hits = np.zeros(len(unique), dtype=bool)
+    if not len(unique):
+        return hits
+    back = np.array(sorted({n.translate(inverse) for n in names}))  # its own width: none cut short
+    at = np.searchsorted(unique, back)
+    found = at < len(unique)
+    found[found] = unique[at[found]] == back[found]
+    hits[at[found]] = True
+    return hits
 
 
 def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
@@ -107,7 +121,7 @@ def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
     max_letters = max((len(k) for k in names), default=0)
     sp = spans(verses, int(cc["rare_form"]), min_letters, max_letters)
     unique, inverse = np.unique(sp.letters.to_numpy(dtype=object), return_inverse=True)
-    unique = [str(u) for u in unique]
+    unique = np.array([str(u) for u in unique])  # sorted: `hits_of` searches it
     chap_of = dict(
         zip(verses.verse_id, zip(verses.book_id, verses.chapter, strict=True), strict=True)
     )

@@ -1653,6 +1653,7 @@ etcbc:                        # `bsim eval-etcbc`: ETCBC parallel passages as a 
 
 pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.py)
   download_workers: 8
+  threads: 8                  # worker threads of the stages that score independent random draws on numpy (brackets); the results do not depend on it
   lexical_systems: [bm25_lemma, bm25_surface, bm25_morph, bm25_domain, bm25_syntax]   # verse top-k before training (hard negatives) + the domain list
   csls: true                  # also top-k `{system}_csls` for every encoders.systems entry
   unit_systems: [tfidf, tfidf_morph, tfidf_domain, tfidf_syntax, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
