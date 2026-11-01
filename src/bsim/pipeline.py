@@ -526,23 +526,22 @@ STAGES: dict[str, str] = {
 # stage -> the earlier stages whose outputs it reads. A stage's inputs are these stages' outputs
 # plus every file it is seen to open; the list is what the audit hook cannot see (model folders
 # read by native code, globbed systems, files only checked for existence) and what an adopted
-# stage relies on. `bsim all` notes a read from a stage missing here.
-_CORPUS = ("download", "build-corpus")
+# stage relies on. `bsim all` notes a read from a stage missing here. `download` stands for the
+# downloaded files in `RAW`, never for its manifest (rewritten by any download).
+_CORPUS = ("build-corpus",)
 _MODELS = ("train-simcse", "train-sup")
 _TOPK = ("lexical-topk", "topk", "units", "fuse")
 DEPS: dict[str, tuple[str, ...]] = {
     "download": (),
     "build-corpus": ("download",),
-    "build-links": (*_CORPUS,),
-    "build-golds": (*_CORPUS, "build-links"),
-    "lexicon": (*_CORPUS,),
-    "syntax": (*_CORPUS, "lexicon"),
+    "build-links": ("download", *_CORPUS),
+    "build-golds": ("download", *_CORPUS, "build-links"),
+    "lexicon": ("download", *_CORPUS),
+    "syntax": ("download", *_CORPUS, "lexicon"),
     "lexical": (*_CORPUS, "lexicon", "syntax"),
     "lexical-topk": (*_CORPUS, "lexical"),
-    "train-simcse": (*_CORPUS,),
-    "train-sup": (
-        *_CORPUS, "build-links", "build-golds", "lexical", "lexical-topk", "train-simcse"
-    ),
+    "train-simcse": (*_CORPUS, "build-links"),
+    "train-sup": (*_CORPUS, "build-links", "build-golds", "lexical-topk", "train-simcse"),
     "embed": (*_CORPUS, *_MODELS),
     "topk": (*_CORPUS, "lexical", "embed"),
     "units": (*_CORPUS, "lexical", "embed"),
@@ -558,8 +557,8 @@ DEPS: dict[str, tuple[str, ...]] = {
     "wordplay": (*_CORPUS,),
     "sound": (*_CORPUS, "parallelism"),
     "entities": (*_CORPUS, "lexicon"),
-    "places": (*_CORPUS, "lexicon", "entities"),
-    "genealogy": (*_CORPUS,),
+    "places": ("download", *_CORPUS, "lexicon", "entities"),
+    "genealogy": ("download", *_CORPUS),
     "place-lists": (*_CORPUS, "places"),
     "place-arc": (*_CORPUS, "places"),
     "place-links": (*_CORPUS, "places"),
@@ -573,26 +572,26 @@ DEPS: dict[str, tuple[str, ...]] = {
     "stylometry": (*_CORPUS,),
     "voices": (*_CORPUS, "syntax"),
     "segments": (*_CORPUS, "build-links", "embed", "seams"),
-    "ketiv": (*_CORPUS, "sequences", "diffs"),
+    "ketiv": ("download", *_CORPUS, "sequences", "diffs"),
     "citations": (*_CORPUS, "lexical", "embed"),
     "allusions": (*_CORPUS, *_TOPK, "sequences"),
     "echoes": (*_CORPUS, "network", "citations", "borrowing", "dating"),
     "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
     "meter": (*_CORPUS, "parallelism"),
-    "roots": (*_CORPUS,),
+    "roots": ("download", *_CORPUS),
     "refrains": (*_CORPUS, "segments"),
     "psalms": (*_CORPUS, "lexicon"),
     "pentateuch": (*_CORPUS,),
     "dialogue": (*_CORPUS, "syntax"),
     "forms": (*_CORPUS, "parallelism"),
-    "gematria": (*_CORPUS,),
+    "gematria": ("download", *_CORPUS),
     "gematria-links": (*_CORPUS, "lexicon", "gematria", "roots", *_MODELS),
     "ciphers": (*_CORPUS,),
     "divine": (*_CORPUS,),
     "etiologies": (*_CORPUS,),
     "brackets": (*_CORPUS, "embed"),
     "retold": (*_CORPUS, "syntax", "dialogue"),
-    "haftarot": (*_CORPUS, "embed"),
+    "haftarot": ("download", *_CORPUS, "embed"),
     "chronology": (*_CORPUS,),
     "frameworks": (*_CORPUS,),
     "binomials": (*_CORPUS,),
@@ -603,6 +602,44 @@ DEPS: dict[str, tuple[str, ...]] = {
     ),
 }
 DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")
+
+# stage -> the downloaded files it reads (patterns under `paths.data_raw`; `*` crosses folders).
+# They are inputs whether or not the audit hook sees the read (lxml opens files natively), so a
+# new download group reruns only the stages that read it.
+RAW: dict[str, tuple[str, ...]] = {
+    "build-corpus": ("oshb/*", "sefaria/text/*", "sefaria/schemas/*"),
+    "build-links": ("sefaria/links/*",),
+    "build-golds": ("bhsa/*", "etcbc_parallels/*", "openbible/*"),
+    "lexicon": ("lexicon/*",),
+    "syntax": ("bhsa/*",),
+    "places": ("geo/*",),
+    "genealogy": ("geo/TIPNR*",),
+    "ketiv": ("oshb/*",),
+    "roots": ("lexicon/HebrewStrong.xml",),
+    "gematria": ("lexicon/HebrewStrong.xml",),
+    "haftarot": ("leyning/*",),
+}
+
+# stages adopted without ever running under `bsim all` (the models, trained by hand): the config
+# sections they read and the `train` subsection naming their model folder (their outputs). Without
+# this an adopted stage takes every section its code's imports name (syntax, fusion, units …).
+UNTRACKED: dict[str, tuple[tuple[str, ...], str]] = {
+    "train-simcse": (("encoders", "eval", "paths", "retrieval", "seed", "text", "train"), "simcse"),
+    "train-sup": (("encoders", "eval", "paths", "retrieval", "seed", "text", "train"),
+                  "supervised"),  # fmt: skip
+}
+
+
+def stage_deps(name: str) -> tuple[str, ...]:
+    """The stages whose recorded outputs are `name`'s inputs (`download`: its `RAW` files)."""
+    return tuple(d for d in DEPS[name] if d != "download")
+
+
+def raw_patterns(cfg: dict[str, Any], name: str) -> list[str]:
+    from bsim.incremental import file_key
+
+    raw = resolve_path(cfg, "data_raw")
+    return [file_key(raw / p) for p in RAW.get(name, ())]
 
 
 def downstream(stages: Iterable[str]) -> set[str]:
@@ -666,20 +703,29 @@ def run_all(
     if unknown:
         raise ValueError(f"unknown stage(s) {unknown}; stages: {', '.join(STAGES)}")
     order = list(STAGES)
-    state = inc.State(resolve_path(cfg, "pipeline_state"))
+    pc = cfg["pipeline"]
+    state = inc.State(resolve_path(cfg, "pipeline_state"), pc["volatile_keys"], pc["reports"])
     scope = inc.Scope.from_config(cfg)
     state.forget_ignored(scope)
+    raw_root = inc.file_key(resolve_path(cfg, "data_raw")) + "/"
 
     def reason(name: str) -> str | None:
         if force:
             return "forced"
         if name in rerun:
             return "--rerun"
-        return inc.stale_reason(name, globals()[STAGES[name]], cfg, state, DEPS[name])
+        fn = globals()[STAGES[name]]
+        return inc.stale_reason(name, fn, cfg, state, stage_deps(name), raw_patterns(cfg, name))
 
     if adopt:
         for name in stages:
-            inc.adopt(name, globals()[STAGES[name]], cfg, state, DEPS[name])
+            keys, sub = UNTRACKED.get(name, (None, None))
+            models = resolve_path(cfg, "models") / cfg["train"][sub]["output"] if sub else None
+            inc.adopt(
+                name, globals()[STAGES[name]], cfg, state, stage_deps(name),
+                raw_patterns(cfg, name), config=keys,
+                outputs=[inc.file_key(models) + "/*"] if models else (),
+            )  # fmt: skip
             log(f"adopted {name}: its current outputs count as up to date")
         state.save()
         return {}
@@ -714,12 +760,18 @@ def run_all(
         except RuntimeError as e:
             raise RuntimeError(f"stage {name!r} failed: {e}") from e
         timings[name] = time.perf_counter() - t0
+        raw = raw_patterns(cfg, name)
+        for k in sorted(inc.file_key(p) for p in reads):
+            if name != "download" and k.startswith(raw_root) and not inc.matches(k, raw):
+                log(f"note: {name} read {k}, a download pipeline.RAW does not list for it")
         inc.record(
-            name, fn, cfg, state, order=order, deps=DEPS[name], seen=tracked.seen, reads=reads,
-            before=before, after=scope.snapshot(), seconds=timings[name], log=log,
+            name, fn, cfg, state, order=order, deps=stage_deps(name), raw=raw,
+            seen=tracked.seen, reads=reads, before=before, after=scope.snapshot(),
+            seconds=timings[name], log=log,
         )  # fmt: skip
         state.save()
         log(f"=== {name} done in {_fmt_secs(timings[name])} ===")
+    state.save()  # also when nothing ran: a rehash of JSON files (State._rehash_json), new hashes
     log(f"stage timings ({len(timings)} run, {len(stages) - len(timings)} up to date):")
     for name, secs in timings.items():
         log(f"  {name:<15} {_fmt_secs(secs)}")

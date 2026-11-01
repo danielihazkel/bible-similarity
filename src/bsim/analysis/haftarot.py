@@ -253,7 +253,7 @@ def run_haftarot(cfg: dict[str, Any], log: Log = print) -> Path:
     lists.to_parquet(out / "lists.parquet", index=False)
     meta = {
         "config_hash": config_hash(cfg, "haftarot", "fusion", "final_systems", "lexical",
-                                   "sources"),  # fmt: skip
+                                   "sources.hebcal_leyning"),  # fmt: skip
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "parashot": len(par), "candidates": n_cand, "thematic": int(thematic.sum()),
         "claim_mode": mode, "shuffles": reps, "alpha": alpha, "list": k,

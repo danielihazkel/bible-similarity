@@ -1656,6 +1656,8 @@ pipeline:                     # `bsim all` (stage order fixed in bsim/pipeline.p
   unit_systems: [tfidf, tfidf_morph, tfidf_domain, tfidf_syntax, berel_mean, berel_sup, berel_sup_csls, bge_m3_csls]   # `bsim units`
   roots: [data_raw, data_interim, data_processed, models, artifacts]   # `paths` keys whose files are stage inputs and outputs (incremental runs, §16.35)
   ignore: ["models/_runs/*", "*.tmp", "*-journal", "*-wal", "*-shm"]   # never a stage input or output (training checkpoints, SQLite side files)
+  reports: ["*.md"]           # files written for people, never another stage's input (their "Built" line changes every run); still a stage's outputs
+  volatile_keys: [built_at, seconds, updated_at, downloaded_at, evaluated_at]   # JSON keys left out of input / output hashes: times and durations, restamped by every rerun (DESIGN.md §16.35)
 
 store:                        # `bsim build-db` -> paths.db (DESIGN.md §9)
   batch_rows: 200000          # rows per executemany batch

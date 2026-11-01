@@ -212,3 +212,141 @@ def test_server_cache_is_never_a_stage_file(toy):
     assert run() == []  # ignored: nothing is stale
     assert run(rerun=["a"]) == ["a"]  # and the next record drops it
     assert key not in json.loads(path.read_text("utf-8"))["stages"]["a"]["outputs"]
+
+
+def stage_meta(cfg, log):
+    """Writes a meta file stamped with a new build time on every run."""
+    RUNS.append("meta")
+    out = Path(cfg["paths"]["artifacts"]) / "meta"
+    out.mkdir(parents=True, exist_ok=True)
+    meta = {"rows": cfg["toy"]["a"], "built_at": f"t{len(RUNS)}-{id(RUNS)}", "seconds": 0.1}
+    (out / "m.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
+def stage_reader(cfg, log):
+    RUNS.append("reader")
+    art = Path(cfg["paths"]["artifacts"])
+    rows = json.loads((art / "meta" / "m.meta.json").read_text("utf-8"))["rows"]
+    raw = Path(cfg["paths"]["data_raw"])
+    seen = (raw / "lex" / "dict.xml").exists()  # checked, never opened: only RAW ties them
+    (art / "reader").mkdir(exist_ok=True)
+    (art / "reader" / "out.txt").write_text(f"{rows}{seen}", "utf-8")
+
+
+@pytest.fixture
+def toy2(monkeypatch, pipeline_cfg):
+    cfg = pipeline_cfg
+    cfg["toy"] = {"a": "x"}
+    stages = {"download": "stage_download", "meta": "stage_meta", "reader": "stage_reader"}
+    monkeypatch.setattr(pipeline, "STAGES", stages)
+    monkeypatch.setattr(pipeline, "DEPS", {"download": (), "meta": (),
+                                           "reader": ("download", "meta")})  # fmt: skip
+    monkeypatch.setattr(pipeline, "RAW", {"reader": ("lex/*",)})
+    monkeypatch.setattr(pipeline, "UNTRACKED", {})
+
+    def stage_download(cfg, log):
+        raw = Path(cfg["paths"]["data_raw"])
+        raw.mkdir(parents=True, exist_ok=True)
+        (raw / "manifest.json").write_text(json.dumps({"updated_at": str(len(RUNS))}), "utf-8")
+
+    monkeypatch.setattr(pipeline, "stage_download", stage_download, raising=False)
+    for name in ("stage_meta", "stage_reader"):
+        monkeypatch.setattr(pipeline, name, globals()[name], raising=False)
+    logs: list[str] = []
+
+    def run(**kw):
+        RUNS.clear()
+        logs.clear()
+        pipeline.run_all(cfg, log=logs.append, **kw)
+        return list(RUNS)
+
+    raw = Path(cfg["paths"]["data_raw"])
+    (raw / "lex").mkdir(parents=True)
+    (raw / "lex" / "dict.xml").write_text("<d/>", "utf-8")
+    return cfg, run, logs, raw
+
+
+def test_restamped_meta_leaves_dependents_skipped(toy2):
+    cfg, run, logs, raw = toy2
+    assert run() == ["meta", "reader"]
+    assert run(rerun=["meta"]) == ["meta"]  # only its built_at changed
+    cfg["toy"]["a"] = "y"
+    assert run() == ["meta", "reader"]  # a real change still reaches it
+
+
+def test_json_hashes_migrate_without_turning_stale(toy2):
+    cfg, run, logs, raw = toy2
+    cfg["pipeline"]["volatile_keys"] = []  # hashed byte for byte, as before
+    run()
+    cfg["pipeline"]["volatile_keys"] = ["built_at", "seconds"]
+    assert run() == []
+    state = json.loads(Path(cfg["paths"]["pipeline_state"]).read_text("utf-8"))
+    assert state["volatile"] == ["built_at", "seconds"]
+    assert run(rerun=["meta"]) == ["meta"]
+
+
+def test_downloads_are_inputs_by_raw_pattern(toy2):
+    cfg, run, logs, raw = toy2
+    run()
+    assert run(rerun=["download"]) == []  # the manifest is rewritten: no stage reads it
+    (raw / "geo").mkdir()
+    (raw / "geo" / "places.txt").write_text("new group", "utf-8")
+    assert run() == []  # another group's files
+    (raw / "lex" / "more.xml").write_text("<m/>", "utf-8")
+    run(dry_run=True)
+    assert any(m.split()[:3] == ["run", "reader", "new"] for m in logs)
+    assert run() == ["reader"]
+    (raw / "lex" / "dict.xml").write_text("<d>edited</d>", "utf-8")
+    assert run() == ["reader"]
+
+
+def test_read_outside_raw_is_noted(toy2, monkeypatch):
+    cfg, run, logs, raw = toy2
+    monkeypatch.setattr(pipeline, "RAW", {})
+    (raw / "lex" / "dict.xml").write_text("<d/>", "utf-8")
+
+    def stage_reader(cfg, log):
+        RUNS.append("reader")
+        (Path(cfg["paths"]["data_raw"]) / "lex" / "dict.xml").read_text("utf-8")
+
+    monkeypatch.setattr(pipeline, "stage_reader", stage_reader, raising=False)
+    run()
+    assert any(m.startswith("note: reader read ") and "pipeline.RAW" in m for m in logs)
+
+
+def test_untracked_adopt_takes_its_declared_config_and_outputs(toy2, monkeypatch):
+    cfg, run, logs, raw = toy2
+    cfg["train"]["simcse"]["output"] = "toy-model"
+    model = Path(cfg["paths"]["models"]) / "toy-model"
+    model.mkdir(parents=True)
+    (model / "weights.bin").write_bytes(b"w1")
+    monkeypatch.setattr(pipeline, "UNTRACKED", {"meta": (("toy",), "simcse")})
+    assert run(adopt=True) == []
+    state = json.loads(Path(cfg["paths"]["pipeline_state"]).read_text("utf-8"))["stages"]
+    assert list(state["meta"]["config"]) == ["toy"]
+    assert any(k.endswith("toy-model/weights.bin") for k in state["meta"]["outputs"])
+    cfg["syntax"]["speaker_lookback"] = 99  # a section its imports name, not one it reads
+    assert run(dry_run=True) == [] and any(m.split()[:2] == ["skip", "meta"] for m in logs)
+    (model / "weights.bin").write_bytes(b"w2")  # retrained by hand
+    run(dry_run=True)
+    assert any(m.split()[:2] == ["run", "meta"] and "output" in m for m in logs)
+
+
+def test_reports_are_no_stage_input(toy2, monkeypatch):
+    cfg, run, logs, raw = toy2
+
+    def stage_meta(cfg, log):
+        RUNS.append("meta")
+        out = Path(cfg["paths"]["artifacts"]) / "meta"
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "m.meta.json").write_text(json.dumps({"rows": cfg["toy"]["a"]}), "utf-8")
+        (out / "report.md").write_text(f"Built {len(RUNS)}-{id(RUNS)}", "utf-8")
+
+    monkeypatch.setattr(pipeline, "stage_meta", stage_meta, raising=False)
+    assert run() == ["meta", "reader"]
+    state = json.loads(Path(cfg["paths"]["pipeline_state"]).read_text("utf-8"))["stages"]
+    assert any(k.endswith("report.md") for k in state["meta"]["outputs"])
+    assert not any(k.endswith("report.md") for k in state["reader"]["inputs"])
+    assert run(rerun=["meta"]) == ["meta"]  # a new "Built" line reaches no one
+    (Path(cfg["paths"]["artifacts"]) / "meta" / "report.md").unlink()
+    assert run() == ["meta"]  # still meta's own output

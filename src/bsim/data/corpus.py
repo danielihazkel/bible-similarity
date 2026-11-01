@@ -298,7 +298,7 @@ def run_build_corpus(cfg: dict[str, Any], log: Log = print) -> None:
     units.to_parquet(out / "units.parquet", index=False)
     members.to_parquet(out / "unit_members.parquet", index=False)
     meta = {
-        "config_hash": config_hash(cfg, "sources", "text", "corpus"),
+        "config_hash": config_hash(cfg, "sources.oshb", "sources.sefaria", "text", "corpus"),
         "oshb_commit": cfg["sources"]["oshb"]["commit"],
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }

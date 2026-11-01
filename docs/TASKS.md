@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M104: Incremental runs without false staleness (§16.35, D115; proposed I1)
+- [x] Downloads as inputs by pattern (`pipeline.RAW`), not through `data/raw/manifest.json` (ignored: any download rewrites it); `download` no longer in `_CORPUS`; a read of a download `RAW` does not list is noted
+- [x] JSON inputs and outputs hashed without `pipeline.volatile_keys` (build times, durations); the state records the list and restates matching JSON hashes when it changes; Markdown reports (`pipeline.reports`) are their stage's outputs, no stage's input
+- [x] `build-corpus`, `lexicon`, `haftarot` hash their own `sources.*` keys; `gematria-links` no longer records the whole config
+- [x] Models adopted without a run take their declared config and their model folder as outputs (`pipeline.UNTRACKED`); `train-sup` depends on `lexical-topk`, not all of `lexical`; `train-simcse` declares `build-links` (its dev check reads the links)
+- [x] Tests: a restamped meta, the hash migration, downloads by pattern and a new group, an unlisted download read, an untracked adoption and a model retrained by hand, reports (toy pipeline, pytest)
+
+✔ After adopting, the real state's dry run is empty. A new download group, a `sources.*` bump or a `syntax.*` edit no longer marks the corpus, lexical or model stages stale. One mishap along the way: a `--rerun` started before the report rule cascaded into `train-simcse` and overwrote `models/berel-simcse` mid-training. A full retrain gave the recorded dev numbers exactly (recall@10 0.181, best epoch 2), with vectors within 2 × 10⁻⁶ of the originals. Catching up the pipeline (26 stages, 21 min) left the DB the same apart from ties: chapter, pericope and parasha scores move by ≤ 2.4 × 10⁻⁷ (`units` sums on the GPU), a few near-equal neighbours swap places, PageRank follows, and `word_pairs` has the same rows in another order; both are I2.
+
 ## M103: Synopses (§16.74, D114; proposed T3)
 - [x] `api/synopsis.py`: strong same-order chains joined through shared passages; rows through the aligned pairs (transitively, one passage once a row), in the lead book's order with the chains' own orders kept; columns, one book's passages sharing one; cells flagged where their column goes back
 - [x] API `/synopses` and `/synopses/{id}?base=` (every column diffed against the base column; cached)
@@ -1080,3 +1089,28 @@ Tools
 - [x] T3 (done, M103) Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
 
 Suggested order: T1 → D1 → D2 → D3 → D4 → D8 → D5 → D6 → D7 → T2 → T3.
+
+From the 2026-11-01 review: improvements to what exists, no new features. Three audits (viewer, API timed on the real DB, pipeline and docs) found the items below; each milestone keeps the API and DB as they are unless it says otherwise (`bsim compare-builds`), and a rule changed after a claim's first run is reported with both runs.
+
+Pipeline and data
+- [x] I1 (done, M104) Stop false staleness: downloads as inputs by pattern (`pipeline.RAW`), not through the manifest every download rewrites; JSON times and durations left out of hashes (`pipeline.volatile_keys`); each stage's own `sources.*` keys; models adopted with their own config and folders as outputs; `gematria-links` stops recording the whole config
+- [ ] I2 (M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
+- [ ] I11 (M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
+- [ ] I12 (M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
+- [ ] I13 (M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
+- [ ] I14 (M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
+
+API
+- [ ] I3 (M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
+- [ ] I4 (M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
+- [ ] I5 (M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
+- [ ] I6 (M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
+
+Viewer
+- [ ] I7 (M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
+- [ ] I8 (M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
+- [ ] I9 (M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
+- [ ] I10 (M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
+- [ ] I15 (M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
+
+Suggested order: I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I10 → I9 → I11 → I12 → I13 → I14 → I15.

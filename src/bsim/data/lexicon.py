@@ -308,6 +308,7 @@ def run_lexicon(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     rel.to_parquet(proc / "lexicon_relations.parquet", index=False)
     lemmas.to_parquet(proc / "lexicon_lemmas.parquet", index=False)
     senses.to_parquet(proc / "word_senses.parquet", index=False)
-    meta = {"config_hash": config_hash(cfg, "lexicon", "sources"), **stats}
+    keys = ("lexicon", "sources.sdbh", "sources.hebrew_lexicon")
+    meta = {"config_hash": config_hash(cfg, *keys), **stats}
     (proc / "lexicon_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
     return meta

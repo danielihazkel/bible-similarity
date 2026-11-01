@@ -208,8 +208,10 @@ def encode_lemmas(
     for v, i in zip(occ.verse_id, occ.idx, strict=True):
         wanted[int(v)].add(int(i))
     surf = words.sort_values(["verse_id", "idx"]).groupby("verse_id").surface.agg(list)
-    enc_cfg = {**cfg, "senses": {"encoder": gc["encoder"], "max_seq_length": gc["max_seq_length"],
-                                 "batch_size": gc["batch_size"]}}  # fmt: skip
+    # only what `encode_words` reads: `{**cfg}` would record the whole config as read (§16.35)
+    enc_cfg = {"encoders": cfg["encoders"],
+               "senses": {"encoder": gc["encoder"], "max_seq_length": gc["max_seq_length"],
+                          "batch_size": gc["batch_size"]}}  # fmt: skip
     vecs = encode_words(enc_cfg, [(int(v), s) for v, s in surf.items() if int(v) in wanted],
                         wanted, log)  # fmt: skip
     out: dict[str, np.ndarray] = {}

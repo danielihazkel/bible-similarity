@@ -300,11 +300,38 @@ def key_path(key: str) -> Path:
     return p if p.is_absolute() else PROJECT_ROOT / p
 
 
-class Files:
-    """Content hashes of files, cached by (size, mtime_ns)."""
+def _strip(obj: Any, volatile: frozenset[str]) -> Any:
+    if isinstance(obj, dict):
+        return {k: _strip(v, volatile) for k, v in obj.items() if k not in volatile}
+    if isinstance(obj, list):
+        return [_strip(v, volatile) for v in obj]
+    return obj
 
-    def __init__(self, cache: dict[str, list[Any]] | None = None):
+
+def digest(key: str, volatile: Iterable[str] = ()) -> str:
+    """SHA-256 of a file's content; a JSON file without the `volatile` keys at any depth (a
+    build time or a duration), so a rerun that only restamps its meta file changes nothing."""
+    volatile = frozenset(volatile)
+    path = key_path(key)
+    if volatile and key.endswith(".json"):
+        data = path.read_bytes()
+        try:
+            obj = _strip(json.loads(data), volatile)
+        except ValueError:
+            pass
+        else:
+            data = json.dumps(obj, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        return hashlib.sha256(data).hexdigest()[:20]
+    with path.open("rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()[:20]
+
+
+class Files:
+    """Content hashes of files (`digest`), cached by (size, mtime_ns)."""
+
+    def __init__(self, cache: dict[str, list[Any]] | None = None, volatile: Iterable[str] = ()):
         self.cache: dict[str, list[Any]] = cache or {}
+        self.volatile = sorted(set(volatile))
 
     def sha(self, key: str) -> str | None:
         try:
@@ -314,10 +341,9 @@ class Files:
         hit = self.cache.get(key)
         if hit and hit[0] == st.st_size and hit[1] == st.st_mtime_ns:
             return hit[2]
-        with key_path(key).open("rb") as f:
-            digest = hashlib.file_digest(f, "sha256").hexdigest()[:20]
-        self.cache[key] = [st.st_size, st.st_mtime_ns, digest]
-        return digest
+        h = digest(key, self.volatile)
+        self.cache[key] = [st.st_size, st.st_mtime_ns, h]
+        return h
 
 
 class Scope:
@@ -333,6 +359,9 @@ class Scope:
         roots = [resolve_path(cfg, k) for k in cfg["pipeline"]["roots"]]
         ignore = [*cfg["pipeline"]["ignore"]]
         ignore += [file_key(resolve_path(cfg, k)) for k in ("pipeline_state", "labels")]
+        # the download manifest: rewritten by any download; the downloads themselves are inputs
+        # by pattern (`pipeline.RAW`), so a new group reruns only the stages that read it
+        ignore.append(file_key(resolve_path(cfg, "data_raw") / "manifest.json"))
         # the server's /search caches: rewritten by `bsim serve` after a rebuild, never a stage's
         ignore.append(file_key(resolve_path(cfg, "artifacts") / cfg["serve"]["cache_dir"]) + "/*")
         return cls(roots, ignore)
@@ -412,8 +441,9 @@ def tracking_reads(scope: Scope) -> Iterator[set[str]]:
 class State:
     """`paths.pipeline_state`: per stage its code, config, inputs and outputs; the hash cache."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, volatile: Iterable[str] = (), reports: Iterable[str] = ()):
         self.path = path
+        self.reports = list(reports)  # outputs for people: never an input of another stage
         data: dict[str, Any] = {}
         if path.exists():
             try:
@@ -423,12 +453,31 @@ class State:
         if data.get("version") != STATE_VERSION:
             data = {}
         self.stages: dict[str, dict[str, Any]] = data.get("stages", {})
-        self.files = Files(data.get("files", {}))
+        for entry in self.stages.values():
+            entry["inputs"] = {k: h for k, h in entry["inputs"].items() if not self.report(k)}
+        self.files = Files(data.get("files", {}), volatile)
+        old = data.get("volatile", [])  # absent: JSON files were hashed byte for byte
+        if old != self.files.volatile:
+            self._rehash_json(old)
+
+    def _rehash_json(self, old: list[str]) -> None:
+        """The JSON keys left out of hashes changed: a recorded JSON hash still matching the file
+        under the old keys is restated under the new ones (nothing turns stale by the change)."""
+        self.files.cache = {k: v for k, v in self.files.cache.items() if not k.endswith(".json")}
+        for entry in self.stages.values():
+            for part in ("inputs", "outputs"):
+                for key, h in entry[part].items():
+                    json_file = key.endswith(".json") and key_path(key).is_file()
+                    if json_file and digest(key, old) == h:
+                        entry[part][key] = digest(key, self.files.volatile)
 
     def save(self) -> None:
         live = {k for e in self.stages.values() for part in ("inputs", "outputs") for k in e[part]}
         files = {k: v for k, v in self.files.cache.items() if k in live}
-        payload = {"version": STATE_VERSION, "stages": self.stages, "files": files}
+        payload = {
+            "version": STATE_VERSION, "volatile": self.files.volatile, "stages": self.stages,
+            "files": files,
+        }  # fmt: skip
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(payload, indent=1, sort_keys=True), "utf-8")
@@ -441,8 +490,15 @@ class State:
             for part in ("inputs", "outputs"):
                 entry[part] = {k: h for k, h in entry[part].items() if not scope.ignored(k)}
 
+    def report(self, key: str) -> bool:
+        return matches(key, self.reports)
+
     def outputs_of(self, stages: Iterable[str]) -> set[str]:
-        return {k for s in stages for k in self.stages.get(s, {}).get("outputs", {})}
+        """The files the stages wrote, reports left out (an input to no stage)."""
+        return {
+            k for s in stages for k in self.stages.get(s, {}).get("outputs", {})
+            if not self.report(k)
+        }  # fmt: skip
 
     def owner(self, key: str) -> str | None:
         for name, entry in self.stages.items():
@@ -451,10 +507,36 @@ class State:
         return None
 
 
+def matches(key: str, patterns: Iterable[str]) -> bool:
+    return any(fnmatch.fnmatchcase(key, pat) for pat in patterns)
+
+
+def matching_files(patterns: Iterable[str]) -> set[str]:
+    """The keys of the files on disk matching any of the `fnmatch` patterns (project-relative
+    keys, as `file_key` writes them; `*` crosses folders). Each pattern's folder is walked."""
+    found: set[str] = set()
+    for pat in patterns:
+        root = key_path(pat.split("*", 1)[0].rsplit("/", 1)[0])
+        if not root.is_dir():
+            continue
+        for dirpath, _, names in os.walk(root):
+            for n in names:
+                key = file_key(os.path.join(dirpath, n))
+                if fnmatch.fnmatchcase(key, pat):
+                    found.add(key)
+    return found
+
+
 def stale_reason(
-    name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State, deps: Iterable[str]
+    name: str,
+    fn: Callable[..., Any],
+    cfg: dict[str, Any],
+    state: State,
+    deps: Iterable[str],
+    raw: Iterable[str] = (),
 ) -> str | None:
-    """Why the stage must run, or None when it is up to date."""
+    """Why the stage must run, or None when it is up to date. `raw`: patterns of the downloaded
+    files the stage reads, inputs whether or not the audit hook sees them (lxml reads natively)."""
     entry = state.stages.get(name)
     if entry is None:
         return "never run"
@@ -466,7 +548,8 @@ def stale_reason(
     for key, h in sorted(entry["inputs"].items()):
         if state.files.sha(key) != h:
             return f"input {key} changed" if key_path(key).exists() else f"input {key} missing"
-    new = sorted(state.outputs_of(deps) - set(entry["inputs"]) - set(entry["outputs"]))
+    declared = state.outputs_of(deps) | matching_files(raw)
+    new = sorted(declared - set(entry["inputs"]) - set(entry["outputs"]))
     if new:
         return f"new input {new[0]}" + (f" (+{len(new) - 1})" if len(new) > 1 else "")
     for key, h in sorted(entry["outputs"].items()):
@@ -483,6 +566,7 @@ def record(
     *,
     order: list[str],
     deps: Iterable[str],
+    raw: Iterable[str] = (),
     seen: set[str],
     reads: set[str],
     before: dict[str, tuple[int, int]],
@@ -500,12 +584,13 @@ def record(
             for k in outputs & set(entry.get("outputs", {})):
                 del entry["outputs"][k]
     later = state.outputs_of(order[order.index(name) + 1 :]) if name in order else set()
-    read_keys = {file_key(p) for p in reads} - outputs
-    for k in sorted(read_keys):
+    raw_files = matching_files(raw)
+    read_keys = {k for p in reads if not state.report(k := file_key(p))} - outputs
+    for k in sorted(read_keys - raw_files):
         owner = state.owner(k)
         if owner and owner != name and owner not in deps and owner not in later:
             log(f"note: {name} read {k}, written by {owner}, which DEPS does not list")
-    inputs = (read_keys | state.outputs_of(deps)) - outputs - later
+    inputs = (read_keys | state.outputs_of(deps) | raw_files) - outputs - later
     state.stages[name] = {
         "code": code_hash(fn),
         "config": {k: value_hash(config_value(cfg, k)) for k in minimal_keys(seen)},
@@ -517,31 +602,51 @@ def record(
 
 
 def adopt(
-    name: str, fn: Callable[..., Any], cfg: dict[str, Any], state: State, deps: Iterable[str] = ()
+    name: str,
+    fn: Callable[..., Any],
+    cfg: dict[str, Any],
+    state: State,
+    deps: Iterable[str] = (),
+    raw: Iterable[str] = (),
+    *,
+    config: Iterable[str] | None = None,
+    outputs: Iterable[str] = (),
 ) -> None:
     """Mark a stage up to date without running it: its outputs are trusted as they are.
 
-    A stage with a record keeps it, with its code, config, input and output hashes taken as they
-    are now (for a change known not to matter); the outputs of `deps` join its inputs (a stage
-    declared a dependency since its last run). One without: its config is every section its
-    code names (the keys it reads are not known), inputs and outputs are empty, so the first
-    rerun of a stage it depends on reruns it.
+    A stage that ran tracked keeps its record, with its code, config, input and output hashes
+    taken as they are now (for a change known not to matter); the outputs of `deps` and the `raw`
+    files join its inputs (a dependency declared since its last run). One that never ran tracked
+    takes its config keys from `config` (else every section its code names: the keys it reads
+    are not known), the outputs of `deps` and the `raw` files as inputs, and the files matching
+    the `outputs` patterns as outputs (else none, so the first rerun of a stage it depends on
+    reruns it).
     """
     old = state.stages.get(name)
-    if old is not None:
+    if old is not None and not _untracked(old):
         old["code"] = code_hash(fn)
         old["config"] = {k: value_hash(config_value(cfg, k)) for k in old["config"]}
-        inputs = set(old["inputs"]) | (state.outputs_of(deps) - set(old["outputs"]))
+        new = (state.outputs_of(deps) | matching_files(raw)) - set(old["outputs"])
+        inputs = set(old["inputs"]) | new
         old["inputs"] = {k: h for k in sorted(inputs) if (h := state.files.sha(k)) is not None}
         old["outputs"] = {k: h for k in old["outputs"] if (h := state.files.sha(k)) is not None}
         old["adopted"] = True
         return
+    keys = minimal_keys(config) if config is not None else config_literals(fn, cfg)
+    outs = matching_files(outputs)
+    inputs = (state.outputs_of(deps) | matching_files(raw)) - outs
     state.stages[name] = {
         "code": code_hash(fn),
-        "config": {k: value_hash(cfg[k]) for k in config_literals(fn, cfg)},
-        "inputs": {},
-        "outputs": {},
+        "config": {k: value_hash(config_value(cfg, k)) for k in keys},
+        "inputs": {k: h for k in sorted(inputs) if (h := state.files.sha(k)) is not None},
+        "outputs": {k: h for k in sorted(outs) if (h := state.files.sha(k)) is not None},
         "ran_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "seconds": 0.0,
         "adopted": True,
+        "untracked": True,
     }
+
+
+def _untracked(entry: dict[str, Any]) -> bool:
+    """A record made by adopting a stage that never ran under `bsim all` (no outputs seen)."""
+    return bool(entry.get("untracked")) or (not entry["outputs"] and entry["seconds"] == 0.0)
