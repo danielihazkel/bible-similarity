@@ -4,9 +4,9 @@
 word that sounds like it. Does the text's explanation echo
 its name more than an explanation given for another name would?
 
-- **Namings.** A form of קרא (`call`, not after a לא) followed within `trigger_within` words by
-  שם with a 2nd / 3rd person suffix or in construct (שמו, שם המקום, שם בנו), by למקום, or by a
-  pronoun object (לו, אתה) directly before the name; the name is the first proper noun within
+- **Namings.** A form of קרא (`call`, not after a לא or an אל) followed within `trigger_within`
+  words by שם with a 2nd / 3rd person suffix or in construct (שמו, שם המקום, שם בנו), by למקום, or
+  by a pronoun object (לו, אתה) directly before the name; the name is the first proper noun within
   `name_within` words after it (a multi-word name, באר שבע, whole; a preposition before it, or a
   name of God (`skip_names`): no naming). A naming is a place's when מקום, עיר or באר stands
   between the verb and the name.
@@ -128,7 +128,7 @@ class Naming:
 def find_namings(ws: list[Word], verse_id: int, ec: dict[str, Any]) -> list[Naming]:
     """The naming formulas of one verse (its words in order)."""
     call, noun, place = key(ec["call"]), key(ec["name_noun"]), key(ec["place_noun"])
-    neg, skip = key(ec["negation"]), {key(x) for x in ec["skip_names"]}
+    neg, skip = {key(x) for x in ec["negation"]}, {key(x) for x in ec["skip_names"]}
     place_words = {key(x) for x in ec["place_words"]}
     parts = [lemma_parts(w.lemma) for w in ws]
     out: list[Naming] = []
@@ -136,7 +136,7 @@ def find_namings(ws: list[Word], verse_id: int, ec: dict[str, Any]) -> list[Nami
     for i in range(len(ws)):
         if call not in parts[i]:
             continue
-        if any(neg in parts[k] for k in range(max(0, i - ec["negation_before"]), i)):
+        if any(neg & set(parts[k]) for k in range(max(0, i - ec["negation_before"]), i)):
             continue
         start, within = None, 0
         for j in range(i + 1, min(len(ws), i + 1 + ec["trigger_within"])):

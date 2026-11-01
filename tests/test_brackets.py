@@ -11,6 +11,7 @@ from scipy import sparse
 from bsim.analysis.brackets import (
     Tok,
     candidates,
+    forward_best,
     insertion,
     mutual_best,
     prefix_sums,
@@ -44,6 +45,13 @@ def test_mutual_best():
     pairs = pd.DataFrame({"a": [0, 0, 5], "b": [9, 12, 12], "score": [20.0, 15.0, 30.0]})
     # 0's best is 9 and 9's is 0; 12's best is 5, so 0 / 12 goes
     assert mutual_best(pairs)[["a", "b"]].values.tolist() == [[0, 9], [5, 12]]
+
+
+def test_forward_best():
+    # 0's best later repeat is 9, 5's is 12; 12 being 5's partner does not stop 3 / 12 (Ezra 4:24)
+    scores = [20.0, 15.0, 30.0, 8.0]
+    pairs = pd.DataFrame({"a": [0, 0, 5, 3], "b": [9, 12, 12, 12], "score": scores})
+    assert forward_best(pairs)[["a", "b"]].values.tolist() == [[0, 9], [5, 12], [3, 12]]
 
 
 def test_insertion():

@@ -360,6 +360,7 @@ acrostics:                    # `bsim acrostics`: alphabetic acrostics, whole or
   granularities: [verse, colon]   # line units: verse starts, colon starts (te'amim pauses)
   max_line_gap: 8             # lines between successive letters (Ps 119: 8 verses per letter)
   missing_penalty: 1.0        # score cost of a skipped letter
+  second_word: true           # a line's letter may also be its second word's (a title or a leading word before it: Ps 25:1 לדוד, Nahum 1:3, 1:6); the shuffles read lines the same way; added after the first run (M117)
   null_reps: 9999             # line-order shuffles per chapter (p resolution 1e-4)
   null_screen: 199            # shuffles first; all null_reps only if fewer than screen_hits reach the score
   screen_hits: 10
@@ -801,7 +802,7 @@ refrains:                     # `bsim refrains`: phrases that come back inside a
   min_tokens: 3               # a seed: this many lemmas in a row inside a verse (prefixes dropped)
   min_content: 2              # of which at least this many nouns, verbs or adjectives (names not counted)
   min_count: 3                # a refrain is in at least this many verses of one book
-  max_gap: 20                 # consecutive occurrences at most this many verses apart
+  max_gap: 20                 # consecutive occurrences at most this many verses apart (40 tried in M117 for the Song of Songs refrain and not kept: its four verses do form a run, but over 84 of the book's 117 verses, a burst no gap admits)
   alpha: 0.05                 # a refrain: estimated false discovery rate against the shuffles at most this
   shuffles: 20                # verse orders shuffled within each book (the runs found by chance)
   draws: 1000                 # random placements for the spacing and turn tests
@@ -1105,6 +1106,7 @@ forms:                        # `bsim forms`: graded numerical sayings and lists
   lists:                      # runs of verses shaped alike (word-shape n-grams, `lexical.morph`, §16.5)
     max_n: 3                  # shape n-grams 1..max_n, counted, cosine between verses
     lags: 3                   # a verse is compared with the verses up to this far before and after it (genealogies repeat every two or three verses)
+    extra_lags: [6]           # ... and exactly this far (Num 7: each chieftain's offering every six verses; added after the first run, M117: lags 6 instead lost the kings of Edom and the stations)
     quantile: 0.99            # a verse is list-like when its best match is above this quantile of the best matches with verse orders shuffled within books
     min_verses: 5             # a list: at least this many list-like verses
     max_gap: 1                # ... with at most this many other verses between consecutive ones
@@ -1222,7 +1224,7 @@ etiologies:                   # `bsim etiologies`: names given in the text and t
   name_noun: "8034"           # שם: "called his name X" (with a 2nd / 3rd person suffix) or "the name of the place / city / son" (construct), without a preposition
   place_noun: "4725"          # מקום: "called the place X" (with ל)
   place_words: ["4725", "5892b", "875"]   # מקום, עיר, באר between the verb and the name: a place's name
-  negation: "3808"
+  negation: ["3808", "408"]   # לא, and אל (Ruth 1:20 "do not call me Naomi"; אל added after the first run, M117)
   negation_before: 2
   trigger_within: 3           # the verb to שם / למקום / a pronoun object, in words
   name_within: 4              # שם to the name's first word, in words
@@ -1259,7 +1261,7 @@ brackets:                     # `bsim brackets`: resumptive repetition (Wiederau
   max_gap: 40                 # ... and at most this many
   min_tokens: 3               # aligned tokens (Smith-Waterman as `bsim phrases`: idf x formula weight, its mismatch and gap); a token matches by its lemma or by its form without prefixes (Hebrew / Aramaic: Ezra 4:5 / 4:24)
   min_score: 14
-  mutual: true                # a verse and its repeat are each other's best partner (a clause said three times: its strongest pair)
+  pairing: forward            # forward: the repeat is its first verse's best later partner (since M117: Ezra 4:24 resumes 4:5 though its own best partner is 5:16); mutual (the first run): each the other's best; all
   window: 4                   # verses before the first and after the repeat (the two frame verses left out): the text the block interrupts
   lex_dims: 512               # the lemma counts (idf) randomly projected to this many dimensions, so window sums are prefix differences
   draws: 999                  # random brackets of the same span in the same book, per repetition
@@ -1275,7 +1277,7 @@ retold:                       # `bsim retold`: what changes when something said 
   max_back: 400               # a retelling's source lies in the same book, at most this many verses before it (Exodus 25 to 36)
   seed_min: 12                # a window of earlier verses (the piece's span + margin either side) is a seed when the piece shares this much idf with it (lemmas in more than `seed_df` of verses left out); single verses in the first run, windows since (DESIGN.md §16.68)
   seed_df: 0.02
-  seeds: 3                    # seeds tried per piece, the strongest first; each opens a window of the piece's length + `margin` verses on either side
+  seeds: 6                    # seeds tried per piece, the strongest first; each opens a window of the piece's length + `margin` verses on either side (3 in the first run, which missed Gen 24:37–41 behind the servant's other windows; M117)
   margin: 2
   min_tokens: 5               # aligned tokens (Smith-Waterman as `bsim phrases`, a token matching by lemma or form) ...
   min_score: 18               # ... and score
@@ -1560,6 +1562,7 @@ binomials:                    # `bsim binomials`: fixed word pairs and their ord
     Np: name
     Aa: adjective
   min_pairs: 5                # a binomial: a pair of lemmas found at least this many times, in either order
+  skip_lemmas: ["3605"]       # never a pair's word: כל, a quantifier the morphology tags as a noun ("the king and all ..."); added after the first run (M117)
   # length: letters (consonants) and syllables (full vowels and shureq; shewa and hataf not counted) of each word as written, its prefixes (and the ו) taken off
   known:                      # [first, second, fixed]: the order expected, and the share of the pair's occurrences in it at least `fixed`
     - ["8064", "776", 0.9]    # שמים וארץ

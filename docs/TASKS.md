@@ -888,6 +888,19 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M117: Known misses (§16.15, §16.40, §16.45, §16.66–§16.68, §16.72, D120; proposed I14)
+Each a rule changed after the first run, so each is reported with both runs (DESIGN and RESULTS).
+- [x] §16.72 word pairs: כל left out (`binomials.skip_lemmas`): 134 → 128 binomials; shorter first in letters 60 / 81 (p 8 × 10⁻⁶), syllables 39 / 58 (p 0.006): **claim (1) now holds** (failed on syllables before, p 0.052; the six pairs dropped were all longer first)
+- [x] §16.66 etiologies: a קרא after אל names no one (`etiologies.negation`): Ruth 1:20's נעמי dropped, its מרא (echo המר) kept; 112 → 111 namings, the claim holds
+- [x] §16.15 acrostics: a line's second word read as a second option, the shuffles reading lines the same way (`acrostics.second_word`, `chapter_options`, chains over line × option): Nahum 1 found (q 0.014, 4 letters on second words), Ps 9 lost (q 0.029 → 1.0: the null rises with two letters a line); known 13 / 14 in both runs
+- [x] §16.67 brackets: each verse paired with its best repeat after it (`brackets.pairing: forward`): 2,105 → 3,404 repetitions, the claim holds; Ezra 4:5 / 4:24 found but not beyond chance (p 0.42): the known check still fails
+- [x] §16.68 retold: six seeds a piece (`retold.seeds`): Gen 24:37–41 found (group `unclear`), known 3 / 3: **that check now holds**; the claim still fails
+- [x] §16.45 lists: verses compared six back too (`forms.extra_lags`): Num 7 found, Neh 3 still missed; named lists 9 / 10 (8 / 10)
+- [x] §16.40 refrains: `max_gap` 40 tried and **not kept**: the Song's four verses then form a run, but over 84 of 117 verses, four against λ 2.9 (p 0.32) — no burst at any gap; the gap stays 20 and the miss is documented as the test's
+- [x] Tests: the second-word chain and `chapter_options` (`test_acrostic.py`), `forward_best` (`test_brackets.py`)
+
+✔ Findings against the first run: `binomials_short` and `retold_known` fail → hold; nothing else of the seven changes its verdict.
+
 ## M116: Speakers revised (§16.26, §16.28, §16.39, §16.44, D119; proposed I13)
 - [x] Rules tuned on samples of the changes, then frozen: a quotation stops at a book's end (BHSA's `book` sits on book nodes, so it had run from Exodus into Deuteronomy); a carried subject skips relative clauses (`syntax.carry_skip_rela`; Gen 3:1); the messenger formula names God in its MAM paragraph (`syntax.messenger`, `formula`); Deuteronomy's top-level quotations are Moses' (`syntax.frames`, `framed`); a quotation inside one that now has a speaker takes it
 - [x] Fresh check (50 random quotation starts whose speaker changed, none seen while tuning): 37 of the 45 given a speaker right (1 of 9 before); formula 4 / 5, framed 1 / 1, enclosing 27 / 28, carried 6 / 12
@@ -1213,7 +1226,7 @@ Pipeline and data
 - [x] I11 (done, M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
 - [x] I12 (done, M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
 - [x] I13 (done, M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
-- [ ] I14 (M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
+- [x] I14 (done, M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
 
 API
 - [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test

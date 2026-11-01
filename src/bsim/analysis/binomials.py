@@ -110,9 +110,12 @@ def construct(code: str) -> bool:
     return code[:1] in "NA" and code[:2] != "Np" and len(code) > 4 and code[4] == "c"
 
 
-def find_pairs(words: pd.DataFrame, kinds: dict[str, str]) -> pd.DataFrame:
+def find_pairs(
+    words: pd.DataFrame, kinds: dict[str, str], skip: frozenset[str] = frozenset()
+) -> pd.DataFrame:
     """Every pair: `verse_id, a, b` (lemmas), `kind, a_tok, b_tok, a_len, b_len, a_syll,
-    b_syll, a_form, b_form`."""
+    b_syll, a_form, b_form`; `skip`: lemmas never a pair's word (כל, a quantifier tagged a
+    noun: "the king and all ...")."""
     rows = []
     vid = words.verse_id.to_numpy()
     lem = words.lemma.astype(str).tolist()
@@ -134,7 +137,7 @@ def find_pairs(words: pd.DataFrame, kinds: dict[str, str]) -> pd.DataFrame:
         la, ca = core(i)
         lb, cb = core(i + 1)
         ka, kb = kind_of(ca, kinds), kind_of(cb, kinds)
-        if ka is None or ka != kb or la == lb or construct(ca):
+        if ka is None or ka != kb or la == lb or construct(ca) or la in skip or lb in skip:
             continue
         wa = strip_prefixes(sur[i], n_prefixes(parts[i]))
         wb = strip_prefixes(sur[i + 1], n_prefixes(parts[i + 1]))
@@ -165,7 +168,7 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
         columns=["verse_id", "idx", "surface", "lemma", "morph", "display_idx"],
     ).sort_values(["verse_id", "idx"], kind="stable")
     kinds = {str(k): str(v) for k, v in bc["kinds"].items()}
-    pairs = find_pairs(words, kinds)
+    pairs = find_pairs(words, kinds, frozenset(str(x) for x in bc["skip_lemmas"]))
     book = dict(zip(verses.verse_id, verses.book_id, strict=True))
     early = {BY_OSIS[b].book_id for b in dc["early"]}
     late = {BY_OSIS[b].book_id for b in dc["late"]}

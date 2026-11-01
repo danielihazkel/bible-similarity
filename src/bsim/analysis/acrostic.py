@@ -64,17 +64,44 @@ def chapter_lines(
     verse_ids: list[int], tokens: dict[int, list[str]], cola: dict[int, list[list[int]]]
 ) -> dict[str, list[Line]]:
     """The lines of a chapter in both line units."""
-    out: dict[str, list[Line]] = {"verse": [], "colon": []}
+    options = chapter_options(verse_ids, tokens, cola)
+    return {u: [opts[0] for opts in ls] for u, ls in options.items()}
+
+
+def chapter_options(
+    verse_ids: list[int], tokens: dict[int, list[str]], cola: dict[int, list[list[int]]]
+) -> dict[str, list[list[Line]]]:
+    """The lines of a chapter in both line units, each with the letter of its first word and, as
+    a second option, of its next word (a title or a leading word before the letter: Ps 25:1
+    לדוד, Nahum 1:3 יהוה בסופה, 1:6 לפני זעמו)."""
+    out: dict[str, list[list[Line]]] = {"verse": [], "colon": []}
+
+    def options(v: int, toks: list[str], start: int) -> list[Line] | None:
+        f = first_letter(toks, start)
+        if f is None:
+            return None
+        g = first_letter(toks, f[0] + 1)
+        return [(v, *f)] + ([(v, *g)] if g is not None else [])
+
     for v in verse_ids:
         toks = tokens[v]
-        f = first_letter(toks)
-        if f is not None:
-            out["verse"].append((v, *f))
+        o = options(v, toks, 0)
+        if o is not None:
+            out["verse"].append(o)
         for start, _ in cola.get(v) or [[0, len(toks) - 1]]:
-            f = first_letter(toks, start)
-            if f is not None and (not out["colon"] or out["colon"][-1][:2] != (v, f[0])):
-                out["colon"].append((v, *f))
+            o = options(v, toks, start)
+            if o is not None and (not out["colon"] or out["colon"][-1][0][:2] != o[0][:2]):
+                out["colon"].append(o)
     return out
+
+
+def option_positions(lines: list[list[Line]], order: str, k: int) -> np.ndarray:
+    """(lines x k) alphabet positions of each line's first `k` options; -1 where it has none."""
+    pos = np.full((len(lines), k), -1, dtype=np.int64)
+    for i, opts in enumerate(lines):
+        for j, (*_, letter) in enumerate(opts[:k]):
+            pos[i, j] = order.index(letter)
+    return pos
 
 
 def positions(lines: list[Line], order: str) -> np.ndarray:
@@ -83,50 +110,68 @@ def positions(lines: list[Line], order: str) -> np.ndarray:
 
 
 def chain_scores(pos: np.ndarray, max_gap: int, penalty: float) -> np.ndarray:
-    """Best chain score of each row of `pos` (reps x lines), vectorized over the rows."""
-    reps, n = pos.shape
-    best = np.zeros((reps, n))
+    """Best chain score of each row of `pos` (reps x lines, or reps x lines x options with -1
+    for an option a line lacks), vectorized over the rows."""
+    if pos.ndim == 2:
+        pos = pos[:, :, None]
+    reps, n, k = pos.shape
+    valid = pos >= 0
+    best = np.where(valid, 1.0, -np.inf)
     for i in range(n):
-        cand = np.ones(reps)
-        for j in range(max(0, i - max_gap), i):
-            ok = pos[:, j] < pos[:, i]
-            val = best[:, j] + 1 - penalty * (pos[:, i] - pos[:, j] - 1)
-            cand = np.where(ok & (val > cand), val, cand)
-        best[:, i] = cand
-    return best.max(axis=1) if n else np.zeros(reps)
+        for b in range(k):
+            cand = best[:, i, b].copy()
+            for j in range(max(0, i - max_gap), i):
+                for a in range(k):
+                    ok = valid[:, j, a] & valid[:, i, b] & (pos[:, j, a] < pos[:, i, b])
+                    val = best[:, j, a] + 1 - penalty * (pos[:, i, b] - pos[:, j, a] - 1)
+                    cand = np.where(ok & (val > cand), val, cand)
+            best[:, i, b] = cand
+    return best.reshape(reps, -1).max(axis=1) if n else np.zeros(reps)
 
 
 @dataclass(frozen=True)
 class Chain:
     score: float
     lines: list[int]  # indexes into the line list, in order
+    picks: list[int] | None = None  # the option used at each of those lines (0: the first word)
 
 
 def best_chain(pos: np.ndarray, max_gap: int, penalty: float) -> Chain:
-    """The best chain of one line sequence, with its lines (ties: the earliest ending)."""
-    n = len(pos)
+    """The best chain of one line sequence (lines, or lines x options with -1 where a line has
+    no such option), with its lines (ties: the earliest ending, the first option)."""
+    single = pos.ndim == 1
+    if single:
+        pos = pos[:, None]
+    n, k = pos.shape
     if n == 0:
         return Chain(0.0, [])
-    best = np.ones(n)
-    prev = np.full(n, -1)
+    best = np.where(pos >= 0, 1.0, -np.inf)
+    prev = np.full((n, k, 2), -1)
     for i in range(n):
-        for j in range(max(0, i - max_gap), i):
-            if pos[j] < pos[i]:
-                val = best[j] + 1 - penalty * (pos[i] - pos[j] - 1)
-                if val > best[i]:
-                    best[i], prev[i] = val, j
-    end = int(np.argmax(best))
-    lines = [end]
-    while prev[lines[-1]] >= 0:
-        lines.append(int(prev[lines[-1]]))
-    return Chain(float(best[end]), lines[::-1])
+        for b in range(k):
+            if pos[i, b] < 0:
+                continue
+            for j in range(max(0, i - max_gap), i):
+                for a in range(k):
+                    if 0 <= pos[j, a] < pos[i, b]:
+                        val = best[j, a] + 1 - penalty * (pos[i, b] - pos[j, a] - 1)
+                        if val > best[i, b]:
+                            best[i, b], prev[i, b] = val, (j, a)
+    end = np.unravel_index(int(np.argmax(best)), best.shape)
+    steps = [(int(end[0]), int(end[1]))]
+    while prev[steps[-1]][0] >= 0:
+        steps.append((int(prev[steps[-1]][0]), int(prev[steps[-1]][1])))
+    steps.reverse()
+    picks = None if single else [b for _, b in steps]
+    return Chain(float(best[end]), [i for i, _ in steps], picks)
 
 
 def null_scores(
-    lines: dict[str, list[Line]], cfg: dict[str, Any], reps: int, rng: np.random.Generator
+    lines: dict[str, list[list[Line]]], cfg: dict[str, Any], reps: int, rng: np.random.Generator
 ) -> np.ndarray:
     """Best-of-variants chain score of `reps` line-order shuffles of a chapter."""
     a = cfg["acrostics"]
+    k = 2 if a["second_word"] else 1
     null = np.zeros(reps)
     for unit in a["granularities"]:
         ls = lines[unit]
@@ -134,23 +179,25 @@ def null_scores(
             continue
         perms = np.argsort(rng.random((reps, len(ls))), axis=1)
         for order in ORDERS.values():
-            pos = positions(ls, order)[perms]
+            pos = option_positions(ls, order, k)[perms]
             null = np.maximum(null, chain_scores(pos, a["max_line_gap"], a["missing_penalty"]))
     return null
 
 
 def score_chapter(
-    lines: dict[str, list[Line]], cfg: dict[str, Any], rng: np.random.Generator
+    lines: dict[str, list[list[Line]]], cfg: dict[str, Any], rng: np.random.Generator
 ) -> dict[str, Any] | None:
     """Best chain over line units and orders, and its shuffle p-value: `null_screen` shuffles
     first, all `null_reps` only when fewer than `screen_hits` of those reach the score."""
     a = cfg["acrostics"]
+    k = 2 if a["second_word"] else 1
     found: tuple[float, str, str, Chain] | None = None
     for unit in a["granularities"]:
         if len(lines[unit]) < 2:
             continue
         for name, order in ORDERS.items():
-            c = best_chain(positions(lines[unit], order), a["max_line_gap"], a["missing_penalty"])
+            pos = option_positions(lines[unit], order, k)
+            c = best_chain(pos, a["max_line_gap"], a["missing_penalty"])
             if found is None or c.score > found[0]:
                 found = (c.score, unit, name, c)
     if found is None:
@@ -159,7 +206,8 @@ def score_chapter(
     null = null_scores(lines, cfg, a["null_screen"], rng)
     if np.sum(null >= score - 1e-9) < a["screen_hits"]:
         null = null_scores(lines, cfg, a["null_reps"], rng)
-    chain = [lines[unit][i] for i in c.lines]
+    picks = c.picks or [0] * len(c.lines)
+    chain = [lines[unit][i][b] for i, b in zip(c.lines, picks, strict=True)]
     order = ORDERS[name]
     first, last = order.index(chain[0][2]), order.index(chain[-1][2])
     return {
@@ -173,6 +221,7 @@ def score_chapter(
         "start_vid": chain[0][0],
         "end_vid": chain[-1][0],
         "n_lines": len(lines[unit]),
+        "second_words": int(sum(picks)),  # letters read on a line's second word
         "p": empirical_p(score - 1e-9, null),
         "chain": json.dumps([[v, i, letter] for v, i, letter in chain], ensure_ascii=False),
     }
@@ -207,7 +256,7 @@ def run_acrostics(cfg: dict[str, Any], log: Log = print) -> Path:
     rows = []
     for k, u in enumerate(units.itertuples(index=False), start=1):
         vids = list(range(u.start_verse_id, u.end_verse_id + 1))
-        r = score_chapter(chapter_lines(vids, tokens, cola), cfg, rng)
+        r = score_chapter(chapter_options(vids, tokens, cola), cfg, rng)
         if r is not None:
             rows.append({"unit_id": u.unit_id, "book_id": int(u.book_id), **r})
         if k % 200 == 0:

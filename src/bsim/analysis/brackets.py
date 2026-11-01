@@ -8,8 +8,9 @@ again. Does a clause repeated a few verses later mark a block that interrupts it
 - **Repetitions.** Every pair of verses of one book `min_gap`..`max_gap` verses apart whose content
   words align (Smith-Waterman as `bsim phrases`: a match scores idf x formula weight) with at least
   `min_tokens` tokens and `min_score`; a token matches another by its lemma or by its form without
-  prefixes, so a Hebrew clause retold in Aramaic still aligns. With `mutual`, a verse and its
-  repeat are each other's best partner.
+  prefixes, so a Hebrew clause retold in Aramaic still aligns. The `pairing` keeps, for each
+  verse, its best later repeat (`forward`, since M117; the first run took only pairs each the
+  other's best, `mutual`, and so lost Ezra 4:5 / 4:24).
 - **Bracket score.** The `window` verses before the first verse (*before*) and after the repeat
   (*after*), the two frame verses left out, against the block between: the cosine of before and
   after, less the cosine of the block and before + after. High when the text on the two sides
@@ -110,6 +111,14 @@ def candidates(
     return np.concatenate(out) if out else np.zeros((0, 2), dtype=int)
 
 
+def forward_best(pairs: pd.DataFrame) -> pd.DataFrame:
+    """Pairs whose later verse is the earlier one's best-scoring partner: a frame verse picks
+    its resumption, even when that verse repeats another one more strongly (Ezra 4:24, whose
+    best partner is 5:16, resumes 4:5)."""
+    best = pairs.groupby("a").score.max()
+    return pairs[pairs.score >= pairs.a.map(best)]
+
+
 def mutual_best(pairs: pd.DataFrame) -> pd.DataFrame:
     """Pairs whose two verses are each other's best-scoring partner."""
     ends = pd.concat([pairs[["a", "score"]].rename(columns={"a": "v"}),
@@ -191,8 +200,8 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
                          sorted({streams[b].word_idx[j] for j in al.b_pos})))  # fmt: skip
     pairs = pd.DataFrame(rows, columns=["a", "b", "score", "n_tokens", "a_words", "b_words"])
     log(f"{len(pairs)} repetitions")
-    if bc["mutual"] and len(pairs):
-        pairs = mutual_best(pairs)
+    if len(pairs) and bc["pairing"] != "all":
+        pairs = mutual_best(pairs) if bc["pairing"] == "mutual" else forward_best(pairs)
     # the windows must lie inside the book
     first = verses.groupby("book_id").verse_id.min()
     last = verses.groupby("book_id").verse_id.max()
@@ -201,7 +210,7 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
         pairs.b.to_numpy() + w <= last.reindex(bk).to_numpy()
     )
     pairs = pairs[inside].sort_values(["a", "b"]).reset_index(drop=True)
-    log(f"{len(pairs)} after mutual best and room for the windows")
+    log(f"{len(pairs)} after the pairing ({bc['pairing']}) and room for the windows")
 
     # bracket scores: lexical (projected) and semantic
     rng = np.random.default_rng(bc["seed"])

@@ -133,13 +133,16 @@ def shape_matrix(words: pd.DataFrame, n_verses: int, max_n: int) -> sp.csr_matri
     return sp.csr_matrix(sp.diags(1 / norm) @ x)
 
 
-def likeness(x: sp.csr_matrix, order: np.ndarray, book: np.ndarray, lags: int) -> np.ndarray:
+def likeness(
+    x: sp.csr_matrix, order: np.ndarray, book: np.ndarray, lags: int, extra: tuple[int, ...] = ()
+) -> np.ndarray:
     """For the verses in `order` (book by book), each one's best cosine with the verses up to
-    `lags` positions before or after it in the same book; returned by position in `order`."""
+    `lags` positions before or after it in the same book, and exactly `extra` positions (a list
+    repeating at a longer period: Num 7, every six verses); returned by position in `order`."""
     xo = x[order]
     bo = book[order]
     best = np.zeros(len(order))
-    for lag in range(1, lags + 1):
+    for lag in sorted({*range(1, lags + 1), *extra}):
         s = np.asarray(xo[:-lag].multiply(xo[lag:]).sum(axis=1)).ravel()
         s[bo[:-lag] != bo[lag:]] = 0.0
         best[:-lag] = np.maximum(best[:-lag], s)
@@ -294,11 +297,12 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
     lc = fc["lists"]
     x = shape_matrix(words, n_verses, lc["max_n"])
     order = np.argsort(book, kind="stable")  # verse ids are in canon order, so this is the identity
-    like = likeness(x, order, book, lc["lags"])
+    extra = tuple(int(k) for k in lc["extra_lags"])
+    like = likeness(x, order, book, lc["lags"], extra)
     null_like = []
     for _ in range(fc["list_shuffles"]):
         perm = shuffle_within(book[order], list_rng)
-        null_like.append(likeness(x, order[perm], book, lc["lags"]))
+        null_like.append(likeness(x, order[perm], book, lc["lags"], extra))
     threshold = float(np.quantile(np.concatenate(null_like), lc["quantile"]))
     runs = list_runs(like >= threshold, book[order], lc["min_verses"], lc["max_gap"])
     expected_lists = float(

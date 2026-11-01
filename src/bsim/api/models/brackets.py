@@ -29,7 +29,7 @@ class BracketBook(ApiModel):
 class BracketsResponse(ApiModel):
     candidates: int  # verse pairs aligned
     repetitions: int  # pairs whose clause aligns
-    brackets: int  # after mutual best and room for the windows
+    brackets: int  # after the pairing (`brackets.pairing`) and room for the windows
     mean: float | None  # mean bracket score
     mean_null: float | None  # ... of random brackets of the same spans
     p: float

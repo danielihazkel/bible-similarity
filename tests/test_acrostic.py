@@ -6,6 +6,7 @@ from bsim.analysis.acrostic import (
     best_chain,
     chain_scores,
     chapter_lines,
+    chapter_options,
     first_letter,
     known_unit_ids,
     positions,
@@ -21,12 +22,19 @@ CFG = {
         "null_reps": 199,
         "null_screen": 19,
         "screen_hits": 10,
+        "second_word": False,
     }
 }
+CFG2 = {"acrostics": {**CFG["acrostics"], "second_word": True}}
 
 
 def lines_of(letters: str):
     return [(i, 0, ch) for i, ch in enumerate(letters)]
+
+
+def options_of(letters: str):
+    """Each line its one letter (`score_chapter` takes each line's options)."""
+    return [[line] for line in lines_of(letters)]
 
 
 def test_first_letter_skips_marks_and_folds_finals():
@@ -56,7 +64,7 @@ def test_vectorized_scores_match_the_traceback():
 
 def test_whole_acrostic_is_significant_and_pe_ayin_order_found():
     lam = ORDERS["pe-ayin"]
-    lines = {"verse": lines_of(lam), "colon": lines_of(lam)}
+    lines = {"verse": options_of(lam), "colon": options_of(lam)}
     r = score_chapter(lines, CFG, np.random.default_rng(1))
     assert r["n_letters"] == 22 and r["order_name"] == "pe-ayin" and r["missing"] == 0
     assert r["p"] <= 1 / 200 + 1e-12  # no shuffle comes close
@@ -65,7 +73,7 @@ def test_whole_acrostic_is_significant_and_pe_ayin_order_found():
 
 def test_ordinary_text_is_not_significant():
     text = "ויאמרויהיוידברהנהאשרכיולאועתה"  # verse starts of narrative
-    lines = {"verse": lines_of(text), "colon": lines_of(text)}
+    lines = {"verse": options_of(text), "colon": options_of(text)}
     r = score_chapter(lines, CFG, np.random.default_rng(2))
     assert r["p"] > 0.05
 
@@ -81,3 +89,25 @@ def test_known_ids_and_config():
     assert known_unit_ids(["Ps 119", "Lam 3"]) == ["c:26:119", "c:31:3"]
     assert len(ALPHABET) == 22
     assert known_unit_ids(load_config()["acrostics"]["known"])
+
+
+def test_a_letter_on_the_second_word():
+    """Nahum 1: a leading word (יהוה, לפני) before the letter; read with the second word, the
+    chain runs on, and shuffles read lines the same way."""
+    first = "איגהולחטי"  # the first words' letters: ב and ז sit on the second words
+    lines = [
+        [(i, 0, a)] + ([(i, 1, b)] if b != "_" else [])
+        for i, (a, b) in enumerate(zip(first, "_ב___ז___", strict=True))
+    ]
+    firsts = [ls[:1] for ls in lines]
+    old = score_chapter({"verse": firsts, "colon": []}, CFG, np.random.default_rng(3))
+    new = score_chapter({"verse": lines, "colon": []}, CFG2, np.random.default_rng(3))
+    assert new["score"] > old["score"] and new["second_words"] == 2
+    assert new["n_letters"] == 9 and new["missing"] == 1  # א ב ג (ד) ה ו ז ח ט י
+
+
+def test_chapter_options_offer_the_next_word():
+    tokens = {0: ["יְהוָה", "בְּסוּפָה"], 1: ["גֹּעֵר"]}
+    opts = chapter_options([0, 1], tokens, {})
+    assert [[x[2] for x in o] for o in opts["verse"]] == [["י", "ב"], ["ג"]]
+    assert chapter_lines([0, 1], tokens, {})["verse"] == [(0, 0, "י"), (1, 0, "ג")]
