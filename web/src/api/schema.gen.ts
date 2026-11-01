@@ -4248,7 +4248,7 @@ export interface components {
             /** Speaker He */
             speaker_he: string | null;
             /** Speaker Source */
-            speaker_source: ("explicit" | "carried" | "enclosing") | null;
+            speaker_source: ("explicit" | "carried" | "enclosing" | "formula" | "framed") | null;
             /** Divine */
             divine: boolean;
             /** Addressee */

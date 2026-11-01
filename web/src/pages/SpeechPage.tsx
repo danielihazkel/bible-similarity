@@ -64,7 +64,7 @@ function SpeechBooks() {
   return (
     <>
       <p className="lede">{t.lede}</p>
-      {sp && <p className="muted small">{t.caveat(sp.explicit ?? 0, sp.carried ?? 0, sp.enclosing ?? 0, sp.unknown ?? 0)}</p>}
+      {sp && <p className="muted small">{t.caveat(sp.explicit ?? 0, sp.carried ?? 0, sp.enclosing ?? 0, sp.formula ?? 0, sp.framed ?? 0, sp.unknown ?? 0)}</p>}
       {res.data.books.length === 0 ? (
         <p className="status">{t.noData}</p>
       ) : (

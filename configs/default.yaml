@@ -78,6 +78,9 @@ lexicon:                      # `bsim lexicon`: SDBH senses and domains per word
 syntax:                       # `bsim syntax`: BHSA clauses and phrases on OSHB words (DESIGN.md §16.26)
   infinitive_hop: [">MR["]    # an introduction through this infinitive (לאמר) is followed to the clause it depends on
   speaker_lookback: 3         # clauses at its level looked back over for the subject of a subjectless introduction (ויאמר)
+  carry_skip_rela: [Attr, RgRc]   # relative clauses passed over for that subject (Gen 3:1: אשר עשה יהוה is not the serpent; M116)
+  messenger: {lex: "N>M/", heads: ["JHWH/", ">DNJ/"]}   # a quotation without a speaker holding נאם יהוה / נאם אדני is God's (`formula`; M116)
+  frames: {Deut: "4872"}      # OSIS book -> the speaker of its top-level quotations that have none: Moses' discourse, "the words Moses spoke" (Deut 1:1; `framed`; M116)
   divine: ["3068", "430", "136"]   # speaker lemmas counted as God (יהוה, אלהים, אדני)
   speaker_domains: ["001001", "003001004", "003001007"]   # SDBH senses that can speak: Beings, Names of Deities, Names of People
   system: bm25_syntax         # clause-shape verse list behind "built the same way" (also the syntax mode)

@@ -26,7 +26,7 @@ class ClauseInfo(ApiModel):
     speech: bool  # direct speech (txt ends in Q)
     speaker: str | None  # lemma
     speaker_he: str | None
-    speaker_source: Literal["explicit", "carried", "enclosing"] | None
+    speaker_source: Literal["explicit", "carried", "enclosing", "formula", "framed"] | None
     divine: bool
     addressee: str | None  # lemma (§16.44)
     addressee_he: str | None

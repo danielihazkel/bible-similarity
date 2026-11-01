@@ -134,6 +134,9 @@ def syntax_cfg(tmp_path):
             "content_lemmas": [["559"], ["430"], ["1961"], ["216"], ["559"], [], ["3427"]],
         }
     ).to_parquet(proc / "words.parquet")
+    pd.DataFrame(  # one MAM paragraph: the messenger formula's reach
+        {"unit_id": ["p:0"], "unit_type": ["pericope"], "start_verse_id": [0], "end_verse_id": [1]}
+    ).to_parquet(proc / "units.parquet")
     return cfg
 
 
@@ -153,6 +156,54 @@ def test_run_syntax(syntax_cfg):
     p = pd.read_parquet(f"{proc}/syntax_phrases.parquet")
     assert p[p.clause == 12].function.tolist() == ["Conj", "Pred", "Subj"]
     assert [list(w) for w in p[p.clause == 12].words] == [[0], [0], [1]]
+
+
+def test_a_clause_not_speech_at_its_level_ends_a_quotation(syntax_cfg):
+    """Psalms: each psalm's body (Q) follows its superscription (?) at the same level; the
+    superscription ends the psalm before, so the next body is a quotation of its own."""
+    raw = Path(syntax_cfg["paths"]["data_raw"]) / "bhsa"
+    tf(raw / "txt.tf", "12\tQ\n?\nQ\n?\n")
+    run_syntax(syntax_cfg, log=lambda _: None)
+    c = pd.read_parquet(f"{syntax_cfg['paths']['data_processed']}/syntax_clauses.parquet")
+    assert c.quote.tolist() == [12, -1, 14, -1]
+
+
+def test_deuteronomys_frame_names_moses(syntax_cfg):
+    """A top-level quotation without a speaker in Deuteronomy is Moses' (`framed`)."""
+    raw = Path(syntax_cfg["paths"]["data_raw"]) / "bhsa"
+    proc = syntax_cfg["paths"]["data_processed"]
+    tf(raw / "book.tf", "10\tDeuteronomium\n29-30\tDeuteronomium\n")
+    tf(raw / "txt.tf", "12\tQ\nQ\nQ\nQ\n")
+    pd.DataFrame({"verse_id": [0, 1], "oshb_osis": [["Deut.1.1"], ["Deut.1.2"]]}).to_parquet(
+        f"{proc}/verses.parquet"
+    )
+    run_syntax(syntax_cfg, log=lambda _: None)
+    c = pd.read_parquet(f"{proc}/syntax_clauses.parquet")
+    assert c.speaker.tolist() == ["4872"] * 4
+    assert c.speaker_source.tolist() == ["framed"] * 4
+
+
+def test_the_messenger_formula_names_god(syntax_cfg):
+    """Gen 1:1 here reads ויאמר אלהים | נאם יהוה, all one quotation without an introduction:
+    the formula in its paragraph names the speaker (`formula`)."""
+    raw = Path(syntax_cfg["paths"]["data_raw"]) / "bhsa"
+    proc = syntax_cfg["paths"]["data_processed"]
+    head, body = (raw / "oslots.tf").read_text("utf-8").split("\n\n", 1)
+    lines = body.split("\n")
+    lines[13] = "4-5"  # phrase 23: נאם יהוה, one phrase
+    (raw / "oslots.tf").write_text(head + "\n\n" + "\n".join(lines), encoding="utf-8")
+    words = ["ו", "יאמר", "אלהים", "נאם", "יהוה", "ו", "תאמר", "להם", "שבו"]
+    tf(raw / "g_cons_utf8.tf", "\n".join(words) + "\n")
+    tf(raw / "lex.tf", "W\n>MR[\n>LHJM/\nN>M/\nJHWH/\nW\n>MR[\nL\nJCB[\n")
+    tf(raw / "txt.tf", "12\tQ\nQ\nQ\nQ\n")
+    w = pd.read_parquet(f"{proc}/words.parquet")
+    w.at[2, "surface"], w.at[2, "content_lemmas"] = "נְאֻם", ["5002"]
+    w.at[3, "surface"], w.at[3, "content_lemmas"] = "יְהוָה", ["3068"]
+    w.to_parquet(f"{proc}/words.parquet")
+    run_syntax(syntax_cfg, log=lambda _: None)
+    c = pd.read_parquet(f"{proc}/syntax_clauses.parquet")
+    assert c.speaker.tolist() == ["3068"] * 4
+    assert c.speaker_source.tolist() == ["formula"] * 4
 
 
 def test_addressees(syntax_cfg):

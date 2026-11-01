@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M116: Speakers revised (§16.26, §16.28, §16.39, §16.44, D119; proposed I13)
+- [x] Rules tuned on samples of the changes, then frozen: a quotation stops at a book's end (BHSA's `book` sits on book nodes, so it had run from Exodus into Deuteronomy); a carried subject skips relative clauses (`syntax.carry_skip_rela`; Gen 3:1); the messenger formula names God in its MAM paragraph (`syntax.messenger`, `formula`); Deuteronomy's top-level quotations are Moses' (`syntax.frames`, `framed`); a quotation inside one that now has a speaker takes it
+- [x] Fresh check (50 random quotation starts whose speaker changed, none seen while tuning): 37 of the 45 given a speaker right (1 of 9 before); formula 4 / 5, framed 1 / 1, enclosing 27 / 28, carried 6 / 12
+- [x] Found in the full run, by the dialogue checks: a psalm's superscription and its body are one BHSA level, so Psalm 3's quotation ran to Psalm 150 (15,038 words). A quotation now also ends at a clause of its own level that is not speech (`bhsa.py`, and `dialogue.quotations`' extents): 632 speech clauses change speaker, 5,513 → 5,787 quotations; a judged sample of 20 changed runs: 12 better, 7 worse, 1 neutral (wrong speakers 10 → 2–3, right ones 7 → 3–4; Solomon's prayer in 2 Chr 6 among the lost)
+- [x] Speakers: unknown 21,616 → 18,773 (explicit 17,892, carried 8,710, enclosing 4,517, formula 1,153, framed 1,892); Deuteronomy 20 % → 74 % attributed
+- [x] Effects, all runs reported: voices 18 / 23 distinct as before, ρ 0.88 → 0.93, Solomon's Kings / Chronicles check underpowered (214 words in 2 Chronicles); dialogue: deference holds (13.1 / 1.5 → 6.7 / 1.8, p 0.001), **נא no longer holds** (14 % / 4 % → 4.6 % / 5.9 %: the psalms' prayers to God now count as speech up; without Psalms, described, 13.3 % / 6.6 %, p 0.002), the last word still fails; in between, with the book's end but not the superscription rule, both failed (p 0.057, 0.48); retold's claim still fails
+- [x] Viewer: `formula` and `framed` labelled in both languages (the speaker line and its title); Who speaks gives their counts and the revised check; the reader's limits (§16.39)
+- [x] Tests: the frame, the formula, a clause not speech ending a quotation (`test_syntax.py`); BHSA's qere and the counted fallbacks (M115)
+
+✔ Fewer wrong speakers and Deuteronomy attributed; one claim (נא) fell once the psalms were counted as the prayers they are.
+
 ## M112: Consistency and small accessibility fixes (§11.1; proposed I9)
 - [x] `BookSelect` (`components/Controls.tsx`): one book filter for the lists, given its label, its "all" text and the books it offers; 25 copies in 23 files replaced (220 lines fewer); the three that differ (dialogue's book list, the Pentateuch's three books, the workbench's set builder) keep their own
 - [x] `TableCsv` (`components/TableCsv.tsx`): "Export table (CSV)" above a table, the table as shown (`lib/csv.tableRows`: the last header row names the columns); on the 33 tables of Masorah, places named together, equal values, equal skips, names of God, ketiv / qere, ciphers, place lists, the geographic arc, frameworks and the chronology. Gematria and citations show lists, which have no table to export
@@ -1201,7 +1212,7 @@ Pipeline and data
 - [x] I2 (done, M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
 - [x] I11 (done, M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
 - [x] I12 (done, M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
-- [ ] I13 (M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
+- [x] I13 (done, M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
 - [ ] I14 (M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
 
 API

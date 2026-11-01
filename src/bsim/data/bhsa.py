@@ -260,7 +260,18 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         return being is None or (int(w_verse[w]), int(w_idx[w])) in being
 
     clauses, phrases, atom_clause = _units(otype, F, w_verse, w_idx)
-    _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc)
+    units = pd.read_parquet(proc / "units.parquet")
+    paras = units[units.unit_type == "pericope"]
+    paragraph_of = {  # verse_id -> its MAM paragraph (pericope), the messenger formula's reach
+        int(v): u
+        for u, a, z in zip(paras.unit_id, paras.start_verse_id, paras.end_verse_id, strict=True)
+        for v in range(int(a), int(z) + 1)
+    }
+    book_of_verse = {  # verse_id -> OSIS book: a quotation never runs on into the next book
+        int(v): o[0].split(".")[0] if len(o) else None
+        for v, o in zip(verses.verse_id, verses.oshb_osis, strict=True)
+    }
+    _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc, paragraph_of, book_of_verse)
 
     cdf = pd.DataFrame(clauses).drop(columns=["slots", "atoms"])
     cdf = cdf[cdf.verse_id >= 0].reset_index(drop=True)
@@ -283,6 +294,8 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
             "explicit": int((q.speaker_source == "explicit").sum()),
             "carried": int((q.speaker_source == "carried").sum()),
             "enclosing": int((q.speaker_source == "enclosing").sum()),
+            "formula": int((q.speaker_source == "formula").sum()),
+            "framed": int((q.speaker_source == "framed").sum()),
             "unknown": int(q.speaker.isna().sum()),
         },
         "seconds": round(time.perf_counter() - t0, 1),
@@ -291,8 +304,8 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     s = meta["speaker"]
     log(
         f"{len(cdf)} clauses, {len(pdf)} phrases; {len(q)} in direct speech, speaker explicit"
-        f" {s['explicit']}, carried {s['carried']}, enclosing {s['enclosing']}, unknown"
-        f" {s['unknown']}"
+        f" {s['explicit']}, carried {s['carried']}, enclosing {s['enclosing']}, formula"
+        f" {s['formula']}, framed {s['framed']}, unknown {s['unknown']}"
     )
     return meta
 
@@ -375,7 +388,9 @@ def _subject_head(slots: list[int], can_speak, lemma, pass_through: set[str]) ->
     return heads[0]
 
 
-def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
+def _speakers(
+    clauses, phrases, atom_clause, F, lemma, can_speak, sc, paragraph_of, book_of_verse
+) -> None:
     """Mark direct speech (`txt` ending in Q), who speaks it and to whom.
 
     A quotation starts at a clause whose first clause atom's mother lies in a clause of a shallower
@@ -387,7 +402,9 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     out: collectives such as העם take plural verbs). A quotation with no speaker of its own (a
     first or second person introduction, ואמרת; no introduction found) is inside the nearest
     enclosing quotation that has one (`enclosing`). The speaker holds for the clauses of the
-    quotation at its level; `quote` is the quotation's first clause (-1 outside speech).
+    quotation at its level, until the text is back at a shallower level or at its own level but
+    not speech (since M116: a psalm's superscription ends the psalm before it); `quote` is the
+    quotation's first clause (-1 outside speech).
 
     The addressee (§16.44) of a quotation is, in order: the head of its introduction's first
     complement opened by one of `addressee_preps` (ויאמר יהוה אל משה) or, after a verb of
@@ -408,6 +425,9 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     pass_through = set(sc["pass_through"])
     preps, obj_verbs = set(sc["addressee_preps"]), set(sc["addressee_object_verbs"])
     to_through = set(sc["addressee_pass_through"])
+    carry_skip = set(sc["carry_skip_rela"])
+    msg_lex, msg_heads = sc["messenger"]["lex"], set(sc["messenger"]["heads"])
+    frames = dict(sc["frames"])  # OSIS book -> its frame's speaker
     subj: dict[int, int] = {}  # clause -> head word (BHSA) of its subject phrase
     pred_lex: dict[int, str] = {}
     pred_ps: dict[int, str] = {}
@@ -416,6 +436,7 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     obj: dict[int, list[int]] = {}  # clause -> its first object (a phrase, or a verb's suffix)
     voct: dict[int, list[int]] = {}  # clause -> its first vocative
     named: dict[int, list[int]] = {}  # clause -> beings heading its subject, objects, complements
+    formula: dict[int, int] = {}  # clause -> the head of its messenger formula (נאם יהוה)
     for p in phrases:
         c, f, slots = p["clause"], p["function"], p["slots"]
         if f == "Subj" and c not in subj:
@@ -438,6 +459,11 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
             head = _subject_head(slots, can_speak, lemma, to_through)
             if head is not None:
                 named.setdefault(c, []).append(head)
+        if c not in formula:
+            for k, w in enumerate(slots[:-1]):
+                if lex.get(w) == msg_lex and lex.get(slots[k + 1]) in msg_heads:
+                    formula[c] = slots[k + 1]  # נאם יהוה, נאם אדני: the speaker named in it
+                    break
 
     def agrees(verb: int | None, noun: int) -> bool:
         """Gender agrees where both are marked (a name is often unmarked)."""
@@ -474,8 +500,8 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
         depth, seen = len(by_clause[intro]["txt"]), 0
         for i in range(pos[intro] - 1, max(pos[intro] - 200, -1), -1):
             c = clauses[i]
-            if len(c["txt"]) != depth:
-                continue
+            if len(c["txt"]) != depth or c["rela"] in carry_skip:
+                continue  # another level, or a relative clause (Gen 3:1: אשר עשה יהוה)
             if c["clause"] in subj:
                 head = subj[c["clause"]]
                 return head if agrees(pred_verb.get(intro), head) else None
@@ -496,13 +522,14 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
     levels: dict[int, tuple[str | None, str | None, int]] = {}  # depth -> speaker, source, quote
     book = None
     for r in clauses:
-        b = F["book"].get(r["slots"][0])
+        b = book_of_verse.get(r["verse_id"])  # (BHSA's `book` sits on book nodes, not words)
         if b != book:
             book, levels = b, {}
         depth = len(r["txt"])
         r["speech"] = r["txt"].endswith("Q")
-        # a quotation ends when the text is back at a shallower level
-        levels = {d: s for d, s in levels.items() if d <= depth}
+        # a quotation ends when the text is back at a shallower level, or at its own level but
+        # not speech (a psalm's superscription, `?`, ends the psalm before it: Ps 3 / Ps 4)
+        levels = {d: s for d, s in levels.items() if d < depth or (d == depth and r["speech"])}
         r["speaker"], r["speaker_source"], r["quote"] = None, None, -1
         if r["speech"]:
             intro = intro_of(r)
@@ -521,6 +548,43 @@ def _speakers(clauses, phrases, atom_clause, F, lemma, can_speak, sc) -> None:
                 quotes.append((r["clause"], depth, intro, parent, book))
                 levels[depth] = (*who, r["clause"])
             r["speaker"], r["speaker_source"], r["quote"] = levels[depth]
+
+    # quotations still without a speaker. (1) The messenger formula (נאם יהוה) names God for the
+    # quotation's clauses in its MAM paragraph (a quotation with no introduction can run for a
+    # whole book: Ps 110:1's formula is not every psalm's); (2) the book's frame (`frames`:
+    # Deuteronomy, the words Moses spoke) for a top-level quotation; (3) a quotation inside one
+    # with a speaker takes it (`enclosing`), from the clause it stands in
+    members: dict[int, list[dict]] = {}
+    for r in clauses:
+        if r["quote"] >= 0:
+            members.setdefault(r["quote"], []).append(r)
+    for q, depth, _, parent, b in quotes:
+        rows = [r for r in members.get(q, []) if len(r["txt"]) == depth and r["speaker"] is None]
+        if not rows:
+            continue
+        said = {
+            paragraph_of.get(r["verse_id"]): lemma(formula[r["clause"]])
+            for r in rows if r["clause"] in formula and lemma(formula[r["clause"]])
+        }
+        for r in rows:
+            spk = said.get(paragraph_of.get(r["verse_id"]))
+            if spk:
+                r["speaker"], r["speaker_source"] = spk, "formula"
+            elif parent is None and b in frames:
+                r["speaker"], r["speaker_source"] = frames[b], "framed"
+    current: dict[int, str | None] = {}  # depth -> the speaker of its latest clause
+    book = None
+    for r in clauses:
+        b = book_of_verse.get(r["verse_id"])  # (BHSA's `book` sits on book nodes, not words)
+        if b != book:
+            book, current = b, {}
+        depth = len(r["txt"])
+        current = {d: v for d, v in current.items() if d < depth}
+        if r["speech"] and r["speaker"] is None:
+            outer = [d for d, v in current.items() if v]
+            if outer:
+                r["speaker"], r["speaker_source"] = current[max(outer)], "enclosing"
+        current[depth] = r["speaker"] if r["speech"] else None
 
     # addressees, quotation by quotation
     end: dict[int, int] = {}

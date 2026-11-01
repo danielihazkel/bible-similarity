@@ -74,7 +74,7 @@ export const FUNCTIONS_HE: Record<string, string> = {
   EPPr: 'כינוי מצורף', Supp: 'תוספת',
 }  // prettier-ignore
 
-export type Source = 'explicit' | 'carried' | 'enclosing'
+export type Source = 'explicit' | 'carried' | 'enclosing' | 'formula' | 'framed'
 export type ToSource = 'explicit' | 'vocative' | 'pronoun' | 'turn'
 
 export const synEn = {
@@ -100,11 +100,17 @@ export const synEn = {
   panelLede:
     'The ETCBC syntax database (BHSA): each clause with its type and the function of each phrase; direct speech with who speaks it, found from the clause that introduces it.',
   speaker: (s: Source, he: string) =>
-    s === 'explicit' ? `spoken by ${he}` : s === 'carried' ? `spoken by ${he} (inferred)` : `within the speech of ${he}`,
+    s === 'explicit' || s === 'formula'
+      ? `spoken by ${he}`
+      : s === 'carried' || s === 'framed'
+        ? `spoken by ${he} (inferred)`
+        : `within the speech of ${he}`,
   speakerTitle: {
     explicit: 'The introduction names the speaker (right 29 of 31 times in a hand check)',
     carried: 'The introduction has no subject; the subject of a clause just before it (right 13 of 19 times)',
     enclosing: 'A quotation without its own speaker, inside this one (words to be passed on, a quotation within a quotation)',
+    formula: 'The passage says “says the LORD” (נאם יהוה) and has no other speaker (right 4 of 5 times in a hand check)',
+    framed: 'Deuteronomy: the words Moses spoke (1:1), where nothing else names a speaker',
   } as Record<Source, string>,
   noSpeaker: 'speaker not found',
   addressee: (s: ToSource, he: string) => (s === 'explicit' || s === 'vocative' ? `to ${he}` : `to ${he} (inferred)`),
@@ -121,8 +127,8 @@ export const synEn = {
   // the Speech page
   title: 'Who speaks',
   lede: 'How much of each book is narration, direct speech or discourse, and who speaks: the share of words in each, from the BHSA clause types, with the speaker of each quotation taken from the clause that introduces it (ויאמר משה, כה אמר יהוה, לאמר).',
-  caveat: (explicit: number, carried: number, enclosing: number, unknown: number) =>
-    `Quotation clauses: speaker named in the introduction ${numEn(explicit)}, inferred from the clause before ${numEn(carried)}, inside an enclosing quotation ${numEn(enclosing)}, not found ${numEn(unknown)} (poetry and prophecy rarely say who speaks). A hand check of 50 quotations: 42 right (named 29 / 31, inferred 13 / 19). Deuteronomy is Moses' speech without an introducing clause, so it shows as unattributed.`,
+  caveat: (explicit: number, carried: number, enclosing: number, formula: number, framed: number, unknown: number) =>
+    `Quotation clauses: speaker named in the introduction ${numEn(explicit)}, inferred from the clause before ${numEn(carried)}, God by “says the LORD” in the passage ${numEn(formula)}, Moses in Deuteronomy's frame ${numEn(framed)}, inside an enclosing quotation ${numEn(enclosing)}, not found ${numEn(unknown)} (poetry and wisdom rarely say who speaks). A hand check of 50 quotations: 42 right (named 29 / 31, inferred 13 / 19); of 50 that the revised rules changed, 37 of the 45 given a speaker right.`,
   legend: {
     narration: 'narration',
     divine: 'God speaks',

@@ -583,7 +583,7 @@ export type LabelsEval = S['LabelsEval']
 
 export type ClauseSegment = S['ClauseSegment']
 
-export type SpeakerSource = 'explicit' | 'carried' | 'enclosing'
+export type SpeakerSource = 'explicit' | 'carried' | 'enclosing' | 'formula' | 'framed'
 /** how the addressee was found (DESIGN.md §16.44) */
 export type AddresseeSource = 'explicit' | 'vocative' | 'pronoun' | 'turn'
 

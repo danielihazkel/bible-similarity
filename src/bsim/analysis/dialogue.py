@@ -8,7 +8,8 @@ speaker). This stage turns them into conversations:
 - **Quotations:** one row per quotation with its speaker, addressee, words, "your servant" forms
   (`deference` lemmas with a second-person suffix), imperatives and imperatives followed by נא.
   A quotation's words are those whose innermost clause is in it; its extent runs until the text
-  is back at a shallower level or the next quotation at its level starts.
+  is back at a shallower level, at its own level but not speech, or the next quotation at its
+  level starts (as `bsim syntax` ends a quotation).
 - **Pairs:** per book, speaker -> addressee with quotations and words (`n_reliable`: those with a
   `reliable` addressee).
 - **Exchanges:** runs of quotations at one level of one book, each starting at most
@@ -84,16 +85,18 @@ def quotations(clauses: pd.DataFrame, marks: pd.DataFrame, verses: pd.DataFrame)
     clause positions of its first clause and the end of its extent)."""
     c = clauses.sort_values("clause", ignore_index=True)
     depth = c.txt.str.len().to_numpy()
+    speech = c.txt.str.endswith("Q").to_numpy()
     quote = c.quote.to_numpy()
     book = c.verse_id.map(verses.set_index("verse_id").book_id).to_numpy()
     starts = np.flatnonzero(quote == c.clause.to_numpy())
-    # a quotation's extent: until the text is shallower or the next quotation at its level starts
+    # a quotation's extent: until the text is shallower, at its level but not speech, or the next
+    # quotation at its level starts
     ends = np.empty(len(starts), np.int64)
     n = len(c)
     for k, s in enumerate(starts):
         d, j = depth[s], s + 1
         while j < n and book[j] == book[s] and depth[j] >= d and not (
-            depth[j] == d and quote[j] == c.clause[j]
+            depth[j] == d and (quote[j] == c.clause[j] or not speech[j])
         ):
             j += 1
         ends[k] = j - 1
