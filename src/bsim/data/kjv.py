@@ -9,9 +9,11 @@ across a chapter end if need be. An English verse past the end of a Hebrew chapt
 (Gen 31:55, Num 16:36) runs on into the next chapter the same way, which is where it is.
 
 Checked on TIPNR's 29,782 Hebrew Bible references: 98.3% name their verse's Strong's number
-exactly (about 80% without the rules). Not covered: the Psalm titles (counted as verse 1 in the
-Hebrew, so a psalm's verses run one or two on) and the Decalogue's merged verses (Exod 20,
-Deut 5); a caller snaps what is left to the nearest verse naming the person.
+exactly (about 80% without the rules). The Psalm titles are verse 1 (Pss 51, 52, 54, 60: verses
+1–2) in the Hebrew and unnumbered in English, so a titled psalm's verses run one or two on:
+`PSALM_TITLES`, applied when a caller asks (`psalm_titles=True`: the OpenBible references, M115;
+the family tree snaps its references to the verse naming the person instead). Not covered: the
+Decalogue's merged verses (Exod 20, Deut 5).
 """
 
 from __future__ import annotations
@@ -61,12 +63,30 @@ RULES: tuple[tuple[str, int, int, int, int], ...] = (
     ("Mal", 4, 1, 3, 19),
 )  # fmt: skip
 
+# psalm -> verses its title takes in the Hebrew (unnumbered in English). Derived once (M115) as
+# each psalm's Hebrew verse count minus the highest English verse OpenBible cites in it, and
+# checked: the 62 titled psalms, the four two-verse titles, none for Pss 1, 2, 10, 33, 43, 119.
+PSALM_TITLES: dict[int, int] = {
+    **{c: 1 for c in (3, 4, 5, 6, 7, 8, 9, 12, 18, 19, 20, 21, 22, 30, 31, 34, 36, 38, 39, 40,
+                      41, 42, 44, 45, 46, 47, 48, 49, 53, 55, 56, 57, 58, 59, 61, 62, 63, 64, 65,
+                      67, 68, 69, 70, 75, 76, 77, 80, 81, 83, 84, 85, 88, 89, 92, 102, 108, 140,
+                      142)},
+    **{c: 2 for c in (51, 52, 54, 60)},
+}  # fmt: skip
+
 
 class English:
     """English (book_id, chapter, verse) -> verse_id, over the verses of the corpus."""
 
-    def __init__(self, vid_of: dict[tuple[int, int, int], int], osis_of: dict[int, str]):
+    def __init__(
+        self,
+        vid_of: dict[tuple[int, int, int], int],
+        osis_of: dict[int, str],
+        psalm_titles: bool = False,
+    ):
         self.vid_of = vid_of
+        ps = next((b for b, o in osis_of.items() if o == "Ps"), None)
+        self.psalms = ps if psalm_titles else None
         self.book_at = {vid: b for (b, _, _), vid in vid_of.items()}
         book_of = {o: b for b, o in osis_of.items()}
         self.rules: dict[tuple[int, int], tuple[list[int], list[tuple[int, int]]]] = {}
@@ -78,6 +98,8 @@ class English:
 
     def __call__(self, book: int, chapter: int, verse: int) -> int | None:
         verse = max(verse, 1)  # a psalm title (verse 0) is the Hebrew's verse 1
+        if book == self.psalms:
+            verse += PSALM_TITLES.get(chapter, 0)
         anchor, offset = self.vid_of.get((book, chapter, 1)), verse - 1
         rule = self.rules.get((book, chapter))
         if rule:

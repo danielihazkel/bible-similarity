@@ -897,6 +897,12 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ 349 vitest; 376 fixture and 294 real-data e2e without retries.
 
+## M115: Gold and alignment (§3.4, §16.13, §16.26, §16.41; proposed I12)
+- [x] OSHB ↔ MAM: words divided otherwise matched by their letters joined (בל אמים / בלאמים: two or three OSHB words to one MAM token, one to two or three); unaligned OSHB words 134 → 32 (20 of them Joshua 21:36–37, which MAM does not have); the encoder's text unchanged (decided before: alignment only)
+- [x] BHSA ↔ OSHB: where OSHB reads the qere (`text.kq`), BHSA's read consonants (`qere_utf8`, one more file at the pinned commit); the words given a neighbour's OSHB word counted in `syntax_meta.json`, those without letters (the hidden article) apart from those unmatched
+- [x] OpenBible: English references renumbered by `data/kjv.py` (the chapter rules, and `PSALM_TITLES`: 58 psalms one verse on, Pss 51, 52, 54, 60 two, derived from each psalm's Hebrew count against the highest English verse cited) instead of dropped (`unsafe_chapters`, gone); unresolved 22,714 → 379, pairs 30,311 → 57,543, Psalms in for the first time
+- **Rule, fixed before training** (as M64, `eval/supervision.py:adoption`): the encoder retrained on the new pairs (variant `m115`: the model in use's recipe, `extra_pairs: [openbible, etcbc]`) replaces it only if its fused list gains on the new OpenBible dev gold with a 95 % CI above 0 and by more than M64's noise bar (|`seed14`'s OpenBible gain| = 0.0009, kept from M64, not retrained), and loses nothing significant on Sefaria or ETCBC dev (each CI reaching 0). Otherwise the model in use stays and the result is reported. Test untouched.
+
 ## M114: Faster slow stages (§16.54, §16.67; proposed I11)
 - [x] `ciphers` 169 → 8 s: each random pairing translates the names by its inverse (a swap is a permutation, so a span becomes a name exactly when it is a name turned back) and binary-searches them among the sorted spans; checked equal to the old lookup on both ciphers and 20 random pairings, the parquets byte-identical
 - [x] `brackets` 232 → 100 s: the 999 random brackets drawn in order from one stream, then scored on `pipeline.threads` (8) threads; the parquet byte-identical

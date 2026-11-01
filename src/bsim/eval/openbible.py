@@ -8,10 +8,11 @@ pairs on this dev gold (among others) and trains on its train split.
 
 - Only Hebrew Bible ↔ Hebrew Bible references with at least `min_votes` votes. A target range
   expands to its verses (at most `max_range`).
-- OpenBible uses English (KJV) versification. Where it differs from the Hebrew (MAM) numbering
-  — Psalm titles, and the chapters listed in `unsafe_chapters` (Gen 31–32, Exod 7–8, Joel 2–3,
-  Mal 3–4, …) — references are dropped rather than renumbered; so is any reference to a verse the
-  Hebrew chapter does not have.
+- OpenBible uses English (KJV) versification. References are renumbered to the Hebrew (MAM) by
+  `data/kjv.py` (M115): the chapters whose break falls elsewhere (Exod 8:1 is 7:26, Joel 3 is
+  chapter 4) and the Psalm titles (verse 1, or 1–2, in the Hebrew: an English psalm verse runs one
+  or two on). Until M115 those references were dropped (`unsafe_chapters`), all of Psalms with
+  them. A reference past the end of the Hebrew book still goes nowhere.
 - Pairs are undirected, neighbours (±`retrieval.neighbor_window` in a book) are dropped (the
   systems never return them), and each pair gets the Sefaria split rule of its two books: test if
   either is a test book, else dev if either is a dev book, else train. Only dev is scored.
@@ -42,6 +43,7 @@ import pandas as pd
 
 from bsim.config import config_hash, resolve_path
 from bsim.data.canon import BY_OSIS
+from bsim.data.kjv import English
 from bsim.eval.metrics import evaluate_system
 from bsim.eval.report import EvalContext, ranked_lists
 from bsim.retrieve.fusion import final_systems
@@ -90,19 +92,19 @@ def parse_ref(ref: str) -> tuple[str, int, int] | None:
     return parts[0], int(parts[1]), int(parts[2])
 
 
-def unsafe(osis: str, chapter: int, unsafe_chapters: dict[str, list[int] | str]) -> bool:
-    rule = unsafe_chapters.get(osis)
-    return rule == "all" or (isinstance(rule, list) and chapter in rule)
+def english_of(verses: pd.DataFrame) -> English:
+    """English (KJV) references -> our verse ids, Psalm titles counted (`data/kjv.py`)."""
+    vid_of = {}
+    for vid, osis in zip(verses.verse_id, verses.osis, strict=True):
+        p = parse_ref(osis)
+        if p is not None and p[0] in BY_OSIS:
+            vid_of[(BY_OSIS[p[0]].book_id, p[1], p[2])] = int(vid)
+    return English(vid_of, {b.book_id: b.osis for b in BY_OSIS.values()}, psalm_titles=True)
 
 
-def resolve(
-    ref: str,
-    verse_of: dict[tuple[str, int, int], int],
-    unsafe_chapters: dict[str, Any],
-    max_range: int,
-) -> list[int] | None:
-    """Verse ids of a reference or range (`A-B`), or None (not Hebrew Bible, versification-unsafe,
-    unknown verse, or too long)."""
+def resolve(ref: str, english: English, max_range: int) -> list[int] | None:
+    """Verse ids of a reference or range (`A-B`), or None (not Hebrew Bible, a verse the Hebrew
+    book does not have, or too long)."""
     ends = ref.split("-")
     if len(ends) > 2:
         return None
@@ -111,9 +113,9 @@ def resolve(
         return None
     ids = []
     for osis, ch, v in parsed:  # type: ignore[misc]
-        if osis not in BY_OSIS or unsafe(osis, ch, unsafe_chapters):
+        if osis not in BY_OSIS or v < 1:
             return None
-        vid = verse_of.get((osis, ch, v))
+        vid = english(BY_OSIS[osis].book_id, ch, v)
         if vid is None:
             return None
         ids.append(vid)
@@ -132,11 +134,7 @@ def gold_links(
     """(`src_vid, tgt_vid, votes, split` in both directions, counts of what was dropped)."""
     ob = cfg["openbible"]
     window = cfg["retrieval"]["neighbor_window"]
-    verse_of = {}
-    for vid, osis in zip(verses.verse_id, verses.osis, strict=True):
-        p = parse_ref(osis)
-        if p is not None:
-            verse_of[p] = int(vid)
+    english = english_of(verses)
     book = verses.book_id.to_numpy()
     kept: dict[tuple[int, int], int] = {}
     stats = {"references": len(refs), "hebrew_bible": 0, "unresolved": 0, "votes": 0}
@@ -149,8 +147,8 @@ def gold_links(
         if votes < ob["min_votes"]:
             stats["votes"] += 1
             continue
-        src = resolve(frm, verse_of, ob["unsafe_chapters"], 1)
-        tgt = resolve(to, verse_of, ob["unsafe_chapters"], ob["max_range"])
+        src = resolve(frm, english, 1)
+        tgt = resolve(to, english, ob["max_range"])
         if not src or not tgt:
             stats["unresolved"] += 1
             continue

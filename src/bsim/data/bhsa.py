@@ -128,8 +128,10 @@ def cons(word: str) -> str:
     return fold_finals(re.sub(r"[^א-ת]", "", consonantal(word)))
 
 
-def align_verse(bhsa: list[str], oshb: list[str]) -> list[int]:
-    """OSHB word index of every BHSA word of a verse (both given as consonant strings)."""
+def align_verse(bhsa: list[str], oshb: list[str], stats: Counter | None = None) -> list[int]:
+    """OSHB word index of every BHSA word of a verse (both given as consonant strings). `stats`
+    counts the words given a neighbour's index: `no_letters` (the hidden article after a
+    preposition: expected) and `unmatched` (letters, but none of them matched)."""
     a = "".join(bhsa)
     b = "".join(oshb)
     a_word = np.repeat(np.arange(len(bhsa)), [len(w) for w in bhsa])
@@ -139,6 +141,10 @@ def align_verse(bhsa: list[str], oshb: list[str]) -> list[int]:
         for k in range(m.size):
             votes[a_word[m.a + k]][b_word[m.b + k]] += 1
     out = [v.most_common(1)[0][0] if v else -1 for v in votes]
+    if stats is not None:
+        for w, o in zip(bhsa, out, strict=True):
+            if o == -1:
+                stats["unmatched" if w else "no_letters"] += 1
     # unmatched words (no consonants, ketiv / qere): the next matched word's, else the previous
     nxt = -1
     for i in range(len(out) - 1, -1, -1):
@@ -161,7 +167,7 @@ def load_bhsa(raw: Path, features: Iterable[str]) -> tuple[dict[str, tuple[int, 
 
 
 FEATURES = (
-    "oslots", "book", "chapter", "verse", "g_cons_utf8", "lex", "sp",
+    "oslots", "book", "chapter", "verse", "g_cons_utf8", "qere_utf8", "lex", "sp",
     "typ", "kind", "domain", "txt", "rela", "function", "mother", "ps", "gn", "vt",
     "nu", "prs", "prs_ps", "prs_gn", "prs_nu",
 )  # fmt: skip
@@ -212,19 +218,24 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     w_verse = np.full(otype["word"][1] + 1, -1, dtype=np.int64)
     w_idx = np.full(otype["word"][1] + 1, -1, dtype=np.int64)
     exact = total = 0
+    fallback: Counter = Counter()
+    # OSHB reads the qere where `text.kq` says so: align BHSA's read consonants there too
+    qere = F["qere_utf8"] if cfg["text"]["kq"] == "qere" else {}
     for vid, ws in by_verse.items():
         g = oshb.get(vid)
         if g is None:
             continue
-        b = [cons(F["g_cons_utf8"].get(w, "")) for w in ws]
+        b = [cons(qere.get(w) or F["g_cons_utf8"].get(w, "")) for w in ws]
         o = [cons(s) for s in g.surface]
         exact += "".join(b) == "".join(o)
         total += 1
         idx = g.idx.to_numpy()
-        for w, k in zip(ws, align_verse(b, o), strict=True):
+        for w, k in zip(ws, align_verse(b, o, fallback), strict=True):
             w_verse[w], w_idx[w] = vid, idx[k]
     log(
-        f"aligned {total} verses ({exact} with the same consonants; {missing} BHSA verses unmapped)"
+        f"aligned {total} verses ({exact} with the same consonants; {missing} BHSA verses unmapped;"
+        f" a neighbour's word for {fallback['no_letters']} words without letters and"
+        f" {fallback['unmatched']} unmatched)"
     )
 
     content = {
@@ -262,6 +273,8 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         "bhsa_commit": cfg["sources"]["bhsa"]["commit"],
         "verses_aligned": total,
         "verses_same_consonants": exact,
+        "words_without_letters": fallback["no_letters"],  # given a neighbour's OSHB word
+        "words_unmatched": fallback["unmatched"],
         "bhsa_verses_unmapped": missing,
         "clauses": len(cdf),
         "phrases": len(pdf),

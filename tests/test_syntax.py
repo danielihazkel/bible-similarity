@@ -55,6 +55,7 @@ def write_bhsa(raw):
     tf(raw / "mother.tf", "17\t16\n19\t18\n", kind="edge")
     words = ["ו", "יאמר", "אלהים", "יהי", "אור", "ו", "תאמר", "להם", "שבו"]
     tf(raw / "g_cons_utf8.tf", "\n".join(words) + "\n")
+    tf(raw / "qere_utf8.tf", "")  # no word read otherwise
     tf(raw / "sp.tf", "conj\nverb\nsubs\nverb\nsubs\nconj\nverb\nprep\nverb\n")
     tf(raw / "lex.tf", "W\n>MR[\n>LHJM/\nHJH[\n>WR/\nW\n>MR[\nL\nJCB[\n")
     tf(raw / "ps.tf", "NA\np3\nNA\np3\nNA\nNA\np3\nNA\np2\n")
@@ -93,6 +94,7 @@ def write_dialogue(raw):
     tf(raw / "mother.tf", "18\t17\n20\t19\n", kind="edge")
     words = ["ו", "יאמר", "משה", "אל", "אהרן", "קום", "ו", "יאמר", "אליו", "שב"]
     tf(raw / "g_cons_utf8.tf", "\n".join(words) + "\n")
+    tf(raw / "qere_utf8.tf", "")
     tf(raw / "sp.tf", "conj\nverb\nnmpr\nprep\nnmpr\nverb\nconj\nverb\nprep\nverb\n")
     tf(raw / "lex.tf", "W\n>MR[\nMCH/\n>L\n>HRN/\nQWM[\nW\n>MR[\n>L\nJCB[\n")
     tf(raw / "ps.tf", "NA\np3\nNA\nNA\nNA\np2\nNA\np3\nNA\np2\n")
@@ -270,3 +272,13 @@ def test_syntax_meta_in_db(built):
     conn = sqlite3.connect(db)
     meta = json.loads(conn.execute("SELECT value FROM meta WHERE key = 'syntax'").fetchone()[0])
     assert meta["speech_clauses"] == 3
+
+
+def test_align_verse_counts_the_words_given_a_neighbours():
+    from collections import Counter
+
+    stats: Counter = Counter()
+    # BHSA splits off the article (no letters after a preposition) and writes a ketiv OSHB lacks
+    out = align_verse(["ב", "", "ארץ", "קקק"], ["בארץ", "יהיה"], stats)
+    assert out[:3] == [0, 0, 0]
+    assert stats == {"no_letters": 1, "unmatched": 1}

@@ -40,11 +40,11 @@ sources:
     repo: ETCBC/bhsa
     commit: 4db00e2157915495e1a4d3d57e41223df24775da   # master @ 2026-01-18 (data version 2021)
     raw_url: https://raw.githubusercontent.com/ETCBC/bhsa/{commit}/tf/2021/{file}
-    # node types and slots, the verse grid, word consonants and lexemes, clause and phrase
-    # features; no glosses (D5)
-    files: [otype.tf, oslots.tf, book.tf, chapter.tf, verse.tf, g_cons_utf8.tf, lex.tf, sp.tf,
-            typ.tf, kind.tf, domain.tf, txt.tf, function.tf, rela.tf, mother.tf, vt.tf, ps.tf,
-            gn.tf, nu.tf, prs.tf, prs_ps.tf, prs_gn.tf, prs_nu.tf]
+    # node types and slots, the verse grid, word consonants (written, and read where a qere is
+    # noted) and lexemes, clause and phrase features; no glosses (D5)
+    files: [otype.tf, oslots.tf, book.tf, chapter.tf, verse.tf, g_cons_utf8.tf, qere_utf8.tf,
+            lex.tf, sp.tf, typ.tf, kind.tf, domain.tf, txt.tf, function.tf, rela.tf, mother.tf,
+            vt.tf, ps.tf, gn.tf, nu.tf, prs.tf, prs_ps.tf, prs_gn.tf, prs_nu.tf]
   etcbc_parallels:            # ETCBC parallels notebook (Text-Fabric), CC BY-NC 4.0: near-verbatim verse pairs (DESIGN.md §16.34)
     repo: ETCBC/parallels
     commit: d0b3b42ab79b35d1ef349bda9dc1e62b2a56486e   # master @ 2023-11-13 (data version 2021)
@@ -197,35 +197,7 @@ openbible:                    # `bsim eval-openbible`: second gold set, dev only
   file: cross_references.txt
   min_votes: 5                # crowd votes a reference needs
   max_range: 10               # longest target range expanded to verses
-  # KJV versification differs from the Hebrew here: references touching these chapters are dropped
-  unsafe_chapters:
-    Gen: [31, 32]
-    Exod: [7, 8, 21, 22]
-    Lev: [5, 6]
-    Num: [16, 17, 29, 30]
-    Deut: [12, 13, 22, 23, 28, 29]
-    1Sam: [20, 21, 23, 24]
-    2Sam: [18, 19]
-    1Kgs: [4, 5, 18, 20, 22]
-    2Kgs: [11, 12]
-    1Chr: [5, 6, 12]
-    2Chr: [1, 2, 13, 14]
-    Neh: [3, 4, 9, 10]
-    Job: [40, 41]
-    Ps: all                   # psalm titles are counted as verses in Hebrew
-    Eccl: [4, 5]
-    Song: [6, 7]
-    Isa: [8, 9, 63, 64]
-    Jer: [8, 9]
-    Ezek: [20, 21]
-    Dan: [3, 4, 5, 6]
-    Hos: [1, 2, 11, 12, 13, 14]
-    Joel: [2, 3, 4]
-    Jonah: [1, 2]
-    Mic: [4, 5]
-    Nah: [1, 2]
-    Zech: [1, 2]
-    Mal: [3, 4]
+  # English (KJV) verse numbers are renumbered to the Hebrew by data/kjv.py, Psalm titles counted (M115)
 
 final_systems:                # chosen on dev in M8/M9
   lexical: bm25_lemma          # verse level
@@ -295,6 +267,7 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
     etcbc: {extra_pairs: [etcbc]}       # (variants were scored against the Sefaria-only model, now models/berel-sup-sefaria)
     openbible: {extra_pairs: [openbible]}
     both: {extra_pairs: [openbible, etcbc]}
+    m115: {extra_pairs: [openbible, etcbc]}   # the model in use's recipe on M115's OpenBible pairs (Psalms and renumbered chapters in); adoption as M64 (TASKS M115)
   noise: seed14               # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance)
   golds: [sefaria, openbible, etcbc]
   metric: ndcg@10
