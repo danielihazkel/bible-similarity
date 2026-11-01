@@ -1,10 +1,11 @@
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { useBooks, useTypeScenes } from '../api/hooks'
 import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
-import { bookOption, unitLabel } from '../lib/names'
+import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
@@ -38,17 +39,7 @@ export function TypeScenesPage() {
       <p className="muted small">{m.par.typeScenes.note}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={all} onChange={(e) => set({ q: e.target.checked ? 'all' : null })} />
           {m.par.includeQ}

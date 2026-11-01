@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { useAllusions, useBooks } from '../api/hooks'
 import type { Allusion, Verse } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
@@ -9,14 +10,13 @@ import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
 import { compareLink, unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
 
 /** Passages sharing rare words over a few verses, against a within-chapter shuffle (§16.32). */
 export function SpreadView() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.par.spread
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -41,17 +41,7 @@ export function SpreadView() {
       </p>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         {!unit && (
           <label className="check">
             <input type="checkbox" checked={onlyNew} onChange={(e) => set({ all: e.target.checked ? null : '1' })} />

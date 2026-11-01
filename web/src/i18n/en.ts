@@ -345,7 +345,7 @@ export const en = {
     showAll: 'Show all',
   },
 
-  csv: { page: 'Export page (CSV)', all: 'Export all (CSV)' },
+  csv: { page: 'Export page (CSV)', all: 'Export all (CSV)', table: 'Export table (CSV)' },
 
   keypad: { label: 'Hebrew keyboard', space: 'Space', backspace: 'Backspace' },
 

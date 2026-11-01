@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { refrainParams, useBooks, useRefrainList, useRefrains } from '../api/hooks'
 import type { Refrain, RefrainsResponse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
@@ -10,7 +11,6 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { readLink, unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
@@ -108,7 +108,7 @@ function Tests({ data }: { data: RefrainsResponse }) {
 }
 
 function List({ alpha }: { alpha: number }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.ref
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -126,17 +126,7 @@ function List({ alpha }: { alpha: number }) {
       <h2>{t.listTitle}</h2>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="check" title={t.strongestTitle}>
           <input type="checkbox" checked={strongest} onChange={(e) => set({ all: e.target.checked ? null : '1' })} />
           {t.strongestOnly}

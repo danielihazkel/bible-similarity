@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { listsParams, sayingsParams, useBooks, useForms, useLists, useSayings } from '../api/hooks'
 import type { FormsKind, FormsList, FormsResponse, FormsSaying, VerseLabel } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -11,7 +11,6 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
@@ -144,21 +143,12 @@ function SayingChecks({ data }: { data: FormsResponse }) {
   )
 }
 
-function BookSelect({ book, onChange }: { book: number | undefined; onChange: (b: string | null) => void }) {
-  const { m, locale } = useLocale()
+/** The book filter of both lists, over every book. */
+function FormsBookSelect({ book, onChange }: { book: number | undefined; onChange: (b: string | null) => void }) {
+  const { m } = useLocale()
   const books = useBooks()
   return (
-    <label className="control">
-      <span>{m.search.book}</span>
-      <select value={book ?? ''} onChange={(e) => onChange(e.target.value || null)}>
-        <option value="">{m.search.allBooks}</option>
-        {books.data?.map((b) => (
-          <option key={b.book_id} value={b.book_id}>
-            {bookOption(b, locale)}
-          </option>
-        ))}
-      </select>
-    </label>
+    <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={onChange} />
   )
 }
 
@@ -184,7 +174,7 @@ function Sayings() {
       <h2>{t.sayingsTitle}</h2>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <BookSelect book={book} onChange={(b) => set({ book: b })} />
+        <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />
         <label className="check">
           <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
           {t.knownOnly}
@@ -328,7 +318,7 @@ function Lists() {
       <h2>{t.listsTitle}</h2>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <BookSelect book={book} onChange={(b) => set({ book: b })} />
+        <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />
         <label className="control">
           <span>{t.kindFilter}</span>
           <select value={kind ?? ''} onChange={(e) => set({ kind: e.target.value || null })}>

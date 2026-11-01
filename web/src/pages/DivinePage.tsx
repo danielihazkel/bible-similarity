@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBooks, useDivine, useDivinePairs } from '../api/hooks'
 import type { Book, DivineBook, DivineChapter, DivineName, DivineResponse } from '../api/types'
 import { useLocale } from '../context/localeContext'
@@ -192,7 +193,7 @@ function Books({ d }: { d: DivineResponse }) {
   return (
     <section>
       <h2>{t.booksTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
+      <TableCsv name="names-of-god-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
         <table className="change-table dv-table">
           <thead>
             <tr>
@@ -229,7 +230,7 @@ function Books({ d }: { d: DivineResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       {selected !== undefined && <BookChapters book={byId.get(selected)} bookId={selected} d={d} />}
     </section>
   )
@@ -242,7 +243,7 @@ function BookChapters({ book, bookId, d }: { book: Book | undefined; bookId: num
   const rows = d.chapters.filter((c) => c.book_id === bookId)
   const num = (x: number) => x.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')
   return (
-    <div className="table-wrap" id="chapters" tabIndex={0} role="region" aria-label={t.chaptersTitle(name)}>
+    <TableCsv name="names-of-god-2" id="chapters" tabIndex={0} role="region" aria-label={t.chaptersTitle(name)}>
       <table className="change-table dv-table">
         <caption>{t.chaptersTitle(name)}</caption>
         <thead>
@@ -278,7 +279,7 @@ function BookChapters({ book, bookId, d }: { book: Book | undefined; bookId: num
           ))}
         </tbody>
       </table>
-    </div>
+    </TableCsv>
   )
 }
 
@@ -294,7 +295,7 @@ function Pairs() {
         <div key={p.pair} className="dv-pair">
           <h3>{t.pairHead(p.e, p.y)}</h3>
           <p className="muted small">{t.pairCounts(p.e_ward, p.y_ward, p.same)}</p>
-          <div className="table-wrap" tabIndex={0} role="region" aria-label={t.pairHead(p.e, p.y)}>
+          <TableCsv name="names-of-god-3" tabIndex={0} role="region" aria-label={t.pairHead(p.e, p.y)}>
             <table className="change-table dv-table">
               <thead>
                 <tr>
@@ -331,7 +332,7 @@ function Pairs() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableCsv>
         </div>
       ))}
     </section>

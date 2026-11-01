@@ -2,11 +2,11 @@ import { Link } from 'react-router'
 import { useBooks, useParallelism, parallelismParams } from '../api/hooks'
 import type { ParallelBook, UnitType } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
-import { bookName, bookOption, unitLabel } from '../lib/names'
+import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { MeterView } from './MeterView'
 import { WordPairsView } from './WordPairsView'
@@ -88,17 +88,7 @@ function UnitsView() {
           onChange={(v) => set({ type: v === 'chapter' ? null : v })}
           options={TYPES.map((v) => ({ value: v, label: m.units.type(v) }))}
         />
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         {typing && (
           <Segmented
             label={t.sortBy}

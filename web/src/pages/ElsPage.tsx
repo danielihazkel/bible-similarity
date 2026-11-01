@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useEls } from '../api/hooks'
 import type { ElsControlKey, ElsKnown, ElsResponse, ElsScope } from '../api/types'
 import { Segmented } from '../components/Controls'
@@ -64,7 +65,7 @@ function Scope({ data }: { data: ElsResponse }) {
       </p>
       <p className="muted small">{t.claim(alpha)}</p>
       <h2>{t.controlsTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.controlsTitle}>
+      <TableCsv name="equal-skips-1" tabIndex={0} role="region" aria-label={t.controlsTitle}>
         <table className="change-table els-table">
           <thead>
             <tr>
@@ -94,7 +95,7 @@ function Scope({ data }: { data: ElsResponse }) {
             })}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <Strip scope={scope} />
       {scope.blocks.length > 0 && (
         <>
@@ -172,7 +173,7 @@ function Terms({ scope }: { scope: ElsScope }) {
     <>
       <h2>{t.termsTitle}</h2>
       <p className="muted small">{t.termsLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.termsTitle}>
+      <TableCsv name="equal-skips-2" tabIndex={0} role="region" aria-label={t.termsTitle}>
         <table className="change-table els-table els-terms">
           <thead>
             <tr>
@@ -209,7 +210,7 @@ function Terms({ scope }: { scope: ElsScope }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </>
   )
 }
@@ -221,7 +222,7 @@ function Known({ known }: { known: ElsKnown[] }) {
     <section id="known" aria-label={t.knownTitle}>
       <h2>{t.knownTitle}</h2>
       <p className="muted small">{t.knownLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownTitle}>
+      <TableCsv name="equal-skips-3" tabIndex={0} role="region" aria-label={t.knownTitle}>
         <table className="change-table els-table">
           <thead>
             <tr>
@@ -252,7 +253,7 @@ function Known({ known }: { known: ElsKnown[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }

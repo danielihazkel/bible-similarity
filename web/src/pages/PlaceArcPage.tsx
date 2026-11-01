@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBasemap, usePlaceArc, usePlaceArcBook } from '../api/hooks'
 import type { ArcBook, ArcChapter, ArcMove, ArcMoveEnd, ArcOracles, PlaceArcResponse } from '../api/types'
 import { GeoMap } from '../components/GeoMap'
@@ -200,7 +201,7 @@ function Books({ books, alpha }: { books: ArcBook[]; alpha: number }) {
   return (
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
+      <TableCsv name="place-arc-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
         <table className="change-table pa-table">
           <thead>
             <tr>
@@ -242,7 +243,7 @@ function Books({ books, alpha }: { books: ArcBook[]; alpha: number }) {
             })}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -277,7 +278,7 @@ function Moves({ moves }: { moves: ArcMove[] }) {
       <p className="muted small">{t.movesLede}</p>
       <p>{t.movesSummary(tested.filter((x) => x.holds).length, tested.length)}</p>
       <div className="places-layout pa-moves-layout">
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.movesTitle}>
+        <TableCsv name="place-arc-2" tabIndex={0} role="region" aria-label={t.movesTitle}>
           <table className="change-table pa-table">
             <thead>
               <tr>
@@ -305,7 +306,7 @@ function Moves({ moves }: { moves: ArcMove[] }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
         <div className="places-map">
           <GeoMap
             basemap={basemap.data}
@@ -336,7 +337,7 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
         {o.holds != null && <Verdict holds={o.holds} />} {t.oraclesLede(refs)} {t.oracleVerdict(o.alpha)}
       </p>
       {tests.length > 0 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.oraclesTitle}>
+        <TableCsv name="place-arc-3" tabIndex={0} role="region" aria-label={t.oraclesTitle}>
           <table className="change-table pa-table">
             <thead>
               <tr>
@@ -361,12 +362,12 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       )}
       {o.items.length > 0 && (
         <>
           <h3>{t.oracleChapters}</h3>
-          <div className="table-wrap" tabIndex={0} role="region" aria-label={t.oracleChapters}>
+          <TableCsv name="place-arc-4" tabIndex={0} role="region" aria-label={t.oracleChapters}>
             <table className="change-table pa-table pa-oracle-chapters">
               <thead>
                 <tr>
@@ -397,7 +398,7 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableCsv>
         </>
       )}
     </section>

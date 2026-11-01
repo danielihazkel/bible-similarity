@@ -1,7 +1,8 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBooks, useCipherHits, useCiphers } from '../api/hooks'
 import type { CipherHit, CipherName, CiphersResponse } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -10,7 +11,6 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 25
@@ -88,7 +88,7 @@ function Checks({ data }: { data: CiphersResponse }) {
       </section>
       <section aria-label={t.knownTitle}>
         <h2>{t.knownTitle}</h2>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownTitle}>
+        <TableCsv name="ciphers-1" tabIndex={0} role="region" aria-label={t.knownTitle}>
           <table className="change-table">
             <thead>
               <tr>
@@ -117,14 +117,14 @@ function Checks({ data }: { data: CiphersResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       </section>
     </>
   )
 }
 
 function Hits() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.cph
   const [params, update] = useQueryParams()
   const c = params.get('cipher')
@@ -149,17 +149,7 @@ function Hits() {
           onChange={(v) => set({ cipher: v === 'both' ? null : v })}
           options={[{ value: 'both', label: t.both }, ...CIPHERS.map((x) => ({ value: x, label: t.ciphers[x] }))]}
         />
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
           {t.knownOnly}
@@ -214,7 +204,7 @@ function Chapters({ data }: { data: CiphersResponse }) {
     <section aria-label={t.chaptersTitle}>
       <h2>{t.chaptersTitle}</h2>
       <p className="muted small">{t.chaptersLede(data.meta.n_chapters ?? 0)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.chaptersTitle}>
+      <TableCsv name="ciphers-2" tabIndex={0} role="region" aria-label={t.chaptersTitle}>
         <table className="change-table">
           <thead>
             <tr>
@@ -243,7 +233,7 @@ function Chapters({ data }: { data: CiphersResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }

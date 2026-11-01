@@ -3,6 +3,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
 import { LOCALES } from '../i18n'
 import { TEXT_MODES } from '../lib/hebrew'
+import { bookOption } from '../lib/names'
 import { allowedExcludes, K_OPTIONS, MODES } from '../lib/urlState'
 
 interface SegmentedProps<T extends string | number> {
@@ -62,6 +63,36 @@ export function KSelect({
         {options.map((k) => (
           <option key={k} value={k}>
             {k}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+/** A list's book filter: "all books" (null) or one of `books` (every book, or those with data). */
+export function BookSelect({
+  label,
+  all,
+  books,
+  value,
+  onChange,
+}: {
+  label: string
+  all: string
+  books: readonly { book_id: number; name: string; he_name: string }[] | undefined
+  value: number | string | undefined
+  onChange: (book: string | null) => void
+}) {
+  const { locale } = useLocale()
+  return (
+    <label className="control">
+      <span>{label}</span>
+      <select value={value ?? ''} onChange={(e) => onChange(e.target.value || null)}>
+        <option value="">{all}</option>
+        {books?.map((b) => (
+          <option key={b.book_id} value={b.book_id}>
+            {bookOption(b, locale)}
           </option>
         ))}
       </select>

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { useBooks, useEncoderStatus, useResolve, useSearch } from '../api/hooks'
-import { KSelect, ModeToggle } from '../components/Controls'
+import { BookSelect, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
 import { ScoreBreakdown } from '../components/ScoreBreakdown'
@@ -9,7 +9,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { hasHebrew } from '../lib/hebrew'
-import { bookOption, unitLabel } from '../lib/names'
+import { unitLabel } from '../lib/names'
 import { unitLink } from '../lib/links'
 import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_K_OPTIONS, SEARCH_MODES, useQueryParams } from '../lib/urlState'
 
@@ -41,17 +41,7 @@ export function SearchPage() {
           options={SEARCH_K_OPTIONS}
           onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })}
         />
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => update({ book: v })} />
       </div>
       <p className="muted small">
         {m.modes.hints[mode]}. {m.search.hint}

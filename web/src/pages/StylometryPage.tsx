@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { useBooks, useBookStyle, useStylometry } from '../api/hooks'
 import type { Book, StyloPoint } from '../api/types'
 import { FeatureBars as Features } from '../components/FeatureBars'
@@ -9,7 +10,7 @@ import { Scatter } from '../components/Scatter'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
-import { bookName, bookOption, unitLabel } from '../lib/names'
+import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
@@ -44,17 +45,7 @@ export function StylometryPage() {
       <h1>{m.ov.style.title}</h1>
       <p className="lede">{m.ov.style.lede}</p>
       <div className="toolbar">
-        <label className="control">
-          <span>{m.ov.style.book}</span>
-          <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null })}>
-            <option value="">{m.ov.style.highlight}</option>
-            {books.data.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.ov.style.book} all={m.ov.style.highlight} books={books.data} value={book} onChange={(v) => update({ book: v })} />
       </div>
       <div className="map-grid">
         <StyleScatter points={st.data.points} books={books.data} book={book} />

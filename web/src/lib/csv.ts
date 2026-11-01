@@ -28,3 +28,24 @@ export function downloadText(filename: string, parts: string[], type: string): v
   a.remove()
   URL.revokeObjectURL(url)
 }
+
+/** The rows of a rendered table as CSV rows: the last header row names the columns (a repeated
+ * name gets a number), each body row's cells give their text as shown. */
+export function tableRows(table: HTMLTableElement): CsvRow[] {
+  const head = table.tHead?.rows[table.tHead.rows.length - 1]
+  const seen = new Map<string, number>()
+  const names = [...(head?.cells ?? [])].map((c, i) => {
+    const base = c.textContent?.trim() || `column ${i + 1}`
+    const n = (seen.get(base) ?? 0) + 1
+    seen.set(base, n)
+    return n > 1 ? `${base} ${n}` : base
+  })
+  const body = [...table.tBodies].flatMap((b) => [...b.rows])
+  return body.map((r) => {
+    const row: CsvRow = {}
+    ;[...r.cells].forEach((c, i) => {
+      row[names[i] ?? `column ${i + 1}`] = c.textContent?.trim() ?? ''
+    })
+    return row
+  })
+}

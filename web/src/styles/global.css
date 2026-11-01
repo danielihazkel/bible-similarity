@@ -3555,3 +3555,10 @@ line.ch-sync:hover { stroke-width: 3.5; }
   text-underline-offset: 0.15em;
   text-decoration-thickness: 1px;
 }
+
+/* "Export table (CSV)" above a table (TableCsv) */
+.table-csv {
+  margin: 0.3rem 0 0.2rem;
+  text-align: end;
+  font-size: 0.85rem;
+}

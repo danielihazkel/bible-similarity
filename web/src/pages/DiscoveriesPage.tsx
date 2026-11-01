@@ -3,7 +3,7 @@ import { useBooks, useDiscoveries, discoveriesParams } from '../api/hooks'
 import { UnitFilter } from '../components/UnitFilter'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { ModeToggle, Segmented } from '../components/Controls'
+import { BookSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
 import { PagedList } from '../components/Pager'
@@ -11,7 +11,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { formatScore } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
-import { bookOption, unitLabel } from '../lib/names'
+import { unitLabel } from '../lib/names'
 import { MODES, parsePage, useQueryParams } from '../lib/urlState'
 
 const UNIT_TYPES: UnitType[] = ['verse', 'chapter', 'pericope', 'parasha']
@@ -25,7 +25,7 @@ function parseType(v: string | null): UnitType {
 
 
 export function DiscoveriesPage() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const [params, update] = useQueryParams()
   const unitType = parseType(params.get('type'))
   const mode = MODES.includes(params.get('mode') as Mode) ? (params.get('mode') as Mode) : DEFAULT_MODE
@@ -58,17 +58,7 @@ export function DiscoveriesPage() {
           options={UNIT_TYPES.map((t) => ({ value: t, label: m.units.type(t) }))}
         />
         <ModeToggle value={mode} onChange={(v) => set({ mode: v === DEFAULT_MODE ? null : v })} />
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={crossBook} onChange={(e) => set({ cross: e.target.checked ? '1' : null })} />
           {m.par.differentBooks}

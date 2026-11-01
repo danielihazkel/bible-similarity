@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useBasemap, useBooks, usePlace, usePlaces, usePlaceVerses } from '../api/hooks'
 import type { Book, PlaceKind } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { GeoMap } from '../components/GeoMap'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -13,7 +13,7 @@ import { type Bounds, centreOn, fitBounds, geoPoints, inBounds, VIEWS, type View
 import type { Highlight } from '../lib/highlight'
 import { hebrewNumeral } from '../lib/hebrew'
 import { nameLink, unitLink } from '../lib/links'
-import { bookName, bookOption } from '../lib/names'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const KINDS: PlaceKind[] = ['town', 'region', 'landform', 'water']
@@ -71,17 +71,7 @@ export function PlacesPage() {
       <p className="lede">{t.lede}</p>
       {unitParam && <UnitFilter unitId={unitParam} onClear={() => set({ unit: null, p: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null, chapter: null, unit: null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v, chapter: null, unit: null })} />
         {bk && !unitParam && (
           <label className="control">
             <span>{t.chapter}</span>

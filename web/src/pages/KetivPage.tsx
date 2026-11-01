@@ -1,4 +1,6 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
+import { BookSelect } from '../components/Controls'
 import { useBooks, useKetiv, useKqPairs } from '../api/hooks'
 import type { Book, KetivMeta, KqBook, KqClass, KqGrammar, KqLetter, KqPair, KqParallel } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
@@ -9,7 +11,7 @@ import { useLocale } from '../context/localeContext'
 import { withFinals } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
-import { bookName, bookOption } from '../lib/names'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 25
@@ -117,7 +119,7 @@ function BookTable({ books, byId }: { books: KqBook[]; byId: Map<number, Book> }
   return (
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
+      <TableCsv name="ketiv-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
         <table className="change-table">
           <thead>
             <tr>
@@ -143,7 +145,7 @@ function BookTable({ books, byId }: { books: KqBook[]; byId: Map<number, Book> }
             })}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -154,7 +156,7 @@ function LetterTable({ letters }: { letters: KqLetter[] }) {
     <section aria-label={t.lettersTitle}>
       <h2>{t.lettersTitle}</h2>
       <p className="muted small">{t.lettersLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.lettersTitle}>
+      <TableCsv name="ketiv-2" tabIndex={0} role="region" aria-label={t.lettersTitle}>
         <table className="change-table">
           <thead>
             <tr>
@@ -182,7 +184,7 @@ function LetterTable({ letters }: { letters: KqLetter[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -205,7 +207,7 @@ function Features({ meta }: { meta: KetivMeta }) {
 }
 
 function PairList({ books }: { books: Book[] }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.kq
   const [params, update] = useQueryParams()
   const cls = pick(params.get('cls'), CLASSES)
@@ -257,17 +259,7 @@ function PairList({ books }: { books: Book[] }) {
             ))}
           </select>
         </label>
-        <label className="control">
-          <span>{t.filters.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={t.filters.book} all={m.par.allBooks} books={books} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={euphemism === true} onChange={(e) => set({ euphemism: e.target.checked ? '1' : null })} />
           {t.filters.euphemism}

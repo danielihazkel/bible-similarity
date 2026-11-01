@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M112: Consistency and small accessibility fixes (§11.1; proposed I9)
+- [x] `BookSelect` (`components/Controls.tsx`): one book filter for the lists, given its label, its "all" text and the books it offers; 25 copies in 23 files replaced (220 lines fewer); the three that differ (dialogue's book list, the Pentateuch's three books, the workbench's set builder) keep their own
+- [x] `TableCsv` (`components/TableCsv.tsx`): "Export table (CSV)" above a table, the table as shown (`lib/csv.tableRows`: the last header row names the columns); on the 33 tables of Masorah, places named together, equal values, equal skips, names of God, ketiv / qere, ciphers, place lists, the geographic arc, frameworks and the chronology. Gematria and citations show lists, which have no table to export
+- [x] The network's nodes out of the tab order: the passage list under the graph has the same links
+- [x] Checked and not needed: the family tree and the workbench already keep their state in the URL (the chosen person `p`, which opens the line to them and centres them; the two sets, the feature, the pattern and its scope); only drafts, the search box and hand-opened branches are local. Stylometry's chosen book is set apart by size and drawn in front, not by opacity alone; the network's chosen node grows; the shifts page is a table, with no colour to explain
+- [x] Tests: `tableRows` (columns by the last header row, repeated names numbered, cell text as shown); the pages' existing tests unchanged
+
+✔ 349 vitest; 376 fixture and 294 real-data e2e without retries.
+
 ## M113: Split overgrown files (proposed I10)
 - [x] `pages/GenealogyPage.tsx` (947 lines) → the page (132) and `pages/genealogy/`: `TreeView.tsx` (the drawing, its figures, the legend; 450), `PersonPanel.tsx` (the side panel, links, proofs; 278), `PersonSearch.tsx`, `Name.tsx`, `shared.ts` (view constants, how a person is named)
 - [x] `api/routes/findings.py` (896 lines) → `api/routes/findings/`: the router, the builders' order and the endpoint in `__init__.py`; the builders by area in `poetry.py`, `language.py`, `narrative.py`, `numbers.py`, `places.py`
@@ -1178,7 +1187,7 @@ API
 Viewer
 - [x] I7 (done, M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
 - [x] I8 (done, M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
-- [ ] I9 (M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
+- [x] I9 (done, M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
 - [x] I10 (done, M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
 - [ ] I15 (M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
 

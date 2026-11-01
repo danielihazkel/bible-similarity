@@ -1,11 +1,12 @@
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { useAcrostics, useBooks, acrosticsParams } from '../api/hooks'
 import { AcrosticChain } from '../components/AcrosticChain'
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
-import { bookName, bookOption, unitLabel } from '../lib/names'
+import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
@@ -42,17 +43,7 @@ export function AcrosticsPage() {
       <p className="lede">{t.lede}</p>
       {res.data?.known_recall != null && <p className="muted small">{t.check(res.data.known_recall)}</p>}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="control">
           <span>{m.pat.show}</span>
           <select value={qChoice} onChange={(e) => set({ q: e.target.value === '0.05' ? null : e.target.value })}>

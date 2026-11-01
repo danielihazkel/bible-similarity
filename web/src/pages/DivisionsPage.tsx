@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useSegmentCurve, useSegmentGaps, useSegments } from '../api/hooks'
 import type { SegmentGap, SegmentKind, SegmentPoint, SegmentsMeta } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -9,7 +9,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
-import { bookName, bookOption } from '../lib/names'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 25
@@ -56,17 +56,7 @@ export function DivisionsPage() {
           <section aria-label={t.bookTitle}>
             <h2>{t.bookTitle}</h2>
             <div className="toolbar">
-              <label className="control">
-                <span>{t.book}</span>
-                <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null, ch: null })}>
-                  <option value="">{m.par.allBooks}</option>
-                  {books.data?.map((b) => (
-                    <option key={b.book_id} value={b.book_id}>
-                      {bookOption(b, locale)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <BookSelect label={t.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v, ch: null })} />
             </div>
             {book === undefined ? (
               <p className="muted small">{t.pickBook}</p>

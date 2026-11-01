@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { hiddenRootsParams, rootPairsParams, useBooks, useHiddenRoots, useRootPairs, useRoots } from '../api/hooks'
 import type { RootPairKind, RootsResponse } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -11,7 +11,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { lemmaLink, rootLink, unitLink } from '../lib/links'
-import { bookName, bookOption, unitLabel } from '../lib/names'
+import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
@@ -129,17 +129,7 @@ function Pairs({ data }: { data: RootsResponse }) {
             ))}
           </select>
         </label>
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
       </div>
       <PagedList
         res={res}
@@ -251,17 +241,7 @@ function KeyRoots({ data }: { data: RootsResponse }) {
         <p className="muted small">{t.hiddenLede(meta.hidden ?? 0, meta.top ?? 0)}</p>
         {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
         <div className="toolbar">
-          <label className="control">
-            <span>{m.search.book}</span>
-            <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-              <option value="">{m.search.allBooks}</option>
-              {books.data?.map((b) => (
-                <option key={b.book_id} value={b.book_id}>
-                  {bookOption(b, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         </div>
         <PagedList
           res={res}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBasemap, usePlaceDistricts, usePlaceList, usePlaceLists } from '../api/hooks'
 import type { DistrictGrouping, NullHistogram, PlaceList, PlaceListsResponse, PlaceListStep } from '../api/types'
 import { Segmented } from '../components/Controls'
@@ -63,7 +64,7 @@ function Lists({ data }: { data: PlaceListsResponse }) {
       <p className="muted small">{t.caveat}</p>
       <section aria-label={t.listsTitle}>
         <h2>{t.listsTitle}</h2>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.listsTitle}>
+        <TableCsv name="place-lists-1" tabIndex={0} role="region" aria-label={t.listsTitle}>
           <table className="change-table pls-table">
             <thead>
               <tr>
@@ -114,7 +115,7 @@ function Lists({ data }: { data: PlaceListsResponse }) {
               })}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       </section>
       <ListDetail list={selected} />
     </>
@@ -312,7 +313,7 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
             />
           )}
         </div>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.districtsTitle}>
+        <TableCsv name="place-lists-2" tabIndex={0} role="region" aria-label={t.districtsTitle}>
           <table className="change-table pls-table">
             <thead>
               <tr>
@@ -350,7 +351,7 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       </div>
     </section>
   )

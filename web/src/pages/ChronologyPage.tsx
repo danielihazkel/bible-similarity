@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useChronology } from '../api/hooks'
 import type { ChronEvent, ChronologyResponse, ChronSync, Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
@@ -133,7 +134,7 @@ function FromAdam({ d }: { d: ChronologyResponse }) {
           </ul>
         </>
       )}
-      <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="ch-adam">
+      <TableCsv name="chronology-1" tabIndex={0} role="region" aria-labelledby="ch-adam">
         <table className="change-table ch-events">
           <thead>
             <tr>
@@ -168,7 +169,7 @@ function FromAdam({ d }: { d: ChronologyResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -264,7 +265,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
         </span>
       </div>
       <p className="small">{t.ends(d.division, d.ends.judah, d.ends.israel, tradition)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.kingsLabel}>
+      <TableCsv name="chronology-2" tabIndex={0} role="region" aria-label={t.kingsLabel}>
         <table className="change-table ch-syncs">
           <thead>
             <tr>
@@ -293,10 +294,10 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <h3>{t.rulesTitle}</h3>
       <p className="muted small">{t.rulesLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.rulesTitle}>
+      <TableCsv name="chronology-3" tabIndex={0} role="region" aria-label={t.rulesTitle}>
         <table className="change-table ch-rules">
           <thead>
             <tr>
@@ -321,10 +322,10 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
             )}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <details className="ch-reigns">
         <summary>{t.kingsTable}</summary>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.kingsTable}>
+        <TableCsv name="chronology-4" tabIndex={0} role="region" aria-label={t.kingsTable}>
           <table className="change-table">
             <thead>
               <tr>
@@ -358,7 +359,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       </details>
     </section>
   )
@@ -423,7 +424,7 @@ function Digits({ d }: { d: ChronologyResponse }) {
     <section aria-labelledby="ch-digits">
       <h2 id="ch-digits">{t.digitsTitle}</h2>
       <p className="muted small">{t.digitsLede(g.n, d.digits_min)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.digitsTitle}>
+      <TableCsv name="chronology-5" tabIndex={0} role="region" aria-label={t.digitsTitle}>
         <table className="change-table ch-digits">
           <thead>
             <tr>
@@ -450,7 +451,7 @@ function Digits({ d }: { d: ChronologyResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <p className="small">
         {t.uniform(g.uniform_p)} {g.compare_share !== null && t.compare(g.compare_share, g.compare_n)}
       </p>

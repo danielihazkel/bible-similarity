@@ -186,8 +186,9 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
           const on = n.unit.unit_id === focus
           const label = unitLabel(n.unit, locale)
           return (
-            // a router Link inside <svg> renders an SVG <a>, keeping client-side navigation
-            <Link key={n.unit.unit_id} to={unitLink(n.unit.unit_id)} aria-label={m.ov.network.node(label, n.partners)}>
+            // a router Link inside <svg> renders an SVG <a>, keeping client-side navigation; out of the
+            // tab order (hundreds of stops before the page goes on): the list below has every passage
+            <Link key={n.unit.unit_id} to={unitLink(n.unit.unit_id)} tabIndex={-1} aria-label={m.ov.network.node(label, n.partners)}>
               <title>{m.ov.network.nodeTitle(label, n.partners, n.cross_book)}</title>
               <circle
                 cx={px(n)}

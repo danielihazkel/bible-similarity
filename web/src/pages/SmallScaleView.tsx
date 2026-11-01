@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useMirrorClauses, useMirrors, useMirrorVerses } from '../api/hooks'
 import type { MirrorClause, MirrorsMeta, MirrorVerse } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -9,7 +9,6 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import type { Highlight, Mark } from '../lib/highlight'
 import { unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
@@ -84,7 +83,7 @@ function Tests({ meta }: { meta: MirrorsMeta }) {
 }
 
 function Lists({ meta }: { meta: MirrorsMeta }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.mir
   const [params, update] = useQueryParams()
   const list = params.get('list') === 'verses' ? 'verses' : 'clauses'
@@ -107,17 +106,7 @@ function Lists({ meta }: { meta: MirrorsMeta }) {
           ]}
           onChange={(v) => set({ list: v === 'verses' ? 'verses' : null })}
         />
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
       </div>
       {list === 'verses' ? (
         <VerseList book={book} unit={unit} k={meta.min_words ?? 3} total={meta.full_mirrors ?? 0} />

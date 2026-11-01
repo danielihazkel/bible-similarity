@@ -1,11 +1,10 @@
 import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
 import { PagedList } from '../components/Pager'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { SpreadView } from './SpreadView'
 
@@ -39,7 +38,7 @@ export function PhrasesPage() {
 
 /** The strongest shared phrases in the Tanakh (local alignment of lemma streams). */
 function PhraseList() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
@@ -69,17 +68,7 @@ function PhraseList() {
       <p className="lede">{m.par.phrases.lede}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="control">
           <span>{m.par.phrases.atLeast}</span>
           <select value={minTokens} onChange={(e) => set({ min: e.target.value === '3' ? null : e.target.value })}>

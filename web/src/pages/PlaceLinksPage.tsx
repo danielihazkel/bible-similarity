@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBasemap, usePlaceLinkPairs, usePlaceLinks } from '../api/hooks'
 import type { DecayRow, DecayVariant, LinkPoint, PlaceLinkPair, PlaceLinkSort, PlaceLinksResponse } from '../api/types'
 import { Segmented } from '../components/Controls'
@@ -77,7 +78,7 @@ function Variants({ data }: { data: PlaceLinksResponse }) {
   return (
     <section aria-label={t.variantsTitle}>
       <h2>{t.variantsTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.variantsTitle}>
+      <TableCsv name="place-links-1" tabIndex={0} role="region" aria-label={t.variantsTitle}>
         <table className="change-table plk-table">
           <thead>
             <tr>
@@ -115,7 +116,7 @@ function Variants({ data }: { data: PlaceLinksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -196,7 +197,7 @@ function Bins({ data }: { data: PlaceLinksResponse }) {
           options={variants.map((v) => ({ value: v.variant, label: t.variants[v.variant] }))}
         />
       )}
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.binsTitle}>
+      <TableCsv name="place-links-2" tabIndex={0} role="region" aria-label={t.binsTitle}>
         <table className="change-table plk-table plk-bins">
           <thead>
             <tr>
@@ -221,7 +222,7 @@ function Bins({ data }: { data: PlaceLinksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -264,7 +265,7 @@ function Leads({ data }: { data: PlaceLinksResponse }) {
         </p>
       ))}
       <div className="places-layout plk-leads-layout">
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.leadsTitle}>
+        <TableCsv name="place-links-3" tabIndex={0} role="region" aria-label={t.leadsTitle}>
           <table className="change-table plk-table">
             <thead>
               <tr>
@@ -289,7 +290,7 @@ function Leads({ data }: { data: PlaceLinksResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
         <div className="places-map">
           <GeoMap
             basemap={basemap.data}

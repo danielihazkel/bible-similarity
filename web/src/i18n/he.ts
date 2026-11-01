@@ -343,7 +343,7 @@ export const he: Messages = {
     showAll: 'הצגת הכול',
   },
 
-  csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)' },
+  csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)', table: 'ייצוא הטבלה (CSV)' },
 
   keypad: { label: 'מקלדת עברית', space: 'רווח', backspace: 'מחיקה' },
 

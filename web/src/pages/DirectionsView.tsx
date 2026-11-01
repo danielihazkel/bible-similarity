@@ -1,13 +1,13 @@
 import { Link } from 'react-router'
 import { useBooks, useEchoList, useEchoes } from '../api/hooks'
 import type { Book, EchoBasis, EchoBook, EchoChapter, EchoEdge, EchoesMeta } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
-import { bookName, bookOption, unitLabel } from '../lib/names'
+import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 25
@@ -160,7 +160,7 @@ function SourceTable({ sources }: { sources: EchoChapter[] }) {
 }
 
 function EchoList({ books }: { books: Book[] }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.echo
   const [params, update] = useQueryParams()
   const bp = params.get('basis')
@@ -196,17 +196,7 @@ function EchoList({ books }: { books: Book[] }) {
           ]}
           onChange={(v) => set({ basis: v || null })}
         />
-        <label className="control">
-          <span>{t.filters.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={t.filters.book} all={m.par.allBooks} books={books} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={backward === true} onChange={(e) => set({ backward: e.target.checked ? '1' : null })} />
           {t.filters.backward}

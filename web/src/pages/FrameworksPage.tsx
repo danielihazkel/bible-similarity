@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useFrameworks } from '../api/hooks'
 import type { FrameworkKing, FrameworksResponse, SlotHit } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
@@ -110,7 +111,7 @@ function Cycle({ d }: { d: FrameworksResponse }) {
       <p className="muted small">
         {t.cycleLede(d.open)} {t.formulas}
       </p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="fw-cycle">
+      <TableCsv name="frameworks-1" tabIndex={0} role="region" aria-labelledby="fw-cycle">
         <table className="change-table fw-cycle">
           <thead>
             <tr>
@@ -146,7 +147,7 @@ function Cycle({ d }: { d: FrameworksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -161,7 +162,7 @@ function Kings({ d }: { d: FrameworksResponse }) {
       <h2 id="fw-kings">{t.kingsTitle}</h2>
       <p className="muted small">{t.kingsLede}</p>
       <p className="small">{t.wording(d.within.judah, d.within.israel, d.between)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="fw-kings">
+      <TableCsv name="frameworks-2" tabIndex={0} role="region" aria-labelledby="fw-kings">
         <table className="change-table fw-kings">
           <thead>
             <tr>
@@ -195,11 +196,11 @@ function Kings({ d }: { d: FrameworksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       {sel && <KingPanel k={sel} onClose={() => update({ k: null }, false)} />}
       <h3>{t.byKingdomTitle}</h3>
       <p className="muted small">{t.byKingdomLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.byKingdomTitle}>
+      <TableCsv name="frameworks-3" tabIndex={0} role="region" aria-label={t.byKingdomTitle}>
         <table className="change-table fw-by-kingdom">
           <thead>
             <tr>
@@ -225,7 +226,7 @@ function Kings({ d }: { d: FrameworksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }

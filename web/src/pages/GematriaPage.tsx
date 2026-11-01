@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useBooks, useGematria, useGematriaForms, useGematriaLemmas, useGematriaValue, useGematriaVerses } from '../api/hooks'
 import type { GematriaResponse, GematriaSystem, GematriaView, VerseLabel } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 25
@@ -181,7 +180,7 @@ function Lemmas({ data }: { data: GematriaResponse }) {
 }
 
 function Verses({ data }: { data: GematriaResponse }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.gm
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -191,17 +190,7 @@ function Verses({ data }: { data: GematriaResponse }) {
   return (
     <>
       <div className="toolbar">
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null, page: null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => update({ book: v, page: null })} />
       </div>
       <PagedList res={res} empty={t.empty.verses} summary={(_, p, pages) => t.pageOf(p, pages)}>
         {(d, stale) => (

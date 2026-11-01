@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useBooks, useMasorah } from '../api/hooks'
 import type { Book, MasorahMiddle, MasorahResponse, MasorahText, MasorahTotal } from '../api/types'
 import { Segmented } from '../components/Controls'
@@ -149,7 +150,7 @@ function Totals({ rows, byId }: { rows: MasorahTotal[]; byId: Map<number, Book> 
       <h2>{t.totalsTitle}</h2>
       <p className="muted small">{t.totalsLede}</p>
       <p>{t.booksAgree(agree, rows.length)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.totalsTitle}>
+      <TableCsv name="masorah-1" tabIndex={0} role="region" aria-label={t.totalsTitle}>
         <table className="change-table msr-totals">
           <thead>
             <tr>
@@ -180,7 +181,7 @@ function Totals({ rows, byId }: { rows: MasorahTotal[]; byId: Map<number, Book> 
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -193,7 +194,7 @@ function Sections({ rows }: { rows: MasorahTotal[] }) {
     <section aria-label={t.sectionsTitle}>
       <h2>{t.sectionsTitle}</h2>
       <p className="muted small">{t.sectionsLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.sectionsTitle}>
+      <TableCsv name="masorah-2" tabIndex={0} role="region" aria-label={t.sectionsTitle}>
         <table className="change-table">
           <thead>
             <tr>
@@ -220,7 +221,7 @@ function Sections({ rows }: { rows: MasorahTotal[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -233,7 +234,7 @@ function BookCounts({ data, byId }: { data: MasorahResponse; byId: Map<number, B
   return (
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
+      <TableCsv name="masorah-3" tabIndex={0} role="region" aria-label={t.booksTitle}>
         <table className="change-table">
           <thead>
             <tr>
@@ -261,7 +262,7 @@ function BookCounts({ data, byId }: { data: MasorahResponse; byId: Map<number, B
             })}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }

@@ -2,12 +2,11 @@ import { Link } from 'react-router'
 import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
 import { PagedList } from '../components/Pager'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { SequenceArcs } from './SequenceArcs'
 
@@ -19,7 +18,7 @@ const Q_OPTIONS = ['0.05', '0.2', 'all']
 /** Passages that run parallel verse by verse, in the same order (retellings, synoptic accounts); as a
  * list, or (`?view=arcs`) as arcs across the canon. */
 export function SequencesPage() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const [params, update] = useQueryParams()
   const arcs = params.get('view') === 'arcs'
   const bookParam = params.get('book')
@@ -64,17 +63,7 @@ export function SequencesPage() {
       />
       {unit && !arcs && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.par.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="control">
           <span>{m.par.sequences.order}</span>
           <select value={order} onChange={(e) => set({ order: e.target.value === 'forward' ? null : e.target.value })}>

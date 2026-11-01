@@ -1,14 +1,14 @@
 import { Link } from 'react-router'
 import { useBooks, useCitationList, useCitations } from '../api/hooks'
 import type { Book, Citation, CitationBook, CitationFamily, CitationsMeta } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
-import { bookName, bookOption } from '../lib/names'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
@@ -87,7 +87,7 @@ function BookGraph({ books, name }: { books: CitationBook[]; name: (id: number) 
 }
 
 function CitationList({ books, name }: { books: Book[]; name: (id: number) => string }) {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.cit
   const [params, update] = useQueryParams()
   const fp = params.get('family')
@@ -114,17 +114,7 @@ function CitationList({ books, name }: { books: Book[]; name: (id: number) => st
           ]}
           onChange={(v) => set({ family: v || null })}
         />
-        <label className="control">
-          <span>{t.filters.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.par.allBooks}</option>
-            {books.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={t.filters.book} all={m.par.allBooks} books={books} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={resolved === true} onChange={(e) => set({ resolved: e.target.checked ? '1' : null })} />
           {t.filters.resolved}

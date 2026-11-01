@@ -3,12 +3,12 @@ import { Link } from 'react-router'
 import { useBooks, useEntities, useEntity, entitiesParams } from '../api/hooks'
 import type { Book, EntityDetail, EntityKind, PlaceSite } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
-import { bookName, bookOption } from '../lib/names'
+import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 60
@@ -16,7 +16,7 @@ const KINDS: EntityKind[] = ['person', 'place', 'mixed', 'unclear']
 
 /** People and places: who is mentioned where, and who appears with whom. */
 export function NamesPage() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const [params, update] = useQueryParams()
   const rawKind = params.get('kind') as EntityKind | null
   const kind = rawKind && KINDS.includes(rawKind) ? rawKind : undefined
@@ -43,17 +43,7 @@ export function NamesPage() {
           onChange={(k) => set({ kind: k === 'all' ? null : k })}
           options={[{ value: 'all', label: m.ov.names.all }, ...KINDS.map((k) => ({ value: k, label: m.ov.names.kinds[k] }))]}
         />
-        <label className="control">
-          <span>{m.ov.names.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.ov.names.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.ov.names.book} all={m.ov.names.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <form
           className="control"
           role="search"

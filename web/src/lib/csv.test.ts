@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { downloadCsv, toCsv } from './csv'
+import { downloadCsv, tableRows, toCsv } from './csv'
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -27,5 +27,19 @@ describe('toCsv', () => {
     const bytes = new Uint8Array(await blob!.arrayBuffer())
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf])
     expect(new TextDecoder().decode(bytes.slice(3))).toBe('name\r\nמשה\r\n')
+  })
+})
+
+describe('tableRows', () => {
+  it('names columns by the last header row and reads each cell as shown', () => {
+    const doc = new DOMParser().parseFromString(
+      `<table><thead><tr><th colspan="2">group</th></tr><tr><th>Book</th><th>n</th><th>n</th></tr></thead>
+       <tbody><tr><td> Genesis <span>בראשית</span></td><td>50</td><td>7</td></tr><tr><td>Exodus</td><td>40</td></tr></tbody></table>`,
+      'text/html',
+    )
+    expect(tableRows(doc.querySelector('table')!)).toEqual([
+      { Book: 'Genesis בראשית', n: '50', 'n 2': '7' },
+      { Book: 'Exodus', n: '40' },
+    ])
   })
 })

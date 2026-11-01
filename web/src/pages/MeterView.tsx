@@ -1,11 +1,12 @@
 import { Link } from 'react-router'
+import { BookSelect } from '../components/Controls'
 import { meterParams, useBooks, useMeter } from '../api/hooks'
 import type { MeterChapter, MeterGroup, MeterResponse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
-import { bookOption, unitLabel } from '../lib/names'
+import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 50
@@ -16,7 +17,7 @@ const fp = (p: number | null | undefined) => (p == null ? '—' : p < 0.001 ? '<
 
 /** Stresses per line and the falling lament line (§16.37): the tests, then chapters by net fall. */
 export function MeterView() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.met
   const [params, update] = useQueryParams()
   const raw = params.get('group') as MeterGroup | null
@@ -52,17 +53,7 @@ export function MeterView() {
               ))}
             </select>
           </label>
-          <label className="control">
-            <span>{m.search.book}</span>
-            <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-              <option value="">{m.search.allBooks}</option>
-              {books.data?.map((b) => (
-                <option key={b.book_id} value={b.book_id}>
-                  {bookOption(b, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         </div>
         <PagedList
           res={res}

@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { TableCsv } from '../components/TableCsv'
 import { useGematriaLinks, useGematriaPairs } from '../api/hooks'
 import type { GematriaLinksResponse, GematriaPairSort, LinkLemma, LinkMeasure, LinkTest, VerseLabel } from '../api/types'
 import { Segmented } from '../components/Controls'
@@ -50,7 +51,7 @@ const num = (x: number, measure: LinkMeasure) => (measure === 'root' ? `${(100 *
 function TestTable({ tests, label }: { tests: Partial<Record<LinkMeasure, LinkTest>>; label: string }) {
   const t = useLocale().m.gl
   return (
-    <div className="table-wrap" tabIndex={0} role="region" aria-label={label}>
+    <TableCsv name="equal-values-1" tabIndex={0} role="region" aria-label={label}>
       <table className="change-table gl-tests">
         <thead>
           <tr>
@@ -78,7 +79,7 @@ function TestTable({ tests, label }: { tests: Partial<Record<LinkMeasure, LinkTe
           })}
         </tbody>
       </table>
-    </div>
+    </TableCsv>
   )
 }
 
@@ -128,7 +129,7 @@ function Equivalences({ data }: { data: GematriaLinksResponse }) {
     <section aria-label={t.eqTitle}>
       <h2>{t.eqTitle}</h2>
       <p className="muted small">{t.eqLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.eqTitle}>
+      <TableCsv name="equal-values-2" tabIndex={0} role="region" aria-label={t.eqTitle}>
         <table className="change-table gl-eq">
           <thead>
             <tr>
@@ -171,7 +172,7 @@ function Equivalences({ data }: { data: GematriaLinksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -186,7 +187,7 @@ function Genesis({ data }: { data: GematriaLinksResponse }) {
   return (
     <section aria-label={t.verseTitle(ref)} id="genesis">
       <h2>{t.verseTitle(ref)}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.verseTitle(ref)}>
+      <TableCsv name="equal-values-3" tabIndex={0} role="region" aria-label={t.verseTitle(ref)}>
         <table className="change-table gl-props">
           <thead>
             <tr>
@@ -205,7 +206,7 @@ function Genesis({ data }: { data: GematriaLinksResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <p>
         <Verdict holds={v.unique_here && v.unique_share <= (data.meta.alpha ?? 0.05)} /> {t.allLine(ref, v.all, v.expected_all)}
       </p>

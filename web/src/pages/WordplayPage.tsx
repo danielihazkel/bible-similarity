@@ -5,10 +5,9 @@ import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { WordplayCard } from '../components/WordplayCard'
 import { useLocale } from '../context/localeContext'
-import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { AlliterationView, RhymeView } from './SoundViews'
-import { Segmented } from '../components/Controls'
+import { BookSelect, Segmented } from '../components/Controls'
 
 const PAGE_SIZE = 50
 const KINDS: WordplayPair['kind'][] = ['substitution', 'metathesis', 'extension']
@@ -17,7 +16,7 @@ type View = 'pairs' | 'alliteration' | 'rhyme'
 
 /** Sound patterns: sound-alike word pairs, alliteration, rhyme. */
 export function WordplayPage() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.pat.wordplay
   const [params, update] = useQueryParams()
   const raw = params.get('view')
@@ -40,17 +39,7 @@ export function WordplayPage() {
           ]}
         />
         {view !== 'pairs' && (
-          <label className="control">
-            <span>{m.search.book}</span>
-            <select value={book ?? ''} onChange={(e) => update({ book: e.target.value || null, page: null })}>
-              <option value="">{m.search.allBooks}</option>
-              {books.data?.map((b) => (
-                <option key={b.book_id} value={b.book_id}>
-                  {bookOption(b, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => update({ book: v, page: null })} />
         )}
       </div>
       {view === 'alliteration' ? <AlliterationView book={book} /> : view === 'rhyme' ? <RhymeView book={book} /> : <PairsView />}
@@ -60,7 +49,7 @@ export function WordplayPage() {
 
 /** Sound-alike words close together (paronomasia), rarest first. */
 function PairsView() {
-  const { m, locale } = useLocale()
+  const { m } = useLocale()
   const t = m.pat.wordplay
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
@@ -89,17 +78,7 @@ function PairsView() {
       )}
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{m.search.book}</span>
-          <select value={book ?? ''} onChange={(e) => set({ book: e.target.value || null })}>
-            <option value="">{m.search.allBooks}</option>
-            {books.data?.map((b) => (
-              <option key={b.book_id} value={b.book_id}>
-                {bookOption(b, locale)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="control">
           <span>{m.pat.kind}</span>
           <select value={kind ?? ''} onChange={(e) => set({ kind: e.target.value || null })}>
