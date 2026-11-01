@@ -8,7 +8,7 @@ from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.borrowing import BorrowingBookPair, BorrowingResponse, BorrowingSequence
-from bsim.api.routes._common import Conn, State, span_label, unit_or_404, unit_span
+from bsim.api.routes._common import Conn, State, span_label, stage, unit_or_404, unit_span
 
 router = APIRouter()
 COLUMNS = (
@@ -46,7 +46,7 @@ def _sequences(conn: Conn, rows: list[dict[str, Any]]) -> list[BorrowingSequence
     ]
 
 
-@router.get("/borrowing", response_model=BorrowingResponse)
+@router.get("/borrowing", dependencies=[stage("borrowing")], response_model=BorrowingResponse)
 def borrowing(state: State, conn: Conn, unit: str | None = None) -> dict[str, Any]:
     """Book pairs with their parallels, each with its signs and direction, and the check of the
     signs on the directions scholars accept; `unit`: only the parallels touching that unit (and
@@ -74,14 +74,22 @@ def borrowing(state: State, conn: Conn, unit: str | None = None) -> dict[str, An
     }
 
 
-@router.get("/borrowing/sequence/{seq_id}", response_model=BorrowingSequence | None)
+@router.get(
+    "/borrowing/sequence/{seq_id}",
+    dependencies=[stage("borrowing")],
+    response_model=BorrowingSequence | None,
+)
 def borrowing_sequence(seq_id: int, conn: Conn) -> BorrowingSequence | None:
     """The direction estimate of one parallel sequence (None: not a scored cross-book one)."""
     rows = queries.borrowing_sequences(conn, seq_id)
     return _sequences(conn, rows)[0] if rows else None
 
 
-@router.get("/borrowing/between", response_model=list[BorrowingSequence])
+@router.get(
+    "/borrowing/between",
+    dependencies=[stage("borrowing")],
+    response_model=list[BorrowingSequence],
+)
 def borrowing_between(a: str, b: str, conn: Conn) -> list[BorrowingSequence]:
     """Scored parallels with one side in unit `a` and the other in unit `b`."""
     ua, ub = unit_or_404(conn, a), unit_or_404(conn, b)

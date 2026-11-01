@@ -16,22 +16,22 @@ from bsim.api.models.mirrors import (
     MirrorVerse,
     MirrorVersesResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_span
 
 router = APIRouter()
 
 
-@router.get("/mirrors", response_model=MirrorsResponse)
+@router.get("/mirrors", dependencies=[stage("mirrors")], response_model=MirrorsResponse)
 def mirrors(state: State) -> dict[str, Any]:
     """The tests: repeated words in mirrored or parallel order, clause constituents by genre."""
     return {"meta": state.meta.get("mirrors") or {}}
 
 
-@router.get("/mirrors/verses", response_model=MirrorVersesResponse)
+@router.get("/mirrors/verses", dependencies=[stage("mirrors")], response_model=MirrorVersesResponse)
 def mirror_verses(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,
@@ -65,14 +65,18 @@ def mirror_verses(
             "items": items}  # fmt: skip
 
 
-@router.get("/mirrors/clauses", response_model=MirrorClausesResponse)
+@router.get(
+    "/mirrors/clauses",
+    dependencies=[stage("mirrors")],
+    response_model=MirrorClausesResponse,
+)
 def mirror_clauses(
     state: State,
     conn: Conn,
     pair: str | None = None,
     mirrored: bool | None = None,
     poetic: bool | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,

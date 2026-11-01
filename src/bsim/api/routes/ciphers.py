@@ -19,7 +19,15 @@ from bsim.api.models.ciphers import (
     CipherValueResponse,
 )
 from bsim.api.models.common import VerseLabel
-from bsim.api.routes._common import Conn, State, check_page, unit_span, unprocessable
+from bsim.api.routes._common import (
+    BookFilter,
+    Conn,
+    State,
+    check_page,
+    stage,
+    unit_span,
+    unprocessable,
+)
 from bsim.api.routes.gematria import MAX_TEXT
 from bsim.text.ciphers import CIPHERS, apply
 from bsim.text.gematria import letters
@@ -39,7 +47,7 @@ def cipher_value(text: str, conn: Conn) -> dict[str, Any]:
     return {"text": text, **{c: CipherForm(form=f, n_words=n.get(f, 0)) for c, f in forms.items()}}
 
 
-@router.get("/ciphers", response_model=CiphersResponse)
+@router.get("/ciphers", dependencies=[stage("ciphers")], response_model=CiphersResponse)
 def ciphers(state: State, conn: Conn) -> dict[str, Any]:
     """The checks against random pairings of the letters, the cases named in advance and the
     chapters with a name read through a swap."""
@@ -71,12 +79,12 @@ def ciphers(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/ciphers/hits", response_model=CipherHitsResponse)
+@router.get("/ciphers/hits", dependencies=[stage("ciphers")], response_model=CipherHitsResponse)
 def cipher_hits(
     state: State,
     conn: Conn,
     cipher: CipherName | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     known: bool = False,
     limit: int = 50,

@@ -2243,7 +2243,7 @@ export interface paths {
         };
         /**
          * Divine
-         * @description Every chapter's and book's names, the books' splits and the two checks (404: the stage
+         * @description Every chapter's and book's names, the books' splits and the two checks (503: the stage
          *     did not run).
          */
         get: operations["divine_api_divine_get"];
@@ -2285,7 +2285,7 @@ export interface paths {
         };
         /**
          * Etiologies
-         * @description Every naming with its verse, its name and the word that echoes it (404: the stage did
+         * @description Every naming with its verse, its name and the word that echoes it (503: the stage did
          *     not run).
          */
         get: operations["etiologies_api_etiologies_get"];
@@ -2306,7 +2306,7 @@ export interface paths {
         };
         /**
          * Brackets
-         * @description The checks and the brackets of each book (404: the stage did not run).
+         * @description The checks and the brackets of each book (503: the stage did not run).
          */
         get: operations["brackets_api_brackets_get"];
         put?: never;
@@ -2346,7 +2346,7 @@ export interface paths {
         };
         /**
          * Retold
-         * @description The groups, their change rates and the two checks (404: the stage did not run).
+         * @description The groups, their change rates and the two checks (503: the stage did not run).
          */
         get: operations["retold_api_retold_get"];
         put?: never;
@@ -2386,7 +2386,7 @@ export interface paths {
         };
         /**
          * Haftarot
-         * @description Every parasha with its haftarah's ranks and its first chapters (404: the stage did not
+         * @description Every parasha with its haftarah's ranks and its first chapters (503: the stage did not
          *     run).
          */
         get: operations["haftarot_api_haftarot_get"];
@@ -2407,7 +2407,7 @@ export interface paths {
         };
         /**
          * Chronology
-         * @description Every date, reign and synchronism with its verse (404: the stage did not run).
+         * @description Every date, reign and synchronism with its verse (503: the stage did not run).
          */
         get: operations["chronology_api_chronology_get"];
         put?: never;
@@ -2427,7 +2427,7 @@ export interface paths {
         };
         /**
          * Frameworks
-         * @description The episodes with their slots and the kings with their verdicts (404: the stage did not
+         * @description The episodes with their slots and the kings with their verdicts (503: the stage did not
          *     run).
          */
         get: operations["frameworks_api_frameworks_get"];
@@ -2448,7 +2448,7 @@ export interface paths {
         };
         /**
          * Binomials
-         * @description Every binomial, the commonest first (404: the stage did not run).
+         * @description Every binomial, the commonest first (503: the stage did not run).
          */
         get: operations["binomials_api_binomials_get"];
         put?: never;
@@ -10266,8 +10266,8 @@ export interface operations {
     units_api_units__unit_type__get: {
         parameters: {
             query?: {
-                book?: number | null;
                 chapter?: number | null;
+                book?: number | null;
             };
             header?: never;
             path: {
@@ -10369,11 +10369,11 @@ export interface operations {
             query?: {
                 unit_type?: string;
                 mode?: "lexical" | "semantic" | "fused" | "structural" | "domain" | "syntax";
-                book?: number | null;
                 cross_book?: boolean;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -10596,9 +10596,9 @@ export interface operations {
     lemma_api_lemma__lemma__get: {
         parameters: {
             query?: {
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path: {
@@ -10704,10 +10704,10 @@ export interface operations {
         parameters: {
             query?: {
                 known?: boolean | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -10772,13 +10772,13 @@ export interface operations {
     phrases_api_phrases_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 cross_book?: boolean;
                 min_tokens?: number;
                 max_spread?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -10877,7 +10877,6 @@ export interface operations {
     sequences_api_sequences_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 cross_book?: boolean;
                 hide_same_chapter?: boolean;
                 max_q?: number | null;
@@ -10886,6 +10885,7 @@ export interface operations {
                 direction?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11035,12 +11035,12 @@ export interface operations {
     typescenes_api_typescenes_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 max_q?: number | null;
                 hide_textual?: boolean;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11156,12 +11156,12 @@ export interface operations {
         parameters: {
             query?: {
                 unit_type?: string;
-                book?: number | null;
                 exclude_poetic?: boolean;
                 min_verses?: number | null;
                 sort?: string;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11192,11 +11192,11 @@ export interface operations {
     wordplay_api_wordplay_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 kind?: string | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11294,9 +11294,9 @@ export interface operations {
         parameters: {
             query?: {
                 max_q?: number | null;
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11392,10 +11392,10 @@ export interface operations {
     alliteration_api_alliteration_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11426,11 +11426,11 @@ export interface operations {
     rhymes_api_rhymes_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 max_q?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11462,10 +11462,10 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: string | null;
-                book?: number | null;
                 q?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11562,9 +11562,9 @@ export interface operations {
     seams_api_seams_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -11845,9 +11845,9 @@ export interface operations {
     domain_api_domain__code__get: {
         parameters: {
             query?: {
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path: {
@@ -12409,10 +12409,10 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: ("turn" | "cut" | "quiet") | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12498,10 +12498,10 @@ export interface operations {
                 grammar?: ("spelling" | "form" | "word") | null;
                 parallel?: ("qere" | "ketiv" | "neither") | null;
                 euphemism?: boolean | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12554,10 +12554,10 @@ export interface operations {
             query?: {
                 family?: ("written" | "word" | "command") | null;
                 resolved?: boolean | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12622,10 +12622,10 @@ export interface operations {
                 basis?: ("cited" | "borrowed" | "language" | "conflict" | "none") | null;
                 directed?: boolean | null;
                 backward?: boolean | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12676,10 +12676,10 @@ export interface operations {
     mirror_verses_api_mirrors_verses_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12713,10 +12713,10 @@ export interface operations {
                 pair?: string | null;
                 mirrored?: boolean | null;
                 poetic?: boolean | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12748,9 +12748,9 @@ export interface operations {
         parameters: {
             query?: {
                 group?: ("test" | "control" | "pool" | "poetic" | "prose") | null;
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12833,10 +12833,10 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: ("cognate" | "other" | "inf_abs") | null;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12867,10 +12867,10 @@ export interface operations {
     hidden_roots_api_roots_hidden_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -12901,9 +12901,9 @@ export interface operations {
     root_family_api_root__root__get: {
         parameters: {
             query?: {
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path: {
@@ -12956,12 +12956,12 @@ export interface operations {
     refrain_list_api_refrains_list_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 strongest?: boolean;
                 known?: boolean;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13069,9 +13069,9 @@ export interface operations {
     pentateuch_chapters_api_pentateuch_chapters_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13153,11 +13153,11 @@ export interface operations {
     dialogue_exchanges_api_dialogue_exchanges_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 party?: string | null;
                 unequal?: boolean;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13208,11 +13208,11 @@ export interface operations {
     forms_sayings_api_forms_sayings_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 known?: boolean;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13243,11 +13243,11 @@ export interface operations {
     forms_lists_api_forms_lists_get: {
         parameters: {
             query?: {
-                book?: number | null;
                 unit?: string | null;
                 kind?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13411,9 +13411,9 @@ export interface operations {
             query: {
                 value: number;
                 system?: "standard" | "gadol" | "ordinal" | "katan";
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13551,11 +13551,11 @@ export interface operations {
         parameters: {
             query?: {
                 cipher?: ("atbash" | "albam") | null;
-                book?: number | null;
                 unit?: string | null;
                 known?: boolean;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13688,9 +13688,9 @@ export interface operations {
             query?: {
                 show?: "all" | "strong" | "known";
                 order?: "canon" | "strongest";
-                book?: number | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13742,11 +13742,11 @@ export interface operations {
         parameters: {
             query?: {
                 group?: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
-                book?: number | null;
                 known?: boolean;
                 order?: "canon" | "most" | "least";
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -13909,8 +13909,8 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: ("town" | "region" | "landform" | "water") | null;
-                book?: number | null;
                 unit?: string | null;
+                book?: number | null;
             };
             header?: never;
             path?: never;
@@ -14330,10 +14330,10 @@ export interface operations {
         parameters: {
             query?: {
                 q?: string;
-                book?: number | null;
                 unit?: string | null;
                 limit?: number;
                 offset?: number;
+                book?: number | null;
             };
             header?: never;
             path?: never;

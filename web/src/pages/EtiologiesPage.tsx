@@ -9,6 +9,8 @@ import type { EtyOrder, EtyShow } from '../i18n/pages/etiologies'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 /** Naming etiologies (§16.66): every naming the formula finds, the word of its verse that echoes
  * the name best, and the two checks. */
@@ -21,10 +23,12 @@ export function EtiologiesPage() {
     <div className="page etiologies-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

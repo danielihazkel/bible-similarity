@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M107: Errors the viewer tells apart (§10.2, D117; proposed I4)
+- [x] `stage(name)` route dependency: 98 summary and list routes of the analysis pages answer 503 `{code: "stage_missing", stage, message}` when their stage did not run (the nine that said 404 "not computed" among them); per-unit panels, the dossier and the reader keep answering empty
+- [x] build-db writes `meta.stages_run` (the stages whose files it found), so a stage that ran and found nothing is an empty list, not "not computed"; older DBs fall back to the meta entry or the table's rows
+- [x] A table the DB lacks (built before its stage existed) is 503 `stage_missing` naming the stage, not a bare 500; other database errors a logged 500
+- [x] `BookFilter`: all 37 `book=` filters, `a_book` / `b_book` and the book path parameters 404 for a number that is no book (the five hand-written checks replaced); CSV export applies the same check
+- [x] Viewer: `ApiError` carries `code` and `stage`; `ErrorBox` / `PanelError` say "not computed in this build: run `bsim X`" (English and Hebrew) instead of an alert, so every list page gets it; the eight pages with their own message (binomials, brackets, chronology, divine, etiologies, frameworks, haftarot, retold) show it only for a missing stage and the error box otherwise; the workbench's raw error text is the error box
+- [x] Not done: `/patterns` keeps its 200 with a structured `error`: the query page draws the problem under the query and the workbench embeds it per set, so a parse error is a result, not a failed request
+- [x] Tests: four routes with their stage removed from `stages_run`, a stage that found nothing, an older DB, a dropped table, eight unknown-book paths, a known book without rows (pytest); the eight pages' missing-stage mocks, a 500 against a missing stage (vitest)
+
+✔ 376 / 376 fixture e2e (2 skipped by design), 344 vitest, pytest and ruff green; a dated book with no chapters answers `[]`, book 99 answers 404.
+
 ## M106: Query speed (§9; proposed I3)
 - [x] Indexes: verses by reference (`book_id, chapter, verse`); discoveries by `a_book` and by `b_book` (with score, tie and the other book, so each side's search covers its filter and order); genealogy conflicts by child and identities by either person, voice pairs by `b`, dating and speech chapters by book and chapter
 - [x] `/discoveries?book=` as two index searches and a join for the page's keys (`_discoveries_of_book`); totals were already cached across pages (`queries.count`)
@@ -1120,7 +1131,7 @@ Pipeline and data
 
 API
 - [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
-- [ ] I4 (M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
+- [x] I4 (done, M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
 - [ ] I5 (M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
 - [ ] I6 (M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
 

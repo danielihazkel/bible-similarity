@@ -6,11 +6,11 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.etiologies import EtiologiesResponse, Naming
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
@@ -19,13 +19,13 @@ def _num(v: Any) -> float | None:
     return None if v is None or (isinstance(v, float) and math.isnan(v)) else float(v)
 
 
-@router.get("/etiologies", response_model=EtiologiesResponse)
+@router.get("/etiologies", dependencies=[stage("etiologies")], response_model=EtiologiesResponse)
 def etiologies(state: State, conn: Conn) -> dict[str, Any]:
-    """Every naming with its verse, its name and the word that echoes it (404: the stage did
+    """Every naming with its verse, its name and the word that echoes it (503: the stage did
     not run)."""
     m = state.meta.get("etiologies")
     if not m:
-        raise HTTPException(status_code=404, detail="the naming etiologies were not computed")
+        raise stage_missing("etiologies")
     rows = queries.etiologies(conn)
     verses = queries.verses_by_id(conn, [r["verse_id"] for r in rows])
     namings = [

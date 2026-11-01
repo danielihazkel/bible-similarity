@@ -18,7 +18,7 @@ from bsim.api.models.meter import (
     MeterVerse,
     UnitMeter,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_or_404
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_or_404
 
 router = APIRouter()
 
@@ -40,12 +40,12 @@ def _keyed(conn: sqlite3.Connection, entries: list[dict[str, Any]] | None) -> li
     return _chapters(conn, queries.meter_chapters(conn, keys))
 
 
-@router.get("/meter", response_model=MeterResponse)
+@router.get("/meter", dependencies=[stage("meter")], response_model=MeterResponse)
 def meter(
     state: State,
     conn: Conn,
     group: MeterGroup | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

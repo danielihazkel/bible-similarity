@@ -17,7 +17,7 @@ from bsim.api.models.pentateuch import (
     SourceSynonym,
     SourceWord,
 )
-from bsim.api.routes._common import Conn, State, check_page
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ def hebrew(conn: sqlite3.Connection, tokens: list[str], prefixes: dict[str, str]
     return out
 
 
-@router.get("/pentateuch", response_model=PentateuchResponse)
+@router.get("/pentateuch", dependencies=[stage("pentateuch")], response_model=PentateuchResponse)
 def pentateuch(state: State, conn: Conn) -> dict[str, Any]:
     """The split's three checks fixed in advance, its agreement by book, the divine names, the
     robustness grid, and the words and synonym choices that decide it."""
@@ -56,9 +56,13 @@ def pentateuch(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/pentateuch/chapters", response_model=PentateuchChaptersResponse)
+@router.get(
+    "/pentateuch/chapters",
+    dependencies=[stage("pentateuch")],
+    response_model=PentateuchChaptersResponse,
+)
 def pentateuch_chapters(
-    state: State, conn: Conn, book: int | None = None, limit: int = 60, offset: int = 0
+    state: State, conn: Conn, book: BookFilter = None, limit: int = 60, offset: int = 0
 ) -> dict[str, Any]:
     """Each chapter of Genesis-Numbers: the share of its verses on the P-like side against the
     share the reference calls P."""

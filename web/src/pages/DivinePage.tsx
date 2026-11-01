@@ -7,6 +7,8 @@ import { bookName } from '../lib/names'
 import { shareStep } from '../lib/divine'
 import { useQueryParams } from '../lib/urlState'
 import { formatP } from '../lib/workbench'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 const PER_ROW = 50 // chapters in one row of a book's strip
 const CELL = 10
@@ -26,10 +28,12 @@ export function DivinePage() {
     <div className="page divine-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

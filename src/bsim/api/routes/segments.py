@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.segments import (
@@ -16,12 +16,20 @@ from bsim.api.models.segments import (
     SegmentPoint,
     SegmentsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import (
+    BookFilter,
+    Conn,
+    State,
+    book_or_404,
+    check_page,
+    stage,
+    unit_span,
+)
 
 router = APIRouter()
 
 
-@router.get("/segments", response_model=SegmentsResponse)
+@router.get("/segments", dependencies=[stage("segments")], response_model=SegmentsResponse)
 def segments(state: State, conn: Conn) -> dict[str, Any]:
     """The divisions against the text's cohesion: tests, contrasts and per-book agreement."""
     return {
@@ -30,12 +38,12 @@ def segments(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/segments/gaps", response_model=SegmentGapsResponse)
+@router.get("/segments/gaps", dependencies=[stage("segments")], response_model=SegmentGapsResponse)
 def segment_gaps(
     state: State,
     conn: Conn,
     kind: Literal["turn", "cut", "quiet"] | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
@@ -69,15 +77,15 @@ def segment_gaps(
     }
 
 
-@router.get("/segments/book/{book_id}", response_model=SegmentCurve)
-def segment_curve(book_id: int, conn: Conn) -> dict[str, Any]:
+@router.get(
+    "/segments/book/{book_id}",
+    dependencies=[stage("segments")],
+    response_model=SegmentCurve,
+)
+def segment_curve(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """Every gap of one book with its score and divisions, and the book's agreement rows."""
+    book_or_404(state, book_id)
     points = queries.segment_curve(conn, book_id)
-    if (
-        not points
-        and not conn.execute("SELECT 1 FROM books WHERE book_id = ?", (book_id,)).fetchone()
-    ):
-        raise HTTPException(status_code=404, detail=f"unknown book {book_id}")
     return {
         "book_id": book_id,
         "points": [

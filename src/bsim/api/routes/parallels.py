@@ -34,11 +34,14 @@ from bsim.api.models.parallels import (
     VerseDiff,
 )
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
+    book_or_404,
     check_min,
     check_page,
     span_label,
+    stage,
     unit_or_404,
     unit_span,
     unprocessable,
@@ -109,7 +112,7 @@ def verse_diff(a: int, b: int, state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/changes", response_model=ChangesResponse)
+@router.get("/changes", dependencies=[stage("diffs")], response_model=ChangesResponse)
 def changes(
     state: State,
     conn: Conn,
@@ -126,6 +129,7 @@ def changes(
     if op not in df_.OPS or op == "same":
         raise unprocessable(f"op must be one of {[o for o in df_.OPS if o != 'same']}")
     check_page(state, limit, offset)
+    book_or_404(state, a_book), book_or_404(state, b_book)
     span = unit_span(conn, unit)
     total, groups = queries.change_groups(conn, op, a_book, b_book, limit, offset, span)
     keys = {k for g in groups for k in (g["a_key"], g["b_key"]) if k and not k.startswith("~")}
@@ -190,11 +194,11 @@ def _sequence_summaries(
     ]
 
 
-@router.get("/sequences", response_model=SequencesResponse)
+@router.get("/sequences", dependencies=[stage("sequences")], response_model=SequencesResponse)
 def sequences(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     cross_book: bool = False,
     hide_same_chapter: bool = False,
     max_q: float | None = None,
@@ -234,7 +238,11 @@ def sequences(
     }
 
 
-@router.get("/sequences/arcs", response_model=SequenceArcsResponse)
+@router.get(
+    "/sequences/arcs",
+    dependencies=[stage("sequences")],
+    response_model=SequenceArcsResponse,
+)
 def sequence_arcs(
     state: State,
     conn: Conn,
@@ -260,7 +268,7 @@ def sequence_arcs(
     }
 
 
-@router.get("/sequences/{seq_id}", response_model=SequenceDetail)
+@router.get("/sequences/{seq_id}", dependencies=[stage("sequences")], response_model=SequenceDetail)
 def sequence_detail(seq_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """One chain side by side: aligned pairs, plus the verses skipped on either side (cached:
     every pair is word-aligned)."""
@@ -309,7 +317,7 @@ def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -
     }
 
 
-@router.get("/rewrites", response_model=RewritesResponse)
+@router.get("/rewrites", dependencies=[stage("diffs")], response_model=RewritesResponse)
 def rewrites(
     state: State,
     conn: Conn,
@@ -322,6 +330,7 @@ def rewrites(
 ) -> dict[str, Any]:
     """Changes one book makes consistently against another (DESIGN.md §16.16)."""
     check_page(state, limit, offset)
+    book_or_404(state, a_book), book_or_404(state, b_book)
     if op is not None and op not in df_.REWRITE_OPS:
         raise unprocessable(f"op must be one of {list(df_.REWRITE_OPS)}")
     if max_q is not None and not 0 <= max_q <= 1:
@@ -344,17 +353,17 @@ def rewrites(
     }
 
 
-@router.get("/rewrite-profiles", response_model=list[RewriteProfile])
+@router.get("/rewrite-profiles", dependencies=[stage("diffs")], response_model=list[RewriteProfile])
 def rewrite_profiles(conn: Conn) -> list[RewriteProfile]:
     """Per book pair of parallel passages: how many verses were diffed and how they differ."""
     return [RewriteProfile(**r) for r in queries.rewrite_profiles(conn)]
 
 
-@router.get("/typescenes", response_model=TypeScenesResponse)
+@router.get("/typescenes", dependencies=[stage("typescenes")], response_model=TypeScenesResponse)
 def typescenes(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     max_q: float | None = 0.05,
     hide_textual: bool = True,
     unit: str | None = None,

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.chronology import (
@@ -16,17 +16,17 @@ from bsim.api.models.chronology import (
     Gen5Number,
     Life,
 )
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
 
-@router.get("/chronology", response_model=ChronologyResponse)
+@router.get("/chronology", dependencies=[stage("chronology")], response_model=ChronologyResponse)
 def chronology(state: State, conn: Conn) -> dict[str, Any]:
-    """Every date, reign and synchronism with its verse (404: the stage did not run)."""
+    """Every date, reign and synchronism with its verse (503: the stage did not run)."""
     m = state.meta.get("chronology")
     if not m:
-        raise HTTPException(status_code=404, detail="the chronology was not computed")
+        raise stage_missing("chronology")
     events = queries.chronology_events(conn)
     kings = queries.chronology_kings(conn)
     syncs = queries.chronology_syncs(conn)

@@ -16,7 +16,7 @@ from bsim.api.models.psalms import (
     PsalmTurn,
     PsalmVerse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span, unprocessable
+from bsim.api.routes._common import Conn, State, check_page, stage, unit_span, unprocessable
 
 router = APIRouter()
 FEATURES = (
@@ -25,7 +25,7 @@ FEATURES = (
 )  # fmt: skip
 
 
-@router.get("/psalms", response_model=PsalmsResponse)
+@router.get("/psalms", dependencies=[stage("psalms")], response_model=PsalmsResponse)
 def psalms(state: State, conn: Conn) -> dict[str, Any]:
     """The genre test (clusters of the form against Gunkel's genres), the checks named in
     advance, the turns scholarship names and the laments' turns against the hymns'."""
@@ -52,7 +52,7 @@ def psalms(state: State, conn: Conn) -> dict[str, Any]:
     return {"meta": meta, "known": known}
 
 
-@router.get("/psalms/list", response_model=PsalmsListResponse)
+@router.get("/psalms/list", dependencies=[stage("psalms")], response_model=PsalmsListResponse)
 def psalm_list(
     state: State,
     conn: Conn,

@@ -46,6 +46,7 @@ from bsim.api.models.core import (
 )
 from bsim.api.resolve import resolve as resolve_ref
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
     check_k,
@@ -75,7 +76,7 @@ def books(conn: Conn) -> list[dict[str, Any]]:
 
 @router.get("/units/{unit_type}", response_model=list[UnitSummary])
 def units(
-    unit_type: str, state: State, conn: Conn, book: int | None = None, chapter: int | None = None
+    unit_type: str, state: State, conn: Conn, book: BookFilter = None, chapter: int | None = None
 ) -> list[dict[str, Any]]:
     """Units of a type per book (verses: per book, or per chapter with `chapter`)."""
     check_unit_type(unit_type, state.cfg["units"]["types"])
@@ -176,7 +177,7 @@ def discoveries(
     conn: Conn,
     unit_type: str = "verse",
     mode: Mode = "semantic",
-    book: int | None = None,
+    book: BookFilter = None,
     cross_book: bool = False,
     unit: str | None = None,
     limit: int = 50,
@@ -305,18 +306,14 @@ def search(
     conn: Conn,
     mode: SearchMode = "fused",
     k: int | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
 ) -> dict[str, Any]:
     """Free-text Hebrew search; `k` up to `serve.search.max_k`; `book`: only its verses."""
     k = state.cfg["serve"]["default_k"] if k is None else k
     max_k = state.cfg["serve"]["search"]["max_k"]
     if not 1 <= k <= max_k:
         raise unprocessable(f"k must be between 1 and {max_k}")
-    mask = None
-    if book is not None:
-        mask = state.verse_books == book
-        if not mask.any():
-            raise HTTPException(status_code=404, detail=f"unknown book {book}")
+    mask = None if book is None else state.verse_books == book
     max_chars = state.cfg["serve"]["search"]["max_query_chars"]
     if len(q) > max_chars:
         raise unprocessable(f"query longer than {max_chars} characters")
@@ -419,7 +416,7 @@ def lemma(
     lemma: str,
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

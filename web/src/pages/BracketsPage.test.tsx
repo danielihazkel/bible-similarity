@@ -75,7 +75,7 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en', missing = false) {
     vi.fn(async (url: string) => {
       const u = new URL(url, 'http://x')
       calls.push(u.pathname + u.search)
-      if (missing) return new Response(JSON.stringify({ detail: 'the resumptive repetitions were not computed' }), { status: 404 })
+      if (missing) return new Response(JSON.stringify({ detail: { code: 'stage_missing', stage: 'brackets', message: 'not computed in this build' } }), { status: 503 })
       if (u.pathname === '/api/books') return new Response(JSON.stringify(BOOKS))
       if (u.pathname === '/api/brackets') return new Response(JSON.stringify(DATA))
       const show = u.searchParams.get('show') ?? 'all'

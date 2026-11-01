@@ -950,6 +950,7 @@ def test_dating(client):
     chapters = client.get("/api/dating/book/0").json()
     assert [c["chapter"] for c in chapters] == [1, 2]
     assert chapters[1]["drivers"] == ["david_plene"] and chapters[1]["score"] == 0.7
-    assert client.get("/api/dating/book/9").status_code == 404
+    assert client.get("/api/dating/book/9").json() == []  # a book with no dated chapters
+    assert client.get("/api/dating/book/99").status_code == 404
     assert client.get("/api/unit-dating/v:4").json()["unit_id"] == "c:0:2"
     assert client.get("/api/unit-dating/c:1:1").json()["score"] is None

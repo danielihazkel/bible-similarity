@@ -41,7 +41,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from bsim.api import queries
@@ -110,6 +110,7 @@ class ServeState:
     _lemma_total: int | None = None
     _roots: queries.RootIndex | None = None
     _verse_books: np.ndarray | None = None
+    _book_ids: frozenset[int] | None = None
     _verse_chapters: np.ndarray | None = None
     _pool: queue.SimpleQueue = field(default_factory=queue.SimpleQueue)
     _words: WordTable | None = None
@@ -183,6 +184,17 @@ class ServeState:
                 conn.close()
             self._verse_books = np.array([b for (b,) in rows], dtype=np.int64)
         return self._verse_books
+
+    @property
+    def book_ids(self) -> frozenset[int]:
+        """The canon's books (a `book=` filter must name one), read once."""
+        if self._book_ids is None:
+            conn = self.connect()
+            try:
+                self._book_ids = frozenset(b for (b,) in conn.execute("SELECT book_id FROM books"))
+            finally:
+                conn.close()
+        return self._book_ids
 
     @property
     def verse_chapters(self) -> np.ndarray:
@@ -355,9 +367,29 @@ def create_app(
                 response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         return response
 
+    @app.exception_handler(sqlite3.OperationalError)
+    async def missing_table(request: Request, exc: sqlite3.OperationalError) -> JSONResponse:
+        """A DB built before a stage's table existed: `stage_missing` (as a stage that did not
+        run) rather than a bare 500; any other database error stays a 500."""
+        msg = str(exc)
+        if not msg.startswith("no such table: "):
+            log(f"database error on {request.url.path}: {msg}")
+            return JSONResponse({"detail": "database error"}, status_code=500)
+        table = msg.removeprefix("no such table: ")
+        stage = _table_stages().get(table, table)
+        detail = {"code": "stage_missing", "stage": stage,
+                  "message": f"not in this build (table {table}): run `bsim build-db`"}  # fmt: skip
+        return JSONResponse({"detail": detail}, status_code=503)
+
     app.include_router(router)
     _mount_web(app, resolve_path(cfg, "web_dist"), log)
     return app
+
+
+def _table_stages() -> dict[str, str]:
+    from bsim.api.routes._common import TABLE_STAGES
+
+    return TABLE_STAGES
 
 
 def _mount_web(app: FastAPI, dist: Path, log: Log) -> None:

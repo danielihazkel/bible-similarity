@@ -14,17 +14,17 @@ from bsim.api.models.binomials import (
     BinomialOccurrencesResponse,
     BinomialsResponse,
 )
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
 
-@router.get("/binomials", response_model=BinomialsResponse)
+@router.get("/binomials", dependencies=[stage("binomials")], response_model=BinomialsResponse)
 def binomials(state: State, conn: Conn) -> dict[str, Any]:
-    """Every binomial, the commonest first (404: the stage did not run)."""
+    """Every binomial, the commonest first (503: the stage did not run)."""
     m = state.meta.get("binomials")
     if not m:
-        raise HTTPException(status_code=404, detail="the binomials were not computed")
+        raise stage_missing("binomials")
     keep = ("pairs", "binomials", "min_pairs", "both_ways", "letters", "syllables",
             "short_holds", "rate_early", "rate_late", "n_early", "n_late", "difference",
             "expected", "late_p", "late_holds", "without_known", "known", "known_late",
@@ -32,11 +32,15 @@ def binomials(state: State, conn: Conn) -> dict[str, Any]:
     return {**{k: m[k] for k in keep}, "items": [Binomial(**r) for r in queries.binomials(conn)]}
 
 
-@router.get("/binomials/occurrences", response_model=BinomialOccurrencesResponse)
+@router.get(
+    "/binomials/occurrences",
+    dependencies=[stage("binomials")],
+    response_model=BinomialOccurrencesResponse,
+)
 def binomial_occurrences(pair: str, state: State, conn: Conn) -> dict[str, Any]:
     """A binomial's listed occurrences, its own order first (404: no such binomial)."""
     if not state.meta.get("binomials"):
-        raise HTTPException(status_code=404, detail="the binomials were not computed")
+        raise stage_missing("binomials")
     rows = queries.binomial_occurrences(conn, pair)
     if not rows:
         raise HTTPException(status_code=404, detail=f"no binomial {pair!r}")

@@ -24,14 +24,18 @@ from bsim.api.models.genealogy import (
     TreeNode,
     TreeSpouse,
 )
-from bsim.api.routes._common import Conn, State, unprocessable
+from bsim.api.routes._common import Conn, State, stage, unprocessable
 
 router = APIRouter()
 
 PARENT_ROLES = ("father", "mother")
 
 
-@router.get("/genealogy/skeleton", response_model=SkeletonResponse)
+@router.get(
+    "/genealogy/skeleton",
+    dependencies=[stage("genealogy")],
+    response_model=SkeletonResponse,
+)
 def skeleton(state: State, conn: Conn) -> dict[str, Any]:
     """Every person drawn as a node, with the link it hangs by; the people drawn beside a spouse;
     the parent links not drawn. The viewer lays out what is expanded."""
@@ -70,7 +74,7 @@ def skeleton(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/genealogy/lookup", response_model=PersonLookup)
+@router.get("/genealogy/lookup", dependencies=[stage("genealogy")], response_model=PersonLookup)
 def lookup(q: str, conn: Conn, limit: int = 8) -> dict[str, Any]:
     """People by a Hebrew name (pointing ignored), whole names first, the most named first, each
     with the parent, tribe or spouse that tells namesakes apart."""
@@ -93,7 +97,11 @@ def lookup(q: str, conn: Conn, limit: int = 8) -> dict[str, Any]:
     }
 
 
-@router.get("/genealogy/person/{person_id}", response_model=PersonDetail)
+@router.get(
+    "/genealogy/person/{person_id}",
+    dependencies=[stage("genealogy")],
+    response_model=PersonDetail,
+)
 def person(person_id: int, conn: Conn) -> dict[str, Any]:
     """One person's family: parents, spouses, children by their other parent, siblings, each link
     with its proof verses (both names marked), and the readings where the text disagrees."""

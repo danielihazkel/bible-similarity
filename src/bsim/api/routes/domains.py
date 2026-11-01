@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException
 from bsim.api import queries
 from bsim.api.models.common import BookCount, UnitSummary
 from bsim.api.models.domains import DomainHit, DomainInfo, DomainResponse, DomainShare, UnitDomains
-from bsim.api.routes._common import Conn, State, check_page, unit_or_404
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, unit_or_404
 from bsim.store.lexicon import ancestors
 
 router = APIRouter()
@@ -29,7 +29,7 @@ def domain(
     code: str,
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

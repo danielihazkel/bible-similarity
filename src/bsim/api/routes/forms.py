@@ -21,7 +21,7 @@ from bsim.api.models.forms import (
     FormsSaying,
     FormsSayingsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_span
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ def _labeller(conn: sqlite3.Connection, ids: list[int]) -> Any:
     return label
 
 
-@router.get("/forms", response_model=FormsResponse)
+@router.get("/forms", dependencies=[stage("forms")], response_model=FormsResponse)
 def forms(state: State, conn: Conn) -> dict[str, Any]:
     """The graded pairs against chance and against parallel lines, the sayings named in advance,
     the lists against shuffled verse orders and the lists named in advance, per book."""
@@ -78,11 +78,11 @@ def forms(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/forms/sayings", response_model=FormsSayingsResponse)
+@router.get("/forms/sayings", dependencies=[stage("forms")], response_model=FormsSayingsResponse)
 def forms_sayings(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     known: bool = False,
     limit: int = 50,
@@ -109,11 +109,11 @@ def forms_sayings(
             "limit": limit, "items": items}  # fmt: skip
 
 
-@router.get("/forms/lists", response_model=FormsListsResponse)
+@router.get("/forms/lists", dependencies=[stage("forms")], response_model=FormsListsResponse)
 def forms_lists(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     kind: str | None = None,
     limit: int = 50,

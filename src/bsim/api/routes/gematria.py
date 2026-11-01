@@ -31,7 +31,7 @@ from bsim.api.models.gematria import (
     LinkTest,
     LinkVerse,
 )
-from bsim.api.routes._common import Conn, State, check_min, check_page, unprocessable
+from bsim.api.routes._common import BookFilter, Conn, State, check_min, check_page, unprocessable
 from bsim.text.gematria import SYSTEMS, letters, values
 
 router = APIRouter()
@@ -131,7 +131,7 @@ def gematria_verses(
     state: State,
     conn: Conn,
     system: GematriaSystem = "standard",
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

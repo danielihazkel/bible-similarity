@@ -11,7 +11,7 @@ from fastapi import APIRouter
 from bsim.api import queries
 from bsim.api.models.patterns import PatternBook, PatternMatch, PatternResponse, PatternVerse
 from bsim.api.patterns import PatternError, normalize, parse
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, unit_span
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ def patterns(
     state: State,
     conn: Conn,
     q: str = "",
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,

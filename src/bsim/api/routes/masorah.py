@@ -12,12 +12,12 @@ from fastapi import APIRouter
 from bsim.api import queries
 from bsim.api.models.common import VerseLabel
 from bsim.api.models.masorah import MasorahBook, MasorahMiddle, MasorahResponse, MasorahTotal
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage
 
 router = APIRouter()
 
 
-@router.get("/masorah", response_model=MasorahResponse)
+@router.get("/masorah", dependencies=[stage("masorah")], response_model=MasorahResponse)
 def masorah(state: State, conn: Conn) -> dict[str, Any]:
     """The middles against ours, the totals against ours and every book's counts."""
     t = queries.masorah_tables(conn)

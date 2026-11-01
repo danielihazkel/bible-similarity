@@ -18,7 +18,7 @@ from bsim.api.models.synopsis import (
     SynopsisDetail,
     SynopsisSummary,
 )
-from bsim.api.routes._common import Conn, State, span_label, unprocessable
+from bsim.api.routes._common import Conn, State, span_label, stage, unprocessable
 from bsim.api.routes.parallels import OP_RANK, diff_marks
 
 router = APIRouter()
@@ -69,7 +69,7 @@ def _summaries(conn: sqlite3.Connection, items: list[syn.Synopsis]) -> list[Syno
     ]
 
 
-@router.get("/synopses", response_model=SynopsesResponse)
+@router.get("/synopses", dependencies=[stage("sequences")], response_model=SynopsesResponse)
 def synopses(state: State, conn: Conn) -> dict[str, Any]:
     """Every synopsis, in order of its strongest chain."""
     return {
@@ -78,7 +78,7 @@ def synopses(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/synopses/{syn_id}", response_model=SynopsisDetail)
+@router.get("/synopses/{syn_id}", dependencies=[stage("sequences")], response_model=SynopsisDetail)
 def synopsis(syn_id: int, state: State, conn: Conn, base: int = 0) -> dict[str, Any]:
     """One synopsis row by row, every column's verse marked against the `base` column's (cached)."""
     found = [s for s in _synopses(state, conn) if s.syn_id == syn_id]

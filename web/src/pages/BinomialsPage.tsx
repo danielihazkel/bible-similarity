@@ -9,6 +9,8 @@ import type { BnOrder, BnShow } from '../i18n/pages/binomials'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 /** Word pairs (§16.72): the recurring pairs joined by ו, how fixed each order is, its words'
  * lengths and its turns by period, a pair's occurrences, and the checks. */
@@ -21,10 +23,12 @@ export function BinomialsPage() {
     <div className="page binomials-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

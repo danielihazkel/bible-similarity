@@ -10,6 +10,8 @@ import type { Highlight } from '../lib/highlight'
 import { readLink, unitLink } from '../lib/links'
 import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 const PAGE_SIZE = 25
 const SHOWS: BracketShow[] = ['all', 'strong', 'known']
@@ -26,10 +28,12 @@ export function BracketsPage() {
     <div className="page brackets-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

@@ -5,12 +5,12 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.analysis.dating import FEATURES as DATING_FEATURES
 from bsim.api import queries
 from bsim.api.models.dating import DatingBook, DatingChapter, DatingResponse, SynopticExample
-from bsim.api.routes._common import Conn, State, span_label, unit_or_404
+from bsim.api.routes._common import Conn, State, book_or_404, span_label, stage, unit_or_404
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ def _chapter(r: dict[str, Any]) -> DatingChapter:
     )
 
 
-@router.get("/dating", response_model=DatingResponse)
+@router.get("/dating", dependencies=[stage("dating")], response_model=DatingResponse)
 def dating(state: State, conn: Conn) -> dict[str, Any]:
     """Every book's mean profile and spread, the model and its checks (held-out AUC, the
     synoptic parallels of Samuel–Kings and Chronicles)."""
@@ -66,13 +66,15 @@ def dating(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/dating/book/{book_id}", response_model=list[DatingChapter])
-def dating_book(book_id: int, conn: Conn) -> list[DatingChapter]:
+@router.get(
+    "/dating/book/{book_id}",
+    dependencies=[stage("dating")],
+    response_model=list[DatingChapter],
+)
+def dating_book(book_id: int, state: State, conn: Conn) -> list[DatingChapter]:
     """A book's chapters with their profile, features and drivers, in order."""
-    rows = queries.dating_chapters(conn, book_id)
-    if not rows and book_id not in {b["book_id"] for b in queries.dating_books(conn)}:
-        raise HTTPException(status_code=404, detail=f"unknown book {book_id}")
-    return [_chapter(r) for r in rows]
+    book_or_404(state, book_id)
+    return [_chapter(r) for r in queries.dating_chapters(conn, book_id)]
 
 
 @router.get("/unit-dating/{unit_id}", response_model=DatingChapter | None)

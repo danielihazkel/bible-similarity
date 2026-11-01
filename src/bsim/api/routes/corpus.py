@@ -41,11 +41,14 @@ from bsim.api.models.corpus import (
 )
 from bsim.api.models.places import PlaceSite
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
+    book_or_404,
     check_page,
     check_unit_type,
     gold_link,
+    stage,
     unit_or_404,
     unprocessable,
 )
@@ -57,12 +60,12 @@ router = APIRouter()
 ENTITY_KINDS = ("person", "place", "mixed", "unclear")
 
 
-@router.get("/entities", response_model=EntitiesResponse)
+@router.get("/entities", dependencies=[stage("entities")], response_model=EntitiesResponse)
 def entities(
     state: State,
     conn: Conn,
     kind: str | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     q: str | None = None,
     limit: int = 50,
     offset: int = 0,
@@ -84,7 +87,7 @@ def entities(
     }
 
 
-@router.get("/entities/{lemma}", response_model=EntityDetail)
+@router.get("/entities/{lemma}", dependencies=[stage("entities")], response_model=EntityDetail)
 def entity_detail(lemma: str, conn: Conn, partners: int = 15) -> dict[str, Any]:
     """One name: its mentions per book and the names it appears with (G² over verses)."""
     e = queries.entity(conn, lemma)
@@ -123,9 +126,9 @@ def unit_entities(unit_id: str, conn: Conn, limit: int = 30) -> list[Entity]:
     return [Entity(**r) for r in rows]
 
 
-@router.get("/seams", response_model=SeamsResponse)
+@router.get("/seams", dependencies=[stage("seams")], response_model=SeamsResponse)
 def seams(
-    state: State, conn: Conn, book: int | None = None, limit: int = 30, offset: int = 0
+    state: State, conn: Conn, book: BookFilter = None, limit: int = 30, offset: int = 0
 ) -> dict[str, Any]:
     """Where style changes (DESIGN.md §16.12): a book's shift curve and seams, or without a
     book the strongest seams of the corpus."""
@@ -155,7 +158,7 @@ def seams(
     }
 
 
-@router.get("/map/{unit_type}", response_model=MapResponse)
+@router.get("/map/{unit_type}", dependencies=[stage("map")], response_model=MapResponse)
 def corpus_map(unit_type: str, state: State, conn: Conn) -> dict[str, Any]:
     """2-D layout and thematic clusters of one unit type (DESIGN.md §16.4)."""
     check_unit_type(unit_type, list(state.cfg["map"]["clusters"]))
@@ -176,7 +179,7 @@ def corpus_map(unit_type: str, state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/affinity", response_model=AffinityResponse)
+@router.get("/affinity", dependencies=[stage("map")], response_model=AffinityResponse)
 def affinity(state: State, conn: Conn) -> dict[str, Any]:
     """Book x book lift of cross-book verse matches."""
     return {
@@ -194,13 +197,10 @@ def affinity(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/affinity/{a}/{b}", response_model=list[AffinityPair])
-def affinity_pairs(a: int, b: int, conn: Conn) -> list[AffinityPair]:
+@router.get("/affinity/{a}/{b}", dependencies=[stage("map")], response_model=list[AffinityPair])
+def affinity_pairs(a: int, b: int, state: State, conn: Conn) -> list[AffinityPair]:
     """The strongest verse pairs between two books (book `a` on the `a` side)."""
-    known = {r["book_id"] for r in queries.books(conn)}
-    for book in (a, b):
-        if book not in known:
-            raise HTTPException(status_code=404, detail=f"unknown book {book}")
+    book_or_404(state, a), book_or_404(state, b)
     rows = queries.book_examples(conn, a, b)
     if a > b:
         rows = [{**r, "a_vid": r["b_vid"], "b_vid": r["a_vid"]} for r in rows]
@@ -223,7 +223,7 @@ def affinity_pairs(a: int, b: int, conn: Conn) -> list[AffinityPair]:
     ]
 
 
-@router.get("/stylometry", response_model=StylometryResponse)
+@router.get("/stylometry", dependencies=[stage("stylometry")], response_model=StylometryResponse)
 def stylometry(state: State, conn: Conn) -> dict[str, Any]:
     """Chapter PCA of style features, the axes' loadings and the book Delta matrix."""
     sm = state.meta.get("stylometry") or {}
@@ -238,12 +238,15 @@ def stylometry(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/stylometry/book/{book_id}", response_model=BookStyle)
+@router.get(
+    "/stylometry/book/{book_id}",
+    dependencies=[stage("stylometry")],
+    response_model=BookStyle,
+)
 def book_style(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """A book's most over- / under-used style features and its nearest books by Delta."""
+    book_or_404(state, book_id)
     rows = queries.stylo_features(conn, book_id)
-    if not rows:
-        raise HTTPException(status_code=404, detail=f"unknown book {book_id}")
     words = (state.meta.get("stylometry") or {}).get("book_words") or []
     near = queries.stylo_delta(conn, book_id)[: state.cfg["stylometry"]["top_features"]]
     return {
@@ -296,7 +299,7 @@ def _network_type(state, unit_type: str) -> str:
     return check_unit_type(unit_type, list(state.cfg["network"]["unit_types"]))
 
 
-@router.get("/network/{unit_type}", response_model=NetworkResponse)
+@router.get("/network/{unit_type}", dependencies=[stage("network")], response_model=NetworkResponse)
 def network(unit_type: str, state: State, conn: Conn, central: int = 20) -> dict[str, Any]:
     """Communities of passages that echo each other, and the most central passages
     (DESIGN.md §16.17)."""
@@ -310,7 +313,11 @@ def network(unit_type: str, state: State, conn: Conn, central: int = 20) -> dict
     }
 
 
-@router.get("/network/{unit_type}/{community}", response_model=CommunityResponse)
+@router.get(
+    "/network/{unit_type}/{community}",
+    dependencies=[stage("network")],
+    response_model=CommunityResponse,
+)
 def network_community(unit_type: str, community: int, state: State, conn: Conn) -> dict[str, Any]:
     """One community: its passages (with their layout) and the echoes among them."""
     _network_type(state, unit_type)

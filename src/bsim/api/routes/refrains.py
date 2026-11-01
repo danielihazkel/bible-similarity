@@ -16,12 +16,12 @@ from bsim.api.models.refrains import (
     RefrainsResponse,
     RefrainVerse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_span
 
 router = APIRouter()
 
 
-@router.get("/refrains", response_model=RefrainsResponse)
+@router.get("/refrains", dependencies=[stage("refrains")], response_model=RefrainsResponse)
 def refrains(state: State, conn: Conn) -> dict[str, Any]:
     """The detection against shuffled verse orders, the spacing and turn tests, the refrains
     named in advance and the refrains per book."""
@@ -52,11 +52,11 @@ def refrains(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/refrains/list", response_model=RefrainsListResponse)
+@router.get("/refrains/list", dependencies=[stage("refrains")], response_model=RefrainsListResponse)
 def refrain_list(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     strongest: bool = True,
     known: bool = False,

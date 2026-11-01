@@ -1,4 +1,5 @@
-import { ApiError } from '../api/client'
+import type { ReactNode } from 'react'
+import { ApiError, isStageMissing } from '../api/client'
 import { useT } from '../context/localeContext'
 
 export function Loading({ label }: { label?: string }) {
@@ -14,6 +15,7 @@ export function Loading({ label }: { label?: string }) {
 // inside a right-to-left sentence.
 export function ErrorBox({ error }: { error: unknown }) {
   const m = useT()
+  if (isStageMissing(error)) return <NotComputed stage={error.stage} />
   const msg =
     error instanceof ApiError ? (
       <>
@@ -31,9 +33,18 @@ export function ErrorBox({ error }: { error: unknown }) {
   )
 }
 
+/** The analysis was not computed in this build: not an error, so no alert. */
+export function NotComputed({ stage, children }: { stage?: string; children?: ReactNode }) {
+  const m = useT()
+  return <p className="status not-computed">{children ?? m.status.notComputed(stage)}</p>
+}
+
 /** A one-line note that an optional panel (names, phrases, …) could not be loaded. */
 export function PanelError({ what, error }: { what: string; error: unknown }) {
   const m = useT()
+  if (isStageMissing(error)) {
+    return <p className="status small not-computed">{m.status.notComputed(error.stage)}</p>
+  }
   const detail = error instanceof ApiError ? `${error.status}: ${error.detail}` : m.status.apiUnreachable
   return (
     <p className="status error small" role="alert">

@@ -3,6 +3,8 @@ import { useChronology } from '../api/hooks'
 import type { ChronEvent, ChronologyResponse, ChronSync, Verse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 const RULES = ['accession', 'non-accession'] as const
 const MARKS = ['flood', 'exodus'] as const
@@ -18,10 +20,12 @@ export function ChronologyPage() {
     <div className="page chronology-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

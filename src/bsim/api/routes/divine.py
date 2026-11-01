@@ -6,7 +6,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.divine import (
@@ -17,7 +17,7 @@ from bsim.api.models.divine import (
     DivinePlace,
     DivineResponse,
 )
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
@@ -25,7 +25,7 @@ router = APIRouter()
 def _meta(state: State) -> dict[str, Any]:
     m = state.meta.get("divine")
     if not m:
-        raise HTTPException(status_code=404, detail="the divine names were not computed")
+        raise stage_missing("divine")
     return m
 
 
@@ -37,9 +37,9 @@ def _counts(row: dict[str, Any], names: list[str]) -> dict[str, int]:
     return {n: int(row[n]) for n in names if row.get(n)}
 
 
-@router.get("/divine", response_model=DivineResponse)
+@router.get("/divine", dependencies=[stage("divine")], response_model=DivineResponse)
 def divine(state: State, conn: Conn) -> dict[str, Any]:
-    """Every chapter's and book's names, the books' splits and the two checks (404: the stage
+    """Every chapter's and book's names, the books' splits and the two checks (503: the stage
     did not run)."""
     m = _meta(state)
     names = m["names"]
@@ -81,7 +81,7 @@ def divine(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/divine/pairs", response_model=DivinePairsResponse)
+@router.get("/divine/pairs", dependencies=[stage("divine")], response_model=DivinePairsResponse)
 def divine_pairs(state: State, conn: Conn) -> dict[str, Any]:
     """The doubled passages of check 2, each with the places where a name stands on either side
     as the word alignment pairs them."""

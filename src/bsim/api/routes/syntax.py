@@ -29,7 +29,7 @@ from bsim.api.models.syntax import (
     VoiceSpeaker,
     VoicesResponse,
 )
-from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
+from bsim.api.routes._common import Conn, State, stage, unit_or_404, unprocessable
 from bsim.data.lexicon import strong_key
 
 router = APIRouter()
@@ -147,7 +147,7 @@ def _speakers(
     return out
 
 
-@router.get("/speech", response_model=SpeechResponse)
+@router.get("/speech", dependencies=[stage("syntax")], response_model=SpeechResponse)
 def speech(state: State, conn: Conn) -> dict[str, Any]:
     """Narration, speech and its speakers per book."""
     top = state.cfg["syntax"]["speech_speakers"]
@@ -167,7 +167,11 @@ def speech(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/speech/book/{book_id}", response_model=SpeechBookResponse)
+@router.get(
+    "/speech/book/{book_id}",
+    dependencies=[stage("syntax")],
+    response_model=SpeechBookResponse,
+)
 def speech_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """A book's chapters and every speaker in it."""
     chapters = queries.speech_chapters(conn, book_id)
@@ -196,7 +200,7 @@ def _targets(conn: Any, book_id: int) -> dict[str, list[dict[str, Any]]]:
     return {k: [{**t, "he": form(t["addressee"])} for t in ts] for k, ts in targets.items()}
 
 
-@router.get("/voices", response_model=VoicesResponse)
+@router.get("/voices", dependencies=[stage("voices")], response_model=VoicesResponse)
 def voices(state: State, conn: Conn) -> dict[str, Any]:
     """Every profiled speaker, the most distinct first, and the Delta between voices."""
     return {
@@ -206,7 +210,7 @@ def voices(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/voices/{key}", response_model=VoiceDetail)
+@router.get("/voices/{key}", dependencies=[stage("voices")], response_model=VoiceDetail)
 def voice(key: str, state: State, conn: Conn) -> dict[str, Any]:
     """One speaker's profile: features against the same books, nearest voices, chapters."""
     rows = queries.voice_speakers(conn, key)

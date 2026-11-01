@@ -64,7 +64,7 @@ function Location() {
 function renderAt(path: string, locale: 'en' | 'he' = 'en', missing = false) {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => (missing ? new Response(JSON.stringify({ detail: 'the haftarot were not computed' }), { status: 404 }) : new Response(JSON.stringify(DATA)))),
+    vi.fn(async () => (missing ? new Response(JSON.stringify({ detail: { code: 'stage_missing', stage: 'haftarot', message: 'not computed in this build' } }), { status: 503 }) : new Response(JSON.stringify(DATA)))),
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
@@ -130,6 +130,27 @@ describe('HaftarotPage', () => {
   it('says when the stage did not run', async () => {
     renderAt('/haftarot', 'en', true)
     expect(await screen.findByText(/The haftarot were not computed/)).toBeTruthy()
+  })
+
+  it('tells a failed request from a stage that did not run', async () => {
+    renderAt('/haftarot')
+    cleanup()
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ detail: 'database error' }), { status: 500 })))
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <LocaleProvider initial="en">
+          <MemoryRouter initialEntries={['/haftarot']}>
+            <Routes>
+              <Route path="/haftarot" element={<HaftarotPage />} />
+            </Routes>
+          </MemoryRouter>
+        </LocaleProvider>
+      </QueryClientProvider>,
+    )
+    const alert = await screen.findByRole('alert')
+    expect(alert.textContent).toContain('database error')
+    expect(screen.queryByText(/were not computed/)).toBeNull()
   })
 
   it('runs in the Hebrew interface', async () => {

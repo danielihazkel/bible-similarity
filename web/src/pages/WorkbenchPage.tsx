@@ -5,6 +5,7 @@ import type { Book, CheckResponse, ContrastResponse, ContrastRow, SetProblem, Se
 import { Segmented } from '../components/Controls'
 import { DomainName } from '../components/DomainName'
 import { ExportCsv } from '../components/ExportCsv'
+import { ErrorBox } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { domainLink, lemmaLink, rootLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
@@ -76,9 +77,7 @@ function ContrastView() {
       {!a.trim() ? (
         <p className="status">{t.promptA}</p>
       ) : res.isError ? (
-        <p className="status error" role="alert">
-          {res.error.message}
-        </p>
+        <ErrorBox error={res.error} />
       ) : !d ? (
         <p className="status">{m.status.loading}</p>
       ) : d.error ? (
@@ -263,9 +262,7 @@ function CheckView() {
       {!q.trim() || !set.trim() ? (
         <p className="status">{t.checkPrompt}</p>
       ) : res.isError ? (
-        <p className="status error" role="alert">
-          {res.error.message}
-        </p>
+        <ErrorBox error={res.error} />
       ) : !d ? (
         <p className="status">{m.status.loading}</p>
       ) : d.pattern_error ? (

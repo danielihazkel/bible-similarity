@@ -1,12 +1,22 @@
 export class ApiError extends Error {
   status: number
   detail: string
+  /** `stage_missing`: the analysis was not computed in this build (`stage` names it) */
+  code?: string
+  stage?: string
 
-  constructor(status: number, detail: string) {
+  constructor(status: number, detail: string, code?: string, stage?: string) {
     super(`${status}: ${detail}`)
     this.status = status
     this.detail = detail
+    this.code = code
+    this.stage = stage
   }
+}
+
+/** The stage behind this page did not run in this build (503 `stage_missing`). */
+export function isStageMissing(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.code === 'stage_missing'
 }
 
 export type Params = Record<string, string | number | undefined>
@@ -37,13 +47,21 @@ async function fetchJson<T>(path: string, params: Params, signal?: AbortSignal):
 
 async function apiError(res: Response): Promise<ApiError> {
   let detail = res.statusText
+  let code: string | undefined
+  let stage: string | undefined
   try {
     const body = await res.json()
-    detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+    const d = body.detail
+    if (typeof d === 'string') detail = d
+    else if (d && typeof d === 'object' && typeof d.message === 'string') {
+      detail = d.message
+      code = typeof d.code === 'string' ? d.code : undefined
+      stage = typeof d.stage === 'string' ? d.stage : undefined
+    } else detail = JSON.stringify(d)
   } catch {
     // not JSON: keep the status text
   }
-  return new ApiError(res.status, detail)
+  return new ApiError(res.status, detail, code, stage)
 }
 
 /** A write (the labels and the notebook are the API's only writable data): POST or PUT with a JSON body, or DELETE. */

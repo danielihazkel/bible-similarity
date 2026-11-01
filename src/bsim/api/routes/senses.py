@@ -18,7 +18,7 @@ from bsim.api.models.senses import (
     SenseExample,
     ShiftsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unprocessable
+from bsim.api.routes._common import Conn, State, check_page, stage, unprocessable
 
 router = APIRouter()
 
@@ -35,7 +35,7 @@ def _shift(r: dict[str, Any], he: dict[str, str]) -> LemmaShift:
     )
 
 
-@router.get("/shifts", response_model=ShiftsResponse)
+@router.get("/shifts", dependencies=[stage("senses")], response_model=ShiftsResponse)
 def shifts(
     state: State,
     conn: Conn,

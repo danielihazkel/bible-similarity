@@ -16,12 +16,12 @@ from bsim.api.models.citations import (
     CitationListResponse,
     CitationsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_span
 
 router = APIRouter()
 
 
-@router.get("/citations", response_model=CitationsResponse)
+@router.get("/citations", dependencies=[stage("citations")], response_model=CitationsResponse)
 def citations(state: State, conn: Conn) -> dict[str, Any]:
     """Counts by family against random verses, the gold check and the book graph."""
     return {
@@ -30,13 +30,17 @@ def citations(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/citations/list", response_model=CitationListResponse)
+@router.get(
+    "/citations/list",
+    dependencies=[stage("citations")],
+    response_model=CitationListResponse,
+)
 def citation_list(
     state: State,
     conn: Conn,
     family: Literal["written", "word", "command"] | None = None,
     resolved: bool | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 50,
     offset: int = 0,

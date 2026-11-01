@@ -5,6 +5,8 @@ import { HebrewText } from '../components/HebrewText'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
+import { isStageMissing } from '../api/client'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 
 /** The narrative frameworks (§16.71): the judges' cycle slot by slot, every king's verdict and
  * regnal slots, and the checks. */
@@ -17,10 +19,12 @@ export function FrameworksPage() {
     <div className="page frameworks-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
-      {res.isError ? (
-        <p className="status">{t.notComputed}</p>
+      {isStageMissing(res.error) ? (
+        <NotComputed>{t.notComputed}</NotComputed>
+      ) : res.isError ? (
+        <ErrorBox error={res.error} />
       ) : !d ? (
-        <p className="status">{m.status.loading}</p>
+        <Loading />
       ) : (
         <>
           <Checks d={d} />

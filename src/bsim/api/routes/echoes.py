@@ -17,12 +17,20 @@ from bsim.api.models.echoes import (
     EchoesResponse,
     EchoListResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_span, unprocessable
+from bsim.api.routes._common import (
+    BookFilter,
+    Conn,
+    State,
+    check_page,
+    stage,
+    unit_span,
+    unprocessable,
+)
 
 router = APIRouter()
 
 
-@router.get("/echoes", response_model=EchoesResponse)
+@router.get("/echoes", dependencies=[stage("echoes")], response_model=EchoesResponse)
 def echoes(state: State, conn: Conn, top: int = 20) -> dict[str, Any]:
     """The checks, directed pairs per book pair and the chapters other books draw on most."""
     if not 1 <= top <= 100:
@@ -42,14 +50,14 @@ def echoes(state: State, conn: Conn, top: int = 20) -> dict[str, Any]:
     }
 
 
-@router.get("/echoes/list", response_model=EchoListResponse)
+@router.get("/echoes/list", dependencies=[stage("echoes")], response_model=EchoListResponse)
 def echo_list(
     state: State,
     conn: Conn,
     basis: EchoBasis | None = None,
     directed: bool | None = None,
     backward: bool | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 50,
     offset: int = 0,

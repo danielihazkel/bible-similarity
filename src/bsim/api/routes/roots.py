@@ -22,7 +22,15 @@ from bsim.api.models.roots import (
     RootPairsResponse,
     RootsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unit_or_404, unit_span
+from bsim.api.routes._common import (
+    BookFilter,
+    Conn,
+    State,
+    check_page,
+    stage,
+    unit_or_404,
+    unit_span,
+)
 
 router = APIRouter()
 
@@ -37,7 +45,7 @@ def _root_he(conn: sqlite3.Connection, root: str) -> str:
     return row[0] if row else root
 
 
-@router.get("/roots", response_model=RootsResponse)
+@router.get("/roots", dependencies=[stage("roots")], response_model=RootsResponse)
 def roots(state: State, conn: Conn) -> dict[str, Any]:
     """Families, the side-by-side test, the Leitworte named in advance and the books."""
     meta = state.meta.get("roots") or {}
@@ -64,12 +72,12 @@ def roots(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/roots/pairs", response_model=RootPairsResponse)
+@router.get("/roots/pairs", dependencies=[stage("roots")], response_model=RootPairsResponse)
 def root_pairs(
     state: State,
     conn: Conn,
     kind: RootPairKind | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,
@@ -105,11 +113,11 @@ def root_pairs(
             "limit": limit, "items": items}  # fmt: skip
 
 
-@router.get("/roots/hidden", response_model=HiddenRootsResponse)
+@router.get("/roots/hidden", dependencies=[stage("roots")], response_model=HiddenRootsResponse)
 def hidden_roots(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,
@@ -169,12 +177,12 @@ def hidden_roots(
             "items": items}  # fmt: skip
 
 
-@router.get("/root/{root}", response_model=RootFamily)
+@router.get("/root/{root}", dependencies=[stage("roots")], response_model=RootFamily)
 def root_family(
     root: str,
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

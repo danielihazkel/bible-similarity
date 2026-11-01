@@ -166,6 +166,8 @@ export const he: Messages = {
     unreachable: (msg: string) => `אין גישה ל־API ‏(${msg}). האם \`bsim serve\` פועל?`,
     apiUnreachable: 'אין גישה ל־API',
     couldNotLoad: (what: string) => `לא ניתן לטעון את ${what}`,
+    notComputed: (stage?: string) =>
+      stage ? `לא חושב בבנייה זו: הריצו ⁦\`bsim ${stage}\`⁩ ואז ⁦\`bsim build-db\`⁩.` : 'לא חושב בבנייה זו.',
     staleChunk: 'לא ניתן לטעון את הדף: הממשק עודכן מאז שהלשונית נפתחה.',
     crashed: (msg: string | undefined) => `משהו השתבש בהצגת הדף${msg ? `: ${msg}` : ''}.`,
     reload: 'טעינה מחדש',

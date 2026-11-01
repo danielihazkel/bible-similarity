@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.brackets import (
@@ -17,7 +17,7 @@ from bsim.api.models.brackets import (
     BracketsPage,
     BracketsResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, stage_missing
 
 router = APIRouter()
 
@@ -25,13 +25,13 @@ router = APIRouter()
 def _meta(state: State) -> dict[str, Any]:
     m = state.meta.get("brackets")
     if not m:
-        raise HTTPException(status_code=404, detail="the resumptive repetitions were not computed")
+        raise stage_missing("brackets")
     return m
 
 
-@router.get("/brackets", response_model=BracketsResponse)
+@router.get("/brackets", dependencies=[stage("brackets")], response_model=BracketsResponse)
 def brackets(state: State, conn: Conn) -> dict[str, Any]:
-    """The checks and the brackets of each book (404: the stage did not run)."""
+    """The checks and the brackets of each book (503: the stage did not run)."""
     m = _meta(state)
     books = [BracketBook(**{k: int(r[k] or 0) for k in ("book_id", "brackets", "strong")})
              for r in queries.bracket_books(conn, m["alpha"])]  # fmt: skip
@@ -41,13 +41,13 @@ def brackets(state: State, conn: Conn) -> dict[str, Any]:
     return {**{k: m[k] for k in keep}, "strong": sum(b.strong for b in books), "books": books}
 
 
-@router.get("/brackets/items", response_model=BracketsPage)
+@router.get("/brackets/items", dependencies=[stage("brackets")], response_model=BracketsPage)
 def bracket_items(
     state: State,
     conn: Conn,
     show: BracketShow = "all",
     order: BracketOrder = "canon",
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:

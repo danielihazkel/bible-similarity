@@ -6,22 +6,22 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.haftarot import Haftarah, HaftarahChapter, HaftarotResponse
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
 
-@router.get("/haftarot", response_model=HaftarotResponse)
+@router.get("/haftarot", dependencies=[stage("haftarot")], response_model=HaftarotResponse)
 def haftarot(state: State, conn: Conn) -> dict[str, Any]:
-    """Every parasha with its haftarah's ranks and its first chapters (404: the stage did not
+    """Every parasha with its haftarah's ranks and its first chapters (503: the stage did not
     run)."""
     m = state.meta.get("haftarot")
     if not m:
-        raise HTTPException(status_code=404, detail="the haftarot were not computed")
+        raise stage_missing("haftarot")
     rows = queries.haftarot(conn)
     lists = queries.haftarah_lists(conn)
     gold = {r["parasha"]: json.loads(r["chapters"]) for r in rows}

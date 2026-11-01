@@ -42,11 +42,13 @@ from bsim.api.models.poetics import (
     WordplayResponse,
 )
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
     check_min,
     check_page,
     check_unit_type,
+    stage,
     unit_or_404,
     unit_span,
     unprocessable,
@@ -95,12 +97,12 @@ def unit_parallelism(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/parallelism", response_model=ParallelismResponse)
+@router.get("/parallelism", dependencies=[stage("parallelism")], response_model=ParallelismResponse)
 def parallelism_ranking(
     state: State,
     conn: Conn,
     unit_type: str = "chapter",
-    book: int | None = None,
+    book: BookFilter = None,
     exclude_poetic: bool = False,
     min_verses: int | None = None,
     sort: str = "prob",
@@ -166,11 +168,11 @@ def parallelism_ranking(
 WORDPLAY_KINDS = ("substitution", "metathesis", "extension")
 
 
-@router.get("/wordplay", response_model=WordplayResponse)
+@router.get("/wordplay", dependencies=[stage("wordplay")], response_model=WordplayResponse)
 def wordplay(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     kind: str | None = None,
     unit: str | None = None,
     limit: int = 50,
@@ -360,7 +362,11 @@ def _merge_occ(occ: dict[str, dict[int, set[int]]], lemmas: list[str]) -> dict[i
     return {v: sorted(ix) for v, ix in out.items()}
 
 
-@router.get("/structure", response_model=StructureRankingResponse)
+@router.get(
+    "/structure",
+    dependencies=[stage("structure")],
+    response_model=StructureRankingResponse,
+)
 def structure_ranking(
     state: State,
     conn: Conn,
@@ -407,12 +413,12 @@ def _acrostic(r: dict[str, Any], unit: dict[str, Any]) -> Acrostic:
     )
 
 
-@router.get("/acrostics", response_model=AcrosticsResponse)
+@router.get("/acrostics", dependencies=[stage("acrostics")], response_model=AcrosticsResponse)
 def acrostics(
     state: State,
     conn: Conn,
     max_q: float | None = 0.05,
-    book: int | None = None,
+    book: BookFilter = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
@@ -441,7 +447,7 @@ def unit_acrostic(unit_id: str, conn: Conn) -> Acrostic | None:
     return None if r is None else _acrostic(r, u)
 
 
-@router.get("/word-pairs", response_model=WordPairsResponse)
+@router.get("/word-pairs", dependencies=[stage("parallelism")], response_model=WordPairsResponse)
 def word_pairs(
     state: State,
     conn: Conn,
@@ -480,11 +486,11 @@ def word_pairs(
     }
 
 
-@router.get("/alliteration", response_model=AlliterationResponse)
+@router.get("/alliteration", dependencies=[stage("sound")], response_model=AlliterationResponse)
 def alliteration(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 50,
     offset: int = 0,
@@ -519,11 +525,11 @@ def alliteration(
     }
 
 
-@router.get("/rhymes", response_model=RhymesResponse)
+@router.get("/rhymes", dependencies=[stage("sound")], response_model=RhymesResponse)
 def rhymes(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     max_q: float | None = None,
     unit: str | None = None,
     limit: int = 50,

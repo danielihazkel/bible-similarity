@@ -5,22 +5,22 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.frameworks import Episode, FrameworkKing, FrameworksResponse, SlotHit
-from bsim.api.routes._common import Conn, State
+from bsim.api.routes._common import Conn, State, stage, stage_missing
 
 router = APIRouter()
 
 
-@router.get("/frameworks", response_model=FrameworksResponse)
+@router.get("/frameworks", dependencies=[stage("frameworks")], response_model=FrameworksResponse)
 def frameworks(state: State, conn: Conn) -> dict[str, Any]:
-    """The episodes with their slots and the kings with their verdicts (404: the stage did not
+    """The episodes with their slots and the kings with their verdicts (503: the stage did not
     run)."""
     m = state.meta.get("frameworks")
     if not m:
-        raise HTTPException(status_code=404, detail="the frameworks were not computed")
+        raise stage_missing("frameworks")
     episodes = queries.frameworks_episodes(conn)
     slots = queries.frameworks_slots(conn)
     kings = queries.frameworks_kings(conn)

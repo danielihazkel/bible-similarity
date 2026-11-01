@@ -10,7 +10,7 @@ from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.ketiv import KetivResponse, KqBook, KqLetter, KqPair, KqPairsResponse
-from bsim.api.routes._common import Conn, State, check_page, unit_span
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unit_span
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ KqClassParam = Literal[
 ]  # fmt: skip
 
 
-@router.get("/ketiv", response_model=KetivResponse)
+@router.get("/ketiv", dependencies=[stage("ketiv")], response_model=KetivResponse)
 def ketiv(state: State, conn: Conn) -> dict[str, Any]:
     """Counts by class and grammar, the checks, the rate per book and the letter swaps."""
     return {
@@ -30,7 +30,7 @@ def ketiv(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/ketiv/pairs", response_model=KqPairsResponse)
+@router.get("/ketiv/pairs", dependencies=[stage("ketiv")], response_model=KqPairsResponse)
 def ketiv_pairs(
     state: State,
     conn: Conn,
@@ -38,7 +38,7 @@ def ketiv_pairs(
     grammar: Literal["spelling", "form", "word"] | None = None,
     parallel: Literal["qere", "ketiv", "neither"] | None = None,
     euphemism: bool | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 50,
     offset: int = 0,

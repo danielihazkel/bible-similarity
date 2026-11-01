@@ -85,7 +85,7 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en', missing = false) {
     'fetch',
     vi.fn(async () =>
       missing
-        ? new Response(JSON.stringify({ detail: 'the naming etiologies were not computed' }), { status: 404 })
+        ? new Response(JSON.stringify({ detail: { code: 'stage_missing', stage: 'etiologies', message: 'not computed in this build' } }), { status: 503 })
         : new Response(JSON.stringify(DATA), { status: 200 }),
     ),
   )

@@ -18,11 +18,13 @@ from bsim.api.models.phrases import (
     PhrasesResponse,
 )
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
     check_min,
     check_page,
     gold_link,
+    stage,
     unit_span,
     verse_or_404,
 )
@@ -30,12 +32,12 @@ from bsim.api.routes._common import (
 router = APIRouter()
 
 
-@router.get("/allusions", response_model=AllusionsResponse)
+@router.get("/allusions", dependencies=[stage("allusions")], response_model=AllusionsResponse)
 def allusions(
     state: State,
     conn: Conn,
     known: bool | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
     limit: int = 20,
     offset: int = 0,
@@ -138,11 +140,11 @@ def phrases_of(
     return _phrase_pairs(conn, rows[offset : offset + limit], first=verse_id)
 
 
-@router.get("/phrases", response_model=PhrasesResponse)
+@router.get("/phrases", dependencies=[stage("phrases")], response_model=PhrasesResponse)
 def phrases(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     cross_book: bool = False,
     min_tokens: int = 3,
     max_spread: int | None = None,

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from bsim.api import queries
 from bsim.api.models.retold import (
@@ -16,7 +16,7 @@ from bsim.api.models.retold import (
     RetoldResponse,
     RetoldSide,
 )
-from bsim.api.routes._common import Conn, State, check_page
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, stage_missing
 from bsim.api.routes.dialogue import _parties
 
 router = APIRouter()
@@ -26,25 +26,25 @@ OPS = ("same", "spelling", "form", "substitution", "omitted", "added", "moved")
 def _meta(state: State) -> dict[str, Any]:
     m = state.meta.get("retold")
     if not m:
-        raise HTTPException(status_code=404, detail="the retold speech was not computed")
+        raise stage_missing("retold")
     return m
 
 
-@router.get("/retold", response_model=RetoldResponse)
+@router.get("/retold", dependencies=[stage("retold")], response_model=RetoldResponse)
 def retold(state: State) -> dict[str, Any]:
-    """The groups, their change rates and the two checks (404: the stage did not run)."""
+    """The groups, their change rates and the two checks (503: the stage did not run)."""
     m = _meta(state)
     keep = ("pairs", "groups", "rates", "claim", "difference", "p", "shuffles", "bins", "alpha",
             "holds", "known", "known_found", "known_holds")  # fmt: skip
     return {k: m[k] for k in keep}
 
 
-@router.get("/retold/items", response_model=RetoldPage)
+@router.get("/retold/items", dependencies=[stage("retold")], response_model=RetoldPage)
 def retold_items(
     state: State,
     conn: Conn,
     group: RetoldGroup | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     known: bool = False,
     order: RetoldOrder = "canon",
     limit: int = 20,

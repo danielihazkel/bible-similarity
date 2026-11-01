@@ -454,6 +454,7 @@ def _write_db(
         conn.execute("ANALYZE")
         meta = _meta(cfg, files, expected)
         meta |= analyses.meta(inputs["metas"], cfg)
+        meta["stages_run"] = analyses.ran(cfg)
         meta["syntax"] = inputs["syntax_meta"]
         lm = inputs["lexicon_meta"]
         meta["lexicon"] = {

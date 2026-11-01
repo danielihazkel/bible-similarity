@@ -33,7 +33,7 @@ from bsim.api.routes import (
     roots,
 )
 from bsim.api.routes import corpus as corpus_routes
-from bsim.api.routes._common import Conn, State, unprocessable
+from bsim.api.routes._common import Conn, State, book_or_404, unprocessable
 
 router = APIRouter()
 
@@ -72,7 +72,7 @@ INTERNAL = {"state", "conn", "limit", "offset", "response"}
 
 
 def _convert(value: str, annotation: Any) -> Any:
-    ann = str(annotation)
+    ann = str(annotation).replace("BookFilter", "int")
     if "bool" in ann:
         return value.lower() in ("1", "true", "yes")
     if "int" in ann and "float" not in ann:
@@ -130,6 +130,8 @@ def export(name: str, request: Request, state: State, conn: Conn) -> Response:
             kwargs[key] = _convert(value, params[key].annotation)
         except ValueError as e:
             raise unprocessable(f"bad value for {key}: {value!r}") from e
+        if "BookFilter" in str(params[key].annotation):  # the list route's own book check
+            kwargs[key] = book_or_404(state, kwargs[key])
     for key, p in params.items():  # unset parameters take the handler's defaults
         if key not in kwargs and key not in INTERNAL and p.default is not inspect.Parameter.empty:
             kwargs[key] = p.default

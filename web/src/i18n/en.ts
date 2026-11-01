@@ -159,6 +159,10 @@ export const en = {
     unreachable: (msg: string) => `Could not reach the API (${msg}). Is \`bsim serve\` running?`,
     apiUnreachable: 'the API could not be reached',
     couldNotLoad: (what: string) => `Could not load ${what}`,
+    notComputed: (stage?: string) =>
+      stage
+        ? `Not computed in this build: run \`bsim ${stage}\`, then \`bsim build-db\`.`
+        : 'Not computed in this build.',
     staleChunk: 'This page could not be loaded: the viewer has been updated since this tab was opened.',
     crashed: (msg: string | undefined) => `Something went wrong while showing this page${msg ? `: ${msg}` : ''}.`,
     reload: 'Reload',

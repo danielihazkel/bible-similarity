@@ -106,7 +106,7 @@ const DATA: ChronologyResponse = {
 function renderAt(locale: 'en' | 'he' = 'en', missing = false) {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => (missing ? new Response(JSON.stringify({ detail: 'the chronology was not computed' }), { status: 404 }) : new Response(JSON.stringify(DATA)))),
+    vi.fn(async () => (missing ? new Response(JSON.stringify({ detail: { code: 'stage_missing', stage: 'chronology', message: 'not computed in this build' } }), { status: 503 }) : new Response(JSON.stringify(DATA)))),
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(

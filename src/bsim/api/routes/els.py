@@ -12,12 +12,12 @@ from fastapi import APIRouter
 from bsim.api import queries
 from bsim.api.models.common import VerseLabel
 from bsim.api.models.els import ElsBlock, ElsControl, ElsKnown, ElsResponse, ElsScope, ElsTerm
-from bsim.api.routes._common import Conn, State, span_label
+from bsim.api.routes._common import Conn, State, span_label, stage
 
 router = APIRouter()
 
 
-@router.get("/els", response_model=ElsResponse)
+@router.get("/els", dependencies=[stage("els")], response_model=ElsResponse)
 def els(state: State, conn: Conn) -> dict[str, Any]:
     """Every scope's hits against its controls, its terms, and the known sequences."""
     meta = state.meta.get("els") or {}

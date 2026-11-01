@@ -19,7 +19,7 @@ from bsim.api.models.dialogue import (
     DialogueParty,
     DialogueResponse,
 )
-from bsim.api.routes._common import Conn, State, check_page, unprocessable
+from bsim.api.routes._common import BookFilter, Conn, State, check_page, stage, unprocessable
 from bsim.data.lexicon import strong_key
 
 router = APIRouter()
@@ -42,7 +42,7 @@ def _parties(
     }
 
 
-@router.get("/dialogue", response_model=DialogueResponse)
+@router.get("/dialogue", dependencies=[stage("dialogue")], response_model=DialogueResponse)
 def dialogue(state: State, conn: Conn) -> dict[str, Any]:
     """The addressees found and checked by hand, the three checks fixed in advance, and per book
     how much speech has an addressee."""
@@ -52,7 +52,11 @@ def dialogue(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/dialogue/book/{book_id}", response_model=DialogueBookResponse)
+@router.get(
+    "/dialogue/book/{book_id}",
+    dependencies=[stage("dialogue")],
+    response_model=DialogueBookResponse,
+)
 def dialogue_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks to whom in a book: speaker -> addressee pairs, the most quotations first (empty
     for a book without addressed speech)."""
@@ -71,11 +75,15 @@ def dialogue_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/dialogue/exchanges", response_model=DialogueExchangesResponse)
+@router.get(
+    "/dialogue/exchanges",
+    dependencies=[stage("dialogue")],
+    response_model=DialogueExchangesResponse,
+)
 def dialogue_exchanges(
     state: State,
     conn: Conn,
-    book: int | None = None,
+    book: BookFilter = None,
     party: str | None = None,
     unequal: bool = False,
     limit: int = 50,

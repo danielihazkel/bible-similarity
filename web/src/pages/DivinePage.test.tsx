@@ -72,7 +72,7 @@ function renderAt(path: string, locale: 'en' | 'he' = 'en', missing = false) {
     vi.fn(async (url: string) => {
       const u = new URL(url, 'http://x')
       const body = u.pathname === '/api/books' ? BOOKS : u.pathname === '/api/divine' && !missing ? DIVINE : u.pathname === '/api/divine/pairs' ? PAIRS : null
-      return new Response(JSON.stringify(body ?? { detail: 'the divine names were not computed' }), { status: body ? 200 : 404 })
+      return new Response(JSON.stringify(body ?? { detail: { code: 'stage_missing', stage: 'divine', message: 'not computed in this build' } }), { status: body ? 200 : 503 })
     }),
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })

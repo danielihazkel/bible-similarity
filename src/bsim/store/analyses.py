@@ -915,6 +915,16 @@ def load(cfg: dict[str, Any]) -> tuple[dict[str, pd.DataFrame], dict[str, dict[s
     return frames, metas
 
 
+def ran(cfg: dict[str, Any]) -> list[str]:
+    """The stages whose folder holds any of their tables' files (they ran, maybe finding
+    nothing): DB meta `stages_run`, which the API reads to tell "not computed" from "none"."""
+    art = resolve_path(cfg, "artifacts")
+    return [
+        s.stage for s in SOURCES
+        if any((art / s.folder / f"{t.stem}.parquet").exists() for t in s.tables)
+    ]  # fmt: skip
+
+
 def tables(frames: dict[str, pd.DataFrame], ctx: Context) -> dict[str, pd.DataFrame]:
     """Every source table ready to insert: fixed, or empty with its columns."""
     out = {}

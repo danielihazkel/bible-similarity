@@ -77,7 +77,7 @@ function renderAt(path = '/binomials', locale: 'en' | 'he' = 'en', missing = fal
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
-      if (missing) return new Response(JSON.stringify({ detail: 'the binomials were not computed' }), { status: 404 })
+      if (missing) return new Response(JSON.stringify({ detail: { code: 'stage_missing', stage: 'binomials', message: 'not computed in this build' } }), { status: 503 })
       return new Response(JSON.stringify(String(url).includes('/occurrences') ? OCC : DATA))
     }),
   )

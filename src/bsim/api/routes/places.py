@@ -55,10 +55,12 @@ from bsim.api.models.places import (
     PlaceVersesResponse,
 )
 from bsim.api.routes._common import (
+    BookFilter,
     Conn,
     State,
     check_page,
     span_label,
+    stage,
     unit_span,
     unprocessable,
 )
@@ -68,12 +70,12 @@ from bsim.data.refs import parse_ref
 router = APIRouter()
 
 
-@router.get("/places", response_model=PlacesResponse)
+@router.get("/places", dependencies=[stage("places")], response_model=PlacesResponse)
 def places(
     state: State,
     conn: Conn,
     kind: PlaceKind | None = None,
-    book: int | None = None,
+    book: BookFilter = None,
     unit: str | None = None,
 ) -> dict[str, Any]:
     """The places (of a kind), most named first; in a book or unit, those named there."""
@@ -87,7 +89,7 @@ def places(
     }
 
 
-@router.get("/places/basemap", response_model=BasemapResponse)
+@router.get("/places/basemap", dependencies=[stage("places")], response_model=BasemapResponse)
 def basemap(state: State, conn: Conn) -> dict[str, Any]:
     """Land, lakes and rivers of the region (Natural Earth), in longitude / latitude."""
     meta = state.meta.get("places") or {}
@@ -97,7 +99,7 @@ def basemap(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/places/lookup", response_model=PlaceLookup)
+@router.get("/places/lookup", dependencies=[stage("places")], response_model=PlaceLookup)
 def place_lookup(q: str, conn: Conn, limit: int = 6) -> dict[str, Any]:
     """Places by a Hebrew name (pointing ignored, prefixes dropped as for `/lemmas`) or a name's
     Strong's number, for the jump box: exact matches first, the most named first."""
@@ -122,7 +124,7 @@ def _place_or_404(conn: Any, place_id: int) -> dict[str, Any]:
     return p
 
 
-@router.get("/places/{place_id}", response_model=PlaceDetail)
+@router.get("/places/{place_id}", dependencies=[stage("places")], response_model=PlaceDetail)
 def place_detail(place_id: int, state: State, conn: Conn) -> dict[str, Any]:
     """One place: the names that are it, its verses per book and the places named with it."""
     p = _place_or_404(conn, place_id)
@@ -138,7 +140,11 @@ def place_detail(place_id: int, state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/places/{place_id}/verses", response_model=PlaceVersesResponse)
+@router.get(
+    "/places/{place_id}/verses",
+    dependencies=[stage("places")],
+    response_model=PlaceVersesResponse,
+)
 def place_verses(
     place_id: int, state: State, conn: Conn, limit: int = 20, offset: int = 0
 ) -> dict[str, Any]:
@@ -216,7 +222,7 @@ def _groupings(conn: Any, meta: dict[str, Any], only: str | None = None) -> list
     return out
 
 
-@router.get("/place-lists", response_model=PlaceListsResponse)
+@router.get("/place-lists", dependencies=[stage("place-lists")], response_model=PlaceListsResponse)
 def place_lists(state: State, conn: Conn) -> dict[str, Any]:
     """The place lists' paths against random orders and the town lists' districts against
     shuffled labels, each on every located place and on sure sites alone."""
@@ -228,7 +234,11 @@ def place_lists(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/place-lists/{key}", response_model=PlaceListDetail)
+@router.get(
+    "/place-lists/{key}",
+    dependencies=[stage("place-lists")],
+    response_model=PlaceListDetail,
+)
 def place_list(key: str, conn: Conn) -> dict[str, Any]:
     """One list: its located places in the text's order, the km of each step and the short
     path's order."""
@@ -247,7 +257,11 @@ def place_list(key: str, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/place-districts/{key}", response_model=DistrictDetail)
+@router.get(
+    "/place-districts/{key}",
+    dependencies=[stage("place-lists")],
+    response_model=DistrictDetail,
+)
 def place_districts(key: str, state: State, conn: Conn) -> dict[str, Any]:
     """One grouping of town lists: its districts' tests and towns."""
     grouping = _groupings(conn, state.meta.get("place_lists") or {}, key)
@@ -322,7 +336,7 @@ def _move(conn: Any, mv: dict[str, Any]) -> ArcMove:
     )  # fmt: skip
 
 
-@router.get("/place-arc", response_model=PlaceArcResponse)
+@router.get("/place-arc", dependencies=[stage("place-arc")], response_model=PlaceArcResponse)
 def place_arc(state: State, conn: Conn) -> dict[str, Any]:
     """The geographic arc (§16.60): consecutive chapters' centres against shuffled orders, per
     book and over all; the known moves; the oracles against the nations against the other
@@ -349,7 +363,11 @@ def place_arc(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/place-arc/{book_id}", response_model=PlaceArcBookResponse)
+@router.get(
+    "/place-arc/{book_id}",
+    dependencies=[stage("place-arc")],
+    response_model=PlaceArcBookResponse,
+)
 def place_arc_book(book_id: int, conn: Conn) -> dict[str, Any]:
     """One book's placed chapters in order: centre, spread and the step from the one before."""
     book = next((r for r in queries.place_arc_books(conn) if r["book_id"] == book_id), None)
@@ -370,7 +388,7 @@ def _link_pair(r: dict[str, Any]) -> PlaceLinkPair:
     )  # fmt: skip
 
 
-@router.get("/place-links", response_model=PlaceLinksResponse)
+@router.get("/place-links", dependencies=[stage("place-links")], response_model=PlaceLinksResponse)
 def place_links(state: State, conn: Conn) -> dict[str, Any]:
     """Do places named together lie together (§16.61)? Per variant, rho between the linked
     pairs' G² and km against shuffled coordinates, and the decay curve; the known answers and
@@ -405,7 +423,11 @@ def place_links(state: State, conn: Conn) -> dict[str, Any]:
     }
 
 
-@router.get("/place-links/pairs", response_model=PlaceLinkPairsResponse)
+@router.get(
+    "/place-links/pairs",
+    dependencies=[stage("place-links")],
+    response_model=PlaceLinkPairsResponse,
+)
 def place_link_pairs(
     state: State,
     conn: Conn,

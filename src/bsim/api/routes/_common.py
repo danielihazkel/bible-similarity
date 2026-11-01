@@ -12,6 +12,7 @@ from fastapi import Depends, HTTPException, Request
 from bsim.api import queries
 from bsim.api.app import ServeState
 from bsim.api.models.common import GoldLink
+from bsim.store.analyses import SOURCES
 
 
 def get_state(request: Request) -> ServeState:
@@ -34,6 +35,74 @@ Conn = Annotated[sqlite3.Connection, Depends(get_conn)]
 
 def unprocessable(detail: str) -> HTTPException:
     return HTTPException(status_code=422, detail=detail)
+
+
+# stage -> a table it fills (the analyses' registry, plus the stages build-db reads itself)
+STAGE_TABLES: dict[str, str] = {
+    **{src.stage: src.tables[0].name for src in SOURCES},
+    "syntax": "clauses",
+}
+STAGES_RUN_LISTED = frozenset(src.stage for src in SOURCES)  # what `stages_run` can name
+# table -> the stage that fills it (a missing table names its stage)
+TABLE_STAGES: dict[str, str] = {t.name: src.stage for src in SOURCES for t in src.tables}
+
+
+def stage_missing(stage: str) -> HTTPException:
+    """503 for an analysis whose stage did not run in this build: told apart from an unknown id
+    (404) by `code`, which the viewer reads to say "not computed" instead of an error."""
+    return HTTPException(
+        status_code=503,
+        detail={
+            "code": "stage_missing",
+            "stage": stage,
+            "message": f"not computed in this build: run `bsim {stage}`, then `bsim build-db`",
+        },
+    )
+
+
+def stage_ran(state: ServeState, conn: sqlite3.Connection, stage: str) -> bool:
+    """Listed in the DB's `stages_run` (build-db found its files); in a DB built before that
+    list, its meta entry is there or its table has rows (no table at all: no)."""
+    if "stages_run" in state.meta and stage in STAGES_RUN_LISTED:
+        return stage in state.meta["stages_run"]
+    if state.meta.get(stage.replace("-", "_")):
+        return True
+    try:
+        return state.present(conn, STAGE_TABLES[stage])
+    except sqlite3.OperationalError:
+        return False
+
+
+def require_stage(state: ServeState, conn: sqlite3.Connection, stage: str) -> None:
+    if not stage_ran(state, conn, stage):
+        raise stage_missing(stage)
+
+
+def stage(name: str) -> Any:
+    """A route dependency: `dependencies=[stage("ketiv")]` answers 503 `stage_missing` when
+    `bsim ketiv` did not run."""
+    if name not in STAGE_TABLES:
+        raise KeyError(f"unknown stage {name!r}")
+
+    def check(state: State, conn: Conn) -> None:
+        require_stage(state, conn, name)
+
+    return Depends(check)
+
+
+def book_or_404(state: ServeState, book_id: int | None) -> int | None:
+    """A `book=` filter: None (no filter) or a book of the canon; 404 for any other number."""
+    if book_id is not None and book_id not in state.book_ids:
+        raise HTTPException(status_code=404, detail=f"unknown book {book_id}")
+    return book_id
+
+
+def _book_filter(state: State, book: int | None = None) -> int | None:
+    return book_or_404(state, book)
+
+
+# the `book=` query filter of the list routes: optional, 404 for a number that is no book
+BookFilter = Annotated[int | None, Depends(_book_filter)]
 
 
 def check_k(state: ServeState, k: int | None) -> int:
