@@ -57,14 +57,16 @@ Fusion is the best system at every level on test: verse nDCG@10 0.136 vs 0.118 f
 
 ## Dev (all systems)
 
+Refreshed 2026-11-01 (M115) to the current build: the encoder retrained on OpenBible's and ETCBC's pairs (M64, then M115's fuller OpenBible), chapters fused with the phrase list (D86). The aggregation and fusion-weight choices were made on the M9 numbers and still hold. The test tables above and the training table below are as they were.
+
 ### verse
 | system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
 |---|---|---|---|---|---|---|---|
-| fused | 0.098 | 0.213 | 0.274 | 0.400 | 0.184 | 0.189 | 884 |
+| fused | 0.103 | 0.213 | 0.275 | 0.407 | 0.189 | 0.193 | 884 |
 | bm25_lemma | 0.102 | 0.194 | 0.237 | 0.356 | 0.178 | 0.176 | 884 |
-| berel_sup_csls | 0.069 | 0.169 | 0.226 | 0.346 | 0.143 | 0.150 | 884 |
+| berel_sup_csls | 0.072 | 0.174 | 0.213 | 0.354 | 0.149 | 0.150 | 884 |
+| berel_sup | 0.079 | 0.167 | 0.210 | 0.345 | 0.146 | 0.149 | 884 |
 | bm25_surface | 0.081 | 0.162 | 0.203 | 0.297 | 0.143 | 0.144 | 884 |
-| berel_sup | 0.072 | 0.162 | 0.210 | 0.341 | 0.141 | 0.144 | 884 |
 | bge_m3_csls | 0.080 | 0.149 | 0.183 | 0.259 | 0.135 | 0.135 | 884 |
 | berel_simcse_csls | 0.066 | 0.154 | 0.190 | 0.304 | 0.130 | 0.132 | 884 |
 | berel_mean_csls | 0.069 | 0.134 | 0.172 | 0.275 | 0.124 | 0.124 | 884 |
@@ -75,13 +77,14 @@ Fusion is the best system at every level on test: verse nDCG@10 0.136 vs 0.118 f
 ### chapter
 | system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
 |---|---|---|---|---|---|---|---|
+| fused | 0.068 | 0.199 | 0.280 | 0.446 | 0.234 | 0.196 | 154 |
 | tfidf | 0.091 | 0.189 | 0.243 | 0.427 | 0.232 | 0.192 | 154 |
-| fused | 0.073 | 0.156 | 0.217 | 0.404 | 0.201 | 0.168 | 154 |
-| berel_sup_csls_bma | 0.068 | 0.164 | 0.202 | 0.373 | 0.185 | 0.156 | 154 |
+| phrases | 0.082 | 0.199 | 0.238 | 0.333 | 0.242 | 0.188 | 154 |
+| berel_sup_csls_bma | 0.057 | 0.172 | 0.208 | 0.391 | 0.181 | 0.156 | 154 |
 | bge_m3_csls_bma | 0.064 | 0.144 | 0.195 | 0.355 | 0.178 | 0.148 | 154 |
-| berel_sup_csls_mean | 0.061 | 0.149 | 0.187 | 0.350 | 0.180 | 0.147 | 154 |
-| berel_sup_bma | 0.052 | 0.152 | 0.188 | 0.370 | 0.165 | 0.141 | 154 |
-| berel_sup_mean | 0.057 | 0.119 | 0.181 | 0.316 | 0.164 | 0.135 | 154 |
+| berel_sup_csls_mean | 0.057 | 0.139 | 0.203 | 0.342 | 0.167 | 0.144 | 154 |
+| berel_sup_bma | 0.053 | 0.151 | 0.204 | 0.382 | 0.166 | 0.143 | 154 |
+| berel_sup_mean | 0.055 | 0.116 | 0.176 | 0.319 | 0.151 | 0.129 | 154 |
 | bge_m3_csls_mean | 0.058 | 0.110 | 0.151 | 0.307 | 0.160 | 0.120 | 154 |
 | berel_mean_bma | 0.033 | 0.121 | 0.159 | 0.305 | 0.134 | 0.115 | 154 |
 | berel_mean_mean | 0.054 | 0.103 | 0.155 | 0.295 | 0.144 | 0.115 | 154 |
@@ -89,12 +92,12 @@ Fusion is the best system at every level on test: verse nDCG@10 0.136 vs 0.118 f
 ### pericope
 | system | recall@1 | recall@5 | recall@10 | recall@50 | mrr@10 | ndcg@10 | queries |
 |---|---|---|---|---|---|---|---|
-| fused | 0.046 | 0.105 | 0.171 | 0.318 | 0.128 | 0.114 | 348 |
+| fused | 0.049 | 0.109 | 0.177 | 0.322 | 0.129 | 0.118 | 348 |
 | tfidf | 0.051 | 0.112 | 0.146 | 0.293 | 0.134 | 0.112 | 348 |
-| berel_sup_csls_bma | 0.043 | 0.100 | 0.139 | 0.300 | 0.116 | 0.098 | 348 |
-| berel_sup_csls_mean | 0.040 | 0.104 | 0.140 | 0.280 | 0.105 | 0.093 | 348 |
-| berel_sup_mean | 0.042 | 0.094 | 0.134 | 0.305 | 0.103 | 0.091 | 348 |
-| berel_sup_bma | 0.030 | 0.086 | 0.116 | 0.273 | 0.103 | 0.083 | 348 |
+| berel_sup_csls_bma | 0.047 | 0.101 | 0.151 | 0.309 | 0.122 | 0.104 | 348 |
+| berel_sup_mean | 0.043 | 0.093 | 0.148 | 0.314 | 0.111 | 0.098 | 348 |
+| berel_sup_csls_mean | 0.044 | 0.093 | 0.138 | 0.289 | 0.112 | 0.097 | 348 |
+| berel_sup_bma | 0.034 | 0.087 | 0.121 | 0.302 | 0.102 | 0.086 | 348 |
 | bge_m3_csls_bma | 0.036 | 0.074 | 0.113 | 0.218 | 0.091 | 0.078 | 348 |
 | bge_m3_csls_mean | 0.036 | 0.071 | 0.100 | 0.237 | 0.092 | 0.073 | 348 |
 | berel_mean_mean | 0.028 | 0.061 | 0.102 | 0.246 | 0.080 | 0.068 | 348 |
@@ -107,16 +110,16 @@ Fusion is the best system at every level on test: verse nDCG@10 0.136 vs 0.118 f
 | system | ndcg@10 bma | ndcg@10 mean | recall@10 bma | recall@10 mean | recall@50 bma | recall@50 mean |
 |---|---|---|---|---|---|---|
 | berel_mean | 0.115 | 0.115 | 0.159 | 0.155 | 0.305 | 0.295 |
-| berel_sup | 0.141 | 0.135 | 0.188 | 0.181 | 0.370 | 0.316 |
-| berel_sup_csls | 0.156 | 0.147 | 0.202 | 0.187 | 0.373 | 0.350 |
+| berel_sup | 0.143 | 0.129 | 0.204 | 0.176 | 0.382 | 0.319 |
+| berel_sup_csls | 0.156 | 0.144 | 0.208 | 0.203 | 0.391 | 0.342 |
 | bge_m3_csls | 0.148 | 0.120 | 0.195 | 0.151 | 0.355 | 0.307 |
 
 **pericope**
 | system | ndcg@10 bma | ndcg@10 mean | recall@10 bma | recall@10 mean | recall@50 bma | recall@50 mean |
 |---|---|---|---|---|---|---|
 | berel_mean | 0.057 | 0.068 | 0.081 | 0.102 | 0.206 | 0.246 |
-| berel_sup | 0.083 | 0.091 | 0.116 | 0.134 | 0.273 | 0.305 |
-| berel_sup_csls | 0.098 | 0.093 | 0.139 | 0.140 | 0.300 | 0.280 |
+| berel_sup | 0.086 | 0.098 | 0.121 | 0.148 | 0.302 | 0.314 |
+| berel_sup_csls | 0.104 | 0.097 | 0.151 | 0.138 | 0.309 | 0.289 |
 | bge_m3_csls | 0.078 | 0.073 | 0.113 | 0.100 | 0.218 | 0.237 |
 
 With CSLS, best-match average beats mean pooling at both levels → `unit_aggregation: bma`.
@@ -125,11 +128,11 @@ With CSLS, best-match average beats mean pooling at both levels → `unit_aggreg
 
 | unit type | lexical | semantic | w_lex 0.25 | 0.5 | 0.75 | **1.0** | 1.5 | 2.0 |
 |---|---|---|---|---|---|---|---|---|
-| verse | 0.176 | 0.150 | 0.178 | 0.184 | 0.184 | **0.189** | 0.185 | 0.188 |
-| chapter | 0.192 | 0.156 | 0.161 | 0.165 | 0.166 | 0.168 | 0.168 | 0.171 |
-| pericope | 0.112 | 0.098 | 0.114 | 0.116 | 0.112 | 0.114 | 0.110 | 0.112 |
+| verse | 0.176 | 0.150 | 0.178 | 0.188 | 0.190 | **0.193** | 0.190 | 0.193 |
+| chapter | 0.192 | 0.156 | 0.199 | 0.196 | 0.199 | 0.196 | 0.194 | 0.195 |
+| pericope | 0.112 | 0.104 | 0.119 | 0.120 | 0.120 | 0.118 | 0.119 | 0.120 |
 
-One weight for all unit types, chosen on verse dev. At chapter level fusion does not beat TF-IDF on dev (it does on test).
+One weight for all unit types, chosen on verse dev. At chapter level fusion did not beat TF-IDF on dev until the phrase list joined it (D86; it did on test).
 
 ## Training (dev, verse level)
 
@@ -220,7 +223,9 @@ The Pentateuch's sources (§16.43, D79): Genesis–Numbers split in two by 18 sy
 
 Psalm genres (§16.42, D78): persons, imperatives, questions and words of distress and praise per word, without superscriptions, in 7 Ward clusters against Gunkel's genres for 119 psalms: NMI 0.262 against 0.082 shuffled (p 0.001); the form alone 0.294, the domains alone 0.142. Six genre profiles named in advance: 6 / 6 (individual laments "I" 24.1 per 100 words against 7.5, communal laments "we" 11.6 against 1.5, hymns plural imperatives 5.4 against 0.7). The turn (where praise − distress per word rises most): 7 of 12 named turns within a verse against 3.4 by chance (p 0.016; within 2 verses p 0.24); individual laments turning above chance 7 / 37 against hymns 2 / 30 (p 0.13, not borne out). 9 s.
 
-More supervision (§16.41, D77): the encoder retrained with OpenBible's and ETCBC's pairs between train books (+29,560 rows to Sefaria's 9,026), chosen by a rule fixed before training among three variants and a reseeded control, and adopted. Dev nDCG@10, fused: Sefaria 0.1895 → 0.1946 (+0.0051, CI [−0.0018, +0.0122]), OpenBible 0.1460 → 0.1516 (+0.0056, CI [+0.0017, +0.0096]), ETCBC 0.8319 → 0.8325; semantic `berel_sup_csls` 0.150 → 0.156; chapter fused 0.168 → 0.171, pericope 0.114 → 0.118. OpenBible alone gains most on Sefaria and OpenBible but loses 0.030 on ETCBC; ETCBC alone the reverse. The tables above and the test split are the Sefaria-only model's (M9); the test split is not rerun. All 18 findings keep their verdict.
+Fuller gold, retrained (M115, §16.13, §16.41, D118): OpenBible's English references renumbered by the KJV rules and the Psalm titles instead of dropped (Psalms in; unresolved 22,714 → 379, verse pairs 30,311 → 57,543, dev 6,318 → 10,286 directed pairs), OSHB ↔ MAM words divided otherwise aligned (unaligned 134 → 32; the encoder's text unchanged). The encoder retrained on the new pairs, under a rule fixed before training, against the model in use on the new golds, fused nDCG@10: OpenBible +0.0035, CI [+0.0011, +0.0059] (above the 0.0009 bar), Sefaria −0.0012, CI [−0.0072, +0.0045], ETCBC −0.0085, CI [−0.0219, +0.0044]: adopted. After the rebuild: fused 0.193 (Sefaria), 0.132 (OpenBible, new gold), 0.824 (ETCBC); chapter 0.196, pericope 0.118. The test split is not rerun.
+
+More supervision (§16.41, D77): the encoder retrained with OpenBible's and ETCBC's pairs between train books (+29,560 rows to Sefaria's 9,026), chosen by a rule fixed before training among three variants and a reseeded control, and adopted. Dev nDCG@10, fused: Sefaria 0.1895 → 0.1946 (+0.0051, CI [−0.0018, +0.0122]), OpenBible 0.1460 → 0.1516 (+0.0056, CI [+0.0017, +0.0096]), ETCBC 0.8319 → 0.8325; semantic `berel_sup_csls` 0.150 → 0.156; chapter fused 0.168 → 0.171, pericope 0.114 → 0.118. OpenBible alone gains most on Sefaria and OpenBible but loses 0.030 on ETCBC; ETCBC alone the reverse. The test split is the Sefaria-only model's (M9) and is not rerun; the dev tables above were refreshed at M115. All 18 findings keep their verdict.
 
 Refrains (§16.40, D76): three or more lemmas coming back in three or more verses of a book within 20 verses, scored by burst against the book rate: 925 refrains against 46 runs as strong in books with shuffled verse order (551 distinct; most are lists — census, offerings, genealogies). Named in advance: 8 of 9 found (the Song of Songs' adjuration, too far apart, missed). Even spacing: 27 of 179 testable (15 % vs 5 %, p 3 × 10⁻⁷), almost all lists and Genesis 1. Turns: a refrain verse's sharper neighbouring gap 0.679 against 0.650 (p 0.001). Three choices changed after the first run (the known match, names, untestable spacing), all reported; robust over seed length, gap and names. 6 s.
 
