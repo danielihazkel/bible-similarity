@@ -1,7 +1,7 @@
 // Interface strings of the Late Biblical Hebrew profile (DESIGN.md §16.24): the Language page and
 // the line on chapter pages. English first, Hebrew typed against it.
 
-import { numEn, numHe } from '../fmt'
+import { numEn } from '../fmt'
 
 /** What each feature measures, phrased the way it pushes a chapter towards "late". */
 const FEATURES_EN = {
@@ -39,39 +39,4 @@ export const datEn = {
   unitLine: (score: string) => `Language profile: ${score} on a scale from Genesis–Kings (0) to the late books (1)`,
   unitDrivers: 'pushed up by',
   unitPoetry: ' (poetry: out of the model\'s domain)',
-}
-
-export const datHe: typeof datEn = {
-  features: {
-    lbh_lexemes: 'מילים מאוחרות (מלכות, מדינה, אגרת, דת, התיחש…)',
-    anokhi: 'אני ולא אנכי',
-    inf_abs: 'מעט מקורות מוחלטים',
-    et_suffix: 'כינוי מושא בפועל ולא את (ויקחהו, לא ויקח אתו)',
-    directional_he: 'מעט ה״א המגמה (מצרימה)',
-    cohortative_wayyiqtol: 'צורות מדבר כמו ואשלחה',
-    david_plene: 'דויד בכתיב מלא',
-  },
-  title: 'לשון',
-  lede: 'עד כמה העברית של כל פרק דומה לספרים המאוחרים (דברי הימים, עזרא–נחמיה, אסתר, דניאל) ולא לבראשית–מלכים, לפי סימנים שמונה ספרות תיארוך הלשון: מילים מאוחרות, דעיכת ״אנכי״, המקור המוחלט, ״את״ עם כינוי וה״א המגמה, צורות כמו ״ואשלחה״, והכתיב ״דויד״. מודל לומד אותם מהספרים שאין עליהם מחלוקת ומדרג כל פרק (0 = כמו בראשית–מלכים, 1 = כמו הספרים המאוחרים).',
-  caveat: 'פרופיל ולא תאריך: אם סימנים כאלה יכולים לתארך טקסט — שנוי במחלוקת (יאנג, רזטקו ואהרנסוורד מול הורביץ). שירה משמיטה ״את״ וה״א המגמה בלי קשר לזמנה, ולכן פרקי שירה מסומנים מחוץ לתחום; פרק שנראה מאוחר יכול להיות ארכאיזציה או העתקה של סופר מאוחר.',
-  check: (auc: string, aucG: string) =>
-    `בדיקה: ספר שהמודל לא ראה מובחן פרק אחר פרק ב־AUC ${auc} (${aucG} בלי המילים המאוחרות).`,
-  synoptic: (later: number, pairs: number, p: string, laterG: number) =>
-    `המבחן הקשה ביותר: המודל, שאומן בלי שמואל, מלכים ודברי הימים, מדרג את שני צדי ${numHe(pairs)} הקטעים המקבילים שלהם — אותו תוכן בשני מצבי לשון. דברי הימים יוצא מאוחר יותר ב־${numHe(later)} (מבחן סימנים p = ${p}; ${numHe(laterG)} בלי המילים המאוחרות).`,
-  examplesTitle: 'הפערים הגדולים בין קטע למקבילו בדברי הימים',
-  byBook: 'ספרים',
-  byBookLede: 'ציון הפרק הממוצע עם טווח האחוזונים 10–90 של פרקיו.',
-  roles: { early: 'אומן כמוקדם', late: 'אומן כמאוחר' },
-  outOfDomain: 'שירה: מחוץ לתחום',
-  chapters: (book: string) => `פרקי ${book}`,
-  chapter: 'פרק',
-  words: 'מילים עבריות',
-  score: 'פרופיל',
-  drivers: 'מוגבר בגלל',
-  tooShort: 'קצר מדי',
-  heldOut: 'דורג במודל שלא ראה את הספר',
-  noData: 'אין פרופיל לשון בבנייה זו (הריצו `bsim dating`).',
-  unitLine: (score: string) => `פרופיל לשון: ${score} בסולם מבראשית–מלכים (0) עד הספרים המאוחרים (1)`,
-  unitDrivers: 'מוגבר בגלל',
-  unitPoetry: ' (שירה: מחוץ לתחום המודל)',
 }

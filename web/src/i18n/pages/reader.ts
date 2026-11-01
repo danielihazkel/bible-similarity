@@ -2,11 +2,11 @@
 // words (DESIGN.md §16.39). English first, Hebrew typed against it.
 
 import type { Paragraph, SegmentKind } from '../../api/types'
-import { countEn, countHe } from '../fmt'
+import { countEn } from '../fmt'
 
 export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine'
 
-const pctOf = (x: number) => Math.round(x * 100)
+export const pctOf = (x: number) => Math.round(x * 100)
 
 export const readerEn = {
   title: 'Reader',
@@ -111,95 +111,4 @@ export const readerEn = {
   divineKey: 'A line above each name of God: \u2068יהוה\u2069, \u2068אלהים\u2069, another name;',
   divineTitle: (he: string) => `a name of God: ${he}`,
   allDivine: 'the mix of every chapter',
-}
-
-export const readerHe: typeof readerEn = {
-  title: 'קורא',
-  lede: 'הטקסט ועליו מה שמצאו הניתוחים, מסומן על המילים. אפשר להדליק ולכבות שכבות; ריחוף מעל מילה מראה מה כל שכבה אומרת עליה, ולחיצה פותחת את הדקדוק שלה.',
-  open: 'קריאה בשכבות',
-  openTitle: 'הטקסט ועליו הדוברים, המילים המנחות, חצאי הפסוק, משחקי המילים ועוד, מסומנים על המילים',
-  unitPage: 'קטעים דומים וכל הניתוחים',
-  layersLabel: 'שכבות',
-  layers: {
-    speakers: 'דוברים',
-    cola: 'חצאי פסוק',
-    leitworte: 'מילים מנחות',
-    refrains: 'פזמונים חוזרים',
-    phrases: 'צירופים משותפים',
-    rare: 'מילים נדירות',
-    wordplay: 'משחקי מילים',
-    ketiv: 'כתיב / קרי',
-    mood: 'מצוקה ושבח',
-    sources: 'P / לא P',
-    turns: 'מפנים',
-    gematria: 'גימטריה',
-    places: 'מקומות',
-    divine: 'שמות האל',
-  },
-  hints: {
-    speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
-    cola: 'היכן הטעמים מחלקים כל פסוק לחצאים ולפסוקיות',
-    leitworte: 'מילים שחוזרות כאן הרבה יותר מבשאר המקרא',
-    refrains: 'צירופים החוזרים בסמיכות, בצפיפות שהמקרה אינו מסביר',
-    phrases: 'מילים בצירוף שפסוק אחר חולק',
-    rare: 'מילים שנמצאות רק בפסוקים מעטים במקרא',
-    wordplay: 'מילים קרובות שנשמעות דומה',
-    ketiv: 'מילים שנקראות אחרת משנכתבו',
-    mood: 'מילות מצוקה ומילות שבח (תחומי SDBH): היכן קינה פונה',
-    sources: 'באיזה צד של החלוקה הבלתי מונחית ל־P ולא P נופל כל פסוק בבראשית–במדבר',
-    turns: 'היכן הטקסט משתנה בחדות בין פסוקים, והפרשות של המסורה',
-    gematria: 'ערך האותיות של כל מילה, וסכומו של כל פסוק',
-    places: 'המקומות הנזכרים, לפי סוגם, כל אחד מקושר למפה',
-    divine: 'כל שם של האל מסומן בקו מעליו: יהוה, אלהים, ושאר השמות',
-  },
-  notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
-  loading: (layer: string) => `טוען ${layer}…`,
-  speakersKey: 'מי מדבר (קו מנוקד: דיבור שדוברו לא נמצא):',
-  noSpeech: 'אין כאן דיבור מצוטט.',
-  unknownSpeaker: 'הדובר לא נמצא',
-  divine: 'האל',
-  spokenBy: (who: string) => `בפי ${who}`,
-  speakerWords: (n: number) => countHe(n, 'מילה אחת', 'שתי מילים', 'מילים'),
-  colaKey: '‖ מסיים חצי פסוק, | פסוקית: ההפסקות של הטעמים.',
-  leitworteKey: 'השכיחות מן הצפוי ביותר תחילה:',
-  countBy: 'ספירה',
-  byWord: 'לפי מילה',
-  byRoot: 'לפי שורש',
-  noLeitworte: 'אין כאן מילים מנחות.',
-  leitwortTitle: (he: string, count: number, expected: string) => `מילה מנחה ${he}: ${count} פעמים כאן, צפוי ${expected}`,
-  moodKey: 'פס מתחת למילה: רציף, מילת שבח (הלל, שיר, שמחה, ברכה); מקווקו, מילת מצוקה (פחד, אבל, בושה, חולי, אויבים).',
-  moodTitle: { distress: 'מילת מצוקה', praise: 'מילת שבח' },
-  sourcesKey: 'תווית אחרי מספר הפסוק: צדו בחלוקה הבלתי מונחית (בראשית–במדבר); במסגרת בלבד כשהמבקרים מייחסים אותו למקור האחר.',
-  sourceTag: { P: 'P', nonP: 'לא P' },
-  sourceTitle: (side: string, prob: number, reference: string | null) =>
-    `${side === 'P' ? 'דומה ל־P' : 'לא דומה ל־P'} (${Math.round(prob * 100)}% דומה ל־P); המבקרים: ${reference === null ? 'לא שויך' : reference === 'P' ? 'P' : 'לא P'}`,
-  allSources: 'החלוקה בעמוד מקורות התורה',
-  refrainsKey: 'קו עליון: צירוף החוזר בסמיכות (פזמון חוזר).',
-  noRefrains: 'אין כאן פזמון חוזר.',
-  refrainTitle: (text: string, k: number) => `פזמון חוזר ${text}: ב־${countHe(k, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}`,
-  allRefrains: 'כל הפזמונים כאן',
-  phrasesKey: 'קו תחתון: בצירוף שפסוק אחר חולק (עבה יותר: פסוקים רבים יותר).',
-  phraseTitle: (n: number) => `בצירוף המשותף ל${countHe(n, 'פסוק אחר אחד', 'שני פסוקים אחרים', 'פסוקים אחרים')}`,
-  rareKey: (max: number) =>
-    `מספר קטן אחרי מילה: המילה הנדירה שבה נמצאת רק במספר זה של פסוקים במקרא (עד ${max}; שמות לא נכללים). 1: בשום מקום אחר.`,
-  rareTitle: (n: number) => (n === 1 ? 'בשום מקום אחר במקרא (מילה יחידאית)' : `ב־${n} פסוקים במקרא`),
-  gematriaKey: '‎=913 אחרי מילה: ערך אותיותיה (גימטריה רגילה). אחרי מספר הפסוק: סכום הפסוק; לחיצה עליו מראה את הפסוקים שמסתכמים באותו ערך.',
-  gematriaTitle: (v: number) => `ערך האותיות ${v.toLocaleString('he-IL')}`,
-  gematriaTotalTitle: (v: number) => `הפסוק מסתכם ב־${v.toLocaleString('he-IL')}: כל הפסוקים בערך זה`,
-  wordplayKey: 'מסגרת מקווקוות: נשמעת כמו מילה סמוכה. לחיצה על מילה מסמנת את בת זוגה.',
-  wordplayTitle: (partner: string, where: string, kind: string) => `נשמעת כמו ${partner} (${where}): ${kind}`,
-  ketivKey: 'ק אחרי מילה: היא נקראת אחרת משנכתבה.',
-  ketivTitle: (ketiv: string, qere: string, cls: string) => `כתיב ${ketiv || '–'}, קרי ${qere}: ${cls}`,
-  turnsKey:
-    'בין הפסוקים: מפנה (הטקסט משתנה בחדות כמעט יותר מבכל מקום בספר, בלי חלוקה מסומנת), פרק שחותך טקסט רציף, הפסקה שקטה, והפרשות של המסורה, פ ו־ס.',
-  gapKinds: { turn: 'מפנה', cut: 'פרק בתוך טקסט רציף', quiet: 'הפסקה שקטה' },
-  gapTitle: (score: number) => `הטקסט משתנה כאן יותר מאשר ב־${pctOf(score)}% מן המעברים בין פסוקים בספר.`,
-  paragraphTitle: { pe: 'פרשה פתוחה (המסורה)', samekh: 'פרשה סתומה (המסורה)' },
-  placesKey: 'שם מקום במסגרת בצבע סוגו (עיר, אזור, תוואי קרקע, מים); המקומות שכאן, על המפה:',
-  noPlaces: 'אין כאן מקום נזכר.',
-  placeTitle: (he: string, kind: string) => `${he}: ${kind}`,
-  allPlaces: 'כולם על המפה',
-  divineKey: 'קו מעל כל שם של האל: יהוה, אלהים, שם אחר;',
-  divineTitle: (he: string) => `שם של האל: ${he}`,
-  allDivine: 'התמהיל של כל פרק',
 }

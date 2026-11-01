@@ -1,0 +1,57 @@
+// The Hebrew half of `../pentateuch.ts` (loaded with the Hebrew interface only).
+import { countHe } from '../../fmt'
+import { fp, pct, pentEn, x3 } from '../pentateuch'
+
+export const pentHe: typeof pentEn = {
+  title: 'מקורות התורה',
+  lede: 'ביקורת המקורות גורסת שבבראשית–במדבר נשזרו יחד מקור כוהני (P) ומקורות קדומים שאינם כוהניים. בעקבות קופל, דרשוביץ ועמיתיהם, הטקסט מחולק לשניים בלי שנאמר לו היכן P — תחילה קטעים של עשרה פסוקים לפי הבחירה בין מילים נרדפות (אני או אנכי, עדה או קהל, מטה או שבט, …), בחירה שכותב עושה בלי לחשוב על הנושא, ואחר כך כל פסוק לפי בחירות אלה ומילות התפקוד השכיחות. שמות האל הוחזקו בצד. אחר כך החלוקה מושווית ל־P כפי שהמבקרים משרטטים אותו (נות, שהוזן ביד). ההשערה שנויה במחלוקת; הבדיקות נקבעו לפני ההרצה הראשונה ויכלו להיכשל.',
+  noData: 'לא חושב במבנה זה: הריצו `bsim pentateuch` ואחר כך `bsim build-db`.',
+  testsTitle: 'האם החלוקה מוצאת את P?',
+  split: (kappa: number, nul: number, p: number, agreement: number) =>
+    `בבראשית–במדבר החלוקה מסכימה עם ההפניה ב־${pct(agreement)} מן הפסוקים: קאפה של כהן ${x3(kappa)}, לעומת ${x3(nul)} לאותה חלוקה מוזזת למקום אקראי בכל ספר (p ${fp(p)}).`,
+  genesis: (kappa: number, nul: number, p: number) =>
+    `בתוך בראשית, ששני המקורות בה מספרים סיפורים (כך שחוק מול סיפור אינו יכול להסביר): קאפה ${x3(kappa)}, לעומת ${x3(nul)} (p ${fp(p)}).`,
+  names: (gap: number, nul: number, p: number, pLike: number | null, nonP: number | null, refP: number | null, refNon: number | null) =>
+    `שמות האל, שהחלוקה לא ראתה: לפני שמות ו — שם P מגלה את השם יהוה — הצד הדומה ל־P אמור להימנע מיהוה. יהוה הוא ${pct(pLike)} משמות האל בצד הדומה ל־P ו־${pct(nonP)} בצד האחר (פער ${x3(gap)} לעומת ${x3(nul)}, p ${fp(p)}); בהפניה עצמה, ${pct(refP)} ב־P ו־${pct(refNon)} מחוצה לו.`,
+  confusionTitle: 'החלוקה מול ההפניה',
+  confusion: { rowP: 'הצד הדומה ל־P', rowNon: 'הצד האחר', colP: 'הפניה: P', colNon: 'הפניה: לא P' },
+  booksTitle: 'לפי ספר',
+  bookCols: { book: 'ספר', verses: 'פסוקים', agree: 'הסכמה', pLike: 'דומה ל־P', pRef: 'P בהפניה' },
+  bookNames: { Genesis: 'בראשית', Exodus: 'שמות', Leviticus: 'ויקרא', Numbers: 'במדבר' },
+  gridTitle: 'יציבות',
+  gridLede: 'גודל הקטע וההחלקה; השורה המודגשת היא ההגדרה שנקבעה מראש (200 הזזות לכל אחת).',
+  gridCols: { chunk: 'קטע (פסוקים)', smooth: 'החלקה (± פסוקים)', kappa: 'קאפה', genesis: 'בראשית', names: 'פער השמות' },
+  wordsTitle: 'מה מכריע',
+  pLikeWords: 'מושכות לצד הדומה ל־P',
+  nonPWords: 'מושכות לצד האחר',
+  stems: { h: 'הפעיל', q: 'קל' },
+  synonymsTitle: 'הבחירות בין נרדפות בכל צד',
+  synCols: { set: 'בחירה', members: 'מילים', pLike: 'הצד הדומה ל־P', nonP: 'הצד האחר' },
+  setNames: {
+    I: 'אני',
+    tribe: 'שבט',
+    congregation: 'עדה, קהל',
+    die: 'מוות',
+    holding: 'אחוזה',
+    maidservant: 'שפחה',
+    make: 'עשייה, בריאה',
+    speak: 'דיבור, אמירה',
+    beget: 'הולדה',
+    chief: 'ראש, נשיא',
+    dwell: 'ישיבה',
+    people: 'עם, גוי',
+    bring_up: 'הוצאה / העלאה',
+    with: 'עם (מילת יחס)',
+    lest: 'פן',
+    behold: 'הנה',
+    only: 'רק',
+    also: 'גם',
+  },
+  chaptersTitle: 'פרק אחר פרק',
+  chaptersLede: 'הפס הוא חלק כל פרק בצד הדומה ל־P; הסימון, החלק שההפניה מייחסת ל־P.',
+  book: 'ספר',
+  chapterRow: (pLike: number, pRef: number | null) => `דומה ל־P ${pct(pLike)} · P בהפניה ${pRef == null ? '–' : pct(pRef)}`,
+  read: 'קריאה עם החלוקה',
+  count: (n: number) => countHe(n, 'פרק אחד', 'שני פרקים', 'פרקים'),
+  empty: 'אין כאן פרק.',
+}

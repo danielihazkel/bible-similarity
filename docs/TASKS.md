@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M110: Faster first load (§11.1; proposed I7)
+- [x] The Hebrew interface on demand: each page catalog's Hebrew object moved to `i18n/pages/he/` (46 objects in 45 files, typed against their English shape as before); `he.ts` and those files are one chunk, fetched when Hebrew is chosen; the locale provider keeps the current language on screen until it arrives (English on a first Hebrew load, a few ms locally: rendering nothing instead let a Ctrl+K pressed at once miss the jump box, seen as a flaky Hebrew e2e test)
+- [x] The libraries in a `vendor` chunk (React, the router, react-query), which the browser keeps across viewer rebuilds
+- [x] The home page's Hebrew section names come from the English catalog (`units.sectionsHe`), no longer from the Hebrew one
+- [x] Not done, by choice: a global `staleTime`: 13 hooks are live on purpose (labels, notebook, dossier, meta) or large (gematria lists, workbench), so the 136 `forever` spreads would become 13 opt-outs and the tests' own clients would behave unlike the viewer's
+- [x] Tests: no English-side module imports the Hebrew catalog statically, Hebrew loads once and English stays loaded (vitest); the component tests load Hebrew first (`src/test/setup.ts`)
+
+✔ First load for an English reader 263 → 194 KB gzipped (−26 %); the Hebrew chunk is 263 KB raw. 376 fixture e2e (the Hebrew jump-box test 20 / 20 without retries) and 294 / 294 real-data e2e; 346 vitest.
+
 ## M109: Caching and startup (§10.2; proposed I6)
 - [x] Weak ETag of the build on GET `/api` answers; `If-None-Match` → 304 before the handler runs; labels, notebook, `/meta` and `/dossier` `no-store` and untagged (`app.NO_STORE_PATHS`, one `NO_STORE` for the routes)
 - [x] `/dossier` no longer cached for 5 minutes: its label count is read live
@@ -1153,7 +1162,7 @@ API
 - [x] I6 (done, M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
 
 Viewer
-- [ ] I7 (M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
+- [x] I7 (done, M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
 - [ ] I8 (M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
 - [ ] I9 (M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
 - [ ] I10 (M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`

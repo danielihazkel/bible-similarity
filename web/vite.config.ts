@@ -9,7 +9,17 @@ export default defineConfig({
   server: {
     proxy: { '/api': 'http://127.0.0.1:8000' },
   },
-  build: { outDir: 'dist' },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        // the libraries in a chunk of their own: they change far less often than the viewer, so the
+        // browser keeps them across rebuilds; d3-hierarchy stays with the one page that uses it
+        manualChunks: (id) =>
+          /node_modules\/(react|react-dom|scheduler|react-router|@tanstack)\//.test(id) ? 'vendor' : undefined,
+      },
+    },
+  },
   // component tests opt in with `// @vitest-environment jsdom`; e2e/ is Playwright's (`npm run e2e`)
-  test: { environment: 'node', exclude: ['e2e/**', 'node_modules/**'] },
+  test: { environment: 'node', exclude: ['e2e/**', 'node_modules/**'], setupFiles: ['src/test/setup.ts'] },
 })

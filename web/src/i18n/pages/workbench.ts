@@ -3,13 +3,13 @@
 // typed against it. Sets and patterns are code, so they are not translated.
 
 import type { SetErrorCode, WorkbenchFeature, WorkbenchWithin } from '../../api/types'
-import { countEn, countHe, numEn, numHe } from '../fmt'
+import { countEn, numEn } from '../fmt'
 
 type SetItemKind = 'book' | 'chapters' | 'section' | 'collection' | 'pattern' | 'only'
 
-const q = (t: string) => (t ? ` “${t}”` : '')
-const qh = (t: string) => (t ? ` ”${t}“` : '')
-const dec = (x: number, locale: string) => x.toLocaleString(locale, { maximumFractionDigits: x < 10 ? 2 : 1 })
+export const q = (t: string) => (t ? ` “${t}”` : '')
+export const qh = (t: string) => (t ? ` ”${t}“` : '')
+export const dec = (x: number, locale: string) => x.toLocaleString(locale, { maximumFractionDigits: x < 10 ? 2 : 1 })
 
 export const wbEn = {
   title: 'Workbench',
@@ -118,113 +118,5 @@ export const wbEn = {
     no_words: () => 'The set has no words.',
     filter_in_check: (t: string) => `A check counts whole verses, so it takes no filter:${q(t)}.`,
   } satisfies Record<SetErrorCode, (token: string) => string>,
-  inSet: (set: string) => `${set}: `,
-}
-
-export const wbHe: typeof wbEn = {
-  title: 'שולחן עבודה',
-  lede: 'שאלו את הטקסט שאלה משלכם. השוו שתי קבוצות פסוקים כדי לראות באילו מילים, שורשים, תחומי משמעות וצורות האחת משתמשת יותר מן השנייה, או בדקו אם תבנית משלכם צפופה יותר בקבוצה מאשר בפסוקים שסביבה.',
-  tabsLabel: 'מה לעשות',
-  tabs: { contrast: 'השוואת שתי קבוצות', check: 'בדיקת תבנית' },
-  setA: 'קבוצה א',
-  setB: 'קבוצה ב',
-  set: 'הקבוצה',
-  restHint: 'השאירו את קבוצה ב ריקה כדי להשוות את א לכל שאר המילים במקרא.',
-  kindLabel: 'הוספה לקבוצה',
-  kinds: { book: 'ספר', chapters: 'פרקים', section: 'חלק', collection: 'אוסף', pattern: 'תבנית', only: 'מילים' },
-  book: 'ספר',
-  fromChapter: 'מפרק',
-  toChapter: 'עד פרק',
-  sections: { torah: 'תורה', prophets: 'נביאים', writings: 'כתובים' },
-  only: { speech: 'רק מילים בדיבור ישיר', narration: 'רק מילות הסיפור' },
-  collection: 'אוסף',
-  noCollections: 'אין עדיין אוספים במחברת שלך: צרו אוסף בעמוד המחברת.',
-  collectionName: (name: string) => `האוסף ”${name}“`,
-  collectionId: (id: string) => `אוסף ${id}`,
-  unit: (id: string) => `יחידה ${id}`,
-  chapters: (book: string, range: string) => `${book} ${range}`,
-  books: (a: string, b: string) => `${a} עד ${b}`,
-  patternLabel: 'תבנית (הפסוקים שבהם היא נמצאת)',
-  patternPlaceholder: '[lemma=430] ..2 [lemma=3068]',
-  add: 'הוספה',
-  remove: (what: string) => `הסרת ${what}`,
-  empty: 'הקבוצה עדיין ריקה.',
-  emptyB: 'כל שאר המילים',
-  asText: 'עריכה כטקסט',
-  textLabel: (set: string) => `${set} כטקסט`,
-  apply: 'החלה',
-  syntaxTitle: 'איך כותבים קבוצה',
-  syntax: [
-    'פריטים המופרדים ב־; מאחדים את הפסוקים שלהם: book:26; chapters:27:42-83.',
-    'book:מספר או book:מספר-מספר (לפי סדר הספרים, בראשית היא 0); chapters:ספר:מ-עד; section:torah, prophets או writings.',
-    'unit:מזהה לכל פסוק, פרק, פיסקה או פרשה (v:0, c:0:1, p:Noach); collection:מספר לאוסף מן המחברת שלך.',
-    'pattern:שאילתה לפסוקים שבהם שאילתה של חיפוש התבניות נמצאת.',
-    'only:speech או only:narration משאיר רק את המילים האלה מן הפסוקים (בהשוואה בלבד).',
-  ],
-  feature: 'השוואה לפי',
-  features: {
-    lemma: 'ערך',
-    root: 'שורש',
-    domain: 'תחום משמעות',
-    pos: 'חלק דיבר',
-    stem: 'בניין',
-    form: 'צורת הפועל',
-    person: 'גוף',
-    function: 'תפקיד הצירוף',
-    clause: 'סוג הפסוקית',
-  },
-  promptA: 'בנו את קבוצה א כדי להתחיל: הוסיפו ספר, פרקים, אוסף מן המחברת או תבנית.',
-  setCount: (verses: number, words: number) =>
-    `${countHe(verses, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}, ${countHe(words, 'מילה אחת', 'שתי מילים', 'מילים')}`,
-  partWords: 'חלק ממילותיהם',
-  summary: (tested: number, a: number, b: number) =>
-    `${countHe(tested, 'ערך אחד נבדק', 'שני ערכים נבדקו', 'ערכים נבדקו')}; ${numHe(a)} שכיחים יותר ב־א ו־${numHe(b)} שכיחים יותר ב־ב ב־q ≤ 0.05.`,
-  overlap: (n: number) => `${countHe(n, 'מילה אחת נמצאת', 'שתי מילים נמצאות', 'מילים נמצאות')} בשתי הקבוצות ונספרות ב־א בלבד.`,
-  overA: 'שכיח יותר ב־א',
-  overB: 'שכיח יותר ב־ב',
-  cols: { value: 'ערך', a: 'א', b: 'ב', ratio: 'יחס', g2: 'G²', q: 'q', verses: 'פסוקים' },
-  perThousand: (rate: number) => `${dec(rate, 'he-IL')} לאלף`,
-  ratio: (log2: number) => (log2 >= 0 ? `×${dec(2 ** log2, 'he-IL')}` : `÷${dec(2 ** -log2, 'he-IL')}`),
-  ratioTitle: 'פי כמה שכיח יותר בצד שלו, למילה שיש לה התכונה',
-  none: 'אין כאן ערכים בצד הזה.',
-  find: 'חיפוש',
-  findTitle: 'פתיחת הערך הזה בחיפוש התבניות',
-  method:
-    'כל ערך נספר ב־א וב־ב מבין המילים שיש להן התכונה (פעלים בלבד לבניין, לצורה ולגוף) ומקבל ציון G² על טבלת 2 × 2, עם p מ־χ² ו־q המתוקן לכל הערכים שנבדקו (בנימיני–הוכברג). ערכים שיש להם פחות מ־5 מילים בשתי הקבוצות יחד אינם נבדקים. G² גבוה במספר קטן הוא כיוון לקריאה, לא ממצא.',
-  export: 'ייצוא (CSV)',
-  query: 'תבנית',
-  queryLabel: 'שאילתה של חיפוש התבניות',
-  run: 'בדיקה',
-  within: 'הגרלה מחדש בתוך',
-  withins: { book: 'כל ספר', chapter: 'כל פרק', corpus: 'המקרא כולו' },
-  checkPrompt: 'כתבו תבנית ובנו קבוצה, ואז בדקו.',
-  found: (matches: number, verses: number, words: number, rate: number) =>
-    `${countHe(matches, 'מופע אחד', 'שני מופעים', 'מופעים')} ב${countHe(verses, 'פסוק האחד', 'שני הפסוקים', 'פסוקים')} של הקבוצה (${countHe(words, 'מילה אחת', 'שתי מילים', 'מילים')}): ${dec(rate, 'he-IL')} לאלף מילים.`,
-  null: (within: WorkbenchWithin, draws: number, mean: number, low: number, high: number) =>
-    `פסוקי הקבוצה הוגרלו מחדש בתוך ${wbHe.withins[within]}, ${numHe(draws)} פעמים: בממוצע ${dec(mean, 'he-IL')} לאלף, 95% מן ההגרלות בין ${dec(low, 'he-IL')} ל־${dec(high, 'he-IL')}.`,
-  denser: (p: string) => `צפוף יותר מן המקרה: p = ${p}.`,
-  sparser: (p: string) => `דליל יותר מן המקרה: p = ${p}.`,
-  chance: (high: string, low: string) => `בגבולות המקרה: p = ${high} לצפוף יותר, ${low} לדליל יותר.`,
-  rest: (rate: number, matches: number, words: number) =>
-    `שאר הפסוקים שסביבה: ${dec(rate, 'he-IL')} לאלף (${countHe(matches, 'מופע אחד', 'שני מופעים', 'מופעים')} ב${countHe(words, 'מילה אחת', 'שתי מילים', 'מילים')}).`,
-  fixed: (n: number) => `${countHe(n, 'פסוק אחד של הקבוצה ממלא', 'שני פסוקים של הקבוצה ממלאים', 'פסוקים של הקבוצה ממלאים')} קבוצה שלמה ${n === 1 ? 'ונשאר' : 'ונשארים'} במקומם בכל הגרלה.`,
-  untestable: 'כל פסוקי הקבוצה ממלאים את הקבוצה שלהם כולה, ולכן אין מול מה להגריל אותם. הגרילו בתוך קבוצה רחבה יותר.',
-  byBook: 'לפי ספר',
-  bookCols: { book: 'ספר', matches: 'מופעים', words: 'מילים', rate: 'לאלף' },
-  checkMethod:
-    'p חד־צדדי עם תיקון ‎+1 על ההגרלות; שני הכיוונים מוצגים, לכן קראו את הכיוון ששאלתם עליו לפני שהסתכלתם. תבנית שנבחרה אחרי שראיתם היכן היא שכיחה תיראה צפופה שם: בדקו אותה בקבוצה שלא הסתכלתם בה.',
-  setErrors: {
-    empty: () => 'הוסיפו משהו לקבוצה קודם.',
-    too_long: () => 'הקבוצה ארוכה מדי.',
-    bad_item: (t: string) => `פריט נכתב סוג:ערך:${qh(t)}.`,
-    unknown_kind: (t: string) => `אין סוג${qh(t)}; ראו ”איך כותבים קבוצה“.`,
-    unknown_book: (t: string) => `אין ספר${qh(t)}.`,
-    bad_range: (t: string) => `המספר או הטווח אינו קריא:${qh(t)}.`,
-    unknown_unit: (t: string) => `אין יחידה${qh(t)} בבנייה הזו.`,
-    unknown_collection: (t: string) => `אין אוסף${qh(t)} במחברת שלך.`,
-    pattern: (t: string) => `התבנית${qh(t)} אינה יכולה לרוץ.`,
-    no_words: () => 'אין בקבוצה מילים.',
-    filter_in_check: (t: string) => `בדיקה סופרת פסוקים שלמים, ולכן אין בה מסנן:${qh(t)}.`,
-  },
   inSet: (set: string) => `${set}: `,
 }

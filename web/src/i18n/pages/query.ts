@@ -3,7 +3,7 @@
 // translated; their descriptions are.
 
 import type { PatternErrorCode } from '../../api/types'
-import { countEn, countHe, numEn, numHe } from '../fmt'
+import { countEn, numEn } from '../fmt'
 
 export interface QueryKeyHelp {
   key: string
@@ -11,8 +11,8 @@ export interface QueryKeyHelp {
   meaning: string
 }
 
-const q = (t: string | undefined) => (t ? ` “${t}”` : '')
-const qh = (t: string | undefined) => (t ? ` ”${t}“` : '')
+export const q = (t: string | undefined) => (t ? ` “${t}”` : '')
+export const qh = (t: string | undefined) => (t ? ` ”${t}“` : '')
 
 export const qryEn = {
   title: 'Pattern search',
@@ -80,73 +80,4 @@ export const qryEn = {
   empty: 'Nothing matches this pattern.',
   read: 'Read the chapter',
   prompt: 'Write a query above, or start from an example.',
-}
-
-export const qryHe: typeof qryEn = {
-  title: 'חיפוש תבניות',
-  lede: 'חיפוש של מבנה ולא של מילה: כל מילה מתוארת לפי ערכה, שורשה, צורתה או תפקידה במשפט, ולפי המרחק המותר בין המילים. החיפוש רץ בתוך פסוק אחד בכל פעם, על כל מילות המקרא.',
-  inputLabel: 'שאילתה',
-  placeholder: '[form=infabs root=@r] [root=@r form=finite]',
-  run: 'חיפוש',
-  examplesTitle: 'דוגמאות',
-  examples: [
-    { q: '[form=infabs root=@r] [root=@r form=finite]', text: 'מקור מוחלט ואחריו פועל נטוי מאותו שורש (מות יומת)' },
-    { q: '[form=imperative] ..4 [function=Voct pos=name]', text: 'ציווי, ובתוך ארבע מילים שם שנקרא בו' },
-    { q: '[lemma=408] [form=jussive]', text: 'אל ועתיד מקוצר: איסור' },
-    { q: '[pos=verb root=@r] ..2 [pos=noun root=@r]', text: 'פועל ושם עצם משורשו (ויחלם חלום)' },
-    { q: '[lemma=2009 suffix=1cs]', text: 'הנה בגוף ראשון: הנני' },
-    { q: '[speaker=משה form=imperative]', text: 'כל ציווי שמשה מצווה' },
-  ],
-  helpTitle: 'איך כותבים שאילתה',
-  syntax: [
-    'כל מילה היא תבנית בסוגריים מרובעים: [pos=verb stem=hiphil]. התנאים מופרדים ברווחים, וכולם צריכים להתקיים. [] היא כל מילה.',
-    'key=value או key!=value (שלילה); value|value הוא אחד מהם: [form=imperative|jussive].',
-    'התבניות באות זו אחר זו, מילה אחר מילה. ..3 ביניהן מתיר לבאה לעמוד עד שלוש מילים הלאה; .. בכל מקום בהמשך הפסוק.',
-    'משתנה @name חוזר על ערך, שורש או מילה: [root=@r] ..3 [root=@r] הן שתי מילים מאותו שורש; root!=@r הוא כל שורש אחר.',
-    'מילה מתוארת לפי חלקה העיקרי: התחיליות (ו, ה, ב, כ, ל, מ, ש) והכינוי החבור הן מפתחות בפני עצמם.',
-  ],
-  keysCaption: 'המפתחות וערכיהם',
-  keyCols: { key: 'מפתח', values: 'ערכים', meaning: 'מה הוא' },
-  keys: [
-    { key: 'lemma', values: '559, אמר, @name', meaning: 'הערך: מספר סטרונג שלו, או צורה עברית' },
-    { key: 'root', values: '1288, ברך, @name', meaning: 'משפחת המילים (ראו שורשים)' },
-    { key: 'word', values: 'בראשית, @name', meaning: 'אותיות המילה, כולל התחיליות' },
-    { key: 'pos', values: 'noun, name, verb, adjective, number, preposition, conjunction, adverb, pronoun, particle', meaning: 'חלק הדיבר' },
-    { key: 'type', values: 'negative, object, relative, interrogative, article, demonstrative, personal, proper, gentilic, cardinal, ordinal …', meaning: 'סוג המילית, הכינוי, השם או התואר' },
-    { key: 'stem', values: 'qal, niphal, piel, pual, hiphil, hophal, hithpael, polel …; בארמית peal, pael, haphel …', meaning: 'בניין' },
-    { key: 'form', values: 'perfect, weqatal, imperfect, wayyiqtol, cohortative, jussive, imperative, participle, passive-participle, infabs, infcon; finite, infinitive, participles', meaning: 'צורת הפועל' },
-    { key: 'person', values: '1, 2, 3', meaning: 'גוף' },
-    { key: 'gender', values: 'm, f, c', meaning: 'מין (c: משותף)' },
-    { key: 'number', values: 's, p, d', meaning: 'מספר (d: זוגי)' },
-    { key: 'state', values: 'a, c, d', meaning: 'מצב (נפרד, נסמך; d: מיודע בארמית)' },
-    { key: 'suffix', values: 'yes, no, 3ms, 1cs …', meaning: 'כינוי חבור' },
-    { key: 'prefix', values: 'ו, ה, ב, כ, ל, מ, ש, none', meaning: 'תחילית שבמילה' },
-    { key: 'lang', values: 'hebrew, aramaic', meaning: 'לשון' },
-    { key: 'function', values: 'Subj, Objc, Pred, Cmpl, Voct, Time, Loca, Nega, Ques …', meaning: 'תפקיד הצירוף (תחביר ETCBC)' },
-    { key: 'clause', values: 'WayX, Way0, xQtX, NmCl, ZIm0 …', meaning: 'סוג הפסוקית (תחביר ETCBC)' },
-    { key: 'speech', values: 'yes, no', meaning: 'בתוך דיבור ישיר' },
-    { key: 'speaker', values: 'משה, 3068 …', meaning: 'מי אומר את הדברים (ראו מי מדבר)' },
-  ],
-  errors: {
-    empty: () => 'כתבו קודם תבנית: מילה בסוגריים מרובעים, כגון [lemma=559].',
-    expected_pattern: (t: string) => `ציפינו לתבנית מילה בסוגריים מרובעים${t ? ` ב־${qh(t).trim()}` : ' בסוף'}.`,
-    unclosed: (t: string) => `הסוגריים לא נסגרו:${qh(t)}.`,
-    bad_condition: (t: string) => `תנאי הוא key=value או key!=value:${qh(t)}.`,
-    unknown_key: (t: string) => `אין מפתח${qh(t)}; המפתחות מפורטים תחת ”איך כותבים שאילתה“.`,
-    bad_value: (t: string) => `המפתח הזה אינו מקבל${qh(t)}.`,
-    unknown_value: (t: string) => `אין ערך או שורש${qh(t)} בטקסט; נסו את מספר הסטרונג שלו.`,
-    bad_gap: (t: string) => `מרווח הוא .. או ..N, ו־N בין 1 לאורך הפסוק הארוך ביותר:${qh(t)}.`,
-    too_many: () => 'יותר מדי תבניות מילה בשאילתה אחת.',
-    variable: (t: string) => `משתנה (@name) הולך עם lemma, root או word, ונקבע ב־= לפני שמשתמשים בו עם !=:${qh(t)}.`,
-    too_broad: () => 'יותר מדי התאמות להצגה: הוסיפו תנאי או קצרו מרווח.',
-  },
-  at: (n: number) => `בתו ${numHe(n + 1)}`,
-  summary: (matches: number, verses: number) =>
-    `${countHe(matches, 'התאמה אחת', 'שתי התאמות', 'התאמות')}, ${verses === 1 ? 'בפסוק אחד' : verses === 2 ? 'בשני פסוקים' : `ב־${numHe(verses)} פסוקים`}`,
-  byBook: 'לפי ספר',
-  bookCount: (name: string, n: number) => `${name} ${numHe(n)}`,
-  allBooks: 'כל הספרים',
-  empty: 'אין דבר התואם את התבנית.',
-  read: 'קריאת הפרק',
-  prompt: 'כתבו שאילתה למעלה, או התחילו מדוגמה.',
 }

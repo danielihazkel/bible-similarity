@@ -1,7 +1,7 @@
 // Interface strings of a lemma's senses and uses across the canon (DESIGN.md §16.23): the Shifts
 // page and the senses panel of the concordance. English first, Hebrew typed against it.
 
-import { numEn, numHe } from '../fmt'
+import { numEn } from '../fmt'
 
 /** Corpus groups of `senses.groups` (configs/default.yaml); an unknown key is shown as is. */
 const GROUPS_EN = {
@@ -45,44 +45,4 @@ export const senEn = {
   stats: (sense: string, use: string) => `Shift of the senses: ${sense}; of the uses: ${use}.`,
   bits: (x: number, q: number) => `${x.toFixed(2)} bits (q ${q < 0.001 ? '< 0.001' : q.toFixed(3)})`,
   untested: 'not tested',
-}
-
-export const senHe: typeof senEn = {
-  groups: {
-    torah: 'תורה',
-    former_prophets: 'נביאים ראשונים',
-    latter_prophets: 'נביאים אחרונים',
-    poetry: 'תהלים, משלי, איוב',
-    scrolls: 'מגילות',
-    late: 'ספרים מאוחרים',
-  },
-  groupsTitle: 'ספרים מאוחרים: דניאל, עזרא, נחמיה, דברי הימים. מגילות: שיר השירים, רות, איכה, קהלת, אסתר.',
-  title: 'תזוזות',
-  lede: 'מילים שמובניהן או שימושיהן משתנים לאורך התנ״ך. כל מילה שכיחה מושווה בין שש קבוצות ספרים בשתי דרכים: מובניה המילוניים (המובן לפי SDBH המסומן בכל היקרות) ושימושיה בהקשר (וקטורי BEREL שלה בפסוקיה, מקובצים). הציון הוא כמה הקבוצה מלמדת על המובן (מידע הדדי, פחות מה שנותנות קבוצות מעורבבות); q מתקן לבדיקת מאות מילים.',
-  caveat: 'שימושים בהקשר נושאים גם סוגה וסגנון: תזוזה שם פירושה ״שימוש אחר״, תזוזה במובנים המילוניים פירושה ״משמעות אחרת״.',
-  by: 'השוואה',
-  bys: { sense: 'מובנים מילוניים', use: 'שימושים בהקשר' },
-  includeAll: 'כולל q > 0.05',
-  check: (nmi: string, nul: string) => `בדיקה: האשכולות ההקשריים תואמים את המובנים המילוניים ב־NMI ממוצע ${nmi} (אשכולות מעורבבים: ${nul}).`,
-  ranked: (n: number) => `${numHe(n)} מילים, המשתנות ביותר תחילה`,
-  word: 'מילה',
-  occurrences: 'היקרויות',
-  shift: 'תזוזה',
-  shiftTitle: 'ביטים של מידע הדדי בין הקבוצה למובן מעל הממוצע המעורבב',
-  q: 'q',
-  senses: 'מובנים',
-  uses: 'שימושים',
-  empty: 'אין מילים מתאימות.',
-  panel: 'מובנים לאורך התנ״ך',
-  panelLede: 'כל שורה היא מובן אחד; התאים נותנים את חלקו מהמילה בכל קבוצת ספרים.',
-  notCompared: 'נדירה מכדי להשוות לאורך התנ״ך (או שם).',
-  dictionary: 'מובנים מילוניים (SDBH)',
-  inContext: 'שימושים בהקשר (אשכולות של וקטורי BEREL שלה)',
-  use: (i: number) => `שימוש ${numHe(i + 1)}`,
-  meaning: (i: number) => `מובן ${numHe(i + 1)}`,
-  withWords: 'עם',
-  examples: 'דוגמאות',
-  stats: (sense: string, use: string) => `תזוזת המובנים: ${sense}; תזוזת השימושים: ${use}.`,
-  bits: (x: number, q: number) => `${x.toFixed(2)} ביט (q ${q < 0.001 ? '< 0.001' : q.toFixed(3)})`,
-  untested: 'לא נבדק',
 }

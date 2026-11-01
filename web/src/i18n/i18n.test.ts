@@ -54,3 +54,20 @@ describe('hebrewNumeral', () => {
     expect(hebrewNumeral(0)).toBe('0')
   })
 })
+
+describe('the Hebrew catalog loads on demand', () => {
+  it('no English-side module imports it statically', () => {
+    const sources = import.meta.glob(['./en.ts', './index.ts', './pages/*.ts'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+    expect(Object.keys(sources).length).toBeGreaterThan(40)
+    for (const [f, src] of Object.entries(sources)) {
+      expect(src, f).not.toMatch(/from '\.\/he'|from '\.\.\/he'|from '\.\/pages\/he\/|from '\.\/he\//)
+    }
+  })
+
+  it('loads Hebrew once and keeps English loaded', async () => {
+    const { catalogOf, loadCatalog } = await import('./index')
+    expect(catalogOf('en')).toBe(en)
+    expect(await loadCatalog('he')).toBe(he)
+    expect(catalogOf('he')).toBe(he)
+  })
+})

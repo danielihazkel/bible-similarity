@@ -2,17 +2,17 @@
 // first, Hebrew typed against it (see ../en.ts).
 
 import type { EntityKind, NameKind, PlaceKind } from '../../api/types'
-import { countEn, countHe, numEn, numHe } from '../fmt'
+import { countEn, countHe, numEn } from '../fmt'
 
 const typeEn: Record<string, string> = { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }
-const pluralHe: Record<string, string> = { verse: 'פסוקים', chapter: 'פרקים', pericope: 'פיסקאות', parasha: 'פרשות' }
+export const pluralHe: Record<string, string> = { verse: 'פסוקים', chapter: 'פרקים', pericope: 'פיסקאות', parasha: 'פרשות' }
 const pluralEn: Record<string, string> = { verse: 'verses', chapter: 'chapters', pericope: 'pericopes', parasha: 'parashot' }
 /** Hebrew plural nouns of these unit types are feminine (פיסקאות, פרשות). */
-const feminine = (type: string) => type === 'pericope' || type === 'parasha'
-const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
+export const feminine = (type: string) => type === 'pericope' || type === 'parasha'
+export const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
 
 const goldEn: Record<string, string> = { sefaria: 'Sefaria', openbible: 'OpenBible', etcbc: 'ETCBC' }
-const goldHe: Record<string, string> = { sefaria: 'ספריא', openbible: 'OpenBible', etcbc: 'ETCBC' }
+export const goldHe: Record<string, string> = { sefaria: 'ספריא', openbible: 'OpenBible', etcbc: 'ETCBC' }
 
 export const ovEn = {
   chart: {
@@ -221,216 +221,5 @@ export const ovEn = {
     contested: (share: number) => `a second site has ${Math.round(share * 100)}% of its votes`,
     tipnrPoint: 'TIPNR’s point, not voted on',
     unlocated: 'not located',
-  },
-}
-
-export const ovHe: typeof ovEn = {
-  chart: {
-    scatterKeys: (label: string) => `${label}. מקשי החצים עוברים בין הנקודות ו־Enter פותח אחת מהן.`,
-    heatmapKeys: (label: string) => `${label}. מקשי החצים עוברים בין התאים ו־Enter בוחר אחד מהם.`,
-  },
-
-  map: {
-    title: 'מפת התנ״ך',
-    lede: (type: string) =>
-      `כל ה${pluralHe[type] ?? type} ${feminine(type) ? 'ממוקמות' : 'ממוקמים'} לפי משמעות (t-SNE של השיכונים הסמנטיים): נקודות קרובות דומות בתוכנן. הצבעים הם אשכולות נושאיים, המסומנים לפי הערכים השכיחים בהם.`,
-    colourBy: 'צביעה לפי',
-    clusters: 'אשכולות',
-    sections: 'תורה / נביאים / כתובים',
-    lists: 'רשימות',
-    listsLegend: 'חלק הפסוקים שבתוך רשימה (יחסים, מסעות, רשימות שמות): כהה יותר = יותר.',
-    listShare: (n: number, of: number) => `· ${versesHe(n)} מתוך ${of} ברשימה`,
-    scatter: 'מפת היחידות לפי משמעות',
-    point: (n: number) => `· ${versesHe(n)} · לחיצה לפתיחה`,
-    idle: 'העבירו את העכבר מעל נקודה; לחיצה פותחת את היחידה.',
-    affinity: 'איך הספרים מדברים זה עם זה',
-    affinityLede:
-      'זוגות פסוקים מספרים שונים שכל אחד מהם בעשרה המובילים המשולבים של האחר, ביחס למה שגודל הספרים צופה (lift; כהה יותר = יותר). לחיצה על תא מציגה את הזוגות החזקים ביותר שלו.',
-    bookOrder: 'סדר הספרים',
-    related: 'ספרים קרובים יחד',
-    canon: 'סדר הקאנון',
-    cell: (a: string, b: string, n: number, lift: string) => `${a} ↔ ${b}: ${n} זוגות, lift ${lift}`,
-    heatmap: 'קרבה בין ספר לספר',
-    examples: 'דוגמאות לזוג הספרים',
-    strongest: (a: string, b: string) => `${a} ↔ ${b}: הזוגות החזקים ביותר`,
-    noPairs: 'אין זוגות.',
-  },
-
-  network: {
-    title: 'רשת ההדים',
-    ledeLinked: (_type: string) =>
-      'כל יחידה מקושרת ליחידות שבעשר המובילות שלה (מילולי וסמנטי, משולב), בלי יחידות סמוכות מאותו ספר. ',
-    communities: 'קהילות',
-    ledeCommunities: ' הן קבוצות המהדהדות זו את זו יותר משאר הטקסט — לעתים קרובות בין ספרים; קטעים ',
-    central: 'מרכזיים',
-    ledeCentral: ' (PageRank) הם אלה ששאר המקרא מהדהד יותר מכול.',
-    nCommunities: (n: number) => `${numHe(n)} קהילות`,
-    graph: 'גרף הקהילה',
-    mostEchoedLabel: 'הקטעים המהדהדים ביותר',
-    mostEchoed: (type: string) =>
-      feminine(type)
-        ? `ה${pluralHe[type]} המהדהדות ביותר`
-        : `ה${pluralHe[type] ?? type} המהדהדים ביותר`,
-    moreBooks: (n: number) => ` ועוד ${countHe(n, 'ספר אחד', 'שני ספרים', 'ספרים')}`,
-    communityOf: (n: number, type: string) => `קהילה של ${n} ${pluralHe[type] ?? type}`,
-    legend: 'גודל העיגול: מרכזיות · צבע: תורה / נביאים / כתובים · קווים: הדים (כהה יותר = חזק יותר). בחירה בקטע פותחת אותו.',
-    graphLabel: 'קטעים וההדים שלהם',
-    node: (label: string, partners: number) => `${label}, ${partners} הדים`,
-    nodeTitle: (label: string, partners: number, cross: number) =>
-      `${label} · ${partners} הדים · ${Math.round(cross * 100)}% לספרים אחרים`,
-    allPassages: (n: number) => `כל ${n} הקטעים, המרכזיים תחילה`,
-    passage: 'קטע',
-    echoes: 'הדים',
-    otherBooks: 'ספרים אחרים',
-    otherBooksTitle: 'חלק משקל ההדים המגיע לספרים אחרים',
-    community: 'קהילה',
-  },
-
-  style: {
-    title: 'סגנון',
-    lede: 'איך הספרים כותבים, לא מה הם אומרים: שיעורי 100 הערכים השכיחים ביותר ושל צורות דקדוקיות (וי״ו ההיפוך, בינוני, ה״א הידיעה, כינויים חבורים …), בהשוואה בין ספרים ופרקים. אלה נתונים תיאוריים; הקבצות אינן טענות על מחבר או על תיארוך.',
-    book: 'ספר',
-    highlight: '— הדגשת ספר —',
-    axis: (pc: number) => (pc === 1 ? 'הציר האופקי' : 'הציר האנכי'),
-    variance: (v: number) => `(${Math.round(v * 100)}% מהשונות)`,
-    positive: (pc: number) => (pc === 1 ? 'ימין' : 'למעלה'),
-    negative: (pc: number) => (pc === 1 ? 'שמאל' : 'למטה'),
-    distance: 'מרחק סגנוני בין הספרים',
-    distanceLede: 'הדלתא של ברוז (ההפרש הממוצע בציוני z של התכונות); כהה יותר = דומה יותר. הספרים מסודרים כך שסגנונות דומים סמוכים.',
-    delta: (a: string, b: string, d: string) => `${a} ↔ ${b}: דלתא ${d}`,
-    profile: 'הפרופיל הסגנוני של הספר',
-    words: (n: number) => `(${numHe(n)} מילים)`,
-    more: 'משתמש יותר מספרים אחרים',
-    less: 'משתמש פחות',
-    closest: 'הקרובים ביותר בסגנון:',
-    feature: (f: string, rate: string, z: string) => `${f}: ${rate} ל־100 מילים, z ${z}`,
-    scatter: 'פרקים לפי סגנון',
-    point: (n: number) => ` · ${n} מילים`,
-    idle: 'כל נקודה היא פרק (150 מילים לפחות). העבירו את העכבר לשמו; לחיצה פותחת אותו.',
-  },
-
-  seams: {
-    label: 'מעברי סגנון',
-    title: 'היכן הסגנון משתנה',
-    lede: (words: number) =>
-      `בכל גבול בין פסוקים מושוות ${words} המילים שלפניו ושאחריו (הדלתא של ברוז על אותן תכונות). שיאים מעל הקו המקווקו — הגובה שספר בסדר פסוקים מעורבב מגיע אליו 19 פעמים מתוך 20 — הם מעברי סגנון: סוגה, לשון, דובר או מקור חדשים. תיאורי, לא טענה על מחבר.`,
-    none: (inBook: boolean) => `אין מעברי סגנון מובהקים${inBook ? ' בספר הזה' : ''}.`,
-    shift: (shift: string, threshold: string) => `שינוי ${shift} (סף ${threshold})`,
-    chart: 'שינוי הסגנון לאורך הספר',
-  },
-
-  eval: {
-    title: 'הערכה',
-    lede: 'באיזו תדירות כל מערכת מדרגת הפניה ידועה בראש הרשימה. זוגות הזהב הם הקישורים של ספריא בין פסוקים או קטעים בתנ״ך, מחולקים לפי ספר כך שאף ספר נבדק לא נראה באימון. הקישורים הידועים הם מדגם מוטה (מקבילות מפורסמות מיוצגות ביתר), ולכן ציון נמוך פירושו גם שתוצאות רבות פשוט אינן מקושרות. שורות המסומנות ',
-    served: 'מוצג',
-    ledeEnd: ' הן המערכות שהממשק מציג.',
-    none: 'עדיין לא הורצה הערכה (`bsim eval`).',
-    splitLabel: (name: string) => `חלוקת ${name}`,
-    splits: {
-      dev: 'ספרי הפיתוח (לבחירת מודלים ומשקלים)',
-      test: 'ספרי המבחן (נבדקו פעם אחת, אחרי שכל הבחירות נעשו)',
-    },
-    evaluated: (date: string) => `נבדק ב־${date}`,
-    caption: (type: string, gold?: { queries: number; pairs: number }) =>
-      `${pluralHe[type] ?? type}${gold ? ` · ${gold.queries} שאילתות, ${gold.pairs} זוגות זהב` : ''}`,
-    openbible: (split: string) =>
-      `דעה שנייה: הפניות OpenBible (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
-    openbibleLede: 'הפניות שנבחרו בהצבעת הקהל (5 קולות לפחות), בהשוואה לזהב של ספריא על אותן שאילתות.',
-    openbibleShare: (pct: string) => ` רק ${pct}% מזוגות OpenBible הם גם קישורים בספריא.`,
-    againstOpenbible: 'מול OpenBible',
-    againstSefaria: 'מול ספריא (אותם ספרים)',
-    etcbc: (split: string) =>
-      `דעה שלישית: הקטעים המקבילים של ETCBC (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
-    etcbcLede: (parallels: number, formulas: number, max: number) =>
-      `זוגות פסוקים שנוסחם כמעט זהה (מחברת המקבילות של ETCBC, דמיון 75% ומעלה): ${numHe(parallels)} מקבילות. ${numHe(formulas)} הזוגות בין פסוקים שיש להם יותר מ־${numHe(max)} בני זוג הם נוסחאות ופריטי רשימה (לוידבר יהוה אל משה לאמר יש 157) ואינם נכללים.`,
-    etcbcShare: (sef: string, ob: string) => ` ${sef}% מהם הם גם קישורים בספריא ו־${ob}% הפניות OpenBible: הפרשנות כמעט אינה מקשרת פסוק להעתקו.`,
-    againstEtcbc: 'מול ETCBC',
-    etcbcBands: (bands: string) => `החזרה@10 של המשולב לפי דמיון: ${bands}.`,
-    etcbcCoverage: (fused: string, phrase: string, seq: string, prec: string, nSeq: number) =>
-      `כל המקבילות (בכל החלוקות): ${fused}% נמצאות בעשרה הראשונים של המשולב, ${phrase}% חולקות צירוף, ${seq}% נמצאות ברצף חזק; ${prec}% מ־${numHe(nSeq)} זוגות הפסוקים של הרצפים החזקים הם מקבילות ETCBC (השאר מנוסחים מחדש).`,
-    supLabel: 'פיקוח נוסף',
-    sup: (split: string) =>
-      `פיקוח נוסף: המודל הסמנטי מאומן מחדש עם זוגות מתקני זהב אחרים (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
-    supLede: (metric: string, noise: string) =>
-      `המודל הסמנטי לומד מהקישורים של ספריא בין ספרי האימון, הנוטים אל המפורסמים. כל גרסה מאמנת אותו מחדש באותה דרך עם זוגות נוספים בין ספרי האימון (הפניות OpenBible, מקבילות ETCBC), או רק עם זרע אקראי אחר (${noise}), כדי להראות כמה אימון חוזר לבדו מזיז. התאים מראים את השיפור ב־${metric} לעומת המודל שממנו יצא הניסוי (זוגות ספריא בלבד), עם רווח bootstrap של 95% על שאילתות הפיתוח; ספרי הפיתוח והמבחן אינם משמשים לאימון לעולם. הכלל נקבע לפני כל אימון: גרסה מאומצת רק אם הרשימה המשולבת משתפרת מול OpenBible, כשהרווח מעל 0 והשיפור גדול ממה שאימון חוזר לבדו מזיז, ואינה מפסידה באופן מובהק מול ספריא או ETCBC. `,
-    supChosen: (name: string) => `עברה את הכלל: ${name}, וזהו כעת המודל הסמנטי שבשימוש.`,
-    supNone: 'אף גרסה לא עברה את הכלל, ולכן המודל הנוכחי נשאר.',
-    supList: { fused: 'הרשימה המשולבת (מילונית + סמנטית)', semantic: 'הרשימה הסמנטית לבדה' },
-    supCaption: (list: string, base: string, scores: string) => `${list} · שיפור לעומת ${base} (${scores})`,
-    supVariant: 'גרסה',
-    supRows: 'זוגות אימון (שורות)',
-    supAdopt: 'עוברת את הכלל',
-    supSource: (source: string, n: number) => `${goldHe[source] ?? source} ${numHe(n)}`,
-    supCounts: (better: number, worse: number, queries: number) =>
-      `${numHe(better)} שאילתות השתפרו, ${numHe(worse)} הורעו, מתוך ${numHe(queries)}`,
-    supYes: 'כן',
-    supNo: 'לא',
-    encLabel: 'מקודדים חדשים',
-    enc: (split: string) => `מקודדים חדשים לעומת המודל שבשימוש (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
-    encLede: (metric: string, bar: string) =>
-      `המודל הסמנטי הוא BEREL, מודל BERT שאומן על עברית רבנית, ומכוונן על ההפניות. שני סוגי מועמדים: DictaBERT (עברית חדשה, בסיס וגדול) המכוונן באותה דרך, עם אותם זוגות ואותו זרע; ומקודדים רב־לשוניים כפי שהם, שאינם מאומנים כאן כלל. התאים מראים את השיפור ב־${metric} לעומת המודל שבשימוש, עם רווח bootstrap של 95% על שאילתות הפיתוח. הכלל נקבע לפני שרץ מועמד כלשהו: מועמד מאומץ רק אם הרשימה המשולבת משתפרת מול ספריא, כשהרווח מעל 0 והשיפור גדול מ־${bar} (המרב שאימון חוזר בזרע אחר הזיז), ואינה מפסידה באופן מובהק מול OpenBible או ETCBC. `,
-    encChosen: (name: string) => `עבר את הכלל: ${name}.`,
-    encNone: 'אף מועמד לא עבר את הכלל, ולכן BEREL נשאר.',
-    encList: { fused: 'מקודדים חדשים: הרשימה המשולבת', semantic: 'מקודדים חדשים: הרשימה הסמנטית לבדה' },
-    encCandidate: 'מועמד',
-    encModel: 'מודל',
-    encKind: { trained: 'מכוונן כאן', zero_shot: 'כפי שהוא' },
-    encZero: (ref: string, scores: string) => `ללא אימון: המקודדים הרב־לשוניים לעומת ${ref}, המערכת ללא אימון שכבר בנויה (הרשימה הסמנטית; ${ref} ${scores})`,
-    encZeroLabel: 'מקודדים ללא אימון לעומת זה שכבר בנוי',
-    unitLabel: 'רשימה שלישית לפרקים ולפיסקאות',
-    unit: (split: string) => `רשימה שלישית לפרקים ולפיסקאות (ספרי ${split === 'dev' ? 'הפיתוח' : split === 'test' ? 'המבחן' : split})`,
-    unitLede: (metric: string) =>
-      `פרקים ופיסקאות נמצאים בשילוב רשימת מילים (TF-IDF) עם הרשימה הסמנטית. שלושה מועמדים לרשימה שלישית, כל אחד בנוי ממה שפסוקי שני קטעים חולקים: הרצפים המקבילים העוברים בהם, הביטויים המשותפים להם, ועשרת המובילים (המשולבים) של כל פסוק. כל אחד מתווסף בשלושה משקלים; המשקל נבחר על חצי משאילתות הפיתוח ונמדד על החצי האחר (cross-fitting), והשיפור ב־${metric} לעומת הרשימה המשולבת מוצג עם רווח bootstrap של 95%. הכלל נקבע לפני ההרצה הראשונה: רשימה מאומצת לסוג יחידה רק אם השיפור שלה מול ספריא, ב־cross-fitting, עם רווח מעל 0, והיא אינה מפסידה באופן מובהק מול OpenBible או ETCBC.`,
-    unitVerdict: (type: string, family: string | null) =>
-      family ? `${pluralHe[type] ?? type}: הרשימה "${family}" עברה את הכלל ומשולבת עתה.` : `${pluralHe[type] ?? type}: אף רשימה לא עברה את הכלל.`,
-    unitCaption: (type: string, scores: string) => `${pluralHe[type] ?? type} · שיפור לעומת הרשימה המשולבת (${scores})`,
-    unitAloneCaption: (type: string) => `${pluralHe[type] ?? type} · כל רשימה לבדה, בלי שילוב`,
-    unitFamily: 'רשימה שלישית',
-    unitSelected: 'הטובה ביותר מול ספריא',
-    unitCrossFitted: 'cross-fitting (ספריא)',
-    unitList: 'רשימה',
-    unitUnits: 'קטעים עם רשימה',
-    unitFamilies: { sequences: 'רצפים מקבילים', phrases: 'ביטויים משותפים', hits: 'פגיעות פסוקים' } as Record<string, string>,
-    gold: goldHe,
-    system: 'מערכת',
-    servedAs: (modes: string) => `מוצג: ${modes}`,
-  },
-
-  names: {
-    title: 'אנשים ומקומות',
-    lede: 'כל השמות שבטקסט. אם שם הוא אדם או מקום — לפי מילון סטרונג כשהוא קובע, ואחרת מנחשים מהקשריו (ה״א המגמה, ״עיר״, ״בן״, ״ויאמר״); שבטים ועמים נחשבים אנשים. שני שמות מקושרים כשהם חולקים פסוקים יותר משצופות השכיחויות שלהם.',
-    kindSource: { lexicon: 'לפי מילון סטרונג', cues: 'לפי ההקשר' },
-    kind: 'סוג',
-    all: 'הכול',
-    kinds: { person: 'אדם', place: 'מקום', mixed: 'אדם / מקום', unclear: 'לא ברור' },
-    book: 'ספר',
-    allBooks: 'כל הספרים',
-    find: 'חיפוש שם',
-    list: 'שמות',
-    noMatch: 'אין שמות מתאימים.',
-    count: (total: number, inBook: boolean, page: number, pages: number) =>
-      `${numHe(total)} שמות${inBook ? ' בספר הזה' : ''} · עמוד ${page} מתוך ${pages}`,
-    details: 'פרטי השם',
-    mentions: (n: number, verses: number) => `${n} אזכורים ב־${versesHe(verses)} · ראשון: `,
-    last: ', אחרון: ',
-    allVerses: 'כל הפסוקים',
-    where: 'היכן',
-    perBook: 'פסוקים בכל ספר',
-    bookCount: (book: string, n: number) => `${book}: ${versesHe(n)}`,
-    appearsWith: 'מופיע עם',
-    together: (n: number, chance: string) => `${versesHe(n)} יחד (${chance} במקרה)`,
-    ego: (name: string) => `שמות המופיעים עם ${name}`,
-    show: (name: string) => `${name}: הצגת השם`,
-    nameKinds: { person: 'אדם', people: 'עם', location: 'מקום', landform: 'תוואי קרקע', water: 'מים' },
-    sdbhKind: (kind: string) => `בתחומים של SDBH, על פי רוב: ${kind}.`,
-    sites: 'על פני הארץ',
-    sitesLede: 'היכן שוכנים המקומות שהשם הזה מציין: כל אזכור מותאם למקום לפי TIPNR של STEPBible, וממוקם לפי הזיהוי שקיבל הכי הרבה קולות ב־OpenBible.info. שם אחד יכול לציין כמה מקומות.',
-    placeKinds: { town: 'עיר', region: 'אזור', landform: 'תוואי קרקע', water: 'מים' },
-    siteVerses: (n: number) => versesHe(n),
-    coords: (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'צפון' : 'דרום'}, ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'מזרח' : 'מערב'}`,
-    votes: (score: number) => `הזיהוי קיבל ${numHe(score)} מתוך 1,000 קולות`,
-    contested: (share: number) => `לאתר שני ${Math.round(share * 100)}% מקולותיו`,
-    tipnrPoint: 'הנקודה של TIPNR, בלי הצבעה',
-    unlocated: 'לא ממוקם',
   },
 }

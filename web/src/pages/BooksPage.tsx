@@ -3,7 +3,6 @@ import { useBooks } from '../api/hooks'
 import type { Book } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
-import { CATALOGS } from '../i18n'
 
 export function BooksPage() {
   const m = useT()
@@ -29,7 +28,7 @@ export function BooksPage() {
               <>
                 {' '}
                 <span className="he-label" dir="rtl" lang="he">
-                  {CATALOGS.he.units.sections[section]}
+                  {m.units.sectionsHe[section]}
                 </span>
               </>
             )}

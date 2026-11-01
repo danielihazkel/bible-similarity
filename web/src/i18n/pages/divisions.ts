@@ -2,9 +2,9 @@
 // it (DESIGN.md §16.29). English first, Hebrew typed against it.
 
 import type { Paragraph, SegmentKind } from '../../api/types'
-import { countEn, countHe, numEn, numHe, pct } from '../fmt'
+import { countEn, numEn, pct } from '../fmt'
 
-const he = (k: Paragraph) => (k === 'pe' ? 'פ' : 'ס')
+export const he = (k: Paragraph) => (k === 'pe' ? 'פ' : 'ס')
 
 export const divEn = {
   title: 'Where the text divides',
@@ -82,82 +82,4 @@ export const divEn = {
     seam: 'style seam',
   },
   boundary: 'the boundary',
-}
-
-export const divHe: typeof divEn = {
-  title: 'היכן הטקסט מתחלק',
-  lede: (w: number) =>
-    `כל גבול בין שני פסוקים מקבל ציון מן הטקסט עצמו: עד כמה המילים (הלמות) והמשמעות (וקטורי הפסוקים) של ${numHe(w)} הפסוקים שלפניו שונות מאלה של ${numHe(w)} הפסוקים שאחריו, כאחוזון בתוך ספרו. 0.5 הוא גבול רגיל; קרוב ל־1 הם המפנים החדים ביותר בספר. על הציון הזה מונחות החלוקות שקבעה המסורת: הפרשות הפתוחות (פ) והסתומות (ס) בשתי מסורות כתב יד, הפרקים (שנוספו במאה ה־13), פרשות השבוע ותפרי הסגנון.`,
-  noData: 'לא חושב בבנייה זו: הריצו `bsim segments` ואחר כך `bsim build-db`.',
-  tests: 'האם החלוקות הולכות אחר הטקסט?',
-  testsLede:
-    'הציון הממוצע של הגבולות מכל סוג, לעומת אותו מספר גבולות שנבחרו באקראי בכל ספר (999 הגרלות); p הוא חלק ההגרלות שהגיעו לציון גבוה כזה. מילים ומשמעות: כל אחד משני הסימנים לבדו.',
-  cols: { kind: 'חלוקה', n: 'גבולות', score: 'ציון', lex: 'מילים', sem: 'משמעות', p: 'p' },
-  groups: {
-    mam_pe: 'פרשה פתוחה פ (מקרא על פי המסורה)',
-    mam_samekh: 'פרשה סתומה ס (מקרא על פי המסורה)',
-    oshb_pe: 'פרשה פתוחה פ (כתב יד לנינגרד)',
-    oshb_samekh: 'פרשה סתומה ס (כתב יד לנינגרד)',
-    agreed: 'הפסקה בשתי המסורות',
-    single: 'הפסקה במסורת אחת בלבד',
-    chapter_break: 'תחילת פרק בהפסקת פרשה',
-    chapter_only: 'תחילת פרק בלי הפסקת פרשה',
-    parasha: 'תחילת פרשת שבוע',
-    seam: 'תפר סגנוני',
-    unmarked: 'ללא חלוקה',
-  },
-  peSamekh: (a: string, b: string, p: string) =>
-    `פרשות פתוחות (פ) מקבלות ${a}, סתומות (ס) ${b}; כשמערבבים את שתי התוויות ביניהן בתוך כל ספר, p ${p}.`,
-  agreedSingle: (a: string, b: string, p: string) =>
-    `הפסקות ששתי המסורות מסמנות מקבלות ${a}, הפסקות שרק אחת מהן מסמנת ${b}; p ${p}.`,
-  chapter: (a: string, b: string, p: string) =>
-    `פרקים שמתחילים בהפסקת פרשה מקבלים ${a}, פרקים שמתחילים בלעדיה ${b}; p ${p}.`,
-  seams: (share: number, nul: number, near: number, p: string) =>
-    `${pct(share)} מתפרי הסגנון נמצאים בטווח ${countHe(near, 'פסוק אחד', 'שני פסוקים', 'פסוקים')} מהפסקת פרשה או מתחילת פרק, לעומת ${pct(nul)} מגבולות אקראיים (p ${p}).`,
-  agreement: (ref: 'mam' | 'chapter', better: number, books: number, pk: string, pkNull: string) =>
-    `כחלוקה: המפנים החדים ביותר בספר, כמספר ${ref === 'mam' ? 'הפסקות הפרשה שבו' : 'פרקיו'}, תואמים ${ref === 'mam' ? 'להן' : 'להם'} טוב יותר מגבולות אקראיים ב־${numHe(better)} מתוך ${numHe(books)} ספרים (Pk ממוצע ${pk} לעומת ${pkNull}; נמוך יותר קרוב יותר).`,
-  calibration: (score: string, p: string) =>
-    `בדיקת המבחן: הפסקות הפרשה מעורבבות בתוך כל ספר מקבלות ${score} (p ${p}), כצפוי ממקריות.`,
-  window: (w: number, grid: string) =>
-    `חלון: ${countHe(w, 'פסוק אחד', 'שני פסוקים', 'פסוקים')} מכל צד, נבחר על ספרי הפיתוח (הציון הממוצע של הפסקות הפרשה לפי חלון: ${grid}).`,
-  caveat:
-    'לכידות היא סיבה אחת לחלק טקסט ולא היחידה: רשימה מחולקת פריט אחר פריט, קריאה לפי לוח השנה, וחלון רחב של כמה פסוקים מטשטש מפנה בפסוק או שניים. ציון נמוך אינו הופך חלוקה לשגויה.',
-  book: 'ספר',
-  chapter_: 'פרק',
-  allChapters: 'כל הפרקים',
-  bookTitle: 'ספר אחד',
-  pickBook: 'בחרו ספר כדי לראות את הציון של כל גבול בו והיכן נופלות חלוקותיו.',
-  chart: (book: string) => `הציון של כל גבול ב${book}, עם החלוקות`,
-  legend: { pe: 'פתוחה פ (מקרא על פי המסורה)', samekh: 'סתומה ס (מקרא על פי המסורה)', chapter: 'תחילת פרק', other: 'ללא הפסקת פרשה' },
-  bookAgreement: (ref: 'mam' | 'chapter', pk: string, pkNull: string, p: string) =>
-    `${ref === 'mam' ? 'פרשות' : 'פרקים'}: Pk ${pk} לעומת ${pkNull} לגבולות אקראיים (p ${p}).`,
-  bar: (label: string, score: string) => `${label}: ציון ${score}`,
-  listTitle: 'היכן הטקסט והחלוקות חלוקים',
-  kinds: {
-    turn: {
-      label: 'מפנים לא מסומנים',
-      hint: 'המפנים החדים ביותר בספר (ציון 0.97 ומעלה) בלי הפסקת פרשה או פרק בטווח פסוק',
-    },
-    cut: {
-      label: 'פרקים בתוך טקסט רציף',
-      hint: 'תחילות פרקים בלי הפסקת פרשה באף אחת מהמסורות, במקום שהטקסט נמשך (ציון 0.25 ומטה)',
-    },
-    quiet: {
-      label: 'הפסקות פרשה שקטות',
-      hint: 'הפסקות פרשה במקרא על פי המסורה במקום שהטקסט כמעט אינו משתנה (ציון 0.05 ומטה): לעתים קרובות רשימה המחולקת פריט אחר פריט',
-    },
-  },
-  anyKind: 'כל הסוגים',
-  none: 'אין כאן.',
-  page: (total: number, page: number, pages: number) =>
-    `${countHe(total, 'גבול אחד', 'שני גבולות', 'גבולות')} · עמוד ${numHe(page)} מתוך ${numHe(pages)}`,
-  score: (s: string) => `ציון ${s}`,
-  scoreTitle: 'אחוזון בתוך הספר של הירידה בלכידות (1 = המפנה החד ביותר בספר)',
-  tags: {
-    mam: (k: Paragraph) => `מקרא על פי המסורה ${he(k)}`,
-    oshb: (k: Paragraph) => `לנינגרד ${he(k)}`,
-    chapter: 'תחילת פרק',
-    seam: 'תפר סגנוני',
-  },
-  boundary: 'הגבול',
 }

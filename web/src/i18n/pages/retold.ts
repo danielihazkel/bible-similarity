@@ -3,10 +3,10 @@
 // first, Hebrew typed against it.
 
 import type { RetoldGroup, RetoldOrder } from '../../api/types'
-import { countEn, countHe, numEn, numHe } from '../fmt'
+import { countEn, numEn } from '../fmt'
 
-const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
-const pctEn = (x: number) => `${Math.round(x * 100)}%`
+export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
+export const pctEn = (x: number) => `${Math.round(x * 100)}%`
 
 export const rtEn = {
   title: 'Retold speech',
@@ -54,52 +54,4 @@ export const rtEn = {
   empty: 'Nothing told again here.',
   method:
     'Every word belongs to the narrator or to the speaker of the quotation that holds it (a quotation inside a speech belongs to the one who quotes it). Each run of one teller, cut into pieces of at most 60 content words, is aligned (Smith–Waterman, rare words weighing most) with the earlier text of its book, up to 400 verses back, where it shares the most rare words; at least 5 words aligned. The two passages are then diffed word by word: a change of spelling or form keeps the word. The claim compares the two groups within four length bands, the labels shuffled 9,999 times.',
-}
-
-export const rtHe: typeof rtEn = {
-  title: 'דיבור שמסופר שוב',
-  lede: 'האשה מספרת לנחש מה אמר האל בגן ומוסיפה "ולא תגעו בו"; עבד אברהם מספר ללבן את שבועת אדוניו ומשמיט ממנה. כשדבר שנאמר מסופר שוב, הסיפור החוזר מגלה את המספר. כאן כל קטע שמסופר שוב בהמשך אותו ספר: בפי דובר אחר, בפי אותו דובר, או בפי המספר כמעשה. השניים מוצבים זה מול זה מילה במילה.',
-  notComputed: 'הדיבור שמסופר שוב לא חושב בבנייה זו (הריצו bsim retold).',
-  checksTitle: 'בדיקות שנקבעו מראש',
-  holds: 'מתאשר',
-  fails: 'לא מתאשר',
-  claim: {
-    title: 'דיבור שמסופר בפי דובר אחר משתנה יותר מדיבור שמתבצע',
-    text: (a: number, b: number, na: number, nb: number, p: number) =>
-      `${countHe(na, 'סיפור חוזר אחד בפי דובר אחר', 'שני סיפורים חוזרים בפי דובר אחר', 'סיפורים חוזרים בפי דובר אחר')} משנים ${pctEn(a)} ממילותיהם (מוחלפות, נשמטות, נוספות או זזות); ${countHe(nb, 'דיבור אחד', 'שני דיבורים', 'דיבורים')} שהמספר מספר שוב כמעשה משנים ${pctEn(b)}. בהשוואה באותם אורכים: p ${fp(p)}.`,
-  },
-  known: {
-    title: 'הסיפורים החוזרים שהפרשנים קוראים זה מול זה',
-    text: (found: number, n: number) => `היישור מוצא ${numHe(found)} מתוך ${numHe(n)} שנקבעו מראש; הבדיקה דרשה את כולם.`,
-    found: (rate: number) => `נמצא, ${pctEn(rate)} השתנו`,
-    missing: 'לא נמצא',
-  },
-  groupsTitle: 'מה מסופר שוב',
-  groups: {
-    retold: 'בפי דובר אחר',
-    repeated: 'בפי אותו דובר',
-    carried: 'בפי המספר, כמעשה',
-    told: 'סיפור המספר בפי דובר',
-    narrated: 'סיפור המספר שוב',
-    unclear: 'דובר לא ידוע',
-  },
-  cols: { group: 'מסופר שוב', pairs: 'קטעים', rate: 'מילים שהשתנו' },
-  listTitle: 'הקטעים',
-  show: { label: 'הצגה', all: 'הכול' },
-  order: { label: 'סדר', canon: 'סדר המקרא', most: 'השתנו הכי הרבה', least: 'השתנו הכי מעט' },
-  knownOnly: 'רק שנקבעו מראש',
-  god: 'האל',
-  narrator: 'המספר',
-  unknown: 'דובר לא ידוע',
-  first: 'לראשונה בפי',
-  again: 'שוב בפי',
-  rate: (r: number, n: number) => `${pctEn(r)} מתוך ${numHe(n)} מילים השתנו`,
-  knownTag: 'נקבע מראש',
-  compare: 'השוואת הפסוקים הראשונים',
-  read: 'לקריאת הפרק',
-  count: (n: number) => countHe(n, 'קטע אחד', 'שני קטעים', 'קטעים'),
-  pageOf: (p: number, pages: number) => `עמוד ${numHe(p)} מתוך ${numHe(pages)}`,
-  empty: 'אין כאן דבר שמסופר שוב.',
-  method:
-    'כל מילה שייכת למספר או לדובר של הציטוט שמכיל אותה (ציטוט בתוך דיבור שייך למי שמצטט). כל רצף של מספר אחד, חתוך לחלקים של עד 60 מילות תוכן, מיושר (סמית׳–ווטרמן, המילים הנדירות שוקלות יותר) עם הטקסט הקודם בספרו, עד 400 פסוקים אחורה, במקום שבו הוא חולק הכי הרבה מילים נדירות; לפחות 5 מילים מיושרות. אחר כך שני הקטעים מושווים מילה במילה: שינוי כתיב או צורה משאיר את המילה. הטענה משווה את שתי הקבוצות בתוך ארבעה טווחי אורך, כשהתוויות מעורבבות 9,999 פעמים.',
 }

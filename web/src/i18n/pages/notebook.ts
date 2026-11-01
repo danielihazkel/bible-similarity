@@ -2,7 +2,7 @@
 // §16.47), on the Notebook page and in the panel of every unit page. English first, Hebrew typed
 // against it.
 
-import { countEn, countHe, numEn, numHe } from '../fmt'
+import { countEn, numEn } from '../fmt'
 
 export const nbEn = {
   title: 'Your notebook',
@@ -61,65 +61,6 @@ export const nbEn = {
     title: 'Notebook',
     exported: (date: string) => `Exported ${date}.`,
     collections: 'Collections',
-  },
-  csvCols: { unit: 'passage', unit_he: 'passage_he', type: 'type', note: 'note', collections: 'collections', updated: 'updated' },
-}
-
-export const nbHe: typeof nbEn = {
-  title: 'המחברת שלכם',
-  lede: 'פסוקים וקטעים ששמרתם, עם ההערות שלכם, מקובצים באוספים משלכם. הם נשמרים בשרת הזה באותו קובץ של התיוגים שלכם, בנפרד מן הניתוחים, כך שבנייה חדשה שומרת אותם.',
-  readOnly: 'השרת הזה מחזיק את המחברת לקריאה בלבד: אפשר לקרוא ולייצא אותה, לא לשנות.',
-  hidden: (n: number) => `${countHe(n, 'רשומה אחת היא', 'שתי רשומות הן', 'רשומות הן')} של קטעים שאינם בבנייה זו; הן נשמרות בקובץ אך אינן מוצגות.`,
-  none: 'עדיין לא נשמר דבר. פתחו פסוק או פרק ובחרו ”שמירה במחברת“.',
-  panel: 'מחברת',
-  keep: 'שמירה במחברת',
-  keepTitle: 'שמירת הקטע במחברת שלכם, כדי להוסיף הערה או לשים אותו באוסף',
-  kept: 'במחברת שלכם',
-  drop: 'הסרה מהמחברת',
-  dropTitle: 'הסרתו, ההערה שלו ומקומו בכל אוסף',
-  confirmDrop: 'להסיר אותו ואת ההערה?',
-  yes: 'הסרה',
-  no: 'להשאיר',
-  note: 'הערה',
-  notePlaceholder: 'ההערה שלכם (טקסט פשוט)',
-  save: 'שמירת ההערה',
-  saved: 'נשמר',
-  unsaved: 'עדיין לא נשמר',
-  open: 'פתיחת המחברת',
-  inCollections: 'אוספים',
-  removeFrom: (name: string) => `הוצאה מ”${name}“`,
-  addTo: 'הוספה לאוסף…',
-  newCollection: 'אוסף חדש',
-  newName: 'שם האוסף החדש',
-  create: 'יצירה',
-  createAndAdd: 'יצירה והוספה',
-  saveFailed: (msg: string) => `השמירה נכשלה: ${msg}`,
-  conflict: 'כבר יש אוסף בשם הזה.',
-  collections: 'אוספים',
-  all: (n: number) => `כל הרשומות (${numHe(n)})`,
-  collectionChip: (name: string, n: number) => `${name} (${numHe(n)})`,
-  noCollections: 'עדיין אין אוספים.',
-  rename: 'שינוי שם',
-  description: 'תיאור',
-  descriptionPlaceholder: 'מה האוסף מקבץ (רשות)',
-  saveCollection: 'שמירה',
-  cancel: 'ביטול',
-  deleteCollection: 'מחיקת האוסף',
-  confirmDelete: (name: string) => `למחוק את ”${name}“? הרשומות שבו נשארות במחברת.`,
-  confirmYes: 'מחיקה',
-  filter: 'חיפוש בהערות',
-  filterPlaceholder: 'מילה בהערה או הפניה',
-  count: (shown: number, all: number) =>
-    shown === all ? countHe(all, 'רשומה אחת', 'שתי רשומות', 'רשומות') : `${numHe(shown)} מתוך ${countHe(all, 'רשומה אחת', 'שתי רשומות', 'רשומות')}`,
-  edit: 'עריכה',
-  emptyNote: 'אין הערה.',
-  noMatch: 'אין רשומה מתאימה.',
-  exportMd: 'הורדה כ־Markdown',
-  exportCsv: 'הורדה כ־CSV',
-  md: {
-    title: 'מחברת',
-    exported: (date: string) => `יוצא ב־${date}.`,
-    collections: 'אוספים',
   },
   csvCols: { unit: 'passage', unit_he: 'passage_he', type: 'type', note: 'note', collections: 'collections', updated: 'updated' },
 }

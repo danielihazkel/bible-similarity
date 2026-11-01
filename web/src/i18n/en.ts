@@ -191,6 +191,8 @@ export const en = {
     chapterN: (n: number) => `Chapter ${n}`,
     chaptersShort: (n: number) => `${n} ch.`,
     sections: { Torah: 'Torah', Prophets: 'Prophets', Writings: 'Writings' } as Record<string, string>,
+    // shown beside the English names on the home page (the Hebrew catalog loads only on demand)
+    sectionsHe: { Torah: 'תורה', Prophets: 'נביאים', Writings: 'כתובים' } as Record<string, string>,
     tabs: { chapters: 'Chapters', verses: 'Verses', parashot: 'Parashot', pericopes: 'Pericopes' },
     markers: { pe: 'פ open', samekh: 'ס closed' },
     unknownBook: 'Unknown book.',

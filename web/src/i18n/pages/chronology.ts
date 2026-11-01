@@ -2,10 +2,10 @@
 // the two kingdoms on one count and the numbers of Genesis 5. English first, Hebrew typed
 // against it. Names of people are Hebrew, isolated in the English sentences.
 
-import { numEn, numHe } from '../fmt'
+import { numEn } from '../fmt'
 
-const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
-const pct = (x: number) => `${Math.round(x * 100)}%`
+export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
+export const pct = (x: number) => `${Math.round(x * 100)}%`
 const he = (s: string) => `⁨${s}⁩`
 
 export const chEn = {
@@ -97,95 +97,4 @@ export const chEn = {
   uniform: (p: number) => `Against a last digit chosen at random (four endings in ten): p ${fp(p)}.`,
   compare: (share: number, n: number) => `Shem to Terah (Genesis 11): ${pct(share)} of ${numEn(n)}.`,
   numbersTitle: 'Each number in its verse',
-}
-
-export const chHe: typeof chEn = {
-  title: 'מניין השנים של הכתוב',
-  lede: 'הכתוב מונה את שנותיו בעצמו. גיל כל אב בהולדת בנו מוביל מאדם עד אברם; תקופות שהכתוב מציין ממשיכות עד יציאת מצרים ועד בניין הבית; ספר מלכים נותן לכל מלכות את אורכה, ומתארך כל המלכה בשנה של מלך הממלכה האחרת. כל מספר בדף הזה נקרא מתוך מילות הפסוק שלו ולא הוקלד ביד, והשנים נמנות מאדם, שנת 0.',
-  notComputed: 'מניין השנים לא חושב בבנייה הזו (הריצו bsim chronology).',
-  checksTitle: 'בדיקות שנקבעו מראש',
-  holds: 'אושש',
-  fails: 'לא אושש',
-  known: {
-    title: 'המבול, אברם ויציאת מצרים בשנים שבמסורת',
-    text: (rows: string) => `מסוכם מן הפסוקים, מול החשבון של סדר עולם: ${rows}.`,
-    row: (label: string, ours: number | null, theirs: number) => `${label} ${ours ?? '–'} (סדר עולם ${theirs})`,
-  },
-  syncs: {
-    title: 'הסנכרונים מתאימים לשנות המלכות',
-    text: (agree: number, n: number, expected: number, p: number, rules: string) =>
-      `בין שני סנכרונים שבאים זה אחר זה בכתוב, האם השנים שנמנות לפי מלכי יהודה הן השנים שנמנות לפי מלכי ישראל, בהפרש של שנה לכל היותר? ${numHe(agree)} מתוך ${numHe(n)} מרווחים, ${rules}, לעומת ${expected.toFixed(1)} כששנות המלכות מעורבבות בתוך כל ממלכה (p ${fp(p)}).`,
-  },
-  digits: {
-    title: 'המספרים של בראשית ה מסתיימים ב־0, 2, 5 או 7',
-    text: (hits: number, n: number, share: number, rest: number, p: number) =>
-      `${numHe(hits)} מתוך ${numHe(n)} מספרי השנים של בראשית ה (${pct(share)}), לעומת ${pct(rest)} ממספרי השנים בשאר המקרא (p ${fp(p)}).`,
-  },
-  rule: { accession: 'מן השנה שאחרי העלייה לכס', 'non-accession': 'משנת העלייה לכס' } as Record<string, string>,
-  rulesPair: (judah: string, israel: string) => (judah === israel ? `כששתי הממלכות מונות ${judah}` : `כשיהודה מונה ${judah} וישראל ${israel}`),
-  events: {
-    flood: 'המבול',
-    descent: 'ירידת יעקב למצרים',
-    exodus: 'יציאת מצרים',
-    temple: 'יסוד הבית',
-    solomon: 'מלכות שלמה',
-    division: 'חלוקת הממלכה',
-  } as Record<string, string>,
-  born: (name: string) => `הולדת ${name}`,
-  died: (name: string) => `מות ${name}`,
-  adamTitle: 'מאדם',
-  adamLede: 'כל תאריך הוא תאריך אחר ועוד מספר שנקרא מפסוק: גיל האב בהולדת בנו, השנים שחי אחריה, תקופה שהכתוב מציין. כשהכתוב נותן דרך שנייה לאותו אירוע, הדרך השנייה היא בדיקה.',
-  livesLabel: 'שנות החיים מאדם עד משה, בשנים מאדם',
-  livesTitle: (name: string, born: number, died: number | null) => (died === null ? `${name}: נולד ב־${born}` : `${name}: ${born}–${died}, ${died - born} שנים`),
-  cols: {
-    event: 'אירוע',
-    year: 'שנה',
-    how: 'נמנה',
-    number: 'המספר',
-    verse: 'פסוק',
-    king: 'מלך',
-    reign: 'מלכות',
-    start: 'שנה 1 (מן החלוקה)',
-    am: 'מאדם',
-    statement: 'הסנכרון',
-    judah: 'מניין יהודה',
-    israel: 'מניין ישראל',
-    interval: 'מאז הקודם',
-    rules: 'יהודה / ישראל',
-    agree: 'מרווחים מתאימים',
-  },
-  start: 'שנת 0',
-  plus: (from: string, n: number) => `${from} + ${n}`,
-  minus: (from: string, n: number) => `${from} − ${n}`,
-  checkTag: 'בדיקה',
-  conflictTag: 'שנה אחרת',
-  conflictsTitle: 'היכן שהכתוב מונה פעמיים',
-  conflict: (label: string, used: number, other: number, how: string) => `${label}: ${used} בדרך הראשונה; ${other} כשמונים ${how}.`,
-  kingsTitle: 'שתי הממלכות',
-  kingsLede: 'מלכי כל ממלכה זה אחר זה מן החלוקה (שנת 0), יהודה למעלה וישראל למטה, לפי דרך המניין שמתאימה יותר. קו מחבר את שתי השנים שסנכרון קושר: זקוף כששני המניינים נותנים אותה שנה, ונוטה כמספר השנים שביניהם.',
-  kingsLabel: 'מלכי יהודה וישראל מן החלוקה, והסנכרונים שביניהם',
-  kingdom: { judah: 'יהודה', israel: 'ישראל' } as Record<string, string>,
-  legendAgrees: 'מתאים לסנכרון שלפניו',
-  legendDiffers: 'אינו מתאים',
-  legendFirst: 'הראשון',
-  syncStatement: (king: string, year: number, of: string) => `${king} מלך בשנת ${year} ל${of}`,
-  syncTitle: (statement: string, ref: string, tj: number, ti: number) => `${statement} (${ref}): שנת ${tj} במניין יהודה, ${ti} במניין ישראל`,
-  agrees: 'מתאים',
-  differs: (d: number) => `${d > 0 ? '+' : '−'}${Math.abs(d)} שנים`,
-  first: '—',
-  short: 'פחות משנה',
-  years: (n: number) => (n === 1 ? 'שנה אחת' : n === 2 ? 'שנתיים' : `${n} שנים`),
-  rulesTitle: 'ארבע דרכי המניין',
-  rulesLede: 'לפי שיטת שנת העלייה, השנה הראשונה של מלך היא זו שאחרי עלייתו לכס; בלעדיה, אותה שנה נמנית לו וגם למלך שלפניו. כל זוג שיטות, וכמה מרווחים מתאימים לפיו:',
-  ends: (div: number, judah: number, israel: number, destruction: number | undefined) =>
-    `מאדם: הממלכה נחלקת בשנת ${div}; המלכות האחרונה של ישראל מסתיימת ב־${israel}, ושל יהודה ב־${judah}.${destruction ? ` בסדר עולם הבית חרב בשנת ${destruction}: הוא חופף מלכויות שהסכום הפשוט מניח זו אחר זו.` : ''}`,
-  kingsTable: 'כל המלכויות',
-  digitsTitle: 'המספרים של בראשית ה',
-  digitsLede: (n: number, min: number) => `בראשית ה נותן לכל אב שלושה מספרים: גילו בהולדת בנו הראשון, השנים שחי אחריה וכל ימי חייו. ${numHe(n)} מספרי השנים שבו (מ־${numHe(min)} ומעלה), לפי ספרתם האחרונה, מול אלה של שאר המקרא:`,
-  digit: 'ספרה אחרונה',
-  gen5: 'בראשית ה',
-  rest: 'בשאר המקרא',
-  uniform: (p: number) => `מול ספרה אחרונה מקרית (ארבע סיומות מתוך עשר): p ${fp(p)}.`,
-  compare: (share: number, n: number) => `משם עד תרח (בראשית יא): ${pct(share)} מתוך ${numHe(n)}.`,
-  numbersTitle: 'כל מספר בפסוקו',
 }
