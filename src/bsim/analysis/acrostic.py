@@ -117,15 +117,14 @@ def chain_scores(pos: np.ndarray, max_gap: int, penalty: float) -> np.ndarray:
     reps, n, k = pos.shape
     valid = pos >= 0
     best = np.where(valid, 1.0, -np.inf)
-    for i in range(n):
+    for i in range(1, n):
+        lo = max(0, i - max_gap)
+        pj, bj, vj = pos[:, lo:i], best[:, lo:i], valid[:, lo:i]  # the window: reps x w x k
         for b in range(k):
-            cand = best[:, i, b].copy()
-            for j in range(max(0, i - max_gap), i):
-                for a in range(k):
-                    ok = valid[:, j, a] & valid[:, i, b] & (pos[:, j, a] < pos[:, i, b])
-                    val = best[:, j, a] + 1 - penalty * (pos[:, i, b] - pos[:, j, a] - 1)
-                    cand = np.where(ok & (val > cand), val, cand)
-            best[:, i, b] = cand
+            pi = pos[:, i, b][:, None, None]
+            ok = vj & valid[:, i, b][:, None, None] & (pj < pi)
+            val = np.where(ok, bj + 1 - penalty * (pi - pj - 1), -np.inf)
+            best[:, i, b] = np.maximum(best[:, i, b], val.max(axis=(1, 2)))
     return best.reshape(reps, -1).max(axis=1) if n else np.zeros(reps)
 
 

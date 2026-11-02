@@ -19,6 +19,7 @@
 
 from __future__ import annotations
 
+import functools
 import math
 from typing import Any
 
@@ -95,10 +96,18 @@ def kmeans(x: np.ndarray, k: int, n_init: int, seed: int) -> Any:
     last bits, and at times another optimum (§16.52). sklearn is imported first, since the thread
     limit only reaches an OpenMP runtime already loaded."""
     from sklearn.cluster import KMeans
-    from threadpoolctl import threadpool_limits
 
-    with threadpool_limits(1):
+    with _threadpools().limit(limits=1):
         return KMeans(n_clusters=k, n_init=n_init, random_state=seed).fit(x)
+
+
+@functools.cache
+def _threadpools() -> Any:
+    """The loaded thread pools, looked up once: each lookup walks every loaded library (13 ms;
+    the senses stage runs k-means some 1,800 times)."""
+    from threadpoolctl import ThreadpoolController
+
+    return ThreadpoolController()
 
 
 def g2_table(n11: float, row: float, col: float, total: float) -> float:
