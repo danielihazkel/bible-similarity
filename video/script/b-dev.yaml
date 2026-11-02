@@ -1,0 +1,221 @@
+# Film B: for developers and ML people. Same format as a-general.yaml.
+# Numbers come from docs/RESULTS.md (2026-10-04 build; test split run once, at M9).
+film: b
+title: One GPU, 23,206 verses
+title_he: כרטיס גרפי אחד, 23,206 פסוקים
+voice: en-GB-SoniaNeural
+rate: "-5%"
+timing:                 # seconds on the narration timeline (video/tools/voice.py)
+  lead_in: 0.4
+  line_gap: 0.35
+  scene_gap: 0.7
+  tail: 2.0
+
+scenes:
+  - id: hook
+    visual: >-
+      A 23,206 × 23,206 grid tiles in, chunk by chunk, as on a GPU. A counter climbs to
+      538,000,000, and a line-art GPU card draws in under the grid.
+    capture: null
+    lines:
+      - en: 23,206 verses, each compared with every other. More than half a billion pairs.
+        he: 23,206 פסוקים, כל אחד מושווה לכל האחרים. יותר מחצי מיליארד זוגות.
+      - en: All of it computed at home, on a GTX 1080 Ti from 2017.
+        say: All of it computed at home, on a G T X ten-eighty T I, from 2017.
+        he: הכול מחושב בבית, על GTX 1080 Ti משנת 2017.
+      - en: No cloud, no half precision. Just fp32, and patience.
+        say: No cloud, no half precision. Just F P thirty-two, and patience.
+        he: בלי ענן, בלי חצי דיוק. רק fp32, וסבלנות.
+
+  - id: data
+    visual: >-
+      Source labels draw in as boxes and flow down into one table: verse_id, book, chapter,
+      verse. One row lights up and slides across to become a row of the embedding matrix.
+    capture: null
+    lines:
+      - en: The text comes from open sources.
+        he: הטקסט מגיע ממקורות פתוחים.
+      - en: OSHB's Leningrad Codex gives a lemma and full morphology for every word.
+        say: The O S H B Leningrad Codex gives a lemma and full morphology for every word.
+        he: כתב יד לנינגרד של OSHB נותן ערך מילוני וניתוח צורני מלא לכל מילה.
+      - en: Sefaria's Miqra according to the Masorah gives the text on screen.
+        say: Sefaria's Mikra according to the Masorah gives the text on screen.
+        he: ״מקרא על פי המסורה״ של ספריא נותן את הטקסט שעל המסך.
+      - en: Their 305,517 words are aligned at 99.96 percent.
+        he: 305,517 המילים שלהם מיושרות זו לזו ב־99.96 אחוז.
+      - en: Sefaria's cross-references become the gold standard.
+        he: ההפניות של ספריא הופכות לתקן הזהב.
+      - en: The ETCBC syntax database and a semantic dictionary add clauses and word senses.
+        say: The E T C B C syntax database and a semantic dictionary add clauses and word senses.
+        he: מאגר התחביר של ETCBC ומילון סמנטי מוסיפים פסוקיות ומובני מילים.
+      - en: "One rule joins it all: a verse's id is its place in the Jewish canon, and its row in every matrix."
+        he: "כלל אחד מחבר הכול: מזהה הפסוק הוא מקומו בסדר הספרים היהודי, והשורה שלו בכל מטריצה."
+
+  - id: lexical
+    visual: >-
+      Words collapse into lemmas, and pairs of lemmas join into bigrams. A frequent formula
+      dims to a fifth of its brightness. A sparse matrix fills with scattered gold points.
+    capture: null
+    lines:
+      - en: "The first retriever is lexical: BM25 over lemmas and lemma bigrams."
+        say: "The first retriever is lexical: B M twenty-five over lemmas and lemma bigrams."
+        he: "המאחזר הראשון מילולי: BM25 על ערכים מילוניים וזוגות ערכים."
+      - en: Biblical Hebrew repeats its formulas constantly.
+        he: העברית המקראית חוזרת על נוסחאותיה שוב ושוב.
+      - en: So frequent formulas are detected and weighted down, to a fifth.
+        he: לכן נוסחאות שכיחות מזוהות ומשקלן יורד לחמישית.
+      - en: Chapters and passages get their own TF-IDF over bags of lemmas.
+        say: Chapters and passages get their own T F I D F over bags of lemmas.
+        he: פרקים ופיסקאות מקבלים TF-IDF משלהם על שקי ערכים.
+      - en: A sparse matrix product scores every pair in seconds.
+        he: מכפלת מטריצות דלילות מדרגת כל זוג בתוך שניות.
+
+  - id: semantic
+    visual: >-
+      A BERT stack is drawn as a column of thin layers. Verse points cluster, and pairs pull
+      together while hard negatives push apart. A spike-shaped hub is flattened (CSLS).
+      Then a bar grows from 0.113 to 0.150.
+    capture: null
+    lines:
+      - en: The second retriever is semantic, built on BEREL 3.0, a BERT trained on rabbinic Hebrew.
+        say: The second retriever is semantic, built on Berel three, a BERT trained on rabbinic Hebrew.
+        he: המאחזר השני סמנטי, ובנוי על BEREL 3.0, מודל BERT שאומן על עברית רבנית.
+      - en: Unsupervised SimCSE on the verses helped a little.
+        say: Unsupervised Sim C S E on the verses helped a little.
+        he: אימון SimCSE לא מונחה על הפסוקים עזר מעט.
+      - en: "A supervised fine-tune on the cross-references helped more: Cached Multiple Negatives Ranking loss."
+        he: "כוונון מונחה על ההפניות עזר יותר: פונקציית הפסד Cached Multiple Negatives Ranking."
+      - en: Its hard negatives are mined by BM25, so the model learns past shared vocabulary.
+        say: Its hard negatives are mined by B M twenty-five, so the model learns past shared vocabulary.
+        he: את הדוגמאות השליליות הקשות כורה BM25, כך שהמודל לומד מעבר לאוצר מילים משותף.
+      - en: Gradient caching gives big effective batches, and training peaks at 3.8 gigabytes of VRAM.
+        say: Gradient caching gives big effective batches, and training peaks at three point eight gigabytes of V-RAM.
+        he: שמירת גרדיאנטים במטמון מאפשרת אצוות גדולות, והאימון מגיע לשיא של 3.8 ג׳יגה־בייט זיכרון גרפי.
+      - en: CSLS then corrects hubness, the few verses that turn up as everyone's neighbour.
+        say: C S L S then corrects hubness, the few verses that turn up as everyone's neighbour.
+        he: אחר כך CSLS מתקן את בעיית הרכזות, אותם פסוקים מעטים שמופיעים כשכנים של כולם.
+      - en: On dev, nDCG at ten rises from 0.113 for raw BEREL to 0.150.
+        say: On dev, N D C G at ten rises from 0.113 for raw Berel, to 0.150.
+        he: על קבוצת הפיתוח, nDCG@10 עולה מ־0.113 ב־BEREL הגולמי ל־0.150.
+
+  - id: fusion
+    visual: >-
+      Two ranked lists stand side by side, and lines cross from each into a merged list
+      (RRF). Three bar pairs follow, verse, chapter and pericope, each with the fused bar tallest.
+    capture: eval  # /eval: the systems table
+    lines:
+      - en: Neither retriever wins alone. On dev, BM25 even beats the neural model.
+        say: Neither retriever wins alone. On dev, B M twenty-five even beats the neural model.
+        he: אף מאחזר אינו מנצח לבדו. על קבוצת הפיתוח, BM25 אפילו עוקף את המודל העצבי.
+      - en: So the two ranked lists are merged by weighted reciprocal rank fusion.
+        he: לכן שתי הרשימות המדורגות ממוזגות במיזוג דירוגים הדדי משוקלל.
+      - en: On the held-out test books, fusion is best at every level.
+        he: על ספרי המבחן השמורים, המיזוג הוא הטוב ביותר בכל רמה.
+      - en: 0.136 at verse level, against 0.118 for either input.
+        say: Zero point one three six at verse level, against zero point one one eight for either input.
+        he: 0.136 ברמת הפסוק, לעומת 0.118 לכל אחד מן הקלטים.
+
+  - id: discipline   # the hero, ~60–75 % of the runtime
+    visual: >-
+      HERO. The 39 books are drawn as a row of thin bars, which split into three groups:
+      train 20, dev 6, test 13. The test group is sealed by a ring that the pen closes once.
+      Three gold sets as three threads. Bootstrap intervals as horizontal whiskers: the
+      cross-encoder's whisker crosses zero, and the rejected encoders dim one by one while
+      BEREL stays lit.
+    capture: null
+    lines:
+      - en: Those numbers are modest. What matters is that they are honest.
+        he: המספרים האלה צנועים. מה שחשוב הוא שהם כנים.
+      - en: "The split is by book, not by verse: 20 books to train, 6 to tune, 13 held out."
+        he: "החלוקה היא לפי ספרים, לא לפי פסוקים: 20 ספרים לאימון, 6 לכוונון, 13 שמורים בצד."
+      - en: Every weight and every model was chosen on dev. The test split was run exactly once.
+        he: כל משקל וכל מודל נבחרו על קבוצת הפיתוח. קבוצת המבחן הורצה פעם אחת בלבד.
+      - en: "Three gold sets keep the score honest: Sefaria, OpenBible, and the ETCBC's parallel passages."
+        say: "Three gold sets keep the score honest: Sefaria, Open Bible, and the E T C B C parallel passages."
+        he: "שלושה תקני זהב שומרים על כנות הציון: ספריא, OpenBible והמקבילות של ETCBC."
+      - en: Each change faces a paired bootstrap, and a rule fixed before the run.
+        he: כל שינוי עומד מול bootstrap מזווג, ומול כלל שנקבע לפני ההרצה.
+      - en: A cross-encoder reranker gained 0.004, with an interval crossing zero. Rejected.
+        say: A cross-encoder reranker gained zero point zero zero four, with an interval crossing zero. Rejected.
+        he: מדרג מחדש מסוג cross-encoder הוסיף 0.004, ורווח הסמך שלו חוצה את האפס. נדחה.
+      - en: DictaBERT, multilingual E5 and Qwen3 were all tried against BEREL. BEREL stayed.
+        say: Dicta BERT, multilingual E five and Chwen three were all tried against Berel. Berel stayed.
+        he: DictaBERT, E5 הרב־לשוני ו־Qwen3 נוסו כולם מול BEREL. BEREL נשאר.
+      - en: The negative results stay in the record, next to the positive ones.
+        he: התוצאות השליליות נשארות בתיעוד, לצד החיוביות.
+
+  - id: analyses
+    visual: >-
+      The pipeline graph draws as one continuous line through 67 stage nodes. The line
+      branches into the analysis stages, and each node shows a real value standing apart
+      from a cloud of shuffled values.
+    capture: findings  # /findings and the Pentateuch page
+    lines:
+      - en: Retrieval is only the start. The pipeline has 67 stages.
+        he: האחזור הוא רק ההתחלה. בצינור העיבוד יש 67 שלבים.
+      - en: Each analysis is a test, a claim written in advance and measured against shuffled text.
+        he: כל ניתוח הוא מבחן, טענה שנכתבה מראש ונמדדת מול טקסט מעורבב.
+      - en: An unsupervised split of Genesis to Numbers never sees the divine names.
+        he: חלוקה לא מונחית של בראשית עד במדבר אינה רואה כלל את שמות האל.
+      - en: It still agrees with the scholars' Priestly source at kappa 0.559, against 0.161 shifted.
+        say: It still agrees with the scholars' Priestly source at kappa zero point five five nine, against zero point one six one shifted.
+        he: ובכל זאת היא מסכימה עם מקור הכוהנים של החוקרים ב־kappa של 0.559, לעומת 0.161 בהזזה.
+      - en: Psalm genres clustered from their form alone match Gunkel's at NMI 0.262, against 0.082 shuffled.
+        say: Psalm genres clustered from their form alone match Gunkel's at N M I zero point two six two, against zero point zero eight two shuffled.
+        he: סוגות המזמורים, שקובצו לפי צורתן בלבד, תואמות את אלה של גונקל ב־NMI של 0.262, לעומת 0.082 בערבוב.
+      - en: And claims that fail are reported as failures.
+        he: וטענות שנכשלות מדווחות ככישלונות.
+
+  - id: engineering
+    visual: >-
+      A terminal line types `uv run bsim all`, and a timer runs 38:28. A second run checks
+      off every stage and stops at 2.3 s. SQLite as a cylinder of fine rings, and a request
+      arcs into it and back in 0.53 ms. The viewer's frame draws in, EN flips to HE.
+    capture: tools  # the viewer home, the language toggle
+    lines:
+      - en: The whole pipeline is one command.
+        he: כל צינור העיבוד הוא פקודה אחת.
+      - en: From an empty clone it takes 38 minutes. With nothing changed, 2.3 seconds.
+        say: From an empty clone it takes thirty-eight minutes. With nothing changed, two point three seconds.
+        he: משכפול ריק זה לוקח 38 דקות. כשדבר לא השתנה, 2.3 שניות.
+      - en: A stage reruns only when its code, its config keys or its inputs change.
+        he: שלב רץ מחדש רק כשהקוד שלו, מפתחות התצורה שלו או הקלטים שלו משתנים.
+      - en: The results land in SQLite, 8.3 million precomputed matches.
+        say: The results land in S Q Lite, eight point three million precomputed matches.
+        he: התוצאות נשמרות ב־SQLite, 8.3 מיליון התאמות מחושבות מראש.
+      - en: FastAPI serves a lookup in well under a millisecond.
+        he: FastAPI מגיש שליפה בפחות מאלפית השנייה.
+      - en: The React viewer gets typed from the OpenAPI schema, is tested with Playwright, and speaks English and Hebrew.
+        say: The React viewer gets typed from the Open A P I schema, is tested with Playwright, and speaks English and Hebrew.
+        he: ממשק ה־React מקבל טיפוסים מסכמת OpenAPI, נבדק ב־Playwright, ומדבר אנגלית ועברית.
+
+  - id: outro
+    visual: >-
+      The pipeline line closes into a ring and fills (line to fill). The wordmark "bible-similarity"
+      fades up, with `uv run bsim all` beneath it. Hold 1.2 s.
+    capture: null
+    lines:
+      - en: Hebrew only. One graphics card. Every number reproducible.
+        he: עברית בלבד. כרטיס גרפי אחד. כל מספר ניתן לשחזור.
+      - en: And every echo in the Hebrew Bible, one command away.
+        he: וכל הד בתנ״ך, במרחק פקודה אחת.
+
+# The score (video/tools/music.py): degrees count steps of `mode` from `root` (7 = an octave up).
+music:
+  file: null              # a track of your own instead of the composed score
+  root: 146.83            # D3
+  mode: [0, 1, 3, 5, 7, 8, 10]   # Phrygian (maqam Kurd): D Eb F G A Bb C, darker than film A
+  tempo: 72
+  seed: 11
+  lyre_range: [0, 11]
+  reverb: 0.28
+  default_energy: 0.5
+  energy: {hook: 0.4, data: 0.45, fusion: 0.6, discipline: 1.0, analyses: 0.55, outro: 0.7}
+  hero: discipline
+  ney_hero: [[11, 4], [12, 2], [11, 3], [10, 2], [9, 2], [8, 1], [9, 2], [10, 2], [11, 6],
+             [14, 3], [12, 2], [11, 2], [10, 2], [9, 3], [7, 6]]
+  ney_outro: [[11, 3], [10, 2], [9, 2], [8, 2], [7, 7]]
+  level_db: -15
+  duck_db: -9
+  lufs: -14
+  true_peak: -1

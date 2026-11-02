@@ -1,0 +1,13 @@
+{
+  "name": "bsim-video",
+  "private": true,
+  "type": "module",
+  "description": "Renders the bible-similarity films: line-art pages drawn frame by frame in Edge (video/README.md)",
+  "scripts": {
+    "stills": "node tools/render.mjs --stills",
+    "render": "node tools/render.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

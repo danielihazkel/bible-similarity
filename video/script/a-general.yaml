@@ -1,0 +1,230 @@
+# Film A: for general and curious viewers. One `line` = one subtitle cue (≤ ~14 words).
+# en: the English narration and subtitle; say: what the TTS reads, when it differs from en;
+# he: the Hebrew subtitle. Verses are named by reference only, never quoted in translation.
+film: a
+title: Every verse, every echo
+title_he: כל פסוק, כל הד
+voice: en-GB-SoniaNeural
+rate: "-5%"
+timing:                 # seconds on the narration timeline (video/tools/voice.py)
+  lead_in: 0.4
+  line_gap: 0.35
+  scene_gap: 0.7
+  tail: 2.0
+
+scenes:
+  - id: hook
+    visual: >-
+      The pen writes ב in one stroke. It bursts into a field of 23,206 dots, one per verse in
+      canon order, and gold arcs join pairs of verses across the field.
+    capture: null
+    lines:
+      - en: The Hebrew Bible has 23,206 verses.
+        he: בתנ״ך יש 23,206 פסוקים.
+      - en: Many of them are speaking to each other.
+        he: רבים מהם מדברים זה עם זה.
+      - en: This project listens to all of them at once.
+        he: הפרויקט הזה מקשיב לכולם בבת אחת.
+
+  - id: question
+    visual: >-
+      Two columns of verse ticks for Psalm 14 and Psalm 53 are drawn, and lines join their pairs.
+      Then II Samuel 22 and Psalm 18, where all 51 lines join.
+    capture: compare  # Compare: Ps 14 vs Ps 53, then II Sam 22 vs Ps 18, with the meaning links (M102)
+    lines:
+      - en: Some echoes are easy to hear.
+        he: יש הדים שקל לשמוע.
+      - en: Psalm 14 and Psalm 53 are almost the same poem.
+        he: תהלים י״ד ותהלים נ״ג הם כמעט אותו מזמור.
+      - en: Second Samuel 22 is sung again as Psalm 18.
+        he: שמואל ב׳ כ״ב מושר שוב כתהלים י״ח.
+      - en: Side by side, every one of its 51 verses finds its partner.
+        he: זה לצד זה, כל אחד מ־51 הפסוקים מוצא את בן זוגו.
+      - en: The shared words light up, and so do different words that mean the same.
+        he: המילים המשותפות מוארות, וכך גם מילים שונות שמשמעותן אחת.
+      - en: But most echoes are quieter.
+        he: אבל רוב ההדים שקטים יותר.
+      - en: A borrowed phrase, a scene told again, a rare word that comes back.
+        he: צירוף שאול, סצנה שמסופרת שוב, מילה נדירה שחוזרת.
+      - en: To hear those, you have to compare every verse with every other verse.
+        he: כדי לשמוע אותם, צריך להשוות כל פסוק לכל פסוק אחר.
+
+  - id: lenses
+    visual: >-
+      Three line icons: overlapping letters (words), a wave (meaning), and the two braided
+      (both). They merge into one ranked list whose rows draw in one after another.
+    capture: unit  # a chapter's similar list, switching lexical → semantic → fused
+    lines:
+      - en: So the system reads in more than one way.
+        he: לכן המערכת קוראת ביותר מדרך אחת.
+      - en: By words, weighing rare words above common ones.
+        he: לפי המילים, כשמילים נדירות שוקלות יותר ממילים שכיחות.
+      - en: By meaning, with a language model trained on Hebrew that hears the same idea in other words.
+        say: By meaning, with a language model trained on Hebrew, that hears the same idea in other words.
+        he: לפי המשמעות, בעזרת מודל שפה שאומן על עברית ושומע אותו רעיון במילים אחרות.
+      - en: And by both together, which beats either one alone.
+        he: ולפי שניהם יחד, וזה עדיף על כל אחד מהם לבדו.
+      - en: "There are subtler lenses too: grammar, fields of meaning, sentences built alike."
+        he: "יש גם עדשות עדינות יותר: דקדוק, תחומי משמעות, משפטים שבנויים באותה דרך."
+      - en: For every verse, chapter, passage and Torah portion, its closest matches are waiting.
+        he: לכל פסוק, פרק, פיסקה ופרשה, המקבילות הקרובות ביותר כבר מחכות.
+
+  - id: told-twice
+    visual: >-
+      Parallel lines braid together, then separate into three columns. Small marks show
+      the changed words, and an arrow settles on the later side.
+    capture: synopses  # /synopses: a three-column synopsis, then a sequence with its word changes
+    lines:
+      - en: Some of the Bible tells its history twice.
+        he: חלק מן המקרא מספר את ההיסטוריה שלו פעמיים.
+      - en: Samuel and Kings are retold in Chronicles, chapter after chapter.
+        he: ספרי שמואל ומלכים מסופרים שוב בדברי הימים, פרק אחר פרק.
+      - en: The system finds these runs on its own, verse after verse, in the same order.
+        he: המערכת מוצאת את הרצפים האלה בעצמה, פסוק אחר פסוק, באותו סדר.
+      - en: It lines them up in columns, three or more when a story is told more than twice.
+        he: היא מסדרת אותם בטורים, שלושה ויותר כשסיפור מסופר יותר מפעמיים.
+      - en: It marks every word that was changed, added or left out.
+        he: היא מסמנת כל מילה ששונתה, נוספה או הושמטה.
+      - en: And from the language and the spelling, it judges which side was written later.
+        he: ולפי הלשון והכתיב, היא קובעת איזה צד נכתב מאוחר יותר.
+      - en: Where scholars agree on the answer, it gets 30 of 35 right.
+        he: היכן שהחוקרים מסכימים על התשובה, היא צודקת ב־30 מתוך 35.
+
+  - id: reader
+    visual: >-
+      One Hebrew verse is set large. A gold underline flows under a key word, a box draws
+      around a pun, and a rule splits the verse into its two halves.
+    capture: reader  # /reader on a narrative chapter, turning on speakers, Leitworte, cola, wordplay
+    lines:
+      - en: Then there is the reader.
+        he: ואז יש את הקורא.
+      - en: Open any chapter, and the analyses are painted straight onto the Hebrew.
+        he: פותחים כל פרק, והניתוחים מצוירים ישר על הטקסט העברי.
+      - en: Who is speaking, and to whom.
+        he: מי מדבר, ואל מי.
+      - en: The key word that runs through a story. The two halves of each verse.
+        he: המילה המנחה שעוברת לאורך הסיפור. שתי הצלעות של כל פסוק.
+      - en: Puns and sound-play. Words found almost nowhere else.
+        he: משחקי מילים וצלילים. מילים שכמעט אינן מופיעות במקום אחר.
+      - en: Each is a layer you switch on and off, and the layers combine.
+        he: כל אחד מהם הוא שכבה שמדליקים ומכבים, והשכבות מתחברות זו לזו.
+
+  - id: music
+    visual: >-
+      The pen climbs an acrostic ladder, א to ת, one rung per letter. Then a long stroke and
+      a shorter one beat out 3:2, and the line sinks at the end.
+    capture: poetry  # Acrostics (Ps 119 / Lam 1–4) and the meter view of Lamentations
+    lines:
+      - en: Biblical poetry has a music of its own.
+        he: לשירה המקראית יש מוזיקה משלה.
+      - en: The cantillation marks divide each verse into halves, so parallel lines can be read together.
+        he: טעמי המקרא מחלקים כל פסוק לצלעות, כך שאפשר לקרוא צלעות מקבילות זו מול זו.
+      - en: Alphabetic acrostics are found whole, or with a letter missing.
+        he: אקרוסטיכונים לפי סדר האלף־בית נמצאים בשלמותם, או כשאות אחת חסרה.
+      - en: "Counting stresses brings out the limp of the lament: three beats, then two."
+        he: "ספירת ההטעמות מבליטה את צליעת הקינה: שלוש הטעמות, ואחריהן שתיים."
+      - en: In Lamentations, that falling line is the most common line of all.
+        he: במגילת איכה, השורה הנופלת הזאת היא השכיחה מכולן.
+
+  - id: people-places-time   # the hero, ~60–75 % of the runtime
+    visual: >-
+      HERO. The family tree grows from Adam to David as one continuous line, from the real
+      genealogy edges (example-tree/ as the reference). Its branches morph into the coastline
+      and rivers of the basemap, places light up as gold points, and a story's path crosses
+      the land. Then a timeline: 1656, 1948, 2448.
+    capture: genealogy-places  # /genealogy with a person's panel, then /places and the arc
+    lines:
+      - en: The Bible is also full of people, places and time.
+        he: המקרא מלא גם באנשים, במקומות ובזמן.
+      - en: From Adam to David, the family tree is built from the genealogies themselves.
+        he: מאדם ועד דוד, אילן היוחסין נבנה מן היחוסים שבכתוב עצמו.
+      - en: Every link carries its proof verse.
+        he: כל קשר נושא את פסוק הראיה שלו.
+      - en: Where two passages disagree about a parent or a name, the tree says so.
+        he: היכן ששני כתובים חלוקים על הורה או על שם, האילן אומר זאת.
+      - en: Every place is set on the map, and you can watch a story move across the land.
+        he: כל מקום מוצב על המפה, ואפשר לראות סיפור נע על פני הארץ.
+      - en: Even the calendar is read straight from the verses.
+        he: אפילו לוח הזמנים נקרא ישר מן הפסוקים.
+      - en: Add up the ages, and the Flood comes in the year 1656 after creation.
+        say: Add up the ages, and the Flood comes in the year sixteen fifty-six after creation.
+        he: מחברים את השנים, והמבול חל בשנת 1656 לבריאה.
+      - en: Abram is born in 1948, and the Exodus comes in 2448.
+        say: Abram is born in nineteen forty-eight, and the Exodus comes in twenty-four forty-eight.
+        he: אברם נולד בשנת 1948, ויציאת מצרים חלה בשנת 2448.
+      - en: The same dates as Seder Olam, the ancient rabbinic chronology.
+        say: The same dates as Seder Olahm, the ancient rabbinic chronology.
+        he: אותם תאריכים כמו בסדר עולם, הכרונולוגיה הקדומה של חז״ל.
+
+  - id: findings
+    visual: >-
+      Two columns: "borne out" and "not borne out". Each claim draws as a short line with a
+      check or a cross. Then a shuffle: dots scatter and re-form, and the real value
+      stands apart from the cloud of shuffled values.
+    capture: findings  # /findings, scrolling holds → not borne out
+    lines:
+      - en: But a pattern only matters if it could not be chance.
+        he: אבל לדפוס יש משמעות רק אם אינו יכול להיות מקרה.
+      - en: So every claim is written down before the test, and checked against shuffled text.
+        he: לכן כל טענה נכתבת לפני המבחן, ונבדקת מול טקסט מעורבב.
+      - en: Some claims hold.
+        he: יש טענות שעומדות במבחן.
+      - en: Without being told where to look, the system splits Psalms almost where scholars mark the Elohistic Psalter.
+        say: Without being told where to look, the system splits Psalms almost exactly where scholars mark the Elohistic Psalter.
+        he: בלי שנאמר לה היכן לחפש, המערכת חוצה את תהלים כמעט היכן שהחוקרים מסמנים את המזמורים האלוהיסטיים.
+      - en: In Judges, the cycle of sin and rescue wears down, from six steps for Othniel to three for Samson.
+        he: בספר שופטים, מחזור החטא וההצלה נשחק, משישה שלבים אצל עתניאל לשלושה אצל שמשון.
+      - en: The haftarot the sages chose really are among their portion's closest chapters.
+        say: The haftarot the sages chose really are among their Torah portion's closest chapters.
+        he: ההפטרות שבחרו חז״ל אכן נמנות עם הפרקים הקרובים ביותר לפרשה שלהן.
+      - en: Other claims did not hold, and the project says so, on the same page.
+        he: טענות אחרות לא עמדו במבחן, והפרויקט אומר זאת, באותו עמוד.
+
+  - id: tools
+    visual: >-
+      A search line sweeps across, and Hebrew words fall into a pattern. Two sets of dots are
+      weighed against each other, and the interface flips from English to Hebrew (LTR to RTL).
+    capture: tools  # Ctrl+K, /search, /query, /workbench, the language toggle
+    lines:
+      - en: You can ask your own questions too.
+        he: אפשר גם לשאול שאלות משלכם.
+      - en: Search in Hebrew, by words or by meaning.
+        he: לחפש בעברית, לפי מילים או לפי משמעות.
+      - en: Describe a construction, and find every verse that has it.
+        he: לתאר מבנה לשוני, ולמצוא כל פסוק שיש בו.
+      - en: Contrast two sets of verses, keep a notebook, and switch the interface to Hebrew.
+        he: להשוות שתי קבוצות פסוקים, לנהל מחברת, ולהעביר את הממשק לעברית.
+
+  - id: outro
+    visual: >-
+      The line gathers into a ring and fills with gold (line to fill). The wordmark fades up:
+      "Every verse, every echo" with כל פסוק, כל הד under it. Hold 1.2 s, with the motes still moving.
+    capture: null
+    lines:
+      - en: All of it in Hebrew, with no translation in between.
+        he: הכול בעברית, בלי תרגום באמצע.
+      - en: All of it running at home, on a single graphics card.
+        he: הכול רץ בבית, על כרטיס גרפי אחד.
+      - en: Every verse, every echo.
+        he: כל פסוק, כל הד.
+
+# The score (video/tools/music.py): degrees count steps of `mode` from `root` (7 = an octave up).
+music:
+  file: null              # a track of your own instead of the composed score
+  root: 146.83            # D3
+  mode: [0, 1, 4, 5, 7, 8, 10]   # maqam Hijaz / Ahava Rabbah: D Eb F# G A Bb C
+  tempo: 66               # the lyre's pulse, beats per minute
+  seed: 7
+  lyre_range: [0, 11]     # D3 to A4
+  reverb: 0.3
+  default_energy: 0.5
+  energy: {hook: 0.35, question: 0.45, told-twice: 0.55, music: 0.6, people-places-time: 1.0,
+           findings: 0.4, outro: 0.7}
+  hero: people-places-time      # the tof and the ney play here
+  ney_hero: [[11, 4], [12, 2], [11, 3], [10, 2], [9, 2], [8, 1], [9, 2], [10, 2], [11, 6],
+             [14, 3], [12, 2], [11, 2], [10, 2], [9, 3], [7, 6]]
+  ney_outro: [[11, 3], [10, 2], [9, 2], [8, 2], [7, 7]]
+  level_db: -15           # the bed against the narration, between lines
+  duck_db: -9             # more, under speech
+  lufs: -14
+  true_peak: -1

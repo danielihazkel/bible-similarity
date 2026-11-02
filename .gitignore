@@ -23,3 +23,7 @@ Thumbs.db
 # Playwright
 web/playwright-report/
 web/test-results/
+
+# Video renders (video/README.md)
+/video/out/
+/video/node_modules/
