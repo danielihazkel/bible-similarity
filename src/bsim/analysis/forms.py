@@ -35,6 +35,7 @@ Writes `artifacts/forms/`: `sayings.parquet` (`verse_id, book_id, n_pairs, steps
 
 from __future__ import annotations
 
+import itertools
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -296,17 +297,29 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
     order = np.argsort(book, kind="stable")  # verse ids are in canon order, so this is the identity
     extra = tuple(int(k) for k in lc["extra_lags"])
     like = likeness(x, order, book, lc["lags"], extra)
-    null_like = []
+    # a second likeness on each verse's opening words alone, with its own cutoff (M126: Neh 3's
+    # builders open alike, ועל ידו החזיק, but their verses differ in length)
+    rank = words.groupby("verse_id").cumcount()
+    xo = shape_matrix(words[rank < lc["opening"]], n_verses, lc["max_n"]) if lc["opening"] else None
+    like_o = likeness(xo, order, book, lc["lags"], extra) if xo is not None else None
+    null_like, null_o = [], []
     for _ in range(fc["list_shuffles"]):
         perm = shuffle_within(book[order], list_rng)
         null_like.append(likeness(x, order[perm], book, lc["lags"], extra))
+        if xo is not None:
+            null_o.append(likeness(xo, order[perm], book, lc["lags"], extra))
     threshold = float(np.quantile(np.concatenate(null_like), lc["quantile"]))
-    runs = list_runs(like >= threshold, book[order], lc["min_verses"], lc["max_gap"])
+    t_open = float(np.quantile(np.concatenate(null_o), lc["quantile"])) if null_o else None
+
+    def listlike(sim: np.ndarray, sim_o: np.ndarray | None) -> np.ndarray:
+        return (sim >= threshold) | (sim_o >= t_open if sim_o is not None else False)
+
+    runs = list_runs(listlike(like, like_o), book[order], lc["min_verses"], lc["max_gap"])
     expected_lists = float(
         np.mean(
             [
-                len(list_runs(n >= threshold, book[order], lc["min_verses"], lc["max_gap"]))
-                for n in null_like
+                len(list_runs(listlike(n, no), book[order], lc["min_verses"], lc["max_gap"]))
+                for n, no in itertools.zip_longest(null_like, null_o)
             ]
         )  # fmt: skip
     )
@@ -402,7 +415,9 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_share": fc["known_share"],
         "lists": {
             "threshold": threshold,
-            "like_verses": int((like >= threshold).sum()),
+            "opening_threshold": t_open,
+            "like_verses": int(listlike(like, like_o).sum()),
+            "opening_only": int((listlike(like, like_o) & (like < threshold)).sum()),
             "observed": int(len(lists)),
             "expected": expected_lists,
             "verses": int(in_list.sum()),

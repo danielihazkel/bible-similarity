@@ -380,7 +380,7 @@ typescenes:                   # `bsim typescenes`: recurring plot skeletons (DES
   mismatch: 1.0               # Smith-Waterman over verb lemmas; a match scores its idf
   gap: 0.5
   min_matches: 4              # aligned verbs
-  null_reps: 5                # verb-order shuffles inside pericopes for q-values
+  null_reps: 20               # verb-order shuffles inside pericopes for q-values (5 until M126, after the first run: the other null-ratio stages use 20)
   seed: 13
   sequence_max_q: 0.05        # a pair inside a parallel sequence this strong (§16.7) is marked as already linked
 
@@ -725,6 +725,7 @@ citations:                    # `bsim citations`: verses that say they quote or 
       pattern: "(כאשר|ככל אשר) צוה יהוה (את|אל) משה"
       target: torah
   min_distance: 3             # a source is at least this many verses before the citation
+  exclude_parallels: {max_q: 0.05, window: 1}   # nor its partner (± window verses) in a parallel sequence at q ≤ max_q: a synoptic notice found its own copy (2 Chr 10:15 → 1 Kgs 12:15; M126, after the first run)
   agree_window: 3             # resolved: BM25 alone and cosine alone pick verses this close to the source
   candidates: 5               # best sources kept per citation
   null_samples: 500           # random verses of the same books, per family
@@ -1113,6 +1114,7 @@ forms:                        # `bsim forms`: graded numerical sayings and lists
     lags: 3                   # a verse is compared with the verses up to this far before and after it (genealogies repeat every two or three verses)
     extra_lags: [6]           # ... and exactly this far (Num 7: each chieftain's offering every six verses; added after the first run, M117: lags 6 instead lost the kings of Edom and the stations)
     quantile: 0.99            # a verse is list-like when its best match is above this quantile of the best matches with verse orders shuffled within books
+    opening: 4                # ... or when its first this many words' shapes match a neighbour's above the same quantile of their own shuffles (M126, after the second run: Neh 3's builders open alike, their verses differ in length); 0: off
     min_verses: 5             # a list: at least this many list-like verses
     max_gap: 1                # ... with at most this many other verses between consecutive ones
     kinds:                    # described, not tested: a list's kind by the lemmas in at least half its verses, first match; else `names`, else other

@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M126: Four small misses (§16.15, §16.20, §16.31, §16.45, D122; proposed J8)
+Each a rule changed after a run, reported with all its runs (DESIGN, RESULTS).
+- [x] §16.31 citations: a partner in a parallel sequence (q ≤ 0.05, ± 1 verse) carrying the same formula is not a source (`citations.exclude_parallels`; `sequences` added to the stage's inputs). The first form (every partner) also removed the commands that Exod 39 and Lev 8 carry out (Exod 28, 29): *as commanded* p 0.0096 → 0.12; narrowed to the copy, it changes only Isa 39:8, 2 Chr 6:10, 2 Chr 10:15 (resolved 41 → 38, *the word fulfilled* p 0.19 → 0.63), *as commanded* and the gold check unchanged
+- [x] §16.45 lists: alike in the first four words' shapes as well (`lists.opening`, its own 0.99 cutoff): Neh 3 found, named lists **10 / 10**; 82 lists against 1.6 by chance (61 against 0.9), the new ones series that open alike (Gen 1, Amos 1–2 and 7, Eccl 3, Lev 20)
+- [x] §16.20 type scenes: 20 shuffles (was 5, the only null-ratio stage below 20): 36 → 33 at q ≤ 0.05, 6 not textual as before
+- [x] §16.15 acrostics: the two readings each against its own shuffles, the better p doubled — **not kept**: Ps 9 q 1.0 → 0.066, every other known q 0.008 → 0.014; reverted (acrostics' output identical to before)
+
+✔ No Findings verdict changes: *as commanded* still holds, the lists' check holds (10 / 10).
+
 ## M129: Tables and numbers (§11.1; proposed J11)
 - [x] `TableCsv` on the tables that had no export: the eval page's (supervision, encoders, zero-shot, units, each named), haftarot (2), directions (2), word pairs, borrowing (one per book pair), divisions, dating's chapters, the network's two lists, shifts, small-scale clauses, synopses, voices, retold's groups, the about page's build table
 - [x] Their scroll wrappers keyboard-focusable and named (five had neither); retold's and the about page's tables given one (they overflowed on a phone)
@@ -1323,7 +1332,7 @@ Data and analysis
 - [x] J5 (done, M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check: 26 / 50 right, **not kept**
 - [x] J6 (done, M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
 - [x] J7 (done, M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
-- [ ] J8 (M126) Four small misses: Ps 9's acrostic, citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
+- [x] J8 (done, M126) Four small misses: Ps 9's acrostic (tried, not kept), citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
 
 Docs and evaluation
 - [ ] J9 (M127) The seed-noise bar re-measured on the new OpenBible gold; whether M115's adoption stands

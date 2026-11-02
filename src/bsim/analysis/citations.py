@@ -10,10 +10,11 @@ expressions over the consonantal text):
 - `command`: "as the LORD commanded Moses" — compliance with an earlier command, sought in the
   Torah before the verse.
 
-**Source.** Every allowed verse (`target`: `torah` or `earlier`, never within `min_distance`
-verses of the citation) is scored by the citing verse's BM25 (final lexical lemma index) and
-embedding cosine (final semantic system), each z-scored over the allowed verses; the score is
-their mean, the best verse is the source, and the next `candidates` are kept.
+**Source.** Every allowed verse (`target`: `torah` or `earlier`, never within `min_distance` verses
+of the citation, never its own copy, a parallel passage's verse with the same formula: M126) is
+scored by the citing verse's BM25 (final lexical lemma index) and embedding cosine (final semantic
+system), each z-scored over the allowed verses; the score is their mean, the best verse is the
+source, and the next `candidates` are kept.
 
 **Resolved** when the two signals agree: the best verse by BM25 alone and by cosine alone both
 lie within `agree_window` verses of the source. A best match is not evidence by itself — almost
@@ -91,6 +92,19 @@ def allowed(target: str, source: int, book_of: np.ndarray, min_distance: int) ->
     if target == "torah":
         ok &= np.isin(book_of, list(TORAH))
     return ok
+
+
+def parallel_partners(art: Path, ex: dict[str, Any]) -> dict[int, set[int]]:
+    """Each verse's partners in the parallel sequences (`bsim sequences`, q ≤ `max_q`), widened by
+    `window` verses: a verse in a parallel passage may not cite its own copy (M126)."""
+    seq = pd.read_parquet(art / "sequences" / "verse.parquet", columns=["q", "pairs"])
+    out: dict[int, set[int]] = {}
+    w = ex["window"]
+    for pairs in seq.loc[seq.q <= ex["max_q"], "pairs"]:
+        for a, b, _ in json.loads(pairs):
+            out.setdefault(int(a), set()).update(range(int(b) - w, int(b) + w + 1))
+            out.setdefault(int(b), set()).update(range(int(a) - w, int(a) + w + 1))
+    return out
 
 
 def zscore(x: np.ndarray) -> np.ndarray:
@@ -173,8 +187,18 @@ def run_citations(cfg: dict[str, Any], log: Log = print) -> Path:
     rng = np.random.default_rng(cc["seed"])
     keep, dist, aw = cc["candidates"], cc["min_distance"], cc["agree_window"]
 
+    partners = parallel_partners(art, cc["exclude_parallels"])
+    noticed = {f: set(g.verse_id) for f, g in found.groupby("family")}
+
     def masks_for(vids: list[int], fam: str) -> list[np.ndarray]:
-        return [allowed(fams[fam]["target"], v, book_of, dist) for v in vids]
+        out = []
+        for v in vids:
+            mask = allowed(fams[fam]["target"], v, book_of, dist)
+            # not its own copy: a partner in a parallel passage that carries the same formula
+            # (2 Chr 10:15 / 1 Kgs 12:15); a command's partner without one stays (Exod 39 / 28)
+            mask[sorted(partners.get(v, set()) & noticed.get(fam, set()))] = False
+            out.append(mask)
+        return out
 
     best = []
     for fam, g in found.groupby("family", sort=False):

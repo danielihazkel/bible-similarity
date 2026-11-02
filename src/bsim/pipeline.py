@@ -573,7 +573,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "voices": (*_CORPUS, "syntax"),
     "segments": (*_CORPUS, "build-links", "embed", "seams"),
     "ketiv": ("download", *_CORPUS, "sequences", "diffs"),
-    "citations": (*_CORPUS, "lexical", "embed"),
+    "citations": (*_CORPUS, "lexical", "embed", "sequences"),
     "allusions": (*_CORPUS, *_TOPK, "sequences"),
     "echoes": (*_CORPUS, "network", "citations", "borrowing", "dating"),
     "mirrors": (*_CORPUS, "syntax", "parallelism", "dating"),
