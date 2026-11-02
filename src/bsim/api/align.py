@@ -101,7 +101,13 @@ def align_verses(
 
     links = mutual_links(va, vb, allowed(wa, ha), allowed(wb, hb), min_cos)
     return [
-        {"a_word": i, "b_word": j, "a_display": wa.display[i], "b_display": wb.display[j],
-         "cos": round(c, 4), "same_lemma": bool(wa.lemmas[i] & wb.lemmas[j])}  # fmt: skip
+        {
+            "a_word": i,
+            "b_word": j,
+            "a_display": wa.display[i],
+            "b_display": wb.display[j],
+            "cos": round(c, 4),
+            "same_lemma": bool(wa.lemmas[i] & wb.lemmas[j]),
+        }  # fmt: skip
         for i, j, c in links
     ]

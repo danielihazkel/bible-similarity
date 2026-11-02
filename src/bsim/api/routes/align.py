@@ -44,8 +44,14 @@ def align(a: int, b: int, state: State, conn: Conn) -> dict[str, Any]:
         "encoder": state.meta.get("semantic_encoder"),
         "min_cos": float(ac["min_cos"]),
         "links": [
-            WordLink(a_display=x["a_display"], b_display=x["b_display"], a_form=fa[x["a_word"]],
-                     b_form=fb[x["b_word"]], cos=x["cos"], same_lemma=x["same_lemma"])  # fmt: skip
+            WordLink(
+                a_display=x["a_display"],
+                b_display=x["b_display"],
+                a_form=fa[x["a_word"]],
+                b_form=fb[x["b_word"]],
+                cos=x["cos"],
+                same_lemma=x["same_lemma"],
+            )  # fmt: skip
             for x in links
         ],
     }

@@ -50,8 +50,11 @@ def els(state: State, conn: Conn) -> dict[str, Any]:
         ))  # fmt: skip
     known = [
         ElsKnown(
-            verse=VerseLabel(verse_id=k["verse_id"], label_en=labels[k["verse_id"]][0],
-                             label_he=labels[k["verse_id"]][1]),
+            verse=VerseLabel(
+                verse_id=k["verse_id"],
+                label_en=labels[k["verse_id"]][0],
+                label_he=labels[k["verse_id"]][1],
+            ),
             **{x: k[x] for x in ("term", "skip", "found", "offset", "in_torah", "expected")},
         )  # fmt: skip
         for k in meta.get("known") or []

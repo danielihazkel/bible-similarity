@@ -151,6 +151,8 @@ INDEXES = (
         for s in ("standard", "gadol", "ordinal", "katan")
     ),
 )
+
+
 def _rows(df: pd.DataFrame, cols: list[str], batch: int) -> Iterator[list[tuple[Any, ...]]]:
     """Batches of Python-typed tuples (NaN / NA -> None) for `executemany`."""
     for start in range(0, len(df), batch):

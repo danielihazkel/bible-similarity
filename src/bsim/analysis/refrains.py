@@ -83,19 +83,17 @@ def seeds(t: pd.DataFrame, n: int, min_content: int) -> pd.DataFrame:
     m = len(t) - n + 1
     if m <= 0:
         return pd.DataFrame(columns=["key", "verse_id", "start"])
-    same = vid[: m] == vid[n - 1 :]
+    same = vid[:m] == vid[n - 1 :]
     key = np.zeros(m, dtype=np.int64)
     for k in range(n):
         key = (key << bits) | ids[k : k + m]
     c = np.concatenate([[0], np.cumsum(t.content.to_numpy(dtype=np.int64))])
     ok = same & (c[n:] - c[:m] >= min_content)
-    g = pd.DataFrame({"key": key[ok], "verse_id": vid[: m][ok], "start": t.pos.to_numpy()[: m][ok]})
+    g = pd.DataFrame({"key": key[ok], "verse_id": vid[:m][ok], "start": t.pos.to_numpy()[:m][ok]})
     return g.drop_duplicates(["key", "verse_id"]).reset_index(drop=True)
 
 
-def find_runs(
-    g: pd.DataFrame, n_book: np.ndarray, max_gap: int, min_count: int
-) -> pd.DataFrame:
+def find_runs(g: pd.DataFrame, n_book: np.ndarray, max_gap: int, min_count: int) -> pd.DataFrame:
     """Runs of one seed in one book (`g`: `key, verse_id, book_id, df`): `key, book_id, k, first,
     last, verses` (a tuple) and the burst `p`; the strongest run per verse set."""
     g = g.sort_values(["key", "verse_id"], kind="stable")
@@ -138,14 +136,16 @@ def extend(
 ) -> tuple[list[int], int]:
     """The longest phrase all occurrences share around the seed: new starts and length."""
     starts = list(starts)
-    while all(s > 0 for s in starts) and len(
-        {lemmas[v][s - 1] for v, s in zip(verses, starts, strict=True)}
-    ) == 1:
+    while (
+        all(s > 0 for s in starts)
+        and len({lemmas[v][s - 1] for v, s in zip(verses, starts, strict=True)}) == 1
+    ):
         starts = [s - 1 for s in starts]
         n += 1
-    while all(s + n < len(lemmas[v]) for v, s in zip(verses, starts, strict=True)) and len(
-        {lemmas[v][s + n] for v, s in zip(verses, starts, strict=True)}
-    ) == 1:
+    while (
+        all(s + n < len(lemmas[v]) for v, s in zip(verses, starts, strict=True))
+        and len({lemmas[v][s + n] for v, s in zip(verses, starts, strict=True)}) == 1
+    ):
         n += 1
     return starts, n
 
@@ -315,9 +315,7 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
             "n": len(obs),
             "observed": float(np.mean(obs)) if obs else None,
             "expected": float(null_mean.mean()),
-            "p": empirical_p(np.mean(obs), null_mean)
-            if obs
-            else None,
+            "p": empirical_p(np.mean(obs), null_mean) if obs else None,
         }
 
     # (1) the refrains scholarship names

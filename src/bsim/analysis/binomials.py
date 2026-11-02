@@ -191,7 +191,7 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
             continue  # a tie: no own order
         lo_own = 2 * n_lo > n
         own_first[pair] = lo_own
-        first_lem, second_lem = (pair.split("+") if lo_own else pair.split("+")[::-1])
+        first_lem, second_lem = pair.split("+") if lo_own else pair.split("+")[::-1]
         own = g.lo_first == lo_own
 
         def stat(lemma: str, col: str, g: pd.DataFrame = g) -> float:
@@ -260,8 +260,10 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
                "rate_late": float(rev_r[late_r].mean()) if late_r.any() else None}  # fmt: skip
     rate_early = float(rev[~is_late].mean()) if (~is_late).any() else None
     rate_late = float(rev[is_late].mean()) if is_late.any() else None
-    log(f"rarer order: early {rate_early}, late {rate_late} (p {p_late:.4g}); without the known"
-        f" pair p {without['p']:.4g}")
+    log(
+        f"rarer order: early {rate_early}, late {rate_late} (p {p_late:.4g}); without the known"
+        f" pair p {without['p']:.4g}"
+    )
 
     # known
     by_pair = {(r["first"], r["second"]): r for r in trows}
@@ -287,6 +289,7 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
     log(f"known: {[(k['share'], k['n']) for k in known]}; זהב first early {se}, late {sl}")
 
     ex = int(bc["examples"])
+
     def spread(g: pd.DataFrame) -> pd.DataFrame:
         """Up to `ex` occurrences evenly spaced through the canon (the first and the last kept)."""
         if len(g) <= ex:
@@ -320,7 +323,9 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
     write_meta(out / "binomials.meta.json", meta)  # fmt: skip
-    log(f"done: shorter first {'holds' if short_holds else 'not borne out'}, late"
+    log(
+        f"done: shorter first {'holds' if short_holds else 'not borne out'}, late"
         f" {'holds' if late_holds else 'not borne out'}, known"
-        f" {'holds' if known_holds else 'not borne out'} ({meta['seconds']} s) -> {out}")
+        f" {'holds' if known_holds else 'not borne out'} ({meta['seconds']} s) -> {out}"
+    )
     return out / "types.parquet"

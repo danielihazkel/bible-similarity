@@ -152,13 +152,14 @@ def domain_tables(
         columns=["verse_id", "idx", "code", "weight"],
     )
     per_word = long.groupby(["verse_id", "idx"]).code.agg(lambda c: " ".join(sorted(set(c))))
-    word_domains = [
-        per_word.get((v, i)) for v, i in zip(words.verse_id, words.idx, strict=True)
-    ]
+    word_domains = [per_word.get((v, i)) for v, i in zip(words.verse_id, words.idx, strict=True)]
     dv = long.groupby(["code", "verse_id"], as_index=False).weight.sum()
     up = pd.DataFrame(
-        [(a, v, w) for c, v, w in zip(dv.code, dv.verse_id, dv.weight, strict=True)
-         for a in ancestors(c)],
+        [
+            (a, v, w)
+            for c, v, w in zip(dv.code, dv.verse_id, dv.weight, strict=True)
+            for a in ancestors(c)
+        ],
         columns=["code", "verse_id", "weight"],
     )
     stats = up.groupby("code").agg(n_verses=("verse_id", "nunique"), weight=("weight", "sum"))

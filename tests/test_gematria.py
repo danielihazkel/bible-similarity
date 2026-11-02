@@ -101,9 +101,10 @@ def test_api_lists(client):
     # ראשית חכמה (v5, book 1) by ordinal; the book filter
     v5 = client.get("/api/gematria/value", params={"text": "ראשית חכמה"}).json()["values"]
     by = {"value": v5["ordinal"], "system": "ordinal"}
-    assert [i["verse"]["verse_id"] for i in client.get("/api/gematria/verses", params=by).json()[
-        "items"
-    ]] == [5]
+    assert [
+        i["verse"]["verse_id"]
+        for i in client.get("/api/gematria/verses", params=by).json()["items"]
+    ] == [5]
     assert client.get("/api/gematria/verses", params={**by, "book": 0}).json()["total"] == 0
 
 

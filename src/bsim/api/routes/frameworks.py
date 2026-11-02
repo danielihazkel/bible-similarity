@@ -43,8 +43,18 @@ def frameworks(state: State, conn: Conn) -> dict[str, Any]:
         **{k: m[k] for k in keep},
         "episodes": [
             Episode(
-                **{k: e[k] for k in ("episode", "judge", "seq", "first_vid", "last_vid",
-                                     "n_slots", "share")},  # fmt: skip
+                **{
+                    k: e[k]
+                    for k in (
+                        "episode",
+                        "judge",
+                        "seq",
+                        "first_vid",
+                        "last_vid",
+                        "n_slots",
+                        "share",
+                    )
+                },  # fmt: skip
                 ref=verses[e["first_vid"]]["ref"],
                 ref_he=verses[e["first_vid"]]["ref_he"],
                 slots=[hit(s, found.get((e["episode"], s))) for s in m["slots"]],
@@ -55,7 +65,8 @@ def frameworks(state: State, conn: Conn) -> dict[str, Any]:
         "kings": [
             FrameworkKing(
                 **{c: k[c] for c in ("king", "name", "kingdom", "seq", "first_vid", "verdict")},
-                verdict_verse=verses.get(k["verdict_vid"]) if k["verdict_vid"] is not None
+                verdict_verse=verses.get(k["verdict_vid"])
+                if k["verdict_vid"] is not None
                 else None,
                 slots=[hit(s, k[s]) for s in regnal],
             )

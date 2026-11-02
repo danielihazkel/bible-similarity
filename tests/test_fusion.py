@@ -109,7 +109,10 @@ def test_run_fuse_writes_all_unit_types(tmp_path):
     assert v.phr_rank.isna().all()  # verses are fused from two lists
     c = pd.read_parquet(art / "topk" / "chapter" / "fused.parquet")
     assert sorted(zip(c.src_id, c.tgt_id, strict=True)) == [
-        ("c:0", "c:1"), ("c:0", "c:2"), ("c:1", "c:0"), ("c:2", "c:0")
+        ("c:0", "c:1"),
+        ("c:0", "c:2"),
+        ("c:1", "c:0"),
+        ("c:2", "c:0"),
     ]
     via = c[(c.src_id == "c:0") & (c.tgt_id == "c:2")].iloc[0]
     assert via.phr_rank == 1 and pd.isna(via.lex_rank) and pd.isna(via.sem_rank)

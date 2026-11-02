@@ -191,8 +191,9 @@ def corpus(tmp_path):
          (1, 1, "תְּקוֹעַ", "8620", "HNp"), (2, 0, "הַיָּם", "d/3220", "HTd/Ncmsa")],
         columns=["verse_id", "idx", "surface", "lemma", "morph"],
     ).to_parquet(proc / "words.parquet")  # fmt: skip
-    pd.DataFrame([("59", "n-pr-loc"), ("3220", "n-m"), ("8620", "n-pr-m")],
-                 columns=["strong", "pos"]).to_parquet(proc / "lexicon_lemmas.parquet")
+    pd.DataFrame(
+        [("59", "n-pr-loc"), ("3220", "n-m"), ("8620", "n-pr-m")], columns=["strong", "pos"]
+    ).to_parquet(proc / "lexicon_lemmas.parquet")
     pd.DataFrame(
         [("59", "אבל"), ("8620", "תקוע"), ("3220", "ים")], columns=["lemma", "he"]
     ).to_parquet(art / "entities" / "entities.parquet")
@@ -235,8 +236,11 @@ def corpus(tmp_path):
         return json.dumps({"type": "FeatureCollection", "features": list(features)})
 
     def feature(kind, coords, **props):
-        return {"type": "Feature", "properties": props, "geometry": {"type": kind,
-                                                                     "coordinates": coords}}
+        return {
+            "type": "Feature",
+            "properties": props,
+            "geometry": {"type": kind, "coordinates": coords},
+        }
 
     (raw / "geo" / "ne_10m_land.geojson").write_text(fc(feature("Polygon", [square])), "utf-8")
     (raw / "geo" / "ne_10m_lakes.geojson").write_text(

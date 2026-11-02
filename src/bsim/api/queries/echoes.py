@@ -11,8 +11,7 @@ from bsim.api.queries.common import _dicts, count
 def echo_books(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     return _dicts(
         conn.execute(
-            "SELECT * FROM echo_books ORDER BY cited + borrowed + language DESC,"
-            " src_book, dst_book"
+            "SELECT * FROM echo_books ORDER BY cited + borrowed + language DESC, src_book, dst_book"
         )
     )
 

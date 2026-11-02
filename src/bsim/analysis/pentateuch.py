@@ -127,9 +127,11 @@ def smooth_within(prob: np.ndarray, book: np.ndarray, k: int) -> np.ndarray:
     if k <= 0:
         return prob.copy()
     s = pd.Series(prob)
-    return s.groupby(book).transform(
-        lambda g: g.rolling(2 * k + 1, center=True, min_periods=1).mean()
-    ).to_numpy()
+    return (
+        s.groupby(book)
+        .transform(lambda g: g.rolling(2 * k + 1, center=True, min_periods=1).mean())
+        .to_numpy()
+    )
 
 
 def kappa(a: np.ndarray, b: np.ndarray) -> float:

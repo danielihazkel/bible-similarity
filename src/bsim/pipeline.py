@@ -598,7 +598,13 @@ DEPS: dict[str, tuple[str, ...]] = {
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (
-        *_CORPUS, "build-links", "build-golds", *_TOPK, "eval-openbible", "phrases", "sequences"
+        *_CORPUS,
+        "build-links",
+        "build-golds",
+        *_TOPK,
+        "eval-openbible",
+        "phrases",
+        "sequences",
     ),
 }
 DEPS["build-db"] = tuple(s for s in STAGES if s != "build-db")
@@ -625,8 +631,10 @@ RAW: dict[str, tuple[str, ...]] = {
 # this an adopted stage takes every section its code's imports name (syntax, fusion, units …).
 UNTRACKED: dict[str, tuple[tuple[str, ...], str]] = {
     "train-simcse": (("encoders", "eval", "paths", "retrieval", "seed", "text", "train"), "simcse"),
-    "train-sup": (("encoders", "eval", "paths", "retrieval", "seed", "text", "train"),
-                  "supervised"),  # fmt: skip
+    "train-sup": (
+        ("encoders", "eval", "paths", "retrieval", "seed", "text", "train"),
+        "supervised",
+    ),  # fmt: skip
 }
 
 

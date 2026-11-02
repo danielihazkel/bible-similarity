@@ -203,14 +203,10 @@ def line_relation(
     ant, syn = rel
     ka = {strong_key(x): x for x in sorted(a)}
     kb = {strong_key(x): x for x in sorted(b)}
-    found = sorted(
-        (ka[x], kb[y], "antonym") for x in ka for y in kb if x != y and (x, y) in ant
-    )
+    found = sorted((ka[x], kb[y], "antonym") for x in ka for y in kb if x != y and (x, y) in ant)
     if found:
         return "antithetic", found
-    found = sorted(
-        (ka[x], kb[y], "synonym") for x in ka for y in kb if x != y and (x, y) in syn
-    )
+    found = sorted((ka[x], kb[y], "synonym") for x in ka for y in kb if x != y and (x, y) in syn)
     found += sorted(
         {
             (ka.get(x, x), kb.get(y, y), "domain")

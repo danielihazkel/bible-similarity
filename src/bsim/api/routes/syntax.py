@@ -183,9 +183,7 @@ def speech_book(book_id: int, state: State, conn: Conn) -> dict[str, Any]:
             SpeechChapter(unit_id=c["unit_id"], chapter=c["chapter"], **{k: c[k] for k in SHARES})
             for c in chapters
         ],
-        "speakers": _speakers(
-            state, queries.speakers(conn, book_id), _targets(conn, book_id)
-        ),
+        "speakers": _speakers(state, queries.speakers(conn, book_id), _targets(conn, book_id)),
     }
 
 

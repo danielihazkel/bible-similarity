@@ -94,8 +94,11 @@ def quotations(clauses: pd.DataFrame, marks: pd.DataFrame, verses: pd.DataFrame)
     n = len(c)
     for k, s in enumerate(starts):
         d, j = depth[s], s + 1
-        while j < n and book[j] == book[s] and depth[j] >= d and not (
-            depth[j] == d and (quote[j] == c.clause[j] or not speech[j])
+        while (
+            j < n
+            and book[j] == book[s]
+            and depth[j] >= d
+            and not (depth[j] == d and (quote[j] == c.clause[j] or not speech[j]))
         ):
             j += 1
         ends[k] = j - 1

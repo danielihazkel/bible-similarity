@@ -65,8 +65,20 @@ def bracket_items(
             unit_id=f"c:{verses[r['a']]['book_id']}:{verses[r['a']]['chapter']}",
             between=r["n_between"],
             known=bool(r["known"]),
-            **{k: r[k] for k in ("bracket", "book_id", "score", "n_tokens", "lex",
-                                 "sem", "insertion", "p", "q")},  # fmt: skip
+            **{
+                k: r[k]
+                for k in (
+                    "bracket",
+                    "book_id",
+                    "score",
+                    "n_tokens",
+                    "lex",
+                    "sem",
+                    "insertion",
+                    "p",
+                    "q",
+                )
+            },  # fmt: skip
         )
         for r in rows
     ]

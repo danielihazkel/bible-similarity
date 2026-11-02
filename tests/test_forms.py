@@ -61,9 +61,7 @@ def test_free_numbers():
 
 
 def test_candidate_pairs_and_steps():
-    free = pd.DataFrame(
-        {"verse_id": [0, 0, 0, 1], "idx": [0, 3, 20, 0], "value": [3, 4, 4, 3]}
-    )
+    free = pd.DataFrame({"verse_id": [0, 0, 0, 1], "idx": [0, 3, 20, 0], "value": [3, 4, 4, 3]})
     a, b = candidate_pairs(free, 8)
     assert list(zip(a, b, strict=True)) == [(0, 1)]  # 20 is too far; verse 1 is another verse
     codes, ok = step_table(free.value.to_numpy(), STEPS)

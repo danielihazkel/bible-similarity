@@ -34,6 +34,7 @@ def _ciphers(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
 
     return build
 
+
 def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The Masorah's counts on our text: the middle letter, words and verse of the Torah land
     within `masorah.tolerance` units of ours; our books have the Masorah's verse totals. A check
@@ -54,6 +55,7 @@ def _masorah(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | 
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _gematria_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Do equal letter values link related words (§16.59)? `gematria_links`: equal-value pairs
@@ -91,6 +93,7 @@ def _gematria_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Fin
 
     return build
 
+
 def _els(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Equidistant letter sequences (§16.62). `els_counts`: the names' hits in the Torah are no
     more than the controls' (letters shuffled, verses shuffled, blocks of the rest of the Bible)
@@ -119,6 +122,7 @@ def _els(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _chronology(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The text's own chronology: the Flood, Abram and the Exodus at Seder Olam's years; the

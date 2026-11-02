@@ -36,17 +36,17 @@ from typing import Any
 import numpy as np
 
 ERROR_CODES = (
-    "empty",            # no pattern
-    "expected_pattern", # something other than a pattern or a gap
-    "unclosed",         # `[` without `]`
-    "bad_condition",    # no `=` / `!=`, or no value
+    "empty",  # no pattern
+    "expected_pattern",  # something other than a pattern or a gap
+    "unclosed",  # `[` without `]`
+    "bad_condition",  # no `=` / `!=`, or no value
     "unknown_key",
-    "bad_value",        # a value the key does not take
-    "unknown_value",    # a Hebrew lemma or root that is not in the text
-    "bad_gap",          # `..N` with N not between 1 and the limit
-    "too_many",         # more patterns than allowed
-    "variable",         # a variable on a key that takes none, or used with != before it is bound
-    "too_broad",        # more partial matches than the limit
+    "bad_value",  # a value the key does not take
+    "unknown_value",  # a Hebrew lemma or root that is not in the text
+    "bad_gap",  # `..N` with N not between 1 and the limit
+    "too_many",  # more patterns than allowed
+    "variable",  # a variable on a key that takes none, or used with != before it is bound
+    "too_broad",  # more partial matches than the limit
 )
 
 POS = {"V": "verb", "C": "conjunction", "R": "preposition", "D": "adverb", "P": "pronoun",

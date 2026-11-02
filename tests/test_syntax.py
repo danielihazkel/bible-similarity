@@ -294,7 +294,9 @@ def test_syntax_api(client):
     assert speech["speech"] and speech["divine"] and speech["speaker_he"] == "יהוה"
     # to משה (not in the fixture's lemmas, so no Hebrew form)
     assert (speech["addressee"], speech["addressee_he"], speech["addressee_source"]) == (
-        "4872", None, "explicit"
+        "4872",
+        None,
+        "explicit",
     )
     chapter = client.get("/api/syntax/c:0:1").json()
     assert [x["verse_id"] for x in chapter["verses"]] == [0, 1] and chapter["neighbors"] == []

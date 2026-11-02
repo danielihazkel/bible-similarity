@@ -171,9 +171,11 @@ def gematria_links(state: State, conn: Conn) -> dict[str, Any]:
     eqs = meta.get("equivalences") or []
     heads = queries.gematria_lemma_heads(conn, [e[k] for e in eqs for k in ("a", "b") if e.get(k)])
     equivalences = [
-        LinkEquivalence(**{k: v for k, v in e.items() if k not in ("a", "b")},
-                        a=_link_lemma(heads, e["a"]) if e.get("a") else None,
-                        b=_link_lemma(heads, e["b"]) if e.get("b") else None)  # fmt: skip
+        LinkEquivalence(
+            **{k: v for k, v in e.items() if k not in ("a", "b")},
+            a=_link_lemma(heads, e["a"]) if e.get("a") else None,
+            b=_link_lemma(heads, e["b"]) if e.get("b") else None,
+        )  # fmt: skip
         for e in eqs
     ]
     v = meta.get("verse")
@@ -186,15 +188,30 @@ def gematria_links(state: State, conn: Conn) -> dict[str, Any]:
             return VerseLabel(verse_id=i, label_en=labels[i][0], label_he=labels[i][1])
 
         verse = LinkVerse(
-            **{k: v[k] for k in ("value", "words", "letters", "largest_prime", "n_verses", "all",
-                                 "expected_all", "unique_here", "unique_share")},  # fmt: skip
+            **{
+                k: v[k]
+                for k in (
+                    "value",
+                    "words",
+                    "letters",
+                    "largest_prime",
+                    "n_verses",
+                    "all",
+                    "expected_all",
+                    "unique_here",
+                    "unique_share",
+                )
+            },  # fmt: skip
             verse=label(v["verse_id"]),
             twins=[label(i) for i in v.get("twins", []) if i in labels],
             properties=[LinkProperty(**p) for p in meta.get("properties") or []],
         )
     return {
-        "meta": {k: x for k, x in meta.items()
-                 if k not in ("tests", "equivalences", "verse", "properties")},  # fmt: skip
+        "meta": {
+            k: x
+            for k, x in meta.items()
+            if k not in ("tests", "equivalences", "verse", "properties")
+        },  # fmt: skip
         "equal": {m: LinkTest(**t) for m, t in (tests.get("equal") or {}).items()},
         "root_family": {m: LinkTest(**t) for m, t in (tests.get("root_family") or {}).items()},
         "equivalences": equivalences,
@@ -220,8 +237,11 @@ def gematria_link_pairs(
         GematriaPair(
             a=LinkLemma(lemma=r["a"], he=r["a_he"], n_words=r["a_n"]),
             b=LinkLemma(lemma=r["b"], he=r["b_he"], n_words=r["b_n"]),
-            value=r["value"], same_letters=bool(r["same_letters"]), domains=r["domains"],
-            root=bool(r["root"]), vector=r["vector"],
+            value=r["value"],
+            same_letters=bool(r["same_letters"]),
+            domains=r["domains"],
+            root=bool(r["root"]),
+            vector=r["vector"],
         )  # fmt: skip
         for r in rows
     ]

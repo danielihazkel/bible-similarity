@@ -101,6 +101,8 @@ def compound_name(
     nouns = [f for s, f in rest if pos.get(s, "").split()[:1] and pos[s].split()[0] in _COMMON_NOUN]
     others = [f for s, f in rest if f not in nouns]
     return " ".join([*nouns, head[1], *others])
+
+
 Log = Callable[[str], None]
 
 KINDS = ("town", "region", "landform", "water")
@@ -367,8 +369,15 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
     shape_rows = [
         s
         for file, layer, rank in layers
-        for s in shapes(ne[file], layer, box, float(mc["tolerance"]), int(mc["digits"]),  # type: ignore[arg-type]
-                        float(mc["min_area"]), rank)  # fmt: skip
+        for s in shapes(
+            ne[file],
+            layer,
+            box,
+            float(mc["tolerance"]),
+            int(mc["digits"]),  # type: ignore[arg-type]
+            float(mc["min_area"]),
+            rank,
+        )  # fmt: skip
     ]
     basemap = pd.DataFrame(
         [(i + 1, s["layer"], s["name"], s["rank"], json.dumps(s["rings"], separators=(",", ":")))
@@ -406,9 +415,11 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
         "multi_site_strongs": int((multi > 1).sum()),
         "name_kinds": {k: int((name_kinds.kind == k).sum()) for k in NAME_KINDS},
         "hand_check": hc,
-        "map": {"box": list(box), "shapes": {k: int((basemap.layer == k).sum()) for k in
-                                             ("land", "lakes", "rivers")},
-                "points": int(sum(len(r) for s in shape_rows for r in s["rings"]))},  # fmt: skip
+        "map": {
+            "box": list(box),
+            "shapes": {k: int((basemap.layer == k).sum()) for k in ("land", "lakes", "rivers")},
+            "points": int(sum(len(r) for s in shape_rows for r in s["rings"])),
+        },  # fmt: skip
         "seconds": round(time.perf_counter() - t0, 1),
     }
     write_meta(out / "places.meta.json", meta)

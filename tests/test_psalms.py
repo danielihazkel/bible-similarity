@@ -121,8 +121,10 @@ def write_toy(tmp_path):
     cfg["psalms"] = {
         **cfg["psalms"],
         "genres": {"hymn": [1, 2, 3, 4, 5, 6], "lament_individual": [7, 8, 9, 10, 11, 12]},
-        "checks": [["lament_individual", "first_singular", "higher"],
-                   ["hymn", "imperative_plural", "higher"]],  # fmt: skip
+        "checks": [
+            ["lament_individual", "first_singular", "higher"],
+            ["hymn", "imperative_plural", "higher"],
+        ],  # fmt: skip
         "known_turns": ["Psalms 7:5", "Psalms 8:5"],
         "tolerance": 0,  # with 8 verses, 1 either side would be 3 of the 5 splits
         "draws": 199,

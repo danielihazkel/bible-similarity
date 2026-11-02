@@ -25,6 +25,7 @@ def _divisions(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | 
         key="divisions", verdict="holds" if values["p"] <= alpha else "fails", values=values
     )
 
+
 def _clauses(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     c = (meta.get("mirrors") or {}).get("clauses")
     if not c or c.get("p") is None:
@@ -32,6 +33,7 @@ def _clauses(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | No
     values = {k: c[k] for k in ("poetry", "prose", "poetry_n", "prose_n", "p")}
     holds = c["poetry"] > c["prose"] and c["p"] <= alpha
     return Finding(key="clauses", verdict="holds" if holds else "fails", values=values)
+
 
 def _dating(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     d = meta.get("dating") or {}
@@ -41,12 +43,14 @@ def _dating(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     values = {"later": s["later"], "pairs": s["pairs"], "p": s["p"], "auc": d.get("held_out_auc")}
     return Finding(key="dating", verdict="holds" if s["p"] <= alpha else "fails", values=values)
 
+
 def _borrowing(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     h = (meta.get("borrowing") or {}).get("held_out")
     if not h:
         return None
     values = {k: h[k] for k in ("agree", "n", "unclear", "p")}
     return Finding(key="borrowing", verdict="holds" if h["p"] <= alpha else "fails", values=values)
+
 
 def _citations(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     fam = (meta.get("citations") or {}).get("families") or {}
@@ -63,6 +67,7 @@ def _citations(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | 
     }
     return Finding(key="citations", verdict="holds" if c["p"] <= alpha else "fails", values=values)
 
+
 def _voices(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     v = meta.get("voices") or {}
     if not v.get("speakers"):
@@ -74,6 +79,7 @@ def _voices(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     }
     holds = v["significant"] > 0 and not values["calibration"]
     return Finding(key="voices", verdict="holds" if holds else "fails", values=values)
+
 
 def _echoes(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     e = meta.get("echoes") or {}
@@ -90,6 +96,7 @@ def _echoes(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     holds = not s["underpowered"] and s["p"] <= alpha
     return Finding(key="echoes", verdict="holds" if holds else "fails", values=values)
 
+
 def _allusions(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     a = meta.get("allusions") or {}
     if not a.get("pairs"):
@@ -97,6 +104,7 @@ def _allusions(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | 
     values = {k: a.get(k) for k in ("pairs", "known", "strong", "strong_known", "best_new_q")}
     new_hold = a.get("best_new_q") is not None and a["best_new_q"] <= alpha
     return Finding(key="allusions", verdict="holds" if new_hold else "lead", values=values)
+
 
 def _cognate(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     t = ((meta.get("roots") or {}).get("tests") or {}).get("cognate")
@@ -106,6 +114,7 @@ def _cognate(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | No
     # the claim: a verb takes a noun of its own root nearby more often than chance
     holds = t["ratio"] > 1 and t["p"] <= alpha
     return Finding(key="cognate", verdict="holds" if holds else "fails", values=values)
+
 
 def _root_leitworte(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     r = meta.get("roots") or {}
@@ -122,6 +131,7 @@ def _root_leitworte(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Findi
     # the claim: counted by root, the Leitworte scholarship names rank higher than by lemma
     holds = (r.get("known_top_root") or 0) > (r.get("known_top_lemma") or 0)
     return Finding(key="root_leitworte", verdict="holds" if holds else "fails", values=values)
+
 
 def _pentateuch(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The P / non-P split's checks: agreement with the reference (all, Genesis alone) and the
@@ -142,6 +152,7 @@ def _pentateuch(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, floa
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _dialogue(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Who speaks to whom: "your servant" and נא in speech addressed up (to God or a king), each

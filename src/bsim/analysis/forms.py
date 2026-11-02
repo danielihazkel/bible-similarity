@@ -123,9 +123,7 @@ def shape_matrix(words: pd.DataFrame, n_verses: int, max_n: int) -> sp.csr_matri
     flat = [g for s in streams for g in s]
     codes, vocab = pd.factorize(pd.Series(flat, dtype=object))
     rows = np.repeat(np.arange(n_verses), [len(s) for s in streams])
-    x = sp.csr_matrix(
-        (np.ones(len(codes)), (rows, codes)), shape=(n_verses, max(len(vocab), 1))
-    )
+    x = sp.csr_matrix((np.ones(len(codes)), (rows, codes)), shape=(n_verses, max(len(vocab), 1)))
     x.sum_duplicates()
     norm = np.sqrt(np.asarray(x.multiply(x).sum(axis=1)).ravel())
     norm[norm == 0] = 1.0
@@ -305,8 +303,12 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
     threshold = float(np.quantile(np.concatenate(null_like), lc["quantile"]))
     runs = list_runs(like >= threshold, book[order], lc["min_verses"], lc["max_gap"])
     expected_lists = float(
-        np.mean([len(list_runs(n >= threshold, book[order], lc["min_verses"], lc["max_gap"]))
-                 for n in null_like])  # fmt: skip
+        np.mean(
+            [
+                len(list_runs(n >= threshold, book[order], lc["min_verses"], lc["max_gap"]))
+                for n in null_like
+            ]
+        )  # fmt: skip
     )
     lemmas_of = (
         words.assign(lem=words.lemma.astype(str).str.split("/"))
@@ -389,8 +391,10 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
         "free": int(len(free)),
         "sayings": int(len(say)),
         "graded_pairs": observed,
-        "steps": {f"{a} / {b}": int(n) for (a, b), n in
-                  pairs.groupby(["a_value", "b_value"]).size().items()},  # fmt: skip
+        "steps": {
+            f"{a} / {b}": int(n)
+            for (a, b), n in pairs.groupby(["a_value", "b_value"]).size().items()
+        },  # fmt: skip
         "chance": chance,
         "parallel": parallel,
         "known": known,

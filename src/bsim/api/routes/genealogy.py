@@ -186,8 +186,10 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
         "attached": family(attached) if attached else None,
         "spouses": [family(lk) for lk in wed],
         "children": [
-            *(ChildGroup(other=ref(o) if o is not None else None, children=c)
-              for o, c in groups.items()),
+            *(
+                ChildGroup(other=ref(o) if o is not None else None, children=c)
+                for o, c in groups.items()
+            ),
             *([ChildGroup(other=None, adopted=True, children=adopted)] if adopted else []),
         ],  # fmt: skip
         "siblings": [ref(s) for s in sibs],
@@ -204,8 +206,12 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
                 **{k: x[k] for k in ("identity_id", "status", "note_en", "note_he")},
                 person=ref(alike[x["identity_id"]]) if x["identity_id"] in alike else None,
                 n_keys=len(x["keys"]),
-                proofs=[ProofVerse(verse=verses[v["verse_id"]], tokens=v["tokens"], cue=None,
-                                   source="curated") for v in x["proofs"]],
+                proofs=[
+                    ProofVerse(
+                        verse=verses[v["verse_id"]], tokens=v["tokens"], cue=None, source="curated"
+                    )
+                    for v in x["proofs"]
+                ],
             )  # fmt: skip
             for x in idents
         ],

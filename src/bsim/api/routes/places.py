@@ -109,8 +109,9 @@ def place_lookup(q: str, state: State, conn: Conn, limit: int = 6) -> dict[str, 
     return {
         "query": q,
         "items": [
-            PlaceMatch(**r, first_label=labels[r["first_vid"]][0],
-                       first_label_he=labels[r["first_vid"]][1])  # fmt: skip
+            PlaceMatch(
+                **r, first_label=labels[r["first_vid"]][0], first_label_he=labels[r["first_vid"]][1]
+            )  # fmt: skip
             for r in rows
         ],
     }
@@ -249,8 +250,14 @@ def place_list(key: str, conn: Conn) -> dict[str, Any]:
     return {
         "list": _place_lists(conn, rows)[0],
         "steps": [
-            PlaceListStep(pos=s["pos"], place=PlaceSite(**s), verse=_label(labels, s["verse_id"]),
-                          km=s["km"], sure=bool(s["sure"]), short_pos=s["short_pos"])  # fmt: skip
+            PlaceListStep(
+                pos=s["pos"],
+                place=PlaceSite(**s),
+                verse=_label(labels, s["verse_id"]),
+                km=s["km"],
+                sure=bool(s["sure"]),
+                short_pos=s["short_pos"],
+            )  # fmt: skip
             for s in steps
         ],
     }
@@ -271,8 +278,12 @@ def place_districts(key: str, state: State, conn: Conn) -> dict[str, Any]:
     return {
         "grouping": grouping[0],
         "towns": [
-            DistrictTown(district=t["district"], place=PlaceSite(**t),
-                         verse=_label(labels, t["verse_id"]), sure=bool(t["sure"]))  # fmt: skip
+            DistrictTown(
+                district=t["district"],
+                place=PlaceSite(**t),
+                verse=_label(labels, t["verse_id"]),
+                sure=bool(t["sure"]),
+            )  # fmt: skip
             for t in towns
         ],
     }
@@ -353,8 +364,11 @@ def place_arc(state: State, conn: Conn) -> dict[str, Any]:
             items=[_arc_chapter(r) for r in queries.place_arc_chapters(conn, oracle=True)],
         )  # fmt: skip
     return {
-        "meta": {k: meta.get(k) for k in ("shuffles", "alpha", "min_mentions", "min_chapters",
-                                          "regions") if k in meta},  # fmt: skip
+        "meta": {
+            k: meta.get(k)
+            for k in ("shuffles", "alpha", "min_mentions", "min_chapters", "regions")
+            if k in meta
+        },  # fmt: skip
         "arc": ArcTest(**meta["arc"]) if meta.get("arc") else None,
         "books": [_arc_book(r) for r in queries.place_arc_books(conn)],
         "moves": [_move(conn, mv) for mv in meta.get("moves") or []],
@@ -411,8 +425,19 @@ def place_links(state: State, conn: Conn) -> dict[str, Any]:
                                holds=k["holds"]))  # fmt: skip
     labels = [_ref_labels(conn, ref, [0, 0]) for ref in meta.get("lists") or []]
     return {
-        "meta": {k: meta.get(k) for k in ("shuffles", "alpha", "min_together", "sure_score",
-                                          "far_km", "top", "far_pairs") if k in meta},  # fmt: skip
+        "meta": {
+            k: meta.get(k)
+            for k in (
+                "shuffles",
+                "alpha",
+                "min_together",
+                "sure_score",
+                "far_km",
+                "top",
+                "far_pairs",
+            )
+            if k in meta
+        },  # fmt: skip
         "lists_en": [x[0] for x in labels],
         "lists_he": [x[1] for x in labels],
         "variants": variants,

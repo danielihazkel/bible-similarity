@@ -73,8 +73,15 @@ def test_reader_without_stages(built):
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()
     assert not any(r["computed"].values()) and r["speakers"] == []
-    assert all(
-        not v["speech"] and not v["wordplay"] and v["gap"] is None and not v["mood"]
-        and not v["places"] and not v["divine"]
-        for v in r["verses"]
-    ) and r["places"] == []
+    assert (
+        all(
+            not v["speech"]
+            and not v["wordplay"]
+            and v["gap"] is None
+            and not v["mood"]
+            and not v["places"]
+            and not v["divine"]
+            for v in r["verses"]
+        )
+        and r["places"] == []
+    )

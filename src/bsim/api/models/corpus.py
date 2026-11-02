@@ -19,8 +19,6 @@ from bsim.api.models.places import NameKind, PlaceSite
 EntityKind = Literal["person", "place", "mixed", "unclear"]
 
 
-
-
 class Entity(ApiModel):
     """A name (OSHB proper-noun lemma) with its kind guessed from context (DESIGN.md §16.11)."""
 

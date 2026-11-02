@@ -258,9 +258,11 @@ def run_psalms(cfg: dict[str, Any], log: Log = print) -> Path:
     )
     pv = verses[verses.book_id == book].sort_values("verse_id")
     words = pd.read_parquet(proc / "words.parquet", columns=["verse_id", "idx", "lemma", "morph"])
-    words = words[words.verse_id.isin(pv.verse_id)].merge(
-        pv[["verse_id", "chapter", "verse"]], on="verse_id"
-    ).sort_values(["verse_id", "idx"], ignore_index=True)
+    words = (
+        words[words.verse_id.isin(pv.verse_id)]
+        .merge(pv[["verse_id", "chapter", "verse"]], on="verse_id")
+        .sort_values(["verse_id", "idx"], ignore_index=True)
+    )
     senses = pd.read_parquet(proc / "word_senses.parquet", columns=["verse_id", "idx", "domains"])
     senses = senses[senses.verse_id.isin(pv.verse_id)]
     distress, praise = domain_flags(senses, pc["distress"]), domain_flags(senses, pc["praise"])
@@ -293,8 +295,7 @@ def run_psalms(cfg: dict[str, Any], log: Log = print) -> Path:
     for c, q in zip(checks, bh_q(np.array([c["p"] for c in checks])), strict=True):
         c["q"] = float(q)
     profiles = {
-        g: {f: float(rates.loc[rates.genre == g, f].mean()) for f in feats}
-        for g in pc["genres"]
+        g: {f: float(rates.loc[rates.genre == g, f].mean()) for f in feats} for g in pc["genres"]
     }
     cluster_profiles = {
         int(c): {f: float(rates.loc[rates.cluster == c, f].mean()) for f in feats}
@@ -368,14 +369,18 @@ def run_psalms(cfg: dict[str, Any], log: Log = print) -> Path:
             "laments_vs_hymns_p": lament_vs_hymn(tr_kept)["p"],
         },
         "form_only": {
-            key: v for key, v in genre_tests(
+            key: v
+            for key, v in genre_tests(
                 rates, genre_of, [f for f in feats if f in FORM], k, draws, pc["seed"]
-            ).items() if key != "clusters"
+            ).items()
+            if key != "clusters"
         },  # fmt: skip
         "domains_only": {
-            key: v for key, v in genre_tests(
+            key: v
+            for key, v in genre_tests(
                 rates, genre_of, [f for f in feats if f in DOMAINS], k, draws, pc["seed"]
-            ).items() if key != "clusters"
+            ).items()
+            if key != "clusters"
         },  # fmt: skip
         "tolerance": {
             str(t): {key: known_check(tr, t)[key] for key in ("found", "expected", "p")}
@@ -396,7 +401,10 @@ def run_psalms(cfg: dict[str, Any], log: Log = print) -> Path:
         if t is not None:
             rates.loc[i, ["turn_vid", "turn_verse"]] = [t["verse_id"], t["verse"]]
             rates.loc[i, ["turn_stat", "turn_p", "before", "after"]] = [
-                t["stat"], t["p"], t["before"], t["after"]
+                t["stat"],
+                t["p"],
+                t["before"],
+                t["after"],
             ]
     out.mkdir(parents=True, exist_ok=True)
     cols = ["unit_id", "chapter", "genre", "cluster", "words", *feats, "turn_vid", "turn_verse",

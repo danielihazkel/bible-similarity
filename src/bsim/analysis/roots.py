@@ -143,7 +143,8 @@ def families(
     head = dict(zip(der.strong, der.word, strict=True))
     # a name only when every part of speech Strong gives is one (גדול is `a n-pr-m`)
     name = {
-        k for k, p in zip(der.strong, der.pos, strict=True)
+        k
+        for k, p in zip(der.strong, der.pos, strict=True)
         if p and all("pr" in t for t in p.split())
     }
     out = {}
@@ -280,7 +281,9 @@ def run_roots(cfg: dict[str, Any], log: Log = print) -> Path:
     chap_of = dict(zip(verses.verse_id, verses.book_id * 1000 + verses.chapter, strict=True))
 
     lemmas = (
-        t[t.pos != "p"][["lemma", "root"]].drop_duplicates("lemma").assign(
+        t[t.pos != "p"][["lemma", "root"]]
+        .drop_duplicates("lemma")
+        .assign(
             strong=lambda d: d.lemma.map(strong_key),
         )
     )
@@ -373,9 +376,7 @@ def run_roots(cfg: dict[str, Any], log: Log = print) -> Path:
         key, root = chapter_key(ref), str(root)
         lem_rank, root_rank = ranks.get(key, ([], []))
         fam = {lem for lem, r in zip(lemmas.lemma, lemmas.root, strict=True) if r == root}
-        lem_best = min(
-            (i + 1 for i, k in enumerate(lem_rank) if k.lemma in fam), default=None
-        )
+        lem_best = min((i + 1 for i, k in enumerate(lem_rank) if k.lemma in fam), default=None)
         r_rank = next((i + 1 for i, k in enumerate(root_rank) if k.lemma == root), None)
         known.append({"chapter": ref, "book_id": key[0], "chapter_no": key[1], "root": root,
                       "he": head.get(root, ""), "lemma_rank": lem_best,
@@ -407,9 +408,7 @@ def run_roots(cfg: dict[str, Any], log: Log = print) -> Path:
         "known": known,
         "known_top_lemma": sum(in_top(k["lemma_rank"]) for k in known),
         "known_top_root": sum(in_top(k["root_rank"]) for k in known),
-        "known_better": sum(
-            (k["root_rank"] or 10**6) < (k["lemma_rank"] or 10**6) for k in known
-        ),
+        "known_better": sum((k["root_rank"] or 10**6) < (k["lemma_rank"] or 10**6) for k in known),
         "top": top,
         "hidden": int(lw.hidden.sum()),
         "seconds": round(time.perf_counter() - t0, 1),

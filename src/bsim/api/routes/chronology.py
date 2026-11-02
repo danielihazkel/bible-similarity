@@ -53,19 +53,36 @@ def chronology(state: State, conn: Conn) -> dict[str, Any]:
     return {
         **{k: m[k] for k in keep},
         "events": [
-            ChronEvent(**{**e, "verse": verses.get(e["verse_id"]), "used": bool(e["used"]),
-                          "conflict": bool(e["conflict"])})  # fmt: skip
+            ChronEvent(
+                **{
+                    **e,
+                    "verse": verses.get(e["verse_id"]),
+                    "used": bool(e["used"]),
+                    "conflict": bool(e["conflict"]),
+                }
+            )  # fmt: skip
             for e in events
         ],
         "lives": lives,
-        "kings": [ChronKing(**{**k, "verse": verses[k["verse_id"]], "short": bool(k["short"])})
-                  for k in kings if k["verse_id"] in verses],  # fmt: skip
+        "kings": [
+            ChronKing(**{**k, "verse": verses[k["verse_id"]], "short": bool(k["short"])})
+            for k in kings
+            if k["verse_id"] in verses
+        ],  # fmt: skip
         "syncs": [
-            ChronSync(**{**s, "verse": verses[s["verse_id"]],
-                         "agrees": None if s["agrees"] is None else bool(s["agrees"])})  # fmt: skip
+            ChronSync(
+                **{
+                    **s,
+                    "verse": verses[s["verse_id"]],
+                    "agrees": None if s["agrees"] is None else bool(s["agrees"]),
+                }
+            )  # fmt: skip
             for s in syncs
             if s["verse_id"] in verses
         ],
-        "numbers": [Gen5Number(**{**n, "verse": verses[n["verse_id"]]}) for n in numbers
-                    if n["verse_id"] in verses],  # fmt: skip
+        "numbers": [
+            Gen5Number(**{**n, "verse": verses[n["verse_id"]]})
+            for n in numbers
+            if n["verse_id"] in verses
+        ],  # fmt: skip
     }

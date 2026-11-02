@@ -37,6 +37,7 @@ def _place_lists(key: str) -> Callable[[Meta, sqlite3.Connection, float], Findin
 
     return build
 
+
 def _place_arc(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The geographic arc (§16.60): consecutive placed chapters closer than in shuffled orders,
     over all books (`place_arc_order`); every known move goes from its region towards the next
@@ -72,6 +73,7 @@ def _place_arc(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding 
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _place_links(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Do places named together lie together (§16.61)? `place_links_decay`: the linked pairs'

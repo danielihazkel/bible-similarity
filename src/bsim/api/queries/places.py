@@ -193,9 +193,7 @@ def place_verses_page(
     return total, _dicts(cur)
 
 
-def place_tokens(
-    conn: sqlite3.Connection, first: int, last: int
-) -> list[dict[str, Any]]:
+def place_tokens(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
     """Place mentions in a verse span with the display tokens of their words."""
     cur = conn.execute(
         "SELECT m.verse_id, m.place_id, w.display_idx, w.content_lemmas, m.lemma"
@@ -294,9 +292,7 @@ def place_link_bins(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 
 def place_link_points(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     """Every linked pair's km and G² (the scatter)."""
-    cur = conn.execute(
-        "SELECT km, g2, lead_rank IS NOT NULL AS far FROM place_links ORDER BY a, b"
-    )
+    cur = conn.execute("SELECT km, g2, lead_rank IS NOT NULL AS far FROM place_links ORDER BY a, b")
     return [r | {"far": bool(r["far"])} for r in _dicts(cur)]
 
 

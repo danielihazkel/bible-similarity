@@ -77,9 +77,7 @@ def g2_over(k: float, n: float, p: float) -> float:
     if n <= 0 or p <= 0 or p >= 1:
         return 0.0
     e = n * p
-    g = 2 * sum(
-        o * math.log(o / x) for o, x in ((k, e), (n - k, n - e)) if o > 0 and x > 0
-    )
+    g = 2 * sum(o * math.log(o / x) for o, x in ((k, e), (n - k, n - e)) if o > 0 and x > 0)
     return g if k >= e else -g
 
 
@@ -109,9 +107,7 @@ def unit_domains(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         )
 
     themes = [
-        share(c)
-        for c, k in here.items()
-        if c in by_code and len(c) > 3 and k >= sc["min_weight"]
+        share(c) for c, k in here.items() if c in by_code and len(c) > 3 and k >= sc["min_weight"]
     ]
     themes = sorted((t for t in themes if t.g2 > 0), key=lambda t: (-t.g2, t.domain.code))
     broad = sorted(

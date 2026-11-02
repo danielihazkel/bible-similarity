@@ -94,8 +94,16 @@ def session(cfg):
         oshb["raw_url"].format(commit=oshb["commit"], osis=b.osis): f"<osis {b.osis}/>".encode()
         for b in BOOKS
     }
-    for key in ("sdbh", "hebrew_lexicon", "bhsa", "etcbc_parallels", "tipnr", "openbible_geo",
-                "natural_earth", "hebcal_leyning"):
+    for key in (
+        "sdbh",
+        "hebrew_lexicon",
+        "bhsa",
+        "etcbc_parallels",
+        "tipnr",
+        "openbible_geo",
+        "natural_earth",
+        "hebcal_leyning",
+    ):
         s = cfg["sources"][key]
         for file in s["files"]:
             other[s["raw_url"].format(commit=s["commit"], file=quote(file))] = file.encode()

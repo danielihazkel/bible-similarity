@@ -50,9 +50,7 @@ def pentateuch(state: State, conn: Conn) -> dict[str, Any]:
         "meta": {k: v for k, v in meta.items() if k not in ("features", "synonyms", "prefixes")},
         "p_like": [SourceWord(he=he.get(f["token"]), **f) for f in feats.get("p_like", [])],
         "non_p": [SourceWord(he=he.get(f["token"]), **f) for f in feats.get("non_p", [])],
-        "synonyms": [
-            SourceSynonym(he=[he.get(m) for m in s["members"]], **s) for s in syns
-        ],
+        "synonyms": [SourceSynonym(he=[he.get(m) for m in s["members"]], **s) for s in syns],
     }
 
 

@@ -129,9 +129,7 @@ def hidden_roots(
     if unit is not None:
         u = unit_or_404(conn, unit)
         chapters = [
-            c["unit_id"]
-            for c in [u, *queries.parents(conn, u)]
-            if c["unit_type"] == "chapter"
+            c["unit_id"] for c in [u, *queries.parents(conn, u)] if c["unit_type"] == "chapter"
         ]
         if u["unit_type"] in ("pericope", "parasha"):
             chapters = [
@@ -149,14 +147,18 @@ def hidden_roots(
     for r in rows:
         u = units[r["unit_id"]]
         members = index.members.get(r["root"], [])
-        present = [
-            lem
-            for (lem,) in conn.execute(
-                "SELECT DISTINCT lemma FROM lemma_verses WHERE verse_id BETWEEN ? AND ?"
-                f" AND lemma IN ({','.join('?' * len(members))})",
-                (u["start_verse_id"], u["end_verse_id"], *members),
-            )
-        ] if members else []
+        present = (
+            [
+                lem
+                for (lem,) in conn.execute(
+                    "SELECT DISTINCT lemma FROM lemma_verses WHERE verse_id BETWEEN ? AND ?"
+                    f" AND lemma IN ({','.join('?' * len(members))})",
+                    (u["start_verse_id"], u["end_verse_id"], *members),
+                )
+            ]
+            if members
+            else []
+        )
         stats = queries.lemma_stats(conn, present)
         items.append(
             HiddenRoot(

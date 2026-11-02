@@ -563,7 +563,8 @@ def _speakers(
             continue
         said = {
             paragraph_of.get(r["verse_id"]): lemma(formula[r["clause"]])
-            for r in rows if r["clause"] in formula and lemma(formula[r["clause"]])
+            for r in rows
+            if r["clause"] in formula and lemma(formula[r["clause"]])
         }
         for r in rows:
             spk = said.get(paragraph_of.get(r["verse_id"]))

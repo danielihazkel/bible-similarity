@@ -34,9 +34,15 @@ def haftarot(state: State, conn: Conn) -> dict[str, Any]:
         if u is None:
             continue
         top.setdefault(r["parasha"], []).append(
-            HaftarahChapter(rank=r["rank"], unit_id=r["chapter"], label_en=u["label_en"],
-                            label_he=u["label_he"], lex_rank=r["lex_rank"],
-                            sem_rank=r["sem_rank"], haftarah=bool(r["haftarah"]))  # fmt: skip
+            HaftarahChapter(
+                rank=r["rank"],
+                unit_id=r["chapter"],
+                label_en=u["label_en"],
+                label_he=u["label_he"],
+                lex_rank=r["lex_rank"],
+                sem_rank=r["sem_rank"],
+                haftarah=bool(r["haftarah"]),
+            )  # fmt: skip
         )
     parashot = []
     for r in rows:

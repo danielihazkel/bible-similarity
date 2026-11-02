@@ -51,14 +51,22 @@ def test_adoption_rule():
 
 
 def test_report_lists_every_candidate_and_the_zero_shot_comparison():
-    zero = {"kind": "zero_shot", "model": "intfloat/multilingual-e5-large", "adopt": False,
-            "gains": _gains((-0.05, -0.06, -0.04)),
-            "vs_reference": {g: _g(0.01, 0.0, 0.02) for g in ("sefaria", "openbible", "etcbc")}}
+    zero = {
+        "kind": "zero_shot",
+        "model": "intfloat/multilingual-e5-large",
+        "adopt": False,
+        "gains": _gains((-0.05, -0.06, -0.04)),
+        "vs_reference": {g: _g(0.01, 0.0, 0.02) for g in ("sefaria", "openbible", "etcbc")},
+    }
     out = {
-        "metric": "ndcg@10", "baseline": "berel_sup", "reference": "bge_m3",
+        "metric": "ndcg@10",
+        "baseline": "berel_sup",
+        "reference": "bge_m3",
         "baseline_scores": {li: {"sefaria": 0.19} for li in ("semantic", "fused")},
         "queries": {"sefaria": 884, "openbible": 2541, "etcbc": 179},
-        "noise": "seed14", "noise_bar": 0.0009, "chosen": None,
+        "noise": "seed14",
+        "noise_bar": 0.0009,
+        "chosen": None,
         "results": {"e5_large": zero},
     }
     md = report(out)

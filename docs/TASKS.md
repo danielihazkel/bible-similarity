@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M121: Shared helpers and gates (proposed J3)
+- [x] `stats.empirical_p(observed, null, tail)`: the 19 Monte Carlo p-values written out by hand (els, ciphers' neighbours, gematria links, the poetry null, the geographic arc, place links, place lists, refrains, senses) call it, each with its own comparison and epsilon
+- [x] `stats.q_values`: sequences' empirical-null FDR, now shared (allusions, wordplay, type scenes); refrains' `fdr` is the same on p negated (equal to the old one on 3,000 random inputs with ties)
+- [x] `config.write_meta`: the 59 `*.meta.json` writes in one layout (indented, Hebrew as is, a final newline); staleness hashes the parsed JSON, so no stage turns stale
+- [x] The twelve stages whose statistics code changed rerun: all 37 output files identical (meta compared without times)
+- [x] `ruff format` over the repo (79 files, in its own commit) and `ruff format --check` in CI
+- [x] Not kept: pyright (basic, on `api` and `store`) gave 160 errors; those checked by hand were loose annotations, narrowing it cannot follow, and pydantic's coercion of dicts into models, none a bug. A gate would need as many edits made only for the checker
+
+✔ One p-value, one FDR and one meta writer; the format checked in CI.
+
 ## M120: Faster, steadier CI (proposed J2)
 - [x] Three jobs side by side (Python, viewer, end-to-end), the end-to-end tests over three runners (`--shard`), each uploading its report on failure
 - [x] The fixture's tests spread over the workers (`fullyParallel`); one Hebrew and two accessibility tests a page instead of three walks over all 142, so a failure names its page
@@ -1263,7 +1273,7 @@ From the 2026-11-02 review: improvements again, no new features. Three audits (v
 Tooling
 - [x] J1 (done, M119) Fast pytest and serve start: the fixture DB built once a session, each test given a copy; torch and `scipy.stats` off the serve path
 - [x] J2 (done, M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
-- [ ] J3 (M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` and pyright in CI
+- [x] J3 (done, M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` in CI (pyright tried, not kept)
 - [ ] J4 (M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
 
 Data and analysis

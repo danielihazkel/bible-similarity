@@ -22,8 +22,7 @@ def display_span(conn: sqlite3.Connection, first: int, last: int) -> dict[tuple[
 def phrases_touching(conn: sqlite3.Connection, first: int, last: int) -> list[dict[str, Any]]:
     """Phrase rows with either side in a verse range."""
     cur = conn.execute(
-        "SELECT a, b, a_words, b_words FROM phrases"
-        " WHERE a BETWEEN ? AND ? OR b BETWEEN ? AND ?",
+        "SELECT a, b, a_words, b_words FROM phrases WHERE a BETWEEN ? AND ? OR b BETWEEN ? AND ?",
         (first, last, first, last),
     )
     return _dicts(cur)
@@ -65,9 +64,7 @@ def entity_lemmas(conn: sqlite3.Connection, lemmas: Iterable[str]) -> set[str]:
     lemmas = sorted(set(lemmas))
     if not lemmas:
         return set()
-    cur = conn.execute(
-        f"SELECT lemma FROM entities WHERE lemma IN ({_marks(len(lemmas))})", lemmas
-    )
+    cur = conn.execute(f"SELECT lemma FROM entities WHERE lemma IN ({_marks(len(lemmas))})", lemmas)
     return {r[0] for r in cur}
 
 

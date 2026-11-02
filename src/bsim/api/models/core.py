@@ -24,8 +24,6 @@ Mode = Literal["lexical", "semantic", "fused", "structural", "domain", "syntax"]
 SearchMode = Literal["lexical", "semantic", "fused"]  # no morphology for free text
 
 
-
-
 class UnitDetail(ApiModel):
     unit: UnitSummary
     verses: list[Verse]

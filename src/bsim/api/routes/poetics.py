@@ -304,8 +304,9 @@ def _structure(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -
                 expected=k.expected,
                 g2=k.g2,
                 lemmas=[
-                    LemmaStat(lemma=lem, he_lemma=stats[lem]["he_lemma"],
-                              n_verses=stats[lem]["n_verses"])
+                    LemmaStat(
+                        lemma=lem, he_lemma=stats[lem]["he_lemma"], n_verses=stats[lem]["n_verses"]
+                    )
                     for lem in root_lemmas[k.lemma]
                 ],  # fmt: skip
                 hidden=hidden,

@@ -60,8 +60,11 @@ def ciphers(state: State, conn: Conn) -> dict[str, Any]:
         "meta": {k: v for k, v in meta.items() if k != "known"},
         "known": [
             CipherKnown(
-                verse=VerseLabel(verse_id=k["verse_id"], label_en=labels[k["verse_id"]][0],
-                                 label_he=labels[k["verse_id"]][1]),  # fmt: skip
+                verse=VerseLabel(
+                    verse_id=k["verse_id"],
+                    label_en=labels[k["verse_id"]][0],
+                    label_he=labels[k["verse_id"]][1],
+                ),  # fmt: skip
                 **{f: k[f] for f in ("cipher", "text", "name", "found")},
             )
             for k in known
@@ -99,8 +102,19 @@ def cipher_hits(
         CipherHit(
             unit_id=f"c:{verses[r['verse_id']]['book_id']}:{verses[r['verse_id']]['chapter']}",
             verse=verses[r["verse_id"]],
-            **{f: r[f] for f in ("hit_id", "cipher", "first_tok", "last_tok", "span", "reads",
-                                 "name_lemma", "known")},  # fmt: skip
+            **{
+                f: r[f]
+                for f in (
+                    "hit_id",
+                    "cipher",
+                    "first_tok",
+                    "last_tok",
+                    "span",
+                    "reads",
+                    "name_lemma",
+                    "known",
+                )
+            },  # fmt: skip
         )
         for r in rows
     ]

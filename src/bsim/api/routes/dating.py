@@ -39,9 +39,7 @@ def dating(state: State, conn: Conn) -> dict[str, Any]:
         "held_out_auc": meta.get("held_out_auc"),
         "held_out_auc_grammar": meta.get("held_out_auc_grammar"),
         "train_chapters": meta.get("train_chapters") or {},
-        "synoptic": {
-            k: syn.get(k) for k in ("pairs", "later", "p", "later_grammar", "p_grammar")
-        },
+        "synoptic": {k: syn.get(k) for k in ("pairs", "later", "p", "later_grammar", "p_grammar")},
         "synoptic_examples": [
             SynopticExample(
                 early_first=e["early"][0],

@@ -33,9 +33,7 @@ def citations_page(
         where.append("book_id = ?")
         args.append(book_id)
     if span is not None:
-        where.append(
-            "(verse_id BETWEEN ? AND ? OR (resolved = 1 AND target_vid BETWEEN ? AND ?))"
-        )
+        where.append("(verse_id BETWEEN ? AND ? OR (resolved = 1 AND target_vid BETWEEN ? AND ?))")
         args += [*span, *span]
     w = " AND ".join(where)
     total = count(conn, f"SELECT COUNT(*) FROM citations WHERE {w}", args)

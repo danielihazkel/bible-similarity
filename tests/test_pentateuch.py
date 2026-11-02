@@ -101,8 +101,11 @@ def write_toy(tmp_path):
                     "artifacts": str(tmp_path / "artifacts")}  # fmt: skip
     cfg["pentateuch"] = {
         **cfg["pentateuch"],
-        "synonyms": [["I", ["589", "595"]], ["congregation", ["5712", "6951"]],
-                     ["with", ["854", "5973"]]],  # fmt: skip
+        "synonyms": [
+            ["I", ["589", "595"]],
+            ["congregation", ["5712", "6951"]],
+            ["with", ["854", "5973"]],
+        ],  # fmt: skip
         "n_function": 5,
         "p": [f"{n} 1:1-1:{c}" for n, c in p_until.items()],
         "unassigned": ["Numbers 1:41"],

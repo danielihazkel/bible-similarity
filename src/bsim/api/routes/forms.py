@@ -50,8 +50,10 @@ def forms(state: State, conn: Conn) -> dict[str, Any]:
         + [v for k in known_lists for v in (k["first_vid"], k["last_vid"])],
     )
     return {
-        "meta": {**{k: v for k, v in meta.items() if k not in ("known", "lists")},
-                 "lists": {k: v for k, v in lists.items() if k != "known"}},  # fmt: skip
+        "meta": {
+            **{k: v for k, v in meta.items() if k not in ("known", "lists")},
+            "lists": {k: v for k, v in lists.items() if k != "known"},
+        },  # fmt: skip
         "known": [
             FormsKnownSaying(
                 name=k["name"],
@@ -98,8 +100,10 @@ def forms_sayings(
     items = [
         FormsSaying(
             unit_id=f"c:{verses[r['verse_id']]['book_id']}:{verses[r['verse_id']]['chapter']}",
-            pairs=[FormsPair(**{k: p[k] for k in ("a_tok", "b_tok", "a_value", "b_value")})
-                   for p in pairs.get(r["verse_id"], [])],  # fmt: skip
+            pairs=[
+                FormsPair(**{k: p[k] for k in ("a_tok", "b_tok", "a_value", "b_value")})
+                for p in pairs.get(r["verse_id"], [])
+            ],  # fmt: skip
             verse=verses[r["verse_id"]],
             **{k: r[k] for k in ("n_pairs", "steps", "prob", "known")},
         )

@@ -26,9 +26,7 @@ router = APIRouter()
 DIVINE = "divine"
 
 
-def _parties(
-    state: State, conn: sqlite3.Connection, keys: list[str]
-) -> dict[str, DialogueParty]:
+def _parties(state: State, conn: sqlite3.Connection, keys: list[str]) -> dict[str, DialogueParty]:
     """key -> party with its Hebrew form and rank (2 God, 1 a king, 0 anyone else)."""
     kings = {strong_key(k) for k in state.cfg["dialogue"]["kings"]}
     he = queries.gloss(conn, [k for k in keys if k != DIVINE])
@@ -125,8 +123,10 @@ def exchange_items(
             last_verse=label(r["last_verse_id"]),
             a=parties[r["a"]],
             b=parties[r["b"]],
-            **{k: r[k] for k in ("exchange", "book_id", "turns", "a_turns", "a_words", "b_words",
-                                 "last")},
+            **{
+                k: r[k]
+                for k in ("exchange", "book_id", "turns", "a_turns", "a_words", "b_words", "last")
+            },
         )  # fmt: skip
         for r in rows
     ]

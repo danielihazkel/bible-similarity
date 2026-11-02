@@ -173,8 +173,16 @@ def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
                              written, lemma))  # fmt: skip
     hits = pd.DataFrame(
         hit_rows,
-        columns=["cipher", "verse_id", "first_tok", "last_tok", "span", "letters", "reads",
-                 "name_lemma"],  # fmt: skip
+        columns=[
+            "cipher",
+            "verse_id",
+            "first_tok",
+            "last_tok",
+            "span",
+            "letters",
+            "reads",
+            "name_lemma",
+        ],  # fmt: skip
     )
     hits["book_id"] = hits.verse_id.map(lambda v: chap_of[v][0]).astype(int)
     hits["known"] = None
@@ -191,8 +199,18 @@ def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
         known.append({"ref": k["ref"], "verse_id": int(vid), "cipher": k["cipher"],
                       "text": k["text"], "name": k["name"], "found": bool(m.any())})  # fmt: skip
     hits = hits[
-        ["cipher", "verse_id", "book_id", "first_tok", "last_tok", "span", "letters", "reads",
-         "name_lemma", "known"]  # fmt: skip
+        [
+            "cipher",
+            "verse_id",
+            "book_id",
+            "first_tok",
+            "last_tok",
+            "span",
+            "letters",
+            "reads",
+            "name_lemma",
+            "known",
+        ]  # fmt: skip
     ].sort_values(["cipher", "verse_id", "first_tok", "last_tok"], kind="stable")
 
     # per chapter: each swap's hits against the random pairings
@@ -246,4 +264,3 @@ def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
         f" ({meta['seconds']} s) -> {out}"
     )
     return out
-

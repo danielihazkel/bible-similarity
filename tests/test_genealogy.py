@@ -323,7 +323,8 @@ def test_link_decided_twice(tmp_path):
     seth = "Seth@Gen.1.1 <- Adam@Gen.1.1"
     cfg = corpus(tmp_path, f'block: b1\nlinks:\n  - "{seth}"\n  - "{seth}"\n')
     (tmp_path / "cur" / "genealogy" / "02-b2.yaml").write_text(
-        f'block: b2\nlinks:\n  - "{seth}"\n', "utf-8")
+        f'block: b2\nlinks:\n  - "{seth}"\n', "utf-8"
+    )
     with pytest.raises(CurationError) as e:
         run_genealogy(cfg, log=lambda _: None)
     msg = str(e.value)
@@ -387,7 +388,10 @@ def test_identities(tmp_path):
                                                                                  True)  # fmt: skip
     ids = pd.read_parquet(out / "identities.parquet")
     assert ids[["status", "person_id"]].values.tolist() == [
-        ["merged", adam], ["merged", eve], ["possible", pid["Abagtha@Exo.1.1"]]]
+        ["merged", adam],
+        ["merged", eve],
+        ["possible", pid["Abagtha@Exo.1.1"]],
+    ]
     assert ids.other_id.isna().tolist() == [True, True, False]
     assert ids.other_id[2] == pid["Hezron@Gen.1.5"]
     first = ids.iloc[0]
@@ -517,7 +521,6 @@ def test_mother_of_the_other_reading():
         (7, 8, 7, "spouse", 0, "tipnr"),  # Er - Tamar
     ])  # fmt: skip
     assert genealogy_mothers(conn) == {6: 7}
-
 
 
 def test_api_person_adopted(built):

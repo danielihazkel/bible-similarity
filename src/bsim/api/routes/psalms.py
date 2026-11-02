@@ -90,11 +90,21 @@ def psalm_list(
                 words=r["words"],
                 features={f: r[f] for f in FEATURES},
                 turn=PsalmTurn(
-                    verse_id=t, verse=r["turn_verse"], label=labels[t][0], label_he=labels[t][1],
-                    stat=r["turn_stat"], p=r["turn_p"], before=r["before"], after=r["after"],
-                ) if t is not None and t in labels else None,  # fmt: skip
-                mood=[PsalmVerse(**{k: v[k] for k in ("verse", "words", "distress", "praise")})
-                      for v in verses.get(r["unit_id"], [])],  # fmt: skip
+                    verse_id=t,
+                    verse=r["turn_verse"],
+                    label=labels[t][0],
+                    label_he=labels[t][1],
+                    stat=r["turn_stat"],
+                    p=r["turn_p"],
+                    before=r["before"],
+                    after=r["after"],
+                )
+                if t is not None and t in labels
+                else None,  # fmt: skip
+                mood=[
+                    PsalmVerse(**{k: v[k] for k in ("verse", "words", "distress", "praise")})
+                    for v in verses.get(r["unit_id"], [])
+                ],  # fmt: skip
             )
         )
     return {"genre": genre, "cluster": cluster, "turned": turned, "unit": unit, "sort": sort,

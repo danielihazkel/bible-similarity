@@ -951,7 +951,6 @@ def build_db(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
-
 @app.command("compare-builds")
 def compare_builds(
     old: Annotated[Path, typer.Argument(help="The earlier results DB")],

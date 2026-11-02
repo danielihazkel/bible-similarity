@@ -358,7 +358,7 @@ def apply_curation(
                 err(where, "a person needs a key")
                 continue
             if not isinstance(p.get("tribe", ""), str):
-                err(where, "a tribe is TIPNR's label, or \"\" for none")
+                err(where, 'a tribe is TIPNR\'s label, or "" for none')
                 continue
             if key in persons:  # a correction to TIPNR's; tribe "": hung on no tribe's eponym
                 for k in ("he", "sex", "tribe"):

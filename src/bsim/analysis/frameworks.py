@@ -257,6 +257,8 @@ def run_frameworks(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
     write_meta(out / "frameworks.meta.json", meta)  # fmt: skip
-    log(f"done: cycle {'holds' if cycle_holds else 'not borne out'}, verdicts"
-        f" {'hold' if verdict_holds else 'not borne out'} ({meta['seconds']} s) -> {out}")
+    log(
+        f"done: cycle {'holds' if cycle_holds else 'not borne out'}, verdicts"
+        f" {'hold' if verdict_holds else 'not borne out'} ({meta['seconds']} s) -> {out}"
+    )
     return out / "episodes.parquet"

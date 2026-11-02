@@ -141,7 +141,6 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
 ]
 
 
-
 @router.get("/findings", response_model=FindingsResponse)
 def findings(state: State, conn: Conn) -> dict[str, Any]:
     """The tested claims of the analyses with their deciding numbers and verdicts."""

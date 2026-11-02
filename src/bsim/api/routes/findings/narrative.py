@@ -36,6 +36,7 @@ def _divine(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | N
 
     return build
 
+
 def _etiologies(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Naming etiologies: a name echoes its own explanation more than the explanations shuffled
     among the names; the etiologies named in advance are found, and most of them echo."""
@@ -54,6 +55,7 @@ def _etiologies(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _brackets(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Resumptive repetition: the blocks inside repeated clauses interrupt their surroundings
@@ -74,6 +76,7 @@ def _brackets(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding |
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _retold(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Retold speech: a speech retold by another speaker changes more than one carried out in
@@ -96,6 +99,7 @@ def _retold(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | N
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _haftarot(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Haftarot: a parasha's haftarah ranks higher among the Prophets' chapters than haftarot
@@ -126,6 +130,7 @@ def _haftarot(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding |
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _frameworks(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """The narrative frameworks: the judges' cycle grows less complete through the book;
@@ -158,6 +163,7 @@ def _frameworks(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
 
 def _binomials(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Fixed word pairs: the shorter word first (letters and syllables); the rarer order commoner

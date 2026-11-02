@@ -18,6 +18,7 @@ def _acrostics(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | 
     values = {"found": found, "recall": a.get("known_recall")}
     return Finding(key="acrostics", verdict="holds" if found else "fails", values=values)
 
+
 def _sevens(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     n = meta.get("leitwort_numbers") or {}
     ratios = {
@@ -37,6 +38,7 @@ def _sevens(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     verdict = "holds" if values["largest"] == 7 else "fails"
     return Finding(key="sevens", verdict=verdict, values=values)
 
+
 def _chiasm(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     w = ((meta.get("mirrors") or {}).get("words") or {}).get("all")
     if not w:
@@ -45,6 +47,7 @@ def _chiasm(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     # the claim: repeated words favour the mirrored order
     holds = w["share"] > 0.5 and w["p"] <= alpha
     return Finding(key="chiasm", verdict="holds" if holds else "fails", values=values)
+
 
 def _meter(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     m = meta.get("meter") or {}
@@ -63,6 +66,7 @@ def _meter(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None
     holds = t["mean"] > t["pool_mean"] and t["p"] <= alpha
     return Finding(key="meter", verdict="holds" if holds else "fails", values=values)
 
+
 def _laments(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     n = (meta.get("meter") or {}).get("named") or {}
     if n.get("p") is None:
@@ -70,6 +74,7 @@ def _laments(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | No
     values = {k: n[k] for k in ("n", "mean", "pool_mean", "p")}
     holds = n["mean"] > n["pool_mean"] and n["p"] <= alpha
     return Finding(key="laments", verdict="holds" if holds else "fails", values=values)
+
 
 def _refrains(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     r = meta.get("refrains") or {}
@@ -90,6 +95,7 @@ def _refrains(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | N
     )
     return Finding(key="refrains", verdict="holds" if holds else "fails", values=values)
 
+
 def _refrain_regular(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     g = (meta.get("refrains") or {}).get("regular") or {}
     if not g.get("testable"):
@@ -99,6 +105,7 @@ def _refrain_regular(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Find
     holds = g["share"] > alpha and g["p"] <= alpha
     return Finding(key="refrain_regular", verdict="holds" if holds else "fails", values=values)
 
+
 def _refrain_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     t = (meta.get("refrains") or {}).get("turns") or {}
     if t.get("p") is None:
@@ -107,6 +114,7 @@ def _refrain_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Findin
     # the claim: a refrain's verse stands next to a sharper turn than other verses of its span
     holds = t["observed"] > t["expected"] and t["p"] <= alpha
     return Finding(key="refrain_turns", verdict="holds" if holds else "fails", values=values)
+
 
 def _psalm_genres(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     p = meta.get("psalms") or {}
@@ -119,6 +127,7 @@ def _psalm_genres(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding
     holds = g["nmi"] > g["null"] and g["p"] <= alpha
     return Finding(key="psalm_genres", verdict="holds" if holds else "fails", values=values)
 
+
 def _psalm_forms(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     checks = (meta.get("psalms") or {}).get("checks")
     if not checks:
@@ -130,6 +139,7 @@ def _psalm_forms(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding 
         key="psalm_forms", verdict="holds" if held == len(checks) else "fails", values=values
     )
 
+
 def _lament_turn(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     k = (meta.get("psalms") or {}).get("known_turns")
     if not k:
@@ -138,6 +148,7 @@ def _lament_turn(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding 
     # the claim: the turn found falls at the turns scholarship names more often than chance
     holds = k["found"] > k["expected"] and k["p"] <= alpha
     return Finding(key="lament_turn", verdict="holds" if holds else "fails", values=values)
+
 
 def _lament_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     t = (meta.get("psalms") or {}).get("laments_vs_hymns")
@@ -148,6 +159,7 @@ def _lament_turns(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding
     return Finding(
         key="lament_turns", verdict="holds" if t["p"] <= alpha else "fails", values=values
     )
+
 
 def _forms(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Graded numerical sayings and lists: the sayings named in advance found; graded pairs

@@ -69,8 +69,12 @@ def write_toy(tmp_path, refrain_at, named_at, turns_after):
 
 def test_tokens_drop_prefixes_and_names_are_not_content():
     w = pd.DataFrame(
-        {"verse_id": [0, 0, 0], "idx": [0, 1, 2], "lemma": ["c/3808", "7725", "4000"],
-         "morph": ["HC/Td", "HVqp2mp", "HNpm"]}  # fmt: skip
+        {
+            "verse_id": [0, 0, 0],
+            "idx": [0, 1, 2],
+            "lemma": ["c/3808", "7725", "4000"],
+            "morph": ["HC/Td", "HVqp2mp", "HNpm"],
+        }  # fmt: skip
     )
     t = token_stream(w)
     assert t.lemma.tolist() == ["3808", "7725", "4000"]
@@ -80,10 +84,13 @@ def test_tokens_drop_prefixes_and_names_are_not_content():
 
 def test_seeds_need_content_words():
     t = pd.DataFrame(
-        {"verse_id": [0] * 4 + [1] * 3, "idx": [0, 1, 2, 3, 0, 1, 2],
-         "lemma": ["a", "b", "c", "d", "a", "b", "c"],
-         "content": [True, True, False, False, True, True, False],
-         "pos": [0, 1, 2, 3, 0, 1, 2]}  # fmt: skip
+        {
+            "verse_id": [0] * 4 + [1] * 3,
+            "idx": [0, 1, 2, 3, 0, 1, 2],
+            "lemma": ["a", "b", "c", "d", "a", "b", "c"],
+            "content": [True, True, False, False, True, True, False],
+            "pos": [0, 1, 2, 3, 0, 1, 2],
+        }  # fmt: skip
     )
     g = seeds(t, 3, 2)
     # a b c in both verses; b c d has one content word; nothing spans the two verses
@@ -92,8 +99,12 @@ def test_seeds_need_content_words():
 
 def test_runs_burst_and_chance():
     g = pd.DataFrame(
-        {"key": [1, 1, 1, 1, 2, 2, 2], "verse_id": [5, 10, 15, 90, 1, 50, 99],
-         "book_id": 0, "df": [4, 4, 4, 4, 3, 3, 3]}  # fmt: skip
+        {
+            "key": [1, 1, 1, 1, 2, 2, 2],
+            "verse_id": [5, 10, 15, 90, 1, 50, 99],
+            "book_id": 0,
+            "df": [4, 4, 4, 4, 3, 3, 3],
+        }  # fmt: skip
     )
     runs = find_runs(g, np.array([100]), 20, 3)
     # seed 1: three verses within 20 of each other (90 is too far); seed 2 is spread out

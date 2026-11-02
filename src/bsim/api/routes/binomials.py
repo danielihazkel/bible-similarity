@@ -48,8 +48,9 @@ def binomial_occurrences(pair: str, state: State, conn: Conn) -> dict[str, Any]:
     return {
         "pair": pair,
         "items": [
-            BinomialOccurrence(verse=verses[r["verse_id"]], own=bool(r["own"]), a_tok=r["a_tok"],
-                               b_tok=r["b_tok"])  # fmt: skip
+            BinomialOccurrence(
+                verse=verses[r["verse_id"]], own=bool(r["own"]), a_tok=r["a_tok"], b_tok=r["b_tok"]
+            )  # fmt: skip
             for r in rows
             if r["verse_id"] in verses
         ],

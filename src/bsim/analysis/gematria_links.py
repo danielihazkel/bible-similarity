@@ -131,9 +131,7 @@ def matched_draws(
     swap = rng.random((n, draws)) < 0.5
     kept = np.where(swap, b[:, None], a[:, None])
     other = np.where(swap, a[:, None], b[:, None])
-    pools: dict[int, np.ndarray] = {
-        int(c): np.flatnonzero(cell == c) for c in np.unique(cell)
-    }
+    pools: dict[int, np.ndarray] = {int(c): np.flatnonzero(cell == c) for c in np.unique(cell)}
     drawn = np.full((n, draws), -1)
     todo = np.ones((n, draws), dtype=bool)
     for _ in range(tries):
@@ -382,13 +380,15 @@ def run_gematria_links(
     e, r = tests["equal"], tests["root_family"]
     log(
         "done: equal values vs matched pairs: "
-        + ", ".join(f"{m} {e[m]['observed']:.3f} vs {e[m]['null_mean']:.3f} (p {e[m]['p']:.3f})"
-                    for m in MEASURES)  # fmt: skip
+        + ", ".join(
+            f"{m} {e[m]['observed']:.3f} vs {e[m]['null_mean']:.3f} (p {e[m]['p']:.3f})"
+            for m in MEASURES
+        )  # fmt: skip
         + "; one root (the check): "
-        + ", ".join(f"{m} {r[m]['observed']:.3f} vs {r[m]['null_mean']:.3f} (p {r[m]['p']:.3f})"
-                    for m in r)  # fmt: skip
+        + ", ".join(
+            f"{m} {r[m]['observed']:.3f} vs {r[m]['null_mean']:.3f} (p {r[m]['p']:.3f})" for m in r
+        )  # fmt: skip
         + f"; {vc['ref']}: {verse['all']} verse(s) with every property, unique by its own numbers"
         f" like {100 * verse['unique_share']:.0f}% of verses ({meta['seconds']} s) -> {out}"
     )
     return out
-

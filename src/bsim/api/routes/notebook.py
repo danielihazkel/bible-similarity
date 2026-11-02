@@ -174,9 +174,7 @@ def add_member(
 
 
 @router.delete("/notebook/collections/{collection_id}/entries/{unit_id}", status_code=204)
-def remove_member(
-    collection_id: int, unit_id: str, state: State, nconn: NotebookConn
-) -> Response:
+def remove_member(collection_id: int, unit_id: str, state: State, nconn: NotebookConn) -> Response:
     """Take a unit out of a collection (it stays in the notebook)."""
     _writable(state)
     _collection_or_404(nconn, collection_id)

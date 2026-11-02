@@ -268,8 +268,23 @@ def run_place_lists(cfg: dict[str, Any], log: Log = print) -> Path:
         if c not in lists:
             lists[c] = np.nan
     lists = lists[
-        ["list_key", "variant", "ref", "kind", "first_vid", "last_vid", "n_named", "n", "path_km",
-         "null_mean", "null_sd", "p", "short_km", "order_score", "hist"]  # fmt: skip
+        [
+            "list_key",
+            "variant",
+            "ref",
+            "kind",
+            "first_vid",
+            "last_vid",
+            "n_named",
+            "n",
+            "path_km",
+            "null_mean",
+            "null_sd",
+            "p",
+            "short_km",
+            "order_score",
+            "hist",
+        ]  # fmt: skip
     ]
     steps_df = pd.DataFrame(step_rows, columns=["list_key", "pos", "place_id", "verse_id", "km",
                                                 "sure", "short_pos"])  # fmt: skip
@@ -300,8 +315,18 @@ def run_place_lists(cfg: dict[str, Any], log: Log = print) -> Path:
                                   "first_vid": first, "last_vid": last} | d)  # fmt: skip
     districts = pd.DataFrame(
         dist_rows,
-        columns=["grouping", "variant", "district", "ref", "first_vid", "last_vid", "n",
-                 "within_km", "null_mean", "p"],  # fmt: skip
+        columns=[
+            "grouping",
+            "variant",
+            "district",
+            "ref",
+            "first_vid",
+            "last_vid",
+            "n",
+            "within_km",
+            "null_mean",
+            "p",
+        ],  # fmt: skip
     )
     members = pd.DataFrame(member_rows, columns=["grouping", "district", "place_id", "verse_id",
                                                  "sure"])  # fmt: skip
@@ -326,8 +351,10 @@ def run_place_lists(cfg: dict[str, Any], log: Log = print) -> Path:
         "sure_score": sure_score,
         "min_places": min_n,
         "lists": {
-            r.list_key: {k: (None if pd.isna(getattr(r, k)) else getattr(r, k))
-                         for k in ("n", "path_km", "null_mean", "p", "short_km", "order_score")}
+            r.list_key: {
+                k: (None if pd.isna(getattr(r, k)) else getattr(r, k))
+                for k in ("n", "path_km", "null_mean", "p", "short_km", "order_score")
+            }
             for r in lists[lists.variant == "all"].itertuples(index=False)
         },  # fmt: skip
         "order": {v: held(v) for v in VARIANTS},

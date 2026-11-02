@@ -202,14 +202,17 @@ def run_maxsim(cfg: dict[str, Any], log: Log = print) -> dict[str, Path]:
     ).sort_values(["src_id", "rank"], kind="stable")
     path = art / "topk" / "verse" / f"{mc['system']}.parquet"
     frame.to_parquet(path, index=False)
-    write_meta(path.with_suffix(".meta.json"), {
-                "system": mc["system"],
-                "unit_type": "verse",
-                "encoder": mc["encoder"],
-                "w": mc["w"],
-                **meta,
-                "rows": len(frame),
-            })
+    write_meta(
+        path.with_suffix(".meta.json"),
+        {
+            "system": mc["system"],
+            "unit_type": "verse",
+            "encoder": mc["encoder"],
+            "w": mc["w"],
+            **meta,
+            "rows": len(frame),
+        },
+    )
     log(f"done: {mc['encoder']} blended at w={mc['w']}: {len(frame)} rows -> {path}")
     paths["system"] = path
     return paths

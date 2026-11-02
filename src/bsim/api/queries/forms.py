@@ -10,9 +10,7 @@ from bsim.api.queries.common import _dicts, _marks, count
 
 
 def forms_books(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    cur = conn.execute(
-        "SELECT * FROM forms_books WHERE numbers > 0 OR lists > 0 ORDER BY book_id"
-    )
+    cur = conn.execute("SELECT * FROM forms_books WHERE numbers > 0 OR lists > 0 ORDER BY book_id")
     return _dicts(cur)
 
 

@@ -134,9 +134,7 @@ def run_supervision_experiments(
     scorer = Scorer(cfg, log, tuple(sx["golds"]), sx["metric"])
     missing = [g for g in sx["golds"] if g not in scorer.golds]
     if missing:
-        raise RuntimeError(
-            f"dev gold(s) {missing} missing; run `bsim build-golds` first"
-        )
+        raise RuntimeError(f"dev gold(s) {missing} missing; run `bsim build-golds` first")
     proc, art = resolve_path(cfg, "data_processed"), resolve_path(cfg, "artifacts")
     models = resolve_path(cfg, "models")
     verses = pd.read_parquet(proc / "verses.parquet", columns=["verse_id", "text_model"])
@@ -172,9 +170,7 @@ def run_supervision_experiments(
         meta = json.loads((out_dir / TRAIN_META).read_text("utf-8"))
         scores = lists(encode_model(cfg, str(out_dir), texts))
         gains = {
-            g: {
-                li: paired_bootstrap(scores[li][g] - base[li][g], reps, seed) for li in LISTS
-            }
+            g: {li: paired_bootstrap(scores[li][g] - base[li][g], reps, seed) for li in LISTS}
             for g in scorer.golds
         }
         results[name] = {

@@ -261,9 +261,7 @@ def run_chronology(cfg: dict[str, Any], log: Log = print) -> Path:
     by_verse: dict[int, list[Word]] = {}
     for vid, lem, mo, d in zip(words.verse_id, words.lemma, words.morph, words.display_idx,
                                strict=True):  # fmt: skip
-        by_verse.setdefault(int(vid), []).append(
-            words_of(lem, mo, None if pd.isna(d) else int(d))
-        )
+        by_verse.setdefault(int(vid), []).append(words_of(lem, mo, None if pd.isna(d) else int(d)))
     cache: dict[int, list[Phrase]] = {}
 
     def ph(vid: int) -> list[Phrase]:

@@ -175,9 +175,9 @@ def test_patterns_endpoint(client):
     assert first["matches"] == [{"words": [1, 2, 3], "tokens": [1, 2, 3]}]
     assert first["text"] == "אֱלֹהִים … וַיֹּאמֶר … יְהוָה"
     assert r["items"][1]["matches"][0]["tokens"] == [0, 1, None]  # v1's last word has no token
-    assert client.get("/api/patterns", params={"q": "[lemma=430]", "unit": "v:1"}).json()[
-        "total"
-    ] == 1
+    assert (
+        client.get("/api/patterns", params={"q": "[lemma=430]", "unit": "v:1"}).json()["total"] == 1
+    )
     assert client.get("/api/patterns", params={"q": "[lemma=430]", "book": 1}).json()["total"] == 0
     paged = client.get("/api/patterns", params={"q": "[lemma=7225]", "limit": 2, "offset": 2})
     assert paged.json()["total"] == 5 and [i["verse_id"] for i in paged.json()["items"]] == [3, 4]

@@ -72,9 +72,7 @@ def _differs(col: tuple[str, str, int], tol: float) -> str:
     )
 
 
-def compare_table(
-    con: sqlite3.Connection, table: str, tol: float, examples: int
-) -> dict[str, Any]:
+def compare_table(con: sqlite3.Connection, table: str, tol: float, examples: int) -> dict[str, Any]:
     cols_o, cols_n = _columns(con, "o", table), _columns(con, "n", table)
     names_o, names_n = [c[0] for c in cols_o], [c[0] for c in cols_n]
     common = [c for c in cols_o if c[0] in set(names_n)]
@@ -190,9 +188,7 @@ def compare_meta(
         paths = sorted(p for p in set(fo) | set(fn) if fo.get(p, ...) != fn.get(p, ...))
         changed[key] = {
             "paths": len(paths),
-            "examples": [
-                {"path": p, "old": fo.get(p), "new": fn.get(p)} for p in paths[:examples]
-            ],
+            "examples": [{"path": p, "old": fo.get(p), "new": fn.get(p)} for p in paths[:examples]],
         }
     return {
         "added": sorted(set(new) - set(old)),
