@@ -888,6 +888,22 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M128: Stale numbers and a guard (proposed J10)
+- [x] RESULTS: the header says which build each table is from; fusion's 0.189 marked as of its day (0.193 now), the later-experiments table likewise; borrowing, citations, echoes and the ETCBC gold given their current-build numbers beside their first runs (ETCBC fused 0.824, semantic 0.762)
+- [x] DESIGN: the synoptic test now 24 of 24 (the sequences rerun with the retrained encoder); D41 (OpenBible's chapters renumbered since D118), D63 (Solomon underpowered since D119), D108 (3 of 3 since D120), D112 (letters hold since D120) amended; the reader's cross-references fixed (verse halves §16.9, wordplay §16.10, ketiv §16.30)
+- [x] ARCHITECTURE: the `lexical-topk` stage in the table; startup loads the encoder and BM25 in the background, torch only with the encoder; the quality line (ruff format in CI, no type checker); the audit's `results.sql` was not there
+- [x] `tests/test_docs_numbers.py`: 13 sentences of RESULTS about the current build checked against the meta files (the dev table, ETCBC, borrowing, echoes, citations, lists, the poetry AUC, the dialogue check); skipped without artifacts (CI)
+
+✔ RESULTS separates what each run gave, and a rebuild that changes a quoted number fails a local test.
+
+## M127: The noise bar on the new gold (§16.41; proposed J9)
+- [x] Rule committed before the run (DESIGN §16.41): the model in use's recipe and pairs with seed 14 (`supervision_experiments.variants.m115_seed14`); its fused OpenBible gain, either way, is the new bar; M115's adoption stands if its +0.0035 is above it
+- [x] Trained into `models/berel-sup-m115_seed14` (best step 560, recall@10 0.206; 2 h 24 min of training on the GPU, beside the other milestones); `models/berel-sup` untouched
+- [x] Against the model in use, fused: OpenBible −0.0007 [−0.0025, +0.0012], Sefaria −0.0030, ETCBC +0.0008; semantic within ±0.005, every CI across 0
+- [x] Found on the way: a stage run while the training wrote its checkpoints (gematria-links) recorded them as its outputs; rerun afterwards (memory note for later sessions)
+
+✔ The bar is 0.0007; M115's encoder stays.
+
 ## M132: Speed (§11.1; proposed J14)
 - [x] Reader: the lookups over the layers' data (verses, places, verse halves, Leitworte and where they fall) built once per response, not on every render; a word click no longer rebuilds them. Rows are not memoised: choosing a word changes other verses too (the wordplay layer marks its partners)
 - [x] Map: the names' placement memoised on the view, the points, the selection and the label count (a key step no longer places them again; a pan moves the view, so it still does), `radius` stable on the scale and the default label function hoisted
@@ -915,11 +931,11 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 ## M126: Four small misses (§16.15, §16.20, §16.31, §16.45, D122; proposed J8)
 Each a rule changed after a run, reported with all its runs (DESIGN, RESULTS).
 - [x] §16.31 citations: a partner in a parallel sequence (q ≤ 0.05, ± 1 verse) carrying the same formula is not a source (`citations.exclude_parallels`; `sequences` added to the stage's inputs). The first form (every partner) also removed the commands that Exod 39 and Lev 8 carry out (Exod 28, 29): *as commanded* p 0.0096 → 0.12; narrowed to the copy, it changes only Isa 39:8, 2 Chr 6:10, 2 Chr 10:15 (resolved 41 → 38, *the word fulfilled* p 0.19 → 0.63), *as commanded* and the gold check unchanged
-- [x] §16.45 lists: alike in the first four words' shapes as well (`lists.opening`, its own 0.99 cutoff): Neh 3 found, named lists **10 / 10**; 82 lists against 1.6 by chance (61 against 0.9), the new ones series that open alike (Gen 1, Amos 1–2 and 7, Eccl 3, Lev 20)
+- [x] §16.45 lists: alike in the first four words' shapes as well (`lists.opening`, its own 0.99 cutoff): Neh 3 reached on 12 of 31 verses, short of the two thirds that count as found: named lists still 9 / 10; 82 lists against 1.6 by chance (61 against 0.9), the new ones series that open alike (Gen 1, Amos 1–2 and 7, Eccl 3, Lev 20)
 - [x] §16.20 type scenes: 20 shuffles (was 5, the only null-ratio stage below 20): 36 → 33 at q ≤ 0.05, 6 not textual as before
 - [x] §16.15 acrostics: the two readings each against its own shuffles, the better p doubled — **not kept**: Ps 9 q 1.0 → 0.066, every other known q 0.008 → 0.014; reverted (acrostics' output identical to before)
 
-✔ No Findings verdict changes: *as commanded* still holds, the lists' check holds (10 / 10).
+✔ No Findings verdict changes: *as commanded* still holds, the lists' check holds (9 / 10).
 
 ## M129: Tables and numbers (§11.1; proposed J11)
 - [x] `TableCsv` on the tables that had no export: the eval page's (supervision, encoders, zero-shot, units, each named), haftarot (2), directions (2), word pairs, borrowing (one per book pair), divisions, dating's chapters, the network's two lists, shifts, small-scale clauses, synopses, voices, retold's groups, the about page's build table
@@ -1359,8 +1375,8 @@ Data and analysis
 - [x] J8 (done, M126) Four small misses: Ps 9's acrostic (tried, not kept), citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
 
 Docs and evaluation
-- [ ] J9 (M127) The seed-noise bar re-measured on the new OpenBible gold; whether M115's adoption stands
-- [ ] J10 (M128) Stale numbers in RESULTS, DESIGN and ARCHITECTURE fixed; a test that checks quoted numbers against the build's meta
+- [x] J9 (done, M127) The seed-noise bar re-measured on the new OpenBible gold; whether M115's adoption stands: it does (bar 0.0007, gain 0.0035)
+- [x] J10 (done, M128) Stale numbers in RESULTS, DESIGN and ARCHITECTURE fixed; a test that checks quoted numbers against the build's meta
 
 Viewer
 - [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views

@@ -259,6 +259,7 @@ bible-similarity/
 | 3b | `bsim lexicon` | raw lexicon (SDBH, HebrewStrong.xml), words, verses | `data/processed/word_senses.parquet`, `lexicon_{senses,domains,relations,lemmas}.parquet`, `lexicon_meta.json` (§16.22) |
 | 3c | `bsim syntax` | raw BHSA Text-Fabric files, verses, words, word senses | `data/processed/syntax_{clauses,phrases}.parquet`, `syntax_meta.json` (§16.26) |
 | 4 | `bsim lexical` | verses, words, units | `artifacts/lexical/{bm25_lemma,bm25_surface}.{doc,query}.npz` + `.vocab.json`, `tfidf_{chapter,pericope,parasha}.npz` + `.ids.json`, `formulas.parquet`, `lexical_report.md` |
+| 4' | `bsim topk` (lexical systems; `bsim all`: `lexical-topk`) | lexical indexes | `artifacts/topk/verse/{bm25_lemma,…}.parquet`, before training: `train-sup` mines its hard negatives from `bm25_lemma` |
 | 5 | `bsim train-simcse` | verses | `models/berel-simcse/` |
 | 6 | `bsim train-sup [--extra openbible,etcbc\|none]` | verses, links (train/dev), OpenBible / ETCBC train pairs (`extra_pairs`), lexical | `models/berel-sup/`, `artifacts/train/hard_negatives.parquet` |
 | 7 | `bsim embed --model X` | verses, model | `artifacts/embeddings/{X}.npy` (float32, L2-normalized, row = verse_id) |
@@ -347,11 +348,11 @@ A *system* is a named retrieval configuration (e.g. `bm25_lemma`, `berel_mean`, 
 | Storage | Parquet (pipeline), `.npy` (embeddings), SQLite (serving) |
 | API | FastAPI + uvicorn, pydantic models |
 | Frontend | React + TypeScript + Vite, TanStack Query, react-router |
-| Quality | ruff (lint+format), pytest, mypy (optional) |
+| Quality | ruff (lint, and `ruff format --check` in CI), pytest; no type checker (pyright was tried at M121 and not kept) |
 
 ## 6. Runtime model of the viewer
 
-- At startup the API opens `results.sqlite` read-only, memory-maps the final verse embedding matrix (~23k × 768 × 4 B ≈ 70 MB), loads the final encoder (CPU or GPU) for free-text queries, and builds the surface-form BM25 index in memory.
+- At startup the API opens `results.sqlite` read-only, memory-maps the final verse embedding matrix (~23k × 768 × 4 B ≈ 70 MB), and starts loading the final encoder (CPU or GPU) for free-text queries and the surface-form BM25 index on background threads (M109), so it answers at once; a search that needs one before it is ready gets a 503 "warming". torch is imported only by the encoder (M119), so the server starts in a few seconds.
 - Precomputed queries (`/similar`) are a single indexed SQLite lookup; query-time filters (neighbours / chapter / book) are applied in SQL over the stored 50.
 - `/compare` and `/search` compute on demand from the embedding matrix (milliseconds).
 - In dev, Vite proxies `/api` to FastAPI. For "production" use, `web/dist` is served by FastAPI as static files — a single `bsim serve` process.
