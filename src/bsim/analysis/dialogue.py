@@ -192,16 +192,29 @@ def up_test(
     shuffles: int,
     rng: np.random.Generator,
     scale: float,
+    statistic: str = "within_book",
 ) -> dict[str, Any]:
-    """`scale` x (sum of `value` / sum of `denom` over `up`, minus the same over the rest), against
-    `up` permuted over the rows of each book."""
+    """`scale` x the "up" rate minus the rest's, against `up` permuted over the rows of each book.
+    `within_book` (M124, D121): the difference within each book, averaged over the books with
+    both, weighted by its "up" denominator; `pooled` (the first runs): sums over all books, which
+    the within-book shuffle does not centre on 0 when books differ in their mix."""
+    _, b = np.unique(book, return_inverse=True)
+    nb = int(b.max()) + 1 if len(b) else 0
 
     def rate(sel: np.ndarray) -> float:
         d = denom[sel].sum()
         return float(value[sel].sum() / d) if d else float("nan")
 
     def stat(u: np.ndarray) -> float:
-        return scale * (rate(u) - rate(~u))
+        if statistic == "pooled":
+            return scale * (rate(u) - rate(~u))
+        du, dr = (np.bincount(b, denom * m, nb) for m in (u, ~u))
+        vu, vr = (np.bincount(b, value * m, nb) for m in (u, ~u))
+        both = (du > 0) & (dr > 0)
+        if not both.any():
+            return float("nan")
+        diff = vu[both] / du[both] - vr[both] / dr[both]
+        return scale * float((du[both] * diff).sum() / du[both].sum())
 
     obs = stat(up)
     null = np.array([stat(permute_within(up, book, rng)) for _ in range(shuffles)])
@@ -210,6 +223,7 @@ def up_test(
         "observed": round(obs, 4),
         "null": round(float(null.mean()), 4) if len(null) else None,
         "p": empirical_p(obs, null) if not np.isnan(obs) else None,
+        "statistic": statistic,
         "up": {"rate": round(scale * rate(up), 4), "count": int(value[up].sum()),
                "of": int(denom[up].sum()), "quotations": int(up.sum())},
         "rest": {"rate": round(scale * rate(~up), 4), "count": int(value[~up].sum()),
@@ -336,15 +350,18 @@ def run_dialogue(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     rng = np.random.default_rng(dc["seed"])
 
     def checks(sel: pd.Series) -> dict[str, Any]:
-        s = q[sel & q.addressee.notna() & (q.speaker_rank < 2)]
+        # a speaker not known has no rank (M124: it had counted as 0, so the psalms' prayers to
+        # God, unattributed, were speech up)
+        known = q.speaker.notna() if dc["known_speakers"] else True
+        s = q[sel & known & q.addressee.notna() & (q.speaker_rank < 2)]
         up = (s.addressee_rank > s.speaker_rank).to_numpy()
         book = s.book_id.to_numpy()
-        n = dc["shuffles"]
+        n, st = dc["shuffles"], dc["statistic"]
         return {
             "deference": up_test(s.deference.to_numpy(), s.n_words.to_numpy(), up, book, n, rng,
-                                 1000.0),
+                                 1000.0, st),
             "particle": up_test(s.particle.to_numpy(), s.imperatives.to_numpy(), up, book, n, rng,
-                                1.0),
+                                1.0, st),
         }  # fmt: skip
 
     tests = checks(q.addressee_source.isin(dc["reliable"]))

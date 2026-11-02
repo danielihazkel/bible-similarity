@@ -84,7 +84,7 @@ function Checks({ meta }: { meta: DialogueMeta }) {
       <h2>{t.checksTitle}</h2>
       <ol className="dlg-checks">
         <li>
-          <Verdict holds={d.holds} /> {t.deference(d.up.rate, d.rest.rate, d.up.count, d.up.of, d.null, d.p)}
+          <Verdict holds={d.holds} /> {t.deference(d.up.rate, d.rest.rate, d.up.count, d.up.of, d.observed, d.null, d.p)}
         </li>
         <li>
           <Verdict holds={p.holds} /> {t.particle(p.up.rate, p.rest.rate, p.up.count, p.up.of, p.p)}
@@ -93,6 +93,7 @@ function Checks({ meta }: { meta: DialogueMeta }) {
           <Verdict holds={l.holds} /> {t.lastWord(l.observed, l.exchanges, l.expected, l.p)}
         </li>
       </ol>
+      <p className="small muted">{t.knownOnly}</p>
       {s && <p className="small">{t.sensitivity(s.deference.observed, s.deference.p, s.particle.observed, s.particle.p)}</p>}
       {o && g && (
         <p className="small muted">

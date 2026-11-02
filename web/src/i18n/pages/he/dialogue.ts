@@ -13,10 +13,11 @@ export const dlgHe: typeof dlgEn = {
   sources: { explicit: 'נקוב', vocative: 'נקרא בשמו', pronoun: '„אליו”', turn: 'תשובה' },
   checksTitle: 'בדיקות שנקבעו מראש',
   verdict: { holds: 'מתקיימת', fails: 'אינה מתקיימת' },
-  deference: (up: number, rest: number, count: number, of: number, nul: number | null, p: number | null) =>
-    `„עבדך” (או „אמתך”, „שפחתך”) בדיבור אל האל או אל מלך: ${up.toFixed(1)} פעמים לכל 1,000 מילים (${numHe(count)} ב־${numHe(of)} מילים), לעומת ${rest.toFixed(1)} בדיבור אל כל אחד אחר; ההפרש ${(up - rest).toFixed(1)}, לעומת ${x1(nul)} כשהסימון „כלפי מעלה” מעורבב בין הציטוטים של כל ספר (p ${fp(p)}). תשובה ידועה: כבוד כלפי מי שמעליך (Revell 1996).`,
+  deference: (up: number, rest: number, count: number, of: number, obs: number, nul: number | null, p: number | null) =>
+    `„עבדך” (או „אמתך”, „שפחתך”) בדיבור אל האל או אל מלך: ${up.toFixed(1)} פעמים לכל 1,000 מילים (${numHe(count)} ב־${numHe(of)} מילים), לעומת ${rest.toFixed(1)} בדיבור אל כל אחד אחר. בהשוואה בתוך כל ספר ההפרש ${obs.toFixed(1)}, לעומת ${x1(nul)} כשהסימון „כלפי מעלה” מעורבב בין הציטוטים של כל ספר (p ${fp(p)}). תשובה ידועה: כבוד כלפי מי שמעליך (Revell 1996).`,
   particle: (up: number, rest: number, count: number, of: number, p: number | null) =>
-    `„נא” מיד אחרי ציווי: ${pct(up)} מן הציוויים אל האל או אל מלך (${numHe(count)} מתוך ${numHe(of)}), לעומת ${pct(rest)} מן האחרים (p ${fp(p)}). שנוי במחלוקת: האם „נא” הוא סימן נימוס (Shulman 1996,‏ Christiansen 2009) או מילית לוגית, „אם כן” (Lambdin 1971)?`,
+    `„נא” מיד אחרי ציווי: ${pct(up)} מן הציוויים אל האל או אל מלך (${numHe(count)} מתוך ${numHe(of)}), לעומת ${pct(rest)} מן האחרים (בהשוואה בתוך כל ספר, p ${fp(p)}). שנוי במחלוקת: האם „נא” הוא סימן נימוס (Shulman 1996,‏ Christiansen 2009) או מילית לוגית, „אם כן” (Lambdin 1971)?`,
+  knownOnly: 'נספרים רק ציטוטים שדוברם ידוע: לתפילה שאין בה דובר נקוב אין מעמד להשוות.',
   lastWord: (obs: number, n: number, exp: number, p: number) =>
     `ב־${numHe(n)} שיחות בין האל או מלך לבין מי שמעמדו נמוך ממנו, העליון מדבר אחרון ב־${numHe(obs)}, לעומת ${exp.toFixed(1)} אילו התור האחרון היה תור מקרי מתורי השיחה (p ${fp(p)}). שאלה פתוחה.`,
   sensitivity: (d: number, dp: number | null, pr: number, pp: number | null) =>

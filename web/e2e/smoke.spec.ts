@@ -199,9 +199,9 @@ async function checkA11y(page: Page) {
 test('who speaks to whom: the checks, a book’s conversations, and an exchange in the reader', async ({ page }) => {
   await page.goto('/speech?view=dialogue&book=7')
   await expect(page.getByRole('heading', { name: 'Checks fixed in advance' })).toBeVisible()
-  // deference holds; נא and the last word do not (M116: the psalms' prayers now count as speech up)
-  await expect(page.locator('.dlg-verdict.holds')).toHaveCount(1)
-  await expect(page.locator('.dlg-verdict.fails')).toHaveCount(2)
+  // deference and נא hold, the last word does not (M124: compared within books, known speakers only)
+  await expect(page.locator('.dlg-verdict.holds')).toHaveCount(2)
+  await expect(page.locator('.dlg-verdict.fails')).toHaveCount(1)
   await expect(page.getByRole('img', { name: /most active speakers of I Samuel/ })).toBeVisible()
   await page.locator('.dlg-pairs').getByRole('button', { name: 'שאול' }).first().click()
   await expect(page).toHaveURL(/party=7586/)

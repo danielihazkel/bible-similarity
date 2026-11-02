@@ -1035,6 +1035,8 @@ dialogue:                     # `bsim dialogue`: who speaks to whom (DESIGN.md �
   particle: "4994"            # נא right after an imperative
   exchange_gap: 4             # clauses between one quotation's end and the next one's start for them to be turns of one exchange
   shuffles: 999               # "up" labels permuted over the quotations of each book; last turns drawn at random within each exchange
+  statistic: within_book      # the difference of rates within each book, weighted by its "up" denominator (M124, D121; `pooled`: the sums over all books of the first runs)
+  known_speakers: true        # quotations with no known speaker left out of the rank tests (M124; they had counted as rank 0)
   alpha: 0.05
   seed: 13
   checks:                     # one-sided, at `alpha`

@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M124: The dialogue checks compare within books (§16.44, D121; proposed J6)
+- [x] Found by the audit: the statistic pooled rates over all books, the null shuffled within books, and the shuffles did not centre on 0 (נא: null −0.041, observed −0.013, p 0.001, verdict "not borne out")
+- [x] Rule written into DESIGN before the rerun: the difference of rates within each book, weighted by its "up" denominator (`dialogue.statistic: within_book`); a quotation with no known speaker out of the rank tests (`dialogue.known_speakers`; an unknown speaker had counted as rank 0)
+- [x] All four runs reported (DESIGN §16.44, RESULTS): deference holds in each; נא holds in each of the three changed ones, **+7.0 points within books, p 0.012** (14.3 % against 8.8 %), recorded as following a change made after the result was seen
+- [x] Viewer: the checks say they compare within each book and count known speakers only (both languages); the deference line shows the test's own difference
+- [x] Tests: `DialogueView.test.tsx` (the wording); the smoke test's verdicts (2 hold, 1 fails)
+
+✔ The null now centres on 0 (0.19 and −0.004), and a p-value and its verdict can no longer disagree.
+
 ## M123: Solomon's speaker, tried and not kept (§16.26, §16.28; proposed J5)
 - [x] The rule: when the lookback finds no subject, a run of up to 8 clauses continuing it (a verb without a subject phrase agreeing in person, gender and number, or no verb), the subject taken from the clause before the run, another quotation's introduction ending it; at 0 it gives the build exactly
 - [x] Tuning sample of 20 (a first, looser form: 485 quotations changed): 9 right, 11 wrong; the form above set from them (56 changed; the tuning sample's 11 wrong ones all gone)
@@ -1296,7 +1305,7 @@ Tooling
 
 Data and analysis
 - [x] J5 (done, M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check: 26 / 50 right, **not kept**
-- [ ] J6 (M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
+- [x] J6 (done, M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
 - [ ] J7 (M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
 - [ ] J8 (M126) Four small misses: Ps 9's acrostic, citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
 

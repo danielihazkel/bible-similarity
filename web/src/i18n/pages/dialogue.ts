@@ -19,10 +19,11 @@ export const dlgEn = {
   sources: { explicit: 'named', vocative: 'called by name', pronoun: '“to him”', turn: 'an answer' } as Record<Src, string>,
   checksTitle: 'Checks fixed in advance',
   verdict: { holds: 'holds', fails: 'does not hold' },
-  deference: (up: number, rest: number, count: number, of: number, nul: number | null, p: number | null) =>
-    `“Your servant” (עבדך, אמתך, שפחתך) in speech to God or a king: ${up.toFixed(1)} times per 1,000 words (${numEn(count)} in ${numEn(of)} words), against ${rest.toFixed(1)} in speech to anyone else; the difference is ${(up - rest).toFixed(1)}, against ${x1(nul)} with the “up” label shuffled among the quotations of each book (p ${fp(p)}). A known answer: deference to a superior (Revell 1996).`,
+  deference: (up: number, rest: number, count: number, of: number, obs: number, nul: number | null, p: number | null) =>
+    `“Your servant” (עבדך, אמתך, שפחתך) in speech to God or a king: ${up.toFixed(1)} times per 1,000 words (${numEn(count)} in ${numEn(of)} words), against ${rest.toFixed(1)} in speech to anyone else. Compared within each book, the difference is ${obs.toFixed(1)}, against ${x1(nul)} with the “up” label shuffled among the quotations of each book (p ${fp(p)}). A known answer: deference to a superior (Revell 1996).`,
   particle: (up: number, rest: number, count: number, of: number, p: number | null) =>
-    `נא right after an imperative: ${pct(up)} of the commands to God or a king (${numEn(count)} of ${numEn(of)}), against ${pct(rest)} of the others (p ${fp(p)}). Contested: is נא a mark of politeness (Shulman 1996, Christiansen 2009) or a logical particle, “then” (Lambdin 1971)?`,
+    `נא right after an imperative: ${pct(up)} of the commands to God or a king (${numEn(count)} of ${numEn(of)}), against ${pct(rest)} of the others (compared within each book, p ${fp(p)}). Contested: is נא a mark of politeness (Shulman 1996, Christiansen 2009) or a logical particle, “then” (Lambdin 1971)?`,
+  knownOnly: 'Only quotations whose speaker is known are counted: a prayer with no named speaker has no rank to compare.',
   lastWord: (obs: number, n: number, exp: number, p: number) =>
     `In ${numEn(n)} exchanges between God or a king and someone of lower rank, the higher one speaks last in ${numEn(obs)}, against ${exp.toFixed(1)} if the last turn were any of the exchange's turns at random (p ${fp(p)}). An open question.`,
   sensitivity: (d: number, dp: number | null, pr: number, pp: number | null) =>
