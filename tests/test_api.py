@@ -205,8 +205,8 @@ def test_surface_index_cached(built):
     assert cache.stat().st_mtime_ns != stamp
 
 
-def test_missing_db(tmp_path):
-    cfg, db = build_fixture_db(tmp_path)
+def test_missing_db(built):
+    cfg, db = built
     db.unlink()
     with pytest.raises(RuntimeError, match="bsim build-db"):
         create_app(cfg, encoder=fake_encoder, log=lambda _: None)
@@ -969,3 +969,13 @@ def test_etag_skips_unchanged_answers(client):
         r = client.get(path, headers={"If-None-Match": tag})
         assert r.status_code == 200, path
         assert r.headers["cache-control"] == "no-store" and "etag" not in r.headers, path
+
+
+def test_the_server_starts_without_torch():
+    """torch (~7 s) and scipy.stats (~2 s) load only where they are used, not at `bsim serve`."""
+    import subprocess
+    import sys
+
+    code = "import sys, bsim.api.app; print(*sorted({'torch', 'scipy.stats'} & set(sys.modules)))"
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    assert out.stdout.strip() == ""

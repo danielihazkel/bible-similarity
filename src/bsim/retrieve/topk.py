@@ -22,14 +22,16 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
-import torch
 
 from bsim.config import config_hash, resolve_path
 from bsim.lexical import bm25
+
+if TYPE_CHECKING:  # torch loads only where scores are computed, not on the serve path
+    import torch
 
 Log = Callable[[str], None]
 ScoreFn = Callable[[int, int], "np.ndarray | torch.Tensor"]
@@ -39,6 +41,8 @@ CSLS_SUFFIX = "_csls"
 
 
 def get_device(name: str) -> torch.device:
+    import torch
+
     if name.startswith("cuda") and torch.cuda.is_available():
         return torch.device(name)
     return torch.device("cpu")
@@ -52,6 +56,8 @@ def topk_chunks(
     Returns (idx int32, score float32), each `n_rows x k`, sorted by score descending, ties by
     target id ascending.
     """
+    import torch
+
     k = min(k, n_rows - 1)
     idx_parts, score_parts = [], []
     for start in range(0, n_rows, chunk_size):
@@ -73,6 +79,8 @@ def sparse_scorer(index: bm25.Bm25Index) -> ScoreFn:
 
 
 def dense_scorer(emb: np.ndarray, device: torch.device) -> ScoreFn:
+    import torch
+
     # copy: emb may be a read-only memmap
     e = torch.as_tensor(np.array(emb, dtype=np.float32), device=device)
     return lambda start, stop: e[start:stop] @ e.T

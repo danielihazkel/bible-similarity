@@ -888,6 +888,13 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M119: Fast pytest and serve start (proposed J1)
+- [x] The fixture DB built once a session (`built_once`); each test gets a copy under its own `tmp_path` (`built`), free to change: a client test's setup 6 s → 1.7 s
+- [x] torch imported only where scores are computed (`retrieve/topk.py`), `scipy.stats` only where the workbench tests (`api/workbench.py`): `import bsim.api.app` 13.8 s → 3.6 s
+- [x] Tests: the server starts without torch or `scipy.stats` (`test_api.py`)
+
+✔ `bsim serve`, `fixture-serve` and every test client start without loading torch.
+
 ## M117: Known misses (§16.15, §16.40, §16.45, §16.66–§16.68, §16.72, D120; proposed I14)
 Each a rule changed after the first run, so each is reported with both runs (DESIGN and RESULTS).
 - [x] §16.72 word pairs: כל left out (`binomials.skip_lemmas`): 134 → 128 binomials; shorter first in letters 60 / 81 (p 8 × 10⁻⁶), syllables 39 / 58 (p 0.006): **claim (1) now holds** (failed on syllables before, p 0.052; the six pairs dropped were all longer first)
@@ -1242,3 +1249,29 @@ Viewer
 - [x] I15 (done, M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
 
 Suggested order: I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I10 → I9 → I11 → I12 → I13 → I14 → I15.
+
+From the 2026-11-02 review: improvements again, no new features. Three audits (viewer, backend and CI, the analyses' limits) found the items below. Refactors keep outputs byte-identical; a rule changed after a claim's run is reported with both runs, and a verdict it changes is marked as following a change made after the result was seen.
+
+Tooling
+- [x] J1 (done, M119) Fast pytest and serve start: the fixture DB built once a session, each test given a copy; torch and `scipy.stats` off the serve path
+- [ ] J2 (M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
+- [ ] J3 (M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` and pyright in CI
+- [ ] J4 (M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
+
+Data and analysis
+- [ ] J5 (M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check
+- [ ] J6 (M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
+- [ ] J7 (M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
+- [ ] J8 (M126) Four small misses: Ps 9's acrostic, citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
+
+Docs and evaluation
+- [ ] J9 (M127) The seed-noise bar re-measured on the new OpenBible gold; whether M115's adoption stands
+- [ ] J10 (M128) Stale numbers in RESULTS, DESIGN and ARCHITECTURE fixed; a test that checks quoted numbers against the build's meta
+
+Viewer
+- [ ] J11 (M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale, vitest for the untested views
+- [ ] J12 (M130) Cross-links: place and person link helpers; names, the family tree's card and type-scene verbs linked
+- [ ] J13 (M131) Shareable selections: the map's, the place pages', Compare's and the reader's selections in the URL; open sections kept on Back
+- [ ] J14 (M132) Speed: the reader and the map's labels memoised; the English page strings split by route
+
+Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in the background) → J10 → J11 → J12 → J13 → J14.

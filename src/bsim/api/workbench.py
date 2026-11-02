@@ -36,7 +36,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
-from scipy.stats import chi2
 
 from bsim.analysis.stats import bh_q, empirical_p, g2_table
 from bsim.api.patterns import PatternError, WordTable
@@ -306,6 +305,8 @@ def contrast(
     b, tb = feature_counts(table, domains, feature, words_b)
     tested = np.flatnonzero(a + b >= min_count) if ta > 0 and tb > 0 else np.empty(0, dtype=int)
     g2 = np.array([g2_table(a[i], ta, a[i] + b[i], ta + tb) for i in tested], dtype=float)
+    from scipy.stats import chi2  # lazily: scipy.stats costs ~2 s at server start
+
     p = chi2.sf(g2, 1) if len(g2) else np.empty(0)
     lr = np.log2(((a[tested] + 0.5) / (ta + 0.5)) / ((b[tested] + 0.5) / (tb + 0.5)))
     side = np.where(a[tested] * tb >= b[tested] * ta, "a", "b")
