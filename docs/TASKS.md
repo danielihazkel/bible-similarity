@@ -888,6 +888,24 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M123: Solomon's speaker, tried and not kept (§16.26, §16.28; proposed J5)
+- [x] The rule: when the lookback finds no subject, a run of up to 8 clauses continuing it (a verb without a subject phrase agreeing in person, gender and number, or no verb), the subject taken from the clause before the run, another quotation's introduction ending it; at 0 it gives the build exactly
+- [x] Tuning sample of 20 (a first, looser form: 485 quotations changed): 9 right, 11 wrong; the form above set from them (56 changed; the tuning sample's 11 wrong ones all gone)
+- [x] Fresh check, after it was set (50 of the other 54): **26 right, 24 wrong**; of the five that had a speaker, four lost a right one (Exod 4:1, Deut 33:27, Isa 65:25, Dan 7:7), one gained (Isa 45:14)
+- [x] **Not kept**: half right, against 37 / 45 for the rules of M116, and no unseen changes are left to judge a third form; the code reverted, DESIGN §16.26 records it
+
+✔ 2 Chr 6:14 can be reached, but not without as many wrong speakers as right ones; Solomon's Kings / Chronicles check stays underpowered.
+
+## M122: Slow stages and DB size (proposed J4)
+- [x] acrostics: the chain scores' inner loops over the earlier lines and options vectorized (`chain_scores`, the same maximum over the same values): 107 → 60 s of the stage's profile, 116 → 85 s a run
+- [x] senses (and the map's clusters): one-thread k-means looks the thread pools up once (`stats._threadpools`), not on each of its ~1,800 calls (13.4 → 3.5 ms a call); the stage's remaining time is sklearn's own k-means, silhouette and distances
+- [x] Both stages and the map rerun: all 10 output files identical
+- [x] DB: no free pages, so `VACUUM` gives nothing; 8 KB pages 844 → 841 MB (not kept); every index of `discoveries` serves a query; `matches` is 453 of the 844 MB, and only integer keys would shrink it (a schema change: not done)
+- [x] Removed: `results.before-M115.sqlite` (844 MB). Kept: `berel_sup_ctx` and `berel_sup_late`, which `retrieval.context_systems` still names
+- [x] Every stage adopted after J1–J4 (formatting, `write_meta`, lazy imports: code changed, outputs not): `bsim all --dry-run` shows nothing stale
+
+✔ The slowest stage profiled in M114 left alone (els), the two never looked at made faster, outputs byte-identical.
+
 ## M121: Shared helpers and gates (proposed J3)
 - [x] `stats.empirical_p(observed, null, tail)`: the 19 Monte Carlo p-values written out by hand (els, ciphers' neighbours, gematria links, the poetry null, the geographic arc, place links, place lists, refrains, senses) call it, each with its own comparison and epsilon
 - [x] `stats.q_values`: sequences' empirical-null FDR, now shared (allusions, wordplay, type scenes); refrains' `fdr` is the same on p negated (equal to the old one on 3,000 random inputs with ties)
@@ -1274,10 +1292,10 @@ Tooling
 - [x] J1 (done, M119) Fast pytest and serve start: the fixture DB built once a session, each test given a copy; torch and `scipy.stats` off the serve path
 - [x] J2 (done, M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
 - [x] J3 (done, M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` in CI (pyright tried, not kept)
-- [ ] J4 (M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
+- [x] J4 (done, M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
 
 Data and analysis
-- [ ] J5 (M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check
+- [x] J5 (done, M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check: 26 / 50 right, **not kept**
 - [ ] J6 (M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
 - [ ] J7 (M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
 - [ ] J8 (M126) Four small misses: Ps 9's acrostic, citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
