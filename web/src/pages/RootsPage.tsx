@@ -12,7 +12,7 @@ import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { lemmaLink, rootLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
 const KINDS: RootPairKind[] = ['cognate', 'inf_abs', 'other']
@@ -56,6 +56,7 @@ export function RootsPage() {
 }
 
 function Pairs({ data }: { data: RootsResponse }) {
+  const openProps = useOpenSections()
   const { m, locale } = useLocale()
   const t = m.root
   const [params, update] = useQueryParams()
@@ -83,7 +84,7 @@ function Pairs({ data }: { data: RootsResponse }) {
         <p className="muted small">{t.other(tests.other.observed, tests.other.expected, tests.other.p)}</p>
         <p className="muted small">{t.infAbs(meta.pairs?.inf_abs ?? 0)}</p>
       </section>
-      <details className="roots-books">
+      <details className="roots-books" {...openProps('books')}>
         <summary>{t.booksTitle}</summary>
         <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
           <table className="change-table">

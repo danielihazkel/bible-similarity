@@ -11,7 +11,7 @@ import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
 
 const PAGE_SIZE = 20
 
@@ -197,9 +197,10 @@ function Examples({ onPick }: { onPick: (q: string) => void }) {
 }
 
 function Help() {
+  const openProps = useOpenSections()
   const t = useLocale().m.qry
   return (
-    <details className="query-help">
+    <details className="query-help" {...openProps('help')}>
       <summary>{t.helpTitle}</summary>
       <ul>
         {t.syntax.map((s) => (

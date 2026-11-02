@@ -6,13 +6,14 @@ import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
-import { useQueryParams } from '../lib/urlState'
+import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 
 const fmt = (x: number | null) => (x === null ? '—' : x.toFixed(2))
 
 /** The Late Biblical Hebrew profile of every book and chapter (DESIGN.md §16.24). */
 export function LanguagePage() {
+  const openProps = useOpenSections()
   const { m, locale } = useLocale()
   const t = m.dat
   const [params, update] = useQueryParams()
@@ -40,7 +41,7 @@ export function LanguagePage() {
           {syn.pairs ? (
             <section aria-label={t.examplesTitle}>
               <p>{t.synoptic(syn.later ?? 0, syn.pairs, (syn.p ?? 1).toExponential(0), syn.later_grammar ?? 0)}</p>
-              <details>
+              <details {...openProps('examples')}>
                 <summary>{t.examplesTitle}</summary>
                 <ul className="synoptic-list">
                   {d.synoptic_examples.map((e) => (

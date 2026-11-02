@@ -7,7 +7,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
-import { useQueryParams } from '../lib/urlState'
+import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { DirectionsView } from './DirectionsView'
 import { TableCsv } from '../components/TableCsv'
 
@@ -148,6 +148,7 @@ function CommunityLabel({ c, bookOf }: { c: NetworkCommunity; bookOf: Map<number
 }
 
 function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; bookOf: Map<number, Book>; focus?: string }) {
+  const openProps = useOpenSections()
   const { m, locale } = useLocale()
   const { nodes, edges } = data
   const at = new Map(nodes.map((n) => [n.unit.unit_id, n]))
@@ -207,7 +208,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
           )
         })}
       </svg>
-      <details className="community-members">
+      <details className="community-members" {...openProps('members')}>
         <summary>{m.ov.network.allPassages(nodes.length)}</summary>
         <NodeTable nodes={nodes} bookOf={bookOf} label={m.ov.network.allPassages(nodes.length)} name="network-community" />
       </details>

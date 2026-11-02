@@ -9,7 +9,7 @@ import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
-import { useQueryParams } from '../lib/urlState'
+import { useIntParam, useQueryParams } from '../lib/urlState'
 
 const LONGEST = 3 // steps marked as the longest
 
@@ -80,7 +80,7 @@ function BookPath({ books, alpha }: { books: ArcBook[]; alpha: number }) {
   const [book, setBook] = useBook(books)
   const res = usePlaceArcBook(book?.book_id)
   const basemap = useBasemap()
-  const [picked, setPicked] = useState<number>()
+  const [picked, setPicked] = useIntParam('ch')
   const [moved, setMoved] = useState<{ book: number; bounds: Bounds }>()
   const chapters = useMemo(() => (res.data && res.data.book.book_id === book?.book_id ? res.data.items : []), [res.data, book])
   const byNumber = useMemo(() => new Map(chapters.map((c) => [c.chapter, c])), [chapters])

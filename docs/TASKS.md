@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M131: Shareable selections (§11; proposed J13)
+- [x] `useIntParam` (`lib/urlState.ts`): a selection in one parameter, set with a history entry so Back undoes it: the map's cluster (`cluster`), the geographic arc's chapter (`ch`), a place list's place (`p`); the reader's chosen word as `w=verse:word`
+- [x] `useOpenSections`: the `<details>` opened by hand in one `open` parameter (network's passages, the language page's examples, a borrowing book pair, roots' books, the query help, the chronology's reigns)
+- [x] Left out: Compare's active pair follows the pointer (set on hover, cleared on leaving), so in the URL it would rewrite the address at every move; its word and link highlights depend on it
+- [x] Tests (fixture end-to-end, both devices): a reload keeps the map's cluster and Back clears it; the reader's word survives a reload; an opened section is in the URL and open after a reload
+
+✔ A shared link opens the same selection; 1,227 fixture end-to-end tests pass.
+
 ## M130: Cross-links (§11.1; proposed J12)
 - [x] `placeLink` and `personLink` (`lib/links.ts`) in place of the URLs written out in the jump box, the dossier and the three place pages
 - [x] A name's places link to them on the map (`/places?p=`, named "… on Places on the map" in both languages); a type scene's verbs link to their lemma pages (the tooltip of raw verse ids gone)
@@ -1349,7 +1357,7 @@ Docs and evaluation
 Viewer
 - [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views
 - [x] J12 (done, M130) Cross-links: place and person link helpers; names and type-scene verbs linked (the family tree's card: no lemma to link)
-- [ ] J13 (M131) Shareable selections: the map's, the place pages', Compare's and the reader's selections in the URL; open sections kept on Back
+- [x] J13 (done, M131) Shareable selections: the map's, the place pages' and the reader's selections in the URL (Compare's follows the pointer: left out); open sections kept on Back
 - [ ] J14 (M132) Speed: the reader and the map's labels memoised; the English page strings split by route
 
 Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in the background) → J10 → J11 → J12 → J13 → J14.

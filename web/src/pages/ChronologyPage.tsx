@@ -6,6 +6,7 @@ import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { useOpenSections } from '../lib/urlState'
 
 const RULES = ['accession', 'non-accession'] as const
 const MARKS = ['flood', 'exodus'] as const
@@ -231,6 +232,7 @@ const BH = 24
 const IY = 112
 
 function Kingdoms({ d }: { d: ChronologyResponse }) {
+  const openProps = useOpenSections()
   const t = useLocale().m.ch
   const names = new Map(d.kings.map((k) => [k.king, k.name]))
   const offsets = d.syncs.map((s) => s.t_judah - s.t_israel)
@@ -323,7 +325,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
           </tbody>
         </table>
       </TableCsv>
-      <details className="ch-reigns">
+      <details className="ch-reigns" {...openProps('reigns')}>
         <summary>{t.kingsTable}</summary>
         <TableCsv name="chronology-4" tabIndex={0} role="region" aria-label={t.kingsTable}>
           <table className="change-table">

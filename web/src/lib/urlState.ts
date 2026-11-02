@@ -64,3 +64,32 @@ export function useQueryParams() {
   )
   return [params, update] as const
 }
+
+/** A whole number kept in one query parameter (a selection: a cluster, a chapter, a place). Set
+ * with a new history entry, so Back undoes it; `undefined` removes it. */
+export function useIntParam(name: string) {
+  const [params, update] = useQueryParams()
+  const raw = params.get(name)
+  const n = raw === null ? NaN : Number(raw)
+  const value = Number.isInteger(n) ? n : undefined
+  const set = useCallback((v: number | undefined) => update({ [name]: v === undefined ? null : String(v) }, false), [name, update])
+  return [value, set] as const
+}
+
+/** The open `<details>` of a page in one `open` parameter (comma-separated ids), so a section
+ * opened by hand stays open on Back and in a shared link: `{...openProps('help')}`. */
+export function useOpenSections() {
+  const [params, update] = useQueryParams()
+  const open = new Set((params.get('open') ?? '').split(',').filter(Boolean))
+  return (id: string) => ({
+    open: open.has(id),
+    onToggle: (e: { currentTarget: HTMLDetailsElement }) => {
+      const now = e.currentTarget.open
+      if (now === open.has(id)) return
+      const next = new Set(open)
+      if (now) next.add(id)
+      else next.delete(id)
+      update({ open: next.size ? [...next].sort().join(',') : null })
+    },
+  })
+}

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router'
 import { useReader, useStructure, useUnit, useUnitParallelism } from '../api/hooks'
 import type { DivineName, PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
@@ -58,7 +58,11 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
   const reader = useReader(READER_LAYERS.some(on) ? unit.unit_id : undefined)
   const halves = useUnitParallelism(on('cola') ? unit.unit_id : undefined)
   const structure = useStructure(on('leitworte') ? unit.unit_id : undefined)
-  const [word, setWord] = useState<{ verse: Verse; idx: number }>()
+  // the selected word, in the URL (`w=verse_id:display index`): a shared link opens it
+  const [wv, wi] = (params.get('w') ?? '').split(':').map(Number)
+  const wVerse = verses.find((v) => v.verse_id === wv)
+  const word = wVerse && Number.isInteger(wi) ? { verse: wVerse, idx: wi } : undefined
+  const setWord = (w: { verse: Verse; idx: number } | undefined) => update({ w: w ? `${w.verse.verse_id}:${w.idx}` : null }, false)
 
   const toggle = (l: Layer) => update({ layers: toggleLayer(layers, l) }, false)
   const rv = new Map((reader.data?.verses ?? []).map((v) => [v.verse_id, v]))

@@ -9,7 +9,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
-import { useQueryParams } from '../lib/urlState'
+import { useIntParam, useQueryParams } from '../lib/urlState'
 
 const NAMED_UP_TO = 20 // a list this long has its places' names written on the map; a longer one, their numbers
 const LONGEST = 3 // steps named as the longest
@@ -129,7 +129,7 @@ function ListDetail({ list }: { list: PlaceList }) {
   const show = params.get('show') === 'short' ? 'short' : 'text'
   const res = usePlaceList(list.key)
   const basemap = useBasemap()
-  const [picked, setPicked] = useState<number>()
+  const [picked, setPicked] = useIntParam('p')
   const [moved, setMoved] = useState<{ key: string; bounds: Bounds }>()
   const steps = useMemo(() => (res.data?.list.key === list.key ? res.data.steps : []), [res.data, list.key])
   const points: GeoPoint[] = useMemo(

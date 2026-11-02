@@ -6,7 +6,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { sequenceLink } from '../lib/links'
 import { bookName } from '../lib/names'
-import { useQueryParams } from '../lib/urlState'
+import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 
 const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
@@ -69,12 +69,13 @@ export function BorrowingPage() {
 }
 
 function BookPair({ p, name }: { p: BorrowingBookPair; name: (id: number) => string }) {
+  const openProps = useOpenSections()
   const { m } = useLocale()
   const t = m.bor
   const [src, dst] = p.direction === 'b_to_a' ? [p.b_book, p.a_book] : [p.a_book, p.b_book]
   const label = p.direction === 'unclear' ? `${name(p.a_book)} ↔ ${name(p.b_book)}` : t.flow(name(src), name(dst))
   return (
-    <details className="borrow-pair">
+    <details className="borrow-pair" {...openProps(`${p.a_book}-${p.b_book}`)}>
       <summary>
         <strong>{label}</strong>
         {p.direction === 'unclear' && <span className="muted small"> · {t.unclear}</span>}

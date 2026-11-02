@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { useAffinity, useAffinityPairs, useBooks, useCorpusMap } from '../api/hooks'
 import type { Book, MapPoint, UnitSummary, UnitType, Verse } from '../api/types'
@@ -12,7 +12,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
-import { useQueryParams } from '../lib/urlState'
+import { useIntParam, useQueryParams } from '../lib/urlState'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
 type ColorBy = 'cluster' | 'section' | 'lists'
@@ -35,7 +35,7 @@ export function MapPage() {
   const order: Order = params.get('order') === 'canon' ? 'canon' : 'related'
   const books = useBooks()
   const map = useCorpusMap(unitType)
-  const [focus, setFocus] = useState<number>()
+  const [focus, setFocus] = useIntParam('cluster')
 
   return (
     <div className="page map-page">
@@ -46,8 +46,7 @@ export function MapPage() {
           label={m.units.unitType}
           value={unitType}
           onChange={(t) => {
-            setFocus(undefined)
-            update({ type: t === 'chapter' ? null : t })
+            update({ type: t === 'chapter' ? null : t, cluster: null })
           }}
           options={TYPES.map((t) => ({ value: t, label: m.units.type(t) }))}
         />

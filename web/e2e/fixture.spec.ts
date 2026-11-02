@@ -878,3 +878,33 @@ for (const locale of ['en', 'he'] as const) {
     })
   }
 }
+
+test('a selection is in the URL: a reload keeps it, Back undoes it', async ({ page }) => {
+  await page.goto('/map')
+  const first = page.locator('.cluster-legend button').first()
+  await first.click()
+  await expect(page).toHaveURL(/cluster=\d+/)
+  await page.reload()
+  await expect(page.locator('.cluster-legend button').first()).toHaveAttribute('aria-pressed', 'true')
+  await page.goBack()
+  await expect(page).not.toHaveURL(/cluster=/)
+  await expect(page.locator('.cluster-legend button').first()).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('the reader keeps the chosen word in the URL', async ({ page }) => {
+  await page.goto('/read/c%3A0%3A1')
+  await page.locator('.w-click').first().click()
+  await expect(page).toHaveURL(/[?&]w=\d+%3A\d+|[?&]w=\d+:\d+/)
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Word analysis' })).toBeVisible()
+  await page.goBack()
+  await expect(page.getByRole('region', { name: 'Word analysis' })).toHaveCount(0)
+})
+
+test('a section opened by hand stays open in the URL', async ({ page }) => {
+  await page.goto('/query')
+  await page.locator('.query-help summary').click()
+  await expect(page).toHaveURL(/open=help/)
+  await page.reload()
+  await expect(page.locator('.query-help')).toHaveAttribute('open', '')
+})
