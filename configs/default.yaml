@@ -271,6 +271,7 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
     openbible: {extra_pairs: [openbible]}
     both: {extra_pairs: [openbible, etcbc]}
     m115: {extra_pairs: [openbible, etcbc]}   # the model in use's recipe on M115's OpenBible pairs (Psalms and renumbered chapters in); adoption as M64 (TASKS M115)
+    m115_seed14: {seed: 14, extra_pairs: [openbible, etcbc]}   # the model in use's recipe and pairs, seed 14: the noise bar on the new gold (M127, rule in DESIGN §16.41)
   noise: seed14               # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance)
   golds: [sefaria, openbible, etcbc]
   metric: ndcg@10
