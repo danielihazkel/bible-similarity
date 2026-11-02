@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M132: Speed (§11.1; proposed J14)
+- [x] Reader: the lookups over the layers' data (verses, places, verse halves, Leitworte and where they fall) built once per response, not on every render; a word click no longer rebuilds them. Rows are not memoised: choosing a word changes other verses too (the wordplay layer marks its partners)
+- [x] Map: the names' placement memoised on the view, the points, the selection and the label count (a key step no longer places them again; a pan moves the view, so it still does), `radius` stable on the scale and the default label function hoisted
+- [x] Not done: the English page strings split by route. Components shared across routes read more than 20 page groups (`m.ov`, `m.cph`, `m.bor`, … in the unit panels, the jump box, the dossier), so a split needs either a catalog that suspends until its group loads or a guaranteed order of registration, a redesign of the catalog whose failures `tsc` would not catch; the gain would be about 50–60 KB gzipped of the 91 KB first-load chunk, for English readers
+- [x] Tests: the map's keys (`SharedControls.test.tsx`, M129) and the reader's word (fixture end-to-end, M131) cover the changed paths
+
+✔ Less recomputation on a click or a key; the bundle as it was.
+
 ## M131: Shareable selections (§11; proposed J13)
 - [x] `useIntParam` (`lib/urlState.ts`): a selection in one parameter, set with a history entry so Back undoes it: the map's cluster (`cluster`), the geographic arc's chapter (`ch`), a place list's place (`p`); the reader's chosen word as `w=verse:word`
 - [x] `useOpenSections`: the `<details>` opened by hand in one `open` parameter (network's passages, the language page's examples, a borrowing book pair, roots' books, the query help, the chronology's reigns)
@@ -1358,6 +1366,6 @@ Viewer
 - [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views
 - [x] J12 (done, M130) Cross-links: place and person link helpers; names and type-scene verbs linked (the family tree's card: no lemma to link)
 - [x] J13 (done, M131) Shareable selections: the map's, the place pages' and the reader's selections in the URL (Compare's follows the pointer: left out); open sections kept on Back
-- [ ] J14 (M132) Speed: the reader and the map's labels memoised; the English page strings split by route
+- [x] J14 (done, M132) Speed: the reader and the map's labels memoised; the English page strings split by route (not done: a redesign of the catalog, left for its own milestone)
 
 Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in the background) → J10 → J11 → J12 → J13 → J14.

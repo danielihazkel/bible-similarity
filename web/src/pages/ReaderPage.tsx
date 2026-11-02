@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router'
 import { useReader, useStructure, useUnit, useUnitParallelism } from '../api/hooks'
 import type { DivineName, PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
@@ -65,23 +65,32 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
   const setWord = (w: { verse: Verse; idx: number } | undefined) => update({ w: w ? `${w.verse.verse_id}:${w.idx}` : null }, false)
 
   const toggle = (l: Layer) => update({ layers: toggleLayer(layers, l) }, false)
-  const rv = new Map((reader.data?.verses ?? []).map((v) => [v.verse_id, v]))
-  const placeOf = new Map((reader.data?.places ?? []).map((p) => [p.place_id, p]))
+  // lookups over the layers' data, built once per response (not on every click of a word)
+  const { rv, placeOf } = useMemo(
+    () => ({
+      rv: new Map((reader.data?.verses ?? []).map((v) => [v.verse_id, v])),
+      placeOf: new Map((reader.data?.places ?? []).map((p) => [p.place_id, p])),
+    }),
+    [reader.data],
+  )
   const speakers = reader.data?.speakers ?? []
-  const halvesOf = new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h]))
-  const leitworte = (
-    (byRoot ? structure.data?.root_leitworte : structure.data?.leitworte)?.map((l) => ({
-      key: 'root' in l ? l.root : l.lemma,
-      he: 'root' in l ? l.root_he : l.he_lemma,
-      count: l.count,
-      expected: l.expected,
-      occurrences: l.occurrences,
-    })) ?? []
-  ).slice(0, LEITWORTE_SHOWN)
-  const lwAt = new Map<string, number>()
-  leitworte.forEach((l, k) => {
-    for (const [v, idxs] of Object.entries(l.occurrences)) for (const i of idxs) if (!lwAt.has(`${v}:${i}`)) lwAt.set(`${v}:${i}`, k)
-  })
+  const halvesOf = useMemo(() => new Map((halves.data?.verses ?? []).map((h) => [h.verse_id, h])), [halves.data])
+  const { leitworte, lwAt } = useMemo(() => {
+    const lws = (
+      (byRoot ? structure.data?.root_leitworte : structure.data?.leitworte)?.map((l) => ({
+        key: 'root' in l ? l.root : l.lemma,
+        he: 'root' in l ? l.root_he : l.he_lemma,
+        count: l.count,
+        expected: l.expected,
+        occurrences: l.occurrences,
+      })) ?? []
+    ).slice(0, LEITWORTE_SHOWN)
+    const at = new Map<string, number>()
+    lws.forEach((l, k) => {
+      for (const [v, idxs] of Object.entries(l.occurrences)) for (const i of idxs) if (!at.has(`${v}:${i}`)) at.set(`${v}:${i}`, k)
+    })
+    return { leitworte: lws, lwAt: at }
+  }, [structure.data, byRoot])
   // the selected word's sound-alike partners
   const partners = new Set(
     word && on('wordplay')

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { BasemapResponse } from '../api/types'
 import { useT } from '../context/localeContext'
 import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, viewBox, zoomBounds, zoomBoundsAt } from '../lib/geo'
@@ -39,7 +39,9 @@ const ZOOM = 1.6
  * Ctrl + wheel or the buttons (or + / −) to zoom; with keyboard focus, ←/→ step through the places, most named first,
  * and Enter opens the current one.
  */
-export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = (p) => p.he, titleOf }: Props) {
+const hebrewName = (p: GeoPoint) => p.he
+
+export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = hebrewName, titleOf }: Props) {
   const m = useT()
   const t = m.geo
   const title = titleOf ?? ((p: GeoPoint) => t.pointTitle(p.he, p.n))
@@ -68,25 +70,31 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
   // most named first: drawn first (the small on top), stepped through first
   const order = useMemo(() => [...points].sort((a, b) => b.n - a.n || a.place_id - b.place_id), [points])
   // a fixed scale, so a point's size means the same in a chapter as in the whole Bible
-  const radius = (p: GeoPoint) => Math.min(R_MAX, R_MIN + R_LOG * Math.log2(1 + p.n)) * k
+  const radius = useCallback((p: GeoPoint) => Math.min(R_MAX, R_MIN + R_LOG * Math.log2(1 + p.n)) * k, [k])
   const current = cur === undefined ? undefined : order[cur]
-  // names beside the most named places in view (and the one selected), none over another
-  const named = new Set<number>()
-  const boxes: [number, number, number, number][] = []
-  const inView = (p: GeoPoint) => {
-    const x = projectX(p.lon)
-    const y = projectY(p.lat)
-    return x >= vb.x && x <= vb.x + vb.w && y >= vb.y && y <= vb.y + vb.h
-  }
-  const candidates = [...order.filter((p) => p.place_id === selected), ...order.filter((p) => p.place_id !== selected)]
-  for (const p of candidates) {
-    if (named.size >= labels + (selected === undefined ? 0 : 1) || !inView(p)) continue
-    const x0 = projectX(p.lon) + radius(p) + 2 * k
-    const box: [number, number, number, number] = [x0, projectY(p.lat) - 0.6 * FONT * k, x0 + labelOf(p).length * CHAR * FONT * k, projectY(p.lat) + 0.6 * FONT * k]
-    if (boxes.some((b) => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue
-    boxes.push(box)
-    named.add(p.place_id)
-  }
+  // names beside the most named places in view (and the one selected), none over another; placed
+  // again only when the view, the points or the selection change (not on a key step)
+  const named = useMemo(() => {
+    const out = new Set<number>()
+    if (!labels) return out
+    const boxes: [number, number, number, number][] = []
+    const inView = (p: GeoPoint) => {
+      const x = projectX(p.lon)
+      const y = projectY(p.lat)
+      return x >= vb.x && x <= vb.x + vb.w && y >= vb.y && y <= vb.y + vb.h
+    }
+    const sel = order.find((p) => p.place_id === selected)
+    for (const p of sel ? [sel, ...order.filter((q) => q !== sel)] : order) {
+      if (out.size >= labels + (sel ? 1 : 0)) break
+      if (!inView(p)) continue
+      const x0 = projectX(p.lon) + radius(p) + 2 * k
+      const box: [number, number, number, number] = [x0, projectY(p.lat) - 0.6 * FONT * k, x0 + labelOf(p).length * CHAR * FONT * k, projectY(p.lat) + 0.6 * FONT * k]
+      if (boxes.some((b) => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue
+      boxes.push(box)
+      out.add(p.place_id)
+    }
+    return out
+  }, [order, selected, labels, vb.x, vb.y, vb.w, vb.h, k, radius, labelOf])
 
   const zoom = (f: number) => onBounds?.(zoomBounds(bounds, f))
   const onKey = (e: React.KeyboardEvent<SVGSVGElement>) => {
