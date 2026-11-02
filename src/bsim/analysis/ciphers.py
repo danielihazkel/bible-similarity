@@ -23,7 +23,6 @@ span, letters, reads, name_lemma, known`), `chapters.parquet` (per swap the chap
 
 from __future__ import annotations
 
-import json
 import time
 from collections import Counter, defaultdict
 from collections.abc import Callable
@@ -35,7 +34,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 from bsim.data.refs import RefIndex
 from bsim.text.ciphers import CIPHERS, TABLES, key, random_swap, table
@@ -235,7 +234,7 @@ def run_ciphers(cfg: dict[str, Any], log: Log = print) -> Path:
         "chapters_q": {c: int((chap[chap.cipher == c].q <= alpha).sum()) for c in CIPHERS},
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "ciphers.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "ciphers.meta.json", meta)
     t = tests
     log(
         f"done: atbash {meta['hits']['atbash']} hits, albam {meta['hits']['albam']}, a random"

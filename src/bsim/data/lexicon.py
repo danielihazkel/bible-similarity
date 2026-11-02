@@ -41,7 +41,7 @@ from typing import Any
 import pandas as pd
 from lxml import etree
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.text.normalize import consonantal, fold_finals
 
 Log = Callable[[str], None]
@@ -310,5 +310,5 @@ def run_lexicon(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     senses.to_parquet(proc / "word_senses.parquet", index=False)
     keys = ("lexicon", "sources.sdbh", "sources.hebrew_lexicon")
     meta = {"config_hash": config_hash(cfg, *keys), **stats}
-    (proc / "lexicon_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(proc / "lexicon_meta.json", meta)
     return meta

@@ -28,7 +28,6 @@ apart), `score`, `q`; plus `wordplay.meta.json`.
 
 from __future__ import annotations
 
-import json
 import math
 import time
 from collections import Counter, defaultdict
@@ -40,9 +39,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.sequences import q_values
-from bsim.analysis.stats import shuffle_within
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import q_values, shuffle_within
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_display_forms, strip_prefixes
 from bsim.text.normalize import consonantal, fold_finals
 
@@ -253,7 +251,7 @@ def run_wordplay(cfg: dict[str, Any], log: Log = print) -> Path:
         "kinds": dict(Counter(df.kind)),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "wordplay.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "wordplay.meta.json", meta)
     log(
         f"done: {len(df)} pairs ({meta['q_below_0.05']} with q < 0.05; {meta['kinds']};"
         f" {meta['null_pairs_per_rep']} per shuffle) in {meta['seconds']} s"

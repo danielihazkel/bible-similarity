@@ -28,7 +28,6 @@ verse_id, n`) and `links.parquet` (`a, b, n_verses, expected, g2`, both directio
 
 from __future__ import annotations
 
-import json
 import time
 from collections import Counter
 from collections.abc import Callable
@@ -40,7 +39,7 @@ from typing import Any
 import pandas as pd
 
 from bsim.analysis.stats import g2_table
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 from bsim.store.lexicon import lemma_display_forms
 
@@ -218,7 +217,7 @@ def run_entities(cfg: dict[str, Any], log: Log = print) -> Path:
         "links_kept": int(len(kept)),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "entities.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "entities.meta.json", meta)
     log(
         f"done: {meta['names']} names {meta['kinds']}, {meta['pairs']} linked pairs"
         f" ({meta['links_kept']} kept) in {meta['seconds']} s -> {out}"

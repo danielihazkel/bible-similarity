@@ -41,7 +41,7 @@ from typing import Any
 
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.data.kjv import English
 from bsim.eval.metrics import evaluate_system
@@ -183,7 +183,7 @@ def write_gold(proc: Path, name: str, links: pd.DataFrame, stats: dict[str, Any]
     """`{name}.parquet` and `{name}.meta.json` (the counts) under `paths.data_processed`."""
     links.to_parquet(proc / f"{name}.parquet")
     meta = {"rows": len(links), "stats": stats}
-    (proc / f"{name}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    write_meta(proc / f"{name}.meta.json", meta)
 
 
 def read_gold(proc: Path, name: str) -> tuple[pd.DataFrame, dict[str, Any]]:

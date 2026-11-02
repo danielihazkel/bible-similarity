@@ -35,8 +35,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.sequences import q_values
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import q_values
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_parts_pos
 
 Log = Callable[[str], None]
@@ -216,7 +216,7 @@ def run_typescenes(cfg: dict[str, Any], log: Log = print) -> Path:
         "null_per_rep": round(len(null) / max(1, tc["null_reps"]), 1),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "typescenes.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "typescenes.meta.json", meta)
     log(
         f"done: {meta['q_below_0.05']} alignments with q <= 0.05"
         f" ({meta['q_below_0.05_not_textual']} not textual parallels) in {meta['seconds']} s"

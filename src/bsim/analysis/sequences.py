@@ -36,8 +36,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import shuffle_within
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import q_values, shuffle_within
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.retrieve.filters import neighbor_mask
 from bsim.retrieve.fusion import final_systems
 
@@ -169,22 +169,6 @@ def all_chains(
     return kept
 
 
-def q_values(observed: np.ndarray, null: np.ndarray, reps: int) -> np.ndarray:
-    """Per observed score s: (null scores ≥ s / reps) / (observed scores ≥ s), capped at 1 and
-    made monotone (a stronger chain never has a larger q)."""
-    if len(observed) == 0:
-        return np.zeros(0)
-    obs_sorted = np.sort(observed)[::-1]
-    null_sorted = np.sort(null)
-    n_obs = np.arange(1, len(obs_sorted) + 1)
-    n_null = len(null_sorted) - np.searchsorted(null_sorted, obs_sorted, side="left")
-    q = np.minimum(1.0, n_null / reps / n_obs)
-    q = np.minimum.accumulate(q[::-1])[::-1]
-    # back to the input order (ties share the q of their last position)
-    rank = len(observed) - np.searchsorted(np.sort(observed), observed, side="right")
-    return q[rank]
-
-
 def chain_frame(
     chains: list[tuple[str, Chain]], q: np.ndarray, book_id: np.ndarray, chapter: np.ndarray
 ) -> pd.DataFrame:
@@ -288,7 +272,7 @@ def run_sequences(cfg: dict[str, Any], log: Log = print) -> Path:
         },
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "verse.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "verse.meta.json", meta)
     log(
         f"done: {len(df)} chains ({meta['q_below_0.05']} with q < 0.05) in {meta['seconds']} s"
         f" -> {out / 'verse.parquet'}"

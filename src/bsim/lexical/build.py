@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.report import md_table
 from bsim.lexical import bm25
 from bsim.lexical.domains import domain_streams
@@ -277,7 +277,7 @@ def run_lexical(cfg: dict[str, Any], log: Log = print) -> None:
         },
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / "lexical_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(out / "lexical_meta.json", meta)
     write_report(out / "lexical_report.md", sizes, formulas, checks, cfg)
 
     if not (formulas.formula == EXPECTED_FORMULA).any():

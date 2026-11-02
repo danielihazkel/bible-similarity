@@ -37,7 +37,6 @@ with a lower net fall) and `meter.meta.json`.
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from collections.abc import Callable, Sequence
@@ -49,7 +48,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.text.accents import POETIC_BOOKS, poetic, token_levels
 
@@ -324,7 +323,7 @@ def run_meter(cfg: dict[str, Any], log: Log = print) -> Path:
         "groups": _round(by_group),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "meter.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "meter.meta.json", meta)
     t = main["pool"]
     log(
         f"done: {len(lines_df)} lines, {meta['split']} split; test net fall {t['mean']}"

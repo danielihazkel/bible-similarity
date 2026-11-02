@@ -38,7 +38,6 @@ Writes `artifacts/voices/{speakers,features,pairs}.parquet` + `voices.meta.json`
 
 from __future__ import annotations
 
-import json
 import time
 from collections import Counter
 from collections.abc import Callable
@@ -52,7 +51,7 @@ from scipy import sparse
 
 from bsim.analysis.stats import bh_q, empirical_p, permute_within
 from bsim.analysis.stylometry import MORPH_LABELS, feature_counts, feature_matrix
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.data.lexicon import strong_key
 from bsim.store.lexicon import lemma_display_forms
@@ -218,9 +217,7 @@ def _write(out: Path, speakers: pd.DataFrame, features: pd.DataFrame, pairs: pd.
     speakers.to_parquet(out / "speakers.parquet", index=False)
     features.to_parquet(out / "features.parquet", index=False)
     pairs.to_parquet(out / "pairs.parquet", index=False)
-    (out / "voices.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    write_meta(out / "voices.meta.json", meta)
 
 
 def run_voices(cfg: dict[str, Any], log: Log = print) -> Path:

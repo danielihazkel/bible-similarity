@@ -36,9 +36,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from bsim.analysis.sequences import q_values
-from bsim.analysis.stats import shuffle_within
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import q_values, shuffle_within
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
@@ -228,7 +227,7 @@ def run_allusions(cfg: dict[str, Any], log: Log = print) -> Path:
         else None,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "allusions.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "allusions.meta.json", meta)
     log(
         f"done: {meta['pairs']} window pairs ({meta['known']} known);"
         f" q <= {max_q}: {meta['strong']} ({meta['strong_known']} known);"

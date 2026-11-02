@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.corpus_map import cluster_labels
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.retrieve.fusion import final_systems
 from bsim.store.lexicon import lemma_parts_pos
 
@@ -192,6 +192,6 @@ def run_network(cfg: dict[str, Any], log: Log = print) -> Path:
         **summary,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "network.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "network.meta.json", meta)
     log(f"done: network in {meta['seconds']} s -> {out}")
     return out

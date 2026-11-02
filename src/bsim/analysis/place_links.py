@@ -39,8 +39,8 @@ import pandas as pd
 from scipy.stats import rankdata
 
 from bsim.analysis.place_lists import distances
-from bsim.analysis.stats import g2_table
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p, g2_table
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 
 Log = Callable[[str], None]
@@ -97,7 +97,7 @@ def decay_test(
         "null_mean": round(float(null.mean()), 4),
         "null_q05": round(float(np.quantile(null, 0.05)), 4),
         "null_q95": round(float(np.quantile(null, 0.95)), 4),
-        "p": float((1 + np.sum(null <= obs)) / (1 + reps)),
+        "p": empirical_p(obs, null, "less"),
         "median_km": round(float(np.median(km)), 1),
     }
     return res, km
@@ -233,8 +233,7 @@ def run_place_links(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }
     meta = json.loads(json.dumps(meta, default=lambda x: x.item() if hasattr(x, "item") else x))
-    (out / "place_links.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                               "utf-8")  # fmt: skip
+    write_meta(out / "place_links.meta.json", meta)  # fmt: skip
     a = tests.get("all") or {}
     log(
         f"done: rho {a.get('rho')} against {a.get('null_mean')} shuffled (p {a.get('p')});"

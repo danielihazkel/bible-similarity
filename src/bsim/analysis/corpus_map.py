@@ -29,7 +29,7 @@ import pandas as pd
 
 from bsim.analysis.stats import kmeans
 from bsim.analysis.structure import embeddings_path, leitworte
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.retrieve.topk import read_topk
 from bsim.store.lexicon import lemma_parts_pos
 
@@ -221,6 +221,6 @@ def run_map(cfg: dict[str, Any], log: Log = print) -> Path:
         "book_order": order,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "map.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "map.meta.json", meta)
     log(f"done: map + {len(pairs)} cross-book pairs in {meta['seconds']} s -> {out}")
     return out

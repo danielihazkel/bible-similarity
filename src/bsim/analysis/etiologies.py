@@ -30,7 +30,6 @@ chance` (the name's mean echo with the other explanations), `rank_p, p, q, known
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -43,7 +42,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 from bsim.store.lexicon import strip_prefixes
 from bsim.text.normalize import fold_finals
@@ -381,9 +380,7 @@ def run_etiologies(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_holds": known_holds,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "etiologies.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), "utf-8"
-    )
+    write_meta(out / "etiologies.meta.json", meta)
     log(
         f"done: {m} namings ({meta['places']} places); the echo"
         f" {'holds' if meta['holds'] else 'is not borne out'}, {meta['leads']} at q ≤ {alpha};"

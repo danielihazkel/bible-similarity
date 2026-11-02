@@ -38,7 +38,6 @@ rank, root, count, g2, n_words, lemma_rank, hidden`) and `roots.meta.json`.
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from collections import Counter
@@ -53,7 +52,7 @@ from lxml import etree
 
 from bsim.analysis.stats import empirical_p, shuffle_within
 from bsim.analysis.structure import leitworte
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.data.lexicon import strong_key
 from bsim.text.normalize import consonantal, fold_finals
@@ -415,7 +414,7 @@ def run_roots(cfg: dict[str, Any], log: Log = print) -> Path:
         "hidden": int(lw.hidden.sum()),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "roots.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "roots.meta.json", meta)
     c = tests["cognate"]
     log(
         f"done: {meta['families']} families over {meta['family_lemmas']} lemmas; cognate pairs"

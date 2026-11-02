@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.text.normalize import consonantal, fold_finals
 
@@ -282,7 +282,7 @@ def run_acrostics(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_recall": round(len(hits) / max(1, len(known)), 3),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "acrostics.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "acrostics.meta.json", meta)
     log(
         f"done: {len(df)} units, {meta['significant']} with q <= {a['report_q']};"
         f" known acrostics found {len(hits)}/{len(known)} in {meta['seconds']} s"

@@ -29,7 +29,6 @@ matched (the hidden article, a ketiv / qere difference) to its neighbour's.
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from collections import Counter
@@ -41,7 +40,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import resolve_path
+from bsim.config import resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 from bsim.text.normalize import consonantal, fold_finals
 
@@ -300,7 +299,7 @@ def run_syntax(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         },
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (proc / "syntax_meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    write_meta(proc / "syntax_meta.json", meta)
     s = meta["speaker"]
     log(
         f"{len(cdf)} clauses, {len(pdf)} phrases; {len(q)} in direct speech, speaker explicit"

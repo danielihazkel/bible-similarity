@@ -38,7 +38,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.dating import RATES, priors, rates, sign_test, word_flags
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.text.normalize import consonantal
 
@@ -234,7 +234,7 @@ def run_borrowing(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_groups": groups.astype(int).to_dict("records"),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out_dir / "borrowing.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    write_meta(out_dir / "borrowing.meta.json", meta)
     log(
         f"{len(out)} cross-book parallels over {len(books)} book pairs; known direction:"
         f" {len(known)} sequences"

@@ -40,7 +40,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.refs import RefIndex
 
@@ -265,7 +265,7 @@ def run_haftarot(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_holds": known_holds,
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
-    (out / "haftarot.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "haftarot.meta.json", meta)
     log(f"done: claim {'holds' if holds1 else 'not borne out'}, calendar"
         f" {'holds' if holds2 else 'not borne out'}, known {[r['rank'] for r in known_rows]}"
         f" ({meta['seconds']} s) -> {out}")  # fmt: skip

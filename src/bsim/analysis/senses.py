@@ -43,8 +43,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import bh_q, g2_table, kmeans
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import bh_q, empirical_p, g2_table, kmeans
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
 from bsim.text.normalize import consonantal
@@ -101,7 +101,7 @@ def shift_test(
     ng, ns = int(gi.max()) + 1, int(si.max()) + 1
     mi = mutual_info(gi, si, ng, ns)
     null = np.array([mutual_info(rng.permutation(gi), si, ng, ns) for _ in range(reps)])
-    p = float((1 + np.sum(null >= mi - 1e-12)) / (1 + reps))
+    p = empirical_p(mi - 1e-12, null)
     return mi, mi - float(null.mean()), p
 
 
@@ -361,7 +361,7 @@ def run_senses(cfg: dict[str, Any], log: Log = print, vectors: dict | None = Non
         "nmi_lemmas": int(len(both)),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "senses.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "senses.meta.json", meta)
     log(
         f"done: {meta['lemmas']} lemmas; uses differ by group (q ≤ 0.05) for "
         f"{meta['use_q_below_0.05']}, dictionary senses for {meta['sense_q_below_0.05']} of "

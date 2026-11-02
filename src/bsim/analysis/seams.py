@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stylometry import MORPH_LABELS, feature_matrix
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
@@ -175,6 +175,6 @@ def run_seams(cfg: dict[str, Any], log: Log = print) -> Path:
         "thresholds": thresholds,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "seams.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "seams.meta.json", meta)
     log(f"done: {len(seam_df)} seams in {len(thresholds)} books ({meta['seconds']} s) -> {out}")
     return out

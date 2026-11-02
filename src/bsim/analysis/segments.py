@@ -51,7 +51,7 @@ from scipy import sparse
 from scipy.stats import rankdata
 
 from bsim.analysis.stats import empirical_p, permute_within
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 
 Log = Callable[[str], None]
@@ -472,7 +472,7 @@ def run_segments(cfg: dict[str, Any], log: Log = print) -> Path:
         "kinds": {k: int(kind_counts.get(k, 0)) for k in ("turn", "cut", "quiet")},
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "segments.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "segments.meta.json", meta)
     log(
         f"done: {len(gaps)} gaps, window {window}; MAM breaks {groups['mam']['score']:.3f}"
         f" (p {groups['mam']['p']:.3g}); {meta['kinds']} ({meta['seconds']} s) -> {out}"

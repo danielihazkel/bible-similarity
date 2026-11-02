@@ -13,7 +13,6 @@ are. fp32 only.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from typing import Any
@@ -21,7 +20,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.embed.encoders import load_encoder
 from bsim.retrieve.topk import get_device
 
@@ -177,7 +176,7 @@ def run_embed_context(cfg: dict[str, Any], log: Log = print) -> dict[str, np.nda
             "config_hash": config_hash(cfg, "context", "encoders"),
             "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         }
-        (art / f"{system}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+        write_meta(art / f"{system}.meta.json", meta)
         out[name] = emb
         log(f"  wrote {art / (system + '.npy')}: {emb.shape[0]} x {emb.shape[1]}")
     return out

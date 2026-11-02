@@ -28,7 +28,6 @@ kingdom, seq, first_vid, last_vid, verdict, verdict_vid` and a verse id per `reg
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -42,7 +41,7 @@ from scipy.stats import spearmanr
 
 from bsim.analysis.chronology import Phrase, Word, phrases, words_of
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 
 Log = Callable[[str], None]
@@ -257,8 +256,7 @@ def run_frameworks(cfg: dict[str, Any], log: Log = print) -> Path:
         "shuffles": reps, "alpha": alpha,
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
-    (out / "frameworks.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                              "utf-8")  # fmt: skip
+    write_meta(out / "frameworks.meta.json", meta)  # fmt: skip
     log(f"done: cycle {'holds' if cycle_holds else 'not borne out'}, verdicts"
         f" {'hold' if verdict_holds else 'not borne out'} ({meta['seconds']} s) -> {out}")
     return out / "episodes.parquet"

@@ -32,7 +32,7 @@ from typing import Any
 
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 from bsim.store.lexicon import lemma_display_forms
 from bsim.text.gematria import SYSTEMS, letters, values
@@ -153,9 +153,7 @@ def run_gematria(cfg: dict[str, Any], log: Log = print) -> Path:
         "known": known,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "gematria.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), "utf-8"
-    )
+    write_meta(out / "gematria.meta.json", meta)
     log(
         f"done: {meta['forms']:,} word forms ({meta['words']:,} words), {meta['lemmas']:,} lemmas"
         f" ({meta['lemmas_by_headword']:,} by Strong's headword), {meta['verses']:,} verses;"

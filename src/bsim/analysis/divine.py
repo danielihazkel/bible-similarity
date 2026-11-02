@@ -28,7 +28,6 @@ idx, book_id, name`) and `divine.meta.json`.
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -41,7 +40,7 @@ import pandas as pd
 
 from bsim.analysis.diffs import Word, align_words, verse_words
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.refs import RefIndex
 
@@ -325,7 +324,7 @@ def run_divine(cfg: dict[str, Any], log: Log = print) -> Path:
         "doubled": check2,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "divine.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "divine.meta.json", meta)
     log(
         f"done: {', '.join(f'{n} {c:,}' for n, c in totals.items())}; Elohistic Psalter"
         f" {'holds' if check1['holds'] else 'not borne out'}, doubled psalms"

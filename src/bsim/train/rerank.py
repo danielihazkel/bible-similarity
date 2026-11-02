@@ -29,7 +29,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_SEFARIA
 from bsim.eval.metrics import evaluate_system
 from bsim.eval.report import gold_pairs, ranked_lists
@@ -337,6 +337,6 @@ def run_rerank(cfg: dict[str, Any], log: Log = print, tune: bool = False) -> Pat
         "config_hash": config_hash(cfg, "rerank", "fusion", "retrieval"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    path.with_suffix(".meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(path.with_suffix(".meta.json"), meta)
     log(f"done: {len(frame)} rows -> {path}")
     return path

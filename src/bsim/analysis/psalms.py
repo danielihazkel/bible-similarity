@@ -33,7 +33,6 @@ cluster, words`, the features, `turn_vid, turn_verse, turn_stat, turn_p, before,
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -45,7 +44,7 @@ import pandas as pd
 from scipy import stats
 
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_SEFARIA
 
 Log = Callable[[str], None]
@@ -431,7 +430,7 @@ def run_psalms(cfg: dict[str, Any], log: Log = print) -> Path:
         "robustness": robust,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "psalms.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "psalms.meta.json", meta)
     log(
         f"done: {meta['psalms']} psalms ({meta['labelled']} labelled), {meta['title_words']} title"
         f" words; genres NMI {main['nmi']:.3f} vs {main['null']:.3f} (p {main['p']:.4f}); checks"

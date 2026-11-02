@@ -39,7 +39,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_SEFARIA
 from bsim.data.refs import RefIndex
 from bsim.text.normalize import consonantal, fold_finals
@@ -326,7 +326,7 @@ def run_masorah(cfg: dict[str, Any], log: Log = print) -> Path:
         "checks": checks,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "masorah.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "masorah.meta.json", meta)
     c = checks
     log(
         f"done: Torah {meta['torah']['verses']:,} verses, {meta['torah']['words_ketiv']:,} words"

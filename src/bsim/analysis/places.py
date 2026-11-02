@@ -36,7 +36,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.basemap import shapes
 from bsim.data.geo import AncientPlace, TipnrName, TipnrRecord, read_openbible, read_tipnr
 from bsim.text.normalize import consonantal
@@ -411,7 +411,7 @@ def run_places(cfg: dict[str, Any], log: Log = print) -> Path:
                 "points": int(sum(len(r) for s in shape_rows for r in s["rings"]))},  # fmt: skip
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "places.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "places.meta.json", meta)
     log(
         f"done: {meta['mentions']:,} name mentions -> {meta['how']}; {meta['places']:,} sites"
         f" ({meta['located']:,} located, {meta['located_openbible']:,} by OpenBible), kinds"

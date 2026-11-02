@@ -30,7 +30,6 @@ in the meta). On the real data every divisor from 6 to 13 shows an excess that g
 
 from __future__ import annotations
 
-import json
 import math
 import time
 from collections import Counter
@@ -44,7 +43,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import bh_q, pct_to_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.retrieve.topk import CSLS_SUFFIX
 from bsim.store.lexicon import lemma_display_forms
 
@@ -302,7 +301,7 @@ def run_structure(cfg: dict[str, Any], log: Log = print) -> Path:
         "leitwort_numbers": numbers,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "units.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "units.meta.json", meta)
     log(f"done: {len(df)} units scored in {meta['seconds']} s -> {out / 'units.parquet'}")
     return out / "units.parquet"
 

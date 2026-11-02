@@ -50,7 +50,7 @@ from scipy.stats import binom, binomtest, chisquare
 
 from bsim.analysis.diffs import align_words, shared_ratio, verse_words
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.oshb import NS, kq_pairs, parse_verse
 from bsim.text.normalize import consonantal, fold_finals
@@ -456,9 +456,7 @@ def run_ketiv(cfg: dict[str, Any], log: Log = print) -> Path:
         "checks": _clean(checks),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "ketiv.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    write_meta(out / "ketiv.meta.json", meta)
     log(
         f"done: {len(pairs)} ketiv / qere {meta['classes']}; parallels {checks['parallel']}"
         f" ({meta['seconds']} s) -> {out}"

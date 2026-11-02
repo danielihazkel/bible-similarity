@@ -55,7 +55,7 @@ from typing import Any
 import pandas as pd
 import yaml
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.geo import TipnrRecord, read_tipnr
 from bsim.data.kjv import English
@@ -937,9 +937,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
         "blocks": {s: int((blocks_df.status == s).sum()) for s in ("todo", "draft", "reviewed")},
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "genealogy.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), "utf-8"
-    )
+    write_meta(out / "genealogy.meta.json", meta)
     log(
         f"done: {meta['persons']:,} people ({meta['kinds']}); {meta['parent_links']:,} parent"
         f" links, {meta['proved']:,} with a verse naming both (best cue {meta['best_cue']});"

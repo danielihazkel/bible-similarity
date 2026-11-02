@@ -36,7 +36,7 @@ from typing import Any
 import pandas as pd
 
 from bsim.analysis.stats import bh_q
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_parts_pos, strip_prefixes
 from bsim.text.normalize import consonantal, fold_finals
 
@@ -250,9 +250,7 @@ def run_sound(cfg: dict[str, Any], log: Log = print) -> Path:
         ],
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "sound.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    write_meta(out / "sound.meta.json", meta)
     log(
         f"done: {meta['alliterations_q_below_0.05']} alliterations and"
         f" {meta['rhymes_q_below_0.05']} rhymes with q <= 0.05 in {meta['seconds']} s -> {out}"

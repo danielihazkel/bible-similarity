@@ -28,7 +28,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.lexical.formulas import formula_weights, frequent_ngrams
 from bsim.lexical.tokens import Stream, lemma_streams
 from bsim.retrieve.filters import neighbor_mask
@@ -174,6 +174,6 @@ def run_phrases(cfg: dict[str, Any], log: Log = print) -> Path:
         "phrases": int(len(df)),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "verse.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "verse.meta.json", meta)
     log(f"done: {len(df)} shared phrases in {meta['seconds']} s -> {out / 'verse.parquet'}")
     return out / "verse.parquet"

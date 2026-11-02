@@ -36,7 +36,8 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.place_lists import EARTH_KM, distances
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.refs import RefIndex, parse_ref
 
@@ -94,7 +95,7 @@ def label_test(values: np.ndarray, is_in: np.ndarray, reps: int, rng: np.random.
         "median": round(float(np.median(values[is_in])), 1),
         "other_median": round(float(np.median(values[~is_in])), 1),
         "null_mean": round(float(null.mean()), 1),
-        "p": float((1 + np.sum(null >= obs)) / (1 + reps)),
+        "p": empirical_p(obs, null),
     }
 
 
@@ -169,7 +170,7 @@ def run_place_arc(cfg: dict[str, Any], log: Log = print) -> Path:
                 "mean_step": round(float(steps.mean()), 1),
                 "null_mean": round(float(null.mean()) / (n - 1), 1),
                 "ratio": round(float(steps.sum() / null.mean()), 3),
-                "p": float((1 + np.sum(null <= steps.sum())) / (1 + reps)),
+                "p": empirical_p(steps.sum(), null, "less"),
             }
         book_rows.append(row)
     books = pd.DataFrame(book_rows)
@@ -186,7 +187,7 @@ def run_place_arc(cfg: dict[str, Any], log: Log = print) -> Path:
         "steps": n_steps,
         "mean_step": round(observed / n_steps, 1) if n_steps else None,
         "null_mean": round(float(total_null.mean()) / n_steps, 1) if n_steps else None,
-        "p": float((1 + np.sum(total_null <= observed)) / (1 + reps)) if n_steps else None,
+        "p": empirical_p(observed, total_null, "less") if n_steps else None,
         "books_held": int((tested.p <= alpha).sum()),
     }
 
@@ -266,8 +267,7 @@ def run_place_arc(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }
     meta = json.loads(json.dumps(meta, default=lambda x: x.item() if hasattr(x, "item") else x))
-    (out / "place_arc.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                             "utf-8")  # fmt: skip
+    write_meta(out / "place_arc.meta.json", meta)  # fmt: skip
     held = sum(bool(m.get("holds")) for m in moves)
     o = {m: (oracles.get(m) or {}).get("p") for m in MEASURES}
     log(

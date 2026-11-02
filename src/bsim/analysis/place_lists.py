@@ -40,7 +40,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 
 Log = Callable[[str], None]
@@ -145,7 +146,7 @@ def score_order(
         "path_km": round(obs, 1),
         "null_mean": round(mean, 1),
         "null_sd": round(float(null.std()), 1),
-        "p": float((1 + np.sum(null <= obs)) / (1 + reps)),
+        "p": empirical_p(obs, null, "less"),
         "short_km": round(short_len, 1),
         "order_score": round((mean - obs) / (mean - short_len), 3) if mean > short_len else None,
         "hist": histogram(null, obs, bins),
@@ -183,7 +184,7 @@ def score_districts(
         "districts": len(groups),
         "within_km": round(obs, 1),
         "null_mean": round(float(null.mean()), 1),
-        "p": float((1 + np.sum(null <= obs)) / (1 + reps)),
+        "p": empirical_p(obs, null, "less"),
         "all_km": round(float(pair_d.mean()), 1),
         "nearest_same": round(float((lab[near] == lab).mean()), 3),
     }
@@ -195,7 +196,7 @@ def score_districts(
             "district": int(g), "n": n,
             "within_km": None if n < 2 else round(float(obs_per[i]), 1),
             "null_mean": None if n < 2 else round(float(np.mean(col)), 1),
-            "p": None if n < 2 else float((1 + np.sum(col <= obs_per[i])) / (1 + reps)),
+            "p": None if n < 2 else empirical_p(obs_per[i], col, "less"),
         })  # fmt: skip
     return summary, per
 
@@ -334,8 +335,7 @@ def run_place_lists(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }
     meta = json.loads(json.dumps(meta, default=lambda x: x.item() if hasattr(x, "item") else x))
-    (out / "place_lists.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                               "utf-8")  # fmt: skip
+    write_meta(out / "place_lists.meta.json", meta)  # fmt: skip
     o = meta["order"]
     dd = {k: (v.get("all") or {}).get("p") for k, v in groupings.items()}
     log(

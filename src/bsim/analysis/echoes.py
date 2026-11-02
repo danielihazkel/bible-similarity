@@ -29,7 +29,6 @@ Writes `artifacts/echoes/{edges,books,chapters}.parquet` plus `echoes.meta.json`
 
 from __future__ import annotations
 
-import json
 import math
 import time
 from collections import defaultdict
@@ -43,7 +42,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.dating import sign_test
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 
 Log = Callable[[str], None]
 
@@ -295,7 +294,7 @@ def run_echoes(cfg: dict[str, Any], log: Log = print) -> Path:
         "cycles": cycles,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "echoes.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "echoes.meta.json", meta)
     log(
         f"done: {meta['pairs']} cross-book chapter pairs, directed "
         + ", ".join(f"{k} {v}" for k, v in meta["bases"].items())

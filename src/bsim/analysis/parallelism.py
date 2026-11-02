@@ -64,8 +64,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.analysis.stats import bh_q, g2_table
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import bh_q, empirical_p, g2_table
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
 from bsim.lexical.morph import word_token
@@ -261,7 +261,7 @@ def typing_check(
         "member_pairs": len(members),
         "pair_antithetic_share": round(share, 4),
         "null_share": round(float(np.mean(null)), 4) if null else None,
-        "null_p": float((1 + sum(x >= share for x in null)) / (1 + reps)) if null else None,
+        "null_p": empirical_p(share, null) if null else None,
         "check_share": round(a / b, 4) if b else None,
         "check_lines": b,
         "rest_share": round(c / d, 4) if d else None,
@@ -544,9 +544,7 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
         },
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "parallelism.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    write_meta(out / "parallelism.meta.json", meta)
     log(
         f"done: AUC held out {aucs}; known poems among {poems['chapters']} prose chapters:"
         f" {poems['ranks']} ({meta['seconds']} s) -> {out / 'verses.parquet'}"

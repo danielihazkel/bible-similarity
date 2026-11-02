@@ -42,7 +42,7 @@ import pandas as pd
 from scipy.stats import binomtest
 
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 
 Log = Callable[[str], None]
@@ -281,7 +281,7 @@ def run_mirrors(cfg: dict[str, Any], log: Log = print) -> Path:
         "min_words": mc["min_words"],
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "mirrors.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "mirrors.meta.json", meta)
     a = word_tests["all"]
     log(
         f"done: words chiastic {a['pairs_chiastic']} / parallel {a['pairs_parallel']} pairs"

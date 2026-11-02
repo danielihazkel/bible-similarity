@@ -46,7 +46,8 @@ import pandas as pd
 import torch
 
 from bsim.analysis.masorah import TEXTS, texts
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.data.refs import RefIndex
 from bsim.retrieve.topk import get_device
@@ -140,7 +141,7 @@ def summary(values: np.ndarray, obs: float) -> dict[str, Any]:
         "mean": round(float(values.mean()), 5),
         "q05": round(float(np.quantile(values, 0.05)), 5),
         "q95": round(float(np.quantile(values, 0.95)), 5),
-        "p": float((1 + np.sum(values >= obs)) / (1 + len(values))),
+        "p": empirical_p(obs, values),
     }
 
 
@@ -246,7 +247,7 @@ def run_els(cfg: dict[str, Any], log: Log = print) -> Path:
                 "letters_mean": round(float(lt[:, j].mean()), 2),
                 "letters_q05": float(np.quantile(lt[:, j], 0.05)),
                 "letters_q95": float(np.quantile(lt[:, j], 0.95)),
-                "letters_p": float((1 + np.sum(lt[:, j] >= total[j])) / (1 + reps)),
+                "letters_p": empirical_p(total[j], lt[:, j]),
                 "verses_mean": round(float(vt[:, j].mean()), 2),
                 "blocks_log_ratio": round(float(log_bt[:, j].mean()), 5) if len(log_bt) else None,
             })  # fmt: skip
@@ -297,7 +298,7 @@ def run_els(cfg: dict[str, Any], log: Log = print) -> Path:
         "seconds": round(time.perf_counter() - t0, 1),
     }
     meta = json.loads(json.dumps(meta, default=lambda x: x.item() if hasattr(x, "item") else x))
-    (out / "els.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "els.meta.json", meta)
     log(
         f"done: no more hits than the controls: {meta['holds']}; known"
         f" {sum(k['found'] for k in known)}/{len(known)} ({meta['seconds']} s) -> {out}"

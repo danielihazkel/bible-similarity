@@ -8,7 +8,6 @@ Writes to `paths.data_processed`:
 
 from __future__ import annotations
 
-import json
 from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -18,7 +17,7 @@ from typing import Any
 
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.align import align
 from bsim.data.canon import BOOKS, TORAH, VERSE_OVERRIDES, Book, oshb_to_mam
 from bsim.data.oshb import OshbVerse, parse_book
@@ -326,7 +325,7 @@ def run_build_corpus(cfg: dict[str, Any], log: Log = print) -> None:
         "oshb_commit": cfg["sources"]["oshb"]["commit"],
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / "corpus_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(out / "corpus_meta.json", meta)
     write_report(out / "corpus_report.md", cfg, verses, words, units, longest)
 
     coverage = words.display_idx.notna().mean()

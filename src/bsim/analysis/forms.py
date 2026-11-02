@@ -35,7 +35,6 @@ Writes `artifacts/forms/`: `sayings.parquet` (`verse_id, book_id, n_pairs, steps
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -47,7 +46,7 @@ import pandas as pd
 import scipy.sparse as sp
 
 from bsim.analysis.stats import empirical_p, shuffle_within
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.lexical.morph import morph_streams, ngram_tokens
 
 Log = Callable[[str], None]
@@ -413,7 +412,7 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
         },
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "forms.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "forms.meta.json", meta)
     log(
         f"done: {len(say)} sayings ({observed} graded pairs, {chance['expected']:.1f} by chance,"
         f" p {chance['p']:.3f}); known {n_found} / {len(known)}; parallel {parallel}; lists"

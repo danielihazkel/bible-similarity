@@ -20,7 +20,6 @@ Writes `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `stylo
 
 from __future__ import annotations
 
-import json
 import time
 from collections import Counter
 from collections.abc import Callable
@@ -31,7 +30,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
@@ -243,9 +242,7 @@ def run_stylometry(cfg: dict[str, Any], log: Log = print) -> Path:
         "book_words": nwb.astype(int).tolist(),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "stylometry.meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    write_meta(out / "stylometry.meta.json", meta)
     log(
         f"done: {len(names)} features, {n_books} books, {int(keep.sum())} chapters "
         f"(PC1 {var[0]:.0%}, PC2 {var[1]:.0%}) in {meta['seconds']} s -> {out}"

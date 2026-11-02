@@ -24,7 +24,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_SEFARIA
 from bsim.retrieve.filters import apply_filters
 from bsim.retrieve.topk import read_topk
@@ -162,7 +162,7 @@ def run_hard_negatives(
         "config_hash": config_hash(cfg, "train", "retrieval", "seed"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / f"{name}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    write_meta(out / f"{name}.meta.json", meta)
     log(
         f"hard negatives: {len(df)} train rows ({meta['by_source']}), {n_fb} fallbacks, "
         f"{meta['distinct_negatives']} distinct negatives"

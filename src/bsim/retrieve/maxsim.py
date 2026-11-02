@@ -19,7 +19,6 @@ encoder, read by `bsim retrieval-exp`, and the list of `maxsim.encoder` blended 
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -30,7 +29,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.embed.context import load_verses, token_batches
 from bsim.embed.encoders import load_encoder
 from bsim.retrieve.topk import get_device, read_topk, verse_ids
@@ -183,7 +182,7 @@ def run_maxsim(cfg: dict[str, Any], log: Log = print) -> dict[str, Path]:
         "config_hash": config_hash(cfg, "maxsim", "encoders", "text", "fusion", "final_systems"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (art / "maxsim" / "maxsim.meta.json").write_text(json.dumps(meta, indent=2) + "\n", "utf-8")
+    write_meta(art / "maxsim" / "maxsim.meta.json", meta)
 
     out = combine(scored[mc["encoder"]], mc["w"], mc["rrf_k"])
     frame = pd.DataFrame(
@@ -203,21 +202,14 @@ def run_maxsim(cfg: dict[str, Any], log: Log = print) -> dict[str, Path]:
     ).sort_values(["src_id", "rank"], kind="stable")
     path = art / "topk" / "verse" / f"{mc['system']}.parquet"
     frame.to_parquet(path, index=False)
-    path.with_suffix(".meta.json").write_text(
-        json.dumps(
-            {
+    write_meta(path.with_suffix(".meta.json"), {
                 "system": mc["system"],
                 "unit_type": "verse",
                 "encoder": mc["encoder"],
                 "w": mc["w"],
                 **meta,
                 "rows": len(frame),
-            },
-            indent=2,
-        )
-        + "\n",
-        "utf-8",
-    )
+            })
     log(f"done: {mc['encoder']} blended at w={mc['w']}: {len(frame)} rows -> {path}")
     paths["system"] = path
     return paths

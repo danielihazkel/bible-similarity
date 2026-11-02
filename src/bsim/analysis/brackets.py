@@ -48,7 +48,7 @@ from scipy import sparse
 from bsim.analysis.phrases import align, token_weights
 from bsim.analysis.segments import lemma_matrix
 from bsim.analysis.stats import bh_q, empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 from bsim.lexical.tokens import Stream, lemma_streams
 from bsim.store.lexicon import strip_prefixes
@@ -321,7 +321,7 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_holds": known_holds,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "brackets.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "brackets.meta.json", meta)
     log(
         f"done: {m} brackets; the claim {'holds' if holds else 'is not borne out'},"
         f" {meta['leads']} at q ≤ {alpha}; the known {'hold' if known_holds else 'fail'}"

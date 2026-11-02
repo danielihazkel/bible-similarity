@@ -36,7 +36,6 @@ retelling), `verse_id, display_idx, op`: every word that is not the same) and `r
 
 from __future__ import annotations
 
-import json
 import math
 import time
 from collections import Counter
@@ -54,7 +53,7 @@ from bsim.analysis.brackets import Tok, token_forms
 from bsim.analysis.diffs import align_words, make_word
 from bsim.analysis.phrases import align, token_weights
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 from bsim.lexical.tokens import lemma_streams
 
@@ -421,7 +420,7 @@ def run_retold(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_holds": known_holds,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "retold.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "retold.meta.json", meta)
     log(
         f"done: {len(pairs)} retellings {meta['groups']}; the claim"
         f" {'holds' if holds else 'is not borne out'}; the known"

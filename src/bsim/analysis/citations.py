@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import binomtest
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.refs import parse_range
 from bsim.lexical import bm25
@@ -276,7 +276,7 @@ def run_citations(cfg: dict[str, Any], log: Log = print) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     found[CITATION_COLUMNS].to_parquet(out / "citations.parquet")
     books.to_parquet(out / "books.parquet")
-    (out / "citations.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "citations.meta.json", meta)
     g = meta["gold"]
     log(
         f"done: {meta['citations']} citations, {meta['resolved']} resolved; gold {g['top1']} / "

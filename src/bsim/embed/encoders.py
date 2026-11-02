@@ -14,7 +14,6 @@ Writes `artifacts/embeddings/{system}.npy` (float32, L2-normalized, row = verse_
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -23,7 +22,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import PROJECT_ROOT, config_hash, resolve_path
+from bsim.config import PROJECT_ROOT, config_hash, resolve_path, write_meta
 from bsim.retrieve.topk import get_device
 
 Log = Callable[[str], None]
@@ -154,6 +153,6 @@ def run_embed(cfg: dict[str, Any], system: str, log: Log = print) -> np.ndarray:
         "config_hash": config_hash(cfg, "encoders", "text"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / f"{system}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(out / f"{system}.meta.json", meta)
     log(f"  wrote {out / (system + '.npy')}: {emb.shape[0]} x {emb.shape[1]}")
     return emb

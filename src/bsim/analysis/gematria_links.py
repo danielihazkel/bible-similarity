@@ -49,7 +49,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 from bsim.data.refs import RefIndex
 from bsim.text.ciphers import key as letter_key
@@ -179,7 +180,7 @@ def score_pairs(
             "null_mean": round(float(null.mean()), 4),
             "null_q05": round(float(np.quantile(null, 0.05)), 4),
             "null_q95": round(float(np.quantile(null, 0.95)), 4),
-            "p": float((1 + np.sum(null >= obs)) / (1 + draws)),
+            "p": empirical_p(obs, null),
             "unmatched": round(float(1 - found.mean()), 4),
         }
     return out
@@ -377,8 +378,7 @@ def run_gematria_links(
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
     meta = json.loads(json.dumps(meta, default=lambda x: x.item() if hasattr(x, "item") else x))
-    (out / "gematria_links.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                                  "utf-8")  # fmt: skip
+    write_meta(out / "gematria_links.meta.json", meta)  # fmt: skip
     e, r = tests["equal"], tests["root_family"]
     log(
         "done: equal values vs matched pairs: "

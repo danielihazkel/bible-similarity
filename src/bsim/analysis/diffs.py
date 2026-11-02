@@ -42,7 +42,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import g2_table
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.text.normalize import consonantal, match_key
 
 Log = Callable[[str], None]
@@ -346,7 +346,7 @@ def run_diffs(cfg: dict[str, Any], log: Log = print) -> Path:
         "rewrites_q_below_0.05": int((rw.q < 0.05).sum()),
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "diffs.meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    write_meta(out / "diffs.meta.json", meta)
     log(
         f"done: {n_pairs} verse pairs diffed ({n_loose} too loose), {len(df)} changes"
         f" {meta['ops']} -> {out}"

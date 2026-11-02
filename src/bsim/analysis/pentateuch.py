@@ -33,7 +33,6 @@ p_ref`) and `pentateuch.meta.json`.
 
 from __future__ import annotations
 
-import json
 import time
 from collections import Counter
 from collections.abc import Callable
@@ -45,7 +44,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_SEFARIA
 from bsim.data.refs import RefIndex
 
@@ -374,8 +373,7 @@ def run_pentateuch(cfg: dict[str, Any], log: Log = print) -> Path:
         "prefixes": PREFIX_HE,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    text = json.dumps(meta, indent=2, ensure_ascii=False)
-    (out / "pentateuch.meta.json").write_text(text, "utf-8")
+    write_meta(out / "pentateuch.meta.json", meta)
     t = tests
     log(
         f"done: {meta['verses']} verses, {meta['p_like']} P-like ({meta['reference_p']} P of"

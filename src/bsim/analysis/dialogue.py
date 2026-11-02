@@ -35,7 +35,6 @@ Writes `artifacts/dialogue/`: `quotations.parquet`, `pairs.parquet`, `exchanges.
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from collections.abc import Callable
@@ -47,7 +46,7 @@ import pandas as pd
 from scipy.stats import binomtest
 
 from bsim.analysis.stats import empirical_p, permute_within
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.lexicon import strong_key
 
 Log = Callable[[str], None]
@@ -384,8 +383,7 @@ def run_dialogue(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         "lengths": turns["lengths"],
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
-    text = json.dumps(meta, indent=2, ensure_ascii=False)
-    (out / "dialogue.meta.json").write_text(text, "utf-8")
+    write_meta(out / "dialogue.meta.json", meta)
     t = meta["tests"]
     log(
         f"{len(q)} quotations, {meta['with_addressee']} with an addressee; {len(ex)} exchanges"

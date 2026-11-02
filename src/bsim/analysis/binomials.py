@@ -30,7 +30,6 @@ n_late, rev_late`), `occurrences.parquet` (`pair, verse_id, own, a_tok, b_tok`: 
 
 from __future__ import annotations
 
-import json
 import time
 import unicodedata
 from collections import Counter
@@ -44,7 +43,7 @@ import pandas as pd
 from scipy.stats import binomtest
 
 from bsim.analysis.stats import empirical_p, permute_within
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BY_OSIS
 from bsim.text.normalize import consonantal
 
@@ -320,8 +319,7 @@ def run_binomials(cfg: dict[str, Any], log: Log = print) -> Path:
         "examples": ex, "shuffles": reps, "alpha": alpha,
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
-    (out / "binomials.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                             "utf-8")  # fmt: skip
+    write_meta(out / "binomials.meta.json", meta)  # fmt: skip
     log(f"done: shorter first {'holds' if short_holds else 'not borne out'}, late"
         f" {'holds' if late_holds else 'not borne out'}, known"
         f" {'holds' if known_holds else 'not borne out'} ({meta['seconds']} s) -> {out}")

@@ -53,3 +53,9 @@ def resolve_path(cfg: dict[str, Any], key: str) -> Path:
     """Resolve a `paths.<key>` entry relative to the project root."""
     p = Path(cfg["paths"][key])
     return p if p.is_absolute() else PROJECT_ROOT / p
+
+
+def write_meta(path: Path, meta: dict[str, Any]) -> None:
+    """A stage's `*.meta.json`: indented, Hebrew as is, a final newline. Staleness hashes the
+    parsed JSON (`incremental.digest`), so the layout never marks a stage stale."""
+    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

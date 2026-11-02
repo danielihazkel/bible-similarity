@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.lexical import bm25
 
 if TYPE_CHECKING:  # torch loads only where scores are computed, not on the serve path
@@ -177,7 +177,7 @@ def write_topk(
         "rows": len(df),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-    (out / f"{system}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    write_meta(out / f"{system}.meta.json", meta)
     return out / f"{system}.parquet"
 
 

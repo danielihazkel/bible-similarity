@@ -53,7 +53,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.text.normalize import consonantal
 
@@ -380,7 +380,7 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
         "synoptic": synoptic,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "dating.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "dating.meta.json", meta)
     log(
         f"done: held-out AUC {loo['auc']} (grammar / spelling only {loo_grammar['auc']}); "
         f"synoptic: Chronicles later in {synoptic['later']} of {synoptic['pairs']} parallels "

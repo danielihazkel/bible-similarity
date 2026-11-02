@@ -35,7 +35,6 @@ first_vid, last_vid, n_tokens, p, q, cv, regular_p, turn, strongest, known, text
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -46,7 +45,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from bsim.config import config_hash, resolve_path
+from bsim.analysis.stats import empirical_p, q_values
+from bsim.config import config_hash, resolve_path, write_meta
 
 Log = Callable[[str], None]
 CONTENT = frozenset("NVA")
@@ -125,20 +125,12 @@ def find_runs(
 
 def fdr(observed: np.ndarray, null: list[np.ndarray]) -> np.ndarray:
     """Estimated false discovery rate of each observed p: the mean shuffled count at most p over
-    the observed count at most p, made monotone (a q-value)."""
+    the observed count at most p, made monotone (a q-value; `stats.q_values` on p negated)."""
     obs = np.asarray(observed, dtype=np.float64)
     if len(obs) == 0:
         return obs
-    pooled = np.sort(np.concatenate(null)) if null else np.array([])
-    order = np.argsort(obs, kind="stable")
-    sp = obs[order]
-    expected = np.searchsorted(pooled, sp, side="right") / max(len(null), 1)
-    found = np.searchsorted(sp, sp, side="right")
-    ratio = np.minimum(1.0, expected / found)
-    q = np.minimum.accumulate(ratio[::-1])[::-1]
-    out = np.empty_like(q)
-    out[order] = q
-    return out
+    pooled = np.concatenate(null) if null else np.array([])
+    return q_values(-obs, -pooled, max(len(null), 1))
 
 
 def extend(
@@ -175,9 +167,9 @@ def spacing_p(
     g = np.diff(pos, axis=1)
     null = g.std(axis=1) / g.mean(axis=1)
     # untestable when even the most even placement is too common to reach `alpha`
-    if (1 + np.sum(null <= null.min() + 1e-12)) / (1 + draws) > alpha:
+    if empirical_p(null.min() + 1e-12, null, "less") > alpha:
         return cv, None
-    return cv, float((1 + np.sum(null <= cv + 1e-12)) / (1 + draws))
+    return cv, empirical_p(cv + 1e-12, null, "less")
 
 
 def side_scores(score: dict[int, float], book_of: dict[int, int], v: int) -> float | None:
@@ -323,7 +315,7 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
             "n": len(obs),
             "observed": float(np.mean(obs)) if obs else None,
             "expected": float(null_mean.mean()),
-            "p": float((1 + np.sum(null_mean >= np.mean(obs))) / (1 + rc["draws"]))
+            "p": empirical_p(np.mean(obs), null_mean)
             if obs
             else None,
         }
@@ -390,7 +382,7 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
         "turns": turns,
         "seconds": round(time.perf_counter() - t0, 1),
     }
-    (out / "refrains.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
+    write_meta(out / "refrains.meta.json", meta)
     log(
         f"done: {meta['refrains']} refrains ({meta['distinct']} distinct) from"
         f" {meta['candidates']} runs, {meta['detect']['expected']:.1f} expected by chance; known"

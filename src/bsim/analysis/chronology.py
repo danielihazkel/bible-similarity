@@ -42,7 +42,6 @@ tok_last`) and `chronology.meta.json`.
 
 from __future__ import annotations
 
-import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -55,7 +54,7 @@ import numpy as np
 import pandas as pd
 
 from bsim.analysis.stats import empirical_p
-from bsim.config import config_hash, resolve_path
+from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.refs import RefIndex
 
 Log = Callable[[str], None]
@@ -436,8 +435,7 @@ def run_chronology(cfg: dict[str, Any], log: Log = print) -> Path:
         "digits_ends": [int(x) for x in dc["ends"]], "digits_min": int(dc["min"]),
         "seconds": round(time.perf_counter() - t0, 1),
     }  # fmt: skip
-    (out / "chronology.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False),
-                                              "utf-8")  # fmt: skip
+    write_meta(out / "chronology.meta.json", meta)  # fmt: skip
     log(f"done: known {'holds' if known_holds else 'not borne out'}, synchronisms"
         f" {'hold' if sync_holds else 'not borne out'}, digits"
         f" {'hold' if dig_holds else 'not borne out'} ({meta['seconds']} s) -> {out}")  # fmt: skip
