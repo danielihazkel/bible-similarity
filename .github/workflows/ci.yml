@@ -1,6 +1,7 @@
 # Checks every push and pull request without the data, models or GPU (DESIGN.md §13):
 # ruff + pytest, the viewer's lint / type check / unit tests, the generated API types being up to
 # date, and the Playwright end-to-end tests against `bsim fixture-serve` (a tiny synthetic DB).
+# Three jobs run side by side; the end-to-end tests are split over three runners (`--shard`).
 name: CI
 
 on:
@@ -13,13 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  python:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -30,7 +30,18 @@ jobs:
       - name: Pytest
         run: uv run pytest
 
-      - uses: actions/setup-node@v4
+  viewer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Python dependencies
+        run: uv sync --locked
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -50,15 +61,42 @@ jobs:
       - name: Viewer build
         working-directory: web
         run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Python dependencies
+        run: uv sync --locked
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Viewer dependencies
+        working-directory: web
+        run: npm ci
+      - name: Viewer build
+        working-directory: web
+        run: npm run build
       - name: Playwright browser
         working-directory: web
         run: npx playwright install --with-deps chromium
-      - name: End-to-end tests (fixture DB)
+      - name: End-to-end tests (fixture DB), shard ${{ matrix.shard }} of 3
         working-directory: web
-        run: npm run e2e:fixture
-      - uses: actions/upload-artifact@v4
+        run: npm run e2e:fixture -- --shard ${{ matrix.shard }}/3
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: web/playwright-report
           retention-days: 7

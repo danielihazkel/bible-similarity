@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M120: Faster, steadier CI (proposed J2)
+- [x] Three jobs side by side (Python, viewer, end-to-end), the end-to-end tests over three runners (`--shard`), each uploading its report on failure
+- [x] The fixture's tests spread over the workers (`fullyParallel`); one Hebrew and two accessibility tests a page instead of three walks over all 142, so a failure names its page
+- [x] A page has loaded when its heading is there and no `Loading` is left, not at `networkidle`; one retry in CI, flaky tests reported
+- [x] Actions on Node 24 (checkout 7, setup-node 7, upload-artifact 7, setup-uv 10)
+
+✔ Fixture end-to-end locally 16.7 → 6.9 min (1,222 tests: the per-page split makes more, shorter ones). The CI time is measured on the next push.
+
 ## M119: Fast pytest and serve start (proposed J1)
 - [x] The fixture DB built once a session (`built_once`); each test gets a copy under its own `tmp_path` (`built`), free to change: a client test's setup 6 s → 1.7 s
 - [x] torch imported only where scores are computed (`retrieve/topk.py`), `scipy.stats` only where the workbench tests (`api/workbench.py`): `import bsim.api.app` 13.8 s → 3.6 s
@@ -1254,7 +1262,7 @@ From the 2026-11-02 review: improvements again, no new features. Three audits (v
 
 Tooling
 - [x] J1 (done, M119) Fast pytest and serve start: the fixture DB built once a session, each test given a copy; torch and `scipy.stats` off the serve path
-- [ ] J2 (M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
+- [x] J2 (done, M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
 - [ ] J3 (M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` and pyright in CI
 - [ ] J4 (M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
 

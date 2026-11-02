@@ -159,10 +159,12 @@ function collectErrors(page: Page): string[] {
   return errors
 }
 
+// A page has loaded when its heading is there and no `Loading` is left (not `networkidle`, which
+// Playwright advises against: it waits on every request and so on the page's timing)
 async function loads(page: Page, path: string) {
   await page.goto(path)
   await expect(page.locator('h1').first()).not.toBeEmpty()
-  await page.waitForLoadState('networkidle')
+  await expect(page.locator('p.status[role="status"]')).toHaveCount(0)
   await expect(page.locator('.status.error')).toHaveCount(0)
 }
 
@@ -854,26 +856,25 @@ test('a verse is kept with a note and a collection, and shows in the notebook', 
   await expect(page.getByText(/Nothing kept yet/)).toBeVisible()
 })
 
-test('the Hebrew interface is right to left and loads every page cleanly', async ({ page }) => {
-  test.setTimeout(240_000)
-  const errors = collectErrors(page)
-  await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
-  for (const path of PAGES) {
+// one test a page, so they spread over the workers and a failure names its page
+for (const path of PAGES) {
+  test(`in Hebrew, right to left and clean: ${path}`, async ({ page }) => {
+    const errors = collectErrors(page)
+    await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
     await loads(page, path)
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-  }
-  expect(errors).toEqual([])
-})
+    expect(errors).toEqual([])
+  })
+}
 
 for (const locale of ['en', 'he'] as const) {
-  test(`no serious accessibility violations (${locale})`, async ({ page }) => {
-    test.setTimeout(600_000) // every page of the viewer, each checked by axe
-    await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
-    for (const path of PAGES) {
+  for (const path of PAGES) {
+    test(`no serious accessibility violations (${locale}): ${path}`, async ({ page }) => {
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
       await loads(page, path)
       const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
-      expect(serious.map((v) => `${path}: ${v.id} (${v.nodes.length})`)).toEqual([])
-    }
-  })
+      expect(serious.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([])
+    })
+  }
 }

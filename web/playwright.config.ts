@@ -15,7 +15,10 @@ export function e2eConfig(fixture: boolean) {
     testMatch: fixture ? 'fixture.spec.ts' : 'smoke.spec.ts',
     timeout: 30_000,
     expect: { timeout: 10_000 },
-    fullyParallel: false,
+    // the fixture's tests are independent (its two writers run on desktop only, on separate
+    // stores), so they spread over the workers; CI also shards them over runners (`--shard`)
+    fullyParallel: fixture,
+    retries: process.env.CI ? 1 : 0,
     reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
     use: {
       baseURL: `http://127.0.0.1:${port}`,
