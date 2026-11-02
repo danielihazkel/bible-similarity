@@ -203,6 +203,7 @@ export const ovHe: typeof ovEn = {
     sdbhKind: (kind: string) => `בתחומים של SDBH, על פי רוב: ${kind}.`,
     sites: 'על פני הארץ',
     sitesLede: 'היכן שוכנים המקומות שהשם הזה מציין: כל אזכור מותאם למקום לפי TIPNR של STEPBible, וממוקם לפי הזיהוי שקיבל הכי הרבה קולות ב־OpenBible.info. שם אחד יכול לציין כמה מקומות.',
+    onMap: (he: string) => `${he} במקומות על המפה`,
     placeKinds: { town: 'עיר', region: 'אזור', landform: 'תוואי קרקע', water: 'מים' },
     siteVerses: (n: number) => versesHe(n),
     coords: (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'צפון' : 'דרום'}, ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'מזרח' : 'מערב'}`,

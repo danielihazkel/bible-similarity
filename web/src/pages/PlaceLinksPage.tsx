@@ -10,6 +10,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { placeLink } from '../lib/links'
 
 const PAGE_SIZE = 25
 const SORTS: PlaceLinkSort[] = ['g2', 'km', 'near']
@@ -356,7 +357,7 @@ function PairItem({ pair: x }: { pair: PlaceLinkPair }) {
   return (
     <li>
       <PlaceName id={x.a.place_id} he={x.a.he} /> – <PlaceName id={x.b.place_id} he={x.b.he} /> <span className="muted small">{t.pairLine(x.n_together, x.g2, x.km)}</span>{' '}
-      <Link className="small" to={`/places?p=${x.a.place_id}`} aria-label={t.onMap(x.a.he)}>
+      <Link className="small" to={placeLink(x.a.place_id)} aria-label={t.onMap(x.a.he)}>
         ↗
       </Link>
     </li>

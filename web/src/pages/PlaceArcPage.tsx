@@ -7,7 +7,7 @@ import { GeoMap } from '../components/GeoMap'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
-import { unitLink } from '../lib/links'
+import { placeLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
@@ -386,7 +386,7 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
                     </td>
                     <td>
                       {c.top_place && (
-                        <Link to={`/places?p=${c.top_place.place_id}`} dir="rtl" lang="he" className="he">
+                        <Link to={placeLink(c.top_place.place_id)} dir="rtl" lang="he" className="he">
                           {c.top_place.he}
                         </Link>
                       )}

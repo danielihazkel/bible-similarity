@@ -4,7 +4,7 @@ import { useBooks, useTypeScenes } from '../api/hooks'
 import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
-import { compareLink, unitLink } from '../lib/links'
+import { compareLink, lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
@@ -75,9 +75,9 @@ export function TypeScenesPage() {
                 </div>
                 <p className="action-chain he" dir="rtl" lang="he">
                   {t.aligned.map((v, i) => (
-                    <span key={i} title={`${v.a_vid} ↔ ${v.b_vid}`}>
+                    <span key={i}>
                       {i > 0 && <span className="muted"> ← </span>}
-                      {v.he_lemma}
+                      <Link to={lemmaLink(v.lemma)}>{v.he_lemma}</Link>
                     </span>
                   ))}
                 </p>

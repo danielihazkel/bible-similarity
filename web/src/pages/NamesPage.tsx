@@ -7,7 +7,7 @@ import { BookSelect, Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
-import { lemmaLink, unitLink } from '../lib/links'
+import { lemmaLink, placeLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 
@@ -193,9 +193,9 @@ function Sites({ sites }: { sites: PlaceSite[] }) {
       <ul>
         {sites.map((s) => (
           <li key={s.place_id}>
-            <span dir="rtl" lang="he" className="he">
+            <Link to={placeLink(s.place_id)} dir="rtl" lang="he" className="he" aria-label={t.onMap(s.he)}>
               {s.he}
-            </span>{' '}
+            </Link>{' '}
             {s.kind && <span className="type-tag">{t.placeKinds[s.kind]}</span>} <span className="muted small">{t.siteVerses(s.n_here ?? s.n_verses)}</span>
             <br />
             <span className="small">

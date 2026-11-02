@@ -8,7 +8,7 @@ import { GeoMap } from '../components/GeoMap'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
-import { unitLink } from '../lib/links'
+import { placeLink, unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 
 const NAMED_UP_TO = 20 // a list this long has its places' names written on the map; a longer one, their numbers
@@ -205,7 +205,7 @@ function Step({ step: s, long, on, onPick }: { step: PlaceListStep; long: boolea
       <Link className="small" to={unitLink(`v:${s.verse.verse_id}`)}>
         {locale === 'he' ? s.verse.label_he : s.verse.label_en}
       </Link>{' '}
-      <Link className="small" to={`/places?p=${s.place.place_id}`} aria-label={t.onMap(s.place.he)}>
+      <Link className="small" to={placeLink(s.place.place_id)} aria-label={t.onMap(s.place.he)}>
         ↗
       </Link>
     </li>

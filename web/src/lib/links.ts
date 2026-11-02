@@ -13,3 +13,7 @@ export const nameLink = (lemma: string) => `/names?e=${encodeURIComponent(lemma)
 export const domainLink = (code: string) => `/domains/${encodeURIComponent(code)}`
 
 export const sequenceLink = (id: number) => `/sequences/${id}`
+
+export const placeLink = (id: number) => `/places?p=${id}`
+
+export const personLink = (id: number | string) => `/genealogy?p=${id}`

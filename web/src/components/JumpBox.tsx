@@ -6,7 +6,7 @@ import { useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve } from '../
 import type { LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
-import { unitLink } from '../lib/links'
+import { personLink, placeLink, unitLink } from '../lib/links'
 import { matchPages } from '../lib/nav'
 import { unitLabel } from '../lib/names'
 import { personAbout } from '../lib/people'
@@ -62,14 +62,14 @@ function buildOptions(
   }))
   const sites = places.slice(0, MAX_PLACES).map((p) => ({
     kind: 'places' as const,
-    to: `/places?p=${p.place_id}`,
+    to: placeLink(p.place_id),
     label: p.he,
     detail: t.place(p.kind ? m.pl.kindOne[p.kind] : null, t.verses(p.n_verses), locale === 'he' ? p.first_label_he : p.first_label),
     hebrew: true,
   }))
   const persons = people.slice(0, MAX_PEOPLE).map((x) => ({
     kind: 'people' as const,
-    to: `/genealogy?p=${x.person_id}`,
+    to: personLink(x.person_id),
     label: x.he,
     detail: personAbout(x, m.gt, locale) || undefined,
     hebrew: true,

@@ -214,6 +214,7 @@ export const ovEn = {
     sdbhKind: (kind: string) => `In SDBH’s domains, mostly ${kind}.`,
     sites: 'On the ground',
     sitesLede: 'Where the places this name stands for lie: each mention matched to a place by STEPBible’s TIPNR, located by OpenBible.info’s best-voted identification. One name may be several places.',
+    onMap: (he: string) => `${he} on Places on the map`,
     placeKinds: { town: 'Town', region: 'Region', landform: 'Landform', water: 'Water' } satisfies Record<PlaceKind, string>,
     siteVerses: (n: number) => countEn(n, 'verse', 'verses'),
     coords: (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`,

@@ -1,7 +1,7 @@
 // The dossier of a unit (`/dossier`): which entries are findings, and where each is read in full.
 
 import type { DossierEntry, UnitSummary } from '../api/types'
-import { readLink, unitLink } from './links'
+import { personLink, readLink, unitLink } from './links'
 
 /** Whether an entry is a finding (a chip) rather than "nothing found". */
 export function isFound(e: DossierEntry): boolean {
@@ -60,7 +60,7 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
     case 'places':
       return `/places?unit=${u}`
     case 'people':
-      return e.key ? `/genealogy?p=${e.key}` : '/genealogy'
+      return e.key ? personLink(e.key) : '/genealogy'
     case 'ciphers':
       return `/ciphers?unit=${u}`
     case 'divine':

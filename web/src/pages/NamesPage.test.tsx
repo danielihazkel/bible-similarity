@@ -111,5 +111,6 @@ describe('NamesPage', () => {
     expect(items[0].textContent).toContain('Town')
     expect(items[0].textContent).toContain('33.27° N, 35.58° E · identification voted 640 / 1,000 · a second site has 25% of its votes')
     expect(items[1].textContent).toContain('not located')
+    expect(screen.getByRole('link', { name: 'אבל בית מעכה on Places on the map' }).getAttribute('href')).toBe('/places?p=1')
   })
 })

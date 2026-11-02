@@ -90,7 +90,7 @@ describe('TypeScenesPage', () => {
       ),
     })
     expect(await screen.findByText('2 actions in order')).toBeTruthy()
-    expect(screen.getByText('שיזב')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'שיזב' }).getAttribute('href')).toBe('/lemma/y')
     expect(calls.some((c) => c.includes('hide_textual=true') && c.includes('max_q=0.05'))).toBe(true)
     fireEvent.click(screen.getByLabelText('Include textual parallels'))
     await waitFor(() => expect(calls.some((c) => c.includes('hide_textual=false'))).toBe(true))

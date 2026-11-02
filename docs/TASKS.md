@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M130: Cross-links (§11.1; proposed J12)
+- [x] `placeLink` and `personLink` (`lib/links.ts`) in place of the URLs written out in the jump box, the dossier and the three place pages
+- [x] A name's places link to them on the map (`/places?p=`, named "… on Places on the map" in both languages); a type scene's verbs link to their lemma pages (the tooltip of raw verse ids gone)
+- [x] Not done: the family tree's card to the person's name entry, and a name to its people in the tree. The API gives a tree person no lemma and a name no person ids, so either link needs the API changed first
+- [x] Tests: the place link of a name's site (`NamesPage.test.tsx`), a verb's lemma link (`Step5Pages.test.tsx`)
+
+✔ Places and verbs shown as text where their page exists now link to it; 1,222 fixture end-to-end tests pass.
+
 ## M126: Four small misses (§16.15, §16.20, §16.31, §16.45, D122; proposed J8)
 Each a rule changed after a run, reported with all its runs (DESIGN, RESULTS).
 - [x] §16.31 citations: a partner in a parallel sequence (q ≤ 0.05, ± 1 verse) carrying the same formula is not a source (`citations.exclude_parallels`; `sequences` added to the stage's inputs). The first form (every partner) also removed the commands that Exod 39 and Lev 8 carry out (Exod 28, 29): *as commanded* p 0.0096 → 0.12; narrowed to the copy, it changes only Isa 39:8, 2 Chr 6:10, 2 Chr 10:15 (resolved 41 → 38, *the word fulfilled* p 0.19 → 0.63), *as commanded* and the gold check unchanged
@@ -1340,7 +1348,7 @@ Docs and evaluation
 
 Viewer
 - [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views
-- [ ] J12 (M130) Cross-links: place and person link helpers; names, the family tree's card and type-scene verbs linked
+- [x] J12 (done, M130) Cross-links: place and person link helpers; names and type-scene verbs linked (the family tree's card: no lemma to link)
 - [ ] J13 (M131) Shareable selections: the map's, the place pages', Compare's and the reader's selections in the URL; open sections kept on Back
 - [ ] J14 (M132) Speed: the reader and the map's labels memoised; the English page strings split by route
 
