@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useMeta } from '../api/hooks'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
+import { TableCsv } from '../components/TableCsv'
 
 const show = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v))
 
@@ -50,7 +51,7 @@ function AboutEn() {
         </li>
         <li>Models: BEREL 3.0 (Apache-2.0). Fonts: Noto Serif Hebrew / Ezra SIL (OFL).</li>
       </ul>
-      <h2>Build</h2>
+      <h2 id="about-build">Build</h2>
     </>
   )
 }
@@ -99,7 +100,7 @@ function AboutHe() {
         </li>
         <li>מודלים: BEREL 3.0 ‏(Apache-2.0). גופנים: Noto Serif Hebrew / Ezra SIL ‏(OFL).</li>
       </ul>
-      <h2>בנייה</h2>
+      <h2 id="about-build">בנייה</h2>
     </>
   )
 }
@@ -116,18 +117,20 @@ export function AboutPage() {
         <ErrorBox error={meta.error} />
       ) : (
         // build keys and values are technical: left to right in either language
-        <table className="meta-table" dir="ltr">
-          <tbody>
-            {Object.entries({ ...meta.data.build, ...meta.data.runtime }).map(([key, v]) => (
-              <tr key={key}>
-                <th scope="row">{key}</th>
-                <td>
-                  <code>{show(v)}</code>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <TableCsv name="about-build" tabIndex={0} role="region" aria-labelledby="about-build">
+          <table className="meta-table" dir="ltr">
+            <tbody>
+              {Object.entries({ ...meta.data.build, ...meta.data.runtime }).map(([key, v]) => (
+                <tr key={key}>
+                  <th scope="row">{key}</th>
+                  <td>
+                    <code>{show(v)}</code>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </TableCsv>
       )}
     </div>
   )

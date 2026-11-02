@@ -7,6 +7,7 @@ import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const fmt = (x: number | null) => (x === null ? '—' : x.toFixed(2))
 
@@ -108,7 +109,7 @@ function BookChapters({ bookId, name }: { bookId: number; name: string }) {
   return (
     <section aria-label={t.chapters(name)}>
       <h2>{t.chapters(name)}</h2>
-      <div className="table-wrap">
+      <TableCsv name="language-1" tabIndex={0} role="region" aria-label={t.chapters(name)}>
         <table className="change-table">
           <thead>
             <tr>
@@ -143,7 +144,7 @@ function BookChapters({ bookId, name }: { bookId: number; name: string }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }

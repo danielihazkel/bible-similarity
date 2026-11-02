@@ -11,6 +11,7 @@ import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { TableCsv } from '../components/TableCsv'
 
 /** Word pairs (§16.72): the recurring pairs joined by ו, how fixed each order is, its words'
  * lengths and its turns by period, a pair's occurrences, and the checks. */
@@ -97,7 +98,7 @@ function Pairs({ d }: { d: BinomialsResponse }) {
       {shown.length === 0 ? (
         <p className="muted">{t.empty}</p>
       ) : (
-        <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="bn-list">
+        <TableCsv name="binomials-1" tabIndex={0} role="region" aria-labelledby="bn-list">
           <table className="change-table bn-table">
             <thead>
               <tr>
@@ -146,7 +147,7 @@ function Pairs({ d }: { d: BinomialsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       )}
     </section>
   )

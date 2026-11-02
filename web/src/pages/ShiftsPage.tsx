@@ -5,6 +5,7 @@ import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 
@@ -49,7 +50,7 @@ export function ShiftsPage() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableCsv name="shifts-1" tabIndex={0} role="region" aria-label={t.title}>
             <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
@@ -98,7 +99,7 @@ export function ShiftsPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </TableCsv>
         )}
       </PagedList>
     </div>

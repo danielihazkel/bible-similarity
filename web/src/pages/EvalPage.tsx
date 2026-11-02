@@ -3,6 +3,7 @@ import { useEval } from '../api/hooks'
 import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval, UnitListEval } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
+import { TableCsv } from '../components/TableCsv'
 
 const METRICS = [
   { key: 'ndcg@10', label: 'nDCG@10' },
@@ -139,7 +140,7 @@ function SupervisionSection({ sup }: { sup: SupervisionEval }) {
         {sup.chosen ? t.supChosen(sup.chosen) : t.supNone}
       </p>
       {(['fused', 'semantic'] as const).map((list) => (
-        <div key={list} className="table-wrap" tabIndex={0} role="region" aria-label={t.supList[list]}>
+        <TableCsv key={list} name={`eval-supervision-${list}`} tabIndex={0} role="region" aria-label={t.supList[list]}>
           <table className="rank-table eval-table">
             <caption>{t.supCaption(t.supList[list], sup.baseline, golds.map((g) => `${t.gold[g] ?? g} ${(sup.baseline_scores[list]?.[g] ?? 0).toFixed(3)}`).join(', '))}</caption>
             <thead>
@@ -178,7 +179,7 @@ function SupervisionSection({ sup }: { sup: SupervisionEval }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       ))}
     </section>
   )
@@ -218,7 +219,7 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
         {enc.chosen ? t.encChosen(enc.chosen) : t.encNone}
       </p>
       {(['fused', 'semantic'] as const).map((list) => (
-        <div key={list} className="table-wrap" tabIndex={0} role="region" aria-label={t.encList[list]}>
+        <TableCsv key={list} name={`eval-encoders-${list}`} tabIndex={0} role="region" aria-label={t.encList[list]}>
           <table className="rank-table eval-table">
             <caption>{t.supCaption(t.encList[list], enc.baseline, scores(enc.baseline_scores[list]))}</caption>
             {head(list === 'fused')}
@@ -239,10 +240,10 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       ))}
       {zero.length > 0 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.encZeroLabel}>
+        <TableCsv name="eval-zero-shot" tabIndex={0} role="region" aria-label={t.encZeroLabel}>
           <table className="rank-table eval-table">
             <caption>{t.encZero(enc.reference, scores(enc.reference_scores.semantic))}</caption>
             {head(false)}
@@ -262,7 +263,7 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       )}
     </section>
   )
@@ -294,7 +295,7 @@ function UnitListsSection({ ux }: { ux: UnitListEval }) {
         const families = Object.entries(r.families)
         return (
           <Fragment key={type}>
-            <div className="table-wrap" tabIndex={0} role="region" aria-label={t.unitCaption(type, scores)}>
+            <TableCsv name={`eval-units-${type}`} tabIndex={0} role="region" aria-label={t.unitCaption(type, scores)}>
               <table className="rank-table eval-table">
                 <caption>{t.unitCaption(type, scores)}</caption>
                 <thead>
@@ -328,8 +329,8 @@ function UnitListsSection({ ux }: { ux: UnitListEval }) {
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="table-wrap" tabIndex={0} role="region" aria-label={t.unitAloneCaption(type)}>
+            </TableCsv>
+            <TableCsv name={`eval-units-alone-${type}`} tabIndex={0} role="region" aria-label={t.unitAloneCaption(type)}>
               <table className="rank-table eval-table">
                 <caption>{t.unitAloneCaption(type)}</caption>
                 <thead>
@@ -365,7 +366,7 @@ function UnitListsSection({ ux }: { ux: UnitListEval }) {
                   )}
                 </tbody>
               </table>
-            </div>
+            </TableCsv>
           </Fragment>
         )
       })}
@@ -385,7 +386,7 @@ function MetricTable({ caption, rows }: { caption: string; rows: Row[] }) {
   const best = Math.max(...rows.map((r) => r.metrics['ndcg@10'] ?? 0))
   return (
     // focusable so keyboard users can scroll a wide table on a narrow screen
-    <div className="table-wrap" tabIndex={0} role="region" aria-label={caption}>
+    <TableCsv name="eval-6" tabIndex={0} role="region" aria-label={caption}>
       <table className="rank-table eval-table">
         <caption>{caption}</caption>
         <thead>
@@ -414,6 +415,6 @@ function MetricTable({ caption, rows }: { caption: string; rows: Row[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableCsv>
   )
 }

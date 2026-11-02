@@ -10,6 +10,7 @@ import { useLocale } from '../context/localeContext'
 import type { Highlight, Mark } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const PAGE_SIZE = 20
 const MARKS: Mark[] = ['focus', 'shared', 'acrostic']
@@ -52,7 +53,7 @@ function Tests({ meta }: { meta: MirrorsMeta }) {
         <section aria-label={t.clausesTitle}>
           <h2>{t.clausesTitle}</h2>
           <p className="small">{t.clauses(c.poetry, c.poetry_n, c.prose, c.prose_n, t.fp(c.p))}</p>
-          <div className="table-wrap" tabIndex={0} role="region" aria-label={t.clausesTitle}>
+          <TableCsv name="small-scale-1" tabIndex={0} role="region" aria-label={t.clausesTitle}>
             <table className="change-table">
               <thead>
                 <tr>
@@ -75,7 +76,7 @@ function Tests({ meta }: { meta: MirrorsMeta }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableCsv>
         </section>
       )}
     </>

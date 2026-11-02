@@ -11,6 +11,7 @@ import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const PAGE_SIZE = 25
 const KINDS: SegmentKind[] = ['turn', 'cut', 'quiet']
@@ -83,7 +84,7 @@ function Tests({ meta }: { meta: SegmentsMeta }) {
     <section aria-label={t.tests}>
       <h2>{t.tests}</h2>
       <p className="muted small">{t.testsLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.tests}>
+      <TableCsv name="divisions-1" tabIndex={0} role="region" aria-label={t.tests}>
         <table className="change-table division-table">
           <thead>
             <tr>
@@ -110,7 +111,7 @@ function Tests({ meta }: { meta: SegmentsMeta }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       <ul className="division-findings small">
         {c.pe_samekh && <li>{t.peSamekh(f2(c.pe_samekh.a), f2(c.pe_samekh.b), fp(c.pe_samekh.p))}</li>}
         {c.agreed_single && <li>{t.agreedSingle(f2(c.agreed_single.a), f2(c.agreed_single.b), fp(c.agreed_single.p))}</li>}

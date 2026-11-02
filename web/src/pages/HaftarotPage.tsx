@@ -6,6 +6,7 @@ import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { TableCsv } from '../components/TableCsv'
 
 const MODES = ['lexical', 'semantic', 'fused'] as const
 
@@ -86,7 +87,7 @@ function Modes({ d }: { d: HaftarotResponse }) {
     <section aria-labelledby="hf-modes">
       <h2 id="hf-modes">{t.modesTitle}</h2>
       <p className="muted small">{t.modesLede(d.thematic)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.modesTitle}>
+      <TableCsv name="haftarot-1" tabIndex={0} role="region" aria-label={t.modesTitle}>
         <table className="change-table hf-modes">
           <thead>
             <tr>
@@ -123,7 +124,7 @@ function Modes({ d }: { d: HaftarotResponse }) {
             })}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -137,7 +138,7 @@ function Parashot({ d }: { d: HaftarotResponse }) {
   return (
     <section aria-labelledby="hf-parashot">
       <h2 id="hf-parashot">{t.cols.parasha}</h2>
-      <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="hf-parashot">
+      <TableCsv name="haftarot-2" tabIndex={0} role="region" aria-labelledby="hf-parashot">
         <table className="change-table hf-table">
           <thead>
             <tr>
@@ -177,7 +178,7 @@ function Parashot({ d }: { d: HaftarotResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
       {sel && <ChapterList p={sel} onClose={() => update({ p: null }, false)} />}
     </section>
   )

@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useSynopses } from '../api/hooks'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
+import { TableCsv } from '../components/TableCsv'
 
 /** Parallel sequences joined into synopses of three or more passages (DESIGN.md §16.74). */
 export function SynopsesPage() {
@@ -18,7 +19,7 @@ export function SynopsesPage() {
       {res.data && res.data.items.length > 0 && (
         <>
           <p className="muted small">{t.count(res.data.items.length)}</p>
-          <div className="table-wrap" tabIndex={0} role="region" aria-label={t.title}>
+          <TableCsv name="synopses-1" tabIndex={0} role="region" aria-label={t.title}>
             <table className="change-table synopses-table">
               <thead>
                 <tr>
@@ -51,7 +52,7 @@ export function SynopsesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableCsv>
         </>
       )}
     </div>

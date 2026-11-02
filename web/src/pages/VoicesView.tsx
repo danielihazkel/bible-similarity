@@ -10,6 +10,7 @@ import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const fmtQ = (q: number) => (q < 0.001 ? '< 0.001' : q.toFixed(3))
 
@@ -79,7 +80,7 @@ export function VoicesView() {
 
       <section aria-label={t.speakers}>
         <h2>{t.speakers}</h2>
-        <div className="table-wrap">
+        <TableCsv name="voices-1" tabIndex={0} role="region" aria-label={t.speakers}>
           <table className="change-table voice-table">
             <thead>
               <tr>
@@ -106,7 +107,7 @@ export function VoicesView() {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableCsv>
       </section>
 
       {voice ? <VoiceProfile voiceKey={voice} name={name} /> : <p className="muted small">{t.select}</p>}

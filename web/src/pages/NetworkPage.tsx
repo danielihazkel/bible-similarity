@@ -9,6 +9,7 @@ import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { DirectionsView } from './DirectionsView'
+import { TableCsv } from '../components/TableCsv'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
@@ -113,7 +114,7 @@ function Communities() {
           </div>
           <section aria-label={m.ov.network.mostEchoedLabel}>
             <h2>{m.ov.network.mostEchoed(unitType)}</h2>
-            <NodeTable nodes={net.data.central} bookOf={bookOf} onCommunity={(k) => update({ c: String(k) }, false)} />
+            <NodeTable nodes={net.data.central} bookOf={bookOf} label={m.ov.network.mostEchoedLabel} onCommunity={(k) => update({ c: String(k) }, false)} />
           </section>
         </>
       )}
@@ -208,7 +209,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
       </svg>
       <details className="community-members">
         <summary>{m.ov.network.allPassages(nodes.length)}</summary>
-        <NodeTable nodes={nodes} bookOf={bookOf} />
+        <NodeTable nodes={nodes} bookOf={bookOf} label={m.ov.network.allPassages(nodes.length)} name="network-community" />
       </details>
     </>
   )
@@ -217,15 +218,19 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
 function NodeTable({
   nodes,
   bookOf,
+  label,
+  name = 'network-central',
   onCommunity,
 }: {
   nodes: NetworkNode[]
   bookOf: Map<number, Book>
+  label: string
+  name?: string
   onCommunity?: (k: number) => void
 }) {
   const { m, locale } = useLocale()
   return (
-    <div className="table-wrap">
+    <TableCsv name={name} tabIndex={0} role="region" aria-label={label}>
       <table className="rank-table">
         <thead>
           <tr>
@@ -267,6 +272,6 @@ function NodeTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </TableCsv>
   )
 }

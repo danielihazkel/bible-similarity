@@ -12,6 +12,7 @@ import { readLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { TableCsv } from '../components/TableCsv'
 
 const PAGE_SIZE = 20
 const GROUPS: RetoldGroup[] = ['retold', 'repeated', 'carried', 'told', 'narrated', 'unclear']
@@ -90,31 +91,33 @@ function Groups({ d }: { d: RetoldResponse }) {
   return (
     <section aria-labelledby="rt-groups">
       <h2 id="rt-groups">{t.groupsTitle}</h2>
-      <table className="change-table rt-groups">
-        <thead>
-          <tr>
-            <th scope="col">{t.cols.group}</th>
-            <th scope="col" className="num">
-              {t.cols.pairs}
-            </th>
-            <th scope="col" className="num">
-              {t.cols.rate}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {GROUPS.map((g) => {
-            const r = d.rates[g]
-            return (
-              <tr key={g} className={d.claim.includes(g) ? 'rt-claim' : undefined}>
-                <th scope="row">{t.groups[g]}</th>
-                <td className="num">{d.groups[g] ?? 0}</td>
-                <td className="num">{r == null ? '—' : `${Math.round(r * 100)}%`}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <TableCsv name="retold-groups" tabIndex={0} role="region" aria-labelledby="rt-groups">
+        <table className="change-table rt-groups">
+          <thead>
+            <tr>
+              <th scope="col">{t.cols.group}</th>
+              <th scope="col" className="num">
+                {t.cols.pairs}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.rate}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {GROUPS.map((g) => {
+              const r = d.rates[g]
+              return (
+                <tr key={g} className={d.claim.includes(g) ? 'rt-claim' : undefined}>
+                  <th scope="row">{t.groups[g]}</th>
+                  <td className="num">{d.groups[g] ?? 0}</td>
+                  <td className="num">{r == null ? '—' : `${Math.round(r * 100)}%`}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </TableCsv>
     </section>
   )
 }

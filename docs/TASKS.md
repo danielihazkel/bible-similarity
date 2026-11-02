@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M129: Tables and numbers (§11.1; proposed J11)
+- [x] `TableCsv` on the tables that had no export: the eval page's (supervision, encoders, zero-shot, units, each named), haftarot (2), directions (2), word pairs, borrowing (one per book pair), divisions, dating's chapters, the network's two lists, shifts, small-scale clauses, synopses, voices, retold's groups, the about page's build table
+- [x] Their scroll wrappers keyboard-focusable and named (five had neither); retold's and the about page's tables given one (they overflowed on a phone)
+- [x] Checked and not done: numbers by locale. Every `toFixed` on the six pages named is a score under 1,000, where the two locales print the same digits and point; the eval tables are aggregates with no verse ids to link
+- [x] Checked: the voices, rewrites, spread, sound and word-pair views are tested through their pages (M118); new `SharedControls.test.tsx`: `TableCsv` (the named region, the export of what the table shows), `BookSelect`, `Segmented`, `GeoMap`'s keys (arrows step, Enter opens, + and − zoom)
+
+✔ Every table in the viewer can be exported; 1,222 fixture end-to-end tests pass, the per-page accessibility checks among them.
+
 ## M125: The poetry model's labels (§16.9; proposed J7)
 - [x] Scored, not trained on: Job 1:1–3:1 and 42:7–17 (`parallelism.unlabelled`, the prose accents) and every psalm verse holding a superscription (`mask_titles`, `psalms.title_mask`); 164 verses, 114 training rows (16,118 → 16,004)
 - [x] Simpler than planned: a verse with title words leaves training whole, rather than its title words being cut and its cola encoded again
@@ -1322,7 +1330,7 @@ Docs and evaluation
 - [ ] J10 (M128) Stale numbers in RESULTS, DESIGN and ARCHITECTURE fixed; a test that checks quoted numbers against the build's meta
 
 Viewer
-- [ ] J11 (M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale, vitest for the untested views
+- [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views
 - [ ] J12 (M130) Cross-links: place and person link helpers; names, the family tree's card and type-scene verbs linked
 - [ ] J13 (M131) Shareable selections: the map's, the place pages', Compare's and the reader's selections in the URL; open sections kept on Back
 - [ ] J14 (M132) Speed: the reader and the map's labels memoised; the English page strings split by route

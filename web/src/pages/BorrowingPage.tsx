@@ -7,6 +7,7 @@ import { useLocale } from '../context/localeContext'
 import { sequenceLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
 
@@ -71,15 +72,16 @@ function BookPair({ p, name }: { p: BorrowingBookPair; name: (id: number) => str
   const { m } = useLocale()
   const t = m.bor
   const [src, dst] = p.direction === 'b_to_a' ? [p.b_book, p.a_book] : [p.a_book, p.b_book]
+  const label = p.direction === 'unclear' ? `${name(p.a_book)} ↔ ${name(p.b_book)}` : t.flow(name(src), name(dst))
   return (
     <details className="borrow-pair">
       <summary>
-        <strong>{p.direction === 'unclear' ? `${name(p.a_book)} ↔ ${name(p.b_book)}` : t.flow(name(src), name(dst))}</strong>
+        <strong>{label}</strong>
         {p.direction === 'unclear' && <span className="muted small"> · {t.unclear}</span>}
         {p.known && <span className="known-tag small">{t.accepted}</span>}
         <span className="muted small"> · {t.counts(p.sequences, p.direction === 'b_to_a' ? p.b_to_a : p.a_to_b, p.direction === 'b_to_a' ? p.a_to_b : p.b_to_a)}</span>
       </summary>
-      <div className="table-wrap">
+      <TableCsv name={`borrowing-${p.a_book}-${p.b_book}`} tabIndex={0} role="region" aria-label={label}>
         <table className="change-table">
           <thead>
             <tr>
@@ -98,7 +100,7 @@ function BookPair({ p, name }: { p: BorrowingBookPair; name: (id: number) => str
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </details>
   )
 }

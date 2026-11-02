@@ -9,6 +9,7 @@ import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import { TableCsv } from '../components/TableCsv'
 
 const PAGE_SIZE = 25
 const BASES: EchoBasis[] = ['cited', 'borrowed', 'language', 'conflict']
@@ -89,7 +90,7 @@ function BookTable({ books, name }: { books: EchoBook[]; name: (id: number) => s
     <section aria-label={t.booksTitle}>
       <h3>{t.booksTitle}</h3>
       <p className="muted small">{t.booksLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
+      <TableCsv name="directions-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
         <table className="rank-table">
           <thead>
             <tr>
@@ -112,7 +113,7 @@ function BookTable({ books, name }: { books: EchoBook[]; name: (id: number) => s
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
@@ -125,7 +126,7 @@ function SourceTable({ sources }: { sources: EchoChapter[] }) {
     <section aria-label={t.sourcesTitle}>
       <h3>{t.sourcesTitle}</h3>
       <p className="muted small">{t.sourcesLede}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.sourcesTitle}>
+      <TableCsv name="directions-2" tabIndex={0} role="region" aria-label={t.sourcesTitle}>
         <table className="rank-table">
           <thead>
             <tr>
@@ -154,7 +155,7 @@ function SourceTable({ sources }: { sources: EchoChapter[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableCsv>
     </section>
   )
 }
