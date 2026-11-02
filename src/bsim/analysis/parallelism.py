@@ -64,10 +64,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from bsim.analysis.psalms import title_mask
 from bsim.analysis.stats import bh_q, empirical_p, g2_table
 from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS, BY_OSIS
 from bsim.data.lexicon import strong_key
+from bsim.data.refs import RefIndex
 from bsim.lexical.morph import word_token
 from bsim.retrieve.topk import CSLS_SUFFIX, get_device
 from bsim.store.lexicon import lemma_parts_pos
@@ -330,6 +332,24 @@ def fit_model(x: np.ndarray, y: np.ndarray, c: float) -> Any:
     return make_pipeline(StandardScaler(), LogisticRegression(C=c, max_iter=1000)).fit(x, y)
 
 
+def unlabelled(cfg: dict[str, Any], verses: pd.DataFrame, words: pd.DataFrame) -> set[int]:
+    """Verses of the training books that are scored but not trained on (M125): the passages of
+    `unlabelled` (Job's prose frame, in the prose accents) and, with `mask_titles`, every verse
+    holding a psalm's superscription (`psalms.title_mask`: Ps 3:1 is all title)."""
+    pc = cfg["parallelism"]
+    index = RefIndex(verses)
+    out: set[int] = set()
+    for ref in pc["unlabelled"]:
+        a, b = index.resolve(ref)
+        out.update(range(a, b + 1))
+    if pc["mask_titles"]:
+        ps = verses[verses.book_id == BY_OSIS["Ps"].book_id][["verse_id", "chapter", "verse"]]
+        w = words.merge(ps, on="verse_id").sort_values(["verse_id", "idx"], kind="stable")
+        title = set(cfg["psalms"]["title_lemmas"])
+        out.update(int(v) for v in w.verse_id[title_mask(w, title)].unique())
+    return out
+
+
 def held_out_auc(df: pd.DataFrame, positive: list[str], c: float) -> dict[str, float]:
     """Leave one poetic book out (with a slice of the negatives) and score it."""
     from sklearn.metrics import roc_auc_score
@@ -414,7 +434,9 @@ def run_parallelism(cfg: dict[str, Any], log: Log = print, encode_fn: Encode | N
     unknown = [o for o in pos + neg if o not in BY_OSIS]
     if unknown:
         raise RuntimeError(f"parallelism: unknown books {unknown}")
-    train = df[df.osis.isin(pos + neg)].assign(y=lambda d: d.osis.isin(pos).astype(int))
+    held = unlabelled(cfg, verses, words)
+    train = df[df.osis.isin(pos + neg) & ~df.verse_id.isin(held)]
+    train = train.assign(y=lambda d: d.osis.isin(pos).astype(int))
     model = fit_model(train[list(FEATURES)].to_numpy(), train.y.to_numpy(), pc["C"])
     df["prob"] = model.predict_proba(df[list(FEATURES)].to_numpy())[:, 1]
     aucs = held_out_auc(train, pos, pc["C"])

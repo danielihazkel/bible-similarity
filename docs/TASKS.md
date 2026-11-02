@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M125: The poetry model's labels (§16.9; proposed J7)
+- [x] Scored, not trained on: Job 1:1–3:1 and 42:7–17 (`parallelism.unlabelled`, the prose accents) and every psalm verse holding a superscription (`mask_titles`, `psalms.title_mask`); 164 verses, 114 training rows (16,118 → 16,004)
+- [x] Simpler than planned: a verse with title words leaves training whole, rather than its title words being cut and its cola encoded again
+- [x] Held-out AUC Job 0.858 → 0.873, Ps 0.835 → 0.839, Prov unchanged; parallel members 4,464 → 4,401; word pairs 1,708 → 1,657
+- [x] Downstream (12 stages rerun): meter pool p 0.0067 → 0.0071, sayings in parallel lines 20.0 % → 19.4 %; no verdict changes
+
+✔ The poetic books' labels now match their accents.
+
 ## M124: The dialogue checks compare within books (§16.44, D121; proposed J6)
 - [x] Found by the audit: the statistic pooled rates over all books, the null shuffled within books, and the shuffles did not centre on 0 (נא: null −0.041, observed −0.013, p 0.001, verdict "not borne out")
 - [x] Rule written into DESIGN before the rerun: the difference of rates within each book, weighted by its "up" denominator (`dialogue.statistic: within_book`); a quotation with no known speaker out of the rank tests (`dialogue.known_speakers`; an unknown speaker had counted as rank 0)
@@ -1306,7 +1314,7 @@ Tooling
 Data and analysis
 - [x] J5 (done, M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check: 26 / 50 right, **not kept**
 - [x] J6 (done, M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
-- [ ] J7 (M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
+- [x] J7 (done, M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
 - [ ] J8 (M126) Four small misses: Ps 9's acrostic, citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
 
 Docs and evaluation
