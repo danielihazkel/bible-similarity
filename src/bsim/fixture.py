@@ -2469,6 +2469,49 @@ def write_sums(cfg):
     (out / "sums.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_vocabulary(cfg):
+    """The vocabulary over the canon (`bsim vocabulary`), made up: book 0 brings in 40 lemmas,
+    book 1 (late) 9 more than expected; ראשית (v0) a hapax, אלהים first in v0 and in two books."""
+    out = resolve_path(cfg, "artifacts") / "vocabulary"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "book_id": [0, 1],
+            "words": [100, 20],
+            "lemmas": [40, 15],
+            "new": [40, 9],
+            "new_per_k": [400.0, 450.0],
+            "expected": [38.5, 4.2],
+            "excess": [0.038, 0.647],
+            "novelty": [-0.2, 0.5],
+            "hapax": [3, 4],
+            "hapax_per_k": [30.0, 200.0],
+            "one_corpus": [10, 6],
+            "end_words": [100, 120],
+            "end_lemmas": [40, 49],
+            "period": ["early", "late"],
+        }
+    ).to_parquet(out / "books.parquet", index=False)
+    pd.DataFrame(
+        {
+            "lemma": ["7225", "430"],
+            "first_verse": [0, 0],
+            "first_tok": pd.array([0, 1], dtype="Int64"),
+            "n_words": [1, 5],
+            "n_books": [1, 2],
+            "section": ["Torah", None],
+            "counted": [True, True],
+            "hapax": [True, False],
+        }
+    ).to_parquet(out / "lemmas.parquet", index=False)
+    meta = {"words": 120, "lemmas": 49, "hapax": 7, "one_corpus": {"Torah": 10, "Prophets": 6},
+            "heaps_k": 5.3, "heaps_b": 0.56, "late_novelty": 0.5, "early_novelty": -0.2,
+            "difference": 0.7, "late_p": 0.5, "splits": 2, "late_holds": False,
+            "known": [{"book": "Gen", "book_id": 0, "rank": 2, "at_most": 1, "holds": False}],
+            "known_holds": False, "orders": 9, "alpha": 0.05}  # fmt: skip
+    (out / "vocabulary.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -2491,6 +2534,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_frameworks(cfg)
     write_binomials(cfg)
     write_sums(cfg)
+    write_vocabulary(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

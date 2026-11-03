@@ -261,6 +261,14 @@ def sums(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def vocabulary(config: ConfigOpt = None) -> None:
+    """The vocabulary over the canon: new lemmas per book against Heaps' law, hapax, first uses."""
+    from bsim.analysis.vocabulary import run_vocabulary
+
+    run_vocabulary(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

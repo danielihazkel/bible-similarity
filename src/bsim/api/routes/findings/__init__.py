@@ -33,6 +33,7 @@ from bsim.api.routes.findings.language import (
     _echoes,
     _pentateuch,
     _root_leitworte,
+    _vocabulary,
     _voices,
 )
 from bsim.api.routes.findings.narrative import (
@@ -130,6 +131,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _binomials("binomials_known"),
     _sums("sums_lists"),
     _sums("sums_parallels"),
+    _vocabulary("vocabulary_late"),
+    _vocabulary("vocabulary_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

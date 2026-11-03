@@ -44,6 +44,7 @@ from bsim.api.models.core import (
     WordDetail,
     WordRef,
 )
+from bsim.api.models.vocabulary import LemmaFirst
 from bsim.api.resolve import resolve as resolve_ref
 from bsim.api.routes._common import (
     BookFilter,
@@ -411,6 +412,24 @@ def words(verse_id: int, state: State, conn: Conn) -> list[WordDetail]:
     ]
 
 
+def _first(state: Any, conn: Any, lemma: str) -> LemmaFirst | None:
+    """A lemma's first occurrence and spread, when `bsim vocabulary` ran."""
+    if not state.present(conn, "vocabulary_lemmas"):
+        return None
+    r = queries.vocabulary_lemma(conn, lemma)
+    verse = queries.verses_by_id(conn, [r["first_verse"]]).get(r["first_verse"]) if r else None
+    if r is None or verse is None:
+        return None
+    return LemmaFirst(
+        first_verse=verse,
+        first_tok=r["first_tok"],
+        n_books=r["n_books"],
+        section=r["section"],
+        counted=bool(r["counted"]),
+        hapax=bool(r["hapax"]),
+    )
+
+
 @router.get("/lemma/{lemma}", response_model=ConcordanceResponse)
 def lemma(
     lemma: str,
@@ -441,6 +460,7 @@ def lemma(
         "n_verses": stats["n_verses"],
         "by_book": [BookCount(**b) for b in by_book],
         "book": book,
+        "first": _first(state, conn, lemma),
         "total": total,
         "offset": offset,
         "limit": limit,

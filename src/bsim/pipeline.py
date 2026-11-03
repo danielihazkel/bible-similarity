@@ -432,6 +432,12 @@ def stage_sums(cfg: dict[str, Any], log: Log) -> None:
     run_sums(cfg, log=log)
 
 
+def stage_vocabulary(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.vocabulary import run_vocabulary
+
+    run_vocabulary(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -523,6 +529,7 @@ STAGES: dict[str, str] = {
     "frameworks": "stage_frameworks",
     "binomials": "stage_binomials",
     "sums": "stage_sums",
+    "vocabulary": "stage_vocabulary",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -603,6 +610,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "frameworks": (*_CORPUS,),
     "binomials": (*_CORPUS,),
     "sums": (*_CORPUS, "build-links", "build-golds", "sequences"),
+    "vocabulary": (*_CORPUS,),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (

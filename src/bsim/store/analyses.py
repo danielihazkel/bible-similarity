@@ -1079,6 +1079,34 @@ SOURCES: tuple[Source, ...] = (
         ),  # fmt: skip
     ),
     Source(
+        "vocabulary",
+        "vocabulary",
+        (
+            Table("vocabulary_books", "books"),
+            Table("vocabulary_lemmas", "lemmas", fix=as_int("counted", "hapax")),
+        ),
+        "vocabulary.meta.json",
+        keys(
+            "vocabulary",
+            "words",
+            "lemmas",
+            "hapax",
+            "one_corpus",
+            "heaps_k",
+            "heaps_b",
+            "late_novelty",
+            "early_novelty",
+            "difference",
+            "late_p",
+            "splits",
+            "late_holds",
+            "known",
+            "known_holds",
+            "orders",
+            "alpha",
+        ),  # fmt: skip
+    ),
+    Source(
         "masorah",
         "masorah",
         (

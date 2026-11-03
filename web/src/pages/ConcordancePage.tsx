@@ -42,6 +42,13 @@ export function ConcordancePage() {
       <p className="lede">
         {m.concordance.occurrences(c.n_words, c.n_verses, c.by_book.length)}
       </p>
+      {c.first && (
+        <p className="muted small conc-first">
+          <Link to={unitLink(`v:${c.first.first_verse.verse_id}`)}>{m.vc.first(locale === 'he' ? c.first.first_verse.ref_he : c.first.first_verse.ref)}</Link>
+          {c.first.section && ` · ${m.vc.firstSection[c.first.section]}`}
+          {c.first.hapax && ` · ${m.vc.hapaxNote}`}
+        </p>
+      )}
 
       <section aria-label={m.concordance.byBook}>
         <h2>{m.concordance.byBook}</h2>

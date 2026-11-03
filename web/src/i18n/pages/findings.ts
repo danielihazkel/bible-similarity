@@ -333,6 +333,16 @@ export const findEn = {
       text: (v: V) =>
         `Of ${numEn(n(v, 'tested'))} numbers that differ between parallel verses in different books, ${numEn(n(v, 'one_step'))} (${pct(n(v, 'share'))}) are a power of ten or one decimal place apart (40,000 / 4,000; 18 / 8), against ${pct(n(v, 'expected'))} with the second number drawn from its book (p ${fp(n(v, 'p'))}).`,
     },
+    vocabulary_late: {
+      title: 'The late books bring in more new words',
+      text: (v: V) =>
+        `Each book’s new lemmas against what Heaps’ law predicts for its length, averaged over random orders of the books: the late books’ mean ${x2(n(v, 'late_novelty'))} against the early books’ ${x2(n(v, 'early_novelty'))}, compared with every one of the ${numEn(n(v, 'splits'))} ways to split those books into two such sets (p ${fp(n(v, 'late_p'))}).`,
+    },
+    vocabulary_known: {
+      title: 'Job and the Song rich in words found once',
+      text: (v: V) =>
+        `By words found once in the Bible per 1,000 words, Job ranks ${numEn(n(v, 'rank_0'))} (expected in the first ${numEn(n(v, 'at_most_0'))}) and the Song of Songs ${numEn(n(v, 'rank_1'))} (in the first ${numEn(n(v, 'at_most_1'))}).`,
+    },
     frameworks_cycle: {
       title: 'The judges’ cycle breaks down through the book',
       text: (v: V) =>

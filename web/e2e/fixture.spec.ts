@@ -132,6 +132,7 @@ const PAGES = [
   '/binomials?pair=2091%2B3701&show=both&order=turned',
   '/sums',
   '/sums?list=ezra2&scope=every&step=yes',
+  '/vocabulary',
   '/compare?a=v%3A0&b=v%3A1&marks=meaning',
   '/synopses',
   '/synopses/1',
@@ -686,6 +687,19 @@ test('sums: the checks, a list opened, the parallels filtered', async ({ page })
   await expect(page.locator('li.sm-parallel')).toHaveCount(1)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+})
+
+test('vocabulary: the checks, the novelty chart, a lemma’s first use', async ({ page }) => {
+  await page.goto('/vocabulary')
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(2)
+  await expect(page.locator('svg.vc-chart g.vc-row')).toHaveCount(2)
+  await page.locator('svg.vc-chart g.vc-row').nth(1).hover()
+  await expect(page.locator('.vc-readout')).toContainText('9 new lemmas')
+  await expect(page.locator('table.vc-table tbody tr')).toHaveCount(2)
+  await page.goto('/lemma/7225')
+  await expect(page.locator('.conc-first')).toContainText('found once in the Bible')
+  await page.locator('.conc-first a').click()
+  await expect(page).toHaveURL(/\/unit\/v%3A0/)
 })
 
 test('synopses: two chains joined into three columns, marked against a chosen one', async ({ page }) => {

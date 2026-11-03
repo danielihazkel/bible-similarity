@@ -59,6 +59,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   binomials_known: { to: '/binomials?pair=2091%2B3701', nav: 'binomials' },
   sums_lists: { to: '/sums', nav: 'sums' },
   sums_parallels: { to: '/sums?step=yes', nav: 'sums' },
+  vocabulary_late: { to: '/vocabulary', nav: 'vocabulary' },
+  vocabulary_known: { to: '/vocabulary', nav: 'vocabulary' },
   ciphers_known: { to: '/ciphers?known=1', nav: 'ciphers' },
   ciphers_jeremiah: { to: '/ciphers', nav: 'ciphers' },
   ciphers_elsewhere: { to: '/ciphers', nav: 'ciphers' },

@@ -39,6 +39,7 @@ import type {
   SumsItemsResponse,
   SumsParallelsResponse,
   SumsResponse,
+  VocabularyResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -777,6 +778,9 @@ export const useSumsItems = (key: string) =>
     queryFn: ({ signal }) => getJson<SumsItemsResponse>('/sums/items', { key }, signal),
     ...forever,
   })
+
+export const useVocabulary = () =>
+  useQuery({ queryKey: ['vocabulary'], queryFn: ({ signal }) => getJson<VocabularyResponse>('/vocabulary', {}, signal), ...forever })
 
 export interface SumsParallelsQuery {
   across: boolean

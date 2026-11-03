@@ -16,6 +16,7 @@ const NotebookPage = lazy(() => import('./pages/NotebookPage').then((m) => ({ de
 const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default: m.QueryPage })))
 const BinomialsPage = lazy(() => import('./pages/BinomialsPage').then((m) => ({ default: m.BinomialsPage })))
 const SumsPage = lazy(() => import('./pages/SumsPage').then((m) => ({ default: m.SumsPage })))
+const VocabularyPage = lazy(() => import('./pages/VocabularyPage').then((m) => ({ default: m.VocabularyPage })))
 const FrameworksPage = lazy(() => import('./pages/FrameworksPage').then((m) => ({ default: m.FrameworksPage })))
 const ChronologyPage = lazy(() => import('./pages/ChronologyPage').then((m) => ({ default: m.ChronologyPage })))
 const HaftarotPage = lazy(() => import('./pages/HaftarotPage').then((m) => ({ default: m.HaftarotPage })))
@@ -132,6 +133,7 @@ export function App() {
           <Route path="frameworks" element={<FrameworksPage />} />
           <Route path="binomials" element={<BinomialsPage />} />
           <Route path="sums" element={<SumsPage />} />
+          <Route path="vocabulary" element={<VocabularyPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />

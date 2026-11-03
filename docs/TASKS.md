@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M134: The vocabulary over the canon (§16.76, D124; proposed K4)
+- [x] `bsim vocabulary` (`analysis/vocabulary.py`, after sums, 5 s): each book's new lemmas in canon order against Heaps' law, its novelty over 999 random book orders, hapax and lemmas of one corpus; Hebrew common words only; the claims and known answers fixed in config before the first run
+- [x] DB `vocabulary_books`, `vocabulary_lemmas` (+ `meta.vocabulary`); API `/vocabulary`, and `first` on `/lemma/{lemma}` (a lemma's first use, one corpus, hapax); findings `vocabulary_late`, `vocabulary_known`
+- [x] Viewer: Patterns → Words and names → Vocabulary (`/vocabulary`): the checks, each book's novelty as bars (colours validated for colour blindness, legend, read-out on hover and focus), a table; the first use on the concordance; English and Hebrew
+- [x] Tests: counted words, the Heaps fit, the walk and the excess, a small canon end to end, the endpoints, the concordance's first use and the findings (pytest); the checks, the chart and its read-out, the table, Hebrew, the concordance line (vitest); e2e on the fixture and the smoke list
+
+✔ The late books bring in more new words than their length and place predict (−0.31 against −0.56, p 0.042). Job is not among the three richest books in words found once (fifth, behind Song, Nahum, Habakkuk, Lamentations): by rate, short poems lead.
+
 ## M133: Do the sums add up? (§16.75, D123; proposed K1)
 - [x] `bsim sums` (`analysis/sums.py`, after binomials, 7 s): 13 lists against their stated totals; the numbers of parallel verses (sequences, ETCBC, Sefaria) aligned by unit, one step apart or not, against numbers drawn from the book; the claims and known answers fixed in config before the first run; two changes after it, both runs reported (the reader and the ordinals; pairs across books)
 - [x] Chronology's number reader extended (a smaller number after a hundred adds, a thousand multiplies only the groups since the last, the pointed dual, כאחד); chronology's and frameworks' outputs byte-identical
@@ -1401,7 +1409,7 @@ Analyses
 - [x] K1 (done, M133) Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
 - [ ] K2 Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
 - [ ] K3 Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
-- [ ] K4 Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
+- [x] K4 (done, M134) Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
 
 Tools
 - [ ] K5 Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7

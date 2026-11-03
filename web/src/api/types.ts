@@ -925,6 +925,8 @@ export type FindingKey =
   | 'binomials_known'
   | 'sums_lists'
   | 'sums_parallels'
+  | 'vocabulary_late'
+  | 'vocabulary_known'
 
 export type Finding = S['Finding']
 
@@ -1319,6 +1321,11 @@ export type SumsItem = S['SumsItem']
 export type SumsItemsResponse = S['SumsItemsResponse']
 export type SumsParallel = S['SumsParallel']
 export type SumsParallelsResponse = S['SumsParallelsResponse']
+
+// The vocabulary over the canon (`/vocabulary`, DESIGN.md §16.76).
+export type VocabularyBook = S['VocabularyBook']
+export type VocabularyResponse = S['VocabularyResponse']
+export type LemmaFirst = S['LemmaFirst']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

@@ -11,7 +11,7 @@ const BOOKS: Book[] = [
   { book_id: 0, name: 'Genesis', he_name: 'בראשית', osis: 'Gen', section: 'Torah', n_chapters: 50 },
   { book_id: 26, name: 'Psalms', he_name: 'תהילים', osis: 'Ps', section: 'Writings', n_chapters: 150 },
 ]
-const conc = (book: string | null): ConcordanceResponse => ({
+const conc = (book: string | null, first: ConcordanceResponse['first'] = null): ConcordanceResponse => ({
   lemma: '7225',
   he_lemma: 'ראשית',
   n_words: 51,
@@ -21,6 +21,7 @@ const conc = (book: string | null): ConcordanceResponse => ({
     { book_id: 26, n_verses: 3 },
   ],
   book: book === null ? null : Number(book),
+  first,
   total: book === null ? 50 : 3,
   offset: 0,
   limit: 50,
@@ -44,7 +45,7 @@ const conc = (book: string | null): ConcordanceResponse => ({
   ],
 })
 
-function mockApi(resolved: ResolveResponse['unit'] = null) {
+function mockApi(resolved: ResolveResponse['unit'] = null, first: ConcordanceResponse['first'] = null) {
   const calls: string[] = []
   vi.stubGlobal(
     'fetch',
@@ -55,7 +56,7 @@ function mockApi(resolved: ResolveResponse['unit'] = null) {
         u.pathname === '/api/books'
           ? BOOKS
           : u.pathname === '/api/lemma/7225'
-            ? conc(u.searchParams.get('book'))
+            ? conc(u.searchParams.get('book'), first)
             : u.pathname === '/api/resolve'
               ? { query: u.searchParams.get('q'), unit: resolved }
               : null
@@ -99,6 +100,15 @@ describe('ConcordancePage', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Psalms/ }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/lemma/7225?book=26'))
     await waitFor(() => expect(calls.some((c) => c.includes('book=26'))).toBe(true))
+  })
+
+  it('says where the lemma is first used, and when it is found once', async () => {
+    const verse = conc(null).items[0].verse
+    mockApi(null, { first_verse: verse, first_tok: 0, n_books: 1, section: 'Torah', counted: true, hapax: true })
+    renderAt('/lemma/7225')
+    const line = await screen.findByText(/First used in/)
+    expect(line.getAttribute('href')).toBe('/unit/v%3A0')
+    expect(line.closest('p')!.textContent).toBe('First used in Genesis 1:1 · found in the Torah only · found once in the Bible')
   })
 })
 

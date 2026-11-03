@@ -17,6 +17,7 @@ from bsim.api.models.common import (
     UnitType,
     Verse,
 )
+from bsim.api.models.vocabulary import LemmaFirst
 
 Mode = Literal["lexical", "semantic", "fused", "structural", "domain", "syntax"]
 
@@ -182,6 +183,7 @@ class ConcordanceResponse(Page[ConcordanceHit]):
     n_verses: int
     by_book: list[BookCount]  # canon order, books without it left out
     book: int | None
+    first: LemmaFirst | None = None  # its place in the vocabulary (`bsim vocabulary`; None without)
 
 
 class Meta(ApiModel):

@@ -146,6 +146,7 @@ INDEXES = (
     "CREATE INDEX binomial_occurrences_by_pair ON binomial_occurrences (pair, own)",
     "CREATE INDEX sums_items_by_key ON sums_items (key, verse_id)",
     "CREATE INDEX sums_parallels_by_book ON sums_parallels (a_book, b_book)",
+    "CREATE UNIQUE INDEX vocabulary_lemmas_by_lemma ON vocabulary_lemmas (lemma)",
     # /gematria: what has a value, in each system
     *(
         f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"

@@ -299,6 +299,7 @@ from bsim.api.queries.syntax import (
     voice_pairs,
     voice_speakers,
 )
+from bsim.api.queries.vocabulary import vocabulary_books, vocabulary_lemma
 from bsim.api.queries.workbench import (
     book_sections,
     value_labels,
@@ -537,6 +538,8 @@ __all__ = [
     "verse_links",
     "verse_range",
     "verses_by_id",
+    "vocabulary_books",
+    "vocabulary_lemma",
     "voice_features",
     "voice_pairs",
     "voice_speakers",

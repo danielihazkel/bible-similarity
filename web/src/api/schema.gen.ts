@@ -2540,6 +2540,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/vocabulary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vocabulary
+         * @description Every book's vocabulary in canon order, and the checks (503: the stage did not run).
+         */
+        get: operations["vocabulary_api_vocabulary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -4402,6 +4422,7 @@ export interface components {
             by_book: components["schemas"]["BookCount"][];
             /** Book */
             book: number | null;
+            first: components["schemas"]["LemmaFirst"] | null;
         };
         /** Conflict */
         Conflict: {
@@ -5622,7 +5643,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known";
             /**
              * Verdict
              * @enum {string}
@@ -6415,6 +6436,19 @@ export interface components {
             /** Holds */
             holds: boolean;
         };
+        /** KnownRare */
+        KnownRare: {
+            /** Book */
+            book: string;
+            /** Book Id */
+            book_id: number;
+            /** Rank */
+            rank: number | null;
+            /** At Most */
+            at_most: number;
+            /** Holds */
+            holds: boolean;
+        };
         /** KnownRetelling */
         KnownRetelling: {
             /** Source */
@@ -6718,6 +6752,23 @@ export interface components {
             occurrences: {
                 [key: string]: number[];
             };
+        };
+        /**
+         * LemmaFirst
+         * @description A lemma's place in the vocabulary (`bsim vocabulary`), on its concordance.
+         */
+        LemmaFirst: {
+            first_verse: components["schemas"]["Verse"];
+            /** First Tok */
+            first_tok: number | null;
+            /** N Books */
+            n_books: number;
+            /** Section */
+            section: ("Torah" | "Prophets" | "Writings") | null;
+            /** Counted */
+            counted: boolean;
+            /** Hapax */
+            hapax: boolean;
         };
         /** LemmaForm */
         LemmaForm: {
@@ -10207,6 +10258,76 @@ export interface components {
             ref_he: string;
             /** Clauses */
             clauses: components["schemas"]["ClauseInfo"][];
+        };
+        /** VocabularyBook */
+        VocabularyBook: {
+            /** Book Id */
+            book_id: number;
+            /** Words */
+            words: number;
+            /** Lemmas */
+            lemmas: number;
+            /** New */
+            new: number;
+            /** New Per K */
+            new_per_k: number;
+            /** Expected */
+            expected: number;
+            /** Excess */
+            excess: number;
+            /** Novelty */
+            novelty: number;
+            /** Hapax */
+            hapax: number;
+            /** Hapax Per K */
+            hapax_per_k: number;
+            /** One Corpus */
+            one_corpus: number;
+            /** End Words */
+            end_words: number;
+            /** End Lemmas */
+            end_lemmas: number;
+            /** Period */
+            period: ("early" | "late") | null;
+        };
+        /** VocabularyResponse */
+        VocabularyResponse: {
+            /** Words */
+            words: number;
+            /** Lemmas */
+            lemmas: number;
+            /** Hapax */
+            hapax: number;
+            /** One Corpus */
+            one_corpus: {
+                [key: string]: number;
+            };
+            /** Heaps K */
+            heaps_k: number;
+            /** Heaps B */
+            heaps_b: number;
+            /** Late Novelty */
+            late_novelty: number;
+            /** Early Novelty */
+            early_novelty: number;
+            /** Difference */
+            difference: number;
+            /** Late P */
+            late_p: number;
+            /** Splits */
+            splits: number;
+            /** Late Holds */
+            late_holds: boolean;
+            /** Known */
+            known: components["schemas"]["KnownRare"][];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Orders */
+            orders: number;
+            /** Alpha */
+            alpha: number;
+            /** Books */
+            books: components["schemas"]["VocabularyBook"][];
         };
         /** VoiceChapter */
         VoiceChapter: {
@@ -14186,6 +14307,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    vocabulary_api_vocabulary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VocabularyResponse"];
                 };
             };
         };

@@ -71,6 +71,7 @@ export const NAV: NavEntry[] = [
       items: [
         { to: '/roots', key: 'roots' },
         { to: '/binomials', key: 'binomials' },
+        { to: '/vocabulary', key: 'vocabulary' },
         { to: '/domains', key: 'domains' },
         { to: '/names', key: 'names' },
         { to: '/divine', key: 'divine' },

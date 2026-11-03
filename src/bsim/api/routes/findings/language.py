@@ -173,3 +173,26 @@ def _dialogue(key: str, test: str) -> Callable[[Meta, sqlite3.Connection, float]
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
+
+def _vocabulary(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """The vocabulary over the canon: the late books bring in more new words than their length
+    and place predict (novelty: the excess over Heaps' law, averaged over random book orders);
+    Job and the Song among the books richest in words found once."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        v = meta.get("vocabulary") or {}
+        if not v.get("words"):
+            return None
+        if key == "vocabulary_late":
+            values = {k: v.get(k) for k in ("late_novelty", "early_novelty", "difference",
+                                            "late_p", "splits")}  # fmt: skip
+            holds = bool(v.get("late_holds"))
+        else:
+            known = v.get("known") or []
+            values = {f"rank_{i}": k.get("rank") for i, k in enumerate(known)}
+            values |= {f"at_most_{i}": k.get("at_most") for i, k in enumerate(known)}
+            holds = bool(v.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build

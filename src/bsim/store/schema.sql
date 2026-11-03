@@ -1831,6 +1831,35 @@ CREATE TABLE sums_parallels (
     b_tok_last INTEGER
 );
 
+-- the vocabulary over the canon (`bsim vocabulary`, §16.76)
+CREATE TABLE vocabulary_books (
+    book_id INTEGER PRIMARY KEY,
+    words INTEGER NOT NULL,         -- counted words: Hebrew, not proper names
+    lemmas INTEGER NOT NULL,        -- distinct content lemmas among them
+    new INTEGER NOT NULL,           -- lemmas found in no book before it (canon order)
+    new_per_k REAL NOT NULL,        -- ... per 1,000 words
+    expected REAL NOT NULL,         -- new lemmas by Heaps' law, canon order
+    excess REAL NOT NULL,           -- log((new + 1) / (expected + 1))
+    novelty REAL NOT NULL,          -- the mean excess over random book orders
+    hapax INTEGER NOT NULL,         -- words whose lemma is found once in the canon
+    hapax_per_k REAL NOT NULL,
+    one_corpus INTEGER NOT NULL,    -- its lemmas found in its corpus (Torah, Prophets, Writings) only
+    end_words INTEGER NOT NULL,     -- the canon's words and vocabulary at the book's end
+    end_lemmas INTEGER NOT NULL,
+    period TEXT                     -- early | late (dating), else NULL
+);
+
+CREATE TABLE vocabulary_lemmas (
+    lemma TEXT NOT NULL,            -- every content lemma, names and Aramaic too
+    first_verse INTEGER NOT NULL,   -- its first occurrence in canon order
+    first_tok INTEGER,              -- ... its display token
+    n_words INTEGER NOT NULL,
+    n_books INTEGER NOT NULL,
+    section TEXT,                   -- Torah | Prophets | Writings when found in one only
+    counted INTEGER NOT NULL,       -- 1: in the counted vocabulary (Hebrew, not a name)
+    hapax INTEGER NOT NULL          -- 1: counted, and found once
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

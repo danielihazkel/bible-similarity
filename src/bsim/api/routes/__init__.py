@@ -50,6 +50,7 @@ from bsim.api.routes import (
     sums,
     synopsis,
     syntax,
+    vocabulary,
     workbench,
 )
 
@@ -92,6 +93,7 @@ for _module in (
     frameworks,
     binomials,
     sums,
+    vocabulary,
     els,
     places,
     genealogy,

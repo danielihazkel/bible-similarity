@@ -53,6 +53,9 @@
   --gt-cross: #3f7cac;
   --gt-avatar: #efe5d3; /* the family tree's avatars (D103) */
   --gt-avatar-ink: #3d3224;
+  --vc-early: #2f6fb0; /* vocabulary chart (§16.76): validated pair, CVD ΔE 21 */
+  --vc-late: #c0571a;
+  --vc-other: #d9cdb8;
   --gt-ring: #ddcfb6;
   --gt-dot-f: #8a5a7a;
   --gt-line: #a8957a;
@@ -122,6 +125,9 @@
     --gt-cross: #6aa6d6;
     --gt-avatar: #3a3226;
     --gt-avatar-ink: #eadfcb;
+    --vc-early: #5b97dc;
+    --vc-late: #d9733a;
+    --vc-other: #5e5446;
     --gt-ring: #4d4334;
     --gt-dot-f: #d7a3c4;
     --gt-line: #7c6d58;
@@ -3527,6 +3533,23 @@ line.ch-sync:hover { stroke-width: 3.5; }
 .sm-known a, .sm-parallel .hit-text a { text-decoration: underline; }
 .sm-total { border-top: 1px solid var(--border); padding-top: 0.4rem; }
 .sm-parallel .hit-text .verse-ref { margin-inline-end: 0.4rem; }
+/* the vocabulary over the canon (§16.76) */
+.vc-chart { display: block; width: 100%; max-width: 560px; height: auto; }
+.vc-chart .axis { font-size: 10px; fill: var(--muted); }
+.vc-chart .chart-zero { stroke: var(--text); stroke-width: 1; }
+.vc-hit { fill: transparent; }
+.vc-row:focus { outline: none; }
+.vc-row.on .vc-hit, .vc-row:focus-visible .vc-hit { fill: var(--accent-soft); }
+.vc-bar { stroke: var(--surface); stroke-width: 1; }
+.vc-bar.vc-early, .vc-swatch.vc-early { fill: var(--vc-early); background: var(--vc-early); }
+.vc-bar.vc-late, .vc-swatch.vc-late { fill: var(--vc-late); background: var(--vc-late); }
+.vc-bar.vc-other, .vc-swatch.vc-other { fill: var(--vc-other); background: var(--vc-other); }
+.vc-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; list-style: none; margin: 0.3rem 0; padding: 0; font-size: 0.9rem; }
+.vc-legend li { display: inline-flex; align-items: center; gap: 0.35rem; }
+.vc-swatch { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; margin-inline-end: 0.3rem; vertical-align: -1px; }
+.vc-legend .vc-swatch { margin-inline-end: 0; }
+.vc-readout { min-height: 1.3em; margin: 0.2rem 0; }
+.vc-known { margin: 0; padding-inline-start: 1.1rem; }
 
 /* the home page's Explore panel: every menu group and its pages with their hints */
 .explore-groups {
