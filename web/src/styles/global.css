@@ -3520,6 +3520,13 @@ line.ch-sync:hover { stroke-width: 3.5; }
 .bn-table tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
 .bn-panel { margin-bottom: 1rem; }
 .bn-panel h4 { font-size: 0.95rem; margin: 0.6rem 0 0.2rem; }
+/* do the sums add up (§16.75) */
+.sm-table tr.sm-off td { font-weight: 600; }
+.sm-panel { margin-bottom: 1rem; }
+.sm-known { margin: 0; padding-inline-start: 1.1rem; }
+.sm-known a, .sm-parallel .hit-text a { text-decoration: underline; }
+.sm-total { border-top: 1px solid var(--border); padding-top: 0.4rem; }
+.sm-parallel .hit-text .verse-ref { margin-inline-end: 0.4rem; }
 
 /* the home page's Explore panel: every menu group and its pages with their hints */
 .explore-groups {

@@ -44,7 +44,14 @@ from bsim.api.routes.findings.narrative import (
     _haftarot,
     _retold,
 )
-from bsim.api.routes.findings.numbers import _chronology, _ciphers, _els, _gematria_links, _masorah
+from bsim.api.routes.findings.numbers import (
+    _chronology,
+    _ciphers,
+    _els,
+    _gematria_links,
+    _masorah,
+    _sums,
+)
 from bsim.api.routes.findings.places import _place_arc, _place_links, _place_lists
 from bsim.api.routes.findings.poetry import (
     _acrostics,
@@ -121,6 +128,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _binomials("binomials_short"),
     _binomials("binomials_late"),
     _binomials("binomials_known"),
+    _sums("sums_lists"),
+    _sums("sums_parallels"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

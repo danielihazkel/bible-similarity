@@ -39,6 +39,7 @@ import { brkEn } from './pages/brackets'
 import { rtEn } from './pages/retold'
 import { hfEn } from './pages/haftarot'
 import { chEn } from './pages/chronology'
+import { smEn } from './pages/sums'
 import { fwEn } from './pages/frameworks'
 import { bnEn } from './pages/binomials'
 import { wbEn } from './pages/workbench'
@@ -138,6 +139,7 @@ export const en = {
     binomials: { label: 'Word pairs', hint: 'Pairs joined by \u2068ו\u2069 in a set order (\u2068שמים וארץ\u2069): the shorter first, the late books’ turns' },
     frameworks: { label: 'Narrative frameworks', hint: 'The judges’ cycle slot by slot, and every king’s verdict and regnal formula' },
     chronology: { label: 'Chronology', hint: 'The years from Adam as the verses count them, and the two kingdoms’ reigns against their synchronisms' },
+    sums: { label: 'Do the sums add up?', hint: 'Lists against the totals the text states (Num 1, Ezra 2), and the numbers of parallel passages' },
     els: { label: 'Letters at equal skips', hint: 'Names at equal skips in the Torah, counted against shuffles: no codes' },
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
@@ -526,6 +528,7 @@ export const en = {
   ch: chEn,
   fw: fwEn,
   bn: bnEn,
+  sm: smEn,
   wb: wbEn,
   nb: nbEn,
   echo: echoEn,

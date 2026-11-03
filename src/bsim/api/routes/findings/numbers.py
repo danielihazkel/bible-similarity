@@ -151,3 +151,29 @@ def _chronology(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
+
+def _sums(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Do the sums add up: the lists named in advance add up, or fail to, as known (Num 1's
+    603,550; Ezra 2's 29,818 against 42,360); the numbers of parallel verses that differ are one
+    step apart (a power of ten, one decimal place) more often than numbers drawn from the book."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        s = meta.get("sums") or {}
+        if not s.get("lists"):
+            return None
+        if key == "sums_lists":
+            values = {"lists": s.get("lists"), "adding_up": s.get("lists_adding_up")}
+            for r in conn.execute("SELECT key, sum, total FROM sums_lists WHERE key IN"
+                                  " ('num1', 'ezra2')"):  # fmt: skip
+                values |= {f"{r[0]}_sum": r[1], f"{r[0]}_total": r[2]}
+            holds = bool(s.get("lists_holds"))
+        else:
+            a = s.get("across") or {}
+            if not a.get("tested"):
+                return None
+            values = {k: a.get(k) for k in ("tested", "one_step", "share", "expected", "p")}
+            holds = bool(s.get("step_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build

@@ -132,10 +132,10 @@ def corpus(tmp_path):
     proc.mkdir()
     pd.DataFrame({"verse_id": range(8), "book_id": 0, "chapter": 1,
                   "verse": range(1, 9)}).to_parquet(proc / "verses.parquet")  # fmt: skip
-    rows = [(v, i, lem, mo, i) for v, w in enumerate(words) for i, (lem, mo) in enumerate(w)]
-    pd.DataFrame(rows, columns=["verse_id", "idx", "lemma", "morph", "display_idx"]).to_parquet(
-        proc / "words.parquet"
-    )
+    rows = [(v, i, lem, mo, i, "") for v, w in enumerate(words) for i, (lem, mo) in enumerate(w)]
+    pd.DataFrame(
+        rows, columns=["verse_id", "idx", "lemma", "morph", "display_idx", "surface"]
+    ).to_parquet(proc / "words.parquet")
     cfg = load_config()
     cfg["paths"] = {**cfg["paths"], "data_processed": str(proc),
                     "artifacts": str(tmp_path / "artifacts")}  # fmt: skip

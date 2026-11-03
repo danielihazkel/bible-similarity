@@ -923,6 +923,8 @@ export type FindingKey =
   | 'binomials_short'
   | 'binomials_late'
   | 'binomials_known'
+  | 'sums_lists'
+  | 'sums_parallels'
 
 export type Finding = S['Finding']
 
@@ -1308,6 +1310,15 @@ export type Binomial = S['Binomial']
 export type BinomialOccurrence = S['BinomialOccurrence']
 export type BinomialsResponse = S['BinomialsResponse']
 export type BinomialOccurrencesResponse = S['BinomialOccurrencesResponse']
+
+// Do the sums add up (`/sums`, DESIGN.md §16.75).
+export type SumsList = S['SumsList']
+export type SumsTest = S['SumsTest']
+export type SumsResponse = S['SumsResponse']
+export type SumsItem = S['SumsItem']
+export type SumsItemsResponse = S['SumsItemsResponse']
+export type SumsParallel = S['SumsParallel']
+export type SumsParallelsResponse = S['SumsParallelsResponse']
 
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'

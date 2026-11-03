@@ -284,6 +284,7 @@ from bsim.api.queries.senses import (
     lemma_shift,
     shifts_page,
 )
+from bsim.api.queries.sums import sums_items, sums_lists, sums_parallels_page
 from bsim.api.queries.syntax import (
     dialogue_targets,
     speaker_chapters,
@@ -516,6 +517,9 @@ __all__ = [
     "stylo_delta",
     "stylo_features",
     "stylo_points",
+    "sums_items",
+    "sums_lists",
+    "sums_parallels_page",
     "surfaces",
     "synopsis_chains",
     "syntax_neighbors",

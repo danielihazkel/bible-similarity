@@ -42,6 +42,7 @@ tok_last`) and `chronology.meta.json`.
 
 from __future__ import annotations
 
+import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -60,7 +61,12 @@ from bsim.data.refs import RefIndex
 Log = Callable[[str], None]
 YEAR, AGE_OF = "8141", {"1121", "1323"}  # שנה; בן, בת
 UNITS = {"8141": "year", "2320": "month", "3391": "month", "3117": "day"}
+ONE = "259"  # אחד
 DUALS = {"3967", "505"}  # מאתים, אלפים
+# the dual's ending: patach, yod, hiriq, final mem
+DUAL_ENDING = "".join(map(chr, (0x05B7, 0x05D9, 0x05B4, 0x05DD)))
+# accents, dagesh and meteg: dropped before the ending is matched
+MARKS = re.compile(f"[{chr(0x0591)}-{chr(0x05AF)}{chr(0x05BC)}{chr(0x05BD)}]")
 KINGDOMS = ("judah", "israel")
 RULES = ("accession", "non-accession")
 
@@ -71,6 +77,8 @@ class Word:
     code: str  # its morphology code
     conj: bool  # carries ו
     tok: int | None  # display index
+    pointed_dual: bool = False  # pointed as a dual (אַלְפַּיִם, which OSHB tags plural)
+    like: bool = False  # carries כ (כאחד, "as one", is not a number)
 
 
 @dataclass(frozen=True)
@@ -82,19 +90,21 @@ class Phrase:
     last: int
 
 
-def words_of(lemma: str, morph: str, tok: int | None) -> Word:
+def words_of(lemma: str, morph: str, tok: int | None, surface: str = "") -> Word:
     parts = [(p.split() or [""])[0] for p in str(lemma).split("/")]  # `1121 a`: the homonym dropped
     codes = morph[1:].split("/") if isinstance(morph, str) and morph else []
     k = len(parts) - 1
-    return Word(parts[k], codes[k] if k < len(codes) else "", "c" in parts[:k], tok)
+    pointed = MARKS.sub("", str(surface or "")).endswith(DUAL_ENDING)
+    return Word(parts[k], codes[k] if k < len(codes) else "", "c" in parts[:k], tok, pointed,
+                "k" in parts[:k])  # fmt: skip
 
 
 def dual(w: Word) -> bool:
-    return len(w.code) > 3 and w.code[0] in "NA" and w.code[3] == "d"
+    return len(w.code) > 3 and w.code[0] in "NA" and (w.code[3] == "d" or w.pointed_dual)
 
 
 def value_of(w: Word, numbers: dict[str, int]) -> int | None:
-    if w.core not in numbers or w.code.startswith("Np"):
+    if w.core not in numbers or w.code.startswith("Np") or (w.like and w.core == ONE):
         return None
     v = numbers[w.core]
     return v * 2 if w.core in DUALS and dual(w) else v
@@ -113,7 +123,8 @@ def phrases(ws: list[Word], numbers: dict[str, int]) -> list[Phrase]:
         if val[i] is None:
             i += 1
             continue
-        total, group, last, j = 0, int(val[i]), i, i
+        # blocks: what a thousand or more has multiplied; total: the groups since; group: the last
+        blocks, total, group, last, j = 0, 0, int(val[i]), i, i
         while True:
             k = j + 1
             if k < n and val[k] is not None:
@@ -123,12 +134,14 @@ def phrases(ws: list[Word], numbers: dict[str, int]) -> list[Phrase]:
             else:
                 break
             v = int(val[j])
-            if j == last + 1 and not ws[j].conj:  # side by side
+            if j == last + 1 and not ws[j].conj and int(val[last]) >= 100 and v < int(val[last]):
+                total, group = total + group, v  # a smaller number after a hundred or more adds
+            elif j == last + 1 and not ws[j].conj:  # side by side
                 if v == 100:
                     group *= v
                 elif v >= 1000:
-                    if total + group < v:
-                        group, total = (total + group) * v, 0
+                    if total + group < v:  # it multiplies the groups since the last block
+                        blocks, total, group = blocks + (total + group) * v, 0, 0
                     else:
                         group *= v
                 else:
@@ -141,7 +154,7 @@ def phrases(ws: list[Word], numbers: dict[str, int]) -> list[Phrase]:
             unit = UNITS[ws[last + 1].core]
         elif i > 0 and ws[i - 1].core == YEAR:
             unit = "year"
-        out.append(Phrase(total + group, unit, kind_of(ws, i), i, last))
+        out.append(Phrase(blocks + total + group, unit, kind_of(ws, i), i, last))
         i = last + 1
     return out
 
@@ -254,14 +267,16 @@ def run_chronology(cfg: dict[str, Any], log: Log = print) -> Path:
                                                                "verse"])  # fmt: skip
     index = RefIndex(verses)
     words = pd.read_parquet(
-        proc / "words.parquet", columns=["verse_id", "idx", "lemma", "morph", "display_idx"]
+        proc / "words.parquet",
+        columns=["verse_id", "idx", "lemma", "morph", "display_idx", "surface"],
     )
     words = words.sort_values(["verse_id", "idx"], kind="stable")
     numbers = {str(k): int(v) for k, v in cc["numbers"].items()}
     by_verse: dict[int, list[Word]] = {}
-    for vid, lem, mo, d in zip(words.verse_id, words.lemma, words.morph, words.display_idx,
-                               strict=True):  # fmt: skip
-        by_verse.setdefault(int(vid), []).append(words_of(lem, mo, None if pd.isna(d) else int(d)))
+    for vid, lem, mo, d, sf in zip(words.verse_id, words.lemma, words.morph, words.display_idx,
+                                   words.surface, strict=True):  # fmt: skip
+        tok = None if pd.isna(d) else int(d)
+        by_verse.setdefault(int(vid), []).append(words_of(lem, mo, tok, sf))
     cache: dict[int, list[Phrase]] = {}
 
     def ph(vid: int) -> list[Phrase]:

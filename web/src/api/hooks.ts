@@ -36,6 +36,9 @@ import type {
   SynopsisDetail,
   BinomialsResponse,
   BinomialOccurrencesResponse,
+  SumsItemsResponse,
+  SumsParallelsResponse,
+  SumsResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -762,6 +765,37 @@ export const useBinomialOccurrences = (pair: string) =>
   useQuery({
     queryKey: ['binomial-occurrences', pair],
     queryFn: ({ signal }) => getJson<BinomialOccurrencesResponse>('/binomials/occurrences', { pair }, signal),
+    ...forever,
+  })
+
+export const useSums = () =>
+  useQuery({ queryKey: ['sums'], queryFn: ({ signal }) => getJson<SumsResponse>('/sums', {}, signal), ...forever })
+
+export const useSumsItems = (key: string) =>
+  useQuery({
+    queryKey: ['sums-items', key],
+    queryFn: ({ signal }) => getJson<SumsItemsResponse>('/sums/items', { key }, signal),
+    ...forever,
+  })
+
+export interface SumsParallelsQuery {
+  across: boolean
+  oneStep?: boolean
+  book?: number
+  limit: number
+  offset: number
+}
+
+export const useSumsParallels = (q: SumsParallelsQuery) =>
+  useQuery({
+    queryKey: ['sums-parallels', q],
+    queryFn: ({ signal }) =>
+      getJson<SumsParallelsResponse>(
+        '/sums/parallels',
+        { across: q.across ? undefined : 'false', one_step: q.oneStep === undefined ? undefined : String(q.oneStep), book: q.book, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
     ...forever,
   })
 

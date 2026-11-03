@@ -1790,6 +1790,47 @@ CREATE TABLE binomial_occurrences (
     b_tok INTEGER
 );
 
+-- do the sums add up? (`bsim sums`, §16.75)
+CREATE TABLE sums_lists (
+    key TEXT PRIMARY KEY,           -- the list's key in sums.lists
+    seq INTEGER NOT NULL,           -- its place in the config
+    total_verse INTEGER NOT NULL,   -- the verse that states the total
+    total INTEGER NOT NULL,         -- the total stated
+    total_tok_first INTEGER,        -- its display tokens
+    total_tok_last INTEGER,
+    sum INTEGER NOT NULL,           -- the items' counts added
+    n_items INTEGER NOT NULL,
+    first_verse INTEGER NOT NULL,   -- the items' first and last verses
+    last_verse INTEGER NOT NULL,
+    adds_up INTEGER NOT NULL,       -- 1: sum = total
+    expected INTEGER NOT NULL,      -- the known answer
+    holds INTEGER NOT NULL          -- adds_up = expected
+);
+
+CREATE TABLE sums_items (
+    key TEXT NOT NULL,              -- the list
+    verse_id INTEGER NOT NULL,
+    value INTEGER NOT NULL,         -- one count
+    tok_first INTEGER,              -- its display tokens
+    tok_last INTEGER
+);
+
+CREATE TABLE sums_parallels (
+    a INTEGER NOT NULL,             -- two parallel verses, a < b
+    b INTEGER NOT NULL,
+    a_book INTEGER NOT NULL,
+    b_book INTEGER NOT NULL,
+    unit TEXT NOT NULL,             -- count | year | month | day
+    a_value INTEGER NOT NULL,       -- the two aligned numbers
+    b_value INTEGER NOT NULL,
+    same INTEGER NOT NULL,
+    one_step INTEGER,               -- NULL when the same; 1: a power of ten or one decimal place apart
+    a_tok_first INTEGER,            -- display tokens of each number
+    a_tok_last INTEGER,
+    b_tok_first INTEGER,
+    b_tok_last INTEGER
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

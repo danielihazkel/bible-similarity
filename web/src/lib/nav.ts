@@ -86,6 +86,7 @@ export const NAV: NavEntry[] = [
         { to: '/els', key: 'els' },
         { to: '/ciphers', key: 'ciphers' },
         { to: '/masorah', key: 'masorah' },
+        { to: '/sums', key: 'sums' },
       ],
     },
     {

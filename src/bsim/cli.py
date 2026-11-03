@@ -253,6 +253,14 @@ def binomials(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def sums(config: ConfigOpt = None) -> None:
+    """Do the sums add up? Lists against their stated totals; the numbers of parallel passages."""
+    from bsim.analysis.sums import run_sums
+
+    run_sums(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

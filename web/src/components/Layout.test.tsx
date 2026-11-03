@@ -69,7 +69,7 @@ describe('Layout navigation', () => {
       'Letters and numbers',
       'Narrative',
     ])
-    expect(lists.reduce((n, l) => n + l.querySelectorAll('a').length, 0)).toBe(27)
+    expect(lists.reduce((n, l) => n + l.querySelectorAll('a').length, 0)).toBe(28)
   })
 
   it('opens the current page’s group with the phone menu', () => {

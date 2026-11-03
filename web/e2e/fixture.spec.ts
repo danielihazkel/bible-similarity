@@ -130,6 +130,8 @@ const PAGES = [
   '/frameworks?k=asa',
   '/binomials',
   '/binomials?pair=2091%2B3701&show=both&order=turned',
+  '/sums',
+  '/sums?list=ezra2&scope=every&step=yes',
   '/compare?a=v%3A0&b=v%3A1&marks=meaning',
   '/synopses',
   '/synopses/1',
@@ -666,6 +668,22 @@ test('word pairs: the checks, the pairs, a pair turned round', async ({ page }) 
   await page.locator('table.bn-table tbody tr').first().getByRole('button').click()
   await expect(page).toHaveURL(/pair=2091%2B3701/)
   await expect(page.locator('.bn-panel li.hit')).toHaveCount(2)
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+})
+
+test('sums: the checks, a list opened, the parallels filtered', async ({ page }) => {
+  await page.goto('/sums')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(5) // three checks, two lists as known
+  await expect(page.locator('table.sm-table tbody tr')).toHaveCount(2)
+  await expect(page.locator('table.sm-table tbody tr.sm-off')).toHaveCount(1)
+  await page.getByRole('button', { name: /The returnees \(Ezra\)/ }).click()
+  await expect(page).toHaveURL(/list=ezra2/)
+  await expect(page.locator('.sm-panel li.hit')).toHaveCount(3)
+  await expect(page.locator('li.sm-parallel')).toHaveCount(2)
+  await page.getByRole('radio', { name: 'One step apart' }).click()
+  await expect(page).toHaveURL(/step=yes/)
+  await expect(page.locator('li.sm-parallel')).toHaveCount(1)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
 })

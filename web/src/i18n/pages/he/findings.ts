@@ -308,6 +308,16 @@ export const findHe: typeof findEn = {
       text: (v: V) =>
         `שמים וארץ בסדר הזה ב־${pct(n(v, 'share_0'))} מתוך ${numHe(n(v, 'n_0'))} פעמים, איש ואשה ב־${pct(n(v, 'share_1'))} מתוך ${numHe(n(v, 'n_1'))}; זהב וכסף במקום כסף וזהב ב־${pct(n(v, 'gold_early'))} מהפעמים בספרים המוקדמים, ב־${pct(n(v, 'gold_late'))} במאוחרים.`,
     },
+    sums_lists: {
+      title: 'הרשימות מסתכמות, או לא, כידוע',
+      text: (v: V) =>
+        `${numHe(n(v, 'adding_up'))} מתוך ${numHe(n(v, 'lists'))} הרשימות שנקבעו מראש מסתכמות בסכום שהכתוב נותן, כל אחת כצפוי: המפקד של במדבר א מגיע ל־${numHe(n(v, 'num1_sum'))} מול ${numHe(n(v, 'num1_total'))}; המשפחות של עזרא ב ל־${numHe(n(v, 'ezra2_sum'))} מול ${numHe(n(v, 'ezra2_total'))} של כל הקהל. בדיקה של קריאת המספרים.`,
+    },
+    sums_parallels: {
+      title: 'כשמספרי המקבילות שונים, הם שונים בצעד אחד',
+      text: (v: V) =>
+        `מתוך ${numHe(n(v, 'tested'))} מספרים ששונים בין פסוקים מקבילים בספרים שונים, ${numHe(n(v, 'one_step'))} (${pct(n(v, 'share'))}) רחוקים זה מזה בחזקה של עשר או בספרה אחת (40,000 / 4,000; 18 / 8), מול ${pct(n(v, 'expected'))} כשהמספר השני נבחר מן הספר (p ${fp(n(v, 'p'))}).`,
+    },
     frameworks_cycle: {
       title: 'מחזור השופטים מתפרק לאורך הספר',
       text: (v: V) =>

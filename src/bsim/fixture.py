@@ -2407,6 +2407,68 @@ def write_binomials(cfg):
     (out / "binomials.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_sums(cfg):
+    """Do the sums add up (`bsim sums`), made up: `num1` (v0, v1: 10 + 20 = v2's 30) adds up as
+    known; `ezra2` (v3, v4: 2 + 3, v4's total 9) does not, as known. Parallels: v0 / v5 (across
+    books) 40 / 4, one step apart; v1 / v5 600 / 52, not; v0 / v3 (one book) the same 7."""
+    out = resolve_path(cfg, "artifacts") / "sums"
+    out.mkdir(parents=True, exist_ok=True)
+    i64 = lambda xs: pd.array(xs, dtype="Int64")  # noqa: E731
+    pd.DataFrame(
+        {
+            "key": ["num1", "ezra2"],
+            "seq": [0, 1],
+            "total_verse": [2, 4],
+            "total": [30, 9],
+            "total_tok_first": i64([0, 1]),
+            "total_tok_last": i64([0, 1]),
+            "sum": [30, 5],
+            "n_items": [2, 2],
+            "first_verse": [0, 3],
+            "last_verse": [1, 4],
+            "adds_up": [True, False],
+            "expected": [True, False],
+            "holds": [True, True],
+        }
+    ).to_parquet(out / "lists.parquet", index=False)
+    pd.DataFrame(
+        {
+            "key": ["num1", "num1", "ezra2", "ezra2"],
+            "verse_id": [0, 1, 3, 4],
+            "value": [10, 20, 2, 3],
+            "tok_first": i64([1, 0, 0, 0]),
+            "tok_last": i64([1, 0, 0, 0]),
+        }
+    ).to_parquet(out / "items.parquet", index=False)
+    pd.DataFrame(
+        {
+            "a": [0, 0, 1],
+            "b": [3, 5, 5],
+            "a_book": [0, 0, 0],
+            "b_book": [0, 1, 1],
+            "unit": ["count", "count", "count"],
+            "a_value": [7, 40, 600],
+            "b_value": [7, 4, 52],
+            "same": [True, False, False],
+            "one_step": pd.array([None, True, False], dtype="boolean"),
+            "a_tok_first": i64([0, 1, 1]),
+            "a_tok_last": i64([0, 1, 1]),
+            "b_tok_first": i64([0, 0, 1]),
+            "b_tok_last": i64([0, 0, 1]),
+        }
+    ).to_parquet(out / "parallels.parquet", index=False)
+    test = {"numbers": 2, "same": 0, "tested": 2, "one_step": 1, "share": 0.5,
+            "expected": 0.1, "p": 0.02}  # fmt: skip
+    meta = {"lists": 2, "lists_adding_up": 1, "lists_holds": True, "min_value": 2, "pairs": 9,
+            "pairs_used": 3, "numbers": 3, "numbers_same": 1, "numbers_differ": 2,
+            "across": test, "every": {**test, "numbers": 3, "same": 1}, "step_holds": True,
+            "known_parallels": [{"a": 0, "b": 5, "a_value": 40, "b_value": 4, "found": True,
+                                 "one_step": True, "expected": True, "holds": True}],
+            "known_holds": True, "min_shared": 2, "min_big": 10, "shuffles": 99,
+            "alpha": 0.05}  # fmt: skip
+    (out / "sums.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -2428,6 +2490,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_chronology(cfg)
     write_frameworks(cfg)
     write_binomials(cfg)
+    write_sums(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

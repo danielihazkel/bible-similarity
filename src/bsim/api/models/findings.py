@@ -23,6 +23,7 @@ FindingKey = Literal[
     "chronology_known", "chronology_syncs", "chronology_digits",
     "frameworks_cycle", "frameworks_cycle_known", "frameworks_verdicts",
     "frameworks_verdicts_known", "binomials_short", "binomials_late", "binomials_known",
+    "sums_lists", "sums_parallels",
 ]  # fmt: skip
 
 

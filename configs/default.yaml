@@ -1581,7 +1581,37 @@ binomials:                    # `bsim binomials`: fixed word pairs and their ord
   seed: 50
   alpha: 0.05
 
-masorah:                      # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
+sums:                         # `bsim sums`: do the sums add up? Lists against their stated totals, and the numbers of parallel passages (DESIGN.md §16.75); everything below fixed before the first run
+  min_value: 2                # a count: a number phrase (read with chronology.numbers) of at least this, not of years, months or days, not a date
+  ordinals: ["8145", "7992", "7243", "2549", "8345", "7637", "8066", "8671", "6224"]   # chronology.numbers' ordinals (second..tenth): not counts ("the second to set out", Num 2:16); found in the first run (Num 2: 5 over)
+  lists:                      # key: [items (refs: every count in them), total (ref), the total's place among that verse's counts, adds up (the known answer)]
+    gen46: [["Genesis 46:15", "Genesis 46:18", "Genesis 46:22", "Genesis 46:25"], "Genesis 46:27", 2, true]   # Jacob's house: 33 + 16 + 14 + 7 = 70
+    num1: [["Numbers 1:20-43"], "Numbers 1:46", 1, true]                  # the twelve tribes, 603,550
+    num2_east: [["Numbers 2:3-8"], "Numbers 2:9", 1, true]               # the four camps, 186,400 ...
+    num2_south: [["Numbers 2:10-15"], "Numbers 2:16", 1, true]
+    num2_west: [["Numbers 2:18-23"], "Numbers 2:24", 1, true]
+    num2_north: [["Numbers 2:25-30"], "Numbers 2:31", 1, true]
+    num2: [["Numbers 2:9", "Numbers 2:16", "Numbers 2:24", "Numbers 2:31"], "Numbers 2:32", 1, true]   # ... and all four, 603,550
+    num3: [["Numbers 3:22", "Numbers 3:28", "Numbers 3:34"], "Numbers 3:39", 1, false]   # the Levites: 7,500 + 8,600 + 6,200 = 22,300, the total 22,000 (Bekhorot 5a)
+    num4: [["Numbers 4:36", "Numbers 4:40", "Numbers 4:44"], "Numbers 4:48", 1, true]    # the Levites at work, 8,580
+    num26: [["Numbers 26:7", "Numbers 26:14", "Numbers 26:18", "Numbers 26:22", "Numbers 26:25", "Numbers 26:27", "Numbers 26:34", "Numbers 26:37", "Numbers 26:41", "Numbers 26:43", "Numbers 26:47", "Numbers 26:50"], "Numbers 26:51", 1, true]   # the second census, 601,730 (the clans' verses name other numbers: Korah's 250)
+    ezra1: [["Ezra 1:9-10"], "Ezra 1:11", 1, false]                       # the vessels: 2,499 listed, 5,400 in all
+    ezra2: [["Ezra 2:3-60"], "Ezra 2:64", 1, false]                       # the returnees: 29,818 listed, 42,360 in all
+    neh7: [["Nehemiah 7:8-62"], "Nehemiah 7:66", 1, false]                # the same list: 31,089, 42,360
+  parallels:                  # verse pairs: the parallel sequences (every one), ETCBC's parallels, Sefaria's verse links
+    min_shared: 2             # used when the two verses share at least this many content lemmas besides the number words
+    min_value: 10             # a differing pair counts when its larger number is at least this (two one-digit numbers always differ in one place)
+    # the claim counts pairs of verses in different books; pairs inside one book (mostly repeated formulae: Num 7, 1 Chr 25's lots) were counted in the first run and are kept as described (M133)
+    shuffles: 999             # the second number drawn from its verse's book, the same unit (count, year, month, day)
+    seed: 51
+  known_parallels:            # [verse a, verse b, a's number, b's number, one step apart (a power of ten, or one decimal place)]
+    - ["II Samuel 24:9", "I Chronicles 21:5", 800000, 1100000, false]   # Israel's fighting men
+    - ["I Kings 5:6", "II Chronicles 9:25", 40000, 4000, true]          # Solomon's stalls
+    - ["II Kings 24:8", "II Chronicles 36:9", 18, 8, true]              # Jehoiachin's age
+  # claims fixed in advance: (1) each list adds up, or does not, as `lists` says (known answers: a check of the reading of the numbers); (2) of the parallels' aligned numbers that differ (verses in different books, after the first run), more are one step apart than with the second number drawn from its book (`shuffles`)
+  alpha: 0.05
+
+masorah:                     # `bsim masorah`: the Masorah's counts computed on our text (DESIGN.md §16.55); figures from Kiddushin 30a and the Masoretic summaries as Ginsburg collates them (Introduction, 1897, ch. VI)
   tolerance: 1                # a traditional middle lands when it is at most this many units (letters, words, verses) from ours
   text: ketiv                 # the text the findings read: the written letters, as a scroll is written (the read text is computed too)
   middles:                    # the middle of a span as the tradition gives it: the verse, the word(s) as written there, the letter of that word (from 1)

@@ -323,6 +323,16 @@ export const findEn = {
       text: (v: V) =>
         `\u2068שמים וארץ\u2069 stands in that order ${pct(n(v, 'share_0'))} of ${numEn(n(v, 'n_0'))} times, \u2068איש ואשה\u2069 ${pct(n(v, 'share_1'))} of ${numEn(n(v, 'n_1'))}; \u2068זהב וכסף\u2069 rather than \u2068כסף וזהב\u2069 ${pct(n(v, 'gold_early'))} of the time in the early books, ${pct(n(v, 'gold_late'))} in the late.`,
     },
+    sums_lists: {
+      title: 'The lists add up, or fail to, as known',
+      text: (v: V) =>
+        `${numEn(n(v, 'adding_up'))} of the ${numEn(n(v, 'lists'))} lists named in advance add up to the total the text states, each as expected: the census of Numbers 1 comes to ${numEn(n(v, 'num1_sum'))} against ${numEn(n(v, 'num1_total'))}; the families of Ezra 2 to ${numEn(n(v, 'ezra2_sum'))} against the ${numEn(n(v, 'ezra2_total'))} of the whole assembly. A check of the reading of the numbers.`,
+    },
+    sums_parallels: {
+      title: 'Where parallels’ numbers differ, they differ by one step',
+      text: (v: V) =>
+        `Of ${numEn(n(v, 'tested'))} numbers that differ between parallel verses in different books, ${numEn(n(v, 'one_step'))} (${pct(n(v, 'share'))}) are a power of ten or one decimal place apart (40,000 / 4,000; 18 / 8), against ${pct(n(v, 'expected'))} with the second number drawn from its book (p ${fp(n(v, 'p'))}).`,
+    },
     frameworks_cycle: {
       title: 'The judges’ cycle breaks down through the book',
       text: (v: V) =>

@@ -1042,6 +1042,43 @@ SOURCES: tuple[Source, ...] = (
         ),
     ),
     Source(
+        "sums",
+        "sums",
+        (
+            Table("sums_lists", "lists", fix=as_int("adds_up", "expected", "holds")),
+            Table("sums_items", "items"),
+            Table(
+                "sums_parallels",
+                "parallels",
+                fix=lambda d, ctx: d.assign(
+                    same=d.same.astype(int), one_step=d.one_step.astype("Int64")
+                ),
+            ),
+        ),
+        "sums.meta.json",
+        keys(
+            "sums",
+            "lists",
+            "lists_adding_up",
+            "lists_holds",
+            "min_value",
+            "pairs",
+            "pairs_used",
+            "numbers",
+            "numbers_same",
+            "numbers_differ",
+            "across",
+            "every",
+            "step_holds",
+            "known_parallels",
+            "known_holds",
+            "min_shared",
+            "min_big",
+            "shuffles",
+            "alpha",
+        ),  # fmt: skip
+    ),
+    Source(
         "masorah",
         "masorah",
         (

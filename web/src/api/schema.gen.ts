@@ -2480,6 +2480,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sums": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sums
+         * @description Every list with its sum and stated total, and the parallels' test (503: not run).
+         */
+        get: operations["sums_api_sums_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sums/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sums Items
+         * @description A list's counts, in text order (404: no such list).
+         */
+        get: operations["sums_items_api_sums_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sums/parallels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sums Parallels
+         * @description The aligned numbers of parallel verses, in canon order.
+         */
+        get: operations["sums_parallels_api_sums_parallels_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -5562,7 +5622,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels";
             /**
              * Verdict
              * @enum {string}
@@ -6369,6 +6429,23 @@ export interface components {
             group: ("retold" | "repeated" | "carried" | "told" | "narrated" | "unclear") | null;
             /** Rate */
             rate: number | null;
+        };
+        /** KnownSumsParallel */
+        KnownSumsParallel: {
+            a: components["schemas"]["Verse"];
+            b: components["schemas"]["Verse"];
+            /** A Value */
+            a_value: number;
+            /** B Value */
+            b_value: number;
+            /** Found */
+            found: boolean;
+            /** One Step */
+            one_step: boolean | null;
+            /** Expected */
+            expected: boolean;
+            /** Holds */
+            holds: boolean;
         };
         /** KnownVerdict */
         KnownVerdict: {
@@ -9576,6 +9653,146 @@ export interface components {
             order: number[];
             /** Delta */
             delta: components["schemas"]["StyloDelta"][];
+        };
+        /** SumsItem */
+        SumsItem: {
+            verse: components["schemas"]["Verse"];
+            /** Value */
+            value: number;
+            /** Tok First */
+            tok_first: number | null;
+            /** Tok Last */
+            tok_last: number | null;
+        };
+        /** SumsItemsResponse */
+        SumsItemsResponse: {
+            /** Key */
+            key: string;
+            /** Items */
+            items: components["schemas"]["SumsItem"][];
+        };
+        /** SumsList */
+        SumsList: {
+            /** Key */
+            key: string;
+            /** Total */
+            total: number;
+            /** Sum */
+            sum: number;
+            /** N Items */
+            n_items: number;
+            /** Adds Up */
+            adds_up: boolean;
+            /** Expected */
+            expected: boolean;
+            /** Holds */
+            holds: boolean;
+            total_verse: components["schemas"]["Verse"];
+            /** Total Tok First */
+            total_tok_first: number | null;
+            /** Total Tok Last */
+            total_tok_last: number | null;
+            first_verse: components["schemas"]["Verse"];
+            last_verse: components["schemas"]["Verse"];
+        };
+        /** SumsParallel */
+        SumsParallel: {
+            a: components["schemas"]["Verse"];
+            b: components["schemas"]["Verse"];
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "count" | "year" | "month" | "day";
+            /** A Value */
+            a_value: number;
+            /** B Value */
+            b_value: number;
+            /** Same */
+            same: boolean;
+            /** One Step */
+            one_step: boolean | null;
+            /** A Tok First */
+            a_tok_first: number | null;
+            /** A Tok Last */
+            a_tok_last: number | null;
+            /** B Tok First */
+            b_tok_first: number | null;
+            /** B Tok Last */
+            b_tok_last: number | null;
+        };
+        /** SumsParallelsResponse */
+        SumsParallelsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["SumsParallel"][];
+            /** Across */
+            across: boolean;
+            /** Differ */
+            differ: boolean;
+            /** One Step */
+            one_step: boolean | null;
+            /** Book */
+            book: number | null;
+        };
+        /** SumsResponse */
+        SumsResponse: {
+            /** Lists */
+            lists: components["schemas"]["SumsList"][];
+            /** Lists Adding Up */
+            lists_adding_up: number;
+            /** Lists Holds */
+            lists_holds: boolean;
+            /** Min Value */
+            min_value: number;
+            /** Pairs */
+            pairs: number;
+            /** Pairs Used */
+            pairs_used: number;
+            /** Numbers */
+            numbers: number;
+            /** Numbers Same */
+            numbers_same: number;
+            /** Numbers Differ */
+            numbers_differ: number;
+            across: components["schemas"]["SumsTest"];
+            every: components["schemas"]["SumsTest"];
+            /** Step Holds */
+            step_holds: boolean;
+            /** Known Parallels */
+            known_parallels: components["schemas"]["KnownSumsParallel"][];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Min Shared */
+            min_shared: number;
+            /** Min Big */
+            min_big: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+        };
+        /** SumsTest */
+        SumsTest: {
+            /** Numbers */
+            numbers: number;
+            /** Same */
+            same: number;
+            /** Tested */
+            tested: number;
+            /** One Step */
+            one_step: number;
+            /** Share */
+            share: number | null;
+            /** Expected */
+            expected: number | null;
+            /** P */
+            p: number;
         };
         /** SynopsesResponse */
         SynopsesResponse: {
@@ -13873,6 +14090,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BinomialOccurrencesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sums_api_sums_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SumsResponse"];
+                };
+            };
+        };
+    };
+    sums_items_api_sums_items_get: {
+        parameters: {
+            query: {
+                key: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SumsItemsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sums_parallels_api_sums_parallels_get: {
+        parameters: {
+            query?: {
+                across?: boolean;
+                differ?: boolean;
+                one_step?: boolean | null;
+                limit?: number;
+                offset?: number;
+                book?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SumsParallelsResponse"];
                 };
             };
             /** @description Validation Error */

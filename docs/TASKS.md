@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M133: Do the sums add up? (§16.75, D123; proposed K1)
+- [x] `bsim sums` (`analysis/sums.py`, after binomials, 7 s): 13 lists against their stated totals; the numbers of parallel verses (sequences, ETCBC, Sefaria) aligned by unit, one step apart or not, against numbers drawn from the book; the claims and known answers fixed in config before the first run; two changes after it, both runs reported (the reader and the ordinals; pairs across books)
+- [x] Chronology's number reader extended (a smaller number after a hundred adds, a thousand multiplies only the groups since the last, the pointed dual, כאחד); chronology's and frameworks' outputs byte-identical
+- [x] DB `sums_lists`, `sums_items`, `sums_parallels` (+ `meta.sums`); API `/sums`, `/sums/items`, `/sums/parallels`; findings `sums_lists`, `sums_parallels`
+- [x] Viewer: Patterns → Letters and numbers → Do the sums add up? (`/sums`): the checks, the lists and a list's counts marked in its verses, the parallels' numbers side by side, filtered in the URL; English and Hebrew
+- [x] Tests: the reader on the verses that misread (Num 2:16, Num 26:51, Ezra 2:3, 2:64, 1 Chr 21:5), one step, alignment by unit, a small canon end to end, the endpoints and findings (pytest); the checks, the lists, a list opened, the filters, Hebrew (vitest); e2e on the fixture (axe) and the smoke list
+
+✔ Nine of the thirteen lists add up, each as known (Ezra 2's families 29,818 against the assembly's 42,360). Where parallels in different books give different numbers, a third (34 %) differ by a power of ten or one place, twice what chance gives (16.5 %, p 0.001).
+
 ## M128: Stale numbers and a guard (proposed J10)
 - [x] RESULTS: the header says which build each table is from; fusion's 0.189 marked as of its day (0.193 now), the later-experiments table likewise; borrowing, citations, echoes and the ETCBC gold given their current-build numbers beside their first runs (ETCBC fused 0.824, semantic 0.762)
 - [x] DESIGN: the synoptic test now 24 of 24 (the sequences rerun with the retrained encoder); D41 (OpenBible's chapters renumbered since D118), D63 (Solomon underpowered since D119), D108 (3 of 3 since D120), D112 (letters hold since D120) amended; the reader's cross-references fixed (verse halves §16.9, wordplay §16.10, ketiv §16.30)
@@ -1389,7 +1398,7 @@ Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in 
 From the 2026-11-03 review: new features and improvements, all fifteen suggestions taken. Each analysis has a claim fixed in advance, known answers and a control, for the Findings page, as before; models are chosen on dev and adopted under the M127 rule; one milestone at a time, each reported before the next. Downloads have their license checked first (DESIGN §1), and anything NC or unclear is asked about.
 
 Analyses
-- [ ] K1 Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
+- [x] K1 (done, M133) Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
 - [ ] K2 Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
 - [ ] K3 Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
 - [ ] K4 Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
