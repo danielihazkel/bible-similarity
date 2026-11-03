@@ -1311,7 +1311,7 @@ Family tree
 - [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
 - [x] F3 (done, M90) The review in 21 blocks, in canon order
 - [x] F4 (done, M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
-- [ ] F5 (later) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
+- [ ] F5 (later; K13) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
 - [x] F6 (done, M92) The look: on most of the screen, avatars, couples, the chosen person's line, wheel zoom
 
 Suggested order: F1 → F2 → F3 → F4; F5 when asked.
@@ -1385,3 +1385,30 @@ Viewer
 - [x] J14 (done, M132) Speed: the reader and the map's labels memoised; the English page strings split by route (not done: a redesign of the catalog, left for its own milestone)
 
 Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in the background) → J10 → J11 → J12 → J13 → J14.
+
+From the 2026-11-03 review: new features and improvements, all fifteen suggestions taken. Each analysis has a claim fixed in advance, known answers and a control, for the Findings page, as before; models are chosen on dev and adopted under the M127 rule; one milestone at a time, each reported before the next. Downloads have their license checked first (DESIGN §1), and anything NC or unclear is asked about.
+
+Analyses
+- [ ] K1 Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
+- [ ] K2 Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
+- [ ] K3 Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
+- [ ] K4 Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
+
+Tools
+- [ ] K5 Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
+- [ ] K6 This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
+- [ ] K7 Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
+- [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
+
+Models
+- [ ] K9 Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
+- [ ] K10 Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
+- [ ] K11 LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
+
+Improvements
+- [ ] K12 Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
+- [ ] K13 F5: rabbinic identifications in the family tree, as a kind of identity with its source
+- [ ] K14 The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
+- [ ] K15 Installable and offline: a manifest and a service worker, `/api` reads cached by build
+
+Suggested order: K1 → K4 → K12 → K6 → K7 → K2 → K13 → K3 → K5 → K9 → K10 → K11 → K14 → K15 → K8.
