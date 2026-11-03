@@ -239,7 +239,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, glossary, tours, about
 │       └── styles/global.css
 ├── video/                          # two short films about the project: scripts, voice, score, subtitles,
 │                                   #   a line-art page rendered in Edge (video/README.md; renders in video/out/, gitignored)

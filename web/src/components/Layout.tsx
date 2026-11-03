@@ -4,6 +4,7 @@ import { useT } from '../context/localeContext'
 import { isGroup, NAV, type NavGroup, type NavItem, navText } from '../lib/nav'
 import { LocaleToggle, TextModeToggle } from './Controls'
 import { JumpBox } from './JumpBox'
+import { TourBar } from './TourBar'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Loading } from './Status'
 
@@ -80,6 +81,7 @@ export function Layout() {
           </Suspense>
         </ErrorBoundary>
       </main>
+      <TourBar />
       <footer className="footer">
         <p>
           {m.site.footer.display} <i>{m.site.footer.mam}</i> (

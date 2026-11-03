@@ -7,6 +7,7 @@ import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
+import { Term } from '../components/Term'
 
 const MODES = ['lexical', 'semantic', 'fused'] as const
 
@@ -93,7 +94,7 @@ function Modes({ d }: { d: HaftarotResponse }) {
             <tr>
               <th scope="col">{t.cols.system}</th>
               <th scope="col" className="num">
-                {t.cols.mrr}
+                <Term k="mrr">{t.cols.mrr}</Term>
               </th>
               <th scope="col" className="num">
                 {t.cols.hits(d.list)}

@@ -48,6 +48,8 @@ import { hfHe } from './pages/he/haftarot'
 import { chHe } from './pages/he/chronology'
 import { smHe } from './pages/he/sums'
 import { vcHe } from './pages/he/vocabulary'
+import { glossHe } from './pages/he/glossary'
+import { trHe } from './pages/he/tours'
 import { fwHe } from './pages/he/frameworks'
 import { bnHe } from './pages/he/binomials'
 import { wbHe } from './pages/he/workbench'
@@ -146,6 +148,8 @@ export const he: Messages = {
     binomials: { label: 'צמדי מילים', hint: 'מילים שמחוברות בו׳ בסדר קבוע (שמים וארץ): הקצרה ראשונה, ההיפוכים של הספרים המאוחרים' },
     frameworks: { label: 'המסגרות של הסיפור', hint: 'מחזור השופטים רכיב אחר רכיב, וההערכה ונוסחת המלכות של כל מלך' },
     chronology: { label: 'מניין השנים', hint: 'השנים מאדם כפי שהפסוקים מונים אותן, ומלכי שתי הממלכות מול הסנכרונים שביניהם' },
+    tours: { label: 'סיורים מודרכים', hint: 'ארבעה סיורים קצרים בממצאים החזקים, משפט על כל עמוד' },
+    glossary: { label: 'מילון מונחים', hint: 'מונחי הסטטיסטיקה והחיפוש שהעמודים משתמשים בהם (p, q, G², nDCG …), כל אחד בכמה מילים' },
     vocabulary: { label: 'אוצר המילים', hint: 'מילים חדשות ספר אחר ספר מול חוק היפס, מילים יחידאיות, השימוש הראשון בכל מילה' },
     sums: { label: 'האם החשבון מסתדר?', hint: 'רשימות מול הסכומים שהכתוב נותן (במדבר א, עזרא ב), והמספרים של כתובים מקבילים' },
     els: { label: 'אותיות בדילוג שווה', hint: 'שמות בדילוג שווה בתורה, נספרים מול ערבובים: אין צפנים' },
@@ -529,6 +533,8 @@ export const he: Messages = {
   bn: bnHe,
   sm: smHe,
   vc: vcHe,
+  gloss: glossHe,
+  tr: trHe,
   wb: wbHe,
   nb: nbHe,
   echo: echoHe,

@@ -29,13 +29,21 @@ export function downloadText(filename: string, parts: string[], type: string): v
   URL.revokeObjectURL(url)
 }
 
+/** A cell's text as shown, without what only a popover shows (`data-nocsv`: a term's entry). */
+function shown(c: HTMLTableCellElement): string {
+  if (!c.querySelector('[data-nocsv]')) return c.textContent?.trim() ?? ''
+  const k = c.cloneNode(true) as HTMLElement
+  k.querySelectorAll('[data-nocsv]').forEach((e) => e.remove())
+  return k.textContent?.trim() ?? ''
+}
+
 /** The rows of a rendered table as CSV rows: the last header row names the columns (a repeated
  * name gets a number), each body row's cells give their text as shown. */
 export function tableRows(table: HTMLTableElement): CsvRow[] {
   const head = table.tHead?.rows[table.tHead.rows.length - 1]
   const seen = new Map<string, number>()
   const names = [...(head?.cells ?? [])].map((c, i) => {
-    const base = c.textContent?.trim() || `column ${i + 1}`
+    const base = shown(c) || `column ${i + 1}`
     const n = (seen.get(base) ?? 0) + 1
     seen.set(base, n)
     return n > 1 ? `${base} ${n}` : base
@@ -44,7 +52,7 @@ export function tableRows(table: HTMLTableElement): CsvRow[] {
   return body.map((r) => {
     const row: CsvRow = {}
     ;[...r.cells].forEach((c, i) => {
-      row[names[i] ?? `column ${i + 1}`] = c.textContent?.trim() ?? ''
+      row[names[i] ?? `column ${i + 1}`] = shown(c)
     })
     return row
   })

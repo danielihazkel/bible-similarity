@@ -4,11 +4,13 @@ import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval, UnitList
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 import { TableCsv } from '../components/TableCsv'
+import { Term } from '../components/Term'
+import type { TermKey } from '../i18n/pages/glossary'
 
-const METRICS = [
-  { key: 'ndcg@10', label: 'nDCG@10' },
-  { key: 'mrr@10', label: 'MRR@10' },
-  { key: 'recall@1', label: 'R@1' },
+const METRICS: { key: string; label: string; term?: TermKey }[] = [
+  { key: 'ndcg@10', label: 'nDCG@10', term: 'ndcg' },
+  { key: 'mrr@10', label: 'MRR@10', term: 'mrr' },
+  { key: 'recall@1', label: 'R@1', term: 'recall' },
   { key: 'recall@5', label: 'R@5' },
   { key: 'recall@10', label: 'R@10' },
   { key: 'recall@50', label: 'R@50' },
@@ -33,15 +35,16 @@ export function EvalPage() {
         {m.ov.eval.ledeEnd}
       </p>
       {splitNames.length === 0 && <p className="status">{m.ov.eval.none}</p>}
-      {splitNames.map((name) => {
+      {splitNames.map((name, i) => {
         const split = splits[name]
         return (
           <section key={name} aria-label={m.ov.eval.splitLabel(name)}>
             <h2>{m.ov.eval.splits[name] ?? name}</h2>
             {split.evaluated_at && <p className="muted small">{m.ov.eval.evaluated(split.evaluated_at.slice(0, 10))}</p>}
-            {Object.entries(split.results).map(([unitType, systems]) => (
+            {Object.entries(split.results).map(([unitType, systems], j) => (
               <MetricTable
                 key={unitType}
+                glossed={i === 0 && j === 0}
                 caption={m.ov.eval.caption(unitType, split.gold?.[unitType])}
                 rows={Object.entries(systems).map(([system, metrics]) => ({
                   label: system,
@@ -380,7 +383,8 @@ interface Row {
   metrics: MetricSet
 }
 
-function MetricTable({ caption, rows }: { caption: string; rows: Row[] }) {
+/** `glossed`: the metrics' names open their glossary entries (the page's first table only). */
+function MetricTable({ caption, rows, glossed = false }: { caption: string; rows: Row[]; glossed?: boolean }) {
   const m = useT()
   const sorted = [...rows].sort((a, b) => (b.metrics['ndcg@10'] ?? 0) - (a.metrics['ndcg@10'] ?? 0))
   const best = Math.max(...rows.map((r) => r.metrics['ndcg@10'] ?? 0))
@@ -394,7 +398,7 @@ function MetricTable({ caption, rows }: { caption: string; rows: Row[] }) {
             <th scope="col">{m.ov.eval.system}</th>
             {METRICS.map((x) => (
               <th key={x.key} scope="col" className="num">
-                {x.label}
+                {glossed && x.term ? <Term k={x.term}>{x.label}</Term> : x.label}
               </th>
             ))}
           </tr>

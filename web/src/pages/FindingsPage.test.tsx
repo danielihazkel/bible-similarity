@@ -50,24 +50,32 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+/** A paragraph whose text, popovers left out (a term's entry), matches. */
+const para = (re: RegExp) => (_: string, el: Element | null) => {
+  if (el?.tagName !== 'P') return false
+  const k = el.cloneNode(true) as Element
+  k.querySelectorAll('[data-nocsv]').forEach((e) => e.remove())
+  return re.test(k.textContent ?? '')
+}
+
 describe('FindingsPage', () => {
   it('groups the claims by verdict, states their numbers and links to the evidence', async () => {
     renderAt()
     const holds = await screen.findByRole('region', { name: 'Borne out' })
-    expect(within(holds).getByText(/Chronicles side later in 26 of 26 parallel passages \(p < 0.001\)/)).toBeTruthy()
+    expect(within(holds).getByText(para(/Chronicles side later in 26 of 26 parallel passages \(p < 0.001\)/))).toBeTruthy()
     expect(within(holds).getByRole('link', { name: 'A late-language profile: Language' }).getAttribute('href')).toBe('/language')
     const fails = screen.getByRole('region', { name: 'Not borne out' })
-    expect(within(fails).getByText(/multiples of 7 1.16 times .* 12\), and 7 the least\. Nothing singles out 7/)).toBeTruthy()
-    expect(within(fails).getByText(/same order more often than mirrored: 2,790 verses against 2,099 \(43% of pairs mirrored/)).toBeTruthy()
+    expect(within(fails).getByText(para(/multiples of 7 1.16 times .* 12\), and 7 the least\. Nothing singles out 7/))).toBeTruthy()
+    expect(within(fails).getByText(para(/same order more often than mirrored: 2,790 verses against 2,099 \(43% of pairs mirrored/))).toBeTruthy()
     const leads = screen.getByRole('region', { name: 'Leads, not findings' })
-    expect(within(leads).getByText(/176 pairs of passages .* 171 are known parallels, and the best new one has q 0.82/)).toBeTruthy()
-    expect(screen.getByText(/passes at p ≤ 0.05/)).toBeTruthy()
-    expect(within(holds).getByText(/1,677 such pairs within three words, against 406 .* \(4\.1×, p 0\.005\)/)).toBeTruthy()
+    expect(within(leads).getByText(para(/176 pairs of passages .* 171 are known parallels, and the best new one has q 0.82/))).toBeTruthy()
+    expect(screen.getByText(para(/passes at p ≤ 0.05/))).toBeTruthy()
+    expect(within(holds).getByText(para(/1,677 such pairs within three words, against 406 .* \(4\.1×, p 0\.005\)/))).toBeTruthy()
     expect(within(holds).getByRole('link', { name: 'A verb and a noun of one root: Roots' }).getAttribute('href')).toBe('/roots')
-    expect(within(fails).getByText(/Of 8, 6 are in their chapter's top 12 by root and 6 by word; the root ranks higher for 3\. Counted by root, 896 key roots/)).toBeTruthy()
-    expect(within(holds).getByText(/Do the lines of Lamentations 1–4 fall — .* Net fall 0\.39 against 0\.17 .* \(p 0\.008; against Psalms, Proverbs and Job p 0\.001\)\. Lamentations 5, .* more than 74% of that poetry/)).toBeTruthy()
+    expect(within(fails).getByText(para(/Of 8, 6 are in their chapter's top 12 by root and 6 by word; the root ranks higher for 3\. Counted by root, 896 key roots/))).toBeTruthy()
+    expect(within(holds).getByText(para(/Do the lines of Lamentations 1–4 fall — .* Net fall 0\.39 against 0\.17 .* \(p 0\.008; against Psalms, Proverbs and Job p 0\.001\)\. Lamentations 5, .* more than 74% of that poetry/))).toBeTruthy()
     expect(within(holds).getByRole('link', { name: 'The falling lament line: Poetry' }).getAttribute('href')).toBe('/poetry?view=meter')
-    expect(within(fails).getByText(/Do the 12 chapters outside Lamentations that use the word קינה fall too\? Net fall 0\.20 against 0\.17 for other poetry \(p 0\.26\)/)).toBeTruthy()
+    expect(within(fails).getByText(para(/Do the 12 chapters outside Lamentations that use the word קינה fall too\? Net fall 0\.20 against 0\.17 for other poetry \(p 0\.26\)/))).toBeTruthy()
   })
 
   it('words a claim by the direction the numbers take, in Hebrew', async () => {
@@ -76,7 +84,7 @@ describe('FindingsPage', () => {
       items: [{ key: 'chiasm', verdict: 'holds', values: { verses_chiastic: 30, verses_parallel: 10, share: 0.7, p: 0.001 } }],
     })
     expect(await screen.findByRole('region', { name: 'עומדות במבחן' })).toBeTruthy()
-    expect(screen.getByText(/שבות במהופך יותר מאשר באותו סדר: 30 פסוקים לעומת 10/)).toBeTruthy()
+    expect(screen.getByText(para(/שבות במהופך יותר מאשר באותו סדר: 30 פסוקים לעומת 10/))).toBeTruthy()
     expect(screen.queryByRole('region', { name: 'אינן עומדות במבחן' })).toBeNull()
   })
 

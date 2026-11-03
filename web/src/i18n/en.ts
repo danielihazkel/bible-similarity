@@ -41,6 +41,8 @@ import { hfEn } from './pages/haftarot'
 import { chEn } from './pages/chronology'
 import { smEn } from './pages/sums'
 import { vcEn } from './pages/vocabulary'
+import { glossEn } from './pages/glossary'
+import { trEn } from './pages/tours'
 import { fwEn } from './pages/frameworks'
 import { bnEn } from './pages/binomials'
 import { wbEn } from './pages/workbench'
@@ -140,6 +142,8 @@ export const en = {
     binomials: { label: 'Word pairs', hint: 'Pairs joined by \u2068ו\u2069 in a set order (\u2068שמים וארץ\u2069): the shorter first, the late books’ turns' },
     frameworks: { label: 'Narrative frameworks', hint: 'The judges’ cycle slot by slot, and every king’s verdict and regnal formula' },
     chronology: { label: 'Chronology', hint: 'The years from Adam as the verses count them, and the two kingdoms’ reigns against their synchronisms' },
+    tours: { label: 'Guided tours', hint: 'Four short walks through the strongest findings, a sentence on each page' },
+    glossary: { label: 'Glossary', hint: 'The statistics and search terms the pages use (p, q, G², nDCG …), each in a few words' },
     vocabulary: { label: 'Vocabulary', hint: 'New words book by book against Heaps’ law, words found once, each word’s first use' },
     sums: { label: 'Do the sums add up?', hint: 'Lists against the totals the text states (Num 1, Ezra 2), and the numbers of parallel passages' },
     els: { label: 'Letters at equal skips', hint: 'Names at equal skips in the Torah, counted against shuffles: no codes' },
@@ -532,6 +536,8 @@ export const en = {
   bn: bnEn,
   sm: smEn,
   vc: vcEn,
+  gloss: glossEn,
+  tr: trEn,
   wb: wbEn,
   nb: nbEn,
   echo: echoEn,

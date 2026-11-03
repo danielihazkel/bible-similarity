@@ -133,6 +133,9 @@ const PAGES = [
   '/sums',
   '/sums?list=ezra2&scope=every&step=yes',
   '/vocabulary',
+  '/glossary',
+  '/tours',
+  '/masorah?tour=numbers&step=3',
   '/compare?a=v%3A0&b=v%3A1&marks=meaning',
   '/synopses',
   '/synopses/1',
@@ -700,6 +703,25 @@ test('vocabulary: the checks, the novelty chart, a lemma’s first use', async (
   await expect(page.locator('.conc-first')).toContainText('found once in the Bible')
   await page.locator('.conc-first a').click()
   await expect(page).toHaveURL(/\/unit\/v%3A0/)
+})
+
+test('a guided tour from the home page, step by step, and a term explained on Findings', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: 'Start: Counting and dating' }).click()
+  await expect(page).toHaveURL(/\/chronology\?tour=numbers&step=1/)
+  await expect(page.locator('.tour-bar')).toContainText('step 1 of 4')
+  await page.locator('.tour-bar').getByRole('button', { name: 'Next' }).click()
+  await expect(page).toHaveURL(/\/sums\?list=ezra2&tour=numbers&step=2/)
+  await expect(page.locator('.tour-bar-caption')).toContainText('Ezra lists the families')
+  await page.locator('.tour-bar').getByRole('button', { name: 'Leave the tour' }).click()
+  await expect(page).toHaveURL(/\/sums\?list=ezra2$/)
+  await expect(page.locator('.tour-bar')).toHaveCount(0)
+  await page.goto('/findings')
+  const term = page.locator('.findings-page .term-button').first()
+  await term.focus()
+  await expect(page.locator('.findings-page .term-tip.open')).toHaveCount(1)
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.findings-page .term-tip.open')).toHaveCount(0)
 })
 
 test('synopses: two chains joined into three columns, marked against a chosen one', async ({ page }) => {

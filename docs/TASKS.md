@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M135: Glossary and guided tours (§11.1, D125; proposed K12)
+- [x] `/glossary`: 18 terms (statistics, evaluation, retrieval, the text) with anchors, English and Hebrew (catalog group `gloss`, with the patterns that find each term in running text)
+- [x] `components/Term.tsx`: the term popover (hover, focus, tap, Escape; `role="tooltip"` describing the button; left out of CSV by `data-nocsv`); on Findings each term marked where the page first uses it (`lib/gloss.ts`); in the first evaluation table, the workbench's G² and q, the haftarot's MRR
+- [x] Four tours of four steps (`lib/tours.ts`, captions in `tr`): the tour bar at the foot of a step's page (`?tour=&step=`), back, next, finish, leave; `/tours`, and *New here?* on the home page with the glossary; the captions checked against the build (Vayera's haftarah 3rd, the etiology claim, the acrostics' known list)
+- [x] Tests: first uses, the popover, Hebrew patterns, CSV without the entries, the tours' captions in both languages, the bar step to step, finish and leave, the glossary and tours pages (vitest); Findings' texts read without the entries; e2e: a tour from the home page and a term opened on Findings, axe on the glossary, the tours and a step with the bar
+
+✔ A first visitor can start a tour from the home page and walk four pages with a sentence each, and every p, q or G² on Findings explains itself.
+
 ## M134: The vocabulary over the canon (§16.76, D124; proposed K4)
 - [x] `bsim vocabulary` (`analysis/vocabulary.py`, after sums, 5 s): each book's new lemmas in canon order against Heaps' law, its novelty over 999 random book orders, hapax and lemmas of one corpus; Hebrew common words only; the claims and known answers fixed in config before the first run
 - [x] DB `vocabulary_books`, `vocabulary_lemmas` (+ `meta.vocabulary`); API `/vocabulary`, and `first` on `/lemma/{lemma}` (a lemma's first use, one corpus, hapax); findings `vocabulary_late`, `vocabulary_known`
@@ -1423,7 +1431,7 @@ Models
 - [ ] K11 LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
 
 Improvements
-- [ ] K12 Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
+- [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
 - [ ] K13 F5: rabbinic identifications in the family tree, as a kind of identity with its source
 - [ ] K14 The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
 - [ ] K15 Installable and offline: a manifest and a service worker, `/api` reads cached by build

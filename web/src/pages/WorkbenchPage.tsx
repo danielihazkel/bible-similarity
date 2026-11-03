@@ -11,6 +11,7 @@ import { domainLink, lemmaLink, rootLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { addItem, formatP, joinSet, parseRange, patternFor, removeItem, splitSet, type SetItem } from '../lib/workbench'
+import { Term } from '../components/Term'
 
 const FEATURES: WorkbenchFeature[] = ['lemma', 'root', 'domain', 'pos', 'stem', 'form', 'person', 'function', 'clause']
 const WITHINS: WorkbenchWithin[] = ['book', 'chapter', 'corpus']
@@ -158,8 +159,12 @@ function Side({ title, rows, feature, side }: { title: string; rows: ContrastRow
                 <th className="num" title={t.ratioTitle}>
                   {t.cols.ratio}
                 </th>
-                <th className="num">{t.cols.g2}</th>
-                <th className="num">{t.cols.q}</th>
+                <th className="num">
+                  <Term k="g2">{t.cols.g2}</Term>
+                </th>
+                <th className="num">
+                  <Term k="q">{t.cols.q}</Term>
+                </th>
                 <th>{t.cols.verses}</th>
               </tr>
             </thead>

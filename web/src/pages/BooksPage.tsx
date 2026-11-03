@@ -4,6 +4,7 @@ import type { Book } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 import { isGroup, NAV, type NavItem, navText } from '../lib/nav'
+import { TourList } from './ToursPage'
 
 export function BooksPage() {
   const m = useT()
@@ -49,8 +50,23 @@ export function BooksPage() {
           </ul>
         </section>
       ))}
+      <StartHere />
       <Explore />
     </div>
+  )
+}
+
+/** The guided tours and the glossary, for a first visit. */
+function StartHere() {
+  const m = useT()
+  return (
+    <section className="section start-here" aria-labelledby="start-title">
+      <h2 id="start-title">{m.tr.homeTitle}</h2>
+      <p className="muted">
+        {m.tr.homeLede} <Link to="/glossary">{m.gloss.more}</Link>
+      </p>
+      <TourList />
+    </section>
   )
 }
 

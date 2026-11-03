@@ -3550,6 +3550,28 @@ line.ch-sync:hover { stroke-width: 3.5; }
 .vc-legend .vc-swatch { margin-inline-end: 0; }
 .vc-readout { min-height: 1.3em; margin: 0.2rem 0; }
 .vc-known { margin: 0; padding-inline-start: 1.1rem; }
+/* glossary terms and guided tours (§11) */
+.term { position: relative; display: inline; }
+.term-button { all: unset; cursor: help; text-decoration: underline dotted; text-underline-offset: 0.2em; border-radius: 2px; }
+.term-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.term-tip { position: fixed; z-index: 60; width: max-content; max-width: min(22rem, 80vw); padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: 0.85rem; font-weight: normal; line-height: 1.4; text-align: start; white-space: normal; display: none; }
+.term-tip.open { display: block; }
+th .term-tip { font-weight: normal; }
+.glossary { margin: 0; }
+.glossary-entry { padding: 0.5rem 0; border-bottom: 1px solid var(--border); scroll-margin-top: 4rem; }
+.glossary-entry dt { margin-bottom: 0.15rem; }
+.glossary-entry dd { margin: 0; }
+.glossary-entry:target { background: var(--accent-soft); }
+.tour-list { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.tour-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.8rem; background: var(--surface); }
+.tour-card h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+.tour-card p { margin: 0.2rem 0; }
+.tour-bar { position: sticky; bottom: 0; z-index: 40; border-top: 2px solid var(--accent); background: var(--surface); box-shadow: 0 -2px 10px rgb(0 0 0 / 0.08); }
+.tour-bar-inner { max-width: 60rem; margin: 0 auto; padding: 0.6rem 1rem 0.7rem; }
+.tour-bar-title { margin: 0; font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+.tour-bar-caption { margin: 0.25rem 0 0.5rem; }
+.tour-bar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tour-bar-actions .linkish { margin-inline-start: auto; }
 
 /* the home page's Explore panel: every menu group and its pages with their hints */
 .explore-groups {

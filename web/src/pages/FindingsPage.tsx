@@ -2,6 +2,8 @@ import { Link } from 'react-router'
 import { useFindings } from '../api/hooks'
 import type { Finding, FindingKey } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
+import { Glossed } from '../components/Term'
+import { firstUses } from '../lib/gloss'
 import { useLocale } from '../context/localeContext'
 import { type NavKey, navText } from '../lib/nav'
 
@@ -95,10 +97,18 @@ export function FindingsPage() {
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
   const { items, alpha } = res.data
+  // a term is marked where it is first used on the page, in the order the groups show the items
+  const shown = VERDICTS.flatMap((v) => items.filter((f) => f.verdict === v))
+  const texts = shown.map((f) => t.items[f.key].text(f.values))
+  const uses = firstUses(texts, m.gloss.patterns)
+  const glossOf = new Map(shown.map((f, i) => [f.key, { text: texts[i], keys: uses[i] }]))
   return (
     <div className="page findings-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede(alpha)}</p>
+      <p className="small">
+        <Link to="/glossary">{m.gloss.more}</Link>
+      </p>
       {items.length === 0 && <p className="status">{t.noData}</p>}
       {VERDICTS.map((verdict) => {
         const group = items.filter((f) => f.verdict === verdict)
@@ -115,7 +125,9 @@ export function FindingsPage() {
                 return (
                   <li key={f.key} className="finding">
                     <h3>{item.title}</h3>
-                    <p>{item.text(f.values)}</p>
+                    <p>
+                      <Glossed text={glossOf.get(f.key)!.text} keys={glossOf.get(f.key)!.keys} />
+                    </p>
                     <Link to={page.to} className="small" aria-label={`${item.title}: ${label}`}>
                       {label} {locale === 'he' ? '←' : '→'}
                     </Link>
