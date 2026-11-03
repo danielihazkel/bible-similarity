@@ -1611,6 +1611,18 @@ sums:                         # `bsim sums`: do the sums add up? Lists against t
   # claims fixed in advance: (1) each list adds up, or does not, as `lists` says (known answers: a check of the reading of the numbers); (2) of the parallels' aligned numbers that differ (verses in different books, after the first run), more are one step apart than with the second number drawn from its book (`shuffles`)
   alpha: 0.05
 
+week:                         # `/week`: this week's parasha (DESIGN.md §11.1); the calendar and the reading cycle from pyluach (MIT), computed locally
+  ahead: 6                    # weeks looked ahead past festival Shabbatot for the next weekly reading
+  known:                      # [Shabbat, in Israel, the parashot read]: checked by the tests; the split after Pesach 2019 (the eighth day a Shabbat abroad), Matot–Masei joined abroad only, Bereshit 5786, Vayakhel alone in 5785
+    - ["2019-04-27", true, ["p:Achrei Mot"]]
+    - ["2019-04-27", false, []]
+    - ["2019-05-04", false, ["p:Achrei Mot"]]
+    - ["2019-05-04", true, ["p:Kedoshim"]]
+    - ["2019-08-03", false, ["p:Matot", "p:Masei"]]
+    - ["2019-08-03", true, ["p:Masei"]]
+    - ["2025-10-18", false, ["p:Bereshit"]]
+    - ["2025-03-22", false, ["p:Vayakhel"]]
+
 vocabulary:                   # `bsim vocabulary`: the vocabulary over the canon, book by book in canon order (DESIGN.md §16.76); everything below fixed before the first run
   # a word counts by its content lemmas (OSHB, homonyms apart), Hebrew only (Aramaic words left out: Daniel's and Ezra's would be new by language) and not proper names (morphology Np: the lists of Chronicles, Ezra and Nehemiah would be new by name)
   # a book's new lemmas: those not found in any book before it; a hapax: a lemma found once in the canon; one corpus: a lemma found in one of Torah, Prophets, Writings only

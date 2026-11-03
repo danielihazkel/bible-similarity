@@ -1327,6 +1327,10 @@ export type VocabularyBook = S['VocabularyBook']
 export type VocabularyResponse = S['VocabularyResponse']
 export type LemmaFirst = S['LemmaFirst']
 
+// This week's parasha (`/week`, DESIGN.md §11.1).
+export type WeekResponse = S['WeekResponse']
+export type WeekParasha = S['WeekParasha']
+
 // The workbench (`/workbench/contrast`, `/workbench/check`, DESIGN.md §16.64).
 export type WorkbenchFeature = 'lemma' | 'root' | 'domain' | 'pos' | 'stem' | 'form' | 'person' | 'function' | 'clause'
 export type WorkbenchWithin = 'corpus' | 'book' | 'chapter'

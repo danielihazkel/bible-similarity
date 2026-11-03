@@ -1,10 +1,11 @@
 import { Link } from 'react-router'
-import { useBooks } from '../api/hooks'
+import { useBooks, useWeek } from '../api/hooks'
 import type { Book } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
-import { useT } from '../context/localeContext'
+import { useLocale, useT } from '../context/localeContext'
 import { isGroup, NAV, type NavItem, navText } from '../lib/nav'
 import { TourList } from './ToursPage'
+import { localToday, longDate } from '../lib/week'
 
 export function BooksPage() {
   const m = useT()
@@ -17,6 +18,7 @@ export function BooksPage() {
     <div className="page">
       <h1>{m.books.title}</h1>
       <p className="lede">{m.books.lede}</p>
+      <WeekCard />
       <p>
         <Link to="/findings" className="findings-link">
           {m.books.findings} {m.locale === 'he' ? '←' : '→'}
@@ -53,6 +55,22 @@ export function BooksPage() {
       <StartHere />
       <Explore />
     </div>
+  )
+}
+
+/** This week's parasha, a line linking to its page (nothing when the build has no parashot). */
+function WeekCard() {
+  const { m, locale } = useLocale()
+  const t = m.wk
+  const { data } = useWeek(localToday(), false)
+  if (!data || !Array.isArray(data.parashot) || data.parashot.length === 0) return null
+  const names = data.parashot.map((p) => (locale === 'he' ? p.unit.label_he : p.unit.label_en)).join('–')
+  const when = longDate(data.reading_shabbat ?? data.shabbat, locale)
+  return (
+    <p className="wk-home">
+      <span className="wk-home-title">{t.homeTitle}:</span>{' '}
+      <Link to="/week">{data.festival ? t.homeFestival(names, when) : t.homeLine(names, when)}</Link>
+    </p>
   )
 }
 

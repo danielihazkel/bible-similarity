@@ -43,6 +43,7 @@ import { smEn } from './pages/sums'
 import { vcEn } from './pages/vocabulary'
 import { glossEn } from './pages/glossary'
 import { trEn } from './pages/tours'
+import { wkEn } from './pages/week'
 import { fwEn } from './pages/frameworks'
 import { bnEn } from './pages/binomials'
 import { wbEn } from './pages/workbench'
@@ -142,6 +143,7 @@ export const en = {
     binomials: { label: 'Word pairs', hint: 'Pairs joined by \u2068ו\u2069 in a set order (\u2068שמים וארץ\u2069): the shorter first, the late books’ turns' },
     frameworks: { label: 'Narrative frameworks', hint: 'The judges’ cycle slot by slot, and every king’s verdict and regnal formula' },
     chronology: { label: 'Chronology', hint: 'The years from Adam as the verses count them, and the two kingdoms’ reigns against their synchronisms' },
+    week: { label: 'This week’s parasha', hint: 'The coming Shabbat’s Torah portion, its haftarah and what the analyses found in it' },
     tours: { label: 'Guided tours', hint: 'Four short walks through the strongest findings, a sentence on each page' },
     glossary: { label: 'Glossary', hint: 'The statistics and search terms the pages use (p, q, G², nDCG …), each in a few words' },
     vocabulary: { label: 'Vocabulary', hint: 'New words book by book against Heaps’ law, words found once, each word’s first use' },
@@ -538,6 +540,7 @@ export const en = {
   vc: vcEn,
   gloss: glossEn,
   tr: trEn,
+  wk: wkEn,
   wb: wbEn,
   nb: nbEn,
   echo: echoEn,

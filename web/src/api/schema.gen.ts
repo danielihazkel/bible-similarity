@@ -2560,6 +2560,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/week": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Week
+         * @description The weekly reading of the Shabbat on or after `date` (default: today, the server's).
+         */
+        get: operations["week_api_week_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/els": {
         parameters: {
             query?: never;
@@ -10417,6 +10437,50 @@ export interface components {
             /** Pairs */
             pairs: components["schemas"]["VoicePair"][];
         };
+        /**
+         * WeekHaftarah
+         * @description The sages' haftarah for a parasha (`bsim haftarot`), and how the site ranks it.
+         */
+        WeekHaftarah: {
+            /** Haft */
+            haft: string;
+            /** Seph */
+            seph: string | null;
+            /** Theme */
+            theme: string | null;
+            /** Chapters */
+            chapters: string[];
+            /** Rank Fused */
+            rank_fused: number;
+        };
+        /** WeekParasha */
+        WeekParasha: {
+            unit: components["schemas"]["UnitSummary"];
+            haftarah: components["schemas"]["WeekHaftarah"] | null;
+        };
+        /** WeekResponse */
+        WeekResponse: {
+            /** Date */
+            date: string;
+            /** Israel */
+            israel: boolean;
+            /** Shabbat */
+            shabbat: string;
+            /** Hebrew He */
+            hebrew_he: string;
+            /** Hebrew En */
+            hebrew_en: string;
+            /** Festival */
+            festival: boolean;
+            /** Reading Shabbat */
+            reading_shabbat: string | null;
+            /** Parashot */
+            parashot: components["schemas"]["WeekParasha"][];
+            /** Prev */
+            prev: string;
+            /** Next */
+            next: string;
+        };
         /** WordDetail */
         WordDetail: {
             /** Idx */
@@ -14327,6 +14391,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VocabularyResponse"];
+                };
+            };
+        };
+    };
+    week_api_week_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+                israel?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeekResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

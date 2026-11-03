@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M136: This week's parasha (§11.1, D126; proposed K6)
+- [x] The reading cycle from `pyluach` (MIT, a new dependency; Hebcal's leyning file has no dates), checked first against known Shabbatot in config (`week.known`: the 2019 split after Pesach in Israel and abroad, Matot–Masei, Bereshit 5786, Vayakhel 5785)
+- [x] API `/week?date=&israel=` (`api/week.py`): the Shabbat on or after the date, its Hebrew date, one portion or two, the next weekly reading after a festival's Shabbat, each portion's haftarah; 503 without parasha units
+- [x] Viewer: `/week` (Overview): abroad or in Israel, the viewer's own date or any, the weeks before and after, in the URL; each portion with a link to read it, its haftarah and rank, its dossier; a line on the home page; English and Hebrew
+- [x] Tests: the next Shabbat, the known readings in both places, a festival's Shabbat, the endpoint (portions joined, the haftarah, 503 and 422) (pytest); the page, joined portions, the festival line, the URL, Hebrew, the home line and its absence (vitest); smoke on the real build (axe)
+
+✔ The home page says which portion is read this Shabbat (Chayei Sara on 7 November 2026), and its page gives the haftarah (I Kings 1) and what every analysis found in it.
+
 ## M135: Glossary and guided tours (§11.1, D125; proposed K12)
 - [x] `/glossary`: 18 terms (statistics, evaluation, retrieval, the text) with anchors, English and Hebrew (catalog group `gloss`, with the patterns that find each term in running text)
 - [x] `components/Term.tsx`: the term popover (hover, focus, tap, Escape; `role="tooltip"` describing the button; left out of CSV by `data-nocsv`); on Findings each term marked where the page first uses it (`lib/gloss.ts`); in the first evaluation table, the workbench's G² and q, the haftarot's MRR
@@ -1421,7 +1429,7 @@ Analyses
 
 Tools
 - [ ] K5 Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
-- [ ] K6 This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
+- [x] K6 (done, M136) This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
 - [ ] K7 Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
 - [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
 

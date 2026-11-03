@@ -17,6 +17,7 @@ const QueryPage = lazy(() => import('./pages/QueryPage').then((m) => ({ default:
 const BinomialsPage = lazy(() => import('./pages/BinomialsPage').then((m) => ({ default: m.BinomialsPage })))
 const SumsPage = lazy(() => import('./pages/SumsPage').then((m) => ({ default: m.SumsPage })))
 const GlossaryPage = lazy(() => import('./pages/GlossaryPage').then((m) => ({ default: m.GlossaryPage })))
+const WeekPage = lazy(() => import('./pages/WeekPage').then((m) => ({ default: m.WeekPage })))
 const ToursPage = lazy(() => import('./pages/ToursPage').then((m) => ({ default: m.ToursPage })))
 const VocabularyPage = lazy(() => import('./pages/VocabularyPage').then((m) => ({ default: m.VocabularyPage })))
 const FrameworksPage = lazy(() => import('./pages/FrameworksPage').then((m) => ({ default: m.FrameworksPage })))
@@ -138,6 +139,7 @@ export function App() {
           <Route path="vocabulary" element={<VocabularyPage />} />
           <Route path="glossary" element={<GlossaryPage />} />
           <Route path="tours" element={<ToursPage />} />
+          <Route path="week" element={<WeekPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />

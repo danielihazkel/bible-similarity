@@ -51,6 +51,7 @@ from bsim.api.queries.common import (
     lemma_stats,
     meta,
     n_verses,
+    parasha_units,
     parents,
     previews,
     ref_he,
@@ -168,7 +169,7 @@ from bsim.api.queries.genealogy import (
     genealogy_person,
     genealogy_proofs,
 )
-from bsim.api.queries.haftarot import haftarah_lists, haftarot
+from bsim.api.queries.haftarot import haftarah_lists, haftarot, haftarot_of
 from bsim.api.queries.ketiv import (
     kq_books,
     kq_letters,
@@ -409,6 +410,7 @@ __all__ = [
     "gematria_lemma_heads",
     "gematria_page",
     "gematria_pairs_page",
+    "haftarot_of",
     "known_texts_in",
     "gloss",
     "haftarah_lists",
@@ -449,6 +451,7 @@ __all__ = [
     "parallelism_books",
     "parallelism_units",
     "parallelism_verses",
+    "parasha_units",
     "parents",
     "pentateuch_chapters_page",
     "pentateuch_verses",

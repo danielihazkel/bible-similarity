@@ -116,6 +116,7 @@ export const NAV: NavEntry[] = [
       { to: '/pentateuch', key: 'pentateuch' },
       { to: '/speech', key: 'speech' },
       { to: '/eval', key: 'eval' },
+      { to: '/week', key: 'week' },
       { to: '/tours', key: 'tours' },
       { to: '/glossary', key: 'glossary' },
     ],

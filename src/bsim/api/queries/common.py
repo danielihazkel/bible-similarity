@@ -313,3 +313,11 @@ def dialogue_pairs(conn: sqlite3.Connection, book_id: int) -> list[dict[str, Any
         (book_id,),
     )
     return _dicts(cur)
+
+
+def parasha_units(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """The parashot in the Torah's order (0–53, the weekly cycle's numbering)."""
+    cur = conn.execute(
+        f"SELECT {UNIT_COLS} FROM units WHERE unit_type = 'parasha' ORDER BY start_verse_id"
+    )
+    return _dicts(cur)

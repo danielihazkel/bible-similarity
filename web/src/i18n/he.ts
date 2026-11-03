@@ -50,6 +50,7 @@ import { smHe } from './pages/he/sums'
 import { vcHe } from './pages/he/vocabulary'
 import { glossHe } from './pages/he/glossary'
 import { trHe } from './pages/he/tours'
+import { wkHe } from './pages/he/week'
 import { fwHe } from './pages/he/frameworks'
 import { bnHe } from './pages/he/binomials'
 import { wbHe } from './pages/he/workbench'
@@ -148,6 +149,7 @@ export const he: Messages = {
     binomials: { label: 'צמדי מילים', hint: 'מילים שמחוברות בו׳ בסדר קבוע (שמים וארץ): הקצרה ראשונה, ההיפוכים של הספרים המאוחרים' },
     frameworks: { label: 'המסגרות של הסיפור', hint: 'מחזור השופטים רכיב אחר רכיב, וההערכה ונוסחת המלכות של כל מלך' },
     chronology: { label: 'מניין השנים', hint: 'השנים מאדם כפי שהפסוקים מונים אותן, ומלכי שתי הממלכות מול הסנכרונים שביניהם' },
+    week: { label: 'פרשת השבוע', hint: 'הפרשה של השבת הקרובה, ההפטרה שלה ומה שהניתוחים מצאו בה' },
     tours: { label: 'סיורים מודרכים', hint: 'ארבעה סיורים קצרים בממצאים החזקים, משפט על כל עמוד' },
     glossary: { label: 'מילון מונחים', hint: 'מונחי הסטטיסטיקה והחיפוש שהעמודים משתמשים בהם (p, q, G², nDCG …), כל אחד בכמה מילים' },
     vocabulary: { label: 'אוצר המילים', hint: 'מילים חדשות ספר אחר ספר מול חוק היפס, מילים יחידאיות, השימוש הראשון בכל מילה' },
@@ -535,6 +537,7 @@ export const he: Messages = {
   vc: vcHe,
   gloss: glossHe,
   tr: trHe,
+  wk: wkHe,
   wb: wbHe,
   nb: nbHe,
   echo: echoHe,

@@ -40,6 +40,7 @@ import type {
   SumsParallelsResponse,
   SumsResponse,
   VocabularyResponse,
+  WeekResponse,
   ContrastResponse,
   WorkbenchFeature,
   WorkbenchWithin,
@@ -781,6 +782,14 @@ export const useSumsItems = (key: string) =>
 
 export const useVocabulary = () =>
   useQuery({ queryKey: ['vocabulary'], queryFn: ({ signal }) => getJson<VocabularyResponse>('/vocabulary', {}, signal), ...forever })
+
+export const useWeek = (date: string, israel: boolean) =>
+  useQuery({
+    queryKey: ['week', date, israel],
+    queryFn: ({ signal }) => getJson<WeekResponse>('/week', { date, israel: israel ? 'true' : undefined }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
 
 export interface SumsParallelsQuery {
   across: boolean
