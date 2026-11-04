@@ -176,6 +176,9 @@ train:
     dropout: 0.1                # hidden + attention dropout for init_from: base
     hard_negatives: true        # one BM25 hard negative per pair (train/negatives.py)
     hard_negative_rank_range: [5, 50]   # inclusive, after the ±neighbour filter
+    negatives_from: bm25        # the list a hard negative is drawn from: bm25 (bm25_lemma) | self (self_system) | self_ce (self, the cross-encoder's likely links drawn again) (train/negatives.py, DESIGN.md §16.80, D133)
+    self_system: berel_sup_csls # self / self_ce: the model in use's semantic topk list
+    ce_max: 0.5                 # self_ce: a drawn negative the cross-encoder (rerank.output) scores above this is presumed a missed link; fixed before the first run
     extra_pairs: [openbible, etcbc]   # other golds' train-split pairs as extra positives: openbible | etcbc (train/pairs.py; adopted by supervision-exp, DESIGN.md §16.41)
     extra_min_votes: 5          # an OpenBible pair needs this many votes to be trained on
     eval_steps: 10              # dev evaluation every N optimizer steps (and each epoch end)
@@ -292,7 +295,9 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
     m115: {extra_pairs: [openbible, etcbc]}   # the model in use's recipe on M115's OpenBible pairs (Psalms and renumbered chapters in); adoption as M64 (TASKS M115)
     m115_seed14: {seed: 14, extra_pairs: [openbible, etcbc]}   # the model in use's recipe and pairs, seed 14: the noise bar on the new gold (M127, rule in DESIGN §16.41)
     labels: {extra_pairs: [openbible, etcbc, labels]}   # + your real train-split labels as positives, your not ones as hard negatives (M142, D132); needs labels.min_train
-  noise: seed14               # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance)
+    self: {negatives_from: self}         # hard negatives from the model in use's own semantic list (M143, D133)
+    self_ce: {negatives_from: self_ce}   # the same, the cross-encoder's likely links drawn again
+  noise: m115_seed14          # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance; m115_seed14 since M127: 0.0007 on the gold with the Psalms)
   golds: [sefaria, openbible, etcbc]
   metric: ndcg@10
   bootstrap_reps: 10000

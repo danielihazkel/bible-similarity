@@ -135,7 +135,7 @@ bible-similarity/
 │   ├── train/
 │   │   ├── simcse.py
 │   │   ├── supervised.py           # CachedMNRL fine-tune
-│   │   ├── negatives.py            # BM25 hard-negative mining
+│   │   ├── negatives.py            # hard-negative mining: BM25, the model's own list, the cross-encoder's screen (§16.80)
 │   │   ├── pairs.py                # training pairs: Sefaria + `extra_pairs` (OpenBible, ETCBC, your labels) (§16.41, §16.79)
 │   │   └── rerank.py               # cross-encoder reranker (§16.3)
 │   ├── retrieve/

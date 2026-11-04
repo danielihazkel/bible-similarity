@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M143: Hard negatives from the model's own mistakes (§16.80, D133; proposed K10)
+- [x] `train.supervised.negatives_from: bm25 | self | self_ce`, `self_system`, `ce_max` (`train/negatives.py`): the anchor's list chosen; a screen asked once per pair, a refused draw drawn again in rounds (`redrawn`); without one the draws unchanged
+- [x] `self_ce`'s screen (`ce_accept`): the cross-encoder's stored `fused_rerank` scores reused, the others computed on first need and the GPU freed after
+- [x] Variants `self`, `self_ce`; `supervision_experiments.noise: m115_seed14` (M127's bar, 0.0007), the rule fixed before training
+- [x] The negatives mined on the real data: `self` differs from BM25's in 99.6 % of rows; the cross-encoder flags 2.9 % of its draws (2.6 % of BM25's negatives); `self_ce` redraws 2,205 rows
+- [x] Tests: the screen and redraws, asked once, the fallback, unchanged draws without a screen, the stored scores reused, the list per `negatives_from` (pytest)
+- [x] `train-simcse` / `train-sup` adopted after the dry run (the `train` config and the code changed; no retrain)
+- [ ] Train `self` (about 2.5 h, GPU; the user starts it: `bsim supervision-exp --only self`)
+- [ ] Train `self_ce` (about 2.5 h, GPU: `--only self_ce`)
+- [ ] Dev tables in RESULTS.md and the adoption verdict
+
 ## M142: Label queue (§16.79, D132; proposed K9)
 - [x] `api/label_queue.py`: the fused verse discoveries between two train-split books, by `|lex_rank − sem_rank|` (beyond the lists = k + 1), ties to the stronger pair and the two sides in turn; labelled pairs left out; the pool read once per DB
 - [x] API `GET /labels/queue` (`?side=`, `?limit=`; `no-store`; 503 `splits_missing`), with the counts and the real train pairs against `labels.min_train`
@@ -1492,7 +1503,7 @@ Tools
 
 Models
 - [x] K9 (done, M142; the variant's training waits for labels) Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
-- [ ] K10 Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
+- [x] K10 (code done, M143; the two GPU runs wait for the user) Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
 - [ ] K11 LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
 
 Improvements
