@@ -131,9 +131,12 @@ def labels_queue(
     response: Response,
     side: Annotated[str, Query(pattern="^(all|lexical|semantic)$")] = "all",
     limit: int | None = None,
+    suggested: bool = False,
 ) -> dict[str, Any]:
     """Unlabelled train-book verse pairs where the lexical and semantic lists disagree most
-    (DESIGN.md §16.79): what to judge next. 503 `splits_missing` without `splits.json`."""
+    (DESIGN.md §16.79): what to judge next, with Claude's suggestion where `bsim llm-triage` gave
+    one and its calibration holds (§16.81; `suggested`: those pairs only). 503 `splits_missing`
+    without `splits.json`."""
     response.headers.update(NO_STORE)
     qc, k = state.cfg["labels"]["queue"], state.cfg["retrieval"]["k"]
     limit = qc["size"] if limit is None else limit
@@ -160,6 +163,10 @@ def labels_queue(
         all(book.get(int(r[k].removeprefix("v:"))) in books for k in ("a_id", "b_id")) for r in real
     )
     todo = label_queue.unlabelled(pool, done, side)
+    meta, sugg = label_queue.suggestions(state.cfg)
+    shown = sugg if meta and meta["calibration"]["holds"] else {}
+    if suggested:
+        todo = [p for p in todo if (p.a_id, p.b_id) in shown]
     page = todo[:limit]
     verses = queries.verses_by_id(
         conn, [int(i.removeprefix("v:")) for p in page for i in (p.a_id, p.b_id)]
@@ -172,6 +179,16 @@ def labels_queue(
         "labelled": sum((p.a_id, p.b_id) in done for p in pool),
         "train_real": train_real,
         "min_train": state.cfg["labels"]["min_train"],
+        "llm": None
+        if meta is None
+        else {
+            "model": meta["model"],
+            "collected_at": meta["collected_at"],
+            "auc": meta["calibration"]["auc"],
+            "min_auc": meta["calibration"]["min_auc"],
+            "holds": meta["calibration"]["holds"],
+            "pairs": meta["triage"]["pairs"],
+        },
         "total": len(todo),
         "items": [
             QueueItem(
@@ -184,6 +201,7 @@ def labels_queue(
                 disagreement=p.disagreement,
                 side=p.side,
                 score=p.score,
+                suggestion=shown.get((p.a_id, p.b_id)),
             )
             for p in page
         ],

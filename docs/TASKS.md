@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M144: Claude's suggestions for the label queue (§16.81, D134; proposed K11)
+- [x] `eval/llm_triage.py`, `bsim llm-triage` (`--dry-run`): one Message Batches request per pair, Claude Sonnet 5.5, a JSON-schema answer (verdict, p_real, kind, rationale), the verses' pointed Hebrew, never translated; the batch id saved first, a stopped run resumed; `anthropic` as the `llm` extra
+- [x] Calibration fixed before the run: 50 Sefaria dev links against 50 random dev pairs, shown only from AUC 0.75; the triage the queue's first 500 pairs
+- [x] The run (2026-11-04, about $1.02): AUC 0.983 (random pairs all *not*; Sefaria links 32 real, 11 not, 7 unsure); the queue 249 real, 142 not, 109 unsure, the semantic side more often real
+- [x] Glosses: 82 of 600 rationales glossed a Hebrew word in English all the same; `clean_rationale` removes them (73 of the 500 shown) and hides a rationale that glosses in prose (2)
+- [x] API: `/labels/queue` with `llm` and each item's `suggestion`, `?suggested=true`; read from `artifacts/llm/`, never the labels file
+- [x] Viewer: the suggestion under the two verses, the run's line, *Only pairs with a suggestion*; English and Hebrew
+- [x] Tests: the prompt, the answers read, the calibration pairs, a fake batch submitted, polled, collected and resumed, the gloss filter, the queue's suggestions over the fixture DB (pytest); the page (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ Claude reads 500 queue pairs for about a dollar and tells Sefaria's links from random pairs at AUC 0.98; its verdicts sit beside the buttons as suggestions, and the labels stay the reader's.
+
 ## M143: Hard negatives from the model's own mistakes (§16.80, D133; proposed K10)
 - [x] `train.supervised.negatives_from: bm25 | self | self_ce`, `self_system`, `ce_max` (`train/negatives.py`): the anchor's list chosen; a screen asked once per pair, a refused draw drawn again in rounds (`redrawn`); without one the draws unchanged
 - [x] `self_ce`'s screen (`ce_accept`): the cross-encoder's stored `fused_rerank` scores reused, the others computed on first need and the GPU freed after
@@ -1504,7 +1515,7 @@ Tools
 Models
 - [x] K9 (done, M142; the variant's training waits for labels) Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
 - [x] K10 (code done, M143; the two GPU runs wait for the user) Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
-- [ ] K11 LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
+- [x] K11 (done, M144) LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
 
 Improvements
 - [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page

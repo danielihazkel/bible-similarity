@@ -59,6 +59,26 @@ class LabelsEval(ApiModel):
     rows: list[LabelSeparation]
 
 
+class Suggestion(ApiModel):
+    """Claude's reading of a queue pair (`bsim llm-triage`, DESIGN.md §16.81): never a label."""
+
+    verdict: Literal["real", "not", "unsure"]
+    p_real: float  # its probability that the connection is real
+    kind: str  # one of llm_triage.KINDS (quotation, allusion, parallel_account, ...)
+    rationale: str | None  # in English, naming Hebrew words; glosses removed, None if it glosses
+
+
+class LlmTriage(ApiModel):
+    """The run the suggestions come from, and its calibration."""
+
+    model: str
+    collected_at: str
+    auc: float | None  # p_real, Sefaria dev links against random dev pairs
+    min_auc: float
+    holds: bool  # suggestions are shown only when it does
+    pairs: int  # pairs triaged
+
+
 class QueueItem(ApiModel):
     """A pair of the label queue (DESIGN.md §16.79): two train-book verses the modes rank apart."""
 
@@ -71,6 +91,7 @@ class QueueItem(ApiModel):
     disagreement: int  # |lex_rank - sem_rank|, a rank beyond the lists counted as k + 1
     side: Literal["lexical", "semantic", "both"]  # the mode that ranks it higher
     score: float  # its fused score
+    suggestion: Suggestion | None = None  # when `bsim llm-triage` read it and its calibration holds
 
 
 class LabelQueue(ApiModel):
@@ -81,5 +102,6 @@ class LabelQueue(ApiModel):
     labelled: int  # of them already labelled
     train_real: int  # your real verse pairs between two books of the split (any page)
     min_train: int  # what training on them needs (labels.min_train)
+    llm: LlmTriage | None  # the last `bsim llm-triage` run (None: never run)
     total: int  # unlabelled pairs of the side asked for
     items: list[QueueItem]  # the first `limit` of them, most disagreement first

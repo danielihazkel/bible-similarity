@@ -68,8 +68,10 @@ const QUEUE: LabelQueue = {
       disagreement: 50,
       side: 'semantic',
       score: 0.016,
+      suggestion: { verdict: 'real', p_real: 0.8, kind: 'allusion', rationale: 'השמים in both, as the witnesses of creation' },
     },
   ],
+  llm: { model: 'claude-sonnet-5-5', collected_at: '2026-11-04T12:00:00+00:00', auc: 0.91, min_auc: 0.75, holds: true, pairs: 500 },
 }
 
 function mockApi(writable = true) {
@@ -142,6 +144,10 @@ describe('The label queue', () => {
     expect(await screen.findByText('75 pairs to judge · 4 of 79 judged')).toBeTruthy()
     expect(screen.getByText(/lexical rank beyond 50 · semantic rank 1/)).toBeTruthy()
     expect(screen.getByText(/You have 3 real pairs between training books/)).toBeTruthy()
+    // Claude's suggestion beside the buttons, and the run it comes from
+    expect(screen.getByText('Claude suggests: Real (p 0.80, allusion).')).toBeTruthy()
+    expect(screen.getByText('השמים in both, as the witnesses of creation').getAttribute('lang')).toBe('en')
+    expect(screen.getByText(/AUC 0\.91 \(shown from 0\.75\)/)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Psalms 19:2' }).getAttribute('href')).toBe('/unit/v%3A900')
     fireEvent.click(await screen.findByRole('button', { name: 'Real' }))
     await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
@@ -152,6 +158,9 @@ describe('The label queue', () => {
     await waitFor(() =>
       expect(fetchMock.mock.calls.some(([u]) => String(u).includes('/api/labels/queue') && String(u).includes('side=semantic'))).toBe(true),
     )
+    // only the pairs Claude read
+    fireEvent.click((await screen.findByRole('checkbox', { name: 'Only pairs with a suggestion' })))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([u]) => String(u).includes('suggested=true'))).toBe(true))
   })
 
   it('switches between the two views, and reads in Hebrew', async () => {

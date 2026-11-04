@@ -583,6 +583,10 @@ export type QueueItem = S['QueueItem']
 
 export type LabelQueue = S['LabelQueue']
 
+export type Suggestion = S['Suggestion']
+
+export type LlmTriage = S['LlmTriage']
+
 export type QueueSide = 'all' | 'lexical' | 'semantic'
 
 // --- BHSA syntax: clauses, speakers, who speaks where (DESIGN.md §16.26) ---

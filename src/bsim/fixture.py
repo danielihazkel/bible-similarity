@@ -2582,6 +2582,27 @@ def write_reception(cfg):
     (out / "reception.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_llm_triage(cfg):
+    """A `bsim llm-triage` run (§16.81): Claude's suggestion for the queue's one pair, v:0 / v:3,
+    its calibration holding (made up; only the plumbing is tested)."""
+    out = resolve_path(cfg, "artifacts") / "llm"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {"set": ["triage"], "custom_id": ["tri-0"], "a_id": ["v:0"], "b_id": ["v:3"],
+         "gold": [None], "status": ["ok"], "verdict": ["not"], "p_real": [0.2],
+         "kind": ["shared_formula"], "rationale": ["Only ראשית is shared."],
+         "input_tokens": [100], "output_tokens": [50]}
+    ).to_parquet(out / "triage.parquet", index=False)  # fmt: skip
+    meta = {
+        "model": "claude-sonnet-5-5", "batch_id": "msgbatch_fixture",
+        "collected_at": "2026-11-04T12:00:00+00:00",
+        "calibration": {"split": "dev", "gold": 50, "random": 50, "auc": 0.9, "min_auc": 0.75,
+                        "holds": True},
+        "triage": {"pairs": 1, "ok": 1, "verdicts": {"real": 0, "not": 1, "unsure": 0}},
+    }  # fmt: skip
+    (out / "llm_triage.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
 def write_witnesses(cfg):
     """Other witnesses (`bsim witnesses`), made up: the Samaritan has v0 (a spelling), v1 (a plus of
     four words) and v2 (a word changed, one left out); 4Q51 has v2, partly reconstructed; 1Qisaa
@@ -2691,6 +2712,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_vocabulary(cfg)
     write_reception(cfg)
     write_witnesses(cfg)
+    write_llm_triage(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

@@ -442,10 +442,10 @@ export const useLabelsEval = () =>
 
 /** The label queue (DESIGN.md §16.79): its own key, so a label does not refetch it at once (the
  * pair judged stays in view until "Next pairs" refetches). */
-export const useLabelQueue = (side: QueueSide) =>
+export const useLabelQueue = (side: QueueSide, suggested = false) =>
   useQuery({
-    queryKey: ['label-queue', side],
-    queryFn: ({ signal }) => getJson<LabelQueue>('/labels/queue', { side }, signal),
+    queryKey: ['label-queue', side, suggested],
+    queryFn: ({ signal }) => getJson<LabelQueue>('/labels/queue', { side, suggested: suggested ? 'true' : undefined }, signal),
   })
 
 /** The key of a pair in either order. */

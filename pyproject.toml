@@ -35,6 +35,11 @@ dev = [
 [project.scripts]
 bsim = "bsim.cli:app"
 
+[project.optional-dependencies]
+llm = [
+    "anthropic>=2.4.0",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

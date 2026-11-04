@@ -1405,7 +1405,9 @@ export interface paths {
         /**
          * Labels Queue
          * @description Unlabelled train-book verse pairs where the lexical and semantic lists disagree most
-         *     (DESIGN.md §16.79): what to judge next. 503 `splits_missing` without `splits.json`.
+         *     (DESIGN.md §16.79): what to judge next, with Claude's suggestion where `bsim llm-triage` gave
+         *     one and its calibration holds (§16.81; `suggested`: those pairs only). 503 `splits_missing`
+         *     without `splits.json`.
          */
         get: operations["labels_queue_api_labels_queue_get"];
         put?: never;
@@ -6937,6 +6939,7 @@ export interface components {
             train_real: number;
             /** Min Train */
             min_train: number;
+            llm: components["schemas"]["LlmTriage"] | null;
             /** Total */
             total: number;
             /** Items */
@@ -7289,6 +7292,24 @@ export interface components {
             twins: components["schemas"]["VerseLabel"][];
             /** Properties */
             properties: components["schemas"]["LinkProperty"][];
+        };
+        /**
+         * LlmTriage
+         * @description The run the suggestions come from, and its calibration.
+         */
+        LlmTriage: {
+            /** Model */
+            model: string;
+            /** Collected At */
+            collected_at: string;
+            /** Auc */
+            auc: number | null;
+            /** Min Auc */
+            min_auc: number;
+            /** Holds */
+            holds: boolean;
+            /** Pairs */
+            pairs: number;
         };
         /** MapCluster */
         MapCluster: {
@@ -8590,6 +8611,7 @@ export interface components {
             side: "lexical" | "semantic" | "both";
             /** Score */
             score: number;
+            suggestion: components["schemas"]["Suggestion"] | null;
         };
         /**
          * RabbinicSource
@@ -10341,6 +10363,23 @@ export interface components {
             order: number[];
             /** Delta */
             delta: components["schemas"]["StyloDelta"][];
+        };
+        /**
+         * Suggestion
+         * @description Claude's reading of a queue pair (`bsim llm-triage`, DESIGN.md §16.81): never a label.
+         */
+        Suggestion: {
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "real" | "not" | "unsure";
+            /** P Real */
+            p_real: number;
+            /** Kind */
+            kind: string;
+            /** Rationale */
+            rationale: string | null;
         };
         /** SumsItem */
         SumsItem: {
@@ -13558,6 +13597,7 @@ export interface operations {
             query?: {
                 side?: string;
                 limit?: number | null;
+                suggested?: boolean;
             };
             header?: never;
             path?: never;

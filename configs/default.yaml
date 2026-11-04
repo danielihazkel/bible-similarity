@@ -1819,6 +1819,24 @@ compare_builds:               # `bsim compare-builds OLD NEW`: what changed betw
   examples: 5                 # differing keys / meta paths shown per table
   volatile_meta: [built_at, similar_benchmark]   # meta keys that differ between any two builds (the build time, /similar timings), reported apart
 
+llm_triage:                   # `bsim llm-triage`: Claude's suggestions for the label queue, never labels (DESIGN.md §16.81, D134); run by hand, paid
+  model: claude-sonnet-5-5    # the owner's choice (2026-11-03)
+  max_pairs: 500              # the first pairs of the label queue
+  effort: medium              # output_config.effort
+  max_tokens: 8000            # per answer, the thinking included
+  rationale_chars: 400        # longest rationale kept
+  seed: 61
+  calibration:                # fixed before the first run
+    split: dev                # Sefaria verse links of this split against random pairs of its books
+    gold: 50
+    random: 50
+    min_auc: 0.75             # suggestions are shown only when the AUC of p_real, gold against random, reaches this
+  poll_seconds: 30
+  max_wait_hours: 24          # a batch may take a day; a rerun resumes it
+  price_per_mtok: {input: 1.0, output: 5.0}   # Message Batches price of the model (half its $2 / $10), for the estimate and the reported cost only
+  chars_per_token: 2.0        # the estimate's input tokens (pointed Hebrew tokenizes densely)
+  typical_output_tokens: 1200 # the estimate's typical answer, thinking included
+
 source_find:                  # POST /source-find: the biblical phrases of a pasted text (DESIGN.md §11.1, D131); fixed before the examples were first run
   max_chars: 5000             # a longer text is refused (422)
   seed_max: 50                # adjacent words found in more verses than this seed nothing (formulae)

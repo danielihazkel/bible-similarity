@@ -50,4 +50,19 @@ export const labHe: typeof labEn = {
   queueMore: 'הזוגות הבאים',
   queueMoreTitle: 'הצגת הזוגות הבאים; אלה ששפטת יוצאים מהתור',
   queueMissing: 'התור צריך את חלוקת הספרים: הריצו bsim build-links.',
+  llmLine: (model: string, auc: string, min: string, n: number) =>
+    `הצעות של ${model} ל־${numHe(n)} הזוגות הראשונים בתור (bsim llm-triage). נבדק תחילה על קישורי הפיתוח של ספריא מול זוגות אקראיים מספרי הפיתוח: AUC ${auc} (מוצג החל מ־${min}). אלה הצעות בלבד: שום דבר לא מסומן עד שתלחצו, והנימוקים שלו הם שלו, באנגלית.`,
+  llmHidden: (auc: string, min: string) =>
+    `ההצעות של Claude מוסתרות: על קישורי הפיתוח של ספריא מול זוגות אקראיים ה־AUC שלו היה ${auc}, מתחת ל־${min} שנקבע מראש.`,
+  onlySuggested: 'רק זוגות עם הצעה',
+  suggests: (verdict: string, p: string, kind: string) => `Claude מציע: ${verdict} (p ${p}, ${kind}).`,
+  kinds: {
+    quotation: 'ציטוט',
+    allusion: 'רמז',
+    parallel_account: 'סיפור מקביל',
+    shared_formula: 'נוסחה משותפת',
+    shared_phrase: 'צירוף משותף',
+    thematic: 'נושאי',
+    none: 'אין קשר',
+  },
 }

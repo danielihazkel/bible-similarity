@@ -536,6 +536,10 @@ test('label queue: train-book pairs the two lists rank apart, the two sides in t
   for (const h of heads) expect(h).not.toMatch(/(Joshua|Judges|I Samuel|Ezekiel|Micah|Nahum|Zephaniah|Proverbs|Job|Ruth|Esther|Daniel|Ezra|Nehemiah|Zechariah|Haggai|Ecclesiastes)/)
   await page.getByRole('radio', { name: 'Semantic' }).click()
   await expect(items.nth(1)).toContainText(/semantic rank 1/)
+  // Claude's suggestions (bsim llm-triage, 2026-11-04): its calibration held (AUC 0.98)
+  await expect(page.getByText(/AUC 0\.98 \(shown from 0\.75\)/)).toBeVisible()
+  await page.getByRole('checkbox', { name: 'Only pairs with a suggestion' }).check()
+  await expect(items.first().locator('.queue-suggestion')).toContainText(/^Claude suggests: (Real|Not|Unsure) \(p [01]\.\d\d, /)
 })
 
 test('source finder: Aleinu’s six verses, the priestly blessing as one passage, the Mishnah’s Deut 6:7', async ({ page }) => {

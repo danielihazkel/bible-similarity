@@ -935,6 +935,24 @@ def eval_labels(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-triage")
+def llm_triage(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude's suggestions for the label queue, in one Message Batch (paid; DESIGN.md §16.81)."""
+    from bsim.eval.llm_triage import run_llm_triage
+
+    try:
+        run_llm_triage(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""

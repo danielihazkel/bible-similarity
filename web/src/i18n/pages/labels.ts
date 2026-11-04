@@ -53,4 +53,19 @@ export const labEn = {
   queueMore: 'Next pairs',
   queueMoreTitle: 'Show the next pairs; the ones you judged leave the queue',
   queueMissing: 'The queue needs the book split: run bsim build-links.',
+  llmLine: (model: string, auc: string, min: string, n: number) =>
+    `Suggestions by ${model} for the first ${numEn(n)} pairs of the queue (bsim llm-triage). Checked first on Sefaria’s dev links against random dev pairs: AUC ${auc} (shown from ${min}). They are suggestions only: nothing is labelled until you click, and its reasons are its own, in English.`,
+  llmHidden: (auc: string, min: string) =>
+    `Claude’s suggestions are hidden: on Sefaria’s dev links against random dev pairs its AUC was ${auc}, below the ${min} fixed beforehand.`,
+  onlySuggested: 'Only pairs with a suggestion',
+  suggests: (verdict: string, p: string, kind: string) => `Claude suggests: ${verdict} (p ${p}, ${kind}).`,
+  kinds: {
+    quotation: 'quotation',
+    allusion: 'allusion',
+    parallel_account: 'parallel account',
+    shared_formula: 'shared formula',
+    shared_phrase: 'shared phrase',
+    thematic: 'thematic',
+    none: 'no connection',
+  } as Record<string, string>,
 }

@@ -120,6 +120,44 @@ def queue_for(conn: sqlite3.Connection, db: Path, books: set[int], missing: int)
         return _cache[key]
 
 
+_triage: dict[tuple, tuple[dict[str, Any] | None, dict[tuple[str, str], dict[str, Any]]]] = {}
+
+
+def suggestions(
+    cfg: dict[str, Any],
+) -> tuple[dict[str, Any] | None, dict[tuple[str, str], dict[str, Any]]]:
+    """`bsim llm-triage`'s last run (§16.81): its meta and pair -> suggestion (the answers that
+    could be read), read again when the files change; (None, {}) when it never ran."""
+    out = resolve_path(cfg, "artifacts") / "llm"
+    files = [out / "llm_triage.meta.json", out / "triage.parquet"]
+    if not all(f.exists() for f in files):
+        return None, {}
+    key = tuple(f.stat().st_mtime_ns for f in files)
+    with _lock:
+        if key not in _triage:
+            import pandas as pd
+
+            meta = json.loads(files[0].read_text("utf-8"))
+            df = pd.read_parquet(files[1])
+            df = df[df.status == "ok"]
+            from bsim.eval.llm_triage import clean_rationale
+
+            rows = {
+                (a, b): {
+                    "verdict": v,
+                    "p_real": float(p),
+                    "kind": k,
+                    "rationale": clean_rationale(r),
+                }
+                for a, b, v, p, k, r in zip(
+                    df.a_id, df.b_id, df.verdict, df.p_real, df.kind, df.rationale, strict=True
+                )
+            }
+            _triage.clear()
+            _triage[key] = (meta, rows)
+        return _triage[key]
+
+
 def unlabelled(pool: list[QueuePair], labelled: set[tuple[str, str]], side: str) -> list[QueuePair]:
     """The pool without labelled pairs, of one side (`all`: every pair)."""
     return [

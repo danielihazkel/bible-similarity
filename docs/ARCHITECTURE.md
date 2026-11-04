@@ -208,6 +208,7 @@ bible-similarity/
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
+│   │   ├── llm_triage.py           # `bsim llm-triage`: Claude's suggestions for the label queue, by Message Batch (§16.81)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
 │   │   ├── schema.sql              # every table and column of results.sqlite
@@ -281,6 +282,7 @@ bible-similarity/
 | — | `bsim encoder-exp [--retrain] [--only NAME]` | verses, links, golds, lexical, `berel_sup` and `bge_m3` embeddings | `models/{name}-sup/`, `artifacts/train/hard_negatives_{name}.parquet`, `eval/encoder_experiments.{json,md}` (§16.48; manual, never edits the config) |
 | 11a | `bsim eval-openbible` | OpenBible pairs, splits, final verse topk | `artifacts/eval/openbible.{json,md}` (§16.13) |
 | — | `bsim eval-labels` | `paths.labels` (written by the viewer), verses, splits, links, final verse topk | `artifacts/eval/labels.{json,md}` (§16.25; run by hand, not in `bsim all`) |
+| — | `bsim llm-triage` | verses, links, golds, splits, the results DB (the label queue), `paths.labels`; the Anthropic API (`ANTHROPIC_API_KEY`, paid) | `artifacts/llm/{pairs,calibration,triage}.parquet`, `llm_triage.meta.json`, `batch.json` (§16.81; run by hand, not in `bsim all`) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |

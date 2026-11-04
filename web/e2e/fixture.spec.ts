@@ -959,6 +959,9 @@ test('a pair is judged from the label queue and leaves it', async ({ page }, inf
   const items = page.locator('.queue-list > li')
   await expect(items).toHaveCount(1)
   await expect(page.getByText('1 pair to judge · 0 of 1 judged')).toBeVisible()
+  // the fixture's made-up `bsim llm-triage` run: a suggestion, never a label
+  await expect(items.locator('.queue-suggestion')).toContainText('Claude suggests: Not (p 0.20, shared formula).')
+  await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'false')
   await items.getByRole('button', { name: 'Not' }).click()
   await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: 'Next pairs' }).click()

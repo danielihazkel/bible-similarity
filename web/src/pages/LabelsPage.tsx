@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ApiError } from '../api/client'
 import { useLabelQueue, useLabels, useLabelsEval, useSetLabel } from '../api/hooks'
-import type { Label, LabelValue, Mode, QueueItem, QueueSide } from '../api/types'
+import type { Label, LabelValue, LlmTriage, Mode, QueueItem, QueueSide, Suggestion } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
@@ -109,7 +109,8 @@ function Queue() {
   const t = m.lab
   const [params, update] = useQueryParams()
   const side: QueueSide = SIDES.includes(params.get('side') as QueueSide) ? (params.get('side') as QueueSide) : 'all'
-  const q = useLabelQueue(side)
+  const suggested = params.get('suggested') === '1'
+  const q = useLabelQueue(side, suggested)
   if (q.isPending) return <Loading />
   if (q.error)
     return q.error instanceof ApiError && q.error.status === 503 ? <p className="status">{t.queueMissing}</p> : <ErrorBox error={q.error} />
@@ -119,6 +120,7 @@ function Queue() {
       <h2 id="lq-h">{t.views.queue}</h2>
       <p className="lede">{t.queueLede}</p>
       <p className="muted small">{t.queueTraining(d.train_real, d.min_train)}</p>
+      {d.llm && <LlmLine llm={d.llm} />}
       {!d.writable && <p className="status">{t.readOnly}</p>}
       <div className="toolbar">
         <Segmented
@@ -127,6 +129,12 @@ function Queue() {
           onChange={(v) => update({ side: v === 'all' ? null : v })}
           options={SIDES.map((v) => ({ value: v, label: v === 'all' ? t.either : m.modes.names[v] }))}
         />
+        {d.llm?.holds && (
+          <label className="check">
+            <input type="checkbox" checked={suggested} onChange={(e) => update({ suggested: e.target.checked ? '1' : null })} />
+            {t.onlySuggested}
+          </label>
+        )}
         <span className="muted small">{t.queueCounts(d.total, d.pool, d.labelled)}</span>
       </div>
       {d.items.length === 0 ? (
@@ -168,6 +176,7 @@ function QueueRow({ i, k }: { i: QueueItem; k: number }) {
       <p className="queue-text">
         <HebrewText verse={i.b} />
       </p>
+      {i.suggestion && <SuggestionNote s={i.suggestion} />}
       <p className="queue-actions">
         <LabelButtons a={i.a_id} b={i.b_id} mode={QUEUE} score={i.score} />
         <Link className="linkish small" to={compareLink(i.a_id, i.b_id)} title={m.hit.compareTitle}>
@@ -175,6 +184,28 @@ function QueueRow({ i, k }: { i: QueueItem; k: number }) {
         </Link>
       </p>
     </li>
+  )
+}
+
+/** Where the suggestions come from, and whether they are shown (DESIGN.md §16.81). */
+function LlmLine({ llm }: { llm: LlmTriage }) {
+  const t = useLocale().m.lab
+  const auc = llm.auc === null ? '—' : llm.auc.toFixed(2)
+  return <p className="muted small">{llm.holds ? t.llmLine(llm.model, auc, llm.min_auc.toFixed(2), llm.pairs) : t.llmHidden(auc, llm.min_auc.toFixed(2))}</p>
+}
+
+/** Claude's reading of a pair: a suggestion beside the buttons, never a label. */
+function SuggestionNote({ s }: { s: Suggestion }) {
+  const t = useLocale().m.lab
+  return (
+    <p className={`queue-suggestion small suggest-${s.verdict}`}>
+      <span className="queue-suggestion-head">{t.suggests(t.values[s.verdict as LabelValue], s.p_real.toFixed(2), t.kinds[s.kind] ?? s.kind)}</span>{' '}
+      {s.rationale && (
+        <span lang="en" dir="ltr">
+          {s.rationale}
+        </span>
+      )}
+    </p>
   )
 }
 
