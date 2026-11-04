@@ -4,6 +4,7 @@ import { useReader, useStructure, useUnit, useUnitParallelism } from '../api/hoo
 import type { DivineName, PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, ReaderVerse, UnitDetail, Verse } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText, type WordLook } from '../components/HebrewText'
+import { PrintButton } from '../components/PrintButton'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { WordPanel } from '../components/WordPanel'
@@ -178,6 +179,10 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
         <Link to={`/browse/${unit.book_id}`}>{m.units.book}</Link>
         {' · '}
         <Link to={unitLink(unit.unit_id)}>{t.unitPage}</Link>
+        <span className="no-print">
+          {' · '}
+          <PrintButton />
+        </span>
         <span className="prevnext">
           {detail.prev_id ? (
             <Link to={readLink(detail.prev_id, search)} rel="prev">

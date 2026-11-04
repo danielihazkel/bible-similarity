@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M137: Print and export (§11.1, D127; proposed K7)
+- [x] A print stylesheet: no menus, tour bar, controls or panels; the whole width on white, light from a dark screen (the dark tokens on screen only); marks' colours kept; rows and verses not split. A Print button on the synopsis and the reader
+- [x] The map as an SVG file (`lib/svgExport.ts`): the stylesheet's look written on each element, in the light theme, thin strokes kept thin; on every page that draws the map
+- [x] The family tree as a poster (`lib/treePoster.ts`): the people below a person as opened, with a title, the date, headers by mother, what is not opened and a legend; right to left in Hebrew; the avatars' figures shared with the page (`lib/avatarShapes.ts`)
+- [x] Tests: the poster's layout and markup, a standalone drawing, the map's and the panel's downloads, the Print button (vitest); on the real build Jacob's poster, the map's SVG and a synopsis in print media from a dark screen (smoke). Fixture e2e: the home page's 503 from `/api/week` (no parasha units, M136) no longer counted as an error; `/week`'s week buttons styled, as their browser default failed contrast in the dark theme (M136, axe)
+
+✔ A synopsis or a chapter prints clean, from either theme; the map saves as an SVG as drawn; Nahor's family (19 people, 4 generations) or Abraham's opened to the end (1,303 people, 40 generations) saves as a poster to print.
+
 ## M136: This week's parasha (§11.1, D126; proposed K6)
 - [x] The reading cycle from `pyluach` (MIT, a new dependency; Hebcal's leyning file has no dates), checked first against known Shabbatot in config (`week.known`: the 2019 split after Pesach in Israel and abroad, Matot–Masei, Bereshit 5786, Vayakhel 5785)
 - [x] API `/week?date=&israel=` (`api/week.py`): the Shabbat on or after the date, its Hebrew date, one portion or two, the next weekly reading after a festival's Shabbat, each portion's haftarah; 503 without parasha units
@@ -1430,7 +1438,7 @@ Analyses
 Tools
 - [ ] K5 Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
 - [x] K6 (done, M136) This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
-- [ ] K7 Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
+- [x] K7 (done, M137) Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
 - [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
 
 Models

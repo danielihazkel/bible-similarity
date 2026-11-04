@@ -142,6 +142,14 @@ describe('SynopsisPage', () => {
     expect(screen.getByText(/3 שורות, 2 מהן/)).toBeTruthy()
   })
 
+  it('prints the synopsis through the print stylesheet', async () => {
+    const print = vi.fn()
+    vi.stubGlobal('print', print)
+    renderAt('/synopses/13', [])
+    fireEvent.click(await screen.findByRole('button', { name: 'Print' }))
+    expect(print).toHaveBeenCalledOnce()
+  })
+
   it('says when the id is not a number', () => {
     renderAt('/synopses/x', [])
     expect(screen.getByText('Not a synopsis id.')).toBeTruthy()

@@ -21,12 +21,13 @@ interface PanelProps {
   onPick: (id: number) => void
   onShow: (id: number) => void
   onOpenAll: (id: number, open: boolean) => void
+  onPoster: (id: number) => void
   onClose: () => void
 }
 
 /** One person: where they stand, their family with the verses of each link, the readings where
  * the text disagrees. */
-export function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAll, onClose }: PanelProps) {
+export function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAll, onPoster, onClose }: PanelProps) {
   const { locale } = useLocale()
   const res = useGenealogyPerson(personId)
   const [allMembers, setAllMembers] = useState(false)
@@ -85,6 +86,9 @@ export function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAl
             </button>
             <button type="button" onClick={() => onOpenAll(p.person_id, false)}>
               {t.closeAll}
+            </button>
+            <button type="button" onClick={() => onPoster(p.person_id)} title={t.posterHint}>
+              {t.poster}
             </button>
           </>
         )}

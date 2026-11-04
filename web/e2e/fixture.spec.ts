@@ -158,9 +158,20 @@ const PAGES = [
 
 function collectErrors(page: Page): string[] {
   const errors: string[] = []
+  // the fixture has no parasha units: this week's reading answers 503 and the home page leaves its
+  // line out, as it should (M136); the browser still logs the response, once for each such answer
+  let week503 = 0
+  page.on('response', (r) => {
+    if (r.status() === 503 && new URL(r.url()).pathname === '/api/week') week503++
+  })
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => {
-    if (m.type() === 'error') errors.push(m.text())
+    if (m.type() !== 'error') return
+    if (week503 > 0 && m.text().includes('status of 503')) {
+      week503--
+      return
+    }
+    errors.push(m.text())
   })
   return errors
 }

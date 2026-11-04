@@ -3,6 +3,7 @@ import type { BasemapResponse } from '../api/types'
 import { useT } from '../context/localeContext'
 import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, viewBox, zoomBounds, zoomBoundsAt } from '../lib/geo'
 import { usePanZoom } from '../lib/panZoom'
+import { downloadSvg, standaloneSvg } from '../lib/svgExport'
 
 interface Props {
   basemap: BasemapResponse | undefined
@@ -24,6 +25,8 @@ interface Props {
   labelOf?: (p: GeoPoint) => string
   /** A point's tooltip and caption (default: its name and verses). */
   titleOf?: (p: GeoPoint) => string
+  /** The saved drawing's file name, without ".svg". */
+  file?: string
 }
 
 const R_MIN = 3 // point radius in CSS pixels: R_MIN + R_LOG × log2(1 + verses), at most R_MAX
@@ -41,7 +44,7 @@ const ZOOM = 1.6
  */
 const hebrewName = (p: GeoPoint) => p.he
 
-export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = hebrewName, titleOf }: Props) {
+export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, label, labels = 0, aspect = 0.85, paths = [], fillOf, labelOf = hebrewName, titleOf, file = 'map' }: Props) {
   const m = useT()
   const t = m.geo
   const title = titleOf ?? ((p: GeoPoint) => t.pointTitle(p.he, p.n))
@@ -184,6 +187,11 @@ export function GeoMap({ basemap, points, bounds, onBounds, selected, onSelect, 
           </button>
         </div>
       )}
+      <p className="geo-save small">
+        <button type="button" className="linkish" title={m.out.mapTitle} onClick={() => ref.current && downloadSvg(`${file}.svg`, standaloneSvg(ref.current, label))}>
+          {m.out.svg}
+        </button>
+      </p>
       <figcaption className="muted small" aria-live="polite" dir="auto">
         {current ? title(current) : t.idle}
       </figcaption>

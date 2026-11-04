@@ -235,7 +235,7 @@ bible-similarity/
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   └── src/
 │       ├── api/                    # types (aliases of the generated schema; open JSON fields by hand + drift check), fetch client, TanStack Query hooks
-│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list (+ vitest)
+│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list, SVG export and the family tree's poster (+ vitest)
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)

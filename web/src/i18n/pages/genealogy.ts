@@ -77,6 +77,13 @@ export const gtEn = {
   showInTree: 'Show in the tree',
   openAll: 'Open all below',
   closeAll: 'Close all below',
+  // the poster (§11.1): the people below as opened, as an SVG file to print
+  poster: 'Save as a poster (SVG)',
+  posterHint: 'The people below as they are opened in the tree; open all below first to draw everyone.',
+  posterTitle: (name: string) => `The family tree from ${name}`,
+  posterSub: (people: number, generations: number, date: string) => `${countEn(people, 'person', 'people')} in ${countEn(generations, 'generation', 'generations')}, as opened in the tree · ${date}`,
+  posterHidden: (n: number) => `+${numEn(n)} below`,
+  posterChild: 'Parent and child',
   parents: 'Parents',
   spouses: 'Spouses',
   children: 'Children',

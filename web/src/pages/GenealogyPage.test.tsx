@@ -285,6 +285,24 @@ describe('GenealogyPage', () => {
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/genealogy?p=13'))
   })
 
+  it('saves the people below a person, as opened, as a poster', async () => {
+    let blob: Blob | undefined
+    let file = ''
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: (b: Blob) => ((blob = b), 'blob:x'), revokeObjectURL: () => undefined }))
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      file = this.download
+    })
+    renderAt('/genealogy?p=5')
+    const panel = await screen.findByRole('region', { name: 'Person' })
+    fireEvent.click(await within(panel).findByRole('button', { name: 'Save as a poster (SVG)' }))
+    expect(file).toBe('family-tree-5.svg')
+    const svg = await blob!.text()
+    expect(svg).toContain('<title>The family tree from למך</title>')
+    expect(svg).toMatch(/\d+ (person|people) in \d+ generations?, as opened in the tree/)
+    expect(svg).toContain('Tanakh Similarity')
+    click.mockRestore()
+  })
+
   it('finds a person by name', async () => {
     renderAt('/genealogy')
     fireEvent.change(await screen.findByRole('searchbox'), { target: { value: 'אנוש' } })

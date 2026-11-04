@@ -354,6 +354,12 @@ export const he: Messages = {
   },
 
   csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)', table: 'ייצוא הטבלה (CSV)' },
+  out: {
+    print: 'הדפסה',
+    printTitle: 'הדפסת העמוד, או שמירתו כ־PDF מחלון ההדפסה',
+    svg: 'שמירה כ־SVG',
+    mapTitle: 'שמירת המפה כפי שהיא מצוירת, כקובץ SVG להדפסה או לעריכה',
+  },
 
   keypad: { label: 'מקלדת עברית', space: 'רווח', backspace: 'מחיקה' },
 

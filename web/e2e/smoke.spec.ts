@@ -517,6 +517,39 @@ test('the family tree: Jacob’s sons under their four mothers, with verses', as
   for (const h of ['לאה', 'בלהה', 'זלפה', 'רחל']) await expect(page.locator('.gt-header.mother, .gt-spouse').filter({ hasText: h })).toHaveCount(1)
 })
 
+test('print and save: Jacob’s family as a poster, the map as an SVG, a synopsis on paper', async ({ page }) => {
+  const text = async (d: import('@playwright/test').Download) => {
+    const chunks: Buffer[] = []
+    for await (const c of (await d.createReadStream()) as AsyncIterable<Buffer>) chunks.push(c)
+    return Buffer.concat(chunks).toString('utf-8')
+  }
+  await page.goto('/genealogy?p=194')
+  const panel = page.getByRole('region', { name: 'Person' })
+  await panel.getByRole('button', { name: 'Open all below' }).click()
+  const [poster] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: 'Save as a poster (SVG)' }).click()])
+  expect(poster.suggestedFilename()).toBe('family-tree-194.svg')
+  const svg = await text(poster)
+  expect(svg).toContain('<title>The family tree from יעקב</title>')
+  for (const name of ['ראובן', 'יוסף', 'בנימין', 'דינה']) expect(svg).toContain(`>${name}</text>`)
+  // the map as drawn: its points, no stylesheet classes, strokes kept thin
+  await page.goto('/places')
+  await expect(page.locator('.geo-pt').first()).toBeVisible()
+  const [map] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Save as SVG' }).click()])
+  const m = await text(map)
+  expect((m.match(/<circle/g) ?? []).length).toBeGreaterThan(500)
+  expect(m).not.toContain('class=')
+  expect(m).toContain('vector-effect:non-scaling-stroke')
+  // on paper: no menus or controls, the marks' legend kept, light from a dark screen
+  await page.emulateMedia({ media: 'print', colorScheme: 'dark' })
+  await page.goto('/synopses/13')
+  await expect(page.locator('.syn-row').first()).toBeVisible()
+  await expect(page.locator('.topbar')).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Print' })).toBeHidden()
+  await expect(page.locator('.diff-legend')).toBeVisible()
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(255, 255, 255)')
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('h1')!).color)).toBe('rgb(42, 34, 24)')
+})
+
 test('letters at equal skips: no more names in the Torah than its controls, and תורה at 50 from Genesis 1:1', async ({ page }) => {
   await page.goto('/els')
   await expect(page.getByText(/27 names at skips of 2 to 1,000 letters, forwards and backwards: 1,428,731 hits in 304,801 letters/)).toBeVisible()

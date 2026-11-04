@@ -356,6 +356,13 @@ export const en = {
   },
 
   csv: { page: 'Export page (CSV)', all: 'Export all (CSV)', table: 'Export table (CSV)' },
+  // print and save (§11.1): a page to paper or PDF, a drawing as an SVG file
+  out: {
+    print: 'Print',
+    printTitle: 'Print this page, or save it as a PDF from the print dialog',
+    svg: 'Save as SVG',
+    mapTitle: 'Save the map as drawn, as an SVG file to print or edit',
+  },
 
   keypad: { label: 'Hebrew keyboard', space: 'Space', backspace: 'Backspace' },
 

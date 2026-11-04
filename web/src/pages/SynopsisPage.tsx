@@ -4,6 +4,7 @@ import { useSynopsis } from '../api/hooks'
 import type { SynopsisCell, Verse } from '../api/types'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
+import { PrintButton } from '../components/PrintButton'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { diffHighlight } from '../lib/highlight'
@@ -68,6 +69,7 @@ export function SynopsisPage() {
           </label>
         )}
         {showChanges && <DiffLegend />}
+        <PrintButton />
       </div>
       <p className="muted small">
         {showChanges && `${t.loose} · `}

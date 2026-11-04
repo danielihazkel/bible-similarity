@@ -4,6 +4,9 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { below, indexTree, layoutTree, opening, pathTo, shownAt } from '../lib/familyTree'
 import { bookName } from '../lib/names'
+import { downloadSvg, lightTokens } from '../lib/svgExport'
+import { POSTER_TOKENS, posterLayout, posterSvg } from '../lib/treePoster'
+import { localToday, longDate } from '../lib/week'
 import { useQueryParams } from '../lib/urlState'
 import { GenealogyPanel } from './genealogy/PersonPanel'
 import { PersonSearch } from './genealogy/PersonSearch'
@@ -73,6 +76,28 @@ export function GenealogyPage() {
       return next
     })
   }
+  // the people below one, as opened, as a poster to print (§11.1)
+  const poster = (id: number) => {
+    if (!ix || !expanded || !sk.data || !name) return
+    const laid = posterLayout(ix, id, expanded, sk.data.cross, locale === 'he')
+    if (!laid) return
+    const svg = posterSvg(
+      laid.layout,
+      ix,
+      name,
+      {
+        title: t.posterTitle(name(laid.root).text),
+        subtitle: t.posterSub(laid.people, laid.generations, longDate(localToday(), locale)),
+        site: m.site.name,
+        header: (g, n) => (typeof g === 'number' ? t.byMother(name(g).text) : g === 'none' ? t.motherUnnamed : t.attached(n)),
+        hidden: t.posterHidden,
+        moreSpouses: t.moreSpouses,
+        keys: { child: t.posterChild, couple: t.keys.couple, desc: t.keys.desc, unstated: t.keys.unstated, cross: t.keys.cross, unreviewed: t.keys.unreviewed, conflict: t.keys.conflict },
+      },
+      { rtl: locale === 'he', colours: lightTokens(POSTER_TOKENS) },
+    )
+    downloadSvg(`family-tree-${laid.root}.svg`, svg)
+  }
   const meta = sk.data?.meta
   const ready = !!(sk.data?.nodes.length && ix && name && layout)
 
@@ -121,6 +146,7 @@ export function GenealogyPage() {
                 onPick={pick}
                 onShow={show}
                 onOpenAll={openAll}
+                onPoster={poster}
                 onClose={() => update({ p: null })}
               />
             )}
