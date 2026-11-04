@@ -20,6 +20,7 @@ const GlossaryPage = lazy(() => import('./pages/GlossaryPage').then((m) => ({ de
 const WeekPage = lazy(() => import('./pages/WeekPage').then((m) => ({ default: m.WeekPage })))
 const ToursPage = lazy(() => import('./pages/ToursPage').then((m) => ({ default: m.ToursPage })))
 const ReceptionPage = lazy(() => import('./pages/ReceptionPage').then((m) => ({ default: m.ReceptionPage })))
+const SourcePage = lazy(() => import('./pages/SourcePage').then((m) => ({ default: m.SourcePage })))
 const WitnessesPage = lazy(() => import('./pages/WitnessesPage').then((m) => ({ default: m.WitnessesPage })))
 const VocabularyPage = lazy(() => import('./pages/VocabularyPage').then((m) => ({ default: m.VocabularyPage })))
 const FrameworksPage = lazy(() => import('./pages/FrameworksPage').then((m) => ({ default: m.FrameworksPage })))
@@ -141,6 +142,7 @@ export function App() {
           <Route path="vocabulary" element={<VocabularyPage />} />
           <Route path="reception" element={<ReceptionPage />} />
           <Route path="witnesses" element={<WitnessesPage />} />
+          <Route path="source" element={<SourcePage />} />
           <Route path="glossary" element={<GlossaryPage />} />
           <Route path="tours" element={<ToursPage />} />
           <Route path="week" element={<WeekPage />} />

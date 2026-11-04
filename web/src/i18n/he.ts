@@ -46,6 +46,7 @@ import { brkHe } from './pages/he/brackets'
 import { rtHe } from './pages/he/retold'
 import { hfHe } from './pages/he/haftarot'
 import { rcHe } from './pages/he/reception'
+import { sfHe } from './pages/he/sourceFind'
 import { wtHe } from './pages/he/witnesses'
 import { chHe } from './pages/he/chronology'
 import { smHe } from './pages/he/sums'
@@ -131,6 +132,7 @@ export const he: Messages = {
     changes: { label: 'שינויים', hint: 'במה נבדלים קטעים מקבילים' },
     typescenes: { label: 'רצפי פעולות', hint: 'אותן פעולות באותו סדר' },
     citations: { label: 'הפניות', hint: '"ככתוב", "כדבר יהוה": אל מה הן מפנות' },
+    sourceFind: { label: 'מאתר המקורות', hint: 'הדביקו טקסט עברי: הצירופים שהוא לוקח מן המקרא, כל אחד עם פסוקו' },
     structure: { label: 'מבנה', hint: 'מסגרת, כיאזם, מילים מנחות' },
     acrostics: { label: 'אקרוסטיכונים', hint: 'שורות לפי סדר הא״ב' },
     divisions: { label: 'חלוקות', hint: 'האם הפרשות והפרקים נופלים במקום שהטקסט פונה?' },
@@ -546,6 +548,7 @@ export const he: Messages = {
   sm: smHe,
   vc: vcHe,
   rc: rcHe,
+  sf: sfHe,
   wt: wtHe,
   gloss: glossHe,
   tr: trHe,

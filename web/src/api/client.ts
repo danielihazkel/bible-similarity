@@ -64,7 +64,7 @@ async function apiError(res: Response): Promise<ApiError> {
   return new ApiError(res.status, detail, code, stage)
 }
 
-/** A write (the labels and the notebook are the API's only writable data): POST or PUT with a JSON body, or DELETE. */
+/** A write (the labels and the notebook are the API's only writable data), or a POST that only reads (the source finder): POST or PUT with a JSON body, or DELETE. */
 export async function sendJson<T>(method: 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T | null> {
   const res = await fetch(`/api${path}`, {
     method,

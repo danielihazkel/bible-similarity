@@ -1808,6 +1808,39 @@ compare_builds:               # `bsim compare-builds OLD NEW`: what changed betw
   examples: 5                 # differing keys / meta paths shown per table
   volatile_meta: [built_at, similar_benchmark]   # meta keys that differ between any two builds (the build time, /similar timings), reported apart
 
+source_find:                  # POST /source-find: the biblical phrases of a pasted text (DESIGN.md §11.1, D131); fixed before the examples were first run
+  max_chars: 5000             # a longer text is refused (422)
+  seed_max: 50                # adjacent words found in more verses than this seed nothing (formulae)
+  pad: 4                      # query words searched round a verse's seeds beyond its length
+  mismatch: 2.0               # Smith-Waterman over word keys, a match scoring the word's log(N / df)
+  gap: 2.0
+  min_score: 12.0             # a hit's score at least this ...
+  min_words: 2                # ... and this many words matched
+  same_span: 0.8              # a hit covering this share of a better hit's words ...
+  tie: 0.95                   # ... and scoring this share of it is an alternative to it
+  max_alternatives: 5
+  merge_gap: 1                # hits on consecutive verses this close in the text make one passage
+  aliases:                    # the divine name as liturgy writes it (consonants, finals folded)
+    ה: יהוה                   # ה'
+    יי: יהוה
+    ייי: יהוה
+    יקוק: יהוה
+    ידוד: יהוה
+  elokim: '^([והבלכמש]{0,2})אלק(?=ימ$|ינו$|יכ$|יכמ$|יהמ$|יו$|יה$|י$|ה$|$)'   # אלקים, אלקינו, ...: אלהים (finals folded); not אלקנה
+  examples:                   # texts the viewer offers to try, and the verses each should find (checked on the real build)
+    - key: ashrei
+      text: 'אשרי יושבי ביתך עוד יהללוך סלה. אשרי העם שככה לו, אשרי העם שה׳ אלהיו. תהלה לדוד, ארוממך אלוהי המלך ואברכה שמך לעולם ועד. בכל יום אברכך ואהללה שמך לעולם ועד. גדול ה׳ ומהלל מאד ולגדלתו אין חקר.'
+      expect: ["Psalms 84:5", "Psalms 144:15", "Psalms 145:1", "Psalms 145:2", "Psalms 145:3"]
+    - key: aleinu
+      text: 'שהם משתחוים להבל וריק ומתפללים אל אל לא יושיע. שהוא נוטה שמים ויוסד ארץ. ככתוב בתורתו: וידעת היום והשבת אל לבבך כי ה׳ הוא האלהים בשמים ממעל ועל הארץ מתחת אין עוד. כי לך תכרע כל ברך תשבע כל לשון. ככתוב בתורתך: ה׳ ימלך לעולם ועד. ונאמר: והיה ה׳ למלך על כל הארץ, ביום ההוא יהיה ה׳ אחד ושמו אחד.'
+      expect: ["Isaiah 45:20", "Isaiah 51:13", "Deuteronomy 4:39", "Isaiah 45:23", "Exodus 15:18", "Zechariah 14:9"]
+    - key: priestly
+      text: 'יברכך ה׳ וישמרך. יאר ה׳ פניו אליך ויחנך. ישא ה׳ פניו אליך וישם לך שלום.'
+      expect: ["Numbers 6:24", "Numbers 6:25", "Numbers 6:26"]
+    - key: mishnah
+      text: 'בית שמאי אומרים, בערב כל אדם יטו ויקראו, ובבקר יעמדו, שנאמר ובשכבך ובקומך. ובית הלל אומרים, כל אדם קורין כדרכן, שנאמר ובלכתך בדרך. אם כן למה נאמר ובשכבך ובקומך? בשעה שבני אדם שוכבים, ובשעה שבני אדם עומדים.'
+      expect: ["Deuteronomy 6:7"]
+
 serve:                        # `bsim serve` (DESIGN.md §10)
   domains:                    # /unit-domains: a unit's themes (DESIGN.md §16.22)
     top: 12                   # most over-represented domains listed

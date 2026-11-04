@@ -66,6 +66,10 @@
   --wt-form: #f4e5c8;
   --wt-substitution: #f7d5cc;
   --wt-added: #d3eadb;
+  --sf-0: #f6e3b8; /* the source finder (§11.1): one tint per passage, four in turn */
+  --sf-1: #d6e7f3;
+  --sf-2: #dcebd2;
+  --sf-3: #ecdcef;
   --gt-ring: #ddcfb6;
   --gt-dot-f: #8a5a7a;
   --gt-line: #a8957a;
@@ -148,6 +152,10 @@
     --wt-form: #4a3a1d;
     --wt-substitution: #57281f;
     --wt-added: #1c4529;
+    --sf-0: #4d3d17;
+    --sf-1: #1d3a50;
+    --sf-2: #24401f;
+    --sf-3: #42294a;
     --gt-ring: #4d4334;
     --gt-dot-f: #d7a3c4;
     --gt-line: #7c6d58;
@@ -3720,3 +3728,24 @@ th .term-tip { font-weight: normal; }
   thead { display: table-header-group; }
   .geo-map svg { border-color: #ccc; }
 }
+
+/* the source finder (§11.1) */
+.sf-form label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+.sf-form textarea { width: 100%; box-sizing: border-box; font-family: var(--font-he); font-size: 1.15rem; line-height: 1.7; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+.sf-actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+.sf-error { color: var(--text); border-inline-start: 3px solid var(--gt-conflict, #b5542f); padding-inline-start: 0.5rem; }
+.sf-text { font-family: var(--font-he); font-size: 1.2rem; line-height: 2; }
+.sf-text mark, .sf-passages mark { color: var(--text); border-radius: 3px; padding: 0 0.1rem; }
+.sf-hit-0 { background: var(--sf-0); }
+.sf-hit-1 { background: var(--sf-1); }
+.sf-hit-2 { background: var(--sf-2); }
+.sf-hit-3 { background: var(--sf-3); }
+.sf-text .sf-exact { text-decoration: underline; text-underline-offset: 4px; }
+.sf-passages mark.sf-exact { background: var(--sf-0); }
+.sf-num a { text-decoration: none; font-weight: 600; padding: 0 0.15rem; }
+.sf-passages { padding-inline-start: 1.6rem; }
+.sf-passages li { margin: 0.8rem 0; }
+.sf-passages p { margin: 0.15rem 0; }
+.sf-passages a, .source-page > p a { text-decoration: underline; text-underline-offset: 2px; }
+.sf-quote { font-family: var(--font-he); font-size: 1.1rem; }
+

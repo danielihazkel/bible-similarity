@@ -39,6 +39,7 @@ import { brkEn } from './pages/brackets'
 import { rtEn } from './pages/retold'
 import { hfEn } from './pages/haftarot'
 import { rcEn } from './pages/reception'
+import { sfEn } from './pages/sourceFind'
 import { wtEn } from './pages/witnesses'
 import { chEn } from './pages/chronology'
 import { smEn } from './pages/sums'
@@ -125,6 +126,7 @@ export const en = {
     changes: { label: 'Changes', hint: 'How parallel passages differ' },
     typescenes: { label: 'Action sequences', hint: 'The same actions in the same order' },
     citations: { label: 'Citations', hint: '"As it is written", "according to the word of the LORD": resolved' },
+    sourceFind: { label: 'Source finder', hint: 'Paste a Hebrew text: the phrases it takes from the Bible, each with its verse' },
     structure: { label: 'Structure', hint: 'Inclusio, chiasm, Leitworte' },
     acrostics: { label: 'Acrostics', hint: 'Lines through the alphabet' },
     divisions: { label: 'Divisions', hint: 'Do paragraphs and chapters fall where the text turns?' },
@@ -550,6 +552,7 @@ export const en = {
   sm: smEn,
   vc: vcEn,
   rc: rcEn,
+  sf: sfEn,
   wt: wtEn,
   gloss: glossEn,
   tr: trEn,

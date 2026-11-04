@@ -44,6 +44,8 @@ import type {
   ReceptionVersesResponse,
   ReceptionCitationsResponse,
   WitnessesResponse,
+  SourceExamples,
+  SourceResponse,
   WitnessPlusesResponse,
   WitnessUnitResponse,
   WeekResponse,
@@ -804,6 +806,19 @@ export const useReceptionCitations = (unit: string | undefined, corpus: string |
     enabled: unit !== undefined,
     ...forever,
     placeholderData: keepPreviousData,
+  })
+
+export const useSourceExamples = () =>
+  useQuery({ queryKey: ['source-examples'], queryFn: ({ signal }) => getJson<SourceExamples>('/source-find/examples', {}, signal), ...forever })
+
+/** The source finder's answer for a text (a POST that only reads; cached by the text). */
+export const useSourceFind = (text: string | undefined) =>
+  useQuery({
+    queryKey: ['source-find', text],
+    queryFn: async () => (await sendJson<SourceResponse>('POST', '/source-find', { text }))!,
+    enabled: text !== undefined && text.trim() !== '',
+    ...forever,
+    retry: false,
   })
 
 export const useWitnesses = () =>

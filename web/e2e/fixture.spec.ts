@@ -136,6 +136,8 @@ const PAGES = [
   '/vocabulary',
   '/reception',
   '/reception?unit=v%3A0',
+  '/source',
+  '/source?example=priestly',
   '/witnesses',
   '/witnesses?unit=c%3A0%3A1',
   '/read/c%3A0%3A1?layers=witnesses',
@@ -732,6 +734,17 @@ test('rabbinic reception: the checks, who cites a verse, the reader’s counts a
   await expect(page.locator('.reader-text .rc-total').first()).toHaveText('3')
   await page.goto('/unit/v%3A0')
   await expect(page.locator('.dossier-chip').filter({ hasText: 'rabbinic citations' })).toHaveAttribute('href', '/reception?unit=v%3A0')
+})
+
+test('source finder: an example searched, a pasted text, the limit', async ({ page }) => {
+  await page.goto('/source')
+  await page.getByRole('button', { name: 'The priestly blessing' }).click()
+  await expect(page).toHaveURL(/\/source\?example=priestly/)
+  await expect(page.getByLabel('Hebrew text')).toHaveValue(/יברכך/)
+  // the fixture's six verses hold no priestly blessing
+  await expect(page.getByText('No phrase of the Bible was found in this text.')).toBeVisible()
+  await page.getByLabel('Hebrew text').fill('א'.repeat(5001))
+  await expect(page.getByRole('button', { name: 'Find the sources' })).toBeDisabled()
 })
 
 test('other witnesses: the checks, a plus compared word by word, the reader’s counts and the dossier', async ({ page }) => {

@@ -2682,6 +2682,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/source-find/examples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Source Examples
+         * @description The texts the viewer offers to try, and the longest text taken.
+         */
+        get: operations["source_examples_api_source_find_examples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/source-find": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Source Find Route
+         * @description The text's biblical phrases, each with its verses and the words matched (422: the text is
+         *     longer than `source_find.max_chars`).
+         */
+        post: operations["source_find_route_api_source_find_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/week": {
         parameters: {
             query?: never;
@@ -9924,6 +9965,47 @@ export interface components {
             /** P Ref */
             p_ref: number | null;
         };
+        /** SourceExample */
+        SourceExample: {
+            /** Key */
+            key: string;
+            /** Text */
+            text: string;
+        };
+        /** SourceExamples */
+        SourceExamples: {
+            /** Max Chars */
+            max_chars: number;
+            /** Examples */
+            examples: components["schemas"]["SourceExample"][];
+        };
+        /** SourcePassage */
+        SourcePassage: {
+            /** First */
+            first: number;
+            /** Last */
+            last: number;
+            /** Score */
+            score: number;
+            /** Matched */
+            matched: number;
+            /** Verses */
+            verses: components["schemas"]["SourceVerse"][];
+            /** Alternatives */
+            alternatives: components["schemas"]["Verse"][];
+        };
+        /** SourceQuery */
+        SourceQuery: {
+            /** Text */
+            text: string;
+        };
+        /** SourceResponse */
+        SourceResponse: {
+            /** Tokens */
+            tokens: string[];
+            /** Passages */
+            passages: components["schemas"]["SourcePassage"][];
+        };
         /** SourceSynonym */
         SourceSynonym: {
             /** Name */
@@ -9936,6 +10018,14 @@ export interface components {
             p_like: number[];
             /** Non P */
             non_p: number[];
+        };
+        /** SourceVerse */
+        SourceVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Tokens */
+            tokens: number[];
+            /** Text Tokens */
+            text_tokens: number[];
         };
         /** SourceWord */
         SourceWord: {
@@ -15165,6 +15255,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WitnessUnitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    source_examples_api_source_find_examples_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceExamples"];
+                };
+            };
+        };
+    };
+    source_find_route_api_source_find_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceQuery"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
                 };
             };
             /** @description Validation Error */

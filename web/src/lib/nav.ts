@@ -47,6 +47,7 @@ export const NAV: NavEntry[] = [
       { to: '/borrowing', key: 'borrowing' },
       { to: '/typescenes', key: 'typescenes' },
       { to: '/citations', key: 'citations' },
+      { to: '/source', key: 'sourceFind' },
     ],
   },
   sectioned('patterns', [

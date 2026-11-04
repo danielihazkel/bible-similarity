@@ -224,12 +224,13 @@ bible-similarity/
 │       ├── align.py                # two verses' words linked through the encoder's token vectors, for Compare (§16.73)
 │       ├── synopsis.py             # parallel sequences chained into synopses: rows, columns, the lead book's order (§16.74)
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, witnesses, week, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, witnesses, source_find, week, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)
 │       ├── queries/                # read-only SQL helpers, one module per route module + common (re-exported: `queries.fn`)
 │       ├── resolve.py              # reference parsing for /resolve
+│       ├── source_find.py          # the source finder: a pasted text's biblical phrases, by seeds and Smith-Waterman (§11.1)
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
 │   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),
@@ -241,7 +242,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, reception, other witnesses, glossary, tours, week, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, reception, other witnesses, source finder, glossary, tours, week, about
 │       └── styles/global.css
 ├── video/                          # two short films about the project: scripts, voice, score, subtitles,
 │                                   #   a line-art page rendered in Edge (video/README.md; renders in video/out/, gitignored)

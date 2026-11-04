@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M141: Source finder (§11.1, D131; proposed K5)
+- [x] `api/source_find.py`: words keyed by consonants, the divine name's abbreviations written out and the skeleton; an index of the verses' adjacent word pairs, built on first use; seeds, Smith-Waterman weighted by rarity, a stretch found blanked and the rest aligned again; the best hits with their alternatives, consecutive verses joined (`source_find` in config)
+- [x] API `POST /source-find` (422 over `max_chars`), `GET /source-find/examples`
+- [x] Known, fixed before the first run and found: Ashrei (Ps 84:5, 144:15, 145:1–3), Aleinu (six verses), the priestly blessing (Num 6:24–26, one passage), Mishnah Berakhot 1:3 (Deut 6:7 twice, Deut 11:19 beside it); a modern sentence finds nothing
+- [x] Viewer: `/source` (Parallels → Source finder): the text with its passages marked and numbered, each passage's verses with the words matched, the alternatives, the examples (`?example=`); English and Hebrew
+- [x] Tests: the keys, a passage of three verses, a verse quoted twice, formulae, other Hebrew (pytest, a small corpus of verses); the endpoints over the fixture DB; the page (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ Paste Aleinu and its six verses come back, Isaiah to Zechariah; the Mishnah's "when you lie down and when you rise" is Deut 6:7, with Deut 11:19 beside it.
+
 ## M140: Other witnesses, the Samaritan Pentateuch and the Dead Sea Scrolls (§16.78, D130; proposed K3)
 - [x] The licence first: both datasets CC BY-NC 4.0 (DT-UCPH/sp, ETCBC/dss); asked, and used as the BHSA (user, 2026-11-04); DESIGN §1 rows; a download group `witnesses` at pinned commits
 - [x] `bsim witnesses`: graphic words rebuilt from both datasets, letters decomposed; a scroll's word read only when no letter is restored or uncertain; each witness verse aligned to the MT over skeletons with `diffs.OPS` labels; pluses; per verse, book and scroll
@@ -1466,7 +1475,7 @@ Analyses
 - [x] K4 (done, M134) Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
 
 Tools
-- [ ] K5 Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
+- [x] K5 (done, M141) Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
 - [x] K6 (done, M136) This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
 - [x] K7 (done, M137) Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
 - [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
