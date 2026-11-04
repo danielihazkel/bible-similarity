@@ -110,6 +110,8 @@ const PAGES: [string, RegExp][] = [
   ['/vocabulary', /Vocabulary over the canon/],
   ['/reception', /Rabbinic reception/],
   ['/reception?unit=v%3A5520', /Rabbinic reception/],
+  ['/witnesses', /Other witnesses/],
+  ['/witnesses?unit=v%3A2065', /Other witnesses/],
   ['/glossary', /Glossary/],
   ['/week', /This week’s parasha/],
   ['/week?date=2019-08-01&israel=1', /This week’s parasha/],
@@ -197,7 +199,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/witnesses', '/witnesses?unit=v%3A2065', '/read/c%3A1%3A20?layers=witnesses', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -517,6 +519,23 @@ test('the family tree: Jacob’s sons under their four mothers, with verses', as
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
   // each mother once: a header over her children, or an avatar beside him
   for (const h of ['לאה', 'בלהה', 'זלפה', 'רחל']) await expect(page.locator('.gt-header.mother, .gt-spouse').filter({ hasText: h })).toHaveCount(1)
+})
+
+test('other witnesses: the known readings, the Gerizim plus, the Samaritan Flood in 1307', async ({ page }) => {
+  await page.goto('/witnesses')
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1) // the parallels claim, not borne out
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await expect(page.locator('.wt-known .rc-found')).toHaveCount(8) // seven readings and the Flood
+  await expect(page.locator('.wt-pluses li').first()).toContainText('Exodus 20:18')
+  // Jared, Methuselah and Lamech die in the Samaritan's Flood year
+  await expect(page.locator('.wt-chron tr.wt-flood')).toHaveCount(3)
+  // the altar on Mount Gerizim after the Decalogue, word by word
+  await page.goto('/witnesses?unit=v%3A2065')
+  const sp = page.locator('.wt-verse .wt-text').first()
+  await expect(sp.locator('.wt-added').filter({ hasText: 'בהרגריזימ' })).toHaveCount(1)
+  await page.getByRole('link', { name: 'Read with the witnesses' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A1%3A20\?layers=witnesses/)
+  await expect(page.locator('.reader-text .wt-total').first()).toBeVisible()
 })
 
 test('rabbinic identifications: Hathach read as Daniel, with Megillah 15a and Bava Batra 4a on Sefaria', async ({ page }) => {

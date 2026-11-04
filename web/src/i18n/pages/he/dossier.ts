@@ -53,6 +53,7 @@ export const dosHe: typeof dosEn = {
     divine: (n: number, top: string | null, share: number | null) =>
       `${countHe(n, 'שם אחד של האל', 'שני שמות של האל', 'שמות של האל')}${top ? `, לרוב ${top}` : ''}${share === null ? '' : ` (יהוה ${Math.round(share * 100)}% מבין יהוה ואלהים)`}`,
     reception: (n: number, top: string | null) => `${countHe(n, 'ציטוט אחד בספרות חז״ל', 'שני ציטוטים בספרות חז״ל', 'ציטוטים בספרות חז״ל')}${top ? `, רובם ב${top}` : ''}`,
+    witnesses: (n: number, top: string | null) => `${countHe(n, 'חילוף אחד', 'שני חילופים', 'חילופים')} בעדי נוסח אחרים${top ? `, רובם ב${top}` : ''}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countHe(n, 'שם אחד הנקרא באת״ב״ש או באל״ב״ם', 'שני שמות הנקראים באת״ב״ש או באל״ב״ם', 'שמות הנקראים באת״ב״ש או באל״ב״ם')}${words && name ? ` (${words} נקרא ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -101,5 +102,6 @@ export const dosHe: typeof dosEn = {
     divine: 'שמות האל',
     gematria: 'ערכי אותיות',
     reception: 'ציטוטים בספרות חז״ל',
+    witnesses: 'עדי נוסח אחרים',
   },
 }

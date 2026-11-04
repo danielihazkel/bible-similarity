@@ -74,6 +74,9 @@ class ReaderVerse(ApiModel):
     divine: dict[str, str] = {}  # display token -> the divine name it is (§16.65)
     # rabbinic citations of the verse by corpus, and their total (§16.77); empty: none
     reception: dict[str, int] = {}
+    # other witnesses (§16.78): sp = the Samaritan's variants, scrolls = scrolls with the verse,
+    # scroll_variants = their variants; empty: no witness
+    witnesses: dict[str, int] = {}
 
 
 class ReaderResponse(ApiModel):
@@ -82,7 +85,7 @@ class ReaderResponse(ApiModel):
     unit: UnitSummary
     rare_verses: int  # a word is rare in at most this many verses
     computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains,
-    # mood, sources, places, divine, reception)
+    # mood, sources, places, divine, reception, witnesses)
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
     refrains: list[ReaderRefrain]  # strongest first
     places: list[ReaderPlace] = []  # the places named here, most named first

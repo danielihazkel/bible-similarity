@@ -1905,6 +1905,81 @@ CREATE TABLE reception_books (
     total INTEGER NOT NULL
 );
 
+-- `bsim witnesses` (§16.78): the Samaritan Pentateuch (DT-UCPH) and the Dead Sea Scrolls (ETCBC,
+-- Abegg), both CC BY-NC 4.0, aligned to the MT word by word
+CREATE TABLE witnesses_verses (
+    witness TEXT NOT NULL,          -- sp | a scroll's siglum (1Qisaa)
+    verse_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    n_words INTEGER NOT NULL,       -- the witness's words of the verse
+    n_read INTEGER NOT NULL,        -- ... none of whose letters is reconstructed or uncertain
+    same INTEGER NOT NULL,          -- positions that count (a scroll's: read words), by op
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,       -- in the MT only
+    added INTEGER NOT NULL,         -- in the witness only
+    moved INTEGER NOT NULL,
+    plus INTEGER NOT NULL,          -- the largest plus: read words of a run of added positions
+    words TEXT NOT NULL,            -- JSON: [{t, r, op, mt}]: letters, read, op, the MT word's display token
+    variants INTEGER NOT NULL,      -- the counted positions other than same and spelling
+    PRIMARY KEY (witness, verse_id)
+);
+
+CREATE TABLE witnesses_changes (
+    witness TEXT NOT NULL,
+    verse_id INTEGER NOT NULL,
+    op TEXT NOT NULL,               -- spelling | form | substitution | omitted | added | moved
+    mt_tok INTEGER,                 -- the MT word's display token (NULL: added)
+    mt_text TEXT,
+    w_text TEXT,                    -- the witness's letters (NULL: omitted)
+    w_pos INTEGER
+);
+
+CREATE TABLE witnesses_books (
+    kind TEXT NOT NULL,             -- sp | scroll
+    book_id INTEGER NOT NULL,
+    verses INTEGER NOT NULL,
+    words INTEGER NOT NULL,
+    read INTEGER NOT NULL,
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,
+    added INTEGER NOT NULL,
+    moved INTEGER NOT NULL,
+    pluses INTEGER NOT NULL,        -- verses with a plus of plus_min read words or more
+    PRIMARY KEY (kind, book_id)
+);
+
+CREATE TABLE witnesses_scrolls (
+    scroll TEXT PRIMARY KEY,
+    verses INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    words INTEGER NOT NULL,
+    read INTEGER NOT NULL,
+    same INTEGER NOT NULL,
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,
+    added INTEGER NOT NULL,
+    moved INTEGER NOT NULL,
+    pluses INTEGER NOT NULL,
+    book_id INTEGER NOT NULL        -- its first verse's book
+);
+
+CREATE TABLE witnesses_chronology (
+    seq INTEGER PRIMARY KEY,        -- chronology.events' order
+    event TEXT NOT NULL,
+    name TEXT,                      -- the person, in Hebrew
+    death INTEGER NOT NULL,         -- 1: the end of a life
+    verse_id INTEGER,
+    sp_value INTEGER,               -- the Samaritan's number in that verse
+    sp_year INTEGER NOT NULL,       -- from Adam, in the Samaritan
+    mt_year INTEGER                 -- ... in the MT (bsim chronology)
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

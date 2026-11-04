@@ -16,9 +16,10 @@ import { type Counts, parts } from '../lib/reception'
 import { readLink, unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import { witnessUrl } from '../lib/witnesses'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine', 'reception']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine', 'reception', 'witnesses']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -31,6 +32,7 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   places: 'places',
   divine: 'divine',
   reception: 'reception',
+  witnesses: 'witnesses',
 }
 const LEITWORTE_SHOWN = 6
 const REFRAINS_SHOWN = 4
@@ -243,6 +245,7 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
               </Link>
               {on('gematria') && r && r.gematria.length > 0 && <GematriaTotal value={r.gematria.reduce((a, b) => a + b, 0)} />}
               {on('reception') && r && (r.reception.total ?? 0) > 0 && <Cited verseId={v.verse_id} counts={r.reception as Counts} />}
+              {on('witnesses') && r && Object.keys(r.witnesses).length > 0 && <Witnessed verseId={v.verse_id} counts={r.witnesses} />}
               {on('sources') && r?.source && (
                 <span
                   className={`src-tag src-${r.source.side} ${r.source.reference && r.source.reference !== r.source.side ? 'src-differs' : ''}`}
@@ -282,6 +285,26 @@ function Cited({ verseId, counts }: { verseId: number; counts: Counts }) {
   return (
     <Link className="gm-total rc-total" to={`/reception?unit=${encodeURIComponent(`v:${verseId}`)}`} title={m.rc.layerTitle(counts.total, parts(counts, m.rc.corpora, m.num))}>
       {m.num(counts.total)}
+    </Link>
+  )
+}
+
+function Witnessed({ verseId, counts }: { verseId: number; counts: Record<string, number> }) {
+  const m = useT()
+  const t = m.wt
+  return (
+    <Link className="gm-total wt-total" to={witnessUrl({ unit: `v:${verseId}` })} title={t.layerTitle(counts.sp, counts.scrolls, counts.scroll_variants)}>
+      {counts.sp !== undefined && (
+        <span>
+          {t.layerSp} {m.num(counts.sp)}
+        </span>
+      )}
+      {counts.sp !== undefined && counts.scrolls ? ' · ' : ''}
+      {counts.scrolls ? (
+        <span>
+          {t.layerScroll} {m.num(counts.scroll_variants ?? 0)}
+        </span>
+      ) : null}
     </Link>
   )
 }
@@ -458,6 +481,16 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
         ) : (
           <>
             {m.rc.layerKey} <Link to="/reception">{m.rc.title}</Link>
+          </>
+        ),
+      )}
+      {row(
+        'witnesses',
+        reader && !reader.verses.some((v) => Object.keys(v.witnesses).length > 0) ? (
+          <span className="muted">{m.wt.layerNone}</span>
+        ) : (
+          <>
+            {m.wt.layerKey} <Link to="/witnesses">{m.wt.title}</Link>
           </>
         ),
       )}

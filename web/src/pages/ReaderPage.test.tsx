@@ -45,7 +45,7 @@ const VERSE_DETAIL: UnitDetail = {
 const READER: ReaderResponse = {
   unit: CHAPTER,
   rare_verses: 3,
-  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true, places: true, divine: true, reception: true },
+  computed: { speech: true, phrases: true, wordplay: true, ketiv: true, gaps: true, refrains: true, mood: true, sources: true, places: true, divine: true, reception: true, witnesses: true },
   speakers: [{ lemma: '430', he: 'אלהים', divine: true, n_words: 2, to: ['אדם'] }],
   refrains: [{ refrain_id: 7, text: 'וַיֹּאמֶר אֱלֹהִים', k: 9, known: null }],
   places: [{ place_id: 5, he: 'ראשית', kind: 'region' }],
@@ -74,7 +74,7 @@ const READER: ReaderResponse = {
       ketiv: [],
       gap: null,
       gematria: [913, 203, 86],
-      places: { '0': 5 }, divine: { '1': 'elohim' }, reception: { mishnah: 2, tosefta: 0, bavli: 5, yerushalmi: 0, total: 7 },
+      places: { '0': 5 }, divine: { '1': 'elohim' }, reception: { mishnah: 2, tosefta: 0, bavli: 5, yerushalmi: 0, total: 7 }, witnesses: { sp: 3, scrolls: 1, scroll_variants: 2 },
     },
     {
       verse_id: 1,
@@ -88,7 +88,7 @@ const READER: ReaderResponse = {
       ketiv: [{ display: [3], ketiv: 'אר', qere: 'אוֹר', cls: 'vowel_letter' }],
       gap: { score: 0.98, kind: 'turn', mam: 'pe', chapter: false },
       gematria: [257, 86, 25, 207],
-      places: {}, divine: {}, reception: {},
+      places: {}, divine: {}, reception: {}, witnesses: {},
     },
   ],
 }
@@ -257,6 +257,16 @@ describe('ReaderPage', () => {
     expect(a.getAttribute('href')).toBe('/reception?unit=v%3A0')
     expect(a.getAttribute('title')).toBe('cited 7 times in the rabbinic texts: Mishnah 2 · Bavli 5')
     expect(screen.getByRole('link', { name: 'Rabbinic reception' }).getAttribute('href')).toBe('/reception')
+  })
+
+  it('counts each verse’s variants in the other witnesses, linked to the comparison', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1?layers=witnesses')
+    await waitFor(() => expect(container.querySelectorAll('.reader-text .wt-total')).toHaveLength(1))
+    const [a] = container.querySelectorAll('.reader-text .wt-total')
+    expect(a.textContent).toBe('ש 3 · ק 2')
+    expect(a.getAttribute('href')).toBe('/witnesses?unit=v%3A0')
+    expect(a.getAttribute('title')).toBe('the Samaritan: 3 variants; 1 scroll: 2 variants')
+    expect(screen.getByRole('link', { name: 'Other witnesses' }).getAttribute('href')).toBe('/witnesses')
   })
 
   it('marks the refrains and links to them', async () => {

@@ -66,6 +66,8 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   reception_law: { to: '/reception', nav: 'reception' },
   reception_bavli: { to: '/reception', nav: 'reception' },
   reception_known: { to: '/reception', nav: 'reception' },
+  witnesses_parallel: { to: '/witnesses', nav: 'witnesses' },
+  witnesses_known: { to: '/witnesses', nav: 'witnesses' },
   ciphers_known: { to: '/ciphers?known=1', nav: 'ciphers' },
   ciphers_jeremiah: { to: '/ciphers', nav: 'ciphers' },
   ciphers_elsewhere: { to: '/ciphers', nav: 'ciphers' },

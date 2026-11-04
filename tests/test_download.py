@@ -103,6 +103,8 @@ def session(cfg):
         "openbible_geo",
         "natural_earth",
         "hebcal_leyning",
+        "samaritan",
+        "scrolls",
     ):
         s = cfg["sources"][key]
         for file in s["files"]:
@@ -147,7 +149,10 @@ def test_plan_targets(cfg, session):
 
 def test_run_download_is_idempotent(cfg, session, tmp_path):
     m1 = run_download(cfg, session, raw_dir=tmp_path, log=lambda *_: None)
-    assert len(m1["files"]) == 39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1 + 5 + 1
+    witnesses = len(cfg["sources"]["samaritan"]["files"]) + len(cfg["sources"]["scrolls"]["files"])
+    assert len(m1["files"]) == (
+        39 * 3 + 2 + 3 + len(cfg["sources"]["bhsa"]["files"]) + 1 + 5 + 1 + witnesses
+    )
     assert (tmp_path / "leyning" / "aliyot.json").exists()  # Hebcal's haftarot (§16.69)
     assert (tmp_path / "oshb" / "Gen.xml").read_bytes() == b"<osis Gen/>"
     assert (tmp_path / "sefaria" / "text" / "Song of Songs.json").exists()

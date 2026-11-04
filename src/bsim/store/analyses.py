@@ -1140,6 +1140,38 @@ SOURCES: tuple[Source, ...] = (
         ),  # fmt: skip
     ),
     Source(
+        "witnesses",
+        "witnesses",
+        (
+            Table("witnesses_verses", "verses"),
+            Table("witnesses_changes", "changes"),
+            Table("witnesses_books", "books"),
+            Table("witnesses_scrolls", "scrolls"),
+            Table("witnesses_chronology", "chronology", fix=as_int("death")),
+        ),
+        "witnesses.meta.json",
+        keys(
+            "witnesses",
+            "samaritan",
+            "scrolls",
+            "plus_min",
+            "max_unc",
+            "sp_pluses",
+            "parallel_verses",
+            "plus_in_parallel",
+            "plus_elsewhere",
+            "ratio",
+            "null_mean",
+            "p",
+            "shifts",
+            "alpha",
+            "holds",
+            "known",
+            "chronology_known",
+            "known_holds",
+        ),  # fmt: skip
+    ),
+    Source(
         "masorah",
         "masorah",
         (

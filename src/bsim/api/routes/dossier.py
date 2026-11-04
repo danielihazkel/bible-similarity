@@ -42,6 +42,9 @@ and what it found:
     reception                     count = rabbinic citations of the unit's verses (a passage of the
                                   Mishnah, the Tosefta or a Talmud with a verse); key = the corpus
                                   citing it most; total = the unit's verses cited
+    witnesses                     count = the Samaritan's and the scrolls' variants in the unit's
+                                  verses (spelling left out); key = the witness with most (sp
+                                  or a scroll's siglum); total = the unit's verses with a witness
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -351,6 +354,14 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
     corpora = ("mishnah", "tosefta", "bavli", "yerushalmi")
     top = max(corpora, key=lambda c: rc.get(c, 0)) if rc.get("total") else None
     add("reception", computed=on, count=rc.get("total", 0), key=top, total=len(by_verse))
+
+    on = state.present(conn, "witnesses_verses")
+    wv = queries.witnesses_unit_page(conn, first, last, 10**6, 0) if on else (0, [], [], [])
+    by_wit: dict[str, int] = {}
+    for r in wv[3]:
+        by_wit[r["witness"]] = by_wit.get(r["witness"], 0) + r["variants"]
+    best = max(by_wit, key=lambda w: (by_wit[w], w == "sp")) if any(by_wit.values()) else None
+    add("witnesses", computed=on, count=sum(by_wit.values()), key=best, total=wv[0])
 
     add(
         "mirrors",

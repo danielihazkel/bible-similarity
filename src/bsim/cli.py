@@ -32,7 +32,7 @@ def download(
         list[str] | None,
         typer.Option(
             help="Restrict to groups: oshb, text, schemas, links, lexicon, syntax, parallels,"
-            " geo, leyning (repeatable)"
+            " geo, leyning, witnesses (repeatable)"
         ),
     ] = None,
     workers: Annotated[int, typer.Option(help="Parallel downloads")] = 8,
@@ -274,6 +274,14 @@ def reception(config: ConfigOpt = None) -> None:
     from bsim.analysis.reception import run_reception
 
     run_reception(load_config(config), log=typer.echo)
+
+
+@app.command()
+def witnesses(config: ConfigOpt = None) -> None:
+    """The Samaritan Pentateuch and the Dead Sea Scrolls against the MT, word by word."""
+    from bsim.analysis.witnesses import run_witnesses
+
+    run_witnesses(load_config(config), log=typer.echo)
 
 
 @app.command()

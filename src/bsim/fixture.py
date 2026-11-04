@@ -2577,6 +2577,90 @@ def write_reception(cfg):
     (out / "reception.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_witnesses(cfg):
+    """Other witnesses (`bsim witnesses`), made up: the Samaritan has v0 (a spelling), v1 (a plus of
+    four words) and v2 (a word changed, one left out); 4Q51 has v2, partly reconstructed; 1Qisaa
+    has v5 with a plus of three. The check fails, the known readings and the Flood hold."""
+    out = resolve_path(cfg, "artifacts") / "witnesses"
+    out.mkdir(parents=True, exist_ok=True)
+    ops = ("same", "spelling", "form", "substitution", "omitted", "added", "moved")
+
+    def w(t, op, mt, r=True):
+        return {"t": t, "r": r, "op": op, "mt": mt}
+
+    rows = [
+        ("sp", 0, 0, [w("בראשית", "same", 0), w("ברא", "same", 1), w("אלוהימ", "spelling", 2)],
+         {"same": 2, "spelling": 1}, 0),
+        ("sp", 1, 0, [w("והארצ", "same", 0), w("היתה", "same", 1), w("ויאמר", "added", None),
+                      w("אלהימ", "added", None), w("יהי", "added", None), w("אור", "added", None)],
+         {"same": 2, "added": 4}, 4),
+        ("sp", 2, 0, [w("ויאמר", "same", 0), w("משה", "substitution", 1)],
+         {"same": 1, "substitution": 1, "omitted": 1}, 0),
+        ("4Q51", 2, 0, [w("ויאמר", "same", 0), w("אלהימ", "same", 1, False)], {"same": 1}, 0),
+        ("1Qisaa", 5, 1, [w("שמעו", "same", 0), w("שמימ", "same", 1), w("ואזינו", "added", None),
+                          w("ארצ", "added", None), w("כי", "added", None)],
+         {"same": 2, "added": 3}, 3),
+    ]  # fmt: skip
+    vrows = []
+    for wit, vid, book, words, c, plus in rows:
+        vrows.append({"witness": wit, "verse_id": vid, "book_id": book, "n_words": len(words),
+                      "n_read": sum(x["r"] for x in words), **{op: c.get(op, 0) for op in ops},
+                      "plus": plus, "words": json.dumps(words, ensure_ascii=False),
+                      "variants": sum(v for k, v in c.items()
+                                      if k not in ("same", "spelling"))})  # fmt: skip
+    pd.DataFrame(vrows).to_parquet(out / "verses.parquet", index=False)
+    pd.DataFrame(
+        [("sp", 0, "spelling", 2, "אלהימ", "אלוהימ", 2),
+         ("sp", 1, "added", None, None, "ויאמר", 2),
+         ("sp", 1, "added", None, None, "אלהימ", 3), ("sp", 1, "added", None, None, "יהי", 4),
+         ("sp", 1, "added", None, None, "אור", 5), ("sp", 2, "substitution", 1, "אלהימ", "משה", 1),
+         ("sp", 2, "omitted", 2, "אור", None, None),
+         ("1Qisaa", 5, "added", None, None, "ואזינו", 2),
+         ("1Qisaa", 5, "added", None, None, "ארצ", 3), ("1Qisaa", 5, "added", None, None, "כי", 4)],
+        columns=["witness", "verse_id", "op", "mt_tok", "mt_text", "w_text", "w_pos"],
+    ).astype({"mt_tok": "Int64", "w_pos": "Int64"}).to_parquet(out / "changes.parquet")  # fmt: skip
+    counted = {op: 0 for op in ops[1:]}
+    pd.DataFrame([
+        {"kind": "sp", "book_id": 0, "verses": 3, "words": 11, "read": 11,
+         **counted | {"spelling": 1, "substitution": 1, "omitted": 1, "added": 4}, "pluses": 1},
+        {"kind": "scroll", "book_id": 0, "verses": 1, "words": 2, "read": 1, **counted,
+         "pluses": 0},
+        {"kind": "scroll", "book_id": 1, "verses": 1, "words": 5, "read": 5,
+         **counted | {"added": 3}, "pluses": 1},
+    ]).to_parquet(out / "books.parquet", index=False)  # fmt: skip
+    pd.DataFrame([
+        {"scroll": "1Qisaa", "verses": 1, "first_vid": 5, "words": 5, "read": 5, "same": 2,
+         **counted | {"added": 3}, "pluses": 1, "book_id": 1},
+        {"scroll": "4Q51", "verses": 1, "first_vid": 2, "words": 2, "read": 1, "same": 1,
+         **counted, "pluses": 0, "book_id": 0},
+    ]).to_parquet(out / "scrolls.parquet", index=False)  # fmt: skip
+    chron = pd.DataFrame(
+        [(0, "adam", "אדם", False, None, None, 0, 0), (1, "seth", "שת", False, 0, 130, 130, 130),
+         (2, "flood", None, False, 1, 600, 1307, 1656)],
+        columns=["seq", "event", "name", "death", "verse_id", "sp_value", "sp_year", "mt_year"],
+    )  # fmt: skip
+    for c in ("verse_id", "sp_value", "mt_year"):
+        chron[c] = pd.array(chron[c], dtype="Int64")
+    chron.to_parquet(out / "chronology.parquet", index=False)
+    meta = {
+        "samaritan": {"verses": 3, "words": 11, "same": 5, "spelling": 1, "form": 0,
+                      "substitution": 1, "omitted": 1, "added": 4, "moved": 0,
+                      "unmatched_verses": 0},
+        "scrolls": {"scrolls": 2, "verses": 2, "words": 7, "read": 6, "same": 3, "spelling": 0,
+                    "form": 0, "substitution": 0, "omitted": 0, "added": 3, "moved": 0},
+        "plus_min": 3, "max_unc": 1, "sp_pluses": 1, "parallel_verses": 2,
+        "plus_in_parallel": 0.0, "plus_elsewhere": 1.0, "ratio": 0.0, "null_mean": 0.9,
+        "p": 0.8, "shifts": 99, "alpha": 0.05, "holds": False,
+        "known": [{"witness": "sp", "ref": "Genesis 1:2", "verse_id": 1, "plus": 4,
+                   "reads": None, "found": True, "note": "a plus"},
+                  {"witness": "1Qisaa", "ref": "Exodus 1:1", "verse_id": 5, "plus": None,
+                   "reads": "ארצ", "found": True, "note": None}],
+        "chronology_known": [{"event": "flood", "expected": 1307, "year": 1307, "holds": True}],
+        "known_holds": True,
+    }  # fmt: skip
+    (out / "witnesses.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -2601,6 +2685,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_sums(cfg)
     write_vocabulary(cfg)
     write_reception(cfg)
+    write_witnesses(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

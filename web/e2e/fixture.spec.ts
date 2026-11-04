@@ -136,6 +136,9 @@ const PAGES = [
   '/vocabulary',
   '/reception',
   '/reception?unit=v%3A0',
+  '/witnesses',
+  '/witnesses?unit=c%3A0%3A1',
+  '/read/c%3A0%3A1?layers=witnesses',
   '/read/c%3A0%3A1?layers=reception',
   '/glossary',
   '/tours',
@@ -729,6 +732,20 @@ test('rabbinic reception: the checks, who cites a verse, the reader’s counts a
   await expect(page.locator('.reader-text .rc-total').first()).toHaveText('3')
   await page.goto('/unit/v%3A0')
   await expect(page.locator('.dossier-chip').filter({ hasText: 'rabbinic citations' })).toHaveAttribute('href', '/reception?unit=v%3A0')
+})
+
+test('other witnesses: the checks, a plus compared word by word, the reader’s counts and the dossier', async ({ page }) => {
+  await page.goto('/witnesses')
+  await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await page.locator('.wt-pluses a').first().click()
+  await expect(page).toHaveURL(/\/witnesses\?unit=v%3A1/)
+  const sp = page.locator('.wt-verse .wt-text').first()
+  await expect(sp.locator('.wt-added')).toHaveCount(4)
+  await page.getByRole('link', { name: 'Read with the witnesses' }).click()
+  await expect(page.locator('.reader-text .wt-total').first()).toHaveText('ש 0')
+  await page.goto('/unit/c%3A0%3A1')
+  await expect(page.locator('.dossier-chip').filter({ hasText: 'other witnesses' })).toHaveAttribute('href', '/witnesses?unit=c%3A0%3A1')
 })
 
 test('vocabulary: the checks, the novelty chart, a lemma’s first use', async ({ page }) => {

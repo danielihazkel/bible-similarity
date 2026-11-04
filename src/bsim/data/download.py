@@ -9,6 +9,9 @@ Layout under `paths.data_raw`:
                                        HebrewStrong.xml, each at a pinned commit (§16.22)
     bhsa/{file}                        ETCBC BHSA Text-Fabric features at a pinned commit (§16.26)
     etcbc_parallels/{file}             ETCBC parallels (`crossref`) at a pinned commit (§16.34)
+    samaritan/{file}, scrolls/{file}   the Samaritan Pentateuch (DT-UCPH) and the Dead Sea Scrolls
+                                       (ETCBC, Abegg) as Text-Fabric features, each at a pinned
+                                       commit (§16.78)
     geo/{file}                         STEPBible TIPNR, OpenBible.info's geocoding and Natural
                                        Earth's land, lakes and rivers, each at a pinned commit
                                        (§16.56, §16.57)
@@ -39,7 +42,10 @@ from bsim.config import resolve_path
 from bsim.data.canon import BOOKS
 
 MANIFEST = "manifest.json"
-GROUPS = ("oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels", "geo", "leyning")
+GROUPS = (
+    "oshb", "text", "schemas", "links", "lexicon", "syntax", "parallels", "geo", "leyning",
+    "witnesses",
+)  # fmt: skip
 _CHUNK = 1 << 20
 _TIMEOUT = 60
 
@@ -136,6 +142,13 @@ def plan_targets(
         for file in s["files"]:
             url = s["raw_url"].format(commit=s["commit"], file=file)
             targets.append(Target("parallels", f"etcbc_parallels/{file}", url))
+
+    if "witnesses" in groups:
+        for key in ("samaritan", "scrolls"):
+            s = src[key]
+            for file in s["files"]:
+                url = s["raw_url"].format(commit=s["commit"], file=file)
+                targets.append(Target("witnesses", f"{key}/{file}", url))
 
     if "leyning" in groups:
         s = src["hebcal_leyning"]
@@ -308,6 +321,8 @@ def run_download(
     manifest["openbible_geo_commit"] = cfg["sources"]["openbible_geo"]["commit"]
     manifest["natural_earth_commit"] = cfg["sources"]["natural_earth"]["commit"]
     manifest["hebcal_leyning_commit"] = cfg["sources"]["hebcal_leyning"]["commit"]
+    manifest["samaritan_commit"] = cfg["sources"]["samaritan"]["commit"]
+    manifest["scrolls_commit"] = cfg["sources"]["scrolls"]["commit"]
     manifest["sefaria_text_version"] = cfg["sources"]["sefaria"]["text_version"]
     manifest["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     save_manifest(raw_dir, manifest)

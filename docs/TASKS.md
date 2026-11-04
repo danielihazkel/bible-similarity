@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M140: Other witnesses, the Samaritan Pentateuch and the Dead Sea Scrolls (§16.78, D130; proposed K3)
+- [x] The licence first: both datasets CC BY-NC 4.0 (DT-UCPH/sp, ETCBC/dss); asked, and used as the BHSA (user, 2026-11-04); DESIGN §1 rows; a download group `witnesses` at pinned commits
+- [x] `bsim witnesses`: graphic words rebuilt from both datasets, letters decomposed; a scroll's word read only when no letter is restored or uncertain; each witness verse aligned to the MT over skeletons with `diffs.OPS` labels; pluses; per verse, book and scroll
+- [x] Claim fixed in advance: the Samaritan's pluses in the Torah's parallel verses (the label shifted round each book): not borne out (1.25 against 1.55, p 0.637). Known: seven readings (Gerizim, Jacob's dream, the sixth day, 1QIsa-a's "light", 4Q37's sons of God, 4QSam-a's Nahash) and the Samaritan Flood in 1307, all found. Two rules changed after the first run, both runs reported
+- [x] The Samaritan chronology from its own words (`chronology.phrases`, its lexemes mapped in `sp_lex` / `sp_tens`), beside the MT's: Jared, Methuselah and Lamech die in the Flood's year
+- [x] API `/witnesses`, `/witnesses/pluses`, `/witnesses/unit`; the reader's `witnesses` layer; a dossier entry; two findings
+- [x] Viewer: `/witnesses` (Patterns → Words and names): the checks, the largest pluses, a unit word by word, the two chronologies, the books and the scrolls; English and Hebrew
+- [x] Tests: the labels, the plus and omission rules, the shift, a run on made-up Text-Fabric datasets (pytest); the endpoints, the reader, the dossier, the findings; the page, its kinds in the URL, a verse compared, the reader's badge (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ The Samaritan's Gerizim command, 1QIsa-a's "light" and 4QSam-a's Nahash paragraph are found word by word, and the Samaritan's own ages put the Flood in 1307; its pluses do not cluster in the verses the MT's parallels pair (not borne out).
+
 ## M139: Rabbinic identifications in the family tree (§16.63, D129; proposed K13, F5)
 - [x] An identity status `rabbinic` (`same:` in the review files): both persons kept, cross-referred, each identification with its `source:` (Sefaria references); a source on another status, a title with no Hebrew name or none at all stops the build
 - [x] The check: Sefaria's links (the M3 download, §16.77) must tie each source's page to one of the identity's proof verses; the pages' links read once per build (`analysis/reception.py`: `source_he`, `page_of`, `page_links`)
@@ -1451,7 +1462,7 @@ From the 2026-11-03 review: new features and improvements, all fifteen suggestio
 Analyses
 - [x] K1 (done, M133) Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
 - [x] K2 (done, M138) Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
-- [ ] K3 Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
+- [x] K3 (done, M140) Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
 - [x] K4 (done, M134) Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
 
 Tools

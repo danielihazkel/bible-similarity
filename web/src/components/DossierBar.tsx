@@ -40,6 +40,8 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
                         ? c.divine(e.count ?? 0, e.key ? m.dv.names[e.key as DivineName] : null, e.value)
                       : e.kind === 'reception'
                         ? c.reception(e.count ?? 0, e.key ? m.rc.corpora[e.key as Corpus] : null)
+                      : e.kind === 'witnesses'
+                        ? c.witnesses(e.count ?? 0, e.key === 'sp' ? m.wt.sp : e.key)
                       : e.kind === 'gematria'
                         ? c.gematria(e.count ?? 0, e.label, e.value, e.total)
                         : c[e.kind](e.count ?? 0)

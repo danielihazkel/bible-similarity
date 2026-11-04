@@ -25,6 +25,7 @@ export const readerHe: typeof readerEn = {
     places: 'מקומות',
     divine: 'שמות האל',
     reception: 'ציטוטים בספרות חז״ל',
+    witnesses: 'עדי נוסח אחרים',
   },
   hints: {
     speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
@@ -42,6 +43,7 @@ export const readerHe: typeof readerEn = {
     places: 'המקומות הנזכרים, לפי סוגם, כל אחד מקושר למפה',
     divine: 'כל שם של האל מסומן בקו מעליו: יהוה, אלהים, ושאר השמות',
     reception: 'כמה קטעים במשנה, בתוספתא ובתלמודים מצטטים כל פסוק',
+    witnesses: 'היכן התורה השומרונית ומגילות מדבר יהודה שונות מנוסח המסורה',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
   loading: (layer: string) => `טוען ${layer}…`,

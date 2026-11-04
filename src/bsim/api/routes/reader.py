@@ -195,6 +195,13 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         else {}
     )
 
+    # the Samaritan's and the scrolls' variants of each verse (§16.78)
+    witnessed = (
+        queries.witnesses_verse_counts(conn, first, last)
+        if state.present(conn, "witnesses_verses")
+        else {}
+    )
+
     return {
         "unit": UnitSummary(**u),
         "rare_verses": rare_max,
@@ -210,6 +217,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "places": state.present(conn, "places"),
             "divine": state.present(conn, "divine_words"),
             "reception": state.present(conn, "reception_verses"),
+            "witnesses": state.present(conn, "witnesses_verses"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
@@ -234,6 +242,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 places={str(t): p for t, p in sorted(place_at.get(v, {}).items())},
                 divine={str(t): n for t, n in sorted(divine.get(v, {}).items())},
                 reception=cited.get(v, {}),
+                witnesses=witnessed.get(v, {}),
             )
             for v in vids
         ],

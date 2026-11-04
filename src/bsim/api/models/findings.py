@@ -25,6 +25,7 @@ FindingKey = Literal[
     "frameworks_verdicts_known", "binomials_short", "binomials_late", "binomials_known",
     "sums_lists", "sums_parallels", "vocabulary_late", "vocabulary_known",
     "reception_law", "reception_bavli", "reception_known",
+    "witnesses_parallel", "witnesses_known",
 ]  # fmt: skip
 
 

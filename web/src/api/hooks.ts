@@ -43,6 +43,9 @@ import type {
   ReceptionResponse,
   ReceptionVersesResponse,
   ReceptionCitationsResponse,
+  WitnessesResponse,
+  WitnessPlusesResponse,
+  WitnessUnitResponse,
   WeekResponse,
   ContrastResponse,
   WorkbenchFeature,
@@ -798,6 +801,26 @@ export const useReceptionCitations = (unit: string | undefined, corpus: string |
   useQuery({
     queryKey: ['reception-citations', unit, corpus, limit, offset],
     queryFn: ({ signal }) => getJson<ReceptionCitationsResponse>('/reception/citations', { unit: unit!, corpus, limit, offset }, signal),
+    enabled: unit !== undefined,
+    ...forever,
+    placeholderData: keepPreviousData,
+  })
+
+export const useWitnesses = () =>
+  useQuery({ queryKey: ['witnesses'], queryFn: ({ signal }) => getJson<WitnessesResponse>('/witnesses', {}, signal), ...forever })
+
+export const useWitnessPluses = (kind: 'sp' | 'scroll', book: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['witness-pluses', kind, book, limit, offset],
+    queryFn: ({ signal }) => getJson<WitnessPlusesResponse>('/witnesses/pluses', { kind, book, limit, offset }, signal),
+    ...forever,
+    placeholderData: keepPreviousData,
+  })
+
+export const useWitnessUnit = (unit: string | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['witness-unit', unit, limit, offset],
+    queryFn: ({ signal }) => getJson<WitnessUnitResponse>('/witnesses/unit', { unit: unit!, limit, offset }, signal),
     enabled: unit !== undefined,
     ...forever,
     placeholderData: keepPreviousData,

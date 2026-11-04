@@ -930,6 +930,8 @@ export type FindingKey =
   | 'reception_law'
   | 'reception_bavli'
   | 'reception_known'
+  | 'witnesses_parallel'
+  | 'witnesses_known'
 
 export type Finding = S['Finding']
 
@@ -1335,6 +1337,18 @@ export type ReceptionVerse = S['ReceptionVerse']
 export type ReceptionVersesResponse = S['ReceptionVersesResponse']
 export type ReceptionCitation = S['ReceptionCitation']
 export type ReceptionCitationsResponse = S['ReceptionCitationsResponse']
+export type WitnessesResponse = S['WitnessesResponse']
+export type OpCounts = Pick<S['WitnessBook'], 'spelling' | 'form' | 'substitution' | 'omitted' | 'added' | 'moved'>
+export type WitnessBook = S['WitnessBook']
+export type ScrollRow = S['ScrollRow']
+export type ChronologyRow = S['ChronologyRow']
+export type KnownReading = S['KnownReading']
+export type WitnessPlus = S['WitnessPlus']
+export type WitnessPlusesResponse = S['WitnessPlusesResponse']
+export type WitnessWord = S['WitnessWord']
+export type WitnessReading = S['WitnessReading']
+export type WitnessVerse = S['WitnessVerse']
+export type WitnessUnitResponse = S['WitnessUnitResponse']
 export type VocabularyResponse = S['VocabularyResponse']
 export type LemmaFirst = S['LemmaFirst']
 

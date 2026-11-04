@@ -39,6 +39,7 @@ import { brkEn } from './pages/brackets'
 import { rtEn } from './pages/retold'
 import { hfEn } from './pages/haftarot'
 import { rcEn } from './pages/reception'
+import { wtEn } from './pages/witnesses'
 import { chEn } from './pages/chronology'
 import { smEn } from './pages/sums'
 import { vcEn } from './pages/vocabulary'
@@ -142,6 +143,7 @@ export const en = {
     retold: { label: 'Retold speech', hint: 'What changes when something said is told again, by another speaker or as done' },
     haftarot: { label: 'Haftarot', hint: 'Each parasha’s reading from the Prophets: where the systems rank it among all the chapters' },
     reception: { label: 'Rabbinic reception', hint: 'Where the Mishnah and the Talmuds cite the Bible: the books, chapters and verses read most' },
+    witnesses: { label: 'Other witnesses', hint: 'The Samaritan Pentateuch and the Dead Sea Scrolls against the Masoretic text, word by word' },
     binomials: { label: 'Word pairs', hint: 'Pairs joined by \u2068ו\u2069 in a set order (\u2068שמים וארץ\u2069): the shorter first, the late books’ turns' },
     frameworks: { label: 'Narrative frameworks', hint: 'The judges’ cycle slot by slot, and every king’s verdict and regnal formula' },
     chronology: { label: 'Chronology', hint: 'The years from Adam as the verses count them, and the two kingdoms’ reigns against their synchronisms' },
@@ -548,6 +550,7 @@ export const en = {
   sm: smEn,
   vc: vcEn,
   rc: rcEn,
+  wt: wtEn,
   gloss: glossEn,
   tr: trEn,
   wk: wkEn,

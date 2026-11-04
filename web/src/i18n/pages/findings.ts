@@ -353,6 +353,16 @@ export const findEn = {
       text: (v: V) =>
         `The law over the narrative per verse is ${x2(n(v, 'mishnah'))} in the Mishnah and ${x2(n(v, 'bavli'))} in the Bavli, a gap of ${x2(n(v, 'gap'))} against the two corpora’s citations shuffled between them (p ${fp(n(v, 'p'))}).`,
     },
+    witnesses_parallel: {
+      title: 'The Samaritan adds most where the Torah has a parallel',
+      text: (v: V) =>
+        `Torah verses with a parallel elsewhere in the Torah carry a Samaritan plus ${x2(n(v, 'ratio'))} times as often as the others, against ${x2(n(v, 'null'))} when the parallels are shifted round their books ${numEn(n(v, 'shifts'))} times (p ${fp(n(v, 'p'))}).`,
+    },
+    witnesses_known: {
+      title: 'The witnesses’ known readings are there',
+      text: (v: V) =>
+        `${numEn(n(v, 'found'))} of ${numEn(n(v, 'of'))} known readings found, among them the Samaritan’s Mount Gerizim and the “light” of Isaiah 53:11 in the great Isaiah scroll; the Samaritan Flood falls in year ${numEn(n(v, 'flood'))} from Adam.`,
+    },
     reception_known: {
       title: 'The citations the tradition knows are there',
       text: (v: V) => `${numEn(n(v, 'found'))} of ${numEn(n(v, 'of'))} known citations found, among them the Shema’s “when you lie down and when you rise” in Mishnah Berakhot 1:3.`,

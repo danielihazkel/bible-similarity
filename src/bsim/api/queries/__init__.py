@@ -309,6 +309,14 @@ from bsim.api.queries.syntax import (
     voice_speakers,
 )
 from bsim.api.queries.vocabulary import vocabulary_books, vocabulary_lemma
+from bsim.api.queries.witnesses import (
+    witnesses_books,
+    witnesses_chronology,
+    witnesses_pluses_page,
+    witnesses_scrolls,
+    witnesses_unit_page,
+    witnesses_verse_counts,
+)
 from bsim.api.queries.workbench import (
     book_sections,
     value_labels,
@@ -555,6 +563,12 @@ __all__ = [
     "reception_counts",
     "reception_verse_counts",
     "reception_verses_page",
+    "witnesses_books",
+    "witnesses_chronology",
+    "witnesses_pluses_page",
+    "witnesses_scrolls",
+    "witnesses_unit_page",
+    "witnesses_verse_counts",
     "vocabulary_books",
     "vocabulary_lemma",
     "voice_features",

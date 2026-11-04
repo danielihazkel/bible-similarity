@@ -53,6 +53,7 @@ from bsim.api.routes import (
     syntax,
     vocabulary,
     week,
+    witnesses,
     workbench,
 )
 
@@ -97,6 +98,7 @@ for _module in (
     sums,
     vocabulary,
     reception,
+    witnesses,
     week,
     els,
     places,

@@ -2620,6 +2620,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/witnesses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Witnesses
+         * @description The totals, the check, the known readings, both chronologies, the books and the scrolls
+         *     (503: the stage did not run).
+         */
+        get: operations["witnesses_api_witnesses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/witnesses/pluses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Witnesses Pluses
+         * @description The verses where a witness has the most words the MT lacks (the Samaritan or the
+         *     scrolls), in a book or all.
+         */
+        get: operations["witnesses_pluses_api_witnesses_pluses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/witnesses/unit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Witnesses Unit
+         * @description Each verse of a unit with every witness's words aligned to it (404: unknown unit).
+         */
+        get: operations["witnesses_unit_api_witnesses_unit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/week": {
         parameters: {
             query?: never;
@@ -4129,6 +4191,17 @@ export interface components {
             /** Agrees */
             agrees: boolean | null;
         };
+        /** ChronologyKnown */
+        ChronologyKnown: {
+            /** Event */
+            event: string;
+            /** Expected */
+            expected: number;
+            /** Year */
+            year: number | null;
+            /** Holds */
+            holds: boolean;
+        };
         /** ChronologyResponse */
         ChronologyResponse: {
             /** Events */
@@ -4192,6 +4265,29 @@ export interface components {
             digits_ends: number[];
             /** Digits Min */
             digits_min: number;
+        };
+        /** ChronologyRow */
+        ChronologyRow: {
+            /** Seq */
+            seq: number;
+            /** Event */
+            event: string;
+            /** Name */
+            name: string | null;
+            /** Death */
+            death: boolean;
+            /** Verse Id */
+            verse_id: number | null;
+            /** Ref */
+            ref: string | null;
+            /** Ref He */
+            ref_he: string | null;
+            /** Sp Value */
+            sp_value: number | null;
+            /** Sp Year */
+            sp_year: number;
+            /** Mt Year */
+            mt_year: number | null;
         };
         /** CipherChapter */
         CipherChapter: {
@@ -5184,7 +5280,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "reception" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "reception" | "witnesses" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -5723,7 +5819,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known" | "reception_law" | "reception_bavli" | "reception_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known" | "reception_law" | "reception_bavli" | "reception_known" | "witnesses_parallel" | "witnesses_known";
             /**
              * Verdict
              * @enum {string}
@@ -6543,6 +6639,22 @@ export interface components {
             at_most: number;
             /** Holds */
             holds: boolean;
+        };
+        /** KnownReading */
+        KnownReading: {
+            /** Witness */
+            witness: string;
+            /** Ref */
+            ref: string;
+            verse: components["schemas"]["Verse"] | null;
+            /** Plus */
+            plus: number | null;
+            /** Reads */
+            reads: string | null;
+            /** Found */
+            found: boolean;
+            /** Note */
+            note: string | null;
         };
         /** KnownRetelling */
         KnownRetelling: {
@@ -8547,6 +8659,13 @@ export interface components {
             reception: {
                 [key: string]: number;
             };
+            /**
+             * Witnesses
+             * @default {}
+             */
+            witnesses: {
+                [key: string]: number;
+            };
         };
         /** ReaderWordplay */
         ReaderWordplay: {
@@ -9260,6 +9379,83 @@ export interface components {
             known: components["schemas"]["RootKnown"][];
             /** Books */
             books: components["schemas"]["RootBook"][];
+        };
+        /** SamaritanTotals */
+        SamaritanTotals: {
+            /** Spelling */
+            spelling: number;
+            /** Form */
+            form: number;
+            /** Substitution */
+            substitution: number;
+            /** Omitted */
+            omitted: number;
+            /** Added */
+            added: number;
+            /** Moved */
+            moved: number;
+            /** Verses */
+            verses: number;
+            /** Words */
+            words: number;
+            /** Same */
+            same: number;
+        };
+        /** ScrollRow */
+        ScrollRow: {
+            /** Spelling */
+            spelling: number;
+            /** Form */
+            form: number;
+            /** Substitution */
+            substitution: number;
+            /** Omitted */
+            omitted: number;
+            /** Added */
+            added: number;
+            /** Moved */
+            moved: number;
+            /** Scroll */
+            scroll: string;
+            /** Book Id */
+            book_id: number;
+            /** First Vid */
+            first_vid: number;
+            /** Verses */
+            verses: number;
+            /** Words */
+            words: number;
+            /** Read */
+            read: number;
+            /** Same */
+            same: number;
+            /** Pluses */
+            pluses: number;
+        };
+        /** ScrollTotals */
+        ScrollTotals: {
+            /** Spelling */
+            spelling: number;
+            /** Form */
+            form: number;
+            /** Substitution */
+            substitution: number;
+            /** Omitted */
+            omitted: number;
+            /** Added */
+            added: number;
+            /** Moved */
+            moved: number;
+            /** Scrolls */
+            scrolls: number;
+            /** Verses */
+            verses: number;
+            /** Words */
+            words: number;
+            /** Read */
+            read: number;
+            /** Same */
+            same: number;
         };
         /**
          * Seam
@@ -10744,6 +10940,154 @@ export interface components {
             prev: string;
             /** Next */
             next: string;
+        };
+        /** WitnessBook */
+        WitnessBook: {
+            /** Spelling */
+            spelling: number;
+            /** Form */
+            form: number;
+            /** Substitution */
+            substitution: number;
+            /** Omitted */
+            omitted: number;
+            /** Added */
+            added: number;
+            /** Moved */
+            moved: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "sp" | "scroll";
+            /** Book Id */
+            book_id: number;
+            /** Verses */
+            verses: number;
+            /** Words */
+            words: number;
+            /** Read */
+            read: number;
+            /** Pluses */
+            pluses: number;
+        };
+        /** WitnessPlus */
+        WitnessPlus: {
+            /** Witness */
+            witness: string;
+            verse: components["schemas"]["Verse"];
+            /** Plus */
+            plus: number;
+            /** Variants */
+            variants: number;
+        };
+        /** WitnessPlusesResponse */
+        WitnessPlusesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["WitnessPlus"][];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "sp" | "scroll";
+            /** Book */
+            book: number | null;
+        };
+        /** WitnessReading */
+        WitnessReading: {
+            /** Witness */
+            witness: string;
+            /** N Words */
+            n_words: number;
+            /** N Read */
+            n_read: number;
+            /** Plus */
+            plus: number;
+            /** Variants */
+            variants: number;
+            /** Words */
+            words: components["schemas"]["WitnessWord"][];
+            /** Missing */
+            missing: number[];
+        };
+        /** WitnessUnitResponse */
+        WitnessUnitResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["WitnessVerse"][];
+            /** Unit Id */
+            unit_id: string;
+            /** Witnesses */
+            witnesses: string[];
+        };
+        /** WitnessVerse */
+        WitnessVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Readings */
+            readings: components["schemas"]["WitnessReading"][];
+        };
+        /** WitnessWord */
+        WitnessWord: {
+            /** T */
+            t: string;
+            /** R */
+            r: boolean;
+            /** Op */
+            op: ("same" | "spelling" | "form" | "substitution" | "omitted" | "added" | "moved") | null;
+            /** Mt */
+            mt: number | null;
+        };
+        /** WitnessesResponse */
+        WitnessesResponse: {
+            samaritan: components["schemas"]["SamaritanTotals"];
+            scrolls: components["schemas"]["ScrollTotals"];
+            /** Plus Min */
+            plus_min: number;
+            /** Max Unc */
+            max_unc: number;
+            /** Sp Pluses */
+            sp_pluses: number;
+            /** Parallel Verses */
+            parallel_verses: number;
+            /** Plus In Parallel */
+            plus_in_parallel: number | null;
+            /** Plus Elsewhere */
+            plus_elsewhere: number | null;
+            /** Ratio */
+            ratio: number;
+            /** Null Mean */
+            null_mean: number;
+            /** P */
+            p: number;
+            /** Shifts */
+            shifts: number;
+            /** Alpha */
+            alpha: number;
+            /** Holds */
+            holds: boolean;
+            /** Known */
+            known: components["schemas"]["KnownReading"][];
+            /** Chronology Known */
+            chronology_known: components["schemas"]["ChronologyKnown"][];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Chronology */
+            chronology: components["schemas"]["ChronologyRow"][];
+            /** Books */
+            books: components["schemas"]["WitnessBook"][];
+            /** Scroll Rows */
+            scroll_rows: components["schemas"]["ScrollRow"][];
         };
         /** WordDetail */
         WordDetail: {
@@ -14734,6 +15078,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReceptionCitationsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    witnesses_api_witnesses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WitnessesResponse"];
+                };
+            };
+        };
+    };
+    witnesses_pluses_api_witnesses_pluses_get: {
+        parameters: {
+            query?: {
+                kind?: "sp" | "scroll";
+                limit?: number;
+                offset?: number;
+                book?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WitnessPlusesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    witnesses_unit_api_witnesses_unit_get: {
+        parameters: {
+            query: {
+                unit: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WitnessUnitResponse"];
                 };
             };
             /** @description Validation Error */

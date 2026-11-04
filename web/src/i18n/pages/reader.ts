@@ -4,7 +4,7 @@
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn } from '../fmt'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine' | 'reception'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine' | 'reception' | 'witnesses'
 
 export const pctOf = (x: number) => Math.round(x * 100)
 
@@ -31,6 +31,7 @@ export const readerEn = {
     places: 'Places',
     divine: 'Names of God',
     reception: 'Rabbinic citations',
+    witnesses: 'Other witnesses',
   } satisfies Record<Layer, string>,
   hints: {
     speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
@@ -48,6 +49,7 @@ export const readerEn = {
     places: 'The places named, by kind, each linked to the map',
     divine: 'Each name of God marked by a line above it: יהוה, אלהים, and the others',
     reception: 'How many passages of the Mishnah, the Tosefta and the Talmuds cite each verse',
+    witnesses: 'Where the Samaritan Pentateuch and the Dead Sea Scrolls differ from the Masoretic text',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
   loading: (layer: string) => `Loading ${layer.toLowerCase()}…`,

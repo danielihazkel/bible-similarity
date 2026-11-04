@@ -224,3 +224,27 @@ def _reception(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding 
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
+
+def _witnesses(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Other witnesses: the Samaritan's pluses in the Torah's parallel verses (against the
+    parallel label shifted round each book); the known readings and the Samaritan Flood."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        w = meta.get("witnesses") or {}
+        if not (w.get("samaritan") or {}).get("verses"):
+            return None
+        if key == "witnesses_parallel":
+            values = {"ratio": w.get("ratio"), "null": w.get("null_mean"), "p": w.get("p"),
+                      "pluses": w.get("sp_pluses"), "parallel": w.get("parallel_verses"),
+                      "shifts": w.get("shifts")}  # fmt: skip
+            holds = bool(w.get("holds"))
+        else:
+            known = w.get("known") or []
+            flood = next((c for c in w.get("chronology_known") or [] if c["event"] == "flood"), {})
+            values = {"found": sum(1 for k in known if k.get("found")), "of": len(known),
+                      "flood": flood.get("year")}  # fmt: skip
+            holds = bool(w.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build

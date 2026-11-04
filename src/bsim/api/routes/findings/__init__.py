@@ -36,6 +36,7 @@ from bsim.api.routes.findings.language import (
     _root_leitworte,
     _vocabulary,
     _voices,
+    _witnesses,
 )
 from bsim.api.routes.findings.narrative import (
     _binomials,
@@ -137,6 +138,8 @@ BUILDERS: list[Callable[[Meta, sqlite3.Connection, float], Finding | None]] = [
     _reception("reception_law"),
     _reception("reception_bavli"),
     _reception("reception_known"),
+    _witnesses("witnesses_parallel"),
+    _witnesses("witnesses_known"),
     _masorah("masorah_letter"),
     _masorah("masorah_words"),
     _masorah("masorah_verse"),

@@ -62,6 +62,10 @@
   --rc-3: #74a9d3;
   --rc-4: #3f84bd;
   --rc-5: #1d5c94;
+  --wt-spelling: #eceedd; /* other witnesses (§16.78): a word's change, as a tint behind it */
+  --wt-form: #f4e5c8;
+  --wt-substitution: #f7d5cc;
+  --wt-added: #d3eadb;
   --gt-ring: #ddcfb6;
   --gt-dot-f: #8a5a7a;
   --gt-line: #a8957a;
@@ -140,6 +144,10 @@
     --rc-3: #2b6592;
     --rc-4: #4a8dc4;
     --rc-5: #8fc1ea;
+    --wt-spelling: #34361f;
+    --wt-form: #4a3a1d;
+    --wt-substitution: #57281f;
+    --wt-added: #1c4529;
     --gt-ring: #4d4334;
     --gt-dot-f: #d7a3c4;
     --gt-line: #7c6d58;
@@ -3663,6 +3671,34 @@ th .term-tip { font-weight: normal; }
 .rc-total { border-color: var(--rc-4); color: var(--text); }
 /* links inside a line of text are underlined (axe: link-in-text-block) */
 .reception-page > p a, .rc-known a, .rc-cites a, .rc-verses a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* other witnesses (§16.78) */
+.wt-known { margin: 0; padding-inline-start: 1.1rem; }
+.wt-known li { margin: 0.2rem 0; }
+.witnesses-page > p a, .wt-known a, .wt-pluses a, .wt-chron a { text-decoration: underline; text-underline-offset: 2px; }
+.wt-verse { margin: 0.8rem 0 1rem; }
+.wt-verse h3 { font-size: 1rem; margin: 0 0 0.3rem; }
+.wt-lines { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 0.8rem; margin: 0; }
+.wt-lines dt { color: var(--muted); font-size: 0.85rem; padding-top: 0.3rem; }
+.wt-lines dd { margin: 0; }
+.wt-lines .he { font-family: var(--font-he); font-size: 1.15rem; line-height: 1.8; }
+.wt-w { border-radius: 3px; padding: 0 0.1rem; }
+.wt-spelling { background: var(--wt-spelling); }
+.wt-form { background: var(--wt-form); }
+.wt-substitution { background: var(--wt-substitution); }
+.wt-added { background: var(--wt-added); }
+.wt-unread { color: var(--muted); }
+.wt-unread::before { content: '['; }
+.wt-unread::after { content: ']'; }
+.wt-omitted { text-decoration: line-through; }
+.wt-lacks { color: var(--muted); }
+.wt-flood th, .wt-flood td { font-weight: 600; }
+.wt-total { border-color: var(--wt-added); color: var(--text); }
+.wt-total span { white-space: nowrap; }
+@media (max-width: 640px) {
+  .wt-lines { grid-template-columns: 1fr; }
+  .wt-lines dt { padding-top: 0.4rem; }
+}
 
 /* ---------- Print (§11.1) ----------
    A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
