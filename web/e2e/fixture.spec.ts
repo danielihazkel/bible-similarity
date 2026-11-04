@@ -16,6 +16,7 @@ const PAGES = [
   '/lemma/7225',
   '/discoveries',
   '/labels',
+  '/labels?tab=queue',
   '/notebook',
   '/phrases',
   '/sequences',
@@ -945,6 +946,27 @@ test('a pair is labelled from a list of similar verses and shows on the Labels p
   await page.goto('/labels')
   await expect(page.locator('.labels-list > li')).toHaveCount(1)
   await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
+  await expect(page.locator('.labels-list > li')).toHaveCount(0)
+})
+
+test('a pair is judged from the label queue and leaves it', async ({ page }, info) => {
+  // it writes to the server's one labels file: run once, not on every device at the same time
+  test.skip(info.project.name !== 'desktop')
+  await page.goto('/labels')
+  await page.getByRole('radio', { name: 'What to judge next' }).click()
+  await expect(page).toHaveURL(/\/labels\?tab=queue$/)
+  // the fixture's one discovery between two train-book verses
+  const items = page.locator('.queue-list > li')
+  await expect(items).toHaveCount(1)
+  await expect(page.getByText('1 pair to judge · 0 of 1 judged')).toBeVisible()
+  await items.getByRole('button', { name: 'Not' }).click()
+  await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'Next pairs' }).click()
+  await expect(page.getByText('Nothing left to judge here.')).toBeVisible()
+  await page.getByRole('radio', { name: 'Your labels' }).click()
+  await expect(page.locator('.labels-list > li')).toHaveCount(1)
+  await expect(page.locator('.labels-list')).toContainText('judged in the queue')
+  await page.locator('.labels-list').getByRole('button', { name: 'Not' }).click() // clear it again
   await expect(page.locator('.labels-list > li')).toHaveCount(0)
 })
 

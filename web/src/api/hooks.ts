@@ -12,6 +12,7 @@ import type {
   PentateuchResponse,
   PsalmsListResponse,
   PsalmsResponse,
+  QueueSide,
   RefrainsListResponse,
   RefrainsResponse,
   FormsListsResponse,
@@ -115,6 +116,7 @@ import type {
   ExplainResponse,
   Label,
   LabelIn,
+  LabelQueue,
   LabelsEval,
   LabelsResponse,
   BorrowingResponse,
@@ -437,6 +439,14 @@ export const useLabels = () =>
 
 export const useLabelsEval = () =>
   useQuery({ queryKey: ['labels-eval'], queryFn: ({ signal }) => getJson<LabelsEval>('/labels/eval', {}, signal) })
+
+/** The label queue (DESIGN.md §16.79): its own key, so a label does not refetch it at once (the
+ * pair judged stays in view until "Next pairs" refetches). */
+export const useLabelQueue = (side: QueueSide) =>
+  useQuery({
+    queryKey: ['label-queue', side],
+    queryFn: ({ signal }) => getJson<LabelQueue>('/labels/queue', { side }, signal),
+  })
 
 /** The key of a pair in either order. */
 export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`)

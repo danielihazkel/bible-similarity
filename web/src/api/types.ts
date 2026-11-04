@@ -579,6 +579,12 @@ export type LabelSeparation = S['LabelSeparation']
 
 export type LabelsEval = S['LabelsEval']
 
+export type QueueItem = S['QueueItem']
+
+export type LabelQueue = S['LabelQueue']
+
+export type QueueSide = 'all' | 'lexical' | 'semantic'
+
 // --- BHSA syntax: clauses, speakers, who speaks where (DESIGN.md §16.26) ---
 
 export type ClauseSegment = S['ClauseSegment']

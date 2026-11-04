@@ -208,6 +208,11 @@ labels:                       # your labels as a third gold set (`bsim eval-labe
   k: 10                       # a mode "finds" a labelled pair when either unit ranks the other within this
   min_pairs: 5                # AUC reported with at least this many real and not pairs
   split: dev                  # `bsim eval-labels` scores the verse pairs of this split (Sefaria split rule)
+  queue:                      # GET /labels/queue: pairs worth judging first (DESIGN.md §16.79, D132)
+    split: train              # only pairs between two books of this split (labels may train the encoder; dev stays held out)
+    size: 20                  # pairs shown at a time
+    max_size: 200             # largest `limit`
+  min_train: 30               # extra_pairs: [labels] needs at least this many real train-split verse pairs
 
 openbible:                    # `bsim eval-openbible`: second gold set, dev only (DESIGN.md §16.13)
   url: https://a.openbible.info/data/cross-references.zip   # CC-BY, openbible.info
@@ -286,6 +291,7 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
     both: {extra_pairs: [openbible, etcbc]}
     m115: {extra_pairs: [openbible, etcbc]}   # the model in use's recipe on M115's OpenBible pairs (Psalms and renumbered chapters in); adoption as M64 (TASKS M115)
     m115_seed14: {seed: 14, extra_pairs: [openbible, etcbc]}   # the model in use's recipe and pairs, seed 14: the noise bar on the new gold (M127, rule in DESIGN §16.41)
+    labels: {extra_pairs: [openbible, etcbc, labels]}   # + your real train-split labels as positives, your not ones as hard negatives (M142, D132); needs labels.min_train
   noise: seed14               # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance)
   golds: [sefaria, openbible, etcbc]
   metric: ndcg@10

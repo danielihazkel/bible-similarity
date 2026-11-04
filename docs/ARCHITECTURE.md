@@ -136,7 +136,7 @@ bible-similarity/
 │   │   ├── simcse.py
 │   │   ├── supervised.py           # CachedMNRL fine-tune
 │   │   ├── negatives.py            # BM25 hard-negative mining
-│   │   ├── pairs.py                # training pairs: Sefaria + `extra_pairs` (OpenBible, ETCBC) (§16.41)
+│   │   ├── pairs.py                # training pairs: Sefaria + `extra_pairs` (OpenBible, ETCBC, your labels) (§16.41, §16.79)
 │   │   └── rerank.py               # cross-encoder reranker (§16.3)
 │   ├── retrieve/
 │   │   ├── topk.py                 # chunked GPU matmul + topk
@@ -231,6 +231,7 @@ bible-similarity/
 │       ├── queries/                # read-only SQL helpers, one module per route module + common (re-exported: `queries.fn`)
 │       ├── resolve.py              # reference parsing for /resolve
 │       ├── source_find.py          # the source finder: a pasted text's biblical phrases, by seeds and Smith-Waterman (§11.1)
+│       ├── label_queue.py          # the label queue: train-book pairs the lexical and semantic lists disagree on (§16.79)
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
 │   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),

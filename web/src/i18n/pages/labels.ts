@@ -16,7 +16,7 @@ export const labEn = {
   saveFailed: (msg: string) => `Could not save the label (${msg})`,
   title: 'Your labels',
   lede: 'Pairs you judged on Discoveries and in the lists of similar passages: real connections, coincidences, and the ones you are unsure of. Together they are a third gold set, beside the Sefaria links and the OpenBible cross-references, and the only one that says which proposed pairs are not connections.',
-  caveat: 'They describe what you were shown — mostly the top of one mode’s lists — not the whole canon. `bsim eval-labels` scores the final systems on the dev-split verse pairs; nothing is tuned on them. Labels are stored on this machine (data/labels.sqlite), apart from the results.',
+  caveat: 'They describe what you were shown — mostly the top of one mode’s lists — not the whole canon. `bsim eval-labels` scores the final systems on the dev-split verse pairs, and nothing is tuned on those. Pairs between two training books can train a variant of the meaning model (see the queue). Labels are stored on this machine (data/labels.sqlite), apart from the results.',
   readOnly: 'This server shows labels read-only.',
   counts: (real: number, not: number, unsure: number) =>
     `${numEn(real)} real · ${numEn(not)} not · ${numEn(unsure)} unsure`,
@@ -36,4 +36,21 @@ export const labEn = {
   judgedIn: (mode: string, score: string) => `judged in ${mode} (score ${score})`,
   note: 'Note',
   notePlaceholder: 'Why (optional)',
+  view: 'View',
+  views: { labels: 'Your labels', queue: 'What to judge next' },
+  queueMode: 'the queue',
+  queueLede:
+    'Pairs where the two ways of reading disagree most: one mode ranks the pair near the top, the other low or not at all. Your judgement says which of them was right, so these are the pairs that teach the most. Only verse pairs between two training books are offered, so that your labels can train the meaning model while the dev and test books stay unseen.',
+  queueTraining: (real: number, need: number) =>
+    `You have ${numEn(real)} real pairs between training books. Training on them (bsim supervision-exp --only labels) needs ${numEn(need)}; your not pairs become the negatives the model is trained to rank low. The variant is kept only if it passes the adoption rule on the dev golds.`,
+  queueSide: 'Ranked higher by',
+  either: 'Either',
+  queueCounts: (total: number, pool: number, labelled: number) =>
+    `${numEn(total)} ${total === 1 ? 'pair' : 'pairs'} to judge · ${numEn(labelled)} of ${numEn(pool)} judged`,
+  ranks: (lex: string, sem: string) => `lexical rank ${lex} · semantic rank ${sem}`,
+  beyond: (k: number) => `beyond ${numEn(k)}`,
+  queueNone: 'Nothing left to judge here.',
+  queueMore: 'Next pairs',
+  queueMoreTitle: 'Show the next pairs; the ones you judged leave the queue',
+  queueMissing: 'The queue needs the book split: run bsim build-links.',
 }

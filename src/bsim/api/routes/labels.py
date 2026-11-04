@@ -11,12 +11,19 @@ import sqlite3
 from collections.abc import Iterator
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
-from bsim.api import queries
+from bsim.api import label_queue, queries
 from bsim.api.app import NO_STORE
 from bsim.api.models.common import UnitSummary
-from bsim.api.models.labels import Label, LabelIn, LabelsEval, LabelsResponse
+from bsim.api.models.labels import (
+    Label,
+    LabelIn,
+    LabelQueue,
+    LabelsEval,
+    LabelsResponse,
+    QueueItem,
+)
 from bsim.api.routes._common import Conn, State, unit_or_404, unprocessable
 from bsim.config import resolve_path
 from bsim.eval.labels import live_eval
@@ -113,4 +120,71 @@ def labels_eval(state: State, conn: Conn, lconn: LabelsConn, response: Response)
         "k": lc["k"],
         "min_pairs": lc["min_pairs"],
         "rows": live_eval(conn, store.all_labels(lconn), lc["k"], lc["min_pairs"]),
+    }
+
+
+@router.get("/labels/queue", response_model=LabelQueue)
+def labels_queue(
+    state: State,
+    conn: Conn,
+    lconn: LabelsConn,
+    response: Response,
+    side: Annotated[str, Query(pattern="^(all|lexical|semantic)$")] = "all",
+    limit: int | None = None,
+) -> dict[str, Any]:
+    """Unlabelled train-book verse pairs where the lexical and semantic lists disagree most
+    (DESIGN.md §16.79): what to judge next. 503 `splits_missing` without `splits.json`."""
+    response.headers.update(NO_STORE)
+    qc, k = state.cfg["labels"]["queue"], state.cfg["retrieval"]["k"]
+    limit = qc["size"] if limit is None else limit
+    if not 1 <= limit <= qc["max_size"]:
+        raise unprocessable(f"limit must be between 1 and {qc['max_size']}")
+    books = label_queue.train_books(state.cfg, qc["split"])
+    if books is None:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "splits_missing", "message": "run `bsim build-links` first"},
+        )
+    pool = label_queue.queue_for(conn, state.db_path, books, k + 1)
+    verse_labels = store.all_labels(lconn, "verse")
+    done = {(r["a_id"], r["b_id"]) for r in verse_labels}
+    done |= {(b, a) for a, b in done}
+    real = [r for r in verse_labels if r["label"] == "real"]
+    book = {
+        v["verse_id"]: v["book_id"]
+        for v in queries.verses_by_id(
+            conn, [int(i.removeprefix("v:")) for r in real for i in (r["a_id"], r["b_id"])]
+        ).values()
+    }
+    train_real = sum(
+        all(book.get(int(r[k].removeprefix("v:"))) in books for k in ("a_id", "b_id")) for r in real
+    )
+    todo = label_queue.unlabelled(pool, done, side)
+    page = todo[:limit]
+    verses = queries.verses_by_id(
+        conn, [int(i.removeprefix("v:")) for p in page for i in (p.a_id, p.b_id)]
+    )
+    return {
+        "writable": state.cfg["serve"]["labels_writable"],
+        "split": qc["split"],
+        "k": k,
+        "pool": len(pool),
+        "labelled": sum((p.a_id, p.b_id) in done for p in pool),
+        "train_real": train_real,
+        "min_train": state.cfg["labels"]["min_train"],
+        "total": len(todo),
+        "items": [
+            QueueItem(
+                a=verses[int(p.a_id.removeprefix("v:"))],
+                b=verses[int(p.b_id.removeprefix("v:"))],
+                a_id=p.a_id,
+                b_id=p.b_id,
+                lex_rank=p.lex_rank,
+                sem_rank=p.sem_rank,
+                disagreement=p.disagreement,
+                side=p.side,
+                score=p.score,
+            )
+            for p in page
+        ],
     }

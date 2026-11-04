@@ -1,23 +1,51 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { useLabels, useLabelsEval, useSetLabel } from '../api/hooks'
-import type { Label, LabelValue, Mode } from '../api/types'
+import { ApiError } from '../api/client'
+import { useLabelQueue, useLabels, useLabelsEval, useSetLabel } from '../api/hooks'
+import type { Label, LabelValue, Mode, QueueItem, QueueSide } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
+import { HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { formatScore } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
+import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 const SHOW = ['all', 'real', 'not', 'unsure'] as const
 type Show = (typeof SHOW)[number]
+const SIDES: QueueSide[] = ['all', 'lexical', 'semantic']
+/** The `mode` a label from the queue records (the list that proposed the pair). */
+const QUEUE = 'queue'
 const fmt = (x: number | null) => (x === null ? '—' : x.toFixed(2))
 
-/** Your judgements of proposed pairs, and how each mode separates them (DESIGN.md §16.25). */
+/** Your judgements of proposed pairs, how each mode separates them (DESIGN.md §16.25), and the
+ * queue of pairs worth judging next (`?tab=queue`, §16.79). */
 export function LabelsPage() {
+  const { m } = useLocale()
+  const t = m.lab
+  const [params, update] = useQueryParams()
+  const queue = params.get('tab') === 'queue'
+  return (
+    <div className="page labels-page">
+      <h1>{t.title}</h1>
+      <div className="toolbar">
+        <Segmented
+          label={t.view}
+          value={queue ? 'queue' : 'labels'}
+          onChange={(v) => update({ tab: v === 'queue' ? v : null, show: null, side: null })}
+          options={(['labels', 'queue'] as const).map((v) => ({ value: v, label: t.views[v] }))}
+        />
+      </div>
+      {queue ? <Queue /> : <Labelled />}
+    </div>
+  )
+}
+
+function Labelled() {
   const { m } = useLocale()
   const t = m.lab
   const [params, update] = useQueryParams()
@@ -28,8 +56,7 @@ export function LabelsPage() {
   const { items, counts, writable } = labels.data
   const shown = show === 'all' ? items : items.filter((l) => l.label === show)
   return (
-    <div className="page labels-page">
-      <h1>{t.title}</h1>
+    <>
       <p className="lede">{t.lede}</p>
       <p className="muted small">{t.caveat}</p>
       {!writable && <p className="status">{t.readOnly}</p>}
@@ -73,7 +100,81 @@ export function LabelsPage() {
           </section>
         </>
       )}
-    </div>
+    </>
+  )
+}
+
+function Queue() {
+  const { m } = useLocale()
+  const t = m.lab
+  const [params, update] = useQueryParams()
+  const side: QueueSide = SIDES.includes(params.get('side') as QueueSide) ? (params.get('side') as QueueSide) : 'all'
+  const q = useLabelQueue(side)
+  if (q.isPending) return <Loading />
+  if (q.error)
+    return q.error instanceof ApiError && q.error.status === 503 ? <p className="status">{t.queueMissing}</p> : <ErrorBox error={q.error} />
+  const d = q.data
+  return (
+    <section aria-labelledby="lq-h">
+      <h2 id="lq-h">{t.views.queue}</h2>
+      <p className="lede">{t.queueLede}</p>
+      <p className="muted small">{t.queueTraining(d.train_real, d.min_train)}</p>
+      {!d.writable && <p className="status">{t.readOnly}</p>}
+      <div className="toolbar">
+        <Segmented
+          label={t.queueSide}
+          value={side}
+          onChange={(v) => update({ side: v === 'all' ? null : v })}
+          options={SIDES.map((v) => ({ value: v, label: v === 'all' ? t.either : m.modes.names[v] }))}
+        />
+        <span className="muted small">{t.queueCounts(d.total, d.pool, d.labelled)}</span>
+      </div>
+      {d.items.length === 0 ? (
+        <p className="status">{t.queueNone}</p>
+      ) : (
+        <>
+          <ol className="queue-list">
+            {d.items.map((i) => (
+              <QueueRow key={`${i.a_id}|${i.b_id}`} i={i} k={d.k} />
+            ))}
+          </ol>
+          <button type="button" className="primary" title={t.queueMoreTitle} disabled={q.isFetching} onClick={() => void q.refetch()}>
+            {t.queueMore}
+          </button>
+        </>
+      )}
+    </section>
+  )
+}
+
+function QueueRow({ i, k }: { i: QueueItem; k: number }) {
+  const { m, locale } = useLocale()
+  const t = m.lab
+  const rank = (r: number | null | undefined) => (r == null ? t.beyond(k) : m.num(r))
+  return (
+    <li>
+      <p className="queue-head">
+        <Link to={unitLink(i.a_id)}>{verseRef(i.a, locale)}</Link>
+        {' ↔ '}
+        <Link to={unitLink(i.b_id)}>{verseRef(i.b, locale)}</Link>
+        <span className="muted small">
+          {' · '}
+          {t.ranks(rank(i.lex_rank), rank(i.sem_rank))}
+        </span>
+      </p>
+      <p className="queue-text">
+        <HebrewText verse={i.a} />
+      </p>
+      <p className="queue-text">
+        <HebrewText verse={i.b} />
+      </p>
+      <p className="queue-actions">
+        <LabelButtons a={i.a_id} b={i.b_id} mode={QUEUE} score={i.score} />
+        <Link className="linkish small" to={compareLink(i.a_id, i.b_id)} title={m.hit.compareTitle}>
+          {m.hit.compare}
+        </Link>
+      </p>
+    </li>
   )
 }
 
@@ -144,7 +245,7 @@ function LabelRow({ l, writable }: { l: Label; writable: boolean }) {
         {l.mode && l.score !== null && (
           <span className="muted small">
             {' · '}
-            {t.judgedIn(m.modes.names[l.mode as Mode] ?? l.mode, formatScore(l.score))}
+            {t.judgedIn(l.mode === QUEUE ? t.queueMode : (m.modes.names[l.mode as Mode] ?? l.mode), formatScore(l.score))}
           </span>
         )}
       </span>

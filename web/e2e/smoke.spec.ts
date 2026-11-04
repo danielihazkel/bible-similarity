@@ -8,6 +8,7 @@ const PAGES: [string, RegExp][] = [
   ['/compare?a=c%3A26%3A14&b=c%3A26%3A53', /Compare/],
   ['/discoveries', /Discoveries|Undiscovered/],
   ['/labels', /Your labels/],
+  ['/labels?tab=queue', /Your labels/],
   ['/notebook', /Your notebook/],
   ['/phrases', /Shared phrases/],
   ['/sequences', /Parallel sequences/],
@@ -200,7 +201,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/witnesses', '/witnesses?unit=v%3A2065', '/source?example=aleinu', '/read/c%3A1%3A20?layers=witnesses', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/labels?tab=queue', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/witnesses', '/witnesses?unit=v%3A2065', '/source?example=aleinu', '/read/c%3A1%3A20?layers=witnesses', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -520,6 +521,21 @@ test('the family tree: Jacob’s sons under their four mothers, with verses', as
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
   // each mother once: a header over her children, or an avatar beside him
   for (const h of ['לאה', 'בלהה', 'זלפה', 'רחל']) await expect(page.locator('.gt-header.mother, .gt-spouse').filter({ hasText: h })).toHaveCount(1)
+})
+
+test('label queue: train-book pairs the two lists rank apart, the two sides in turn', async ({ page }) => {
+  await page.goto('/labels?tab=queue')
+  const items = page.locator('.queue-list > li')
+  await expect(items).toHaveCount(20)
+  await expect(page.getByText(/ of 78,557 judged$/)).toBeVisible()
+  // the top: one list ranks the pair first, the other does not list it; lexical and semantic alternate
+  await expect(items.nth(0)).toContainText(/lexical rank 1 · semantic rank beyond 50/)
+  await expect(items.nth(1)).toContainText(/lexical rank beyond 50 · semantic rank 1/)
+  // no dev or test book: Joshua, Judges, Samuel, Ezekiel, the Writings outside Psalms ...
+  const heads = await items.locator('.queue-head').allInnerTexts()
+  for (const h of heads) expect(h).not.toMatch(/(Joshua|Judges|I Samuel|Ezekiel|Micah|Nahum|Zephaniah|Proverbs|Job|Ruth|Esther|Daniel|Ezra|Nehemiah|Zechariah|Haggai|Ecclesiastes)/)
+  await page.getByRole('radio', { name: 'Semantic' }).click()
+  await expect(items.nth(1)).toContainText(/semantic rank 1/)
 })
 
 test('source finder: Aleinu’s six verses, the priestly blessing as one passage, the Mishnah’s Deut 6:7', async ({ page }) => {

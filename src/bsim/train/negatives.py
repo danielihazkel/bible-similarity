@@ -9,10 +9,14 @@ For each training pair (`train/pairs.py`: Sefaria's train-split verse links, plu
 - is within ±window same-book verses of the anchor or the positive,
 - has the same `text_model` as the anchor or the positive (repeated formula verses).
 When nothing is eligible, a random train-book verse passing the same checks is used (`fallback`).
+With `extra_pairs: [labels]` (D132), a verse you labelled `not` connected to the anchor (both
+train books) is taken first when it passes the same checks (`from_label`, rank -1): a negative
+known to be one, where a BM25 neighbour is only presumed to be.
 
 Writes `paths.artifacts/train/{name}.parquet` (anchor_vid, positive_vid, source, negative_vid,
-negative_rank (0 for fallbacks), fallback) and a `.meta.json` with counts; `name` is
-`hard_negatives` for the pipeline's model, another for an experiment's (§16.41).
+negative_rank (0 for fallbacks, -1 for your labels), fallback, from_label) and a `.meta.json`
+with counts; `name` is `hard_negatives` for the pipeline's model, another for an experiment's
+(§16.41).
 """
 
 from __future__ import annotations
@@ -29,7 +33,7 @@ from bsim.data.canon import BY_SEFARIA
 from bsim.retrieve.filters import apply_filters
 from bsim.retrieve.topk import read_topk
 from bsim.train.common import Log
-from bsim.train.pairs import training_pairs
+from bsim.train.pairs import LABELS, label_negatives, training_pairs
 
 LEXICAL_SYSTEM = "bm25_lemma"
 MAX_FALLBACK_TRIES = 1000
@@ -56,11 +60,13 @@ def mine_hard_negatives(
     rank_range: tuple[int, int],
     window: int,
     seed: int,
+    labelled_not: dict[int, set[int]] | None = None,
 ) -> pd.DataFrame:
     """One negative per (anchor, positive) row.
 
     `candidates`: neighbour-filtered lexical top-k with integer `src`, `tgt`, `rank`.
     `train_book`: bool per book_id. `text_key`: per-verse id of its text (equal text = equal key).
+    `labelled_not`: verse -> verses you labelled not connected to it, taken first when eligible.
     """
     lo, hi = rank_range
     cand = candidates[(candidates["rank"] >= lo) & (candidates["rank"] <= hi)]
@@ -84,7 +90,13 @@ def mine_hard_negatives(
     neg = np.empty(len(anchors), np.int32)
     rank = np.zeros(len(anchors), np.int32)
     fallback = np.zeros(len(anchors), bool)
+    from_label = np.zeros(len(anchors), bool)
+    labelled_not = labelled_not or {}
     for i, (a, p) in enumerate(zip(anchors.tolist(), positives.tolist(), strict=True)):
+        mine = [c for c in sorted(labelled_not.get(a, ())) if ok(c, a, p)]
+        if mine:
+            neg[i], rank[i], from_label[i] = mine[rng.integers(len(mine))], -1, True
+            continue
         tgts, ranks = by_src.get(a, (np.zeros(0, np.int32), np.zeros(0, np.int32)))
         keep = [j for j, c in enumerate(tgts.tolist()) if ok(c, a, p)]
         if keep:
@@ -105,6 +117,7 @@ def mine_hard_negatives(
             "negative_vid": neg,
             "negative_rank": rank,
             "fallback": fallback,
+            "from_label": from_label,
         }
     )
 
@@ -134,6 +147,7 @@ def run_hard_negatives(
     sup, window = cfg["train"]["supervised"], cfg["retrieval"]["neighbor_window"]
     candidates = apply_filters(read_topk(topk_path), book_id, chapter, {"neighbors"}, window)
     lo, hi = sup["hard_negative_rank_range"]
+    labelled_not = label_negatives(cfg) if LABELS in sup["extra_pairs"] else {}
     df = mine_hard_negatives(
         train.src_vid.to_numpy(),
         train.tgt_vid.to_numpy(),
@@ -145,6 +159,7 @@ def run_hard_negatives(
         (int(lo), int(hi)),
         window,
         cfg["seed"],
+        labelled_not,
     )
     df.insert(2, "source", train.source.to_numpy())
 
@@ -157,6 +172,16 @@ def run_hard_negatives(
         "rows": len(df),
         "by_source": {str(k): int(v) for k, v in df.source.value_counts().sort_index().items()},
         "fallbacks": n_fb,
+        "from_labels": int(df.from_label.sum()),
+        "label_not_pairs": sum(map(len, labelled_not.values())) // 2,
+        "label_not_pairs_used": len(
+            {
+                (min(a, n), max(a, n))
+                for a, n in zip(
+                    df.anchor_vid[df.from_label], df.negative_vid[df.from_label], strict=True
+                )
+            }
+        ),
         "distinct_negatives": int(df.negative_vid.nunique()),
         "rank_range": [int(lo), int(hi)],
         "config_hash": config_hash(cfg, "train", "retrieval", "seed"),
@@ -166,5 +191,11 @@ def run_hard_negatives(
     log(
         f"hard negatives: {len(df)} train rows ({meta['by_source']}), {n_fb} fallbacks, "
         f"{meta['distinct_negatives']} distinct negatives"
+        + (
+            f"; {meta['from_labels']} from your labels"
+            f" ({meta['label_not_pairs_used']} of {meta['label_not_pairs']} not pairs)"
+            if labelled_not
+            else ""
+        )
     )
     return df

@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from bsim.api.models.common import ApiModel, UnitSummary
+from bsim.api.models.common import ApiModel, UnitSummary, Verse
 
 
 class LabelIn(BaseModel):
@@ -57,3 +57,29 @@ class LabelsEval(ApiModel):
     k: int
     min_pairs: int
     rows: list[LabelSeparation]
+
+
+class QueueItem(ApiModel):
+    """A pair of the label queue (DESIGN.md §16.79): two train-book verses the modes rank apart."""
+
+    a: Verse  # the earlier verse
+    b: Verse
+    a_id: str
+    b_id: str
+    lex_rank: int | None  # best rank of the pair in either verse's lexical list (None: beyond k)
+    sem_rank: int | None
+    disagreement: int  # |lex_rank - sem_rank|, a rank beyond the lists counted as k + 1
+    side: Literal["lexical", "semantic", "both"]  # the mode that ranks it higher
+    score: float  # its fused score
+
+
+class LabelQueue(ApiModel):
+    writable: bool
+    split: str  # the split whose books the pairs are between (labels.queue.split)
+    k: int  # the component lists' depth (retrieval.k)
+    pool: int  # the pairs of the queue, labelled or not
+    labelled: int  # of them already labelled
+    train_real: int  # your real verse pairs between two books of the split (any page)
+    min_train: int  # what training on them needs (labels.min_train)
+    total: int  # unlabelled pairs of the side asked for
+    items: list[QueueItem]  # the first `limit` of them, most disagreement first

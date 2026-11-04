@@ -1395,6 +1395,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/labels/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Labels Queue
+         * @description Unlabelled train-book verse pairs where the lexical and semantic lists disagree most
+         *     (DESIGN.md §16.79): what to judge next. 503 `splits_missing` without `splits.json`.
+         */
+        get: operations["labels_queue_api_labels_queue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/segments": {
         parameters: {
             query?: never;
@@ -6900,6 +6921,27 @@ export interface components {
             /** Score */
             score?: number | null;
         };
+        /** LabelQueue */
+        LabelQueue: {
+            /** Writable */
+            writable: boolean;
+            /** Split */
+            split: string;
+            /** K */
+            k: number;
+            /** Pool */
+            pool: number;
+            /** Labelled */
+            labelled: number;
+            /** Train Real */
+            train_real: number;
+            /** Min Train */
+            min_train: number;
+            /** Total */
+            total: number;
+            /** Items */
+            items: components["schemas"]["QueueItem"][];
+        };
         /**
          * LabelSeparation
          * @description How one mode's lists separate your real pairs from your not pairs.
@@ -8523,6 +8565,31 @@ export interface components {
             };
             /** Known */
             known: components["schemas"]["PsalmKnownTurn"][];
+        };
+        /**
+         * QueueItem
+         * @description A pair of the label queue (DESIGN.md §16.79): two train-book verses the modes rank apart.
+         */
+        QueueItem: {
+            a: components["schemas"]["Verse"];
+            b: components["schemas"]["Verse"];
+            /** A Id */
+            a_id: string;
+            /** B Id */
+            b_id: string;
+            /** Lex Rank */
+            lex_rank: number | null;
+            /** Sem Rank */
+            sem_rank: number | null;
+            /** Disagreement */
+            disagreement: number;
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "lexical" | "semantic" | "both";
+            /** Score */
+            score: number;
         };
         /**
          * RabbinicSource
@@ -13482,6 +13549,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabelsEval"];
+                };
+            };
+        };
+    };
+    labels_queue_api_labels_queue_get: {
+        parameters: {
+            query?: {
+                side?: string;
+                limit?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelQueue"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Label, LabelsEval, LabelsResponse, UnitSummary } from '../api/types'
+import type { Label, LabelQueue, LabelsEval, LabelsResponse, UnitSummary, Verse } from '../api/types'
 import { LabelButtons } from '../components/LabelButtons'
 import { LocaleProvider } from '../context/Locale'
 import { LabelsPage } from './LabelsPage'
@@ -37,6 +37,41 @@ const EVAL: LabelsEval = {
   ],
 }
 
+const verse = (id: number, ref: string, text: string): Verse => ({
+  verse_id: id,
+  book_id: 0,
+  chapter: 1,
+  verse: id,
+  ref,
+  ref_he: `ה${ref}`,
+  text_display: text,
+  display_tokens: text.split(' '),
+  ketiv_note: null,
+})
+const QUEUE: LabelQueue = {
+  writable: true,
+  split: 'train',
+  k: 50,
+  pool: 79,
+  labelled: 4,
+  train_real: 3,
+  min_train: 30,
+  total: 75,
+  items: [
+    {
+      a: verse(7, 'Genesis 1:8', 'וַיִּקְרָא אֱלֹהִים'),
+      b: verse(900, 'Psalms 19:2', 'הַשָּׁמַיִם מְסַפְּרִים'),
+      a_id: 'v:7',
+      b_id: 'v:900',
+      lex_rank: null,
+      sem_rank: 1,
+      disagreement: 50,
+      side: 'semantic',
+      score: 0.016,
+    },
+  ],
+}
+
 function mockApi(writable = true) {
   let labels: LabelsResponse = { writable, counts: { real: 1, not: 0, unsure: 0 }, items: [LABEL] }
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
@@ -51,19 +86,20 @@ function mockApi(writable = true) {
       labels = { ...labels, counts: { real: 0, not: 0, unsure: 0 }, items: [] }
       return new Response(null, { status: 204 })
     }
-    const body = path === '/api/labels' ? labels : path === '/api/labels/eval' ? EVAL : null
+    const body =
+      path === '/api/labels' ? labels : path === '/api/labels/eval' ? EVAL : path === '/api/labels/queue' ? { ...QUEUE, writable } : null
     return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
   })
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }
 
-function renderAt(ui: React.ReactNode, locale: 'en' | 'he' = 'en') {
+function renderAt(ui: React.ReactNode, locale: 'en' | 'he' = 'en', path = '/labels') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
       <LocaleProvider initial={locale}>
-        <MemoryRouter initialEntries={['/labels']}>
+        <MemoryRouter initialEntries={[path]}>
           <Routes>
             <Route path="/labels" element={ui} />
           </Routes>
@@ -94,8 +130,36 @@ describe('LabelsPage', () => {
     mockApi(false)
     renderAt(<LabelsPage />, 'he')
     expect(await screen.findByRole('heading', { level: 1, name: 'הסימונים שלך' })).toBeTruthy()
-    expect(screen.getByText('השרת הזה מציג סימונים לקריאה בלבד.')).toBeTruthy()
+    expect(await screen.findByText('השרת הזה מציג סימונים לקריאה בלבד.')).toBeTruthy()
     expect(screen.queryByRole('textbox')).toBeNull()
+  })
+})
+
+describe('The label queue', () => {
+  it('shows the pairs the modes rank apart, and labels one as from the queue', async () => {
+    const fetchMock = mockApi()
+    renderAt(<LabelsPage />, 'en', '/labels?tab=queue')
+    expect(await screen.findByText('75 pairs to judge · 4 of 79 judged')).toBeTruthy()
+    expect(screen.getByText(/lexical rank beyond 50 · semantic rank 1/)).toBeTruthy()
+    expect(screen.getByText(/You have 3 real pairs between training books/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Psalms 19:2' }).getAttribute('href')).toBe('/unit/v%3A900')
+    fireEvent.click(await screen.findByRole('button', { name: 'Real' }))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
+    const put = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
+    expect(JSON.parse(String(put[1]!.body))).toMatchObject({ a_id: 'v:7', b_id: 'v:900', label: 'real', mode: 'queue', score: 0.016 })
+    // ranked higher by meaning only
+    fireEvent.click(screen.getByRole('radio', { name: 'Semantic' }))
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([u]) => String(u).includes('/api/labels/queue') && String(u).includes('side=semantic'))).toBe(true),
+    )
+  })
+
+  it('switches between the two views, and reads in Hebrew', async () => {
+    mockApi()
+    renderAt(<LabelsPage />, 'he')
+    fireEvent.click(await screen.findByRole('radio', { name: 'מה לשפוט עכשיו' }))
+    expect(await screen.findByText(/זוגות לשיפוט/)).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 2, name: 'מה לשפוט עכשיו' })).toBeTruthy()
   })
 })
 

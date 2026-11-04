@@ -22,6 +22,7 @@ from bsim.analysis.structure import run_structure
 from bsim.analysis.stylometry import run_stylometry
 from bsim.analysis.typescenes import run_typescenes
 from bsim.config import load_config, resolve_path
+from bsim.data.canon import BOOKS
 from bsim.retrieve.fusion import final_systems
 from bsim.store.db import run_build_db
 from bsim.text.normalize import consonantal
@@ -243,6 +244,10 @@ def write_inputs(cfg, tmp_path):
         }
     ).to_parquet(proc / "word_senses.parquet")
     (proc / "lexicon_meta.json").write_text(json.dumps({"refs": 8, "matched": 8}), "utf-8")
+    # the book split (`bsim build-links`): the fixture's Genesis trains, the rest is held out; the
+    # label queue offers only pairs between train books
+    books = {b.sefaria: "train" if b.book_id == 0 else "dev" for b in BOOKS}
+    (proc / "splits.json").write_text(json.dumps({"books": books}), "utf-8")
 
     for unit_type, rows in (("verse", VERSE_ROWS), ("chapter", CHAPTER_ROWS)):
         for mode, name in final_systems(cfg, unit_type).items():

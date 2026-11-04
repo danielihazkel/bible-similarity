@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M142: Label queue (§16.79, D132; proposed K9)
+- [x] `api/label_queue.py`: the fused verse discoveries between two train-split books, by `|lex_rank − sem_rank|` (beyond the lists = k + 1), ties to the stronger pair and the two sides in turn; labelled pairs left out; the pool read once per DB
+- [x] API `GET /labels/queue` (`?side=`, `?limit=`; `no-store`; 503 `splits_missing`), with the counts and the real train pairs against `labels.min_train`
+- [x] Training: `extra_pairs: [labels]` (`train/pairs.py`): your real train pairs as positives, kept from the negatives in any split; your not train pairs as hard negatives where eligible (`train/negatives.py`, `from_label`); refused below `labels.min_train`; variant `supervision_experiments.variants.labels`
+- [x] Viewer: Labels → What to judge next (`/labels?tab=queue`): both verses, each list's rank, the label buttons (`mode: queue`), Compare, Next pairs; English and Hebrew
+- [x] Tests: the ranking, the turns, the side filter (pytest); the endpoint over the fixture DB (which now has a book split); the pairs and negatives from a labels file, the minimum; the page (vitest); fixture e2e (a pair judged from the queue) and smoke on the real build (axe)
+- [ ] Train the `labels` variant: waits for 30 real train pairs, and a GPU run (about 2.5 h) the user starts (`bsim supervision-exp --only labels`)
+
+✔ The queue puts first the pairs one list ranks first and the other does not list (Gen 1:1 / Jer 23:24 by the words, Exod 33:13 / 33:17 by meaning), only between train books; a judgement there can train the model and the dev golds stay clean.
+
 ## M141: Source finder (§11.1, D131; proposed K5)
 - [x] `api/source_find.py`: words keyed by consonants, the divine name's abbreviations written out and the skeleton; an index of the verses' adjacent word pairs, built on first use; seeds, Smith-Waterman weighted by rarity, a stretch found blanked and the rest aligned again; the best hits with their alternatives, consecutive verses joined (`source_find` in config)
 - [x] API `POST /source-find` (422 over `max_chars`), `GET /source-find/examples`
@@ -1481,7 +1491,7 @@ Tools
 - [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
 
 Models
-- [ ] K9 Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
+- [x] K9 (done, M142; the variant's training waits for labels) Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
 - [ ] K10 Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
 - [ ] K11 LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
 

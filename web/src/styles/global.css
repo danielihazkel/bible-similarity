@@ -2554,6 +2554,27 @@ tr.out-of-domain td {
   flex: 1 1 12rem;
   min-width: 0;
 }
+/* the label queue (DESIGN.md §16.79): two verses to judge, one under the other */
+.queue-list {
+  padding-inline-start: 1.6rem;
+}
+.queue-list > li {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+}
+.queue-list p {
+  margin: 0.25rem 0;
+}
+.queue-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+.queue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}
 
 /* BHSA clauses and speakers (DESIGN.md §16.26) */
 .syntax-panel .syntax-ref {
