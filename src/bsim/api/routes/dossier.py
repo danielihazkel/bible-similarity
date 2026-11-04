@@ -39,6 +39,9 @@ and what it found:
     gematria                      count = the tradition's valued texts (`gematria.known`) among
                                   the unit's words, label = those texts; a verse: value = its
                                   standard value, total = the other verses of that value
+    reception                     count = rabbinic citations of the unit's verses (a passage of the
+                                  Mishnah, the Tosefta or a Talmud with a verse); key = the corpus
+                                  citing it most; total = the unit's verses cited
     labels                        count = your labelled pairs with this unit (read live)
 
 The rest is deterministic per DB, so it is cached (`serve.dossier_cache`).
@@ -341,6 +344,13 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
         value=value,
         total=other,
     )
+
+    on = state.present(conn, "reception_verses")
+    by_verse = queries.reception_verse_counts(conn, first, last) if on else {}
+    rc = queries.reception_counts(conn, first, last) if on else {}
+    corpora = ("mishnah", "tosefta", "bavli", "yerushalmi")
+    top = max(corpora, key=lambda c: rc.get(c, 0)) if rc.get("total") else None
+    add("reception", computed=on, count=rc.get("total", 0), key=top, total=len(by_verse))
 
     add(
         "mirrors",

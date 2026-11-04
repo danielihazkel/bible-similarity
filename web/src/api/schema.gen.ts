@@ -2560,6 +2560,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reception": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reception
+         * @description The citations per book and chapter, and the checks (503: the stage did not run).
+         */
+        get: operations["reception_api_reception_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reception/verses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reception Verses
+         * @description The verses most cited (by one corpus, or all), in a book or the whole canon.
+         */
+        get: operations["reception_verses_api_reception_verses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reception/citations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reception Citations
+         * @description The rabbinic passages citing a unit's verses, verse by verse (404: unknown unit).
+         */
+        get: operations["reception_citations_api_reception_citations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/week": {
         parameters: {
             query?: never;
@@ -5124,7 +5184,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "reception" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -5663,7 +5723,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known";
+            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known" | "reception_law" | "reception_bavli" | "reception_known";
             /**
              * Verdict
              * @enum {string}
@@ -6376,6 +6436,16 @@ export interface components {
             p: number | null;
             /** Beats */
             beats: boolean;
+        };
+        /** KnownCitation */
+        KnownCitation: {
+            /** Cite */
+            cite: string;
+            /** Ref */
+            ref: string;
+            verse: components["schemas"]["Verse"] | null;
+            /** Found */
+            found: boolean;
         };
         /** KnownCycle */
         KnownCycle: {
@@ -8453,6 +8523,13 @@ export interface components {
             divine: {
                 [key: string]: string;
             };
+            /**
+             * Reception
+             * @default {}
+             */
+            reception: {
+                [key: string]: number;
+            };
         };
         /** ReaderWordplay */
         ReaderWordplay: {
@@ -8477,6 +8554,176 @@ export interface components {
             kind: "substitution" | "metathesis" | "extension";
             /** Q */
             q: number;
+        };
+        /** ReceptionBook */
+        ReceptionBook: {
+            /** Mishnah */
+            mishnah: number;
+            /** Tosefta */
+            tosefta: number;
+            /** Bavli */
+            bavli: number;
+            /** Yerushalmi */
+            yerushalmi: number;
+            /** Total */
+            total: number;
+            /** Book Id */
+            book_id: number;
+            /** Verses */
+            verses: number;
+        };
+        /** ReceptionChapter */
+        ReceptionChapter: {
+            /** Mishnah */
+            mishnah: number;
+            /** Tosefta */
+            tosefta: number;
+            /** Bavli */
+            bavli: number;
+            /** Yerushalmi */
+            yerushalmi: number;
+            /** Total */
+            total: number;
+            /** Book Id */
+            book_id: number;
+            /** Chapter */
+            chapter: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Verses */
+            verses: number;
+        };
+        /** ReceptionCitation */
+        ReceptionCitation: {
+            /**
+             * Corpus
+             * @enum {string}
+             */
+            corpus: "mishnah" | "tosefta" | "bavli" | "yerushalmi";
+            /** Title */
+            title: string;
+            /** Cite */
+            cite: string;
+            /** Cite He */
+            cite_he: string;
+            /** Url */
+            url: string;
+            /** Verse Id */
+            verse_id: number;
+            /** Ref */
+            ref: string;
+            /** Ref He */
+            ref_he: string;
+        };
+        /** ReceptionCitationsResponse */
+        ReceptionCitationsResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ReceptionCitation"][];
+            /** Unit Id */
+            unit_id: string;
+            /** Corpus */
+            corpus: ("mishnah" | "tosefta" | "bavli" | "yerushalmi") | null;
+            counts: components["schemas"]["ReceptionCounts"];
+        };
+        /**
+         * ReceptionCounts
+         * @description Citations (a rabbinic passage with a verse) by corpus.
+         */
+        ReceptionCounts: {
+            /** Mishnah */
+            mishnah: number;
+            /** Tosefta */
+            tosefta: number;
+            /** Bavli */
+            bavli: number;
+            /** Yerushalmi */
+            yerushalmi: number;
+            /** Total */
+            total: number;
+        };
+        /** ReceptionResponse */
+        ReceptionResponse: {
+            /** Citations */
+            citations: number;
+            /** Verses Cited */
+            verses_cited: number;
+            /** By Corpus */
+            by_corpus: {
+                [key: string]: number;
+            };
+            /** Passages */
+            passages: {
+                [key: string]: number;
+            };
+            /** Dropped Long */
+            dropped_long: number;
+            /** Legal Verses */
+            legal_verses: number;
+            /** Narrative Verses */
+            narrative_verses: number;
+            /** Ratios */
+            ratios: {
+                [key: string]: number;
+            };
+            /** Law P */
+            law_p: number;
+            /** Law Holds */
+            law_holds: boolean;
+            /** Gap */
+            gap: number;
+            /** Gap P */
+            gap_p: number;
+            /** Gap Holds */
+            gap_holds: boolean;
+            /** Known */
+            known: components["schemas"]["KnownCitation"][];
+            /** Known Holds */
+            known_holds: boolean;
+            /** Max Span */
+            max_span: number;
+            /** Shifts */
+            shifts: number;
+            /** Alpha */
+            alpha: number;
+            /** Books */
+            books: components["schemas"]["ReceptionBook"][];
+            /** Chapters */
+            chapters: components["schemas"]["ReceptionChapter"][];
+        };
+        /** ReceptionVerse */
+        ReceptionVerse: {
+            /** Mishnah */
+            mishnah: number;
+            /** Tosefta */
+            tosefta: number;
+            /** Bavli */
+            bavli: number;
+            /** Yerushalmi */
+            yerushalmi: number;
+            /** Total */
+            total: number;
+            verse: components["schemas"]["Verse"];
+        };
+        /** ReceptionVersesResponse */
+        ReceptionVersesResponse: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ReceptionVerse"][];
+            /** Corpus */
+            corpus: ("mishnah" | "tosefta" | "bavli" | "yerushalmi") | null;
+            /** Book */
+            book: number | null;
         };
         /**
          * Refrain
@@ -14391,6 +14638,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VocabularyResponse"];
+                };
+            };
+        };
+    };
+    reception_api_reception_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceptionResponse"];
+                };
+            };
+        };
+    };
+    reception_verses_api_reception_verses_get: {
+        parameters: {
+            query?: {
+                corpus?: ("mishnah" | "tosefta" | "bavli" | "yerushalmi") | null;
+                limit?: number;
+                offset?: number;
+                book?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceptionVersesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reception_citations_api_reception_citations_get: {
+        parameters: {
+            query: {
+                unit: string;
+                corpus?: ("mishnah" | "tosefta" | "bavli" | "yerushalmi") | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceptionCitationsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

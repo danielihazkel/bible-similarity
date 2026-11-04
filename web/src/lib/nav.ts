@@ -97,6 +97,7 @@ export const NAV: NavEntry[] = [
         { to: '/chronology', key: 'chronology' },
         { to: '/frameworks', key: 'frameworks' },
         { to: '/haftarot', key: 'haftarot' },
+        { to: '/reception', key: 'reception' },
       ],
     },
   ]),

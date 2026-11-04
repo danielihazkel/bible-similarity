@@ -438,6 +438,12 @@ def stage_vocabulary(cfg: dict[str, Any], log: Log) -> None:
     run_vocabulary(cfg, log=log)
 
 
+def stage_reception(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.reception import run_reception
+
+    run_reception(cfg, log=log)
+
+
 def stage_masorah(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.masorah import run_masorah
 
@@ -530,6 +536,7 @@ STAGES: dict[str, str] = {
     "binomials": "stage_binomials",
     "sums": "stage_sums",
     "vocabulary": "stage_vocabulary",
+    "reception": "stage_reception",
     "masorah": "stage_masorah",
     "els": "stage_els",
     "eval-etcbc": "stage_eval_etcbc",
@@ -611,6 +618,7 @@ DEPS: dict[str, tuple[str, ...]] = {
     "binomials": (*_CORPUS,),
     "sums": (*_CORPUS, "build-links", "build-golds", "sequences"),
     "vocabulary": (*_CORPUS,),
+    "reception": ("download", *_CORPUS),
     "masorah": (*_CORPUS, "ketiv"),
     "els": (*_CORPUS, "ketiv"),
     "eval-etcbc": (
@@ -640,6 +648,7 @@ RAW: dict[str, tuple[str, ...]] = {
     "roots": ("lexicon/HebrewStrong.xml",),
     "gematria": ("lexicon/HebrewStrong.xml",),
     "haftarot": ("leyning/*",),
+    "reception": ("sefaria/links/*",),
 }
 
 # stages adopted without ever running under `bsim all` (the models, trained by hand): the config

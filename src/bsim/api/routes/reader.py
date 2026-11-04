@@ -188,6 +188,13 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         for r in queries.divine_tokens(conn, first, last):
             divine[r["verse_id"]].setdefault(r["display_idx"], r["name"])
 
+    # rabbinic citations of each verse (§16.77)
+    cited = (
+        queries.reception_verse_counts(conn, first, last)
+        if state.present(conn, "reception_verses")
+        else {}
+    )
+
     return {
         "unit": UnitSummary(**u),
         "rare_verses": rare_max,
@@ -202,6 +209,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "sources": state.present(conn, "pentateuch_verses"),
             "places": state.present(conn, "places"),
             "divine": state.present(conn, "divine_words"),
+            "reception": state.present(conn, "reception_verses"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
@@ -225,6 +233,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 gematria=[value(t) for t in tokens.get(v, [])],
                 places={str(t): p for t, p in sorted(place_at.get(v, {}).items())},
                 divine={str(t): n for t, n in sorted(divine.get(v, {}).items())},
+                reception=cited.get(v, {}),
             )
             for v in vids
         ],

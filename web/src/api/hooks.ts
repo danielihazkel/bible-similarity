@@ -40,6 +40,9 @@ import type {
   SumsParallelsResponse,
   SumsResponse,
   VocabularyResponse,
+  ReceptionResponse,
+  ReceptionVersesResponse,
+  ReceptionCitationsResponse,
   WeekResponse,
   ContrastResponse,
   WorkbenchFeature,
@@ -778,6 +781,26 @@ export const useSumsItems = (key: string) =>
     queryKey: ['sums-items', key],
     queryFn: ({ signal }) => getJson<SumsItemsResponse>('/sums/items', { key }, signal),
     ...forever,
+  })
+
+export const useReception = () =>
+  useQuery({ queryKey: ['reception'], queryFn: ({ signal }) => getJson<ReceptionResponse>('/reception', {}, signal), ...forever })
+
+export const useReceptionVerses = (corpus: string | undefined, book: number | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['reception-verses', corpus, book, limit, offset],
+    queryFn: ({ signal }) => getJson<ReceptionVersesResponse>('/reception/verses', { corpus, book, limit, offset }, signal),
+    ...forever,
+    placeholderData: keepPreviousData,
+  })
+
+export const useReceptionCitations = (unit: string | undefined, corpus: string | undefined, limit: number, offset: number) =>
+  useQuery({
+    queryKey: ['reception-citations', unit, corpus, limit, offset],
+    queryFn: ({ signal }) => getJson<ReceptionCitationsResponse>('/reception/citations', { unit: unit!, corpus, limit, offset }, signal),
+    enabled: unit !== undefined,
+    ...forever,
+    placeholderData: keepPreviousData,
   })
 
 export const useVocabulary = () =>

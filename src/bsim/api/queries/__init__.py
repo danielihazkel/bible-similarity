@@ -263,6 +263,14 @@ from bsim.api.queries.reader import (
     refrains_in,
     wordplay_touching,
 )
+from bsim.api.queries.reception import (
+    reception_books,
+    reception_chapters,
+    reception_citations_page,
+    reception_counts,
+    reception_verse_counts,
+    reception_verses_page,
+)
 from bsim.api.queries.refrains import (
     refrain_verses,
     refrains_page,
@@ -541,6 +549,12 @@ __all__ = [
     "verse_links",
     "verse_range",
     "verses_by_id",
+    "reception_books",
+    "reception_chapters",
+    "reception_citations_page",
+    "reception_counts",
+    "reception_verse_counts",
+    "reception_verses_page",
     "vocabulary_books",
     "vocabulary_lemma",
     "voice_features",

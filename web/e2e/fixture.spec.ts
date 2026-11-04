@@ -133,6 +133,9 @@ const PAGES = [
   '/sums',
   '/sums?list=ezra2&scope=every&step=yes',
   '/vocabulary',
+  '/reception',
+  '/reception?unit=v%3A0',
+  '/read/c%3A0%3A1?layers=reception',
   '/glossary',
   '/tours',
   '/masorah?tour=numbers&step=3',
@@ -701,6 +704,20 @@ test('sums: the checks, a list opened, the parallels filtered', async ({ page })
   await expect(page.locator('li.sm-parallel')).toHaveCount(1)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+})
+
+test('rabbinic reception: the checks, who cites a verse, the reader’s counts and the dossier', async ({ page }) => {
+  await page.goto('/reception')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
+  await expect(page.locator('rect.rc-cell')).not.toHaveCount(0)
+  await page.locator('.rc-verses a').first().click()
+  await expect(page).toHaveURL(/\/reception\?unit=v%3A0/)
+  const cite = page.getByRole('link', { name: /משנה ברכות א:ג/ })
+  await expect(cite).toHaveAttribute('href', 'https://www.sefaria.org/Mishnah_Berakhot.1.3?lang=he')
+  await page.getByRole('link', { name: 'Read with its citations' }).click()
+  await expect(page.locator('.reader-text .rc-total').first()).toHaveText('3')
+  await page.goto('/unit/v%3A0')
+  await expect(page.locator('.dossier-chip').filter({ hasText: 'rabbinic citations' })).toHaveAttribute('href', '/reception?unit=v%3A0')
 })
 
 test('vocabulary: the checks, the novelty chart, a lemma’s first use', async ({ page }) => {

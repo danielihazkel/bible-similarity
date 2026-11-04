@@ -343,6 +343,20 @@ export const findEn = {
       text: (v: V) =>
         `By words found once in the Bible per 1,000 words, Job ranks ${numEn(n(v, 'rank_0'))} (expected in the first ${numEn(n(v, 'at_most_0'))}) and the Song of Songs ${numEn(n(v, 'rank_1'))} (in the first ${numEn(n(v, 'at_most_1'))}).`,
     },
+    reception_law: {
+      title: 'The Mishnah cites the Torah’s law more than its stories',
+      text: (v: V) =>
+        `Per verse, the Mishnah cites the Torah’s legal blocks ${x2(n(v, 'ratio'))} times as often as its narrative, more than when those blocks are shifted round their books ${numEn(n(v, 'shifts'))} times (p ${fp(n(v, 'p'))}).`,
+    },
+    reception_bavli: {
+      title: 'The Bavli leans to the law less than the Mishnah',
+      text: (v: V) =>
+        `The law over the narrative per verse is ${x2(n(v, 'mishnah'))} in the Mishnah and ${x2(n(v, 'bavli'))} in the Bavli, a gap of ${x2(n(v, 'gap'))} against the two corpora’s citations shuffled between them (p ${fp(n(v, 'p'))}).`,
+    },
+    reception_known: {
+      title: 'The citations the tradition knows are there',
+      text: (v: V) => `${numEn(n(v, 'found'))} of ${numEn(n(v, 'of'))} known citations found, among them the Shema’s “when you lie down and when you rise” in Mishnah Berakhot 1:3.`,
+    },
     frameworks_cycle: {
       title: 'The judges’ cycle breaks down through the book',
       text: (v: V) =>

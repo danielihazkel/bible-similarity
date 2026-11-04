@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M138: Rabbinic reception (§16.77, D128; proposed K2)
+- [x] The licence first: Sefaria's links dataset is CC BY 4.0 (its "Copyright and Data Use"); the links already downloaded, no new download; no rabbinic text stored (their editions' licences vary), each passage linked to Sefaria in Hebrew
+- [x] `bsim reception`: the Mishnah, the Tosefta, the Bavli and the Yerushalmi by their own titles (commentaries, other editions, Alfasi and the Daf Shevui out), verse ranges of at most `max_span`; citations per verse, chapter and book; each passage's Hebrew reference and Sefaria link
+- [x] Claims fixed in advance: the Mishnah cites the Torah's law more per verse than its narrative (blocks shifted round their books; holds, 10.55, p 0.001); the Bavli less so (holds, 6.78, gap 3.76, p 0.001); four known citations (holds). Both runs reported (Alfasi and the Daf Shevui added to `exclude` after the first)
+- [x] API `/reception`, `/reception/verses`, `/reception/citations`; the reader's `reception` layer; a dossier entry; three findings
+- [x] Viewer: `/reception` (Patterns → Narrative): the checks, one corpus or all, the verses cited most (by book), who cites a unit, a chapter strip per book (`components/HeatStrip.tsx`, shared with the divine names now), every book; English and Hebrew
+- [x] Tests: the corpora's titles, the Hebrew references and links, the circular shift, a run on made-up links (pytest); the endpoints, the reader, the dossier, the findings; the page, the corpus in the URL, who cites a verse, the reader's counts (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ The Mishnah cites the Torah's law ten times as often per verse as its stories, the Bavli seven; the bill of divorce (Deut 24:1) is the verse cited most, and Mishnah Berakhot 1:3 is found citing the Shema's "when you lie down and when you rise".
+
 ## M137: Print and export (§11.1, D127; proposed K7)
 - [x] A print stylesheet: no menus, tour bar, controls or panels; the whole width on white, light from a dark screen (the dark tokens on screen only); marks' colours kept; rows and verses not split. A Print button on the synopsis and the reader
 - [x] The map as an SVG file (`lib/svgExport.ts`): the stylesheet's look written on each element, in the light theme, thin strokes kept thin; on every page that draws the map
@@ -1431,7 +1441,7 @@ From the 2026-11-03 review: new features and improvements, all fifteen suggestio
 
 Analyses
 - [x] K1 (done, M133) Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
-- [ ] K2 Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
+- [x] K2 (done, M138) Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
 - [ ] K3 Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
 - [x] K4 (done, M134) Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
 

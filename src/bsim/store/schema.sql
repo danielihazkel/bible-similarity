@@ -1860,6 +1860,49 @@ CREATE TABLE vocabulary_lemmas (
     hapax INTEGER NOT NULL          -- 1: counted, and found once
 );
 
+-- `bsim reception` (§16.77): where the Mishnah, the Tosefta and the two Talmuds cite the Bible
+-- (Sefaria's links, CC BY 4.0: which passage cites which verse; no rabbinic text)
+CREATE TABLE reception_citations (
+    corpus TEXT NOT NULL,           -- mishnah | tosefta | bavli | yerushalmi
+    title TEXT NOT NULL,            -- Sefaria's title (Mishnah Berakhot, Berakhot, Jerusalem Talmud Berakhot)
+    cite TEXT NOT NULL,             -- the passage as Sefaria cites it (Berakhot 2a:1)
+    cite_he TEXT NOT NULL,          -- ... in Hebrew, as printed editions cite it (בבלי ברכות ב ע״א)
+    url TEXT NOT NULL,              -- the passage on Sefaria, in Hebrew
+    verse_id INTEGER NOT NULL
+);
+
+CREATE TABLE reception_verses (
+    verse_id INTEGER PRIMARY KEY,   -- every verse cited
+    mishnah INTEGER NOT NULL,       -- citations: one rabbinic passage with one verse
+    tosefta INTEGER NOT NULL,
+    bavli INTEGER NOT NULL,
+    yerushalmi INTEGER NOT NULL,
+    total INTEGER NOT NULL
+);
+
+CREATE TABLE reception_chapters (
+    book_id INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    unit_id TEXT NOT NULL,
+    verses INTEGER NOT NULL,
+    mishnah INTEGER NOT NULL,       -- citations: one rabbinic passage with one verse
+    tosefta INTEGER NOT NULL,
+    bavli INTEGER NOT NULL,
+    yerushalmi INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    PRIMARY KEY (book_id, chapter)
+);
+
+CREATE TABLE reception_books (
+    book_id INTEGER PRIMARY KEY,
+    verses INTEGER NOT NULL,
+    mishnah INTEGER NOT NULL,       -- citations: one rabbinic passage with one verse
+    tosefta INTEGER NOT NULL,
+    bavli INTEGER NOT NULL,
+    yerushalmi INTEGER NOT NULL,
+    total INTEGER NOT NULL
+);
+
 CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded

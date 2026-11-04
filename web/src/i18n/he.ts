@@ -45,6 +45,7 @@ import { etyHe } from './pages/he/etiologies'
 import { brkHe } from './pages/he/brackets'
 import { rtHe } from './pages/he/retold'
 import { hfHe } from './pages/he/haftarot'
+import { rcHe } from './pages/he/reception'
 import { chHe } from './pages/he/chronology'
 import { smHe } from './pages/he/sums'
 import { vcHe } from './pages/he/vocabulary'
@@ -146,6 +147,7 @@ export const he: Messages = {
     brackets: { label: 'חזרה מסגרת', hint: 'משפט שחוזר אחרי קטע: האם הקטע קוטע את הסיפור?' },
     retold: { label: 'דיבור שמסופר שוב', hint: 'מה משתנה כשדבר שנאמר מסופר שוב, בפי דובר אחר או כמעשה' },
     haftarot: { label: 'הפטרות', hint: 'ההפטרה של כל פרשה: היכן המערכות מדרגות אותה בין כל פרקי הנביאים' },
+    reception: { label: 'בעיני חז״ל', hint: 'היכן המשנה והתלמודים מצטטים את המקרא: הספרים, הפרקים והפסוקים הנקראים ביותר' },
     binomials: { label: 'צמדי מילים', hint: 'מילים שמחוברות בו׳ בסדר קבוע (שמים וארץ): הקצרה ראשונה, ההיפוכים של הספרים המאוחרים' },
     frameworks: { label: 'המסגרות של הסיפור', hint: 'מחזור השופטים רכיב אחר רכיב, וההערכה ונוסחת המלכות של כל מלך' },
     chronology: { label: 'מניין השנים', hint: 'השנים מאדם כפי שהפסוקים מונים אותן, ומלכי שתי הממלכות מול הסנכרונים שביניהם' },
@@ -541,6 +543,7 @@ export const he: Messages = {
   bn: bnHe,
   sm: smHe,
   vc: vcHe,
+  rc: rcHe,
   gloss: glossHe,
   tr: trHe,
   wk: wkHe,

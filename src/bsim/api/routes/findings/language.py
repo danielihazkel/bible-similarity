@@ -196,3 +196,31 @@ def _vocabulary(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
+
+def _reception(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
+    """Rabbinic reception: the Mishnah cites the Torah's law more per verse than its narrative
+    (against the law's blocks shifted round each book); the Bavli leans to the law less than the
+    Mishnah (against the corpus of each citation shuffled); the known citations found."""
+
+    def build(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+        r = meta.get("reception") or {}
+        if not r.get("citations"):
+            return None
+        ratios = r.get("ratios") or {}
+        if key == "reception_law":
+            values = {"ratio": ratios.get("mishnah"), "p": r.get("law_p"),
+                      "shifts": r.get("shifts"), "legal": r.get("legal_verses"),
+                      "narrative": r.get("narrative_verses")}  # fmt: skip
+            holds = bool(r.get("law_holds"))
+        elif key == "reception_bavli":
+            values = {"mishnah": ratios.get("mishnah"), "bavli": ratios.get("bavli"),
+                      "gap": r.get("gap"), "p": r.get("gap_p")}  # fmt: skip
+            holds = bool(r.get("gap_holds"))
+        else:
+            known = r.get("known") or []
+            values = {"found": sum(1 for k in known if k.get("found")), "of": len(known)}
+            holds = bool(r.get("known_holds"))
+        return Finding(key=key, verdict="holds" if holds else "fails", values=values)
+
+    return build

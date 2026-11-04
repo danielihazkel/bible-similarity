@@ -56,6 +56,12 @@
   --vc-early: #2f6fb0; /* vocabulary chart (§16.76): validated pair, CVD ΔE 21 */
   --vc-late: #c0571a;
   --vc-other: #d9cdb8;
+  --rc-0: #ece6da; /* rabbinic reception (§16.77): one hue, light to dark, by citations per verse */
+  --rc-1: #d6e6f2;
+  --rc-2: #a9cbe5;
+  --rc-3: #74a9d3;
+  --rc-4: #3f84bd;
+  --rc-5: #1d5c94;
   --gt-ring: #ddcfb6;
   --gt-dot-f: #8a5a7a;
   --gt-line: #a8957a;
@@ -128,6 +134,12 @@
     --vc-early: #5b97dc;
     --vc-late: #d9733a;
     --vc-other: #5e5446;
+    --rc-0: #2d2a24;
+    --rc-1: #1b3346;
+    --rc-2: #20496a;
+    --rc-3: #2b6592;
+    --rc-4: #4a8dc4;
+    --rc-5: #8fc1ea;
     --gt-ring: #4d4334;
     --gt-dot-f: #d7a3c4;
     --gt-line: #7c6d58;
@@ -3448,12 +3460,12 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .dv-ramp-step { display: inline-flex; align-items: center; gap: 0.25rem; }
 .dv-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; }
-.dv-strip { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 0.25rem 0.8rem; align-items: start; }
-.dv-row { display: contents; }
-.dv-book { font-size: 0.85rem; text-align: end; line-height: 12px; padding-top: 0; }
-.dv-cells { max-width: 100%; height: auto; display: block; }
-.dv-cell { cursor: pointer; }
-.dv-cell:hover { stroke: var(--text); stroke-width: 1.5; }
+.heat-strip { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 0.25rem 0.8rem; align-items: start; }
+.heat-row { display: contents; }
+.heat-book { font-size: 0.85rem; text-align: end; line-height: 12px; padding-top: 0; }
+.heat-cells { max-width: 100%; height: auto; display: block; }
+.dv-cell, .rc-cell { cursor: pointer; }
+.dv-cell:hover, .rc-cell:hover { stroke: var(--text); stroke-width: 1.5; }
 .dv-cut { fill: var(--text); }
 .dv-table tr.dv-sig td:first-child { border-inline-start: 3px solid var(--accent); }
 .dv-table .he { font-family: var(--font-he); font-size: 1.1rem; }
@@ -3465,8 +3477,8 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .dv-kind-e_ward td:last-child, .dv-kind-y_ward td:last-child { font-weight: 600; border-inline-start: 4px solid var(--dv-elohim); }
 .dv-kind-y_ward td:last-child { border-inline-start-color: var(--dv-yhwh); }
 @media (max-width: 600px) {
-  .dv-strip { grid-template-columns: 1fr; }
-  .dv-book { text-align: start; margin-top: 0.4rem; }
+  .heat-strip { grid-template-columns: 1fr; }
+  .heat-book { text-align: start; margin-top: 0.4rem; }
 }
 /* the reader's layer: a line above each name */
 .reader-text .dv, .layer-key.dv { border-top: 2.5px solid var(--muted); }
@@ -3628,6 +3640,28 @@ th .term-tip { font-weight: normal; }
   text-align: end;
   font-size: 0.85rem;
 }
+
+/* rabbinic reception (§16.77) */
+.rc-cell.rc-0, .dv-swatch.rc-0 { fill: var(--rc-0); background: var(--rc-0); }
+.rc-cell.rc-1, .dv-swatch.rc-1 { fill: var(--rc-1); background: var(--rc-1); }
+.rc-cell.rc-2, .dv-swatch.rc-2 { fill: var(--rc-2); background: var(--rc-2); }
+.rc-cell.rc-3, .dv-swatch.rc-3 { fill: var(--rc-3); background: var(--rc-3); }
+.rc-cell.rc-4, .dv-swatch.rc-4 { fill: var(--rc-4); background: var(--rc-4); }
+.rc-cell.rc-5, .dv-swatch.rc-5 { fill: var(--rc-5); background: var(--rc-5); }
+.rc-known { margin: 0; padding-inline-start: 1.1rem; }
+.rc-found { color: var(--known); }
+.rc-verses { padding-inline-start: 2rem; }
+.rc-verses li { margin: 0.5rem 0; }
+.rc-verses .hit-text { margin: 0.15rem 0 0; }
+.rc-n { font-weight: 600; }
+.rc-group h3 { font-size: 1rem; margin: 0.8rem 0 0.2rem; }
+.rc-cites { list-style: none; margin: 0; padding: 0; }
+.rc-cites li { margin: 0.15rem 0; }
+.rc-cites a[lang='he'] { font-family: var(--font-he); font-size: 1.1rem; }
+.rc-tag { display: inline-block; min-width: 4.8rem; font-size: 0.75rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0 0.45rem; text-align: center; }
+.rc-total { border-color: var(--rc-4); color: var(--text); }
+/* links inside a line of text are underlined (axe: link-in-text-block) */
+.reception-page > p a, .rc-known a, .rc-cites a, .rc-verses a { text-decoration: underline; text-underline-offset: 2px; }
 
 /* ---------- Print (§11.1) ----------
    A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the

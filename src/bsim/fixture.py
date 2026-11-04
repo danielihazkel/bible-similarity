@@ -2512,6 +2512,64 @@ def write_vocabulary(cfg):
     (out / "vocabulary.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
 
 
+def write_reception(cfg):
+    """Rabbinic reception (`bsim reception`), made up: v0 cited by two Mishnah passages and a
+    Bavli folio, v1 by the Bavli, v5 by the Yerushalmi; the law holds, the gap and the known not."""
+    out = resolve_path(cfg, "artifacts") / "reception"
+    out.mkdir(parents=True, exist_ok=True)
+    cit = pd.DataFrame(
+        {
+            "corpus": ["mishnah", "mishnah", "bavli", "bavli", "yerushalmi"],
+            "title": ["Mishnah Berakhot", "Pirkei Avot", "Berakhot", "Sanhedrin",
+                      "Jerusalem Talmud Berakhot"],
+            "cite": ["Mishnah Berakhot 1:3", "Pirkei Avot 3:14", "Berakhot 2a:1", "Sanhedrin 90b:3",
+                     "Jerusalem Talmud Berakhot 1:1:2"],
+            "cite_he": ["משנה ברכות א:ג", "פרקי אבות ג:יד", "בבלי ברכות ב ע״א",
+                        "בבלי סנהדרין צ ע״ב", "ירושלמי ברכות א:א"],
+            "url": [f"https://www.sefaria.org/{x}?lang=he" for x in (
+                "Mishnah_Berakhot.1.3", "Pirkei_Avot.3.14", "Berakhot.2a.1", "Sanhedrin.90b.3",
+                "Jerusalem_Talmud_Berakhot.1.1.2")],
+            "verse_id": [0, 0, 0, 1, 5],
+        }
+    )  # fmt: skip
+    cit.to_parquet(out / "citations.parquet", index=False)
+    corpora = ["mishnah", "tosefta", "bavli", "yerushalmi"]
+    per = cit.pivot_table(index="verse_id", columns="corpus", values="cite", aggfunc="count",
+                          fill_value=0).reindex(columns=corpora, fill_value=0)  # fmt: skip
+    per["total"] = per.sum(axis=1)
+    per = per.astype(int).reset_index()
+    per.to_parquet(out / "verses.parquet", index=False)
+    verses = pd.read_parquet(resolve_path(cfg, "data_processed") / "verses.parquet",
+                             columns=["verse_id", "book_id", "chapter"])  # fmt: skip
+    full = verses.merge(per, on="verse_id", how="left").fillna(0)
+    agg = {c: (c, "sum") for c in (*corpora, "total")}
+    by = full.groupby(["book_id", "chapter"], as_index=False)
+    ch = by.agg(verses=("verse_id", "size"), **agg)
+    ch["unit_id"] = [f"c:{b}:{c}" for b, c in zip(ch.book_id, ch.chapter, strict=True)]
+    for c in (*corpora, "total"):
+        ch[c] = ch[c].astype(int)
+    ch[["book_id", "chapter", "unit_id", "verses", *corpora, "total"]].to_parquet(
+        out / "chapters.parquet", index=False
+    )
+    bk = full.groupby("book_id", as_index=False).agg(verses=("verse_id", "size"), **agg)
+    for c in (*corpora, "total"):
+        bk[c] = bk[c].astype(int)
+    bk.to_parquet(out / "books.parquet", index=False)
+    meta = {"citations": 5, "verses_cited": 3,
+            "by_corpus": {"mishnah": 2, "tosefta": 0, "bavli": 2, "yerushalmi": 1},
+            "passages": {"mishnah": 2, "tosefta": 0, "bavli": 2, "yerushalmi": 1},
+            "dropped_long": 4, "dropped_invalid": 0, "legal_verses": 3, "narrative_verses": 2,
+            "ratios": {"mishnah": 3.5, "tosefta": 0.0, "bavli": 1.2, "yerushalmi": 0.8,
+                       "total": 1.9},
+            "law_p": 0.01, "law_holds": True, "gap": 2.3, "gap_p": 0.2, "gap_holds": False,
+            "known": [{"cite": "Mishnah Berakhot 1:3", "ref": "Genesis 1:1", "verse_id": 0,
+                       "found": True},
+                      {"cite": "Mishnah Sanhedrin 10:1", "ref": "Genesis 1:2", "verse_id": 1,
+                       "found": False}],
+            "known_holds": False, "max_span": 3, "shifts": 99, "alpha": 0.05}  # fmt: skip
+    (out / "reception.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def build_fixture_db(tmp_path, semantic="sm"):
     cfg = fixture_cfg(tmp_path, semantic)
     write_inputs(cfg, tmp_path)
@@ -2535,6 +2593,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_binomials(cfg)
     write_sums(cfg)
     write_vocabulary(cfg)
+    write_reception(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

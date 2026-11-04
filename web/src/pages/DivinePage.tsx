@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { TableCsv } from '../components/TableCsv'
 import { useBooks, useDivine, useDivinePairs } from '../api/hooks'
-import type { Book, DivineBook, DivineChapter, DivineName, DivineResponse } from '../api/types'
+import type { Book, DivineChapter, DivineName, DivineResponse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { readLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
@@ -10,10 +10,7 @@ import { useQueryParams } from '../lib/urlState'
 import { formatP } from '../lib/workbench'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
-
-const PER_ROW = 50 // chapters in one row of a book's strip
-const CELL = 10
-const STEP = 12 // a cell and the 2px surface gap after it
+import { HeatStrip, type HeatRow } from '../components/HeatStrip'
 
 const other = (c: { counts: Record<string, number> }, measure: string[]) =>
   Object.entries(c.counts).reduce((s, [k, v]) => (measure.includes(k) ? s : s + v), 0)
@@ -119,60 +116,31 @@ function Strip({ d }: { d: DivineResponse }) {
   const byId = new Map((books.data ?? []).map((b) => [b.book_id, b]))
   const chapters = new Map<number, DivineChapter[]>()
   for (const c of d.chapters) chapters.set(c.book_id, [...(chapters.get(c.book_id) ?? []), c])
+  const rows: HeatRow[] = d.books.map((b) => {
+    const book = byId.get(b.book_id)
+    const name = book ? bookName(book, locale) : String(b.book_id)
+    const cut = b.split && b.q !== null && b.q <= d.alpha ? new Set([b.cut1, b.cut2]) : new Set<number | null>()
+    return {
+      key: b.book_id,
+      name,
+      to: `/divine?book=${b.book_id}#chapters`,
+      label: t.stripLabel(name),
+      cells: (chapters.get(b.book_id) ?? []).map((c) => ({
+        key: c.unit_id,
+        cls: `dv-${shareStep(c.share)}`,
+        title: t.chapterTitle(`${name} ${c.chapter.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')}`, c.counts[d.measure[0]] ?? 0, c.counts[d.measure[1]] ?? 0, other(c, d.measure)),
+        to: readLink(c.unit_id, '?layers=divine'),
+        cut: cut.has(c.chapter),
+      })),
+    }
+  })
   return (
     <section aria-labelledby="dv-strip">
       <h2 id="dv-strip">{t.stripTitle}</h2>
       <p className="muted small">{t.stripHint}</p>
       <Legend />
-      <div className="dv-strip">
-        {d.books.map((b) => {
-          const book = byId.get(b.book_id)
-          const name = book ? bookName(book, locale) : String(b.book_id)
-          return (
-            <div key={b.book_id} className="dv-row">
-              <Link className="dv-book" to={`/divine?book=${b.book_id}#chapters`}>
-                {name}
-              </Link>
-              <BookStrip name={name} book={b} chapters={chapters.get(b.book_id) ?? []} measure={d.measure} alpha={d.alpha} />
-            </div>
-          )
-        })}
-      </div>
+      <HeatStrip rows={rows} prefix="dv" />
     </section>
-  )
-}
-
-function BookStrip({ name, book, chapters, measure, alpha }: { name: string; book: DivineBook; chapters: DivineChapter[]; measure: string[]; alpha: number }) {
-  const { m, locale } = useLocale()
-  const t = m.dv
-  const navigate = useNavigate()
-  const rows = Math.ceil(chapters.length / PER_ROW)
-  const width = Math.min(chapters.length, PER_ROW) * STEP
-  const cut = book.split && book.q !== null && book.q <= alpha ? new Set([book.cut1, book.cut2]) : new Set<number | null>()
-  return (
-    <svg className="dv-cells" viewBox={`0 0 ${width} ${rows * STEP}`} width={width} role="img" aria-label={t.stripLabel(name)}>
-      {chapters.map((c, i) => {
-        const x = (i % PER_ROW) * STEP
-        const y = Math.floor(i / PER_ROW) * STEP
-        const label = `${name} ${c.chapter.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')}`
-        return (
-          <g key={c.unit_id}>
-            <rect
-              className={`dv-cell dv-${shareStep(c.share)}`}
-              x={x}
-              y={y}
-              width={CELL}
-              height={CELL}
-              rx={2}
-              onClick={() => navigate(readLink(c.unit_id, '?layers=divine'))}
-            >
-              <title>{t.chapterTitle(label, c.counts[measure[0]] ?? 0, c.counts[measure[1]] ?? 0, other(c, measure))}</title>
-            </rect>
-            {cut.has(c.chapter) && <rect className="dv-cut" x={x - 2} y={y - 1} width={2} height={CELL + 2} />}
-          </g>
-        )
-      })}
-    </svg>
   )
 }
 

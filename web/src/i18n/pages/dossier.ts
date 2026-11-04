@@ -57,6 +57,7 @@ export const dosEn = {
     people: (n: number, top: string | null) => `${countEn(n, 'person', 'people')} in the family tree${top ? `, most named ${top}` : ''}`,
     divine: (n: number, top: string | null, share: number | null) =>
       `${countEn(n, 'name of God', 'names of God')}${top ? `, most often ${top}` : ''}${share === null ? '' : ` (\u2068יהוה\u2069 ${Math.round(share * 100)}% of \u2068יהוה\u2069 and \u2068אלהים\u2069)`}`,
+    reception: (n: number, top: string | null) => `${countEn(n, 'rabbinic citation', 'rabbinic citations')}${top ? `, most in the ${top}` : ''}`,
     ciphers: (n: number, words: string | null, name: string | null) =>
       `${countEn(n, 'name read through atbash or albam', 'names read through atbash or albam')}${words && name ? ` (${words} read as ${name})` : ''}`,
     gematria: (n: number, texts: string | null, value: number | null, others: number | null) =>
@@ -105,5 +106,6 @@ export const dosEn = {
     ciphers: 'atbash and albam',
     divine: 'names of God',
     gematria: 'letter values',
+    reception: 'rabbinic citations',
   } as Record<DossierKind, string>,
 }

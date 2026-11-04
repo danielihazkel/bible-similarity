@@ -927,6 +927,9 @@ export type FindingKey =
   | 'sums_parallels'
   | 'vocabulary_late'
   | 'vocabulary_known'
+  | 'reception_law'
+  | 'reception_bavli'
+  | 'reception_known'
 
 export type Finding = S['Finding']
 
@@ -1324,6 +1327,14 @@ export type SumsParallelsResponse = S['SumsParallelsResponse']
 
 // The vocabulary over the canon (`/vocabulary`, DESIGN.md §16.76).
 export type VocabularyBook = S['VocabularyBook']
+export type ReceptionResponse = S['ReceptionResponse']
+export type ReceptionBook = S['ReceptionBook']
+export type ReceptionChapter = S['ReceptionChapter']
+export type ReceptionCounts = S['ReceptionCounts']
+export type ReceptionVerse = S['ReceptionVerse']
+export type ReceptionVersesResponse = S['ReceptionVersesResponse']
+export type ReceptionCitation = S['ReceptionCitation']
+export type ReceptionCitationsResponse = S['ReceptionCitationsResponse']
 export type VocabularyResponse = S['VocabularyResponse']
 export type LemmaFirst = S['LemmaFirst']
 

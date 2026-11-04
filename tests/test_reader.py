@@ -69,6 +69,7 @@ def test_reader_without_stages(built):
         conn.execute("DELETE FROM places")
         conn.execute("DELETE FROM place_mentions")
         conn.execute("DELETE FROM divine_words")
+        conn.execute("DELETE FROM reception_verses")
         conn.execute("UPDATE words SET domains = NULL")
     c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     r = c.get("/api/reader/c:0:1").json()
@@ -81,6 +82,7 @@ def test_reader_without_stages(built):
             and not v["mood"]
             and not v["places"]
             and not v["divine"]
+            and not v["reception"]
             for v in r["verses"]
         )
         and r["places"] == []

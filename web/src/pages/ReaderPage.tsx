@@ -12,12 +12,13 @@ import { useLocale, useT } from '../context/localeContext'
 import type { Layer } from '../i18n/pages/reader'
 import { clauseBreaks, colonBreaks } from '../lib/cola'
 import { LAYERS, parseLayers, toggleLayer } from '../lib/layers'
+import { type Counts, parts } from '../lib/reception'
 import { readLink, unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine', 'reception']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -29,6 +30,7 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   turns: 'gaps',
   places: 'places',
   divine: 'divine',
+  reception: 'reception',
 }
 const LEITWORTE_SHOWN = 6
 const REFRAINS_SHOWN = 4
@@ -240,6 +242,7 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
                 {v.verse}
               </Link>
               {on('gematria') && r && r.gematria.length > 0 && <GematriaTotal value={r.gematria.reduce((a, b) => a + b, 0)} />}
+              {on('reception') && r && (r.reception.total ?? 0) > 0 && <Cited verseId={v.verse_id} counts={r.reception as Counts} />}
               {on('sources') && r?.source && (
                 <span
                   className={`src-tag src-${r.source.side} ${r.source.reference && r.source.reference !== r.source.side ? 'src-differs' : ''}`}
@@ -270,6 +273,15 @@ function GematriaTotal({ value }: { value: number }) {
   return (
     <Link className="gm-total" to={`/gematria?q=${value}&view=verses`} title={t.gematriaTotalTitle(value)}>
       ={value}
+    </Link>
+  )
+}
+
+function Cited({ verseId, counts }: { verseId: number; counts: Counts }) {
+  const m = useT()
+  return (
+    <Link className="gm-total rc-total" to={`/reception?unit=${encodeURIComponent(`v:${verseId}`)}`} title={m.rc.layerTitle(counts.total, parts(counts, m.rc.corpora, m.num))}>
+      {m.num(counts.total)}
     </Link>
   )
 }
@@ -438,6 +450,16 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
           </span>{' '}
           <Link to="/divine">{t.allDivine}</Link>
         </>,
+      )}
+      {row(
+        'reception',
+        reader && !reader.verses.some((v) => (v.reception.total ?? 0) > 0) ? (
+          <span className="muted">{m.rc.layerNone}</span>
+        ) : (
+          <>
+            {m.rc.layerKey} <Link to="/reception">{m.rc.title}</Link>
+          </>
+        ),
       )}
     </ul>
   )

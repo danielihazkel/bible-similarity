@@ -24,6 +24,7 @@ export const readerHe: typeof readerEn = {
     gematria: 'גימטריה',
     places: 'מקומות',
     divine: 'שמות האל',
+    reception: 'ציטוטים בספרות חז״ל',
   },
   hints: {
     speakers: 'מי אומר כל מילה (הציטוטים של BHSA והדוברים שנמצאו להם)',
@@ -40,6 +41,7 @@ export const readerHe: typeof readerEn = {
     gematria: 'ערך האותיות של כל מילה, וסכומו של כל פסוק',
     places: 'המקומות הנזכרים, לפי סוגם, כל אחד מקושר למפה',
     divine: 'כל שם של האל מסומן בקו מעליו: יהוה, אלהים, ושאר השמות',
+    reception: 'כמה קטעים במשנה, בתוספתא ובתלמודים מצטטים כל פסוק',
   },
   notComputed: (layer: string) => `${layer}: לא חושב בבנייה זו.`,
   loading: (layer: string) => `טוען ${layer}…`,

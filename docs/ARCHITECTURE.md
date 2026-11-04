@@ -169,6 +169,7 @@ bible-similarity/
 │   │   ├── binomials.py            # `bsim binomials`: fixed word pairs (A וB), their order, length and the late books' turns (§16.72)
 │   │   ├── sums.py                 # `bsim sums`: lists against their stated totals; the numbers of parallel verses (§16.75)
 │   │   ├── vocabulary.py           # `bsim vocabulary`: new lemmas per book against Heaps' law, hapax, first uses (§16.76)
+│   │   ├── reception.py            # `bsim reception`: where the Mishnah, the Tosefta and the Talmuds cite each verse (Sefaria's links; §16.77)
 │   │   ├── borrowing.py            # `bsim borrowing`: which side of a parallel looks later (§16.27)
 │   │   ├── voices.py               # `bsim voices`: each speaker's style against the same books (§16.28)
 │   │   ├── segments.py             # `bsim segments`: paragraphs, chapters and seams against cohesion (§16.29)
@@ -222,7 +223,7 @@ bible-similarity/
 │       ├── align.py                # two verses' words linked through the encoder's token vectors, for Compare (§16.73)
 │       ├── synopsis.py             # parallel sequences chained into synopses: rows, columns, the lead book's order (§16.74)
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, week, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, week, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)
@@ -239,7 +240,7 @@ bible-similarity/
 │       ├── i18n/                   # interface strings: en.ts (source catalog), he.ts (same shape), pages/ per page group
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
-│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, glossary, tours, week, about
+│       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, reception, glossary, tours, week, about
 │       └── styles/global.css
 ├── video/                          # two short films about the project: scripts, voice, score, subtitles,
 │                                   #   a line-art page rendered in Edge (video/README.md; renders in video/out/, gitignored)
@@ -326,6 +327,7 @@ bible-similarity/
 | 11e¹⁶''''''''' | `bsim binomials` | verses, words, `dating.early` / `late` | `artifacts/binomials/{types,occurrences}.parquet` + `binomials.meta.json` (§16.72) |
 | 11e¹⁶'''''''''' | `bsim sums` | verses, words, `chronology.numbers`, sequences, ETCBC and Sefaria links | `artifacts/sums/{lists,items,parallels}.parquet` + `sums.meta.json` (§16.75) |
 | 11e¹⁶ʹ | `bsim vocabulary` | verses, words, `dating.early` / `late` | `artifacts/vocabulary/{books,lemmas}.parquet` + `vocabulary.meta.json` (§16.76) |
+| 11e¹⁶ʺ | `bsim reception` | verses, `raw/sefaria/links/*.csv` | `artifacts/reception/{citations,verses,chapters,books}.parquet` + `reception.meta.json` (§16.77) |
 | 11e¹⁷ | `bsim masorah` | verses (display tokens), words, ketiv pairs | `artifacts/masorah/{middles,totals,books}.parquet` + `masorah.meta.json` (§16.55) |
 | 11e¹⁶' | `bsim els` | ketiv pairs, words, verses (the written letters, as `bsim masorah`; GPU) | `artifacts/els/{terms,draws}.parquet` + `els.meta.json` (§16.62) |
 | 11f' | `bsim eval-etcbc` | ETCBC pairs, final verse top-k, sequences, phrases | `artifacts/eval/etcbc.{json,md}` (§16.34) |
@@ -333,7 +335,7 @@ bible-similarity/
 | 13 | `bsim serve` | sqlite, final embeddings, final model | HTTP :8000 |
 | — | `bsim fixture-serve` / `bsim openapi` | — (builds `bsim.fixture` in a temp dir) | HTTP :8778 for CI e2e / the OpenAPI schema for `npm run gen:api` |
 | — | `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]` | two results DBs | a Markdown report on stdout: tables, rows and `meta` that differ (§16.49; manual) |
-| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, masorah, els, eval-etcbc, build-db |
+| — | `bsim all [--from S] [--to S] [--skip S] [--force] [--rerun S] [--dry-run] [--adopt]` | `paths.pipeline_state` | skips each stage whose code, config keys and input files are unchanged (§16.35); runs 1–12 with config defaults (`bsim/pipeline.py`): download, build-corpus, build-links, build-golds, lexicon, syntax, lexical, lexical top-k (`pipeline.lexical_systems`, needed for hard negatives), train-simcse, train-sup, embed (every `encoders.systems`), top-k (+ `_csls`), units (`pipeline.unit_systems`), phrases, fuse (`--tune` grid, then the fused lists), evaluate (dev; test only if `metrics.json` has none), eval-openbible, sequences, diffs, typescenes, parallelism, acrostics, wordplay, sound, entities, places, genealogy, place-lists, place-arc, place-links, senses, dating, borrowing, seams, structure, map, network, stylometry, voices, segments, ketiv, citations, allusions, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, gematria-links, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, masorah, els, eval-etcbc, build-db |
 
 Top-k Parquet schema (all systems, all unit types):
 `unit_type, src_id, rank, tgt_id, score` (+ `lex_score, lex_rank, sem_score, sem_rank, phr_score, phr_rank` for `fused`; `phr_*` set for chapters only, §16.50).

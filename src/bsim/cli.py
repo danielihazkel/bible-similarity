@@ -269,6 +269,14 @@ def vocabulary(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def reception(config: ConfigOpt = None) -> None:
+    """Where the Mishnah, the Tosefta and the two Talmuds cite the Bible (Sefaria's links)."""
+    from bsim.analysis.reception import run_reception
+
+    run_reception(load_config(config), log=typer.echo)
+
+
+@app.command()
 def places(config: ConfigOpt = None) -> None:
     """The gazetteer: each place the text names, which site it is, where it lies and its kind."""
     from bsim.analysis.places import run_places

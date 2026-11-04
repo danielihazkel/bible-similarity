@@ -1107,6 +1107,39 @@ SOURCES: tuple[Source, ...] = (
         ),  # fmt: skip
     ),
     Source(
+        "reception",
+        "reception",
+        (
+            Table("reception_citations", "citations"),
+            Table("reception_verses", "verses"),
+            Table("reception_chapters", "chapters"),
+            Table("reception_books", "books"),
+        ),
+        "reception.meta.json",
+        keys(
+            "reception",
+            "citations",
+            "verses_cited",
+            "by_corpus",
+            "passages",
+            "dropped_long",
+            "dropped_invalid",
+            "legal_verses",
+            "narrative_verses",
+            "ratios",
+            "law_p",
+            "law_holds",
+            "gap",
+            "gap_p",
+            "gap_holds",
+            "known",
+            "known_holds",
+            "max_span",
+            "shifts",
+            "alpha",
+        ),  # fmt: skip
+    ),
+    Source(
         "masorah",
         "masorah",
         (

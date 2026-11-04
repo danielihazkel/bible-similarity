@@ -108,6 +108,8 @@ const PAGES: [string, RegExp][] = [
   ['/binomials', /Word pairs/],
   ['/sums', /Do the sums add up/],
   ['/vocabulary', /Vocabulary over the canon/],
+  ['/reception', /Rabbinic reception/],
+  ['/reception?unit=v%3A5520', /Rabbinic reception/],
   ['/glossary', /Glossary/],
   ['/week', /This week’s parasha/],
   ['/week?date=2019-08-01&israel=1', /This week’s parasha/],
@@ -195,7 +197,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -515,6 +517,20 @@ test('the family tree: Jacob’s sons under their four mothers, with verses', as
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Zoom out' }).press('Enter')
   // each mother once: a header over her children, or an avatar beside him
   for (const h of ['לאה', 'בלהה', 'זלפה', 'רחל']) await expect(page.locator('.gt-header.mother, .gt-spouse').filter({ hasText: h })).toHaveCount(1)
+})
+
+test('rabbinic reception: the law holds, divorce cited most, the Shema in Mishnah Berakhot 1:3', async ({ page }) => {
+  await page.goto('/reception')
+  await expect(page.locator('.dv-verdict.holds')).toHaveCount(3)
+  await expect(page.locator('rect.rc-cell')).toHaveCount(929)
+  await expect(page.locator('.rc-verses li').first()).toContainText('Deuteronomy 24:1')
+  // Deuteronomy 6:7, known: Mishnah Berakhot 1:3 cites it
+  await page.locator('.rc-known').getByRole('link', { name: 'Deuteronomy 6:7' }).click()
+  await expect(page.getByRole('link', { name: /משנה ברכות א:ג/ })).toHaveAttribute('href', 'https://www.sefaria.org/Mishnah_Berakhot.1.3?lang=he')
+  await page.getByRole('radio', { name: 'Bavli' }).click()
+  await expect(page.locator('.rc-cites .rc-tag').first()).toHaveText('Bavli')
+  await page.goto('/read/c%3A4%3A24?layers=reception')
+  await expect(page.locator('.reader-text .rc-total').first()).toHaveText('143')
 })
 
 test('print and save: Jacob’s family as a poster, the map as an SVG, a synopsis on paper', async ({ page }) => {

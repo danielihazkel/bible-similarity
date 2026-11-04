@@ -72,6 +72,8 @@ class ReaderVerse(ApiModel):
     gematria: list[int]  # each display token's standard letter value (§16.53; 0: no letters)
     places: dict[str, int] = {}  # display token -> place_id (§16.57)
     divine: dict[str, str] = {}  # display token -> the divine name it is (§16.65)
+    # rabbinic citations of the verse by corpus, and their total (§16.77); empty: none
+    reception: dict[str, int] = {}
 
 
 class ReaderResponse(ApiModel):
@@ -80,7 +82,7 @@ class ReaderResponse(ApiModel):
     unit: UnitSummary
     rare_verses: int  # a word is rare in at most this many verses
     computed: dict[str, bool]  # stage -> it ran (speech, phrases, wordplay, ketiv, gaps, refrains,
-    # mood, sources, places, divine)
+    # mood, sources, places, divine, reception)
     speakers: list[ReaderSpeaker]  # most words first, the unknown speaker last
     refrains: list[ReaderRefrain]  # strongest first
     places: list[ReaderPlace] = []  # the places named here, most named first

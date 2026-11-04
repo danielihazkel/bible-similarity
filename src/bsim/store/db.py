@@ -147,6 +147,7 @@ INDEXES = (
     "CREATE INDEX sums_items_by_key ON sums_items (key, verse_id)",
     "CREATE INDEX sums_parallels_by_book ON sums_parallels (a_book, b_book)",
     "CREATE UNIQUE INDEX vocabulary_lemmas_by_lemma ON vocabulary_lemmas (lemma)",
+    "CREATE INDEX reception_citations_by_verse ON reception_citations (verse_id, corpus)",
     # /gematria: what has a value, in each system
     *(
         f"CREATE INDEX gematria_{t}_by_{s} ON gematria_{t} ({s})"
