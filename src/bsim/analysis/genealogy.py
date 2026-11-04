@@ -23,7 +23,10 @@
   tribe's eponym); conflicts, whose readings name a parent and its verses, the first drawn; cue
   verses looked at and passed over (`missed`); identities (`same:`), one person under several
   TIPNR keys, `merged` into one (before any link is decided; a merged person with two fathers
-  needs a conflict) or `possible` (both kept, cross-referred). The cross-book steps' files
+  needs a conflict), `possible` (both kept, cross-referred) or `rabbinic` (both kept, as the
+  rabbis read them: each with its `source`, Sefaria references to the Talmud or a midrash, and
+  every source's page must be linked in Sefaria's links to one of the identity's proof verses,
+  §16.63). The cross-book steps' files
   (`cross_blocks`) have no verse range. Every key, reference and status is checked and any error
   stops the build (`RuntimeError`).
 - **The tree.** Each person gets one primary parent: a conflict's first reading, else the father
@@ -55,11 +58,12 @@ from typing import Any
 import pandas as pd
 import yaml
 
+from bsim.analysis.reception import page_links, page_of, sefaria_url, source_he
 from bsim.config import config_hash, resolve_path, write_meta
 from bsim.data.canon import BOOKS
 from bsim.data.geo import TipnrRecord, read_tipnr
 from bsim.data.kjv import English
-from bsim.data.refs import parse_ref
+from bsim.data.refs import RefIndex, parse_ref
 from bsim.text.normalize import consonantal
 
 Log = Callable[[str], None]
@@ -69,7 +73,8 @@ ROLES = (*PARENT_ROLES, "spouse", "sibling", "unstated")
 LINK_KINDS = ("son", "descendant", "adopted", "levirate", "founder", "unstated")
 STATUSES = ("confirmed", "fixed", "added", "rejected")
 CONFLICT_KINDS = ("bible", "descendant")
-IDENTITY_STATUSES = ("merged", "possible")
+IDENTITY_STATUSES = ("merged", "possible", "rabbinic")
+KEPT_APART = ("possible", "rabbinic")  # identities whose persons stay two nodes
 PERSON_KINDS = ("person", "group", "anon", "virtual")
 UNATTACHED = "virtual:unattached"
 
@@ -337,6 +342,23 @@ def apply_curation(
             err(where, "a note has both en and he, or is left out")
         return note
 
+    def sources_of(where: str, s: dict[str, Any], st: str) -> list[str] | None:
+        """A rabbinic identity's sources (Sefaria references), each with a Hebrew title."""
+        items = s.get("source")
+        if st != "rabbinic":
+            if items is not None:
+                err(where, "only a rabbinic identification has a source")
+                return None
+            return []
+        if not isinstance(items, list) or not items:
+            err(where, "a rabbinic identification needs its source: Sefaria references")
+            return None
+        bad = [c for c in items if not isinstance(c, str) or source_he(c) is None]
+        if bad:
+            err(where, f"sources {bad} are no Sefaria reference with a Hebrew title (source_he)")
+            return None
+        return [str(c) for c in items]
+
     def parent_links(child: str, parent: str) -> list[Link]:
         return [lk for r in (*PARENT_ROLES, "spouse") if (lk := links.get((parent, child, r)))]
 
@@ -385,7 +407,8 @@ def apply_curation(
                 err(where, f"lists two keys or more and a status, one of {IDENTITY_STATUSES}")
                 continue
             note = note_of(where, s)
-            if not all([known(where, k) for k in ks]):
+            sources = sources_of(where, s, st)
+            if not all([known(where, k) for k in ks]) or sources is None:
                 continue
             proof = refs(where, s.get("proof"))
             if proof is None:
@@ -393,8 +416,9 @@ def apply_curation(
                     err(where, "an identification needs its proof verses")
                 continue
             ident = {"status": st, "keys": ks, "proof": proof, "block": doc["block"],
-                     "note_en": note.get("en"), "note_he": note.get("he")}  # fmt: skip
-            if st == "possible":
+                     "note_en": note.get("en"), "note_he": note.get("he"),
+                     "sources": sources}  # fmt: skip
+            if st in KEPT_APART:
                 possible.append((where, ident))
                 continue
             keep = canon(ks[0])
@@ -710,6 +734,25 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     docs = read_curation(resolve_path(cfg, "curation") / "genealogy")
     cross = frozenset(str(b) for b in gc.get("cross_blocks") or [])
     conflicts, block_rows, identities = apply_curation(docs, persons, links, blocks, vid_of, cross)
+    rabbinic = [i for i in identities if i["status"] == "rabbinic"]
+    if rabbinic:  # every source's page linked to one of its identity's proof verses
+        pattern = re.compile(cfg["sources"]["sefaria"]["links_regex"])
+        links_dir = resolve_path(cfg, "data_raw") / "sefaria" / "links"
+        paths = sorted(p for p in links_dir.glob("*.csv") if pattern.match(f"links/{p.name}"))
+        if not paths:
+            raise FileNotFoundError(f"{links_dir} has no links: run `bsim download --only sefaria`")
+        pages = {page_of(c) for i in rabbinic for c in i["sources"]}
+        linked = page_links(paths, pages, RefIndex(verses))
+        bad = [
+            f"{i['block']}: {c} ({' = '.join(i['keys'])})"
+            for i in rabbinic
+            for c in i["sources"]
+            if not linked.get(page_of(c), set()) & set(i["proof"])
+        ]
+        if bad:
+            raise CurationError("sources whose page Sefaria links to none of the proof verses:\n  "
+                                + "\n  ".join(bad))  # fmt: skip
+        log(f"{len(rabbinic)} rabbinic identifications, each source's page linked to its verses")
 
     # the tree: one primary parent each, the rest attached to their tribe
     primary = choose_primary(links)
@@ -873,7 +916,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     ident_rows = []
     for ident in identities:
         one, *others = ident["persons"]
-        for other in others if ident["status"] == "possible" else [None]:
+        for other in others if ident["status"] in KEPT_APART else [None]:
             who = [one] if other is None else [one, other]
             ident_rows.append({
                 "identity_id": len(ident_rows) + 1, "status": ident["status"],
@@ -881,11 +924,13 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
                 "keys": json.dumps(ident["keys"], ensure_ascii=False),
                 "proofs": json.dumps([named_at(v, who) for v in ident["proof"]]),
                 "block": ident["block"], "note_en": ident["note_en"], "note_he": ident["note_he"],
+                "sources": json.dumps([{"cite": c, "cite_he": source_he(c), "url": sefaria_url(c)}
+                                       for c in ident["sources"]], ensure_ascii=False),
             })  # fmt: skip
     identities_df = pd.DataFrame(
         ident_rows,
         columns=["identity_id", "status", "person_id", "other_id", "keys", "proofs", "block",
-                 "note_en", "note_he"],
+                 "note_en", "note_he", "sources"],
     ).astype({"other_id": "Int64"})  # fmt: skip
     for c in ("note_en", "note_he"):
         identities_df[c] = identities_df[c].astype(object)
@@ -916,7 +961,7 @@ def run_genealogy(cfg: dict[str, Any], log: Log = print) -> Path:
     mentions_df.to_parquet(out / "mentions.parquet")
     parent = links_df[links_df.role.isin(PARENT_ROLES) & (links_df.status != "rejected")]
     meta = {
-        "config_hash": config_hash(cfg, "genealogy", "sources.tipnr"),
+        "config_hash": config_hash(cfg, "genealogy", "sources.tipnr", "sources.sefaria"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "persons": int((persons_df.kind != "virtual").sum()),
         "kinds": {k: int((persons_df.kind == k).sum()) for k in PERSON_KINDS[:3]},

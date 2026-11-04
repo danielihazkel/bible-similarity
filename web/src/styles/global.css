@@ -3387,6 +3387,7 @@ button.gt-sub.linkish { font-size: 11px; color: var(--muted); }
 .gt-conflicts .gt-warn { color: var(--gt-conflict-ink); }
 .gt-identities { border-inline-start: 3px solid var(--border); padding-inline-start: 0.7rem; }
 .gt-identity + .gt-identity { margin-top: 0.4rem; }
+.gt-sources a { text-decoration: underline; }
 .gt-names { display: flex; flex-wrap: wrap; gap: 0.2rem 0.8rem; }
 .gt-names .he { font-family: var(--font-he); font-size: 1.1rem; }
 @media (max-width: 860px) {

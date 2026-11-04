@@ -758,14 +758,21 @@ def write_inputs(cfg, tmp_path):
          (8, 4), (9, 4), (10, 2), (12, 3), (13, 5)],
         columns=["person_id", "verse_id"],
     ).to_parquet(gen_dir / "mentions.parquet")  # fmt: skip
-    # identities: Enosh read as one person from two entries; Shimei perhaps Balaam
+    # identities: Enosh read as one person from two entries; Shimei perhaps Balaam; the rabbis
+    # read Adam as Seth (made up), from a passage on Sefaria
+    rabbinic = (
+        '[{"cite": "Megillah 14a:13", "cite_he": "בבלי מגילה יד ע״א",'
+        ' "url": "https://www.sefaria.org/Megillah.14a.13?lang=he"}]'
+    )
     pd.DataFrame(
         [(1, "merged", 10, None, '["Enosh@Gen", "Enosh@Gen.5"]', '[{"verse_id": 2, "tokens": [0]}]',
-          "x03-edom", "One man.", "איש אחד."),
+          "x03-edom", "One man.", "איש אחד.", "[]"),
          (2, "possible", 12, 13, '["Shimei@Gen", "Balaam@Exo"]', '[{"verse_id": 3, "tokens": [1]}]',
-          "x03-edom", None, None)],
+          "x03-edom", None, None, "[]"),
+         (3, "rabbinic", 1, 4, '["Adam@Gen", "Seth@Gen"]', '[{"verse_id": 0, "tokens": [0]}]',
+          "x10-rabbinic", "Read as one.", "נקראו כאחד.", rabbinic)],
         columns=["identity_id", "status", "person_id", "other_id", "keys", "proofs", "block",
-                 "note_en", "note_he"],
+                 "note_en", "note_he", "sources"],
     ).astype({"other_id": "Int64"}).to_parquet(gen_dir / "identities.parquet")  # fmt: skip
     (gen_dir / "genealogy.meta.json").write_text(
         json.dumps({
@@ -777,7 +784,7 @@ def write_inputs(cfg, tmp_path):
             "descendant_links": 1, "doubtful_links": 1,
             "placement": {"root": 1, "tree": 8, "tribe": 1, "spouse": 3, "unattached": 1},
             "unmatched_refs": 0, "conflicts": {"bible": 1, "descendant": 0},
-            "identities": {"merged": 1, "possible": 1}, "reviewed_links": 3,
+            "identities": {"merged": 1, "possible": 1, "rabbinic": 1}, "reviewed_links": 3,
             "blocks": {"todo": 1, "draft": 1, "reviewed": 0},
         }),
         encoding="utf-8",

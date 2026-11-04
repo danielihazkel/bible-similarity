@@ -117,6 +117,66 @@ def sefaria_url(cite: str) -> str:
     return f"https://www.sefaria.org/{path.replace(' ', '_')}?lang=he"
 
 
+# midrashim cited by the family tree's rabbinic identifications (K13): the Hebrew title and how
+# many levels of a Sefaria reference the printed editions cite (`Bereshit Rabbah 61:4`: two)
+MIDRASH_HE = {
+    "Bereshit Rabbah": ("בראשית רבה", 2), "Shemot Rabbah": ("שמות רבה", 2),
+    "Vayikra Rabbah": ("ויקרא רבה", 2), "Bamidbar Rabbah": ("במדבר רבה", 2),
+    "Devarim Rabbah": ("דברים רבה", 2), "Sifrei Bamidbar": ("ספרי במדבר", 1),
+    "Sifrei Devarim": ("ספרי דברים", 1), "Shir HaShirim Rabbah": ("שיר השירים רבה", 2),
+    "Ruth Rabbah": ("רות רבה", 2), "Esther Rabbah": ("אסתר רבה", 2),
+    "Kohelet Rabbah": ("קהלת רבה", 2), "Eichah Rabbah": ("איכה רבה", 2),
+    "Pirkei DeRabbi Eliezer": ("פרקי דרבי אליעזר", 1),
+}  # fmt: skip
+
+
+def source_he(cite: str) -> str | None:
+    """Any rabbinic reference in Hebrew: a Bavli folio, a Mishnah, Tosefta or Yerushalmi
+    reference, or a midrash of `MIDRASH_HE`; None when its title is none of these."""
+    m = _LOC.match(cite)
+    if not m:
+        return None
+    title, loc = m["title"], m["loc"].split("-")[0]
+    if title in MIDRASH_HE:
+        he, levels = MIDRASH_HE[title]
+        parts = [int(x) for x in loc.split(":") if x.isdigit()][:levels]
+        return f"{he} {':'.join(hebrew_numeral(x) for x in parts)}"
+    for corpus, prefix in _PREFIX.items():
+        if title.startswith(prefix) and tractate(corpus, title) in TRACTATES_HE:
+            return cite_he(corpus, title, cite)
+    if title == "Pirkei Avot":
+        return cite_he("mishnah", title, cite)
+    if title in TRACTATES_HE and _FOLIO.match(loc):
+        return cite_he("bavli", title, cite)
+    return None
+
+
+def page_of(cite: str) -> str:
+    """A reference's page: its last level dropped (`Sotah 11b:12` -> `Sotah 11b`,
+    `Bereshit Rabbah 61:4` -> `Bereshit Rabbah 61`)."""
+    return re.sub(r":\d+(-\d+)?$", "", cite.strip())
+
+
+def page_links(paths: list[Path], pages: set[str], index: RefIndex) -> dict[str, set[int]]:
+    """The verses Sefaria's links tie to each of `pages` (any of its passages, a link to at
+    most three verses)."""
+    out: dict[str, set[int]] = {p: set() for p in pages}
+    for p in paths:
+        df = pd.read_csv(p, usecols=_COLS, dtype=str, keep_default_na=False)
+        for a, b in (("1", "2"), ("2", "1")):
+            side = df[df[f"Text {b}"].isin(BY_SEFARIA)]
+            page = side[f"Citation {a}"].map(page_of)
+            hit = page.isin(pages)
+            for pg, ref in zip(page[hit], side.loc[hit, f"Citation {b}"], strict=True):
+                try:
+                    s, e = index.resolve(ref)
+                except ValueError:
+                    continue
+                if e - s < 3:
+                    out[pg] |= set(range(s, e + 1))
+    return out
+
+
 def read_citations(paths: list[Path], rc: dict[str, Any], index: RefIndex
                    ) -> tuple[pd.DataFrame, dict[str, int]]:  # fmt: skip
     """One row per citation (corpus, title, cite, verse_id) and the counts of what was left out."""

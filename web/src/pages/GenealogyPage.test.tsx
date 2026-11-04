@@ -93,7 +93,7 @@ const ENOSH: PersonDetail = {
   siblings: [],
   members: [],
   conflicts: [{ conflict_id: 1, kind: 'bible', block: 'b01-gen-1-11', readings: [], note_en: 'Two passages differ.', note_he: 'שני כתובים חלוקים.' }],
-  identities: [{ identity_id: 1, status: 'merged', person: null, n_keys: 2, proofs: [{ verse: verse(26, 'וּלְשֵׁת גַּם־הוּא יֻלַּד־בֵּן'), tokens: [0], cue: null, source: 'curated' }], note_en: 'One man.', note_he: 'איש אחד.' }],
+  identities: [{ identity_id: 1, status: 'merged', person: null, n_keys: 2, proofs: [{ verse: verse(26, 'וּלְשֵׁת גַּם־הוּא יֻלַּד־בֵּן'), tokens: [0], cue: null, source: 'curated' }], note_en: 'One man.', note_he: 'איש אחד.', sources: [] }],
 }
 ENOSH.conflicts[0].readings = ENOSH.parents
 const LAMECH: PersonDetail = {
@@ -107,7 +107,19 @@ const LAMECH: PersonDetail = {
     { other: null, adopted: true, children: [link(14, ref(12, 'תובל'), { kind: 'adopted', drawn: false, status: 'added', source: 'curated' })] },
   ],
   conflicts: [],
-  identities: [{ identity_id: 2, status: 'possible', person: ref(13, 'בלעם', 'unattached'), n_keys: 2, proofs: [], note_en: null, note_he: null }],
+  identities: [
+    { identity_id: 2, status: 'possible', person: ref(13, 'בלעם', 'unattached'), n_keys: 2, proofs: [], note_en: null, note_he: null, sources: [] },
+    {
+      identity_id: 3,
+      status: 'rabbinic',
+      person: ref(4, 'שת'),
+      n_keys: 2,
+      proofs: [],
+      note_en: 'Read as one.',
+      note_he: 'נקראו כאחד.',
+      sources: [{ cite: 'Megillah 14a:13', cite_he: 'בבלי מגילה יד ע״א', url: 'https://www.sefaria.org/Megillah.14a.13?lang=he' }],
+    },
+  ],
 }
 const LOOKUP: PersonLookup = {
   query: 'אנוש',
@@ -273,6 +285,12 @@ describe('GenealogyPage', () => {
     // the adoptive father's link and the adopted child's carry the tag
     expect(within(panel).getAllByText('by adoption')).toHaveLength(2)
     expect(panel.querySelector('.gt-identity p')?.textContent).toBe('Perhaps the same person as בלעם')
+    // the rabbis' reading, with its passage on Sefaria
+    const rabbis = panel.querySelectorAll('.gt-identity')[1]
+    expect(rabbis.querySelector('p')?.textContent).toBe('The rabbis read as the same person as שת · Read as one.')
+    const src = within(rabbis as HTMLElement).getByRole('link', { name: /בבלי מגילה יד ע״א/ })
+    expect([src.getAttribute('href'), src.getAttribute('target')]).toEqual(['https://www.sefaria.org/Megillah.14a.13?lang=he', '_blank'])
+    expect(rabbis.textContent).toContain('(Megillah 14a:13)')
     expect(container.querySelector('.gt-node.selected')?.textContent).toContain('למך')
     // the line back to Adam lit, through Eve beside him (Cain's mother)
     expect([...container.querySelectorAll('.gt-node.on')].map((n) => n.querySelector('.he')?.textContent)).toEqual(['אדם', 'קין', 'למך'])

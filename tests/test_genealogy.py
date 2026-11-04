@@ -400,7 +400,7 @@ def test_identities(tmp_path):
                                         {"verse_id": 1, "tokens": [1]}]  # fmt: skip
     assert first.note_he == "איש אחד" and first.block == "x1"
     meta = json.loads((out / "genealogy.meta.json").read_text("utf-8"))
-    assert meta["identities"] == {"merged": 2, "possible": 1}
+    assert meta["identities"] == {"merged": 2, "possible": 1, "rabbinic": 0}
     assert "x1" not in pd.read_parquet(out / "blocks.parquet").block.tolist()  # no verse range
     sheet = run_genealogy_review(cfg, "b1", log=lambda _: None).read_text("utf-8")
     assert "- merged: אדם `Adam@Gen.1.1`, keys Adam@Gen.1.1, Abraham@Gen.1.2" in sheet
@@ -447,6 +447,92 @@ def test_identity_errors(tmp_path):
     c = pd.read_parquet(out / "conflicts.parquet")
     pid = pd.read_parquet(out / "persons.parquet").set_index("key").person_id
     assert c.child_id.tolist() == [pid["Seth@Gen.1.1"]]
+
+
+def links_csv(tmp_path, rows):
+    d = tmp_path / "raw" / "sefaria" / "links"
+    d.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        rows,
+        columns=[
+            "Citation 1",
+            "Citation 2",
+            "Conection Type",
+            "Text 1",
+            "Text 2",
+            "Category 1",
+            "Category 2",
+        ],
+    ).to_csv(d / "links0.csv", index=False)
+
+
+RABBINIC = """
+block: x1
+same:
+  - {keys: ["Seth@Gen.1.1", "Judah@Gen.1.4", "Abagtha@Exo.1.1"], status: rabbinic,
+     proof: [Genesis 1:4], source: [Megillah 14a:12, Bereshit Rabbah 61:4],
+     note: {en: "one man", he: "איש אחד"}}
+"""
+
+
+def test_rabbinic_identities(tmp_path):
+    cfg = corpus(tmp_path)
+    (tmp_path / "cur" / "genealogy" / "x1.yaml").write_text(RABBINIC, "utf-8")
+    # another passage of each page links to the proof verse (or both ways round, or a range)
+    links_csv(tmp_path, [
+        ("Megillah 14a:13", "Genesis 1:4", "", "Megillah", "Genesis", "Talmud", "Tanakh"),
+        ("Genesis 1:3-4", "Bereshit Rabbah 61:1", "", "Genesis", "Bereshit Rabbah", "Tanakh",
+         "Midrash"),
+    ])  # fmt: skip
+    logs: list[str] = []
+    out = run_genealogy(cfg, log=logs.append)
+    assert "1 rabbinic identifications" in logs[0]
+    pid = pd.read_parquet(out / "persons.parquet").set_index("key").person_id
+    ids = pd.read_parquet(out / "identities.parquet")
+    # both kept: one row for each other key, the first key's person on each
+    assert ids[["status", "person_id", "other_id"]].values.tolist() == [
+        ["rabbinic", pid["Seth@Gen.1.1"], pid["Judah@Gen.1.4"]],
+        ["rabbinic", pid["Seth@Gen.1.1"], pid["Abagtha@Exo.1.1"]],
+    ]  # fmt: skip
+    assert json.loads(ids.sources[0]) == [
+        {"cite": "Megillah 14a:12", "cite_he": "בבלי מגילה יד ע״א",
+         "url": "https://www.sefaria.org/Megillah.14a.12?lang=he"},
+        {"cite": "Bereshit Rabbah 61:4", "cite_he": "בראשית רבה סא:ד",
+         "url": "https://www.sefaria.org/Bereshit_Rabbah.61.4?lang=he"},
+    ]  # fmt: skip
+    meta = json.loads((out / "genealogy.meta.json").read_text("utf-8"))
+    assert meta["identities"] == {"merged": 0, "possible": 0, "rabbinic": 2}
+
+    # a page Sefaria links elsewhere only
+    links_csv(tmp_path, [("Megillah 14a:13", "Genesis 1:5", "", "Megillah", "Genesis", "Talmud",
+                          "Tanakh")])  # fmt: skip
+    with pytest.raises(CurationError) as e:
+        run_genealogy(cfg, log=lambda _: None)
+    assert "x1: Megillah 14a:12 (Seth@Gen.1.1 = Judah@Gen.1.4 = Abagtha@Exo.1.1)" in str(e.value)
+    assert "Bereshit Rabbah 61:4" in str(e.value)
+
+
+def test_rabbinic_errors(tmp_path):
+    cfg = corpus(tmp_path)
+    (tmp_path / "cur" / "genealogy" / "x1.yaml").write_text("\n".join([
+        "block: x1", "same:",
+        '  - {keys: ["Seth@Gen.1.1", "Judah@Gen.1.4"], status: rabbinic, proof: [Genesis 1:4]}',
+        '  - {keys: ["Seth@Gen.1.1", "Isaac@Gen.1.2"], status: rabbinic, proof: [Genesis 1:4],'
+        ' source: [Midrash Nowhere 3:4]}',
+        '  - {keys: ["Seth@Gen.1.1", "Adam@Gen.1.1"], status: possible, proof: [Genesis 1:1],'
+        ' source: [Megillah 14a:12]}',
+    ]) + "\n", "utf-8")  # fmt: skip
+    with pytest.raises(CurationError) as e:
+        run_genealogy(cfg, log=lambda _: None)
+    msg = str(e.value)
+    for want in ("a rabbinic identification needs its source",
+                 "['Midrash Nowhere 3:4'] are no Sefaria reference with a Hebrew title",
+                 "only a rabbinic identification has a source"):  # fmt: skip
+        assert want in msg, want
+    # sources to check and no links downloaded
+    (tmp_path / "cur" / "genealogy" / "x1.yaml").write_text(RABBINIC, "utf-8")
+    with pytest.raises(FileNotFoundError, match="--only sefaria"):
+        run_genealogy(cfg, log=lambda _: None)
 
 
 def test_tribe_taken_off(tmp_path):
@@ -583,6 +669,18 @@ def test_api_person(client):
         (x,) = client.get(f"/api/genealogy/person/{a_}").json()["identities"]
         assert (x["status"], x["person"]["he"], x["proofs"][0]["tokens"]) == ("possible", b_, [1])
     assert d["identities"] == []
+    # the rabbis' reading: kept apart, each side naming the other, with the passage on Sefaria
+    (r,) = a["identities"]
+    assert (r["status"], r["person"]["person_id"], r["note_en"]) == ("rabbinic", 4, "Read as one.")
+    assert r["sources"] == [
+        {
+            "cite": "Megillah 14a:13",
+            "cite_he": "בבלי מגילה יד ע״א",
+            "url": "https://www.sefaria.org/Megillah.14a.13?lang=he",
+        }
+    ]
+    assert [x["person"]["person_id"] for x in s["identities"]] == [1]
+    assert m["sources"] == []
     v = client.get("/api/genealogy/person/14").json()
     assert v["person"]["kind"] == "virtual" and [m["person_id"] for m in v["members"]] == [15]
     assert client.get("/api/genealogy/person/99").status_code == 404

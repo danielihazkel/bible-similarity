@@ -126,13 +126,35 @@ export function GenealogyPanel({ personId, ix, name, t, onPick, onShow, onOpenAl
                 <p className="small">
                   {x.person ? (
                     <>
-                      {t.maybeSame} {who(x.person.person_id)}
+                      {x.status === 'rabbinic' ? t.rabbinicSame : t.maybeSame} {who(x.person.person_id)}
                     </>
                   ) : (
                     t.mergedFrom(x.n_keys)
                   )}
                   {note && ` · ${note}`}
                 </p>
+                {x.sources.length > 0 && (
+                  <p className="small gt-sources">
+                    {t.rabbinicSource}:{' '}
+                    {x.sources.map((s, i) => (
+                      <span key={s.cite}>
+                        {i > 0 && ' · '}
+                        <a href={s.url} target="_blank" rel="noreferrer">
+                          <span lang="he" dir="rtl">
+                            {s.cite_he}
+                          </span>
+                          <span className="sr-only"> {t.rabbinicLink}</span>
+                        </a>
+                        {locale === 'en' && (
+                          <span className="muted" dir="ltr">
+                            {' '}
+                            ({s.cite})
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </p>
+                )}
                 <ol className="gt-proofs">
                   {x.proofs.map((v) => (
                     <Proof key={v.verse.verse_id} v={v} t={t} />

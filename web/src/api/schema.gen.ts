@@ -6383,7 +6383,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "merged" | "possible";
+            status: "merged" | "possible" | "rabbinic";
             person: components["schemas"]["PersonRef"] | null;
             /** N Keys */
             n_keys: number;
@@ -6393,6 +6393,11 @@ export interface components {
             note_en: string | null;
             /** Note He */
             note_he: string | null;
+            /**
+             * Sources
+             * @default []
+             */
+            sources: components["schemas"]["RabbinicSource"][];
         };
         /** KetivResponse */
         KetivResponse: {
@@ -8365,6 +8370,18 @@ export interface components {
             };
             /** Known */
             known: components["schemas"]["PsalmKnownTurn"][];
+        };
+        /**
+         * RabbinicSource
+         * @description Where the rabbis make an identification: a passage on Sefaria (its text not stored).
+         */
+        RabbinicSource: {
+            /** Cite */
+            cite: string;
+            /** Cite He */
+            cite_he: string;
+            /** Url */
+            url: string;
         };
         /** RarerWithout */
         RarerWithout: {

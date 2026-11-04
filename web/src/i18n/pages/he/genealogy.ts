@@ -125,5 +125,8 @@ export const gtHe: typeof gtEn = {
   readingOther: 'קריאה אחרת',
   identities: 'אדם אחד או שניים?',
   maybeSame: 'אולי אותו אדם כמו',
+  rabbinicSame: 'חז״ל מזהים אותו עם',
+  rabbinicSource: 'מקור',
+  rabbinicLink: '(בספריא, בלשונית חדשה)',
   mergedFrom: (n: number) => `נקרא כאדם אחד, אף ש־STEPBible מונה ${countHe(n, 'רשומה אחת', 'שתי רשומות', 'רשומות')}.`,
 }

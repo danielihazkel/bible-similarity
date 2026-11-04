@@ -189,18 +189,19 @@ def genealogy_conflicts_of(conn: sqlite3.Connection, person_id: int) -> list[dic
 
 
 def genealogy_identities_of(conn: sqlite3.Connection, person_id: int) -> list[dict[str, Any]]:
-    """The identities a person is in: merged into it, or a possible one either side (none in a DB
-    built before them)."""
+    """The identities a person is in: merged into it, or a possible or rabbinic one either side
+    (none in a DB built before them)."""
     try:
         cur = conn.execute(
-            "SELECT identity_id, status, person_id, other_id, keys, proofs, note_en, note_he"
+            "SELECT identity_id, status, person_id, other_id, keys, proofs, note_en, note_he,"
+            " sources"
             " FROM genealogy_identities WHERE person_id = ? OR other_id = ? ORDER BY identity_id",
             (person_id, person_id),
         )
     except sqlite3.OperationalError:
         return []
-    return [r | {"keys": json.loads(r["keys"]), "proofs": json.loads(r["proofs"])}
-            for r in _dicts(cur)]  # fmt: skip
+    return [r | {"keys": json.loads(r["keys"]), "proofs": json.loads(r["proofs"]),
+                 "sources": json.loads(r["sources"] or "[]")} for r in _dicts(cur)]  # fmt: skip
 
 
 _NAME_INDEX: dict[str, list[tuple[int, str, str, int]]] = {}

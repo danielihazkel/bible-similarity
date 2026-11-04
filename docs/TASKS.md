@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M139: Rabbinic identifications in the family tree (§16.63, D129; proposed K13, F5)
+- [x] An identity status `rabbinic` (`same:` in the review files): both persons kept, cross-referred, each identification with its `source:` (Sefaria references); a source on another status, a title with no Hebrew name or none at all stops the build
+- [x] The check: Sefaria's links (the M3 download, §16.77) must tie each source's page to one of the identity's proof verses; the pages' links read once per build (`analysis/reception.py`: `source_he`, `page_of`, `page_links`)
+- [x] `curation/genealogy/x10-rabbinic.yaml` (`genealogy.cross_blocks`): 24 identifications, 28 pairs, every passage read in Hebrew on Sefaria first; those whose page has no link to the verses, and what the rabbis add to a family, left out (listed in §16.63)
+- [x] API: `Identity.sources` (`cite`, `cite_he`, `url`), `genealogy_identities.sources`; the meta counts `rabbinic`; the person panel says "the rabbis read as the same person as …" with the sources linked to Sefaria in Hebrew, English and Hebrew
+- [x] Tests: the identities kept apart, the sources' Hebrew and links, the check passing and failing, the errors (pytest); the panel's card (vitest); fixture e2e
+
+✔ The tree now knows that the Talmud reads Hathach as Daniel and Iscah as Sarah: 24 identifications, each with the passage that makes it, checked against Sefaria's links before the build accepts it.
+
 ## M138: Rabbinic reception (§16.77, D128; proposed K2)
 - [x] The licence first: Sefaria's links dataset is CC BY 4.0 (its "Copyright and Data Use"); the links already downloaded, no new download; no rabbinic text stored (their editions' licences vary), each passage linked to Sefaria in Hebrew
 - [x] `bsim reception`: the Mishnah, the Tosefta, the Bavli and the Yerushalmi by their own titles (commentaries, other editions, Alfasi and the Daf Shevui out), verse ranges of at most `max_span`; citations per verse, chapter and book; each passage's Hebrew reference and Sefaria link
@@ -1362,7 +1371,7 @@ Family tree
 - [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
 - [x] F3 (done, M90) The review in 21 blocks, in canon order
 - [x] F4 (done, M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
-- [ ] F5 (later; K13) Rabbinic identifications as a third kind of conflict, sources fetched from Sefaria
+- [x] F5 (done in M139, K13) Rabbinic identifications: as identities with their sources rather than a third kind of conflict, checked against Sefaria's links
 - [x] F6 (done, M92) The look: on most of the screen, avatars, couples, the chosen person's line, wheel zoom
 
 Suggested order: F1 → F2 → F3 → F4; F5 when asked.
@@ -1458,7 +1467,7 @@ Models
 
 Improvements
 - [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
-- [ ] K13 F5: rabbinic identifications in the family tree, as a kind of identity with its source
+- [x] K13 (done, M139) F5: rabbinic identifications in the family tree, as a kind of identity with its source
 - [ ] K14 The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
 - [ ] K15 Installable and offline: a manifest and a service worker, `/api` reads cached by build
 

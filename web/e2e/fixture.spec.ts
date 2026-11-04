@@ -111,6 +111,7 @@ const PAGES = [
   '/place-links?place=1&sort=km&bins=no_lists',
   '/genealogy',
   '/genealogy?p=10',
+  '/genealogy?p=1',
   '/query',
   '/query?q=%5Blemma%3D430%5D+%5Blemma%3D559%5D',
   '/workbench',
@@ -416,6 +417,16 @@ async function dragIntoView(page: Page, target: Locator) {
     await page.mouse.up()
   }
 }
+
+test('the family tree: the rabbis’ reading of a person, with its passage on Sefaria', async ({ page }) => {
+  await page.goto('/genealogy?p=1')
+  const card = page.getByRole('region', { name: 'Person' }).locator('.gt-identity')
+  await expect(card.locator('p').first()).toHaveText('The rabbis read as the same person as שת · Read as one.')
+  await expect(card.getByRole('link', { name: /בבלי מגילה יד ע״א/ })).toHaveAttribute('href', 'https://www.sefaria.org/Megillah.14a.13?lang=he')
+  await card.getByRole('button', { name: 'שת' }).click()
+  await expect(page).toHaveURL(/\/genealogy\?p=4$/)
+  await expect(page.getByRole('region', { name: 'Person' }).locator('.gt-identity p').first()).toHaveText('The rabbis read as the same person as אדם · Read as one.')
+})
 
 test('the family tree: open and close, a person and the verses, search, a phone', async ({ page }) => {
   await page.goto('/genealogy')

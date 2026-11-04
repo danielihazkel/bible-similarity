@@ -17,7 +17,7 @@ This is the hand-off file for the family tree of the Hebrew Bible (series F, M88
 - **Conflicts marked:**
   - Bible vs Bible, where two passages give different parents or names;
   - "בן = descendant", where a link skips generations.
-  - Rabbinic identifications are **deferred**: use only the Bible this round.
+  - Rabbinic identifications are **deferred**: use only the Bible this round. (Done in M139, K13, 2026-11-04: as identities with their sources, `x10-rabbinic.yaml`.)
 - **The tree holds:** father and mother; spouses and concubines (children grouped by mother); nations and clans (Gen 10, the tribes, founders); unnamed people needed as links.
 - **Data:** TIPNR's family columns are the backbone, with proof verses found automatically, then a review block by block. The reviews go in `curation/genealogy/*.yaml`, which is committed: person keys and references only, never scripture text.
 - **View:** a collapsible tree from Adam down, plus a side panel for the person: parents, spouses, children, proof verses in Hebrew, conflicts.
@@ -56,6 +56,8 @@ conflicts:
 same:                     # one person under several TIPNR keys (M91); the first key is kept
   - {keys: ["Asriel@Num.26.31-Jos", "Asriel@1Ch.7.14"], status: merged, proof: [Numbers 26:31, I Chronicles 7:14]}
   - {keys: ["Elihu@1Ch.27.18", "Eliab@1Sa.16.6-2Ch"], status: possible, proof: [I Chronicles 27:18], note: {en: "…", he: "…"}}
+  # rabbinic (M139): the rabbis' reading, both kept; source: the passages, as Sefaria references
+  - {keys: ["Hathach@Est.4.5-", "Daniel@Ezk.14.14-Mrk"], status: rabbinic, proof: [Esther 4:5, Daniel 1:6], source: [Megillah 15a:11]}
 missed:                   # cue verses of the sheet that are no link, each with a reason
   - {ref: Genesis 4:25, reason: "Cain named as Abel's killer"}
 ```
@@ -66,6 +68,7 @@ Rules the build enforces, stopping on any error:
 - `same:` (M91): `merged` folds the other keys into the first before any link is decided, and the merged keys still name the person in every file. A link that two files decided under the two pairs of keys must have the same status there. A merged person with two fathers (or mothers) needs a conflict listing them as readings. `possible` keeps both persons; it cannot name two keys already merged. Both need proof verses.
 - The cross-book steps' files are `curation/genealogy/xNN-<topic>.yaml`, with `block` one of `genealogy.cross_blocks` (`x03-edom` … `x09-unattached`). They have no verse range and no review sheet.
 - A `people:` correction `tribe: ""` takes a person without a parent off TIPNR's tribe or nation: it goes under "unattached", by its book (M91 step 3).
+- `rabbinic` (M139) keeps both persons, like `possible`, and needs a `source:` list; no other status may have one. Each source's title must have a Hebrew name (`source_he` in `analysis/reception.py`), and Sefaria's links must tie its page (the reference less its last level) to one of the proof verses.
 - An adoptive father is a link of kind `adopted` (`role: father`); it is never the one the tree draws while the child has another father.
 
 A person counts as reviewed when every parent link of theirs is checked.
@@ -79,6 +82,7 @@ A person counts as reviewed when every parent link of theirs is checked.
 | M89 (F2) | Viewer: API, `/genealogy` tree, collapsing, panel, search, legend, EN/HE, responsive | done |
 | M90 (F3) | Review block by block (below) | done |
 | M91 (F4) | Cross-book pass, tribe attachments, jump box, dossier entry (below) | done |
+| M139 (F5, K13) | Rabbinic identifications: `rabbinic` identities with their sources, `x10-rabbinic.yaml` | done |
 
 Review blocks (M90), in Jewish canon order:
 
@@ -122,7 +126,9 @@ Cross-book steps (M91), planned in step 1:
 | 10 | A People group in the jump box, and a dossier entry for the people of a unit (D99 / D100) | done |
 
 ## Next step
-**Series F is done (M88–M91).** Nothing is scheduled. F5, rabbinic identifications as a third kind of conflict with their sources from Sefaria, waits until the user asks for it (deferred, 2026-10-21; `docs/TASKS.md`).
+**Series F is done (M88–M91), and F5 with it (M139, 2026-11-04):** rabbinic identifications are identities of status `rabbinic`, each with its sources. Nothing is scheduled.
+
+More rabbinic identifications go in `x10-rabbinic.yaml`: read the passage in Hebrew on Sefaria, give its reference as `source:`, and choose proof verses that Sefaria's links tie to the passage's page (the build says which do not). Those left out, and why, are in DESIGN §16.63.
 
 If the user asks for more on the tree before then, the material is here:
 - The **Open questions** below. The items marked "(M91)" all carry a **Step N:** note saying how they were settled or why they were left.
@@ -701,3 +707,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **Found by** the real-build smoke test: Jacob's panel listed Ephraim and Manasseh as "By אסנת", a group of their mother, Joseph's wife, under Jacob (the panel grouped every child by the child's other parent, the adoptive link of Gen 48:5 too).
   - **Fix:** `/genealogy/person/{id}` puts the children of `adopted` links in a group of their own, after the others (`ChildGroup.adopted`), headed "By adoption" / "באימוץ". The tree is unchanged: Joseph stays their drawn father.
   - **Tests:** `test_api_person_adopted` (pytest), the heading in both languages (vitest); the smoke test now expects the fifth group with Ephraim and Manasseh in it, Gen 25:26 as Jacob's first proof (chosen in the M91 review), יעקב as the node's name, and each mother drawn (a header or an avatar) at a zoom where cards are drawn (M92).
+- 2026-11-04, M139 (F5, K13): rabbinic identifications.
+  - **Format:** a `same:` entry of status `rabbinic` keeps both persons, like `possible`, and lists its `source:`, Sefaria references to the passage that makes the identification. Not a third kind of conflict, as F5 first had it: no parent link changes.
+  - **Check:** the build reads Sefaria's links (the M3 download) and stops on a source whose page no link ties to one of the proof verses. The page rather than the passage: Sotah 11b:12 names Shiphrah as Jochebed, and only 11b:11 is linked to Exod 1:15.
+  - **The file:** `x10-rabbinic.yaml`, 24 identifications (28 pairs). Each passage was read in Hebrew on Sefaria first; the text is not stored.
+  - **Left out:** Left out: what the rabbis add to a family rather than to a person (Hur son of Caleb and Miriam, Sotah 11b; Asenath daughter of Dinah, Pirkei DeRabbi Eliezer 38); identifications whose source's page Sefaria links to none of the verses (Malachi as Ezra or Mordecai, Megillah 15a; Nehemiah as Zerubbabel, Sanhedrin 38a; Michal as Eglah, Sanhedrin 21a; Pinehas as Elijah, a midrash with no link); Bedan as Samson (Rosh Hashanah 25a), for TIPNR has no person for the Bedan of I Sam 12:11; Agur and Lemuel as Solomon, not in the passage Sefaria links (Shir HaShirim Rabbah 1:1:10).
+  - **Viewer:** the panel's "One person or two?" has a card per reading: "The rabbis read as the same person as …", the note, the verses, and the sources linked to Sefaria.

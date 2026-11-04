@@ -20,6 +20,7 @@ from bsim.api.models.genealogy import (
     PersonMatch,
     PersonRef,
     ProofVerse,
+    RabbinicSource,
     SkeletonResponse,
     TreeNode,
     TreeSpouse,
@@ -121,7 +122,7 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
     readings = queries.genealogy_links_by_id(conn, [i for c in conflicts for i in c["readings"]])
     idents = queries.genealogy_identities_of(conn, person_id)
     alike = {x["identity_id"]: x["other_id"] if x["person_id"] == person_id else x["person_id"]
-             for x in idents if x["status"] == "possible"}  # fmt: skip
+             for x in idents if x["status"] != "merged"}  # fmt: skip
 
     # the children's other parents: a father's children by their mother, and the other way round
     mine = {lk["child_id"]: lk["role"] for lk in down}
@@ -206,6 +207,7 @@ def person(person_id: int, conn: Conn) -> dict[str, Any]:
                 **{k: x[k] for k in ("identity_id", "status", "note_en", "note_he")},
                 person=ref(alike[x["identity_id"]]) if x["identity_id"] in alike else None,
                 n_keys=len(x["keys"]),
+                sources=[RabbinicSource(**s) for s in x["sources"]],
                 proofs=[
                     ProofVerse(
                         verse=verses[v["verse_id"]], tokens=v["tokens"], cue=None, source="curated"

@@ -1,0 +1,132 @@
+# F5 (K13, M139): the rabbis' identifications, one person read in two (or more) of the Bible's.
+# Each is `rabbinic`: both persons stay in the tree, cross-referred in the panel with the source.
+# A source is a Sefaria reference to the passage that makes the identification, read in Hebrew
+# when this file was written (2026-11-04); the build checks that Sefaria's links tie the
+# source's page to one of the proof verses. No rabbinic text is stored here.
+block: x10-rabbinic
+status: reviewed
+same:
+  # Esther
+  - keys: ["Hathach@Est.4.5-", "Daniel@Ezk.14.14-Mrk"]
+    status: rabbinic
+    proof: [Esther 4:5, Daniel 1:6]
+    source: [Megillah 15a:11, Bava Batra 4a:9]
+    note: {en: "Esther's messenger is Daniel, named for being cut down from his greatness (Rav).", he: "שליחה של אסתר הוא דניאל, שחתכוהו מגדולתו (רב)."}
+  - keys: ["Memucan@Est.1.14-", "Haman@Est.3.1-"]
+    status: rabbinic
+    proof: [Esther 1:16, Esther 3:1]
+    source: [Megillah 12b:11]
+    note: {en: "The minister who advised against Vashti is Haman.", he: "השר שיעץ נגד ושתי הוא המן."}
+  - keys: ["Mordecai@Est.2.5-", "Mordecai@Ezr.2.2-Neh", "Bilshan@Ezr.2.2-Neh"]
+    status: rabbinic
+    proof: [Esther 2:5, Ezra 2:2, Nehemiah 7:7]
+    source: [Menachot 65a:3]
+    note: {en: "Mordecai of the returnees' list is Esther's, and Bilshan beside him a byname: the master of languages.", he: "מרדכי שברשימת העולים הוא מרדכי של אסתר, ובלשן שלידו כינויו: בעל הלשונות."}
+  # the Torah
+  - keys: ["Iscah@Gen.11.29", "Sarah@Gen.11.29-1Pe"]
+    status: rabbinic
+    proof: [Genesis 11:29]
+    source: [Megillah 14a:13, Sanhedrin 69b:13]
+    note: {en: "Haran's daughter Iscah is Sarah (Rabbi Yitzhak), so Sarah is Abraham's niece.", he: "יסכה בת הרן היא שרה (רבי יצחק), ושרה בת אחיו של אברהם."}
+  - keys: ["Keturah@Gen.25.1-1Ch", "Hagar@Gen.16.1-Gal"]
+    status: rabbinic
+    proof: [Genesis 25:1, Genesis 16:1]
+    source: [Bereshit Rabbah 61:4]
+    note: {en: "Abraham's last wife is Hagar, taken back (Rav; Rabbi Nehemiah disagrees).", he: "אשתו האחרונה של אברהם היא הגר שחזרה (רב; רבי נחמיה חולק)."}
+  - keys: ["Melchizedek@Gen.14.18-Heb", "Shem@Gen.5.32-Luk"]
+    status: rabbinic
+    proof: [Genesis 14:18, Genesis 5:32]
+    source: [Nedarim 32b:6]
+    note: {en: "The priesthood was to come from Shem, the priest-king who met Abraham.", he: "הכהונה הייתה אמורה לצאת משם, המלך הכהן שקידם את אברהם."}
+  - keys: ["Amraphel@Gen.14.1-", "Nimrod@Gen.10.8-Mic"]
+    status: rabbinic
+    proof: [Genesis 14:1, Genesis 10:8]
+    source: [Eruvin 53a:7]
+    note: {en: "Amraphel is Nimrod, the one name or the other his own (Rav and Shmuel).", he: "אמרפל הוא נמרוד, ושמו האחד או האחר (רב ושמואל)."}
+  - keys: ["Shiphrah@Exo.1.15", "Jochebed@Exo.6.20-Num"]
+    status: rabbinic
+    proof: [Exodus 1:15, Exodus 6:20]
+    source: [Sotah 11b:12]
+    note: {en: "The midwives were mother and daughter: Shiphrah is Jochebed.", he: "המיילדות היו אם ובתה: שפרה היא יוכבד."}
+  - keys: ["Puah@Exo.1.15", "Miriam@Exo.15.20-Mic"]
+    status: rabbinic
+    proof: [Exodus 1:15, Exodus 15:20]
+    source: [Sotah 11b:13]
+    note: {en: "The second midwife, Puah, is Miriam.", he: "המיילדת השנייה, פועה, היא מרים."}
+  - keys: ["Hobab@Num.10.29-Jdg", "Jethro@Exo.2.18-Num"]
+    status: rabbinic
+    proof: [Numbers 10:29, Exodus 18:1]
+    source: [Sifrei Bamidbar 78:1]
+    note: {en: "Moses' father-in-law Hobab is Jethro; Reuel is the daughters' grandfather.", he: "חובב חותן משה הוא יתרו; רעואל אבי אביהן של הבנות."}
+  - keys: ["Zimri@Num.25.14", "Shelumiel@Num.1.6-"]
+    status: rabbinic
+    proof: [Numbers 25:14, Numbers 1:6]
+    source: [Sanhedrin 82b:11]
+    note: {en: "Zimri had five names; his own was Shelumiel son of Zurishaddai (Rabbi Yohanan).", he: "לזמרי חמישה שמות, ושמו שלומיאל בן צורישדי (רבי יוחנן)."}
+  - keys: ["Beor@Num.22.5-2Pe", "Laban@Gen.24.29-", "Cushan-rishathaim@Jdg.3.8-"]
+    status: rabbinic
+    proof: [Numbers 22:5, Genesis 24:29, Judges 3:8]
+    source: [Sanhedrin 105a:8]
+    note: {en: "Balaam's father is Cushan-rishathaim, and his name was Laban the Aramean.", he: "אביו של בלעם הוא כושן רשעתים, ושמו לבן הארמי."}
+  # the Prophets
+  - keys: ["Jabez@1Ch.4.9-", "Othniel@Jos.15.17-1Ch"]
+    status: rabbinic
+    proof: [I Chronicles 4:9, Judges 1:13]
+    source: [Temurah 16a:14]
+    note: {en: "Othniel is Jabez, who spread the Torah in Israel.", he: "עתניאל הוא יעבץ, שריבץ תורה בישראל."}
+  - keys: ["Ibzan@Jdg.12.8-", "Boaz@Rut.2.1-Luk"]
+    status: rabbinic
+    proof: [Judges 12:8, Ruth 2:1]
+    source: [Bava Batra 91a:10]
+    note: {en: "The judge of Bethlehem is Boaz (Rav).", he: "השופט מבית לחם הוא בעז (רב)."}
+  - keys: ["Jonathan@Jdg.18.30", "Shebuel@1Ch.23.16-"]
+    status: rabbinic
+    proof: [Judges 18:30, I Chronicles 26:24]
+    source: [Bava Batra 110a:6]
+    note: {en: "The priest of Dan's idol is David's treasurer, named for returning to God (Rabbi Yohanan).", he: "כהן הפסל בדן הוא הממונה על אוצרות דוד, ששב לאל (רבי יוחנן)."}
+  - keys: ["Orpah@Rut.1.4-", "Rapha@2Sa.21.16-1Ch"]
+    status: rabbinic
+    proof: [Ruth 1:4, II Samuel 21:16]
+    source: [Sotah 42b:7]
+    note: {en: "The giants' Harapha is Orpah, read as their mother (Rav and Shmuel).", he: "הרפה של הענקים היא ערפה, אמם (רב ושמואל)."}
+  - keys: ["Cush@Psa.7.0", "Saul@1Sa.9.2-Act"]
+    status: rabbinic
+    proof: [Psalms 7:1, I Samuel 9:2]
+    source: [Moed Katan 16b:18]
+    note: {en: "Cush the Benjaminite of the psalm's heading is Saul.", he: "כוש בן ימיני שבכותרת המזמור הוא שאול."}
+  - keys: ["Obadiah@Oba.1.1", "Obadiah@1Ki.18.3-"]
+    status: rabbinic
+    proof: [Obadiah 1:1, I Kings 18:3]
+    source: [Sanhedrin 39b:15]
+    note: {en: "The prophet against Edom is Ahab's steward, who lived between two wicked people.", he: "הנביא על אדום הוא עובדיהו אשר על בית אחאב, שדר בין שני רשעים."}
+  # Chronicles
+  - keys: ["Caleb@Num.13.6-1Ch", "Caleb@1Ch.2.9-"]
+    status: rabbinic
+    proof: [Numbers 13:6, I Chronicles 2:18]
+    source: [Sotah 11b:23, Temurah 16a:13]
+    note: {en: "Caleb son of Hezron is Caleb son of Jephunneh, Kenaz's stepson.", he: "כלב בן חצרון הוא כלב בן יפונה, חורגו של קנז."}
+  - keys: ["Azubah@1Ch.2.18-", "Miriam@Exo.15.20-Mic"]
+    status: rabbinic
+    proof: [I Chronicles 2:18, Exodus 15:20]
+    source: [Sotah 12a:2]
+    note: {en: "Caleb's wife Azubah is Miriam.", he: "עזובה אשת כלב היא מרים."}
+  - keys: ["Ephrathah@Rut.1.2-1Ch", "Miriam@Exo.15.20-Mic"]
+    status: rabbinic
+    proof: [I Chronicles 2:19, Exodus 15:20]
+    source: [Sotah 11b:22]
+    note: {en: "Caleb's wife Ephrath is Miriam, so David descends from her.", he: "אפרת אשת כלב היא מרים, ודוד ממנה."}
+  - keys: ["Mered@1Ch.4.17-", "Caleb@Num.13.6-1Ch"]
+    status: rabbinic
+    proof: [I Chronicles 4:18, Numbers 13:6]
+    source: [Megillah 13a:8]
+    note: {en: "Mered is Caleb, who rebelled against the spies and married Pharaoh's daughter.", he: "מרד הוא כלב, שמרד בעצת מרגלים ונשא את בת פרעה."}
+  - keys: ["Jehudijah@1Ch.4.18", "Bithiah@1Ch.4.18"]
+    status: rabbinic
+    proof: [I Chronicles 4:18]
+    source: [Megillah 13a:4]
+    note: {en: "Pharaoh's daughter Bithiah is called the Judean for renouncing idolatry.", he: "בתיה בת פרעה נקראת היהודיה, שכפרה בעבודה זרה."}
+  - keys: ["Moses@Exo.2.10-Rev", "Jered@1Ch.4.18", "Heber@1Ch.4.18", "Jekuthiel@1Ch.4.18"]
+    status: rabbinic
+    proof: [I Chronicles 4:18, Exodus 2:10]
+    source: [Megillah 13a:6]
+    note: {en: "Bithiah's three sons are names of Moses, whom she raised.", he: "שלושת בני בתיה הם שמותיו של משה, שגידלה."}

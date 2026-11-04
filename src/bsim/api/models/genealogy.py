@@ -16,7 +16,7 @@ LinkKind = Literal["son", "descendant", "adopted", "levirate", "founder", "unsta
 LinkStatus = Literal["tipnr", "confirmed", "fixed", "added", "rejected", "reading"]
 Cue = Literal["construct", "sons_of", "wife", "begot", "kin", "together", "nearby"]
 ConflictKind = Literal["bible", "descendant"]
-IdentityStatus = Literal["merged", "possible"]
+IdentityStatus = Literal["merged", "possible", "rabbinic"]
 
 
 class TreeNode(ApiModel):
@@ -113,16 +113,26 @@ class Conflict(ApiModel):
     note_he: str | None
 
 
+class RabbinicSource(ApiModel):
+    """Where the rabbis make an identification: a passage on Sefaria (its text not stored)."""
+
+    cite: str  # Sefaria's reference, `Megillah 15a:11`
+    cite_he: str  # as the printed editions cite it, `בבלי מגילה טו ע״א`
+    url: str  # the passage on Sefaria, in Hebrew
+
+
 class Identity(ApiModel):
     """One person under several of TIPNR's entries (the review's `same:`, §16.63)."""
 
     identity_id: int
-    status: IdentityStatus  # merged: read as this one person; possible: perhaps `person` too
-    person: PersonRef | None  # possible: the other person; merged: None
+    status: IdentityStatus  # merged: read as this one person; possible: perhaps `person` too;
+    # rabbinic: the rabbis read `person` as this one
+    person: PersonRef | None  # possible, rabbinic: the other person; merged: None
     n_keys: int  # the entries read as one person
     proofs: list[ProofVerse]  # the verses of the identification, the names marked
     note_en: str | None
     note_he: str | None
+    sources: list[RabbinicSource] = []  # rabbinic: the passages that make it
 
 
 class PersonInfo(ApiModel):

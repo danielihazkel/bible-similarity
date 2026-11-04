@@ -287,7 +287,7 @@ bible-similarity/
 | 11b''''' | `bsim acrostics` | verses, units, parallelism cola | `artifacts/acrostics/units.parquet` + `.meta.json` (§16.15) |
 | 11b⁵ | `bsim entities` | words | `artifacts/entities/{entities,mentions,links}.parquet` + `.meta.json` (§16.11) |
 | 11b⁵' | `bsim places` | entities, word senses, `data/raw/geo` | `artifacts/places/{places,mentions,name_kinds,basemap}.parquet` + `places.meta.json`, `sample.json` (§16.56) |
-| 11b⁵ᵍ | `bsim genealogy` | words, verses, `data/raw/geo` (TIPNR), `curation/genealogy/*.yaml` | `artifacts/genealogy/{persons,links,proofs,conflicts,blocks}.parquet` + `genealogy.meta.json` (§16.63) |
+| 11b⁵ᵍ | `bsim genealogy` | words, verses, `data/raw/geo` (TIPNR), `curation/genealogy/*.yaml`, `data/raw/sefaria/links` (the rabbinic identifications' sources checked, M139) | `artifacts/genealogy/{persons,links,proofs,conflicts,blocks}.parquet` + `genealogy.meta.json` (§16.63) |
 | — | `bsim genealogy-review <block>` | genealogy, words, verses, `curation/genealogy` | `artifacts/genealogy/review/<block>.md`: a block's review sheet (§16.63) |
 | 11b⁵'' | `bsim place-lists` | places, mentions, words, verses | `artifacts/place_lists/{lists,steps,districts,members}.parquet` + `place_lists.meta.json` (§16.58) |
 | 11b⁵''' | `bsim place-arc` | places, mentions, verses | `artifacts/place_arc/{chapters,books}.parquet` + `place_arc.meta.json` (§16.60) |

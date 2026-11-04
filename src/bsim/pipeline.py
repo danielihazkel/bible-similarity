@@ -643,7 +643,7 @@ RAW: dict[str, tuple[str, ...]] = {
     "lexicon": ("lexicon/*",),
     "syntax": ("bhsa/*",),
     "places": ("geo/*",),
-    "genealogy": ("geo/TIPNR*",),
+    "genealogy": ("geo/TIPNR*", "sefaria/links/*"),
     "ketiv": ("oshb/*",),
     "roots": ("lexicon/HebrewStrong.xml",),
     "gematria": ("lexicon/HebrewStrong.xml",),

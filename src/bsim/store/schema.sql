@@ -348,17 +348,19 @@ CREATE TABLE genealogy_conflicts (
 );
 
 -- One person under several of TIPNR's keys (the review's `same:`): `merged` into one person, or
--- `possible`, both kept and cross-referred in the panel.
+-- `possible` or `rabbinic` (the rabbis' reading, with its sources), both kept and cross-referred
+-- in the panel.
 CREATE TABLE genealogy_identities (
     identity_id INTEGER PRIMARY KEY,
-    status TEXT NOT NULL,           -- merged | possible
-    person_id INTEGER NOT NULL,     -- merged: the person they became; possible: the first key's
-    other_id INTEGER,               -- possible: the other key's person
+    status TEXT NOT NULL,           -- merged | possible | rabbinic
+    person_id INTEGER NOT NULL,     -- merged: the person they became; else the first key's
+    other_id INTEGER,               -- possible, rabbinic: the other key's person
     keys TEXT NOT NULL,             -- JSON: TIPNR's keys, as the review file lists them
     proofs TEXT NOT NULL,           -- JSON: [{verse_id, tokens}], the names' display tokens
     block TEXT,
     note_en TEXT,
-    note_he TEXT
+    note_he TEXT,
+    sources TEXT                    -- JSON: [{cite, cite_he, url}], a rabbinic one's (Sefaria)
 );
 
 -- The review blocks (`genealogy.blocks`) and how far each has got.

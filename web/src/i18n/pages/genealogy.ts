@@ -134,6 +134,9 @@ export const gtEn = {
   readingOther: 'another reading',
   identities: 'One person or two?',
   maybeSame: 'Perhaps the same person as',
+  rabbinicSame: 'The rabbis read as the same person as',
+  rabbinicSource: 'Source',
+  rabbinicLink: '(on Sefaria, in a new tab)',
   mergedFrom: (n: number) => `Read as one person, though STEPBible lists ${countEn(n, 'entry', 'entries')}.`,
 }
 
