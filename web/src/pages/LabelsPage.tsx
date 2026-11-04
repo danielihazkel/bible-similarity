@@ -143,7 +143,7 @@ function Queue() {
         <>
           <ol className="queue-list">
             {d.items.map((i) => (
-              <QueueRow key={`${i.a_id}|${i.b_id}`} i={i} k={d.k} />
+              <QueueRow key={`${i.a_id}|${i.b_id}`} i={i} k={d.k} hebrew={d.llm?.rationale === 'hebrew'} />
             ))}
           </ol>
           <button type="button" className="primary" title={t.queueMoreTitle} disabled={q.isFetching} onClick={() => void q.refetch()}>
@@ -155,7 +155,7 @@ function Queue() {
   )
 }
 
-function QueueRow({ i, k }: { i: QueueItem; k: number }) {
+function QueueRow({ i, k, hebrew }: { i: QueueItem; k: number; hebrew: boolean }) {
   const { m, locale } = useLocale()
   const t = m.lab
   const rank = (r: number | null | undefined) => (r == null ? t.beyond(k) : m.num(r))
@@ -176,7 +176,7 @@ function QueueRow({ i, k }: { i: QueueItem; k: number }) {
       <p className="queue-text">
         <HebrewText verse={i.b} />
       </p>
-      {i.suggestion && <SuggestionNote s={i.suggestion} />}
+      {i.suggestion && <SuggestionNote s={i.suggestion} hebrew={hebrew} />}
       <p className="queue-actions">
         <LabelButtons a={i.a_id} b={i.b_id} mode={QUEUE} score={i.score} />
         <Link className="linkish small" to={compareLink(i.a_id, i.b_id)} title={m.hit.compareTitle}>
@@ -191,17 +191,17 @@ function QueueRow({ i, k }: { i: QueueItem; k: number }) {
 function LlmLine({ llm }: { llm: LlmTriage }) {
   const t = useLocale().m.lab
   const auc = llm.auc === null ? '—' : llm.auc.toFixed(2)
-  return <p className="muted small">{llm.holds ? t.llmLine(llm.model, auc, llm.min_auc.toFixed(2), llm.pairs) : t.llmHidden(auc, llm.min_auc.toFixed(2))}</p>
+  return <p className="muted small">{llm.holds ? t.llmLine(llm.model, auc, llm.min_auc.toFixed(2), llm.pairs, llm.rationale === 'hebrew') : t.llmHidden(auc, llm.min_auc.toFixed(2))}</p>
 }
 
 /** Claude's reading of a pair: a suggestion beside the buttons, never a label. */
-function SuggestionNote({ s }: { s: Suggestion }) {
+function SuggestionNote({ s, hebrew }: { s: Suggestion; hebrew: boolean }) {
   const t = useLocale().m.lab
   return (
     <p className={`queue-suggestion small suggest-${s.verdict}`}>
       <span className="queue-suggestion-head">{t.suggests(t.values[s.verdict as LabelValue], s.p_real.toFixed(2), t.kinds[s.kind] ?? s.kind)}</span>{' '}
       {s.rationale && (
-        <span lang="en" dir="ltr">
+        <span lang={hebrew ? 'he' : 'en'} dir={hebrew ? 'rtl' : 'ltr'}>
           {s.rationale}
         </span>
       )}

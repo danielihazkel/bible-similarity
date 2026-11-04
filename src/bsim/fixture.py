@@ -2594,7 +2594,7 @@ def write_llm_triage(cfg):
          "input_tokens": [100], "output_tokens": [50]}
     ).to_parquet(out / "triage.parquet", index=False)  # fmt: skip
     meta = {
-        "model": "claude-sonnet-5-5", "batch_id": "msgbatch_fixture",
+        "model": "claude-sonnet-5-5", "rationale": "english", "batch_id": "msgbatch_fixture",
         "collected_at": "2026-11-04T12:00:00+00:00",
         "calibration": {"split": "dev", "gold": 50, "random": 50, "auc": 0.9, "min_auc": 0.75,
                         "holds": True},

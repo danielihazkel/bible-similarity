@@ -524,9 +524,12 @@ test('the family tree: Jacob’s sons under their four mothers, with verses', as
 })
 
 test('label queue: train-book pairs the two lists rank apart, the two sides in turn', async ({ page }) => {
+  test.setTimeout(150_000)
   await page.goto('/labels?tab=queue')
   const items = page.locator('.queue-list > li')
-  await expect(items).toHaveCount(20)
+  // the pool is built once, in the background from the server's start; read while the other
+  // startup threads read the DB it can take up to a minute (DESIGN §16.79)
+  await expect(items).toHaveCount(20, { timeout: 90_000 })
   await expect(page.getByText(/ of 78,557 judged$/)).toBeVisible()
   // the top: one list ranks the pair first, the other does not list it; lexical and semantic alternate
   await expect(items.nth(0)).toContainText(/lexical rank 1 · semantic rank beyond 50/)
@@ -536,8 +539,8 @@ test('label queue: train-book pairs the two lists rank apart, the two sides in t
   for (const h of heads) expect(h).not.toMatch(/(Joshua|Judges|I Samuel|Ezekiel|Micah|Nahum|Zephaniah|Proverbs|Job|Ruth|Esther|Daniel|Ezra|Nehemiah|Zechariah|Haggai|Ecclesiastes)/)
   await page.getByRole('radio', { name: 'Semantic' }).click()
   await expect(items.nth(1)).toContainText(/semantic rank 1/)
-  // Claude's suggestions (bsim llm-triage, 2026-11-04): its calibration held (AUC 0.98)
-  await expect(page.getByText(/AUC 0\.98 \(shown from 0\.75\)/)).toBeVisible()
+  // Claude's suggestions (bsim llm-triage, 2026-11-04): its calibration held (AUC 0.99, the Hebrew-rationale run)
+  await expect(page.getByText(/AUC 0\.99 \(shown from 0\.75\)/)).toBeVisible()
   await page.getByRole('checkbox', { name: 'Only pairs with a suggestion' }).check()
   await expect(items.first().locator('.queue-suggestion')).toContainText(/^Claude suggests: (Real|Not|Unsure) \(p [01]\.\d\d, /)
 })

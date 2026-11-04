@@ -385,6 +385,15 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
     )
     if serve["patterns"]["preload"]:
         threading.Thread(target=state.word_table, name="word-table", daemon=True).start()
+    if cfg["labels"]["queue"]["preload"]:
+        from bsim.api.label_queue import preload
+
+        threading.Thread(
+            target=preload,
+            args=(cfg, state.db_path, state.connect),
+            name="label-queue",
+            daemon=True,
+        ).start()
     return state
 
 

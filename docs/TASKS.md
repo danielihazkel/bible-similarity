@@ -893,6 +893,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Calibration fixed before the run: 50 Sefaria dev links against 50 random dev pairs, shown only from AUC 0.75; the triage the queue's first 500 pairs
 - [x] The run (2026-11-04, about $1.02): AUC 0.983 (random pairs all *not*; Sefaria links 32 real, 11 not, 7 unsure); the queue 249 real, 142 not, 109 unsure, the semantic side more often real
 - [x] Glosses: 82 of 600 rationales glossed a Hebrew word in English all the same; `clean_rationale` removes them (73 of the 500 shown) and hides a rationale that glosses in prose (2)
+- [x] Rerun with the rationale in Hebrew (`llm_triage.rationale: hebrew`, about $1.06): AUC 0.986; the queue 257 real, 132 not, 111 unsure, 88.8 % the same verdicts; 2 of 600 rationales with any Latin letter, none a gloss. The run shown; the English one kept in `artifacts/llm_run1/`
 - [x] API: `/labels/queue` with `llm` and each item's `suggestion`, `?suggested=true`; read from `artifacts/llm/`, never the labels file
 - [x] Viewer: the suggestion under the two verses, the run's line, *Only pairs with a suggestion*; English and Hebrew
 - [x] Tests: the prompt, the answers read, the calibration pairs, a fake batch submitted, polled, collected and resumed, the gloss filter, the queue's suggestions over the fixture DB (pytest); the page (vitest); fixture e2e and smoke on the real build (axe)

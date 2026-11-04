@@ -7300,6 +7300,11 @@ export interface components {
         LlmTriage: {
             /** Model */
             model: string;
+            /**
+             * Rationale
+             * @enum {string}
+             */
+            rationale: "hebrew" | "english";
             /** Collected At */
             collected_at: string;
             /** Auc */

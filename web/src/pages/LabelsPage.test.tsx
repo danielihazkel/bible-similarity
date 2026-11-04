@@ -71,7 +71,7 @@ const QUEUE: LabelQueue = {
       suggestion: { verdict: 'real', p_real: 0.8, kind: 'allusion', rationale: 'השמים in both, as the witnesses of creation' },
     },
   ],
-  llm: { model: 'claude-sonnet-5-5', collected_at: '2026-11-04T12:00:00+00:00', auc: 0.91, min_auc: 0.75, holds: true, pairs: 500 },
+  llm: { model: 'claude-sonnet-5-5', rationale: 'english', collected_at: '2026-11-04T12:00:00+00:00', auc: 0.91, min_auc: 0.75, holds: true, pairs: 500 },
 }
 
 function mockApi(writable = true) {

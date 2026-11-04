@@ -221,6 +221,7 @@ def test_queue_shows_suggestions_when_the_calibration_holds(client):
     _write_run(cfg)
     body = c.get("/api/labels/queue").json()
     assert body["llm"]["holds"] and body["llm"]["auc"] == 0.9
+    assert body["llm"]["rationale"] == "english"  # a run from before the choice
     assert body["items"][0]["suggestion"] == {
         "verdict": "real", "p_real": 0.8, "kind": "allusion", "rationale": "ויאמר יהוה, twice",
     }  # fmt: skip
@@ -248,3 +249,16 @@ def test_clean_rationale_removes_glosses():
     assert c("the contexts differ (exile vs. return)") == "the contexts differ (exile vs. return)"
     assert c("in Isaiah בָּנִים means rebellious children") is None
     assert c("") is None
+    assert c("ארבה משותף.</rationale>") == "ארבה משותף."
+
+
+def test_the_rationale_language():
+    assert "only in Hebrew" in lt.system_prompt("hebrew") and "{rationale}" not in lt.system_prompt(
+        "hebrew"
+    )
+    assert "in English naming" in lt.system_prompt("english")
+    with pytest.raises(RuntimeError, match="llm_triage.rationale"):
+        lt.system_prompt("french")
+    assert lt.request(
+        "x", {"ref": "", "text": ""}, {"ref": "", "text": ""}, {**CFG, "rationale": "hebrew"}
+    )["params"]["system"] == lt.system_prompt("hebrew")

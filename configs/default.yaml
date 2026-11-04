@@ -215,6 +215,7 @@ labels:                       # your labels as a third gold set (`bsim eval-labe
     split: train              # only pairs between two books of this split (labels may train the encoder; dev stays held out)
     size: 20                  # pairs shown at a time
     max_size: 200             # largest `limit`
+    preload: true             # build the queue's pool in the background when the server starts (a first build during the startup threads takes up to a minute)
   min_train: 30               # extra_pairs: [labels] needs at least this many real train-split verse pairs
 
 openbible:                    # `bsim eval-openbible`: second gold set, dev only (DESIGN.md §16.13)
@@ -1825,6 +1826,7 @@ llm_triage:                   # `bsim llm-triage`: Claude's suggestions for the 
   effort: medium              # output_config.effort
   max_tokens: 8000            # per answer, the thinking included
   rationale_chars: 400        # longest rationale kept
+  rationale: hebrew           # the rationale's language: hebrew | english (the first run, english, glossed 82 of 600 rationales in English; D134)
   seed: 61
   calibration:                # fixed before the first run
     split: dev                # Sefaria verse links of this split against random pairs of its books

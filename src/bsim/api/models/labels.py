@@ -65,13 +65,14 @@ class Suggestion(ApiModel):
     verdict: Literal["real", "not", "unsure"]
     p_real: float  # its probability that the connection is real
     kind: str  # one of llm_triage.KINDS (quotation, allusion, parallel_account, ...)
-    rationale: str | None  # in English, naming Hebrew words; glosses removed, None if it glosses
+    rationale: str | None  # naming Hebrew words; English glosses removed, None if it glosses
 
 
 class LlmTriage(ApiModel):
     """The run the suggestions come from, and its calibration."""
 
     model: str
+    rationale: Literal["hebrew", "english"]  # the language its rationales are in
     collected_at: str
     auc: float | None  # p_real, Sefaria dev links against random dev pairs
     min_auc: float

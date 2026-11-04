@@ -183,6 +183,7 @@ def labels_queue(
         if meta is None
         else {
             "model": meta["model"],
+            "rationale": meta.get("rationale", "english"),  # the first run predates the choice
             "collected_at": meta["collected_at"],
             "auc": meta["calibration"]["auc"],
             "min_auc": meta["calibration"]["min_auc"],

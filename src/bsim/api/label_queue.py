@@ -15,7 +15,8 @@ Only pairs between two **train-split** books are offered (the Sefaria split rule
 (`train.supervised.extra_pairs: [labels]`, `train/pairs.py`) while the dev and test labels, and
 `bsim eval-labels`, stay as they were. Pairs already labelled (any label) are left out.
 
-The pool (~79k pairs on the full build) is read once per results DB and kept in memory.
+The pool (~79k pairs on the full build) is read once per results DB and kept in memory
+(about 2 s).
 """
 
 from __future__ import annotations
@@ -88,22 +89,37 @@ def rank_queue(rows: list[tuple], missing: int) -> list[QueuePair]:
 
 def pool_rows(conn: sqlite3.Connection, books: set[int]) -> list[tuple]:
     """The fused verse discoveries between two of `books`, with each direction's component
-    ranks (the fused list's `lex_rank` / `sem_rank`)."""
+    ranks (the fused list's `lex_rank` / `sem_rank`).
+
+    The ranks come from one scan of the fused verse rows in key order, each probing the pairs
+    wanted (an automatic index), all inside SQLite: a lookup per pair took 48 s with the DB cold
+    in the OS cache, and a scan joined in Python 62 s while the server's startup threads ran."""
     if not books:
         return []
     marks = ", ".join("?" * len(books))
-    sql = (
-        "SELECT d.a_id, d.b_id, d.score, d.tie, ab.lex_rank, ab.sem_rank, ba.lex_rank, ba.sem_rank"
-        " FROM discoveries d"
-        " LEFT JOIN matches ab ON ab.unit_type = d.unit_type AND ab.mode = d.mode"
-        "  AND ab.src_id = d.a_id AND ab.tgt_id = d.b_id"
-        " LEFT JOIN matches ba ON ba.unit_type = d.unit_type AND ba.mode = d.mode"
-        "  AND ba.src_id = d.b_id AND ba.tgt_id = d.a_id"
-        f" WHERE d.unit_type = 'verse' AND d.mode = 'fused'"
-        f" AND d.a_book IN ({marks}) AND d.b_book IN ({marks})"
-    )
     ids = sorted(books)
-    return conn.execute(sql, (*ids, *ids)).fetchall()
+    where = (
+        f"unit_type = 'verse' AND mode = 'fused' AND a_book IN ({marks}) AND b_book IN ({marks})"
+    )
+    pairs = conn.execute(
+        f"SELECT a_id, b_id, score, tie FROM discoveries WHERE {where}", (*ids, *ids)
+    ).fetchall()
+    ranks = {
+        (s, t): (lex, sem)
+        for s, t, lex, sem in conn.execute(
+            f"WITH d AS MATERIALIZED (SELECT a_id, b_id FROM discoveries WHERE {where}),"
+            " w(s, t) AS MATERIALIZED (SELECT a_id, b_id FROM d UNION ALL SELECT b_id, a_id FROM d)"
+            " SELECT m.src_id, m.tgt_id, m.lex_rank, m.sem_rank"
+            " FROM matches m CROSS JOIN w ON w.s = m.src_id AND w.t = m.tgt_id"
+            " WHERE m.unit_type = 'verse' AND m.mode = 'fused'",
+            (*ids, *ids),
+        )
+    }
+    none = (None, None)
+    return [
+        (a, b, score, tie, *ranks.get((a, b), none), *ranks.get((b, a), none))
+        for a, b, score, tie in pairs
+    ]
 
 
 _cache: dict[tuple, list[QueuePair]] = {}
@@ -156,6 +172,23 @@ def suggestions(
             _triage.clear()
             _triage[key] = (meta, rows)
         return _triage[key]
+
+
+def preload(cfg: dict[str, Any], db: Path, connect: Any) -> None:
+    """Build the pool in the background when the server starts (`labels.queue.preload`): read
+    while the other startup threads read the DB, a first build takes up to a minute. Any failure
+    (no split, an older DB) is left for the request to report."""
+    try:
+        books = train_books(cfg, cfg["labels"]["queue"]["split"])
+        if books is None:
+            return
+        conn = connect()
+        try:
+            queue_for(conn, db, books, cfg["retrieval"]["k"] + 1)
+        finally:
+            conn.close()
+    except (sqlite3.Error, OSError, KeyError):
+        return
 
 
 def unlabelled(pool: list[QueuePair], labelled: set[tuple[str, str]], side: str) -> list[QueuePair]:

@@ -50,8 +50,8 @@ export const labHe: typeof labEn = {
   queueMore: 'הזוגות הבאים',
   queueMoreTitle: 'הצגת הזוגות הבאים; אלה ששפטת יוצאים מהתור',
   queueMissing: 'התור צריך את חלוקת הספרים: הריצו bsim build-links.',
-  llmLine: (model: string, auc: string, min: string, n: number) =>
-    `הצעות של ${model} ל־${numHe(n)} הזוגות הראשונים בתור (bsim llm-triage). נבדק תחילה על קישורי הפיתוח של ספריא מול זוגות אקראיים מספרי הפיתוח: AUC ${auc} (מוצג החל מ־${min}). אלה הצעות בלבד: שום דבר לא מסומן עד שתלחצו, והנימוקים שלו הם שלו, באנגלית.`,
+  llmLine: (model: string, auc: string, min: string, n: number, hebrew: boolean) =>
+    `הצעות של ${model} ל־${numHe(n)} הזוגות הראשונים בתור (bsim llm-triage). נבדק תחילה על קישורי הפיתוח של ספריא מול זוגות אקראיים מספרי הפיתוח: AUC ${auc} (מוצג החל מ־${min}). אלה הצעות בלבד: שום דבר לא מסומן עד שתלחצו, והנימוקים שלו הם שלו, ב${hebrew ? 'עברית' : 'אנגלית'}.`,
   llmHidden: (auc: string, min: string) =>
     `ההצעות של Claude מוסתרות: על קישורי הפיתוח של ספריא מול זוגות אקראיים ה־AUC שלו היה ${auc}, מתחת ל־${min} שנקבע מראש.`,
   onlySuggested: 'רק זוגות עם הצעה',

@@ -76,16 +76,32 @@ Use "unsure" when the text alone does not decide it.
 Rules:
 - Never translate a verse, or any word or phrase of it, into English or any other language. \
 Quote Hebrew words exactly as they are written, in Hebrew letters.
-- The rationale is one or two short sentences in English naming the Hebrew words or the feature \
-that decide your verdict.
+- {rationale}
 - p_real is your probability, from 0 to 1, that the connection is real.
 - kind is the kind of connection, "none" when there is none."""
+
+RATIONALE = {
+    "english": "The rationale is one or two short sentences in English naming the Hebrew words or "
+    "the feature that decide your verdict.",
+    "hebrew": "The rationale is one or two short sentences in Hebrew, and only in Hebrew, naming "
+    "the words or the feature that decide your verdict. Write no word of English or of any other "
+    "language in it.",
+}
+
+
+def system_prompt(language: str) -> str:
+    """The instructions, with the rationale asked in `language` (`llm_triage.rationale`)."""
+    if language not in RATIONALE:
+        raise RuntimeError(f"llm_triage.rationale must be one of {sorted(RATIONALE)}")
+    return SYSTEM.replace("{rationale}", RATIONALE[language])
+
 
 CANTILLATION = re.compile("[\u0591-\u05af\u05bd]")  # the accents and meteg; the points stay
 _HE = "[\u0590-\u05ff\\-\u05be']"  # a Hebrew letter or mark, or a hyphen / maqaf / geresh after one
 # an English gloss right after a Hebrew word: (from your hand), ("be angry"), , "deeds"
 GLOSS_PAREN = re.compile(r"(?<=" + _HE + r")[\s,]*\((?=[^()]*[A-Za-z])[^()]*\)")
 GLOSS_QUOTE = re.compile(r"(?<=" + _HE + r")[\s,]*[\"“][A-Za-z][^\"”]*[\"”]")
+TAG = re.compile(r"</?[A-Za-z_]+>")
 # what is left of a gloss in running prose: "in Isaiah it means rebellious children"
 GLOSS_PROSE = re.compile(r"\bmean(s|ing|t)?\b|translat|\bi\.e\.|\bliterally\b", re.IGNORECASE)
 
@@ -101,6 +117,7 @@ def clean_rationale(text: str | None) -> str | None:
     first run 82 of 600 rationales glossed a word all the same, and 3 glossed in their prose."""
     if not text:
         return None
+    text = TAG.sub("", text)  # a stray </rationale> (1 of 600 in the Hebrew run)
     text = GLOSS_QUOTE.sub("", GLOSS_PAREN.sub("", text))
     return None if GLOSS_PROSE.search(text) else re.sub(r"\s+([,.;:])", r"\1", text).strip()
 
@@ -116,7 +133,7 @@ def request(custom_id: str, a: dict[str, str], b: dict[str, str], lc: dict[str, 
         "params": {
             "model": lc["model"],
             "max_tokens": lc["max_tokens"],
-            "system": SYSTEM,
+            "system": system_prompt(lc["rationale"]),
             "output_config": {
                 "effort": lc["effort"],
                 "format": {"type": "json_schema", "schema": SCHEMA},
@@ -390,7 +407,9 @@ def estimate(requests: list[dict], lc: dict[str, Any]) -> dict[str, float]:
     """A rough cost: input by characters (`chars_per_token`), output at `typical_output_tokens`
     or at the `max_tokens` cap, at the batch prices of `price_per_mtok`."""
     price = lc["price_per_mtok"]
-    chars = sum(len(SYSTEM) + len(r["params"]["messages"][0]["content"]) for r in requests)
+    chars = sum(
+        len(r["params"]["system"]) + len(r["params"]["messages"][0]["content"]) for r in requests
+    )
     inp = chars / lc["chars_per_token"]
     typical = (
         inp * price["input"] + len(requests) * lc["typical_output_tokens"] * price["output"]
@@ -417,6 +436,7 @@ def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> d
 
     return {
         "model": state["model"],
+        "rationale": lc["rationale"],
         "batch_id": state["batch_id"],
         "submitted_at": state["created_at"],
         "collected_at": datetime.now(UTC).isoformat(timespec="seconds"),
