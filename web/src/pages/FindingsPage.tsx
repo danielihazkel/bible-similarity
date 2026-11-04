@@ -6,6 +6,8 @@ import { Glossed } from '../components/Term'
 import { firstUses } from '../lib/gloss'
 import { useLocale } from '../context/localeContext'
 import { type NavKey, navText } from '../lib/nav'
+import '../i18n/pages/findings'
+import '../i18n/pages/glossary'
 
 const VERDICTS: Finding['verdict'][] = ['holds', 'fails', 'lead']
 // where each finding's evidence is read

@@ -4,6 +4,7 @@
 
 import type { MasorahReason, MasorahText } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export type Unit = 'letter' | 'word' | 'verse'
 type TotalUnit = 'verses' | 'words' | 'letters'
@@ -92,3 +93,5 @@ export const msrEn = {
   booksTitle: 'Each book, counted',
   booksCols: { book: 'Book', verses: 'Verses', wordsK: 'Words written', wordsQ: 'Words read', lettersK: 'Letters written', lettersQ: 'Letters read' },
 }
+
+register('msr', msrEn)

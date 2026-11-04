@@ -11,6 +11,8 @@ import type { Highlight, Mark } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/mirrors'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 20
 const MARKS: Mark[] = ['focus', 'shared', 'acrostic']

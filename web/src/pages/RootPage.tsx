@@ -9,6 +9,7 @@ import type { Highlight } from '../lib/highlight'
 import { lemmaLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/roots'
 
 const PAGE_SIZE = 50
 

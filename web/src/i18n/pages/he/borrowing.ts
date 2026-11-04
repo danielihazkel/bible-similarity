@@ -1,6 +1,6 @@
 // The Hebrew half of `../borrowing.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { borEn } from '../borrowing'
+import type { borEn } from '../borrowing'
 
 export const borHe: typeof borEn = {
   title: 'מי שאל ממי',

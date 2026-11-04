@@ -3,6 +3,7 @@
 // the words are Hebrew in both.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const pct = (x: number, locale: string) => `${Math.round(x * 100).toLocaleString(locale)}%`
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
@@ -42,3 +43,5 @@ export const etyEn = {
   method:
     'A naming: a form of \u2068קרא\u2069, then within three words \u2068שמו\u2069 / \u2068שם\u2069 + a noun, \u2068למקום\u2069 or a pronoun object, then a proper noun (not a name of God; not after \u2068לא\u2069). Its explanation: the other content words of its verse, without their prefixes. The echo: the most of a name word’s consonants found in order in one of them. p: the echo against 9,999 verses without a naming; q: Benjamini–Hochberg over the namings.',
 }
+
+register('ety', etyEn)

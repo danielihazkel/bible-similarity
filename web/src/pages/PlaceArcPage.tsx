@@ -10,6 +10,7 @@ import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useIntParam, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/placeArc'
 
 const LONGEST = 3 // steps marked as the longest
 

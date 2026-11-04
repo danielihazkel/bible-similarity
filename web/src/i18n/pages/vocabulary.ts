@@ -2,6 +2,7 @@
 // Heaps' law; rare words. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.1 ? p.toFixed(3) : p.toFixed(2))
 export const x2 = (x: number) => (x > 0 ? `+${x.toFixed(2)}` : x.toFixed(2))
@@ -57,3 +58,5 @@ function ordinal(n: number) {
   const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th')
   return `${numEn(n)}${s}`
 }
+
+register('vc', vcEn)

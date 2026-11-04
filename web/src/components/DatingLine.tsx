@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useUnitDating } from '../api/hooks'
 import { useLocale } from '../context/localeContext'
+import '../i18n/pages/dating'
 
 /** A chapter's Late Biblical Hebrew profile in one line (DESIGN.md §16.24). */
 export function DatingLine({ unitId, bookId }: { unitId: string; bookId: number }) {

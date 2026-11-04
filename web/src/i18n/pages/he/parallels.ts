@@ -1,6 +1,6 @@
 // The Hebrew half of `../parallels.ts` (loaded with the Hebrew interface only).
 import { countHe, numHe } from '../../fmt'
-import { parEn } from '../parallels'
+import type { parEn } from '../parallels'
 
 export const parHe: typeof parEn = {
   book: 'ספר',

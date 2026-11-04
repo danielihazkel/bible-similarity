@@ -3,6 +3,7 @@
 
 import type { MeterGroup } from '../../api/types'
 import { countEn, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const x2 = (x: number | null | undefined) => (x == null ? '–' : x.toFixed(2))
@@ -65,3 +66,5 @@ export const metEn = {
   chapterLine: (net: number, pctile: number | null, group: string) =>
     `This chapter's lines: net fall ${x2(net)}${pctile == null ? '' : `, above ${pct(pctile)} of the poetry pool`} (${group}).`,
 }
+
+register('met', metEn)

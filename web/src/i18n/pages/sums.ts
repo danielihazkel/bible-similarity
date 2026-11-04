@@ -2,6 +2,7 @@
 // the numbers of parallel passages. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.1 ? p.toFixed(3) : p.toFixed(2))
 export const pct = (x: number | null) => (x === null ? '–' : `${Math.round(x * 100)}%`)
@@ -76,3 +77,5 @@ export const smEn = {
   empty: 'No numbers here.',
   limits: 'Numbers are read from the words (cardinals; ordinals are not counts). Numbers are paired in order by unit only, so a pair can set side by side two numbers that do not stand for the same thing.',
 }
+
+register('sm', smEn)

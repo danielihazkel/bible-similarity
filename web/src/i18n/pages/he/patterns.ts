@@ -1,6 +1,6 @@
 // The Hebrew half of `../patterns.ts` (loaded with the Hebrew interface only).
 import { countHe, numHe } from '../../fmt'
-import { patEn } from '../patterns'
+import type { patEn } from '../patterns'
 
 export const patHe: typeof patEn = {
   pageOf: (page: number, pages: number) => `עמוד ${page} מתוך ${pages}`,

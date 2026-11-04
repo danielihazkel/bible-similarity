@@ -3,6 +3,7 @@
 
 import type { EntityKind, NameKind, PlaceKind } from '../../api/types'
 import { countEn, countHe, numEn } from '../fmt'
+import { register } from '../en'
 
 const typeEn: Record<string, string> = { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }
 export const pluralHe: Record<string, string> = { verse: 'פסוקים', chapter: 'פרקים', pericope: 'פיסקאות', parasha: 'פרשות' }
@@ -224,3 +225,5 @@ export const ovEn = {
     unlocated: 'not located',
   },
 }
+
+register('ov', ovEn)

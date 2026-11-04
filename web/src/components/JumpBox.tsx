@@ -10,6 +10,8 @@ import { personLink, placeLink, unitLink } from '../lib/links'
 import { matchPages } from '../lib/nav'
 import { unitLabel } from '../lib/names'
 import { personAbout } from '../lib/people'
+import '../i18n/pages/genealogy'
+import '../i18n/pages/places'
 
 const MAX_WORDS = 6
 const MAX_PLACES = 4

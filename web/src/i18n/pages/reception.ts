@@ -2,6 +2,7 @@
 // Tosefta and the two Talmuds cite the Bible. English first, Hebrew typed against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export type Corpus = 'mishnah' | 'tosefta' | 'bavli' | 'yerushalmi'
 export type CorpusChoice = Corpus | 'all'
@@ -61,3 +62,5 @@ export const rcEn = {
   layerKey: 'Beside each verse, how many passages of the Mishnah, the Tosefta and the Talmuds cite it; choose it for the list.',
   layerNone: 'No verse here is cited.',
 }
+
+register('rc', rcEn)

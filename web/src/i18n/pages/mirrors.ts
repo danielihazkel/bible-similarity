@@ -2,6 +2,7 @@
 // (DESIGN.md §16.33). English first, Hebrew typed against it.
 
 import { countEn, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const range = (i?: [number, number]) => (i ? `${pct(i[0])}–${pct(i[1])}` : '–')
@@ -47,3 +48,5 @@ export const mirEn = {
   fp,
   range,
 }
+
+register('mir', mirEn)

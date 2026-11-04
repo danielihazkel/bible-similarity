@@ -8,6 +8,8 @@ import { useLocale } from '../context/localeContext'
 import { readLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/dialogue'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const NODES = 14

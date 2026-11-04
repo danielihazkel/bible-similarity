@@ -3,6 +3,7 @@
 
 import type { DecayVariant, PlaceLinkSort } from '../../api/types'
 import { countEn, countHe, numEn, numHe } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const r2 = (x: number) => (Math.abs(x) < 0.005 ? '0.00' : x.toFixed(2))
@@ -77,3 +78,5 @@ export const plkEn = {
   onMap: (he: string) => `${he} on Places on the map`,
   credit: 'Map: Natural Earth (public domain). Places: STEPBible’s TIPNR and OpenBible.info (CC BY 4.0).',
 }
+
+register('plk', plkEn)

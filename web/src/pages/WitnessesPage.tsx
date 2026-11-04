@@ -8,10 +8,12 @@ import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
 import type { WitnessKind } from '../i18n/pages/witnesses'
+import '../i18n/pages/witnesses'
 import { readLink, unitLink } from '../lib/links'
 import { bookName, verseRef } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { parseKind, variantsPer100, witnessUrl } from '../lib/witnesses'
+import '../i18n/pages/chronology'
 
 const PAGE = 25
 const SCROLLS = 15

@@ -2,6 +2,7 @@
 // English first, Hebrew typed against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const sfEn = {
   title: 'Source finder',
@@ -22,3 +23,5 @@ export const sfEn = {
   alsoIn: 'The same words also in',
   how: 'Each pair of adjacent words is looked up in the verses; a verse that has the pair is aligned with the text round it, rare words counting for more. Phrases so common that they are in many verses seed nothing, so a formula alone is not a source.',
 }
+
+register('sf', sfEn)

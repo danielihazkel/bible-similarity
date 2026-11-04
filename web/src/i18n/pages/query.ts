@@ -4,6 +4,7 @@
 
 import type { PatternErrorCode } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export interface QueryKeyHelp {
   key: string
@@ -81,3 +82,5 @@ export const qryEn = {
   read: 'Read the chapter',
   prompt: 'Write a query above, or start from an example.',
 }
+
+register('qry', qryEn)

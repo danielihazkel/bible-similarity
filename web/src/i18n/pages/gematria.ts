@@ -3,6 +3,7 @@
 
 import type { GematriaSystem, GematriaView } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const gmEn = {
   title: 'Gematria',
@@ -50,3 +51,5 @@ export const gmEn = {
   wordValue: (v: number) => `gematria ${numEn(v)}`,
   wordValueTitle: 'Its letter value (standard): every word and verse of the same value',
 }
+
+register('gm', gmEn)

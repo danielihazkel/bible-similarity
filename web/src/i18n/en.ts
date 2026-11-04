@@ -2,59 +2,59 @@
 // shape (checked by tsc). Static text is a string; text with values is a function, which formats
 // its own numbers and plurals. Scripture is never translated: these are interface strings only.
 
-import { ovEn } from './pages/overview'
-import { parEn } from './pages/parallels'
-import { patEn } from './pages/patterns'
-import { domEn } from './pages/domains'
-import { senEn } from './pages/senses'
-import { datEn } from './pages/dating'
-import { labEn } from './pages/labels'
-import { synEn } from './pages/syntax'
-import { borEn } from './pages/borrowing'
-import { dosEn } from './pages/dossier'
-import { divEn } from './pages/divisions'
-import { kqEn } from './pages/ketiv'
-import { citEn } from './pages/citations'
-import { mirEn } from './pages/mirrors'
-import { metEn } from './pages/meter'
-import { rootEn } from './pages/roots'
-import { readerEn } from './pages/reader'
-import { pentEn } from './pages/pentateuch'
-import { dlgEn } from './pages/dialogue'
-import { fmEn } from './pages/forms'
-import { gmEn } from './pages/gematria'
-import { elsEn } from './pages/els'
-import { glEn } from './pages/gematriaLinks'
-import { cphEn } from './pages/ciphers'
-import { msrEn } from './pages/masorah'
-import { paEn } from './pages/placeArc'
-import { plkEn } from './pages/placeLinks'
-import { plsEn } from './pages/placeLists'
-import { geoEn, plEn } from './pages/places'
-import { gtEn } from './pages/genealogy'
-import { qryEn } from './pages/query'
-import { dvEn } from './pages/divine'
-import { etyEn } from './pages/etiologies'
-import { brkEn } from './pages/brackets'
-import { rtEn } from './pages/retold'
-import { hfEn } from './pages/haftarot'
-import { rcEn } from './pages/reception'
-import { sfEn } from './pages/sourceFind'
-import { wtEn } from './pages/witnesses'
-import { chEn } from './pages/chronology'
-import { smEn } from './pages/sums'
-import { vcEn } from './pages/vocabulary'
-import { glossEn } from './pages/glossary'
-import { trEn } from './pages/tours'
-import { wkEn } from './pages/week'
-import { fwEn } from './pages/frameworks'
-import { bnEn } from './pages/binomials'
-import { wbEn } from './pages/workbench'
-import { nbEn } from './pages/notebook'
-import { psaEn } from './pages/psalms'
-import { refEn } from './pages/refrains'
-import { echoEn } from './pages/echoes'
-import { findEn } from './pages/findings'
+import type { ovEn } from './pages/overview'
+import type { parEn } from './pages/parallels'
+import type { patEn } from './pages/patterns'
+import type { domEn } from './pages/domains'
+import type { senEn } from './pages/senses'
+import type { datEn } from './pages/dating'
+import type { labEn } from './pages/labels'
+import type { synEn } from './pages/syntax'
+import type { borEn } from './pages/borrowing'
+import type { dosEn } from './pages/dossier'
+import type { divEn } from './pages/divisions'
+import type { kqEn } from './pages/ketiv'
+import type { citEn } from './pages/citations'
+import type { mirEn } from './pages/mirrors'
+import type { metEn } from './pages/meter'
+import type { rootEn } from './pages/roots'
+import type { readerEn } from './pages/reader'
+import type { pentEn } from './pages/pentateuch'
+import type { dlgEn } from './pages/dialogue'
+import type { fmEn } from './pages/forms'
+import type { gmEn } from './pages/gematria'
+import type { elsEn } from './pages/els'
+import type { glEn } from './pages/gematriaLinks'
+import type { cphEn } from './pages/ciphers'
+import type { msrEn } from './pages/masorah'
+import type { paEn } from './pages/placeArc'
+import type { plkEn } from './pages/placeLinks'
+import type { plsEn } from './pages/placeLists'
+import type { geoEn, plEn } from './pages/places'
+import type { gtEn } from './pages/genealogy'
+import type { qryEn } from './pages/query'
+import type { dvEn } from './pages/divine'
+import type { etyEn } from './pages/etiologies'
+import type { brkEn } from './pages/brackets'
+import type { rtEn } from './pages/retold'
+import type { hfEn } from './pages/haftarot'
+import type { rcEn } from './pages/reception'
+import type { sfEn } from './pages/sourceFind'
+import type { wtEn } from './pages/witnesses'
+import type { chEn } from './pages/chronology'
+import type { smEn } from './pages/sums'
+import type { vcEn } from './pages/vocabulary'
+import type { glossEn } from './pages/glossary'
+import type { trEn } from './pages/tours'
+import type { wkEn } from './pages/week'
+import type { fwEn } from './pages/frameworks'
+import type { bnEn } from './pages/binomials'
+import type { wbEn } from './pages/workbench'
+import type { nbEn } from './pages/notebook'
+import type { psaEn } from './pages/psalms'
+import type { refEn } from './pages/refrains'
+import type { echoEn } from './pages/echoes'
+import type { findEn } from './pages/findings'
 import type { DiffOp, Exclude, Mode, WordplayPair } from '../api/types'
 
 const num = (n: number) => n.toLocaleString('en-US')
@@ -68,7 +68,7 @@ const ordinal = (n: number) => {
 const unitTypes: Record<string, string> = { verse: 'Verse', chapter: 'Chapter', pericope: 'Pericope', parasha: 'Parasha' }
 const unitTypesPlural: Record<string, string> = { verse: 'verses', chapter: 'chapters', pericope: 'pericopes', parasha: 'parashot' }
 
-export const en = {
+const core = {
   locale: 'en',
   /** A number with grouping, as this language writes it. */
   num,
@@ -508,60 +508,74 @@ export const en = {
     verses: 'Verses',
     versesIn: (book: string) => `Verses in ${book}`,
   },
-  par: parEn,
-  pat: patEn,
-  dom: domEn,
-  sen: senEn,
-  dat: datEn,
-  lab: labEn,
-  syn: synEn,
-  bor: borEn,
-  dos: dosEn,
-  div: divEn,
-  kq: kqEn,
-  cit: citEn,
-  mir: mirEn,
-  met: metEn,
-  root: rootEn,
-  reader: readerEn,
-  ref: refEn,
-  psa: psaEn,
-  pent: pentEn,
-  dlg: dlgEn,
-  fm: fmEn,
-  gm: gmEn,
-  gl: glEn,
-  els: elsEn,
-  cph: cphEn,
-  msr: msrEn,
-  pl: plEn,
-  geo: geoEn,
-  pls: plsEn,
-  pa: paEn,
-  plk: plkEn,
-  gt: gtEn,
-  qry: qryEn,
-  dv: dvEn,
-  ety: etyEn,
-  brk: brkEn,
-  rt: rtEn,
-  hf: hfEn,
-  ch: chEn,
-  fw: fwEn,
-  bn: bnEn,
-  sm: smEn,
-  vc: vcEn,
-  rc: rcEn,
-  sf: sfEn,
-  wt: wtEn,
-  gloss: glossEn,
-  tr: trEn,
-  wk: wkEn,
-  wb: wbEn,
-  nb: nbEn,
-  echo: echoEn,
-  find: findEn,
-  ov: ovEn,
 }
 
-export type Messages = typeof en
+/** The page groups (`pages/*.ts`): each registers itself in `en` when its module is first
+ * imported (`register`), so its strings load with the pages that read them (DESIGN.md §11.1,
+ * M145). `catalog.test.ts` checks that a module reading `m.<group>` imports the group's file. */
+export interface Groups {
+  par: typeof parEn
+  pat: typeof patEn
+  dom: typeof domEn
+  sen: typeof senEn
+  dat: typeof datEn
+  lab: typeof labEn
+  syn: typeof synEn
+  bor: typeof borEn
+  dos: typeof dosEn
+  div: typeof divEn
+  kq: typeof kqEn
+  cit: typeof citEn
+  mir: typeof mirEn
+  met: typeof metEn
+  root: typeof rootEn
+  reader: typeof readerEn
+  ref: typeof refEn
+  psa: typeof psaEn
+  pent: typeof pentEn
+  dlg: typeof dlgEn
+  fm: typeof fmEn
+  gm: typeof gmEn
+  gl: typeof glEn
+  els: typeof elsEn
+  cph: typeof cphEn
+  msr: typeof msrEn
+  pl: typeof plEn
+  geo: typeof geoEn
+  pls: typeof plsEn
+  pa: typeof paEn
+  plk: typeof plkEn
+  gt: typeof gtEn
+  qry: typeof qryEn
+  dv: typeof dvEn
+  ety: typeof etyEn
+  brk: typeof brkEn
+  rt: typeof rtEn
+  hf: typeof hfEn
+  ch: typeof chEn
+  fw: typeof fwEn
+  bn: typeof bnEn
+  sm: typeof smEn
+  vc: typeof vcEn
+  rc: typeof rcEn
+  sf: typeof sfEn
+  wt: typeof wtEn
+  gloss: typeof glossEn
+  tr: typeof trEn
+  wk: typeof wkEn
+  wb: typeof wbEn
+  nb: typeof nbEn
+  echo: typeof echoEn
+  find: typeof findEn
+  ov: typeof ovEn
+}
+
+export type Messages = typeof core & Groups
+
+/** The English messages: the core at once, each group once a module that reads it is loaded. */
+export const en = core as Messages
+
+/** Called by each group's module with its English strings. */
+export function register<K extends keyof Groups>(key: K, value: Groups[K]): void {
+  ;(en as Groups)[key] = value
+}

@@ -6,6 +6,7 @@ import { useT } from '../context/localeContext'
 import { TableCsv } from '../components/TableCsv'
 import { Term } from '../components/Term'
 import type { TermKey } from '../i18n/pages/glossary'
+import '../i18n/pages/overview'
 
 const METRICS: { key: string; label: string; term?: TermKey }[] = [
   { key: 'ndcg@10', label: 'nDCG@10', term: 'ndcg' },

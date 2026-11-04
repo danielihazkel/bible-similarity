@@ -1,3 +1,4 @@
+import { register } from '../en'
 // Interface strings of the glossary and the term popovers (DESIGN.md §11): the statistics and
 // retrieval terms the pages use, explained once. English first, Hebrew typed against it.
 
@@ -70,3 +71,5 @@ export const glossEn = {
     ['shuffled', 'shuffle'],
   ] as [string, TermKey][],
 }
+
+register('gloss', glossEn)

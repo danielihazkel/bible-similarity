@@ -11,6 +11,7 @@ import { bookName } from '../lib/names'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/vocabulary'
 
 const PAGE_SIZE = 50
 

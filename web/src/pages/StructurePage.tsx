@@ -9,6 +9,8 @@ import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { SmallScaleView } from './SmallScaleView'
+import '../i18n/pages/mirrors'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']

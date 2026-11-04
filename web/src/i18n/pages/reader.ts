@@ -3,6 +3,7 @@
 
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn } from '../fmt'
+import { register } from '../en'
 
 export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine' | 'reception' | 'witnesses'
 
@@ -116,3 +117,5 @@ export const readerEn = {
   divineTitle: (he: string) => `a name of God: ${he}`,
   allDivine: 'the mix of every chapter',
 }
+
+register('reader', readerEn)

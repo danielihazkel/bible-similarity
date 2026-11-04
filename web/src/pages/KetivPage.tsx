@@ -13,6 +13,8 @@ import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/ketiv'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 25
 const CLASSES: KqClass[] = ['vowel_letter', 'swap', 'vowel_position', 'metathesis', 'division', 'qere_only', 'ketiv_only', 'same_letters', 'other']

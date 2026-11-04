@@ -6,6 +6,7 @@ import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 50
 const OPS: RewriteOp[] = ['substitution', 'omitted', 'added']

@@ -10,6 +10,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { lemmaLink, placeLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/overview'
 
 const PAGE_SIZE = 60
 const KINDS: EntityKind[] = ['person', 'place', 'mixed', 'unclear']

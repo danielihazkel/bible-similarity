@@ -1,6 +1,6 @@
 // The Hebrew half of `../gematria.ts` (loaded with the Hebrew interface only).
 import { countHe, numHe } from '../../fmt'
-import { gmEn } from '../gematria'
+import type { gmEn } from '../gematria'
 
 export const gmHe: typeof gmEn = {
   title: 'גימטריה',

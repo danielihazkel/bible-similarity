@@ -8,6 +8,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/gematriaLinks'
 
 const MEASURES: LinkMeasure[] = ['domains', 'root', 'vector']
 const SORTS: GematriaPairSort[] = ['vector', 'domains', 'value']

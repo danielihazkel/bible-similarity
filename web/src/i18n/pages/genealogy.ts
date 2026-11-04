@@ -3,6 +3,7 @@
 
 import type { LinkStatus, ProofCue } from '../../api/types'
 import { countEn, countHe, numEn } from '../fmt'
+import { register } from '../en'
 
 export type Sex = 'm' | 'f' | null
 
@@ -142,3 +143,5 @@ export const gtEn = {
 
 export const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
 export const peopleHe = (n: number) => countHe(n, 'אדם אחד', 'שני אנשים', 'אנשים')
+
+register('gt', gtEn)

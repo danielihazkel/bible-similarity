@@ -4,6 +4,7 @@
 // interface can show them in Hebrew (D56). Deeper domains keep their English name in both.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 /** The two top levels of the SDBH lexical domains. */
 const TOP_EN = {
@@ -57,3 +58,5 @@ export const domEn = {
   wordDomains: 'Domains',
   wordDomainTitle: 'Every verse with a word in this domain',
 }
+
+register('dom', domEn)

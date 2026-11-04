@@ -6,6 +6,8 @@ import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/patterns'
+import '../i18n/pages/senses'
 
 const PAGE_SIZE = 50
 

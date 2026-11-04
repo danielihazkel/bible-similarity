@@ -1,6 +1,6 @@
 // The Hebrew half of `../senses.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { senEn } from '../senses'
+import type { senEn } from '../senses'
 
 export const senHe: typeof senEn = {
   groups: {

@@ -3,6 +3,7 @@
 // against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const x2 = (x: number) => x.toFixed(2)
@@ -43,3 +44,5 @@ export const brkEn = {
   method:
     'A repetition: two verses of a book 3 to 40 apart whose content words align (Smith–Waterman on lemmas or on forms without prefixes, rare words weighing most, at least three words), each the other’s best partner. Its bracket score: the cosine of the 4 verses before the first and the 4 after the repeat, less the cosine of the block and those 8, on words (idf-weighted lemmas) and on meaning (verse embeddings), averaged. p: against 999 random brackets of the same span in the book; q: Benjamini–Hochberg over the repetitions.',
 }
+
+register('brk', brkEn)

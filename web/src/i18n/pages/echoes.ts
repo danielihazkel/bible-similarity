@@ -3,6 +3,7 @@
 
 import type { EchoBasis } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const gapEn = (g: number) => (g > 0 ? '+' : '−') + Math.abs(g).toFixed(2)
@@ -62,3 +63,5 @@ export const echoEn = {
   againstCanon: 'against the canon order',
   compare: 'Compare',
 }
+
+register('echo', echoEn)

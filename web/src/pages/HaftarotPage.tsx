@@ -8,6 +8,7 @@ import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { Term } from '../components/Term'
+import '../i18n/pages/haftarot'
 
 const MODES = ['lexical', 'semantic', 'fused'] as const
 

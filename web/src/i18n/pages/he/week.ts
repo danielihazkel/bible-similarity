@@ -1,6 +1,6 @@
 // The Hebrew half of `../week.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { wkEn } from '../week'
+import type { wkEn } from '../week'
 
 export const wkHe: typeof wkEn = {
   title: 'פרשת השבוע',

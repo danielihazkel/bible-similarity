@@ -7,6 +7,10 @@ import { lemmaLink, rootLink } from '../lib/links'
 import { DomainChip } from './DomainName'
 import { HebrewPlain } from './HebrewText'
 import { ErrorBox, Loading } from './Status'
+import '../i18n/pages/ciphers'
+import '../i18n/pages/domains'
+import '../i18n/pages/gematria'
+import '../i18n/pages/roots'
 
 const CIPHERS: CipherName[] = ['atbash', 'albam']
 

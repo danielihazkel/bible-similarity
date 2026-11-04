@@ -2,6 +2,7 @@
 // the Dead Sea Scrolls against the MT. English first, Hebrew typed against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export type WitnessKind = 'sp' | 'scroll'
 export type WitnessOp = 'same' | 'spelling' | 'form' | 'substitution' | 'omitted' | 'added' | 'moved'
@@ -73,3 +74,5 @@ export const wtEn = {
   layerSp: 'ש',
   layerScroll: 'ק',
 }
+
+register('wt', wtEn)

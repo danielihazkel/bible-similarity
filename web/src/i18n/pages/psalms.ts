@@ -2,6 +2,7 @@
 // turn of the lament (DESIGN.md §16.42). English first, Hebrew typed against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const x2 = (x: number | null | undefined) => (x == null ? '–' : x.toFixed(2))
@@ -84,3 +85,5 @@ export const psaEn = {
   empty: 'No psalm matches these filters.',
   per100Value: per100,
 }
+
+register('psa', psaEn)

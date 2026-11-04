@@ -11,6 +11,7 @@ import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import '../i18n/pages/masorah'
 
 const TEXTS: MasorahText[] = ['ketiv', 'qere']
 

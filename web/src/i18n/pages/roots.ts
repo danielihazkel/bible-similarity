@@ -3,6 +3,7 @@
 
 import type { RootPairKind } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 
@@ -51,3 +52,5 @@ export const rootEn = {
   rootLeitwortTitle: (count: number, expected: string, g2: string, words: string) => `${count} times (${expected} expected), G² ${g2}: ${words}`,
   hiddenMark: '✦',
 }
+
+register('root', rootEn)

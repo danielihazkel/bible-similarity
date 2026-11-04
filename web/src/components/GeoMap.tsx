@@ -4,6 +4,7 @@ import { useT } from '../context/localeContext'
 import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, viewBox, zoomBounds, zoomBoundsAt } from '../lib/geo'
 import { usePanZoom } from '../lib/panZoom'
 import { downloadSvg, standaloneSvg } from '../lib/svgExport'
+import '../i18n/pages/places'
 
 interface Props {
   basemap: BasemapResponse | undefined

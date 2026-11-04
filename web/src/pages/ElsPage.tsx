@@ -8,6 +8,7 @@ import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import '../i18n/pages/els'
 
 const CONTROLS: ElsControlKey[] = ['letters', 'verses', 'blocks']
 

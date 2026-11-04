@@ -12,6 +12,7 @@ import { SequenceCard } from './SequenceCard'
 import { PanelError } from './Status'
 import { ThemesPanel } from './ThemesPanel'
 import { WordplayCard } from './WordplayCard'
+import '../i18n/pages/places'
 
 // Parallel sequences touching this unit: only reasonably strong chains, a few at most.
 const SEQUENCE_MAX_Q = 0.2

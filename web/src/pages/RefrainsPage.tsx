@@ -12,6 +12,8 @@ import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { readLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
+import '../i18n/pages/refrains'
 
 const PAGE_SIZE = 20
 

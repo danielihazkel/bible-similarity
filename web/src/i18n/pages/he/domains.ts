@@ -1,6 +1,6 @@
 // The Hebrew half of `../domains.ts` (loaded with the Hebrew interface only).
 import { countHe, numHe } from '../../fmt'
-import { domEn } from '../domains'
+import type { domEn } from '../domains'
 
 export const domHe: typeof domEn = {
   top: {

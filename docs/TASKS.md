@@ -888,6 +888,17 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M145: The catalog split by page (§11.1, D135; proposed K14, closes J14)
+- [x] `en.ts`: the core catalog and `Groups` (types only); each page group registers itself (`register`) in its file under `pages/`
+- [x] Every module reading `m.<group>` / `useT().<group>` imports the group's file (95 modules: a codemod gave 89 the import, and 9 had only an erased type import of a group, 3 of them also among the 89)
+- [x] `catalog.test.ts`: from the sources, a module reading a group must load its file, and each group file registers its keys; `i18n.test.ts` loads every group before comparing the catalogs
+- [x] The Hebrew group files take the English shapes as types; the Hebrew chunk as before (88 KB gzipped)
+- [x] Measured (gzipped JavaScript, a fresh browser, the same build before and after): the first load 196.4 → 126.6 KB (the app's own code 105.2 → 35.3 KB, the 91 KB vendor chunk unchanged); per page `/` 192 → 124, a unit 215 → 173, Findings 195 → 136, the label queue 197 → 131, the source finder 194 → 126, the reader 200 → 153, the family tree 209 → 140 KB
+- [x] Not done as the plan had it: a `useGroup` hook suspending on a per-locale import with per-route preloads; an import per reading module does the same without Suspense or a list to keep (D135)
+- [x] Tests: vitest (both catalog tests, every page's own), fixture e2e (every page in both languages, axe) and smoke on the real build
+
+✔ A first visit downloads 70 KB less; each page carries its own strings, and a page that reads a group it does not load fails a test, not a reader.
+
 ## M144: Claude's suggestions for the label queue (§16.81, D134; proposed K11)
 - [x] `eval/llm_triage.py`, `bsim llm-triage` (`--dry-run`): one Message Batches request per pair, Claude Sonnet 5.5, a JSON-schema answer (verdict, p_real, kind, rationale), the verses' pointed Hebrew, never translated; the batch id saved first, a stopped run resumed; `anthropic` as the `llm` extra
 - [x] Calibration fixed before the run: 50 Sefaria dev links against 50 random dev pairs, shown only from AUC 0.75; the triage the queue's first 500 pairs
@@ -1521,7 +1532,7 @@ Models
 Improvements
 - [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
 - [x] K13 (done, M139) F5: rabbinic identifications in the family tree, as a kind of identity with its source
-- [ ] K14 The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
+- [x] K14 (done, M145) The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
 - [ ] K15 Installable and offline: a manifest and a service worker, `/api` reads cached by build
 
 Suggested order: K1 → K4 → K12 → K6 → K7 → K2 → K13 → K3 → K5 → K9 → K10 → K11 → K14 → K15 → K8.

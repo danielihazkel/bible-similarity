@@ -3,6 +3,7 @@
 // against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const nbEn = {
   title: 'Your notebook',
@@ -64,3 +65,5 @@ export const nbEn = {
   },
   csvCols: { unit: 'passage', unit_he: 'passage_he', type: 'type', note: 'note', collections: 'collections', updated: 'updated' },
 }
+
+register('nb', nbEn)

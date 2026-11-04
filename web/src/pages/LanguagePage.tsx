@@ -8,6 +8,7 @@ import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/dating'
 
 const fmt = (x: number | null) => (x === null ? '—' : x.toFixed(2))
 

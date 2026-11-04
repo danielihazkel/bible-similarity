@@ -6,6 +6,7 @@ import { lemmaLink, unitLink } from '../lib/links'
 import { HebrewPlain } from './HebrewText'
 import { Loading, PanelError } from './Status'
 import { UnitName } from './UnitName'
+import '../i18n/pages/syntax'
 
 /**
  * A unit's BHSA clauses: type, phrases with their functions, and who speaks a quotation; for a

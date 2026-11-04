@@ -2,6 +2,7 @@
 // typed against it.
 
 import { countEn, countHe, numEn, numHe } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const chaptersHe = (n: number) => countHe(n, 'פרק אחד', 'שני פרקים', 'פרקים')
@@ -65,3 +66,5 @@ export const paEn = {
   chcols: { chapter: 'Chapter', place: 'Named most', places: 'Places', spread: 'Spread', reach: 'Reach' },
   credit: 'Map: Natural Earth (public domain). Places: STEPBible’s TIPNR and OpenBible.info (CC BY 4.0).',
 }
+
+register('pa', paEn)

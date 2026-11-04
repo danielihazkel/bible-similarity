@@ -12,6 +12,8 @@ import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/forms'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 20
 const KINDS: FormsKind[] = ['genealogy', 'itinerary', 'census', 'offering', 'kings', 'names', 'other']

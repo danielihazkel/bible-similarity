@@ -10,6 +10,8 @@ import { bookName, unitLabel } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { DirectionsView } from './DirectionsView'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/echoes'
+import '../i18n/pages/overview'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
 const SECTIONS = ['Torah', 'Prophets', 'Writings']

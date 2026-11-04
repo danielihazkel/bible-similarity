@@ -8,6 +8,8 @@ import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/meter'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const GROUPS: MeterGroup[] = ['test', 'control', 'pool', 'poetic', 'prose']

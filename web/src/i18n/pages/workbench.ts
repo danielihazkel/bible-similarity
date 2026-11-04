@@ -4,6 +4,7 @@
 
 import type { SetErrorCode, WorkbenchFeature, WorkbenchWithin } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 type SetItemKind = 'book' | 'chapters' | 'section' | 'collection' | 'pattern' | 'only'
 
@@ -120,3 +121,5 @@ export const wbEn = {
   } satisfies Record<SetErrorCode, (token: string) => string>,
   inSet: (set: string) => `${set}: `,
 }
+
+register('wb', wbEn)

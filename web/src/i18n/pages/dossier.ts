@@ -3,6 +3,7 @@
 
 import type { DossierKind } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fmtQ = (q: number) => (q < 0.001 ? '< 0.001' : q < 0.01 ? q.toFixed(3) : q.toFixed(2))
 
@@ -111,3 +112,5 @@ export const dosEn = {
     witnesses: 'other witnesses',
   } as Record<DossierKind, string>,
 }
+
+register('dos', dosEn)

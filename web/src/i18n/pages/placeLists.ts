@@ -3,6 +3,7 @@
 
 import type { PlaceListKind } from '../../api/types'
 import { countEn, countHe, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const townsHe = (n: number) => countHe(n, 'עיר אחת', 'שתי ערים', 'ערים')
@@ -60,3 +61,5 @@ export const plsEn = {
   single: 'one town',
   credit: 'Map: Natural Earth (public domain). Places: STEPBible’s TIPNR and OpenBible.info (CC BY 4.0).',
 }
+
+register('pls', plsEn)

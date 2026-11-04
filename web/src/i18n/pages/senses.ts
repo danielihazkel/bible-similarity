@@ -2,6 +2,7 @@
 // page and the senses panel of the concordance. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 /** Corpus groups of `senses.groups` (configs/default.yaml); an unknown key is shown as is. */
 const GROUPS_EN = {
@@ -46,3 +47,5 @@ export const senEn = {
   bits: (x: number, q: number) => `${x.toFixed(2)} bits (q ${q < 0.001 ? '< 0.001' : q.toFixed(3)})`,
   untested: 'not tested',
 }
+
+register('sen', senEn)

@@ -3,6 +3,7 @@
 
 import type { GematriaPairSort, LinkMeasure, LinkProperty } from '../../api/types'
 import { countEn, countHe, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const moreVersesHe = (n: number) => countHe(n, 'פסוק אחד נוסף', 'שני פסוקים נוספים', 'פסוקים נוספים')
 
@@ -68,3 +69,5 @@ export const glEn = {
   spelledAlike: 'spelled alike',
   valueTitle: (v: number) => `Everything worth ${numEn(v)}`,
 }
+
+register('gl', glEn)

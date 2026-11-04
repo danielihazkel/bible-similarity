@@ -3,6 +3,7 @@
 
 import type { PlaceKind } from '../../api/types'
 import { countEn, countHe, numEn } from '../fmt'
+import { register } from '../en'
 
 export const versesHe = (n: number) => countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')
 
@@ -51,3 +52,6 @@ export const plEn = {
   wherePlaces: (n: number, off: number) => `${countEn(n, 'place', 'places')} named here${off ? `, ${numEn(off)} not on the map` : ''}.`,
   openMap: 'Open on the map',
 }
+
+register('pl', plEn)
+register('geo', geoEn)

@@ -12,6 +12,8 @@ import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/divisions'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 25
 const KINDS: SegmentKind[] = ['turn', 'cut', 'quiet']

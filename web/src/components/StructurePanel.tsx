@@ -6,6 +6,8 @@ import { useLocale, useT } from '../context/localeContext'
 import { compareLink } from '../lib/links'
 import { Segmented } from './Controls'
 import { ErrorBox, Loading } from './Status'
+import '../i18n/pages/patterns'
+import '../i18n/pages/roots'
 
 type Basis = 'semantic' | 'lexical'
 

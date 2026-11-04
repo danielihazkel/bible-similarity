@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useLocale } from '../context/localeContext'
 import { TOUR_KEYS, TOURS, tourHref } from '../lib/tours'
+import '../i18n/pages/tours'
 
 /** The guided tours (§11): each with its pages, started from here or from the home page. */
 export function ToursPage() {

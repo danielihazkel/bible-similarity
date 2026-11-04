@@ -8,6 +8,7 @@ import { useLocale } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { AlliterationView, RhymeView } from './SoundViews'
 import { BookSelect, Segmented } from '../components/Controls'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const KINDS: WordplayPair['kind'][] = ['substitution', 'metathesis', 'extension']

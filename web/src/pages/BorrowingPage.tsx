@@ -8,6 +8,7 @@ import { sequenceLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/borrowing'
 
 const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
 

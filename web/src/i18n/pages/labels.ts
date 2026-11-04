@@ -2,6 +2,7 @@
 // Labels page. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 type LabelValue = 'real' | 'not' | 'unsure'
 
@@ -69,3 +70,5 @@ export const labEn = {
     none: 'no connection',
   } as Record<string, string>,
 }
+
+register('lab', labEn)

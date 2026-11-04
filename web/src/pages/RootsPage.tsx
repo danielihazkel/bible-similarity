@@ -13,6 +13,8 @@ import type { Highlight } from '../lib/highlight'
 import { lemmaLink, rootLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
+import '../i18n/pages/roots'
 
 const PAGE_SIZE = 20
 const KINDS: RootPairKind[] = ['cognate', 'inf_abs', 'other']

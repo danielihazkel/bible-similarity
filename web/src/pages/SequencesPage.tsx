@@ -9,6 +9,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { SequenceArcs } from './SequenceArcs'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 50
 // The default hides chains that a text with shuffled verse order produces about as often.

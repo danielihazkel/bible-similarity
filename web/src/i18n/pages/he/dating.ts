@@ -1,6 +1,6 @@
 // The Hebrew half of `../dating.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { datEn } from '../dating'
+import type { datEn } from '../dating'
 
 export const datHe: typeof datEn = {
   features: {

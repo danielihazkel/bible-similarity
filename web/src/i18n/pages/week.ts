@@ -2,6 +2,7 @@
 // haftarah and what the analyses found in it. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export type WkPlace = 'abroad' | 'israel'
 
@@ -31,3 +32,5 @@ export const wkEn = {
   homeFestival: (names: string, gregorian: string) => `A festival this Shabbat; next, ${names} on ${gregorian}`,
   open: 'This week’s parasha',
 }
+
+register('wk', wkEn)

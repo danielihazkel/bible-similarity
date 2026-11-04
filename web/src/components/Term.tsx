@@ -1,6 +1,7 @@
 import { type ReactNode, useId, useLayoutEffect, useRef, useState } from 'react'
 import { useLocale } from '../context/localeContext'
 import type { TermKey } from '../i18n/pages/glossary'
+import '../i18n/pages/glossary'
 import { matches } from '../lib/gloss'
 
 /** A term with its glossary entry in a popover, opened on hover, focus or a tap and closed by

@@ -4,6 +4,7 @@
 
 import type { DivineName } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 /** The names as the text writes them (scripture: the same in both interfaces). */
 export const NAMES: Record<DivineName, string> = {
@@ -79,3 +80,5 @@ export const dvEn = {
     'A word counts for the name of its OSHB lemma (\u2068יהוה\u2069 also where it is pointed as \u2068אלהים\u2069; \u2068אלהים\u2069 also where it means gods, which the lemma does not tell apart). A book with at least 20 of the two names and 9 chapters is cut in three runs of at least 3 chapters where a single rate fits worst, and the gain is set against the best cut of its chapters shuffled 999 times; q corrects for the books tested. The doubled psalms are aligned as the Changes page aligns parallels.',
   notComputed: 'The divine names were not computed in this build: run `bsim divine`, then `bsim build-db`.',
 }
+
+register('dv', dvEn)

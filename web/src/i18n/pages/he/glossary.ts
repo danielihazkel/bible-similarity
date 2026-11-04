@@ -1,5 +1,5 @@
 // The Hebrew half of `../glossary.ts` (loaded with the Hebrew interface only).
-import { glossEn } from '../glossary'
+import type { glossEn } from '../glossary'
 
 export const glossHe: typeof glossEn = {
   title: 'מילון מונחים',

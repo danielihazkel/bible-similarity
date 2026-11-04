@@ -8,6 +8,7 @@ import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const Q_OPTIONS = ['0.05', '0.5', 'all']

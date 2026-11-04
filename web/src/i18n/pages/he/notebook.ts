@@ -1,6 +1,6 @@
 // The Hebrew half of `../notebook.ts` (loaded with the Hebrew interface only).
 import { countHe, numHe } from '../../fmt'
-import { nbEn } from '../notebook'
+import type { nbEn } from '../notebook'
 
 export const nbHe: typeof nbEn = {
   title: 'המחברת שלכם',

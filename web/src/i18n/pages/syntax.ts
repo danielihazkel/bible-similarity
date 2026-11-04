@@ -2,6 +2,7 @@
 // the Speech page. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 type Lead = 'w' | 'wx' | 'wX' | 'x' | 'X' | 'z'
 type Form = 'way' | 'qatal' | 'yiqtol' | 'imv'
@@ -188,3 +189,5 @@ export const synEn = {
     select: 'Choose a speaker in the table to see their profile.',
   },
 }
+
+register('syn', synEn)

@@ -2,6 +2,7 @@
 // tested against the source critics' P (DESIGN.md §16.43). English first, Hebrew typed against it.
 
 import { countEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const x3 = (x: number | null | undefined) => (x == null ? '–' : x.toFixed(3))
@@ -60,3 +61,5 @@ export const pentEn = {
   count: (n: number) => countEn(n, 'chapter', 'chapters'),
   empty: 'No chapter here.',
 }
+
+register('pent', pentEn)

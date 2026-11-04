@@ -11,6 +11,7 @@ import { downloadCsv, downloadText } from '../lib/csv'
 import { unitLink } from '../lib/links'
 import { filterEntries, notebookMarkdown } from '../lib/notebook'
 import { useQueryParams } from '../lib/urlState'
+import '../i18n/pages/notebook'
 
 const today = () => new Date().toISOString().slice(0, 10)
 

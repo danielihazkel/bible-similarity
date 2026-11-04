@@ -3,6 +3,7 @@
 
 import type { CitationFamily } from '../../api/types'
 import { countEn, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 
@@ -39,3 +40,5 @@ export const citEn = {
   others: 'Other candidates:',
   compare: 'Compare',
 }
+
+register('cit', citEn)

@@ -4,6 +4,7 @@
 
 import type { FormsKind } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number | null | undefined) => (p == null ? '–' : p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const pct = (x: number | null | undefined) => (x == null ? '–' : `${Math.round(x * 100)}%`)
@@ -71,3 +72,5 @@ export const fmEn = {
   read: 'Read the chapter',
   emptyLists: 'No list matches these filters.',
 }
+
+register('fm', fmEn)

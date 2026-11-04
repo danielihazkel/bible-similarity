@@ -13,6 +13,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
+import '../i18n/pages/retold'
 
 const PAGE_SIZE = 20
 const GROUPS: RetoldGroup[] = ['retold', 'repeated', 'carried', 'told', 'narrated', 'unclear']

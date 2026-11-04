@@ -3,6 +3,9 @@ import { hebrewNumeral } from '../lib/hebrew'
 import { en } from './en'
 import { he } from './he'
 
+// every English page group, as a viewer that has opened every page has them (M145)
+import.meta.glob('./pages/*.ts', { eager: true })
+
 /** Every leaf of a catalog as [path, value]. */
 function leaves(o: unknown, path = ''): [string, unknown][] {
   if (o && typeof o === 'object' && !Array.isArray(o))

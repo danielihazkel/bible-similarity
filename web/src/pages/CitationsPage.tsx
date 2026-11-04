@@ -10,6 +10,8 @@ import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/citations'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 20
 const FAMILIES: CitationFamily[] = ['written', 'word', 'command']

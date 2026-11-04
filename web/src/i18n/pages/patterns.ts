@@ -3,6 +3,7 @@
 
 import type { StructureSort, WordplayPair } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 type Basis = 'semantic' | 'lexical'
 type StructureCol = 'semantic_chiasm_pct' | 'lexical_chiasm_pct' | 'semantic_inclusio_pct' | 'lexical_inclusio_pct'
@@ -159,3 +160,5 @@ export const patEn = {
     rhymeEmpty: 'No rhymes for these filters.',
   },
 }
+
+register('pat', patEn)

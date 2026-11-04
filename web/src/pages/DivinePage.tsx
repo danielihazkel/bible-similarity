@@ -11,6 +11,7 @@ import { formatP } from '../lib/workbench'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { HeatStrip, type HeatRow } from '../components/HeatStrip'
+import '../i18n/pages/divine'
 
 const other = (c: { counts: Record<string, number> }, measure: string[]) =>
   Object.entries(c.counts).reduce((s, [k, v]) => (measure.includes(k) ? s : s + v), 0)

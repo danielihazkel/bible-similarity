@@ -11,6 +11,7 @@ import type { Highlight } from '../lib/highlight'
 import { domainLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/domains'
 
 const PAGE_SIZE = 50
 

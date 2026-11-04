@@ -10,6 +10,8 @@ import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { MeterView } from './MeterView'
 import { WordPairsView } from './WordPairsView'
+import '../i18n/pages/meter'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']

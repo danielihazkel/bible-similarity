@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { type NotebookChange, useNotebook, useNotebookChange } from '../api/hooks'
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { useT } from '../context/localeContext'
+import '../i18n/pages/notebook'
 
 const NEW = '__new__'
 

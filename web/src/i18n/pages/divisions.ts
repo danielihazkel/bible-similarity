@@ -3,6 +3,7 @@
 
 import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 export const he = (k: Paragraph) => (k === 'pe' ? 'פ' : 'ס')
 
@@ -83,3 +84,5 @@ export const divEn = {
   },
   boundary: 'the boundary',
 }
+
+register('div', divEn)

@@ -1,5 +1,6 @@
 import type { StyloFeature } from '../api/types'
 import { useT } from '../context/localeContext'
+import '../i18n/pages/overview'
 
 /** Over- / under-used style features as signed z bars (Style page, speaker voices). */
 export function FeatureBars({ title, items }: { title: string; items: StyloFeature[] }) {

@@ -2,6 +2,7 @@
 
 import type { RewriteOp, SequenceDirection } from '../../api/types'
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 type Labelled = { label: string; hint: string }
 
@@ -192,3 +193,5 @@ export const parEn = {
     partOf: (n: number) => `Part of a synopsis of ${n} passages`,
   },
 }
+
+register('par', parEn)

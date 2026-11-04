@@ -14,6 +14,7 @@ import { formatScore } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import '../i18n/pages/labels'
 
 const SHOW = ['all', 'real', 'not', 'unsure'] as const
 type Show = (typeof SHOW)[number]

@@ -11,6 +11,7 @@ import { hebrewNumeral } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
 import { compareLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 20
 

@@ -2,6 +2,7 @@ import { useUnitDomains } from '../api/hooks'
 import { useLocale } from '../context/localeContext'
 import { DomainChip } from './DomainName'
 import { PanelError } from './Status'
+import '../i18n/pages/domains'
 
 /** The semantic domains a passage uses most against the whole Tanakh (DESIGN.md §16.22). */
 export function ThemesPanel({ unitId }: { unitId: string }) {

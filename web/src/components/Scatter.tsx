@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import '../i18n/pages/overview'
 
 /** A plotted unit: `x`, `y` in 0..1. */
 export interface ScatterPoint {

@@ -2,6 +2,7 @@
 // the line on chapter pages. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 /** What each feature measures, phrased the way it pushes a chapter towards "late". */
 const FEATURES_EN = {
@@ -40,3 +41,5 @@ export const datEn = {
   unitDrivers: 'pushed up by',
   unitPoetry: ' (poetry: out of the model\'s domain)',
 }
+
+register('dat', datEn)

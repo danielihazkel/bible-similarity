@@ -3,6 +3,7 @@ import type { DomainInfo } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { domainLink } from '../lib/links'
 import { domainLabel } from '../lib/names'
+import '../i18n/pages/domains'
 
 /** A semantic domain's name. In the Hebrew interface a deeper domain keeps its English SDBH name,
  * isolated from the right-to-left text around it. */

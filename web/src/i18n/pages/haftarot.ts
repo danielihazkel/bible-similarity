@@ -3,6 +3,7 @@
 // Hebrew typed against it.
 
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const pct = (x: number) => `${Math.round(x * 100)}%`
@@ -55,3 +56,5 @@ export const hfEn = {
   close: 'Close',
   credit: 'The pairings: Hebcal leyning, Copyright (c) 2020, hebcal (BSD 2-Clause License), the Ashkenazi haftarot.',
 }
+
+register('hf', hfEn)

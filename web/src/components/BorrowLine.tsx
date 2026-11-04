@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useBorrowingBetween, useBorrowingSequence } from '../api/hooks'
 import type { BorrowingSequence } from '../api/types'
 import { useLocale } from '../context/localeContext'
+import '../i18n/pages/borrowing'
 
 /** "Which borrowed?" for one scored parallel (DESIGN.md §16.27). */
 export function BorrowSentence({ s }: { s: BorrowingSequence }) {

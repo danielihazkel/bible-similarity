@@ -3,6 +3,7 @@
 // against it. Names of people are Hebrew, isolated in the English sentences.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const pct = (x: number) => `${Math.round(x * 100)}%`
@@ -98,3 +99,5 @@ export const chEn = {
   compare: (share: number, n: number) => `Shem to Terah (Genesis 11): ${pct(share)} of ${numEn(n)}.`,
   numbersTitle: 'Each number in its verse',
 }
+
+register('ch', chEn)

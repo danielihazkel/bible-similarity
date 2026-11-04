@@ -7,6 +7,7 @@ import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 const SOUND_NAMES: Record<string, string> = { sh: 'שׁ', s: 'שׂ' }

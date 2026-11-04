@@ -29,6 +29,10 @@ import { clauseBreaks, colonBreaks } from '../lib/cola'
 import { isFound } from '../lib/dossier'
 import { diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
 import { DEFAULT_K, DEFAULT_MODE, parseExclude, parseK, parseMode, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/meter'
+import '../i18n/pages/patterns'
+import '../i18n/pages/reader'
+import '../i18n/pages/syntax'
 
 const ACROSTIC_MAX_Q = 0.05
 

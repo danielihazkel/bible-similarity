@@ -4,6 +4,7 @@
 
 import type { FindingKey } from '../../api/types'
 import { numEn, numHe, pct } from '../fmt'
+import { register } from '../en'
 
 export type V = Record<string, number | null>
 export const n = (v: V, k: string) => v[k] ?? 0
@@ -443,3 +444,5 @@ export const findEn = {
     },
   } satisfies Record<FindingKey, { title: string; text: (v: V) => string }>,
 }
+
+register('find', findEn)

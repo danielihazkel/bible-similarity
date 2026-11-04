@@ -6,6 +6,7 @@ import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
 
 const PAGE_SIZE = 50
 

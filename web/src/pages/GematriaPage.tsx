@@ -10,6 +10,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/gematria'
 
 const PAGE_SIZE = 25
 const DEBOUNCE_MS = 250

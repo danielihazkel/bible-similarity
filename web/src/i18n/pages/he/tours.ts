@@ -1,6 +1,6 @@
 // The Hebrew half of `../tours.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { trEn } from '../tours'
+import type { trEn } from '../tours'
 
 export const trHe: typeof trEn = {
   title: 'סיורים מודרכים',

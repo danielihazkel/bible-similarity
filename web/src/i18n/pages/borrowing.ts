@@ -2,6 +2,7 @@
 // sequences and Compare. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 type Sign = 'language' | 'spelling' | 'smoothing' | 'expansion'
 
@@ -45,3 +46,5 @@ export const borEn = {
     `Which borrowed? ${src} → ${dst} (${numEn(votes)} ${votes === 1 ? 'sign' : 'signs'}; the later-looking side drew on the other)`,
   lineUnclear: (a: string, b: string) => `Which borrowed? ${a} ↔ ${b}: the signs disagree or are silent`,
 }
+
+register('bor', borEn)

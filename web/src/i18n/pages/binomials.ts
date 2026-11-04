@@ -3,6 +3,7 @@
 // against it. The pairs are quoted in Hebrew, isolated in the English sentences.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 // three places below 0.1, so that a p just above 0.05 does not print as 0.05
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.1 ? p.toFixed(3) : p.toFixed(2))
@@ -57,3 +58,5 @@ export const bnEn = {
   empty: 'No pair here.',
   limits: 'A pair is two words side by side: ⁨את השמים ואת הארץ⁩, with ⁨את⁩ between, is not counted.',
 }
+
+register('bn', bnEn)

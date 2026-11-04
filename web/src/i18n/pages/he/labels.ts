@@ -1,6 +1,6 @@
 // The Hebrew half of `../labels.ts` (loaded with the Hebrew interface only).
 import { numHe } from '../../fmt'
-import { labEn } from '../labels'
+import type { labEn } from '../labels'
 
 export const labHe: typeof labEn = {
   group: 'השיפוט שלך לזוג הזה',

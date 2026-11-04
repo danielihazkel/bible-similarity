@@ -1,6 +1,7 @@
 import { pairKey, useLabels, useSetLabel } from '../api/hooks'
 import type { LabelValue } from '../api/types'
 import { useT } from '../context/localeContext'
+import '../i18n/pages/labels'
 
 const VALUES: LabelValue[] = ['real', 'not', 'unsure']
 

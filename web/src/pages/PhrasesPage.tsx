@@ -7,6 +7,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { SpreadView } from './SpreadView'
+import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 50
 const MIN_TOKENS = [3, 4, 5, 6, 8, 10]

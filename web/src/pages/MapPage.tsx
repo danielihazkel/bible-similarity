@@ -13,6 +13,7 @@ import { useLocale, useT } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useIntParam, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/overview'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
 type ColorBy = 'cluster' | 'section' | 'lists'

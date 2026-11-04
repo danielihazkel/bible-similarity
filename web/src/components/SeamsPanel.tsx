@@ -4,6 +4,7 @@ import type { CurvePoint, Seam } from '../api/types'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { ErrorBox, Loading } from './Status'
+import '../i18n/pages/overview'
 
 /** Where the style of a book changes: the shift curve along the book, its threshold and seams.
  * Without a book: the strongest seams of the corpus. */

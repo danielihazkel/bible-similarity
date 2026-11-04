@@ -4,6 +4,7 @@
 
 import type { KqClass, KqGrammar, KqParallel } from '../../api/types'
 import { countEn, numEn, pct } from '../fmt'
+import { register } from '../en'
 
 type Codes = Record<string, Record<string, string>>
 
@@ -119,3 +120,5 @@ export const kqEn = {
   partner: (label: string, form: string, side: KqParallel) =>
     `${label} writes ${form}: ${side === 'qere' ? 'the qere' : side === 'ketiv' ? 'the ketiv' : 'neither'}`,
 }
+
+register('kq', kqEn)

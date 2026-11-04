@@ -7,6 +7,8 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { readLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
+import '../i18n/pages/pentateuch'
 
 const PAGE_SIZE = 60
 const BOOKS: [string, number][] = [

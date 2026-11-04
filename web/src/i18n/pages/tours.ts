@@ -3,6 +3,7 @@
 // `lib/tours.ts`. English first, Hebrew typed against it.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export type TourKey = 'parallels' | 'numbers' | 'poetry' | 'stories'
 
@@ -67,3 +68,5 @@ export const trEn = {
     },
   } satisfies Record<TourKey, TourText>,
 }
+
+register('tr', trEn)

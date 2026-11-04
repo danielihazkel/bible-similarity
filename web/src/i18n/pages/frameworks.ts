@@ -3,6 +3,7 @@
 // isolated in the English sentences.
 
 import { numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const x2 = (x: number) => x.toFixed(2)
@@ -70,3 +71,5 @@ export const fwEn = {
   byKingdomTitle: 'What each kingdom’s accounts hold',
   byKingdomLede: 'The share of each kingdom’s kings whose account holds the slot:',
 }
+
+register('fw', fwEn)

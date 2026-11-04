@@ -1,9 +1,13 @@
 import { Link } from 'react-router'
 import type { DivineName, Dossier, DossierEntry, UnitSummary } from '../api/types'
 import type { Corpus } from '../i18n/pages/reception'
+import '../i18n/pages/reception'
 import { useLocale } from '../context/localeContext'
 import { entryLink, isFound } from '../lib/dossier'
 import { PanelError } from './Status'
+import '../i18n/pages/divine'
+import '../i18n/pages/dossier'
+import '../i18n/pages/witnesses'
 
 /**
  * What every analysis found about this unit (`/dossier`): findings as links to where they are

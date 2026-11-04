@@ -11,6 +11,7 @@ import { diffHighlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
+import '../i18n/pages/parallels'
 
 /** One synopsis: its passages in columns, row by row, each column's words marked against the
  * `?base=` column's (DESIGN.md §16.74). */

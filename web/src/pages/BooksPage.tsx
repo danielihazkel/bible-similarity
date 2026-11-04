@@ -6,6 +6,9 @@ import { useLocale, useT } from '../context/localeContext'
 import { isGroup, NAV, type NavItem, navText } from '../lib/nav'
 import { TourList } from './ToursPage'
 import { localToday, longDate } from '../lib/week'
+import '../i18n/pages/glossary'
+import '../i18n/pages/tours'
+import '../i18n/pages/week'
 
 export function BooksPage() {
   const m = useT()

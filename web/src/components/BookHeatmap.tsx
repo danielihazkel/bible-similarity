@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Book } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
+import '../i18n/pages/overview'
 
 interface HeatmapProps<K extends string | number> {
   /** Row / column labels by key. */

@@ -4,6 +4,7 @@
 
 import type { RetoldGroup, RetoldOrder } from '../../api/types'
 import { countEn, numEn } from '../fmt'
+import { register } from '../en'
 
 export const fp = (p: number) => (p < 0.001 ? '< 0.001' : p < 0.01 ? p.toFixed(3) : p.toFixed(2))
 export const pctEn = (x: number) => `${Math.round(x * 100)}%`
@@ -55,3 +56,5 @@ export const rtEn = {
   method:
     'Every word belongs to the narrator or to the speaker of the quotation that holds it (a quotation inside a speech belongs to the one who quotes it). Each run of one teller, cut into pieces of at most 60 content words, is aligned (Smith–Waterman, rare words weighing most) with the earlier text of its book, up to 400 verses back, where it shares the most rare words; at least 5 words aligned. The two passages are then diffed word by word: a change of spelling or form keeps the word. The claim compares the two groups within four length bands, the labels shuffled 9,999 times.',
 }
+
+register('rt', rtEn)

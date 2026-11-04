@@ -8,6 +8,8 @@ import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { readLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../i18n/pages/patterns'
+import '../i18n/pages/psalms'
 
 const PAGE_SIZE = 20
 const SHOWN = ['first_singular', 'first_plural', 'second', 'imperative_plural', 'distress', 'praise']

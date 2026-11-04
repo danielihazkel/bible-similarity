@@ -12,6 +12,8 @@ import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { addItem, formatP, joinSet, parseRange, patternFor, removeItem, splitSet, type SetItem } from '../lib/workbench'
 import { Term } from '../components/Term'
+import '../i18n/pages/query'
+import '../i18n/pages/workbench'
 
 const FEATURES: WorkbenchFeature[] = ['lemma', 'root', 'domain', 'pos', 'stem', 'form', 'person', 'function', 'clause']
 const WITHINS: WorkbenchWithin[] = ['book', 'chapter', 'corpus']

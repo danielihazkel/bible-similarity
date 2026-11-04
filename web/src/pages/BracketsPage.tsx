@@ -12,6 +12,7 @@ import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import '../i18n/pages/brackets'
 
 const PAGE_SIZE = 25
 const SHOWS: BracketShow[] = ['all', 'strong', 'known']
