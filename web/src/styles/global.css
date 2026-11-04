@@ -3785,3 +3785,24 @@ th .term-tip { font-weight: normal; }
 .sf-passages a, .source-page > p a { text-decoration: underline; text-underline-offset: 2px; }
 .sf-quote { font-family: var(--font-he); font-size: 1.1rem; }
 
+
+/* the offline app's banner (components/AppBanner.tsx): empty unless offline or a new build waits */
+.app-banner:empty {
+  display: none;
+}
+.app-banner {
+  background: var(--accent-soft);
+  border-block-end: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+}
+.app-banner p {
+  margin: 0.2rem 0;
+}
+.app-banner button {
+  margin-inline-start: 0.5rem;
+}
+@media print {
+  .app-banner {
+    display: none;
+  }
+}

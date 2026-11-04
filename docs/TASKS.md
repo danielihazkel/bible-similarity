@@ -888,6 +888,18 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M146: The offline app (§11.1, D136; proposed K15)
+- [x] `vite-plugin-pwa` 2.0.0, pinned (MIT): a manifest (English name, the Hebrew one as `name_localized`, the favicon and PNG icons from `scripts/icons.mjs`), Workbox precache of the whole built viewer (168 files, 1.6 MB uncompressed)
+- [x] `/api` GETs network first into `bsim-api` (1,000 answers, 200s only); labels, notebook, `/meta` and the CSV downloads network only (`NETWORK_ONLY`, kept in step with `NO_STORE_PATHS` by a pytest); `/dossier` cached for offline use (D136)
+- [x] Not done as the plan had it: stale-while-revalidate, which would show a rebuilt DB's old answers once (D136)
+- [x] The banner (`components/AppBanner.tsx`, both catalogs): offline, and a new build waiting with Reload; an answer never fetched says it was not saved; queries `offlineFirst`, not retried offline, react-query's online state seeded from the browser so a page opened offline loads when the connection is back
+- [x] Reload into a new build waits for `controllerchange` (`lib/pwa.ts startServiceWorker`): the plugin's own reload skipped a worker found while the page was open (found by hand on the real build; a vitest now)
+- [x] `bsim serve`: `sw.js` and `index.html` `no-cache`, the manifest `application/manifest+json`
+- [x] Tests: pytest (the served files, the network-only list), vitest (the banner in both languages, `startServiceWorker`), fixture e2e (a page opened before opens offline under the banner, an unopened one says so and loads on reconnect, the manifest and icons); Playwright blocks service workers in every other test
+- [x] Fixed on the way: the two e2e tests that write labels (M142 added the second) raced on the server's one labels file, the queue's pair being the one the other test labels; they now run as one serial group (failed 2 of 1,374 in the K14 run, passed alone)
+
+✔ Pages and answers opened once stay available without a connection, in both languages, and a new build arrives when you reload, not under you.
+
 ## M145: The catalog split by page (§11.1, D135; proposed K14, closes J14)
 - [x] `en.ts`: the core catalog and `Groups` (types only); each page group registers itself (`register`) in its file under `pages/`
 - [x] Every module reading `m.<group>` / `useT().<group>` imports the group's file (95 modules: a codemod gave 89 the import, and 9 had only an erased type import of a group, 3 of them also among the 89)
@@ -1533,6 +1545,6 @@ Improvements
 - [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
 - [x] K13 (done, M139) F5: rabbinic identifications in the family tree, as a kind of identity with its source
 - [x] K14 (done, M145) The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
-- [ ] K15 Installable and offline: a manifest and a service worker, `/api` reads cached by build
+- [x] K15 (done, M146) Installable and offline: a manifest and a service worker, `/api` reads cached by build
 
 Suggested order: K1 → K4 → K12 → K6 → K7 → K2 → K13 → K3 → K5 → K9 → K10 → K11 → K14 → K15 → K8.

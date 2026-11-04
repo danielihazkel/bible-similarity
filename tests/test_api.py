@@ -1,10 +1,11 @@
+import re
 from pathlib import Path
 
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
-from bsim.api.app import create_app
+from bsim.api.app import NO_STORE_PATHS, create_app
 from bsim.api.search import build_surface_index, search_tokens, top
 from conftest import EMB, TEXTS, build_fixture_db
 
@@ -284,6 +285,38 @@ def test_web_dist_served(built):
     r = client.get("/api/nope")
     assert r.status_code == 404 and r.json() == {"detail": "Not Found"}
     assert client.get("/api/books").status_code == 200
+
+
+def test_web_dist_offline_files(built):
+    """The offline app's files (DESIGN.md §11.1): the page and the service worker are asked for
+    again each time, the manifest has its own type, hashed assets stay immutable."""
+    cfg, _ = built
+    dist = Path(cfg["paths"]["web_dist"])
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<html>viewer</html>", encoding="utf-8")
+    (dist / "sw.js").write_text("self.x = 1", encoding="utf-8")
+    (dist / "manifest.webmanifest").write_text('{"name": "x"}', encoding="utf-8")
+    (dist / "assets" / "x-1a2b.js").write_text("console.log(1)", encoding="utf-8")
+    client = TestClient(create_app(cfg, encoder=fake_encoder, log=lambda _: None))
+    for path in ["/", "/index.html", "/unit/v:1", "/sw.js"]:
+        assert client.get(path).headers["cache-control"] == "no-cache", path
+    r = client.get("/manifest.webmanifest")
+    assert r.headers["content-type"].startswith("application/manifest+json")
+    assert "cache-control" not in r.headers
+    assert "immutable" in client.get("/assets/x-1a2b.js").headers["cache-control"]
+
+
+def test_service_worker_network_only_matches_no_store():
+    """The service worker never caches a no-store route (web/vite.config.ts `NETWORK_ONLY`) but
+    the dossier, cached for offline use on purpose (D136)."""
+    config = (Path(__file__).parents[1] / "web" / "vite.config.ts").read_text(encoding="utf-8")
+    pattern = re.search(r"NETWORK_ONLY = String\.raw`([^`]+)`", config).group(1)
+    for path in NO_STORE_PATHS:
+        cached = path == "/api/dossier/"
+        assert bool(re.match(pattern, f"http://127.0.0.1:8000{path}x")) is not cached, path
+    assert re.match(pattern, "https://example.org/api/export/discoveries.csv")
+    for path in ["/api/books", "/api/similar/v:0", "/api/dossiers", "/api/lemmas"]:
+        assert not re.match(pattern, f"http://127.0.0.1:8000{path}"), path
 
 
 def test_web_dist_missing(client):

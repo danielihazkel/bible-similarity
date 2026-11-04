@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ApiError, isStageMissing } from '../api/client'
 import { useT } from '../context/localeContext'
+import { useOnline } from '../lib/pwa'
 
 export function Loading({ label }: { label?: string }) {
   const m = useT()
@@ -15,6 +16,7 @@ export function Loading({ label }: { label?: string }) {
 // inside a right-to-left sentence.
 export function ErrorBox({ error }: { error: unknown }) {
   const m = useT()
+  const online = useOnline()
   if (isStageMissing(error)) return <NotComputed stage={error.stage} />
   const msg =
     error instanceof ApiError ? (
@@ -22,7 +24,7 @@ export function ErrorBox({ error }: { error: unknown }) {
         {error.status === 404 ? m.status.notFound : `${error.status}:`} <bdi>{error.detail}</bdi>
       </>
     ) : error instanceof Error ? (
-      m.status.unreachable(error.message)
+      online ? m.status.unreachable(error.message) : m.offline.notSaved
     ) : (
       String(error)
     )
@@ -42,10 +44,16 @@ export function NotComputed({ stage, children }: { stage?: string; children?: Re
 /** A one-line note that an optional panel (names, phrases, …) could not be loaded. */
 export function PanelError({ what, error }: { what: string; error: unknown }) {
   const m = useT()
+  const online = useOnline()
   if (isStageMissing(error)) {
     return <p className="status small not-computed">{m.status.notComputed(error.stage)}</p>
   }
-  const detail = error instanceof ApiError ? `${error.status}: ${error.detail}` : m.status.apiUnreachable
+  const detail =
+    error instanceof ApiError
+      ? `${error.status}: ${error.detail}`
+      : online
+        ? m.status.apiUnreachable
+        : m.offline.notSavedShort
   return (
     <p className="status error small" role="alert">
       {m.status.couldNotLoad(what)} (<bdi>{detail}</bdi>).

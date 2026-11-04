@@ -935,42 +935,48 @@ test('the home page leads to the findings, and each finding to its evidence', as
   await expect(page).toHaveURL(/\/phrases\?view=spread$/)
 })
 
-test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {
-  // it writes to the server's one labels file: run once, not on every device at the same time
-  test.skip(info.project.name !== 'desktop')
-  await page.goto('/unit/v%3A0')
-  const first = page.locator('.hit').first()
-  const real = first.getByRole('button', { name: 'Real' })
-  await real.click()
-  await expect(real).toHaveAttribute('aria-pressed', 'true')
-  await page.goto('/labels')
-  await expect(page.locator('.labels-list > li')).toHaveCount(1)
-  await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
-  await expect(page.locator('.labels-list > li')).toHaveCount(0)
-})
+// the two tests that write to the server's one labels file, one after the other: the queue's one
+// pair is the pair the first labels, and each expects the file empty when it starts
+test.describe('labels', () => {
+  test.describe.configure({ mode: 'serial' })
 
-test('a pair is judged from the label queue and leaves it', async ({ page }, info) => {
-  // it writes to the server's one labels file: run once, not on every device at the same time
-  test.skip(info.project.name !== 'desktop')
-  await page.goto('/labels')
-  await page.getByRole('radio', { name: 'What to judge next' }).click()
-  await expect(page).toHaveURL(/\/labels\?tab=queue$/)
-  // the fixture's one discovery between two train-book verses
-  const items = page.locator('.queue-list > li')
-  await expect(items).toHaveCount(1)
-  await expect(page.getByText('1 pair to judge · 0 of 1 judged')).toBeVisible()
-  // the fixture's made-up `bsim llm-triage` run: a suggestion, never a label
-  await expect(items.locator('.queue-suggestion')).toContainText('Claude suggests: Not (p 0.20, shared formula).')
-  await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'false')
-  await items.getByRole('button', { name: 'Not' }).click()
-  await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'true')
-  await page.getByRole('button', { name: 'Next pairs' }).click()
-  await expect(page.getByText('Nothing left to judge here.')).toBeVisible()
-  await page.getByRole('radio', { name: 'Your labels' }).click()
-  await expect(page.locator('.labels-list > li')).toHaveCount(1)
-  await expect(page.locator('.labels-list')).toContainText('judged in the queue')
-  await page.locator('.labels-list').getByRole('button', { name: 'Not' }).click() // clear it again
-  await expect(page.locator('.labels-list > li')).toHaveCount(0)
+  test('a pair is labelled from a list of similar verses and shows on the Labels page', async ({ page }, info) => {
+    // it writes to the server's one labels file: run once, not on every device at the same time
+    test.skip(info.project.name !== 'desktop')
+    await page.goto('/unit/v%3A0')
+    const first = page.locator('.hit').first()
+    const real = first.getByRole('button', { name: 'Real' })
+    await real.click()
+    await expect(real).toHaveAttribute('aria-pressed', 'true')
+    await page.goto('/labels')
+    await expect(page.locator('.labels-list > li')).toHaveCount(1)
+    await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
+    await expect(page.locator('.labels-list > li')).toHaveCount(0)
+  })
+
+  test('a pair is judged from the label queue and leaves it', async ({ page }, info) => {
+    // it writes to the server's one labels file: run once, not on every device at the same time
+    test.skip(info.project.name !== 'desktop')
+    await page.goto('/labels')
+    await page.getByRole('radio', { name: 'What to judge next' }).click()
+    await expect(page).toHaveURL(/\/labels\?tab=queue$/)
+    // the fixture's one discovery between two train-book verses
+    const items = page.locator('.queue-list > li')
+    await expect(items).toHaveCount(1)
+    await expect(page.getByText('1 pair to judge · 0 of 1 judged')).toBeVisible()
+    // the fixture's made-up `bsim llm-triage` run: a suggestion, never a label
+    await expect(items.locator('.queue-suggestion')).toContainText('Claude suggests: Not (p 0.20, shared formula).')
+    await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'false')
+    await items.getByRole('button', { name: 'Not' }).click()
+    await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'true')
+    await page.getByRole('button', { name: 'Next pairs' }).click()
+    await expect(page.getByText('Nothing left to judge here.')).toBeVisible()
+    await page.getByRole('radio', { name: 'Your labels' }).click()
+    await expect(page.locator('.labels-list > li')).toHaveCount(1)
+    await expect(page.locator('.labels-list')).toContainText('judged in the queue')
+    await page.locator('.labels-list').getByRole('button', { name: 'Not' }).click() // clear it again
+    await expect(page.locator('.labels-list > li')).toHaveCount(0)
+  })
 })
 
 test('a verse is kept with a note and a collection, and shows in the notebook', async ({ page }, info) => {
@@ -1055,4 +1061,46 @@ test('a section opened by hand stays open in the URL', async ({ page }) => {
   await expect(page).toHaveURL(/open=help/)
   await page.reload()
   await expect(page.locator('.query-help')).toHaveAttribute('open', '')
+})
+
+test.describe('the offline app', () => {
+  test.use({ serviceWorkers: 'allow' })
+
+  test('a page opened before opens again offline, under the banner', async ({ page, context }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    const heading = page.getByRole('heading', { level: 1 })
+    const banner = page.locator('.app-banner')
+    await page.goto('/unit/v%3A0')
+    await expect(heading).toBeVisible()
+    // installed, and in control of the page at once (clientsClaim)
+    await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), { timeout: 20_000 }).toBe(true)
+    await expect(banner).toBeEmpty()
+    await page.reload() // the page's answers, fetched under the worker, are kept
+    await expect(heading).toBeVisible()
+    const title = await heading.textContent()
+
+    await context.setOffline(true)
+    await page.reload()
+    await expect(banner).toContainText("You're offline")
+    await expect(heading).toHaveText(title!)
+    await expect(page.locator('.status.error').first()).toBeHidden()
+    // the shell opens anywhere; a page never opened waits for its answers
+    await page.goto('/lemma/7225')
+    await expect(banner).toContainText("You're offline")
+    await expect(page.locator('.status.error')).toContainText('not opened before the connection went')
+    await context.setOffline(false) // and it loads once the connection is back
+    await expect(banner).toBeEmpty()
+    await expect(heading).toBeVisible()
+    await expect(page.locator('.status.error')).toHaveCount(0)
+  })
+
+  test('the manifest names the app, and its icons are there', async ({ request }) => {
+    const r = await request.get('/manifest.webmanifest')
+    expect(r.headers()['content-type']).toContain('application/manifest+json')
+    const manifest = await r.json()
+    expect(manifest.name).toBe('Tanakh Similarity')
+    expect(manifest.name_localized.he.value).toBe('מקבילות בתנ״ך')
+    for (const icon of manifest.icons) expect((await request.get(icon.src)).ok(), icon.src).toBe(true)
+    expect((await request.get('/sw.js')).headers()['cache-control']).toBe('no-cache')
+  })
 })

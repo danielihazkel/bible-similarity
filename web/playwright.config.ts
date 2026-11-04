@@ -24,6 +24,9 @@ export function e2eConfig(fixture: boolean) {
       baseURL: `http://127.0.0.1:${port}`,
       channel,
       trace: 'retain-on-failure',
+      // the offline app's service worker would answer /api from its cache; only the tests of
+      // the offline app itself let it run (`test.use({ serviceWorkers: 'allow' })`)
+      serviceWorkers: 'block',
     },
     projects: [
       { name: 'desktop', use: { ...devices[channel ? 'Desktop Edge' : 'Desktop Chrome'], channel } },

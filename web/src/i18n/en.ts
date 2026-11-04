@@ -192,6 +192,14 @@ const core = {
     reload: 'Reload',
   },
 
+  /** The offline app (components/AppBanner.tsx). */
+  offline: {
+    notice: "You're offline: the pages and answers already opened still work; the rest waits for the connection.",
+    update: 'A new version of the viewer is ready.',
+    notSaved: 'This page was not opened before the connection went, so its answers are not saved here; it loads when the connection is back.',
+    notSavedShort: 'not saved for offline use',
+  },
+
   pager: {
     label: 'Pages',
     previous: '← Previous',

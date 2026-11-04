@@ -23,7 +23,9 @@ revalidation is a 304 that skips the handler; the routes whose answers change wh
 runs (`NO_STORE_PATHS`) are `no-store` instead (hashed viewer assets are cached as immutable).
 
 The production viewer build (`paths.web_dist`) is served at `/` when present; any non-`/api` path
-without a file falls back to its `index.html` (client-side routes).
+without a file falls back to its `index.html` (client-side routes). The build's service worker
+(the offline app, DESIGN.md §11.1) and the page are `no-cache`, so a new build is found at once,
+and its manifest is served as `application/manifest+json`.
 
 Tests pass a stub `encoder` instead of loading the model.
 """
@@ -32,6 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import mimetypes
 import queue
 import sqlite3
 import threading
@@ -70,6 +73,9 @@ Log = Callable[[str], None]
 # state, a unit's label count): `no-store`, never an ETag
 NO_STORE_PATHS = ("/api/labels", "/api/notebook", "/api/meta", "/api/dossier/")
 NO_STORE = {"Cache-Control": "no-store"}
+# the viewer's files a browser must ask for again each time: the page and the service worker
+REVALIDATE = {"Cache-Control": "no-cache"}
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 
 
 class LruCache:
@@ -486,7 +492,8 @@ def _mount_web(app: FastAPI, dist: Path, log: Log) -> None:
             raise HTTPException(status_code=404, detail="Not Found")
         f = (root / path).resolve()
         if path and f.is_file() and f.is_relative_to(root):
-            return FileResponse(f)
-        return FileResponse(index)
+            again = f.name in ("sw.js", "index.html")
+            return FileResponse(f, headers=REVALIDATE if again else None)
+        return FileResponse(index, headers=REVALIDATE)
 
     log(f"viewer: {dist}")

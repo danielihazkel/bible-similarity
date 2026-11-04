@@ -238,6 +238,8 @@ bible-similarity/
 │   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),
 │   │                               #   fixture.spec.ts against `bsim fixture-serve` (`npm run e2e:fixture`, CI)
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
+│   ├── scripts/icons.mjs           # the app's PNG icons (public/), drawn from the favicon's design
+│   ├── vite.config.ts              # the build, and the offline app: manifest + service worker (DESIGN.md §11.1)
 │   └── src/
 │       ├── api/                    # types (aliases of the generated schema; open JSON fields by hand + drift check), fetch client, TanStack Query hooks
 │       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list, SVG export and the family tree's poster (+ vitest)
@@ -367,7 +369,7 @@ A *system* is a named retrieval configuration (e.g. `bm25_lemma`, `berel_mean`, 
 - At startup the API opens `results.sqlite` read-only, memory-maps the final verse embedding matrix (~23k × 768 × 4 B ≈ 70 MB), and starts loading the final encoder (CPU or GPU) for free-text queries and the surface-form BM25 index on background threads (M109), so it answers at once; a search that needs one before it is ready gets a 503 "warming". torch is imported only by the encoder (M119), so the server starts in a few seconds.
 - Precomputed queries (`/similar`) are a single indexed SQLite lookup; query-time filters (neighbours / chapter / book) are applied in SQL over the stored 50.
 - `/compare` and `/search` compute on demand from the embedding matrix (milliseconds).
-- In dev, Vite proxies `/api` to FastAPI. For "production" use, `web/dist` is served by FastAPI as static files — a single `bsim serve` process.
+- In dev, Vite proxies `/api` to FastAPI. For "production" use, `web/dist` is served by FastAPI as static files — a single `bsim serve` process. The production build installs a service worker (M146): the viewer opens offline, with the answers already fetched.
 
 ## 7. Hardware constraints (GTX 1080 Ti)
 

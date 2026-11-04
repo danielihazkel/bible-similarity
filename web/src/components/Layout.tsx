@@ -5,6 +5,7 @@ import { isGroup, NAV, type NavGroup, type NavItem, navText } from '../lib/nav'
 import { LocaleToggle, TextModeToggle } from './Controls'
 import { JumpBox } from './JumpBox'
 import { TourBar } from './TourBar'
+import { AppBanner } from './AppBanner'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Loading } from './Status'
 
@@ -73,6 +74,7 @@ export function Layout() {
         <TextModeToggle />
         <LocaleToggle />
       </header>
+      <AppBanner />
       {jumpOpen && <JumpBox onClose={() => setJumpOpen(false)} />}
       <main className="main" id="main" tabIndex={-1} ref={mainRef}>
         <ErrorBoundary key={pathname}>
