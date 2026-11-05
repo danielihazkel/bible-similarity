@@ -894,7 +894,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] `configs/rerank_llm.yaml`: its own model, list and tuning file (`rerank_tuning_{system}.json` for any system but `fused_rerank`), the model in use untouched
 - [x] Dry run on the real data: 5,100 requests, about $8 (budget $15)
 - [x] Tests: the sample, the soft targets and extra rows, calibrated runs only, a run with a fake batch client, the profile (pytest)
-- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-rerank`
+- [x] The run (2026-11-05, $9.07): calibration AUC 0.972; 1,647 of the 5,000 negatives called real (33 %)
 - [ ] Train and tune (GPU; the owner starts it): `bsim train-rerank --config configs/rerank_llm.yaml`, `bsim rerank --tune --config configs/rerank_llm.yaml`
 - [ ] Dev table in RESULTS.md (with the judged pool) and the adoption verdict
 
@@ -904,7 +904,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Variant `supervision_experiments.variants.llm`; `report_golds: [llm]` puts the judged pool in the table, no rule reading it
 - [x] Dry run on the real queue: 10,100 requests, about $15 (budget $25)
 - [x] Tests: the runs read only when calibrated, the source's thresholds and splits, the negatives, the triage's pairs skipped, a run with a fake batch client (pytest)
-- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-train`
+- [x] The run (2026-11-05, $17.57): calibration AUC 0.938; 3,196 real, 5,162 not, 1,640 unsure; the source 1,221 positive and 5,294 negative train pairs
 - [ ] Train the `llm` variant (about 2.5 h, GPU; the owner starts it: `bsim supervision-exp --only llm`)
 - [ ] Dev table in RESULTS.md and the adoption verdict
 
