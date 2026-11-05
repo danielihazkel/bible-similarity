@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M153: Speaker and family-tree gold (§16.87, D143; proposed L6)
+- [x] `eval/llm_speakers.py`, `bsim llm-speakers [--dry-run]`: 100 quotations of each source (454), the passage and the opening words; the answer mapped to a lemma; `bsim speaker-eval`, per source and on the dev books, the owner's sheet of 30
+- [x] `eval/llm_genealogy.py`, `bsim llm-genealogy [--dry-run]`: 50 siblings no shared parent implies and 315 attachments to a named people or tribe, calibrated on 100 confirmed against 45 rejected parent links; a review sheet, never the curation files
+- [x] Dry runs: 454 requests, about $0.95; 510 requests, about $0.91
+- [x] Tests: letters and lemma matching, the draws, the passage, agreement; the candidates, the calibration, a run and its sheet (pytest)
+- [ ] The runs (paid; the owner's go-ahead)
+- [ ] The owner marks the 30 speaker answers; `bsim speaker-eval`; the results in RESULTS.md
+
 ## M152: How often the detectors are right (§16.86, D142; proposed L5)
 - [x] `eval/llm_audit.py`, `bsim llm-audit [--dry-run]`: 50 of the 200 strongest findings of 14 detectors and their known answers, each claim with the detector's definition and the pointed verses; type scenes without the parallel texts
 - [x] Calibration fixed before the run: the owner's place sample (49 / 50) at least 85 % right, the known answers at least 80 %

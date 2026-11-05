@@ -1906,6 +1906,40 @@ llm_audit:                    # `bsim llm-audit`: how often each detector is rig
   typical_output_tokens: 250  # longer prompts than the triage's, more to weigh
   budget_usd: 10.0            # the plan's $6, with room
 
+llm_speakers:                 # `bsim llm-speakers` / `speaker-eval`: who speaks each quotation, by Claude, as a gold for the speaker rules (DESIGN.md §16.87, D143); run by hand, paid
+  per_source: 100             # quotations drawn of each speaker source (and of those with none), seeded, fixed before the run
+  context: 5                  # verses of the chapter shown before the quotation's first verse
+  max_verses: 10              # passage verses at most
+  owner_check: 30             # Claude's answers the owner marks right or wrong (review.csv) before the agreement is used
+  model: claude-sonnet-5-5
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 300
+  seed: 111
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 250
+  budget_usd: 6.0
+
+llm_genealogy:                # `bsim llm-genealogy`: the family tree's unreviewed links checked, as suggestions (DESIGN.md §16.87, D143); run by hand, paid; never writes curation/
+  max_verses: 4               # verses shown with a claim
+  model: claude-sonnet-5-5
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 300
+  seed: 121
+  calibration:                # fixed before the run
+    confirmed: 100            # reviewed parent links confirmed, drawn, against every rejected one with proof verses
+    min_auc: 0.75
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 250
+  budget_usd: 4.0
+
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files
   depth: 5                    # the top targets of each dev Sefaria query pooled from each list (neighbours dropped first)

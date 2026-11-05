@@ -1007,6 +1007,54 @@ def llm_audit(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-speakers")
+def llm_speakers(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude names the speaker of a sample of quotations (paid; DESIGN.md §16.87)."""
+    from bsim.eval.llm_speakers import run_llm_speakers
+
+    try:
+        run_llm_speakers(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("llm-genealogy")
+def llm_genealogy(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude checks the family tree's unreviewed links, as suggestions (paid; §16.87)."""
+    from bsim.eval.llm_genealogy import run_llm_genealogy
+
+    try:
+        run_llm_genealogy(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command("speaker-eval")
+def speaker_eval(config: ConfigOpt = None) -> None:
+    """Each speaker rule's agreement with Claude's answers; the owner's check (DESIGN.md §16.87)."""
+    from bsim.eval.llm_speakers import run_speaker_eval
+
+    try:
+        run_speaker_eval(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,
