@@ -156,7 +156,7 @@ def suggestions(
             meta = json.loads(files[0].read_text("utf-8"))
             df = pd.read_parquet(files[1])
             df = df[df.status == "ok"]
-            from bsim.eval.llm_triage import clean_rationale
+            from bsim.eval.llm_batch import clean_rationale
 
             rows = {
                 (a, b): {

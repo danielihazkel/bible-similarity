@@ -1837,7 +1837,8 @@ llm_triage:                   # `bsim llm-triage`: Claude's suggestions for the 
   max_wait_hours: 24          # a batch may take a day; a rerun resumes it
   price_per_mtok: {input: 1.0, output: 5.0}   # Message Batches price of the model (half its $2 / $10), for the estimate and the reported cost only
   chars_per_token: 2.0        # the estimate's input tokens (pointed Hebrew tokenizes densely)
-  typical_output_tokens: 1200 # the estimate's typical answer, thinking included
+  typical_output_tokens: 160  # the estimate's typical answer, thinking included (the M144 runs: 152 measured; 1,200 before them overestimated 4x)
+  budget_usd: 5.0             # a submission whose typical estimate is above this is refused (L1)
 
 source_find:                  # POST /source-find: the biblical phrases of a pasted text (DESIGN.md §11.1, D131); fixed before the examples were first run
   max_chars: 5000             # a longer text is refused (422)

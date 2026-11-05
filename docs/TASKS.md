@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M148: One batch core for the Claude jobs (§16.82, D138; proposed L1)
+- [x] `eval/llm_batch.py`: `make_request`, `parse_message` with the job's check, `run_batch` (estimate, dry run, budget, submit, batch id first, resume, poll, collect), `mark_collected`, `usage`; `pointed`, `clean_rationale`, `auc` moved here
+- [x] `budget_usd` per job (the triage's 5.0): a submission over its typical estimate is refused, nothing sent
+- [x] The estimate's typical answer measured: `llm_triage.typical_output_tokens` 1,200 → 160 (152 measured on the M144 runs)
+- [x] `llm-triage` on the core: the same prompts, files and meta (with the mean answer); the queue reads `clean_rationale` from the core
+- [x] Tests: the core with a fake batch client (`tests/llm_fakes.py`): requests, answers read and refused, dry run, budget refusal, submit / poll / collect, resume without paying again, a batch of errors, missing answers; `test_llm_triage.py` unchanged
+
+✔ Every Claude job shares one tested way to send a batch, refuses to spend past its budget, and estimates from what the last run cost.
+
 ## M147: A public read-only server (§10.3, D137, docs/DEPLOY.md; proposed K8)
 - [x] Config profiles: `extends:` with a mapping merge; `configs/public.yaml` (nothing personal, no encoder, same-origin only) and `configs/docker.yaml`
 - [x] `serve.personal` (labels, notebook, label queue: 404 `personal_off`), `serve.encoder` (`OffEncoder`: semantic / fused search and `/align` 503, no hubness, no torch), `serve.embeddings` (`/compare` 503, no semantic structure basis, null ladder cosines); `/meta` reports them
@@ -1563,3 +1572,23 @@ Improvements
 - [x] K15 (done, M146) Installable and offline: a manifest and a service worker, `/api` reads cached by build
 
 Suggested order: K1 → K4 → K12 → K6 → K7 → K2 → K13 → K3 → K5 → K9 → K10 → K11 → K14 → K15 → K8.
+
+From the 2026-11-05 review: the API credits (about $80 of $20–100), all seven suggestions taken. Claude reads the Hebrew through the Message Batches API and nothing is translated. Each run has a calibration fixed before it, a dry run with its estimate first and a budget it may not pass. Its answers are suggestions or a gold of their own, never labels and never the curation files. Dev golds and judged dev pairs never train a model, and the test split is not run.
+
+Shared
+- [x] L1 (done, M148) One batch core (`eval/llm_batch.py`): the request, the answer read by a schema, submit / resume / poll / collect, the estimate from the measured tokens, `budget_usd`; `llm-triage` on it unchanged
+
+Models
+- [ ] L2 Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
+- [ ] L3 A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
+- [ ] L4 The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
+
+Analyses
+- [ ] L5 Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
+- [ ] L6 Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
+
+Viewer
+- [ ] L7 Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
+- [ ] L8 A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
+
+Suggested order: L1 → L3 → L2 → L4 → L5 → L6 → L7 → L8.

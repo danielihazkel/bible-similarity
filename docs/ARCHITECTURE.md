@@ -212,6 +212,7 @@ bible-similarity/
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
+│   │   ├── llm_batch.py            # the Claude jobs' Message Batches core: request, answer check, budget, submit / resume / collect (§16.82)
 │   │   ├── llm_triage.py           # `bsim llm-triage`: Claude's suggestions for the label queue, by Message Batch (§16.81)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/

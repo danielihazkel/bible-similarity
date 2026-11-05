@@ -25,9 +25,7 @@ the cost without calling the API. The key comes from `ANTHROPIC_API_KEY` (the SD
 from __future__ import annotations
 
 import json
-import re
 import time
-import unicodedata
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -38,7 +36,24 @@ import pandas as pd
 
 from bsim.config import config_hash, resolve_path, write_meta
 
-Log = Callable[[str], None]
+# pointed, clean_rationale, auc, make_client and estimate were this module's own until L1
+from bsim.eval.llm_batch import (  # noqa: F401
+    Collected,
+    Log,
+    auc,
+    clean_rationale,
+    ensure_columns,
+    estimate,
+    make_client,
+    make_request,
+    mark_collected,
+    parse_message,
+    pointed,
+    run_batch,
+    undirected,
+    usage,
+)
+
 VERDICTS = ("real", "not", "unsure")
 KINDS = (
     "quotation",
@@ -96,86 +111,41 @@ def system_prompt(language: str) -> str:
     return SYSTEM.replace("{rationale}", RATIONALE[language])
 
 
-CANTILLATION = re.compile("[\u0591-\u05af\u05bd]")  # the accents and meteg; the points stay
-_HE = "[\u0590-\u05ff\\-\u05be']"  # a Hebrew letter or mark, or a hyphen / maqaf / geresh after one
-# an English gloss right after a Hebrew word: (from your hand), ("be angry"), , "deeds"
-GLOSS_PAREN = re.compile(r"(?<=" + _HE + r")[\s,]*\((?=[^()]*[A-Za-z])[^()]*\)")
-GLOSS_QUOTE = re.compile(r"(?<=" + _HE + r")[\s,]*[\"“][A-Za-z][^\"”]*[\"”]")
-TAG = re.compile(r"</?[A-Za-z_]+>")
-# what is left of a gloss in running prose: "in Isaiah it means rebellious children"
-GLOSS_PROSE = re.compile(r"\bmean(s|ing|t)?\b|translat|\bi\.e\.|\bliterally\b", re.IGNORECASE)
-
-
-def pointed(text: str) -> str:
-    """A verse's text with its vowel points and without its cantillation marks."""
-    return unicodedata.normalize("NFC", CANTILLATION.sub("", text))
-
-
-def clean_rationale(text: str | None) -> str | None:
-    """A rationale fit to show (D134): English glosses after Hebrew words removed, and none at
-    all when it still glosses in its prose. The model is told never to translate, and in the
-    first run 82 of 600 rationales glossed a word all the same, and 3 glossed in their prose."""
-    if not text:
-        return None
-    text = TAG.sub("", text)  # a stray </rationale> (1 of 600 in the Hebrew run)
-    text = GLOSS_QUOTE.sub("", GLOSS_PAREN.sub("", text))
-    return None if GLOSS_PROSE.search(text) else re.sub(r"\s+([,.;:])", r"\1", text).strip()
-
-
 def user_prompt(a: dict[str, str], b: dict[str, str]) -> str:
     return f"Verse A: {a['ref']}\n{a['text']}\n\nVerse B: {b['ref']}\n{b['text']}"
 
 
 def request(custom_id: str, a: dict[str, str], b: dict[str, str], lc: dict[str, Any]) -> dict:
     """One Message Batches request (plain dicts, as the SDK takes them)."""
-    return {
-        "custom_id": custom_id,
-        "params": {
-            "model": lc["model"],
-            "max_tokens": lc["max_tokens"],
-            "system": system_prompt(lc["rationale"]),
-            "output_config": {
-                "effort": lc["effort"],
-                "format": {"type": "json_schema", "schema": SCHEMA},
-            },
-            "messages": [{"role": "user", "content": user_prompt(a, b)}],
-        },
-    }
+    return make_request(custom_id, system_prompt(lc["rationale"]), user_prompt(a, b), SCHEMA, lc)
+
+
+def answer(max_chars: int) -> Callable[[dict[str, Any]], dict[str, Any] | None]:
+    """The fields of a verdict answer, None when it is not one."""
+
+    def check(data: dict[str, Any]) -> dict[str, Any] | None:
+        if data.get("verdict") not in VERDICTS or data.get("kind") not in KINDS:
+            return None
+        try:
+            p = float(np.clip(float(data["p_real"]), 0.0, 1.0))
+        except (KeyError, TypeError, ValueError):
+            return None
+        return {
+            "verdict": data["verdict"],
+            "p_real": p,
+            "kind": data["kind"],
+            "rationale": str(data.get("rationale", ""))[:max_chars],
+        }
+
+    return check
 
 
 def parse(message: Any, max_chars: int) -> dict[str, Any]:
     """A succeeded batch result's message as a row (`status` says when it could not be read)."""
-    usage = getattr(message, "usage", None)
-    row: dict[str, Any] = {
-        "input_tokens": int(getattr(usage, "input_tokens", 0) or 0),
-        "output_tokens": int(getattr(usage, "output_tokens", 0) or 0),
-    }
-    if message.stop_reason == "refusal":
-        return {**row, "status": "refusal"}
-    if message.stop_reason == "max_tokens":
-        return {**row, "status": "max_tokens"}
-    text = next((b.text for b in message.content if b.type == "text"), None)
-    try:
-        data = json.loads(text or "")
-    except json.JSONDecodeError:
-        return {**row, "status": "unreadable"}
-    if data.get("verdict") not in VERDICTS or data.get("kind") not in KINDS:
-        return {**row, "status": "unreadable"}
-    return {
-        **row,
-        "status": "ok",
-        "verdict": data["verdict"],
-        "p_real": float(np.clip(float(data["p_real"]), 0.0, 1.0)),
-        "kind": data["kind"],
-        "rationale": str(data["rationale"])[:max_chars],
-    }
+    return parse_message(message, answer(max_chars))
 
 
 # --- the pairs ---------------------------------------------------------------------------------
-
-
-def _undirected(a: np.ndarray, b: np.ndarray) -> set[tuple[int, int]]:
-    return {(min(x, y), max(x, y)) for x, y in zip(a.tolist(), b.tolist(), strict=True)}
 
 
 def calibration_pairs(
@@ -198,7 +168,7 @@ def calibration_pairs(
 
     rng = np.random.default_rng(seed)
     gold = sorted(
-        p for p in _undirected(sefaria.src_vid.to_numpy(), sefaria.tgt_vid.to_numpy()) if fair(*p)
+        p for p in undirected(sefaria.src_vid.to_numpy(), sefaria.tgt_vid.to_numpy()) if fair(*p)
     )
     if len(gold) < n_gold:
         raise RuntimeError(f"only {len(gold)} gold pairs for calibration, {n_gold} asked")
@@ -241,22 +211,6 @@ def queue_pairs(cfg: dict[str, Any], n: int) -> pd.DataFrame:
 # --- the run -----------------------------------------------------------------------------------
 
 
-def auc(gold: np.ndarray, score: np.ndarray) -> float | None:
-    from sklearn.metrics import roc_auc_score
-
-    if gold.all() or not gold.any():
-        return None
-    return round(float(roc_auc_score(gold, score)), 4)
-
-
-def make_client() -> Any:
-    try:
-        import anthropic
-    except ImportError as e:
-        raise RuntimeError("the anthropic SDK is an extra: `uv sync --extra llm`") from e
-    return anthropic.Anthropic()
-
-
 def run_llm_triage(
     cfg: dict[str, Any],
     log: Log = print,
@@ -266,81 +220,32 @@ def run_llm_triage(
 ) -> dict[str, Any]:
     lc = cfg["llm_triage"]
     out = resolve_path(cfg, "artifacts") / "llm"
-    out.mkdir(parents=True, exist_ok=True)
-    state_path = out / "batch.json"
-    state = json.loads(state_path.read_text("utf-8")) if state_path.exists() else None
-    if state and state.get("collected"):
-        state = None  # a finished batch: a new run starts a new one
 
-    if state is None:
+    def prepare() -> tuple[pd.DataFrame, list[dict]]:
         pairs = build_pairs(cfg, log)
         texts = verse_texts(cfg)
         requests = [
             request(cid, texts[a], texts[b], lc)
             for cid, a, b in zip(pairs.custom_id, pairs.a, pairs.b, strict=True)
         ]
-        est = estimate(requests, lc)
-        log(
-            f"{len(requests)} requests ({int((pairs.set == 'calibration').sum())} calibration,"
-            f" {int((pairs.set == 'triage').sum())} triage) to {lc['model']};"
-            f" about ${est['typical_usd']:.2f}, at most ${est['max_usd']:.2f}"
+        return pairs, requests
+
+    def describe(pairs: pd.DataFrame) -> str:
+        return (
+            f"{len(pairs)} requests ({int((pairs.set == 'calibration').sum())} calibration,"
+            f" {int((pairs.set == 'triage').sum())} triage)"
         )
-        if dry_run:
-            with (out / "requests.jsonl").open("w", encoding="utf-8") as f:
-                for r in requests:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            pairs.to_parquet(out / "pairs.parquet", index=False)
-            log(f"dry run: requests written to {out / 'requests.jsonl'}; nothing sent")
-            return {"dry_run": True, "requests": len(requests), **est}
-        client = client or make_client()
-        pairs.to_parquet(out / "pairs.parquet", index=False)
-        batch = client.messages.batches.create(requests=requests)
-        state = {
-            "batch_id": batch.id,
-            "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
-            "model": lc["model"],
-            "requests": len(requests),
-            "estimate": est,
-            "collected": False,
-        }
-        state_path.write_text(json.dumps(state, indent=2) + "\n", "utf-8")
-        log(f"batch {batch.id} submitted")
-    else:
-        log(f"resuming batch {state['batch_id']} ({state['created_at']})")
-        client = client or make_client()
 
-    deadline = time.monotonic() + lc["max_wait_hours"] * 3600
-    while True:
-        batch = client.messages.batches.retrieve(state["batch_id"])
-        if batch.processing_status == "ended":
-            break
-        if time.monotonic() > deadline:
-            raise RuntimeError(
-                f"batch {state['batch_id']} still {batch.processing_status}; rerun to resume"
-            )
-        c = batch.request_counts
-        log(f"  {batch.processing_status}: {c.processing} processing, {c.succeeded} done")
-        sleep(lc["poll_seconds"])
-
-    pairs = pd.read_parquet(out / "pairs.parquet")
-    rows: dict[str, dict[str, Any]] = {}
-    for r in client.messages.batches.results(state["batch_id"]):
-        if r.result.type == "succeeded":
-            rows[r.custom_id] = parse(r.result.message, lc["rationale_chars"])
-        else:
-            rows[r.custom_id] = {"status": r.result.type}
-    res = pd.DataFrame([{"custom_id": k, **v} for k, v in rows.items()])
-    df = pairs.merge(res, on="custom_id", how="left")
-    df["status"] = df.status.fillna("missing")
-    for col in ("verdict", "kind", "rationale"):
-        if col not in df:
-            df[col] = None
-    for col in ("p_real",):
-        if col not in df:
-            df[col] = np.nan
-    for col in ("input_tokens", "output_tokens"):
-        df[col] = df[col].fillna(0).astype(int) if col in df else 0
-    meta = summarise(df, cfg, state)
+    got = run_batch(
+        out, lc, prepare, answer(lc["rationale_chars"]), log=log, dry_run=dry_run,
+        client=client, sleep=sleep, items_file="pairs.parquet", describe=describe,
+    )  # fmt: skip
+    if not isinstance(got, Collected):
+        return got
+    df = ensure_columns(
+        got.df, {"verdict": None, "p_real": np.nan, "kind": None, "rationale": None}
+    )
+    meta = summarise(df, cfg, got.state)
     df["a_id"] = "v:" + df.a.astype(str)
     df["b_id"] = "v:" + df.b.astype(str)
     cols = ["set", "custom_id", "a_id", "b_id", "gold", "status", "verdict", "p_real", "kind",
@@ -348,8 +253,7 @@ def run_llm_triage(
     df[df.set == "calibration"][cols].to_parquet(out / "calibration.parquet", index=False)
     df[df.set == "triage"][cols].to_parquet(out / "triage.parquet", index=False)
     write_meta(out / "llm_triage.meta.json", meta)
-    state["collected"] = True
-    state_path.write_text(json.dumps(state, indent=2) + "\n", "utf-8")
+    mark_collected(out, got.state)
     c = meta["calibration"]
     log(
         f"calibration: AUC {c['auc']} (needs {c['min_auc']}: {'holds' if c['holds'] else 'fails'});"
@@ -376,11 +280,11 @@ def build_pairs(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
     verses = verses.sort_values("verse_id").reset_index(drop=True)
     links = pd.read_parquet(proc / "links.parquet")
     sefaria = links[(links.level == "verse") & (links.split == cal["split"])]
-    linked = _undirected(links.src_vid.to_numpy(), links.tgt_vid.to_numpy())
+    linked = undirected(links.src_vid.to_numpy(), links.tgt_vid.to_numpy())
     for name in ("openbible_links.parquet", "etcbc_links.parquet"):
         if (proc / name).exists():
             g = pd.read_parquet(proc / name, columns=["src_vid", "tgt_vid"])
-            linked |= _undirected(g.src_vid.to_numpy(), g.tgt_vid.to_numpy())
+            linked |= undirected(g.src_vid.to_numpy(), g.tgt_vid.to_numpy())
     splits = json.loads((proc / "splits.json").read_text("utf-8"))["books"]
     books = {BY_SEFARIA[b].book_id for b, s in splits.items() if s == cal["split"]}
     calib = calibration_pairs(
@@ -403,33 +307,12 @@ def verse_texts(cfg: dict[str, Any]) -> dict[int, dict[str, str]]:
     }
 
 
-def estimate(requests: list[dict], lc: dict[str, Any]) -> dict[str, float]:
-    """A rough cost: input by characters (`chars_per_token`), output at `typical_output_tokens`
-    or at the `max_tokens` cap, at the batch prices of `price_per_mtok`."""
-    price = lc["price_per_mtok"]
-    chars = sum(
-        len(r["params"]["system"]) + len(r["params"]["messages"][0]["content"]) for r in requests
-    )
-    inp = chars / lc["chars_per_token"]
-    typical = (
-        inp * price["input"] + len(requests) * lc["typical_output_tokens"] * price["output"]
-    ) / 1e6
-    most = (inp * price["input"] + len(requests) * lc["max_tokens"] * price["output"]) / 1e6
-    return {
-        "input_tokens_est": round(inp),
-        "typical_usd": round(typical, 2),
-        "max_usd": round(most, 2),
-    }
-
-
 def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
     lc, cal = cfg["llm_triage"], cfg["llm_triage"]["calibration"]
     c = df[(df.set == "calibration") & (df.status == "ok")]
     gold = c.gold.astype(bool).to_numpy()
     a = auc(gold, c.p_real.to_numpy(float))
     t = df[df.set == "triage"]
-    price = lc["price_per_mtok"]
-    tokens_in, tokens_out = int(df.input_tokens.sum()), int(df.output_tokens.sum())
 
     def counts(x: pd.DataFrame) -> dict[str, int]:
         return {v: int((x.verdict == v).sum()) for v in VERDICTS}
@@ -452,11 +335,7 @@ def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> d
             "random_verdicts": counts(c[~gold]),
         },
         "triage": {"pairs": len(t), "ok": int((t.status == "ok").sum()), "verdicts": counts(t)},
-        "usage": {
-            "input_tokens": tokens_in,
-            "output_tokens": tokens_out,
-            "usd": round((tokens_in * price["input"] + tokens_out * price["output"]) / 1e6, 2),
-        },
+        "usage": usage(df, lc),
         "config_hash": config_hash(cfg, "llm_triage"),
     }
 
