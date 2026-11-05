@@ -266,11 +266,11 @@ def run_llm_triage(
     return meta
 
 
-def build_pairs(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
-    """`set, custom_id, a, b, gold`: the calibration pairs, then the triage pairs."""
+def calibration_set(cfg: dict[str, Any], cal: dict[str, Any], seed: int) -> pd.DataFrame:
+    """`a, b, gold`: `cal["gold"]` Sefaria verse links of `cal["split"]` against
+    `cal["random"]` random pairs of its books that no gold (Sefaria, OpenBible, ETCBC) links."""
     from bsim.data.canon import BY_SEFARIA
 
-    lc, cal = cfg["llm_triage"], cfg["llm_triage"]["calibration"]
     proc = resolve_path(cfg, "data_processed")
     for file, cmd in (
         ("verses.parquet", "build-corpus"),
@@ -290,10 +290,16 @@ def build_pairs(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
             linked |= undirected(g.src_vid.to_numpy(), g.tgt_vid.to_numpy())
     splits = json.loads((proc / "splits.json").read_text("utf-8"))["books"]
     books = {BY_SEFARIA[b].book_id for b, s in splits.items() if s == cal["split"]}
-    calib = calibration_pairs(
+    return calibration_pairs(
         verses, sefaria, linked, books, cal["gold"], cal["random"],
-        cfg["retrieval"]["neighbor_window"], lc["seed"],
+        cfg["retrieval"]["neighbor_window"], seed,
     )  # fmt: skip
+
+
+def build_pairs(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
+    """`set, custom_id, a, b, gold`: the calibration pairs, then the triage pairs."""
+    lc = cfg["llm_triage"]
+    calib = calibration_set(cfg, lc["calibration"], lc["seed"])
     triage = queue_pairs(cfg, lc["max_pairs"]).assign(gold=None)
     log(f"calibration: {len(calib)} pairs; triage: {len(triage)} pairs of the label queue")
     calib = calib.assign(set="calibration", custom_id=[f"cal-{i}" for i in range(len(calib))])

@@ -44,7 +44,7 @@ from bsim.data.canon import BY_SEFARIA
 from bsim.retrieve.filters import apply_filters
 from bsim.retrieve.topk import read_topk
 from bsim.train.common import Log
-from bsim.train.pairs import LABELS, label_negatives, training_pairs
+from bsim.train.pairs import LABELS, LLM, label_negatives, llm_negatives, training_pairs
 
 LEXICAL_SYSTEM = "bm25_lemma"
 NEGATIVES_FROM = ("bm25", "self", "self_ce")
@@ -242,6 +242,9 @@ def run_hard_negatives(
     candidates = apply_filters(read_topk(topk_path), book_id, chapter, {"neighbors"}, window)
     lo, hi = sup["hard_negative_rank_range"]
     labelled_not = label_negatives(cfg) if LABELS in sup["extra_pairs"] else {}
+    if LLM in sup["extra_pairs"]:  # Claude's not pairs, as yours (§16.84)
+        for a, ts in llm_negatives(cfg).items():
+            labelled_not.setdefault(a, set()).update(ts)
     accept = ce_accept(cfg, verses.text_model.tolist(), log) if source == "self_ce" else None
     df = mine_hard_negatives(
         train.src_vid.to_numpy(),

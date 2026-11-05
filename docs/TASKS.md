@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M150: Training on Claude's verdicts (§16.84, D140; proposed L2)
+- [x] `eval/llm_train.py`, `bsim llm-train [--dry-run]`: the label queue's next 10,000 pairs after the triage's 500, its prompt and schema, a calibration of its own (seed 81), one batch on the core
+- [x] `extra_pairs: [llm]` (`train/pairs.py`): both runs, each only when calibrated; real with p ≥ 0.7 as positives, not with p ≤ 0.3 as hard negatives (`train/negatives.py`, as labels); the Sefaria split rule; `split_pairs` / `both_ways` shared with labels
+- [x] Variant `supervision_experiments.variants.llm`; `report_golds: [llm]` puts the judged pool in the table, no rule reading it
+- [x] Dry run on the real queue: 10,100 requests, about $15 (budget $25)
+- [x] Tests: the runs read only when calibrated, the source's thresholds and splits, the negatives, the triage's pairs skipped, a run with a fake batch client (pytest)
+- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-train`
+- [ ] Train the `llm` variant (about 2.5 h, GPU; the owner starts it: `bsim supervision-exp --only llm`)
+- [ ] Dev table in RESULTS.md and the adoption verdict
+
 ## M149: A judged dev pool (§16.83, D139; proposed L3)
 - [x] `eval/llm_pool.py`, `bsim llm-pool [--dry-run | --score]`: the top 5 of lexical, semantic, fused and `fused_rerank` for each dev Sefaria query (neighbours dropped, Sefaria's pairs left out), the triage's prompt and schema, one batch on the core (L1)
 - [x] Calibration fixed before the run: all 602 fair dev Sefaria links against 602 random dev pairs, AUC ≥ 0.75; Claude's recall of Sefaria reported

@@ -131,7 +131,7 @@ def run_supervision_experiments(
     variants = {n: v for n, v in sx["variants"].items() if not only or n in only}
     if only and (unknown := sorted(set(only) - set(sx["variants"]))):
         raise RuntimeError(f"unknown variant(s) {unknown}; configured: {sorted(sx['variants'])}")
-    scorer = Scorer(cfg, log, tuple(sx["golds"]), sx["metric"])
+    scorer = Scorer(cfg, log, (*sx["golds"], *sx.get("report_golds", [])), sx["metric"])
     missing = [g for g in sx["golds"] if g not in scorer.golds]
     if missing:
         raise RuntimeError(f"dev gold(s) {missing} missing; run `bsim build-golds` first")
@@ -241,7 +241,7 @@ def report(out: dict[str, Any]) -> str:
                     name,
                     ", ".join(f"{s} {n}" for s, n in r["rows_by_source"].items()),
                     li,
-                    *(_gain(r["gains"][g][li]) for g in golds),
+                    *(_gain(r["gains"][g][li]) if g in r["gains"] else "" for g in golds),
                     ("yes" if r["adopt"] else "no") if li == "fused" else "",
                 ]
                 for name, r in out["results"].items()

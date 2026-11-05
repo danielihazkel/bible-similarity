@@ -298,8 +298,10 @@ supervision_experiments:      # `bsim supervision-exp`: more supervision for the
     labels: {extra_pairs: [openbible, etcbc, labels]}   # + your real train-split labels as positives, your not ones as hard negatives (M142, D132); needs labels.min_train
     self: {negatives_from: self}         # hard negatives from the model in use's own semantic list (M143, D133)
     self_ce: {negatives_from: self_ce}   # the same, the cross-encoder's likely links drawn again
+    llm: {extra_pairs: [openbible, etcbc, llm]}   # + Claude's real queue pairs as positives, its not ones as hard negatives (M150, D140)
   noise: m115_seed14          # its OpenBible gain, either way, is the bar a variant must clear (adoption rule, fixed in advance; m115_seed14 since M127: 0.0007 on the gold with the Psalms)
   golds: [sefaria, openbible, etcbc]
+  report_golds: [llm]         # scored and reported when present (the judged dev pool, §16.83); no adoption rule reads them
   metric: ndcg@10
   bootstrap_reps: 10000
   seed: 13
@@ -1839,6 +1841,28 @@ llm_triage:                   # `bsim llm-triage`: Claude's suggestions for the 
   chars_per_token: 2.0        # the estimate's input tokens (pointed Hebrew tokenizes densely)
   typical_output_tokens: 160  # the estimate's typical answer, thinking included (the M144 runs: 152 measured; 1,200 before them overestimated 4x)
   budget_usd: 5.0             # a submission whose typical estimate is above this is refused (L1)
+
+llm_train:                    # `bsim llm-train`: Claude judges the label queue's next pairs, as training pairs (DESIGN.md §16.84, D140); run by hand, paid; never labels
+  pairs: 10000                # the queue's pairs after those the triage judged (all between train books)
+  min_p: 0.7                  # a real verdict trains as a positive from this p_real (`extra_pairs: [llm]`)
+  max_p_not: 0.3              # a not verdict is a hard negative up to this p_real
+  model: claude-sonnet-5-5    # the triage's model, prompt and schema (§16.81)
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 400
+  rationale: hebrew
+  seed: 81
+  calibration:                # fixed before the run, as the triage's (its own seed)
+    split: dev
+    gold: 50
+    random: 50
+    min_auc: 0.75             # the source is refused unless the AUC of p_real reaches this
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 160  # measured on the triage's runs (152)
+  budget_usd: 25.0            # the plan's $18, with room
 
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files

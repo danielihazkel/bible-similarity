@@ -953,6 +953,24 @@ def llm_triage(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-train")
+def llm_train(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude judges the label queue's next pairs, for `extra_pairs: [llm]` (paid; §16.84)."""
+    from bsim.eval.llm_train import run_llm_train
+
+    try:
+        run_llm_train(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,
