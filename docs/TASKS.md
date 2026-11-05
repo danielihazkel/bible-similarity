@@ -892,8 +892,8 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] `eval/llm_ui.py`, `bsim llm-ui-review [--dry-run]`: each of 54 catalog groups, English beside Hebrew, D54 and §11's rules, the Hebrew glossary; Claude Opus 5.5 at effort high; a checklist report, no catalog changed
 - [x] Dry run: 54 requests, about $3.20 (budget $8)
 - [x] Tests: the groups and rules found, the answer read, a run with a fake batch client and its report (pytest)
-- [ ] The run (paid; the owner's go-ahead)
-- [ ] The owner's choices made in the catalogs; `docs/HEBREW_UI.md`, the agreed terms
+- [x] The run (2026-11-05, $2.41): 252 suggestions in 54 groups (wording 79, meaning 61, agreement 34, consistency 31, grammar 24, term 23); in RESULTS.md
+- [ ] The owner's choices made in the catalogs (`artifacts/llm_ui/review.md`); `docs/HEBREW_UI.md`, the agreed terms
 
 ## M154: Claude's notes beside the strongest parallels (§16.88, D144; proposed L7)
 - [x] `eval/llm_notes.py`: `read_notes` gathers every calibrated run with a Hebrew rationale (about 25,000 pairs); `bsim llm-notes [--dry-run]` reads the 5,000 strongest fused verse discoveries not yet read, its own calibration
@@ -909,8 +909,9 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] `eval/llm_genealogy.py`, `bsim llm-genealogy [--dry-run]`: 50 siblings no shared parent implies and 315 attachments to a named people or tribe, calibrated on 100 confirmed against 45 rejected parent links; a review sheet, never the curation files
 - [x] Dry runs: 454 requests, about $0.95; 510 requests, about $0.91
 - [x] Tests: letters and lemma matching, the draws, the passage, agreement; the candidates, the calibration, a run and its sheet (pytest)
-- [ ] The runs (paid; the owner's go-ahead)
-- [ ] The owner marks the 30 speaker answers; `bsim speaker-eval`; the results in RESULTS.md
+- [x] The runs (2026-11-05, $0.87 and $0.78): speakers per source (explicit 83 / 94 … carried 55 / 89); the family tree's calibration AUC 0.952, 27 of 50 siblings and 23 of 315 attachments called wrong; in RESULTS.md
+- [ ] The owner marks the 30 speaker answers (`artifacts/llm_speakers/review.csv`); `bsim speaker-eval` again
+- [ ] The owner goes through `artifacts/llm_genealogy/review.md` in the curation files
 
 ## M152: How often the detectors are right (§16.86, D142; proposed L5)
 - [x] `eval/llm_audit.py`, `bsim llm-audit [--dry-run]`: 50 of the 200 strongest findings of 14 detectors and their known answers, each claim with the detector's definition and the pointed verses; type scenes without the parallel texts
@@ -918,7 +919,9 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Precision with a Wilson interval; `artifacts/eval/llm_audit.md` with the wrong findings
 - [x] Dry run: 805 requests, about $1.70 (budget $10)
 - [x] Tests: the claims, known answers, the draw, the interval, the gate, a run with a fake batch client (pytest)
-- [ ] The run (paid; the owner's go-ahead); the table in RESULTS.md
+- [x] The run (2026-11-05, $1.53): calibration holds (places 45 / 50, known 127 / 138); the table in RESULTS.md: wordplay 0.87 … ciphers 0.02, the low ones beyond their significant findings
+
+✔ Each detector's precision is measured, not only its recall: the found-as-read detectors are right four times in five, and the ones past their significant few are noise, as their tests said.
 
 ## M151: The reranker taught by Claude (§16.85, D141; proposed L4)
 - [x] `eval/llm_rerank.py`, `bsim llm-rerank [--dry-run]`: 5,000 of the cross-encoder's 37,457 training negatives (its own draw), the triage's prompt and schema, a calibration of its own (seed 91), one batch on the core
@@ -1648,7 +1651,7 @@ Models
 - [ ] L4 The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
 
 Analyses
-- [ ] L5 Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
+- [x] L5 (done, M152) Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
 - [ ] L6 Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
 
 Viewer
