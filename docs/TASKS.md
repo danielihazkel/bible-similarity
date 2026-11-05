@@ -917,7 +917,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Dry runs: 454 requests, about $0.95; 510 requests, about $0.91
 - [x] Tests: letters and lemma matching, the draws, the passage, agreement; the candidates, the calibration, a run and its sheet (pytest)
 - [x] The runs (2026-11-05, $0.87 and $0.78): speakers per source (explicit 83 / 94 … carried 55 / 89); the family tree's calibration AUC 0.952, 27 of 50 siblings and 23 of 315 attachments called wrong; in RESULTS.md
-- [ ] The owner marks the 30 speaker answers (`artifacts/llm_speakers/review.csv`); `bsim speaker-eval` again
+- [x] The owner marks the 30 speaker answers (`artifacts/llm_speakers/review.csv`); `bsim speaker-eval` again: 26 right, usable
 - [x] `artifacts/llm_genealogy/review.md` gone through in the curation files (2026-11-05, at the owner's word): 44 sibling links rejected (25 called wrong, 19 the same reading carried through), the Meunites off Canaan; 22 attachments called wrong kept (priests are Levi's line), 2 siblings left open; `role: sibling` in the format
 
 ## M152: How often the detectors are right (§16.86, D142; proposed L5)
@@ -1665,7 +1665,7 @@ Models
 
 Analyses
 - [x] L5 (done, M152) Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
-- [ ] L6 (M153; the family tree done, the speaker check waits) Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
+- [x] L6 (M153) Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
 
 Viewer
 - [x] L7 (done, M154) Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
