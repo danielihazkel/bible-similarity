@@ -2603,6 +2603,25 @@ def write_llm_triage(cfg):
     (out / "llm_triage.meta.json").write_text(json.dumps(meta), "utf-8")
 
 
+def write_llm_notes(cfg):
+    """A `bsim llm-notes` run (§16.88): Claude's note on the fixture's fused discovery v:0 / v:3,
+    its calibration holding (made up; only the plumbing is tested)."""
+    out = resolve_path(cfg, "artifacts") / "llm_notes"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {"a_id": ["v:0"], "b_id": ["v:3"], "status": ["ok"], "verdict": ["real"], "p_real": [0.7],
+         "kind": ["shared_phrase"], "rationale": ["שתיהן פותחות בראשית"],
+         "input_tokens": [100], "output_tokens": [50]}
+    ).to_parquet(out / "notes.parquet", index=False)  # fmt: skip
+    meta = {
+        "model": "claude-sonnet-5-5", "rationale": "hebrew", "batch_id": "msgbatch_fixture",
+        "collected_at": "2026-11-05T12:00:00+00:00",
+        "calibration": {"gold": 50, "random": 50, "auc": 0.95, "min_auc": 0.75, "holds": True},
+        "notes": {"real": 1, "not": 0, "unsure": 0},
+    }  # fmt: skip
+    (out / "llm_notes.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
 def write_witnesses(cfg):
     """Other witnesses (`bsim witnesses`), made up: the Samaritan has v0 (a spelling), v1 (a plus of
     four words) and v2 (a word changed, one left out); 4Q51 has v2, partly reconstructed; 1Qisaa
@@ -2713,6 +2732,7 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_reception(cfg)
     write_witnesses(cfg)
     write_llm_triage(cfg)
+    write_llm_notes(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

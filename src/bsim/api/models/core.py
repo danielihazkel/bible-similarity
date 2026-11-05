@@ -17,6 +17,7 @@ from bsim.api.models.common import (
     UnitType,
     Verse,
 )
+from bsim.api.models.notes import PairNote
 from bsim.api.models.vocabulary import LemmaFirst
 
 Mode = Literal["lexical", "semantic", "fused", "structural", "domain", "syntax"]
@@ -82,6 +83,7 @@ class Discovery(ApiModel):
     b_verse: Verse | None = None
     a_preview: str | None = None  # larger units
     b_preview: str | None = None
+    note: PairNote | None = None  # Claude's reading of a verse pair (§16.88); personal servers
 
 
 class DiscoveriesResponse(Page[Discovery]):

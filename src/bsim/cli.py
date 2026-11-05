@@ -1055,6 +1055,24 @@ def speaker_eval(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-notes")
+def llm_notes(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude reads the strongest parallels, as notes beside them (paid; DESIGN.md §16.88)."""
+    from bsim.eval.llm_notes import run_llm_notes
+
+    try:
+        run_llm_notes(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,

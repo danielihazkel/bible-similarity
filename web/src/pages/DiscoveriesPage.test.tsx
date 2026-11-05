@@ -52,6 +52,7 @@ const response = (offset: number): DiscoveriesResponse => ({
       b_verse: verse(2, 'כְּמוֹהֶם יִהְיוּ עֹשֵׂיהֶם'),
       a_preview: null,
       b_preview: null,
+      note: offset === 50 ? { verdict: 'real', p_real: 0.9, kind: 'quotation', rationale: 'כמוהם יהיו עשיהם בשניהם', run: 'llm_notes' } : null,
     },
   ],
 })
@@ -135,5 +136,26 @@ describe('DiscoveriesPage', () => {
     fireEvent.click(screen.getByLabelText('Different books only'))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/discoveries?cross=1'))
     await waitFor(() => expect(calls.some((c) => c.includes('cross_book=true'))).toBe(true))
+  })
+})
+
+describe("Claude's note on a discovery (DESIGN.md §16.88)", () => {
+  afterEach(() => {
+    cleanup()
+    vi.unstubAllGlobals()
+  })
+
+  it('shows the note under the pair when the server sends one, and nothing otherwise', async () => {
+    mockApi()
+    renderAt('/discoveries?mode=semantic')
+    await screen.findAllByText('Psalms 115:8')
+    expect(screen.queryByText(/Claude suggests/)).toBeNull()
+    cleanup()
+    mockApi()
+    renderAt('/discoveries?mode=semantic&page=2')
+    expect(await screen.findByText('Claude suggests: Real (p 0.90, quotation).')).toBeTruthy()
+    const rationale = screen.getByText('כמוהם יהיו עשיהם בשניהם')
+    expect(rationale.getAttribute('lang')).toBe('he')
+    expect(rationale.getAttribute('dir')).toBe('rtl')
   })
 })

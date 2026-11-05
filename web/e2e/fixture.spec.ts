@@ -1033,6 +1033,20 @@ for (const locale of ['en', 'he'] as const) {
   }
 }
 
+for (const locale of ['en', 'he'] as const) {
+  test(`Claude's note on a discovery, a suggestion in Hebrew (${locale})`, async ({ page }) => {
+    await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+    // the fixture's made-up `bsim llm-notes` run: the fused discovery v:0 / v:3
+    await page.goto('/discoveries?mode=fused')
+    const note = page.locator('.disc .queue-suggestion')
+    await expect(note).toHaveCount(1)
+    await expect(note).toContainText(locale === 'en' ? 'Claude suggests: Real (p 0.70, shared phrase).' : 'Claude מציע:')
+    await expect(note.locator('[lang="he"]')).toHaveText('שתיהן פותחות בראשית')
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  })
+}
+
 test('a selection is in the URL: a reload keeps it, Back undoes it', async ({ page }) => {
   await page.goto('/map')
   const first = page.locator('.cluster-legend button').first()

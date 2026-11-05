@@ -10,7 +10,7 @@ from typing import Annotated, Any
 import numpy as np
 from fastapi import APIRouter, HTTPException, Query, Response
 
-from bsim.api import queries
+from bsim.api import notes, queries
 from bsim.api.app import ServeState
 from bsim.api.models.common import (
     Book,
@@ -196,6 +196,7 @@ def discoveries(
         state, conn, unit_type, [u["start_verse_id"] for u in units_.values()]
     )
     items = []
+    with_notes = unit_type == "verse" and state.cfg["serve"]["personal"]
     for r in rows:
         a, b = units_[r["a_id"]], units_[r["b_id"]]
         sa, sb = a["start_verse_id"], b["start_verse_id"]
@@ -211,6 +212,7 @@ def discoveries(
                 b_verse=verses.get(sb),
                 a_preview=previews.get(sa),
                 b_preview=previews.get(sb),
+                note=notes.note_for(state.cfg, sa, sb) if with_notes else None,
             )
         )
     return {

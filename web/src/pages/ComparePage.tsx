@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useAlign, useCompare, useExplain, useServer, useVerseDiff } from '../api/hooks'
+import { useAlign, useCompare, useExplain, usePairNote, useServer, useVerseDiff } from '../api/hooks'
 import type { CompareResponse, Pair, UnitSummary, Verse, VerseDiff } from '../api/types'
 import { AlignChips } from '../components/AlignChips'
 import { BorrowLineBetween } from '../components/BorrowLine'
+import { ClaudeNote } from '../components/ClaudeNote'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { LemmaChips } from '../components/LemmaChips'
@@ -75,6 +76,7 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
   const diff = useVerseDiff(active?.a, active?.b, marks === 'changes')
   const df = diff.data && active && diff.data.a === active.a && diff.data.b === active.b ? diff.data : undefined
   const [focusLink, setFocusLink] = useState<number>()
+  const note = usePairNote(active?.a, active?.b)
   const align = useAlign(active?.a, active?.b, marks === 'meaning')
   // links of meaning need the query encoder (off on a public deploy)
   const { encoder } = useServer()
@@ -165,6 +167,7 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
           ) : (
             <AlignChips align={al} loading={align.isFetching} error={align.error} focus={focusLink} onFocus={setFocusLink} />
           )}
+          {note.data?.note && <ClaudeNote note={note.data.note} />}
         </div>
       )}
     </>

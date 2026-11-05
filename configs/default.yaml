@@ -1940,6 +1940,26 @@ llm_genealogy:                # `bsim llm-genealogy`: the family tree's unreview
   typical_output_tokens: 250
   budget_usd: 4.0
 
+llm_notes:                    # `bsim llm-notes`: Claude's reading of the strongest parallels, as notes beside them (DESIGN.md §16.88, D144); run by hand, paid; personal only
+  pairs: 5000                 # the strongest fused verse discoveries not read by another run (first both ways, first one way, then the semantic score)
+  model: claude-sonnet-5-5    # the triage's model, prompt and schema (§16.81)
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 400
+  rationale: hebrew
+  seed: 131
+  calibration:                # fixed before the run, as the triage's (its own seed)
+    split: dev
+    gold: 50
+    random: 50
+    min_auc: 0.75             # its notes are shown only when the AUC of p_real reaches this
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 160  # measured on the triage's runs (152)
+  budget_usd: 15.0            # the plan's $9, with room
+
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files
   depth: 5                    # the top targets of each dev Sefaria query pooled from each list (neighbours dropped first)

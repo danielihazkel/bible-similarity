@@ -215,6 +215,7 @@ bible-similarity/
 │   │   ├── llm_audit.py            # `bsim llm-audit`: detector precision by Claude's reading of a sample (§16.86)
 │   │   ├── llm_batch.py            # the Claude jobs' Message Batches core: request, answer check, budget, submit / resume / collect (§16.82)
 │   │   ├── llm_genealogy.py        # `bsim llm-genealogy`: the family tree's unreviewed links checked, as suggestions (§16.87)
+│   │   ├── llm_notes.py            # `bsim llm-notes`: Claude's notes on verse pairs, gathered from every run (§16.88)
 │   │   ├── llm_pool.py             # `bsim llm-pool`: a judged dev pool, the `llm` gold on condensed lists (§16.83)
 │   │   ├── llm_rerank.py           # `bsim llm-rerank`: Claude judges the cross-encoder's negatives, as soft targets (§16.85)
 │   │   ├── llm_train.py            # `bsim llm-train`: Claude judges more queue pairs, for `extra_pairs: [llm]` (§16.84)
@@ -302,6 +303,7 @@ bible-similarity/
 | — | `bsim llm-audit` | the results DB (the detectors' tables), the places sample; the Anthropic API (paid) | `artifacts/llm_audit/{items,judged}.parquet`, `llm_audit.meta.json`; `artifacts/eval/llm_audit.md` (§16.86) |
 | — | `bsim llm-speakers` / `speaker-eval` | the quotations (`bsim dialogue`), the results DB; the Anthropic API (paid) | `artifacts/llm_speakers/{items,judged}.parquet`, `review.csv`; `artifacts/eval/speaker_eval.json` (§16.87) |
 | — | `bsim llm-genealogy` | `artifacts/genealogy/` (links, persons, mentions, proofs), verses; the Anthropic API (paid) | `artifacts/llm_genealogy/{items,judged}.parquet`, `review.md` (§16.87; never `curation/`) |
+| — | `bsim llm-notes` | the results DB (fused verse discoveries), the other series-L runs; the Anthropic API (paid) | `artifacts/llm_notes/{pairs,notes}.parquet`, `llm_notes.meta.json`; read by `/pair-note` and `/discoveries` (§16.88; personal only) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |

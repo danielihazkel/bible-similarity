@@ -594,6 +594,8 @@ export type LabelQueue = S['LabelQueue']
 export type Suggestion = S['Suggestion']
 
 export type LlmTriage = S['LlmTriage']
+export type PairNote = S['PairNote']
+export type PairNoteResponse = S['PairNoteResponse']
 
 export type QueueSide = 'all' | 'lexical' | 'semantic'
 

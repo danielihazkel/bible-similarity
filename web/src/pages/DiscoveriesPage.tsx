@@ -3,6 +3,7 @@ import { useBooks, useDiscoveries, discoveriesParams } from '../api/hooks'
 import { UnitFilter } from '../components/UnitFilter'
 import type { Discovery, Mode, UnitSummary, UnitType, Verse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
+import { ClaudeNote } from '../components/ClaudeNote'
 import { BookSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewPlain, HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
@@ -132,6 +133,7 @@ function DiscoveryCard({ d, mode }: { d: Discovery; mode: Mode }) {
         <Side unit={d.a} verse={d.a_verse} preview={d.a_preview} />
         <Side unit={d.b} verse={d.b_verse} preview={d.b_preview} />
       </div>
+      {d.note && <ClaudeNote note={d.note} />}
     </li>
   )
 }

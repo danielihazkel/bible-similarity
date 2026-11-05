@@ -35,6 +35,7 @@ from bsim.api.routes import (
     meter,
     mirrors,
     notebook,
+    notes,
     parallels,
     patterns,
     pentateuch,
@@ -109,11 +110,12 @@ for _module in (
     patterns,
     workbench,
     notebook,
+    notes,
     reader,
     dossier,
     findings,
     export,
 ):
-    # your labels and notebook: off on a public deploy (serve.personal)
-    personal = [Depends(_common.personal)] if _module in (labels, notebook) else []
+    # your labels, notebook and Claude's notes: off on a public deploy (serve.personal)
+    personal = [Depends(_common.personal)] if _module in (labels, notebook, notes) else []
     router.include_router(_module.router, dependencies=personal)

@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { hasHebrew } from '../lib/hebrew'
 import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
+  PairNoteResponse,
   DialogueBookResponse,
   DialogueExchangesResponse,
   DialogueResponse,
@@ -452,6 +453,16 @@ export const useLabelQueue = (side: QueueSide, suggested = false) => {
     queryKey: ['label-queue', side, suggested],
     queryFn: ({ signal }) => getJson<LabelQueue>('/labels/queue', { side, suggested: suggested ? 'true' : undefined }, signal),
     enabled: personal,
+  })
+}
+
+/** Claude's note on a verse pair (DESIGN.md §16.88), on a personal server only. */
+export const usePairNote = (a: number | undefined, b: number | undefined) => {
+  const { personal } = useServer()
+  return useQuery({
+    queryKey: ['pair-note', Math.min(a ?? 0, b ?? 0), Math.max(a ?? 0, b ?? 0)],
+    queryFn: ({ signal }) => getJson<PairNoteResponse>('/pair-note', { a, b }, signal),
+    enabled: personal && a !== undefined && b !== undefined,
   })
 }
 

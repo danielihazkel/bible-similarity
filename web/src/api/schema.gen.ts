@@ -3269,6 +3269,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pair-note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pair Note
+         * @description The note on verses `a` and `b` (verse ids, either order), and the runs notes come from.
+         */
+        get: operations["pair_note_api_pair_note_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -5067,6 +5087,7 @@ export interface components {
             a_preview: string | null;
             /** B Preview */
             b_preview: string | null;
+            note: components["schemas"]["PairNote"] | null;
         };
         /** District */
         District: {
@@ -7765,6 +7786,15 @@ export interface components {
             /** Note */
             note?: string | null;
         };
+        /** NoteRun */
+        NoteRun: {
+            /** Model */
+            model: string;
+            /** Auc */
+            auc: number | null;
+            /** Pairs */
+            pairs: number;
+        };
         /** NotebookCollection */
         NotebookCollection: {
             /** Collection Id */
@@ -7845,6 +7875,30 @@ export interface components {
             cosine: number;
             /** Shared */
             shared: components["schemas"]["LemmaForm"][];
+        };
+        /**
+         * PairNote
+         * @description Claude's reading of a verse pair: a suggestion, never a label.
+         */
+        PairNote: {
+            /** Verdict */
+            verdict: string;
+            /** P Real */
+            p_real: number;
+            /** Kind */
+            kind: string;
+            /** Rationale */
+            rationale: string | null;
+            /** Run */
+            run: string;
+        };
+        /** PairNoteResponse */
+        PairNoteResponse: {
+            note: components["schemas"]["PairNote"] | null;
+            /** Runs */
+            runs: {
+                [key: string]: components["schemas"]["NoteRun"];
+            };
         };
         /** ParallelBook */
         ParallelBook: {
@@ -16272,6 +16326,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pair_note_api_pair_note_get: {
+        parameters: {
+            query: {
+                a: number;
+                b: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PairNoteResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

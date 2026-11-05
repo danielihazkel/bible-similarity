@@ -888,6 +888,15 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M154: Claude's notes beside the strongest parallels (§16.88, D144; proposed L7)
+- [x] `eval/llm_notes.py`: `read_notes` gathers every calibrated run with a Hebrew rationale (about 25,000 pairs); `bsim llm-notes [--dry-run]` reads the 5,000 strongest fused verse discoveries not yet read, its own calibration
+- [x] API: `/pair-note` and `note` on verse discoveries (`api/notes.py`, cached by the runs' files); personal only (404 and no notes on a public server)
+- [x] Viewer: `ClaudeNote` (the queue's suggestion, shared) on Compare's pair panel and the discovery cards; `usePairNote`; the types regenerated
+- [x] Fixture: a made-up notes run on v:0 / v:3
+- [x] Dry run: 5,100 requests, about $7.80 (budget $15)
+- [x] Tests: the runs gathered and their order, calibration and language, the strongest pairs, the API and the public server (pytest); the card with and without a note (vitest); fixture e2e in both languages, phone and desktop, with axe
+- [ ] The run (paid; the owner's go-ahead)
+
 ## M153: Speaker and family-tree gold (§16.87, D143; proposed L6)
 - [x] `eval/llm_speakers.py`, `bsim llm-speakers [--dry-run]`: 100 quotations of each source (454), the passage and the opening words; the answer mapped to a lemma; `bsim speaker-eval`, per source and on the dev books, the owner's sheet of 30
 - [x] `eval/llm_genealogy.py`, `bsim llm-genealogy [--dry-run]`: 50 siblings no shared parent implies and 315 attachments to a named people or tribe, calibrated on 100 confirmed against 45 rejected parent links; a review sheet, never the curation files

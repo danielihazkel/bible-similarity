@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ApiError } from '../api/client'
 import { useLabelQueue, useLabels, useLabelsEval, useServer, useSetLabel } from '../api/hooks'
-import type { Label, LabelValue, LlmTriage, Mode, QueueItem, QueueSide, Suggestion } from '../api/types'
+import type { Label, LabelValue, LlmTriage, Mode, QueueItem, QueueSide } from '../api/types'
 import { Segmented } from '../components/Controls'
+import { ClaudeNote } from '../components/ClaudeNote'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
@@ -185,7 +186,7 @@ function QueueRow({ i, k, hebrew }: { i: QueueItem; k: number; hebrew: boolean }
       <p className="queue-text">
         <HebrewText verse={i.b} />
       </p>
-      {i.suggestion && <SuggestionNote s={i.suggestion} hebrew={hebrew} />}
+      {i.suggestion && <ClaudeNote note={i.suggestion} hebrew={hebrew} />}
       <p className="queue-actions">
         <LabelButtons a={i.a_id} b={i.b_id} mode={QUEUE} score={i.score} />
         <Link className="linkish small" to={compareLink(i.a_id, i.b_id)} title={m.hit.compareTitle}>
@@ -201,21 +202,6 @@ function LlmLine({ llm }: { llm: LlmTriage }) {
   const t = useLocale().m.lab
   const auc = llm.auc === null ? '—' : llm.auc.toFixed(2)
   return <p className="muted small">{llm.holds ? t.llmLine(llm.model, auc, llm.min_auc.toFixed(2), llm.pairs, llm.rationale === 'hebrew') : t.llmHidden(auc, llm.min_auc.toFixed(2))}</p>
-}
-
-/** Claude's reading of a pair: a suggestion beside the buttons, never a label. */
-function SuggestionNote({ s, hebrew }: { s: Suggestion; hebrew: boolean }) {
-  const t = useLocale().m.lab
-  return (
-    <p className={`queue-suggestion small suggest-${s.verdict}`}>
-      <span className="queue-suggestion-head">{t.suggests(t.values[s.verdict as LabelValue], s.p_real.toFixed(2), t.kinds[s.kind] ?? s.kind)}</span>{' '}
-      {s.rationale && (
-        <span lang={hebrew ? 'he' : 'en'} dir={hebrew ? 'rtl' : 'ltr'}>
-          {s.rationale}
-        </span>
-      )}
-    </p>
-  )
 }
 
 function Separation() {
