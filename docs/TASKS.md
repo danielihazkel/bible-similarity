@@ -902,7 +902,9 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Fixture: a made-up notes run on v:0 / v:3
 - [x] Dry run: 5,100 requests, about $7.80 (budget $15)
 - [x] Tests: the runs gathered and their order, calibration and language, the strongest pairs, the API and the public server (pytest); the card with and without a note (vitest); fixture e2e in both languages, phone and desktop, with axe
-- [ ] The run (paid; the owner's go-ahead)
+- [x] The run (2026-11-05, $9.23): calibration AUC 0.976; 4,469 of the 5,000 strongest called real; 29,117 pairs with a note in all
+
+✔ The strongest parallels and every pair a series-L run read carry Claude's reading in Hebrew beside them, as a suggestion, on a personal server only.
 
 ## M153: Speaker and family-tree gold (§16.87, D143; proposed L6)
 - [x] `eval/llm_speakers.py`, `bsim llm-speakers [--dry-run]`: 100 quotations of each source (454), the passage and the opening words; the answer mapped to a lemma; `bsim speaker-eval`, per source and on the dev books, the owner's sheet of 30
@@ -1646,16 +1648,16 @@ Shared
 - [x] L1 (done, M148) One batch core (`eval/llm_batch.py`): the request, the answer read by a schema, submit / resume / poll / collect, the estimate from the measured tokens, `budget_usd`; `llm-triage` on it unchanged
 
 Models
-- [ ] L2 Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
+- [ ] L2 (M150; training waits) Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
 - [x] L3 (done, M149) A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
-- [ ] L4 The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
+- [ ] L4 (M151; training waits) The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
 
 Analyses
 - [x] L5 (done, M152) Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
-- [ ] L6 Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
+- [ ] L6 (M153; the owner's checks wait) Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
 
 Viewer
-- [ ] L7 Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
-- [ ] L8 A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
+- [x] L7 (done, M154) Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
+- [ ] L8 (M155; the owner's choices wait) A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
 
 Suggested order: L1 → L3 → L2 → L4 → L5 → L6 → L7 → L8.
