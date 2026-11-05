@@ -195,6 +195,20 @@ The test split was run once, at M9; these systems are compared on dev only, each
 
 Paired bootstrap (884 dev queries) of fused_rerank − fused nDCG@10: +0.0042, 95 % CI [−0.0007, +0.0092]; the blend weight was chosen on the same queries. Not adopted (DESIGN §16.3, D31). The structural mode is shown in the viewer as its own mode, not fused (§16.5, D32). Semantic domains (§16.22, D56): `bm25_lemma_domain` beats `bm25_lemma` (+0.0045, CI [+0.0003, +0.0087]), but in place of the lexical list in the fusion the cross-fitted gain is −0.0021, CI [−0.0075, +0.0030]: not adopted.
 
+The judged dev pool (§16.83, D139, M149): Claude (Sonnet 5.5, Message Batches) judged the top 5 of the lexical, semantic, fused and reranked lists for each of the 884 dev queries, 9,239 pairs Sefaria does not link, for $18.60. Calibration fixed before the run, all 602 fair dev Sefaria links against 602 random dev pairs: AUC 0.966 (holds); 358 of the links called real (recall 0.595), 4 of the random pairs. The pool: 4,095 real, 3,935 not, 1,208 unsure (unjudged). Scored as condensed lists (unjudged targets dropped), with the Sefaria pairs relevant too:
+
+| system | Sefaria nDCG@10 | Sefaria P@5 | pool nDCG@10 | pool P@5 | judged of top 10 |
+|---|---|---|---|---|---|
+| lexical | 0.176 | 0.052 | 0.671 | 0.576 | 0.54 |
+| semantic | 0.150 | 0.047 | 0.673 | 0.607 | 0.53 |
+| fused | 0.193 | 0.057 | 0.764 | 0.668 | 0.74 |
+| fused_rerank | 0.194 | 0.057 | 0.766 | 0.671 | 0.67 |
+| bge_m3_csls (not pooled) | 0.135 | 0.038 | 0.497 | 0.493 | 0.22 |
+| berel_mean_csls (not pooled) | 0.124 | 0.036 | 0.591 | 0.580 | 0.31 |
+| bm25_surface (not pooled) | 0.144 | 0.043 | 0.567 | 0.556 | 0.30 |
+
+About two thirds of the fused list's top 5 are connections Claude calls real, where Sefaria records one in eighteen. Fusion's lead holds on the pool: lexical −0.093 [−0.105, −0.082] and semantic −0.091 [−0.103, −0.080] against fused (paired bootstrap over the 884 queries). The cross-encoder is level, +0.002 [−0.006, +0.010], as on Sefaria. A pair only the lexical list pooled is real 27 % of the time, one only the semantic list pooled 33 %, one all four pooled 92 %. Real pairs by kind: shared formula 1,084, thematic 874, allusion 825, shared phrase 682, parallel account 590, quotation 40. The lists not pooled are judged on 22–31 % of their top 10, so their pool scores are rougher. One model judged, with the references in view.
+
 Syntax (§16.26, D60): `bm25_syntax` as a third list in the fusion +0.0005, CI [−0.0031, +0.0044]; `bm25_morph_syntax` against `bm25_morph` +0.0039, CI [−0.0007, +0.0086] (Sefaria), +0.0036, CI [+0.0015, +0.0058] (OpenBible): not adopted; clause-shape neighbours are shown as "built the same way" instead. Speakers revised (M116, D119): quotations stop at a book's end and at a clause of their own level that is not speech (a psalm's superscription), carried subjects skip relative clauses, the messenger formula names God in its paragraph and Deuteronomy's frame names Moses: unknown quotation clauses 21,616 → 18,773 (formula 1,153, framed 1,892; Deuteronomy 20 % → 74 % attributed). Fresh check of 50 changed by the rules: 37 of the 45 given a speaker right (1 of 9 before); 20 changed by the quotation-end rule: wrong speakers 10 → 2–3, right ones 7 → 3–4.
 
 Direction of borrowing (§16.27, D61), 35 parallels of accepted direction: language 30 / 35, spelling 29 / 31, smoothing 15 / 28, expansion 15 / 33; language + spelling chosen without each book pair, scored on it: 30 / 32 right, 3 undecided. Current build (42 parallels, 34 of accepted direction): language 28 / 34, spelling 29 / 31, smoothing 18 / 29, expansion 14 / 32; held out 28 / 30 right, 4 undecided (p 9 × 10⁻⁷).

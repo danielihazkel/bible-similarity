@@ -112,6 +112,18 @@ CHECKS = [
         ("tests", "particle", "up", "count"),
         str,
     ),
+    (
+        r"602 random dev pairs: AUC ([\d.]+) \(holds\)",
+        "llm_pool/llm_pool.meta.json",
+        ("calibration", "auc"),
+        f3,
+    ),
+    (
+        r"\| fused \| [\d.]+ \| [\d.]+ \| ([\d.]+) \| [\d.]+ \| [\d.]+ \|\n\| fused_rerank",
+        "eval/llm_pool.json",
+        ("rows", 2, "llm_ndcg10"),
+        f3,
+    ),
 ]
 
 

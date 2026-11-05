@@ -915,8 +915,10 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Dev judgements never train: `extra_pairs: [llm_pool]` refused
 - [x] Dry run on the real data: 9,239 pool pairs, 10,443 requests, about $16 (budget $30)
 - [x] Tests: the pool, the judged gold and condensed lists, P@5, a run with a fake batch client, a failed calibration, the training refusal (pytest)
-- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-pool`
-- [ ] `bsim llm-pool --score`; the dev table in RESULTS.md
+- [x] The run (2026-11-05, $18.60): calibration AUC 0.966 (holds), recall of Sefaria 0.595; the pool 4,095 real, 3,935 not, 1,208 unsure
+- [x] `bsim llm-pool --score`; the dev table in RESULTS.md: fused 0.764 on the pool (0.193 on Sefaria), the lists alone about 0.09 below, the cross-encoder level (+0.002, CI across 0); two numbers checked by `test_docs_numbers.py`
+
+✔ About two thirds of the fused list's top 5 are connections Claude calls real, where Sefaria records one in eighteen; fusion's lead over either list holds on the judged pool, and the cross-encoder's does not appear there either.
 
 ## M148: One batch core for the Claude jobs (§16.82, D138; proposed L1)
 - [x] `eval/llm_batch.py`: `make_request`, `parse_message` with the job's check, `run_batch` (estimate, dry run, budget, submit, batch id first, resume, poll, collect), `mark_collected`, `usage`; `pointed`, `clean_rationale`, `auc` moved here
@@ -1610,7 +1612,7 @@ Shared
 
 Models
 - [ ] L2 Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
-- [ ] L3 A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
+- [x] L3 (done, M149) A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
 - [ ] L4 The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
 
 Analyses

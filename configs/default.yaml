@@ -1889,7 +1889,7 @@ llm_rerank:                   # `bsim llm-rerank`: Claude judges the cross-encod
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files
   depth: 5                    # the top targets of each dev Sefaria query pooled from each list (neighbours dropped first)
-  score_systems: [lexical, semantic, fused, fused_rerank, berel_sup_csls, bm25_lemma]   # `--score`: the lists scored on the pool (condensed, so lists outside it are fair)
+  score_systems: [lexical, semantic, fused, fused_rerank, bge_m3_csls, berel_mean_csls, bm25_surface]   # `--score`: the lists scored on the pool (condensed; the last three were not pooled)
   baseline: fused             # `--score`: each list's pool gain against this, paired bootstrap over queries
   bootstrap_reps: 10000
   unsure: drop                # an `unsure` verdict counts as unjudged (drop) or as not relevant (not)
