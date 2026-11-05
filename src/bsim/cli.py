@@ -989,6 +989,24 @@ def llm_rerank(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-audit")
+def llm_audit(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude judges a sample of each detector's findings: their precision (paid; §16.86)."""
+    from bsim.eval.llm_audit import run_llm_audit
+
+    try:
+        run_llm_audit(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,

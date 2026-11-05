@@ -888,6 +888,14 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M152: How often the detectors are right (§16.86, D142; proposed L5)
+- [x] `eval/llm_audit.py`, `bsim llm-audit [--dry-run]`: 50 of the 200 strongest findings of 14 detectors and their known answers, each claim with the detector's definition and the pointed verses; type scenes without the parallel texts
+- [x] Calibration fixed before the run: the owner's place sample (49 / 50) at least 85 % right, the known answers at least 80 %
+- [x] Precision with a Wilson interval; `artifacts/eval/llm_audit.md` with the wrong findings
+- [x] Dry run: 805 requests, about $1.70 (budget $10)
+- [x] Tests: the claims, known answers, the draw, the interval, the gate, a run with a fake batch client (pytest)
+- [ ] The run (paid; the owner's go-ahead); the table in RESULTS.md
+
 ## M151: The reranker taught by Claude (§16.85, D141; proposed L4)
 - [x] `eval/llm_rerank.py`, `bsim llm-rerank [--dry-run]`: 5,000 of the cross-encoder's 37,457 training negatives (its own draw), the triage's prompt and schema, a calibration of its own (seed 91), one batch on the core
 - [x] `rerank.soft_labels: none | llm` (`train/rerank.py`): judged negatives take `p_real` as the BCE target; `llm_extra` adds the judged queue pairs as rows; calibrated runs only; the counts in the model's meta
