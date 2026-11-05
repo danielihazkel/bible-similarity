@@ -342,6 +342,33 @@ def test_fixed_changes_the_role(tmp_path):
     assert eve[["role", "status"]].values.tolist() == [["father", "fixed"]]
 
 
+def test_sibling_rejected(tmp_path):
+    """A TIPNR sibling link is rejected (or confirmed) by `role: sibling`, in either order; it
+    cannot be added or fixed, and the short form never reaches it."""
+    cfg = corpus(tmp_path, 'block: b1\nlinks:\n  - {child: "Abagtha@Exo.1.1", parent:'
+                           ' "Hezron@Gen.1.5", role: sibling, status: rejected}\n')  # fmt: skip
+    raw = tmp_path / "raw" / "geo" / cfg["sources"]["tipnr"]["files"][0].split("/")[-1]
+    head = "Abagtha@Exo.1.1=H0005\tdesc\t + \t"
+    raw.write_text(TIPNR.replace(head, head + "Hezron@Gen.1.5"), "utf-8")
+    out = run_genealogy(cfg, log=lambda _: None)
+    pid = pd.read_parquet(out / "persons.parquet").set_index("key").person_id
+    links = pd.read_parquet(out / "links.parquet")
+    sib = links[links.role == "sibling"]
+    assert sib[["parent_id", "child_id", "status", "block"]].values.tolist() == [
+        [pid["Abagtha@Exo.1.1"], pid["Hezron@Gen.1.5"], "rejected", "b1"]
+    ]
+    for bad, want in (
+        ('{child: "Abagtha@Exo.1.1", parent: "Hezron@Gen.1.5", role: sibling, status: added}',
+         "a sibling link is confirmed or rejected, not added"),
+        ('"Abagtha@Exo.1.1 <- Hezron@Gen.1.5"', "no link Abagtha@Exo.1.1 <- Hezron@Gen.1.5"),
+    ):  # fmt: skip
+        (tmp_path / "cur" / "genealogy" / "01-b1.yaml").write_text(
+            f"block: b1\nlinks:\n  - {bad}\n", "utf-8"
+        )
+        with pytest.raises(CurationError, match=want):
+            run_genealogy(cfg, log=lambda _: None)
+
+
 def test_cycle_is_an_error(tmp_path):
     cfg = corpus(tmp_path, 'block: b1\nlinks:\n  - {child: "Adam@Gen.1.1", parent: "Seth@Gen.1.1",'
                            ' status: added}\n')  # fmt: skip

@@ -2,6 +2,7 @@
 block: b15b-1chr-3-4
 status: reviewed
 people:
+  - {key: "Meunites@1Ch.4.41-2Ch", tribe: ""}  # Claude's check (M153, §16.87), read against the Hebrew: the Meunites (I Chronicles 4:41, II Chronicles 20:1, 26:7) are no people of Canaan's in the text
   - {key: "Hodiah@1Ch.4.19", sex: m}  # "אשת הודיה" (4:19): Hodiah's wife
 links:
   - "Nathan@2Sa.5.14-Luk <- Bathsheba@2Sa.11.3-Psa"
@@ -171,6 +172,11 @@ links:
   - {child: "Jekamiah@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
   - {child: "Hoshama@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
   - {child: "Nedabiah@1Ch.3.18", parent: "Jehoiachin@2Ki.24.6-Mat", role: father, status: added, proof: [I Chronicles 3:17, I Chronicles 3:18]}
+  # Claude's check (M153, §16.87), read against the Hebrew: Jabez is "נכבד מאחיו" (I Chronicles 4:9) with no parent named; Koz is
+  # rejected as his father above, so Koz's children are not his siblings
+  - {child: "Zobebah@1Ch.4.8", parent: "Jabez@1Ch.4.9-", role: sibling, status: rejected}
+  - {child: "Jabez@1Ch.4.9-", parent: "Anub@1Ch.4.8", role: sibling, status: rejected}
+  - {child: "Jabez@1Ch.4.9-", parent: "Harum@1Ch.4.8", role: sibling, status: rejected}
 missed:
   - {ref: I Chronicles 3:4, reason: "the six sons born in Hebron: proved on II Samuel 3:2-5 (block 08)"}
   - {ref: I Chronicles 3:11, reason: "Joram, Ahaziah and Joash, the kings of Judah: proved in Kings (block 09)"}

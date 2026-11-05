@@ -145,6 +145,44 @@ links:
   # Shecaniah son of Jahaziel; Micaiah son of Zaccur
   - {child: "Shecaniah@Ezr.8.5", parent: "Jahaziel@Ezr.8.5", role: father, status: added, proof: [Ezra 8:5]}
   - {child: "Mica@Neh.11.22-", parent: "Zaccur@1Ch.25.2-Neh", role: father, status: added, proof: [Nehemiah 12:35]}
+  # Claude's check (M153, §16.87), read against the Hebrew: "ואחיו" (Nehemiah 12:36) are Zechariah's kinsmen, the musicians, not sons of
+  # one father; their father links to Jonathan are rejected above, so are their sibling links
+  - {child: "Shemaiah@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Azarel@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Milalai@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Gilalai@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Zechariah@Neh.12.35", role: sibling, status: rejected}
+  - {child: "Azarel@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Milalai@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Gilalai@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Shemaiah@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Milalai@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Gilalai@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Azarel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Gilalai@Neh.12.36", parent: "Milalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Milalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Milalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Milalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Milalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Maai@Neh.12.36", parent: "Gilalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Gilalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Gilalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Gilalai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Nethanel@Neh.12.36", parent: "Maai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Maai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Maai@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Judah@Neh.12.36", parent: "Nethanel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Nethanel@Neh.12.36", role: sibling, status: rejected}
+  - {child: "Hanani@Neh.12.36", parent: "Judah@Neh.12.36", role: sibling, status: rejected}
 conflicts:
   - kind: descendant
     child: "Ezra@Ezr.7.1-Neh"

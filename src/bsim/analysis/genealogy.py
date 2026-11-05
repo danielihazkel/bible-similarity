@@ -18,7 +18,8 @@
   canon order; the first `proof_k` are kept. A link without a candidate is unproved.
 - **The review.** `curation/genealogy/*.yaml` (`paths.curation`), one file per block of
   `genealogy.blocks`, checks links against the Hebrew: each `confirmed`, `fixed`, `added` or
-  `rejected`, with its own proof verses if given (Sefaria references, Hebrew numbering); added
+  `rejected` (a TIPNR sibling link too, `role: sibling`, either order: confirmed or rejected),
+  with its own proof verses if given (Sefaria references, Hebrew numbering); added
   people (`anon:` keys) and corrections to TIPNR's (name, sex, tribe: `""` hangs a person on no
   tribe's eponym); conflicts, whose readings name a parent and its verses, the first drawn; cue
   verses looked at and passed over (`missed`); identities (`same:`), one person under several
@@ -360,7 +361,12 @@ def apply_curation(
         return [str(c) for c in items]
 
     def parent_links(child: str, parent: str) -> list[Link]:
-        return [lk for r in (*PARENT_ROLES, "spouse") if (lk := links.get((parent, child, r)))]
+        """The links between the two: the parent roles one way, a spouse or sibling either way."""
+        a, b = sorted((parent, child))
+        return [
+            *(lk for r in PARENT_ROLES if (lk := links.get((parent, child, r)))),
+            *(lk for r in ("spouse", "sibling") if (lk := links.get((a, b, r)))),
+        ]
 
     valid = []
     for doc in docs:
@@ -464,14 +470,21 @@ def apply_curation(
                 err(where, f"status {st!r} is not one of {STATUSES}")
                 continue
             role, kind = item.get("role"), item.get("kind")
-            if role is not None and role not in (*PARENT_ROLES, "spouse"):
+            if role is not None and role not in (*PARENT_ROLES, "spouse", "sibling"):
                 err(where, f"role {role!r}")
+                continue
+            if role == "sibling" and st not in ("confirmed", "rejected"):
+                err(where, f"a sibling link is confirmed or rejected, not {st}")
                 continue
             if kind is not None and kind not in LINK_KINDS:
                 err(where, f"kind {kind!r}")
                 continue
             pair = parent_links(child, parent)
-            have = pair if role is None else [lk for lk in pair if lk.role == role]
+            have = (
+                [lk for lk in pair if lk.role != "sibling"]  # a sibling only by its role
+                if role is None
+                else [lk for lk in pair if lk.role == role]
+            )
             if not have and st == "fixed" and role in PARENT_ROLES:  # fixed to the other role
                 have = [lk for lk in pair if lk.role in PARENT_ROLES]
             proof = refs(where, item.get("proof"))

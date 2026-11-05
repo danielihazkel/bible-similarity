@@ -152,6 +152,11 @@ links:
   - {child: "Jeush@1Ch.8.39", parent: "anon:eshek-1ch-8-39", role: father, status: added, proof: [I Chronicles 8:39]}
   - {child: "Eliphelet@1Ch.8.39", parent: "anon:eshek-1ch-8-39", role: father, status: added, proof: [I Chronicles 8:39]}
   - {child: "Shallum@1Ch.9.17-Neh", parent: "Kore@1Ch.9.19-", role: father, status: added, proof: [I Chronicles 9:19]}
+  # Claude's check (M153, §16.87), read against the Hebrew: "רפה בנו אלעשה בנו אצל בנו" (I Chronicles 8:37, 9:43) is a line of
+  # fathers and sons (added above), not three brothers
+  - {child: "Eleasah@1Ch.8.37-", parent: "Azel@1Ch.8.37-", role: sibling, status: rejected}
+  - {child: "Raphah@1Ch.8.37-", parent: "Azel@1Ch.8.37-", role: sibling, status: rejected}
+  - {child: "Raphah@1Ch.8.37-", parent: "Eleasah@1Ch.8.37-", role: sibling, status: rejected}
 conflicts:
   - kind: bible
     child: "Gera@Gen.46.21-1Ch"

@@ -126,6 +126,8 @@ links:
   - {child: "Sarah@Gen.11.29-1Pe", parent: "Terah@Gen.11.24-Luk", status: confirmed, proof: [Genesis 20:12]}
   # TIPNR has no parent for Shelah
   - {child: "Shelah@Gen.10.24-Luk", parent: "Arpachshad@Gen.10.22-Luk", kind: son, status: added, proof: [Genesis 10:24, Genesis 11:12, Genesis 11:13]}
+  # Claude's check (M153, §16.87), read against the Hebrew: Eve is Adam's wife (Genesis 2:22, 4:1), not his sister
+  - {child: "Eve@Gen.3.20-1Ti", parent: "Adam@Gen.2.19-Jud", role: sibling, status: rejected}
 conflicts:
   - kind: bible
     child: "Uz@Gen.10.23-1Ch"

@@ -43,7 +43,7 @@ links:
   # the short form: confirmed, with the automatic proof verses (copy the sheet's line)
   - "Zerubbabel@1Ch.3.19-Mat <- Pedaiah@1Ch.3.18-"
   # the long form. status: confirmed | fixed | added | rejected
-  # role: father | mother | spouse; kind: son | descendant | adopted | levirate | founder | unstated
+  # role: father | mother | spouse | sibling (a TIPNR sibling, either order: confirmed or rejected only); kind: son | descendant | adopted | levirate | founder | unstated
   # proof: its own verses, which replace the automatic ones
   - {child: "…", parent: "…", role: father, kind: son, status: fixed, proof: [Ezra 3:2, Haggai 1:1]}
 conflicts:
@@ -713,3 +713,9 @@ Each entry: the child, the readings with their verses, the block that found it.
   - **The file:** `x10-rabbinic.yaml`, 24 identifications (28 pairs). Each passage was read in Hebrew on Sefaria first; the text is not stored.
   - **Left out:** Left out: what the rabbis add to a family rather than to a person (Hur son of Caleb and Miriam, Sotah 11b; Asenath daughter of Dinah, Pirkei DeRabbi Eliezer 38); identifications whose source's page Sefaria links to none of the verses (Malachi as Ezra or Mordecai, Megillah 15a; Nehemiah as Zerubbabel, Sanhedrin 38a; Michal as Eglah, Sanhedrin 21a; Pinehas as Elijah, a midrash with no link); Bedan as Samson (Rosh Hashanah 25a), for TIPNR has no person for the Bedan of I Sam 12:11; Agur and Lemuel as Solomon, not in the passage Sefaria links (Shir HaShirim Rabbah 1:1:10).
   - **Viewer:** the panel's "One person or two?" has a card per reading: "The rabbis read as the same person as …", the note, the verses, and the sources linked to Sefaria.
+- 2026-11-05, M153 (L6): Claude's check of the unreviewed siblings and attachments (`artifacts/llm_genealogy/review.md`), gone through at the owner's word. Each of the 50 called wrong was read against the Hebrew; Claude's answer is a suggestion and was taken only where the text bears it out.
+  - **Format:** `role: sibling` on a link, either order, `confirmed` or `rejected` only (never added or fixed); the short form never reaches a sibling link.
+  - **Rejected, 44 sibling links:** Adam and Eve (spouses, `01`); Artaxerxes and Darius the Mede (`12`); the eight "ואחיו" of Nehemiah 12:36 with Zechariah and with each other, all 36, since their father links to Jonathan were already rejected as kinsmen (`13`); Jabez and Koz's children Anub, Zobebah and Harum (Koz is not his father, `15b`); Raphah, Eleasah and Azel, a line of fathers and sons (I Chr 8:37, 9:43; `17b`). 25 of them Claude called wrong; the other 19 are the same reading carried through.
+  - **Attachment:** the Meunites off Canaan (`tribe: ""`, `15b`): the text makes them no people of Canaan's.
+  - **Kept, Claude wrong:** the 19 priests of Ezra 10:20-22, Nehemiah 10:4-6, 11:14 and 12:17-19 attached to Levi (priests are Levi's line; Claude called the same lists right at Ezra 10:18 and Nehemiah 10:3); Birsha and Shemeber, kings of Gomorrah and Zeboiim, under Canaan (the border of Gen 10:19; Bera and Shinab, the same verse, were called unsure and right); Ahuzzath with Abimelech, king of the Philistines (Gen 26:1, 26).
+  - **Kept, open:** Jeshua and Joab, both "לבני" of Pahath-moab (Ezra 2:6); Jerahmeel and Malchijah, both "בן המלך" in Jeremiah (Claude read other verses for Malchijah). The 71 unsure and 244 right were not acted on.

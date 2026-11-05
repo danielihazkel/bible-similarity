@@ -39,6 +39,8 @@ links:
   # Esther, Ahasuerus's wife and Mordecai's adopted daughter
   - {child: "Esther@Est.2.7-", parent: "Ahasuerus@Ezr.4.6-Dan", role: spouse, status: added, proof: [Esther 2:16, Esther 2:17]}
   - {child: "Esther@Est.2.7-", parent: "Mordecai@Est.2.5-", role: father, kind: adopted, status: added, proof: [Esther 2:7, Esther 2:15]}
+  # Claude's check (M153, §16.87), read against the Hebrew: no verse makes Artaxerxes and Darius the Mede brothers
+  - {child: "Darius@Dan.5.31-", parent: "Artaxerxes@Ezr.4.7-Neh", role: sibling, status: rejected}
 missed:
   - {ref: Esther 9:12, reason: "Haman's ten sons: proved on 9:7-10"}
   - {ref: Esther 9:13, reason: "Haman's ten sons: proved on 9:7-10"}
