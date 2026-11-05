@@ -14,7 +14,7 @@ export const rootHe: typeof rootEn = {
   other: (obs: number, exp: number, p: number) =>
     `מילים אחרות מאותו שורש זו לצד זו (שני שמות, שם ותואר): ${numHe(obs)} לעומת ${exp.toFixed(0)} (p ${fp(p)}) — רבות מהן צירופי מספר (בשנה השנית).`,
   infAbs: (n: number) =>
-    `מקור מוחלט עם הפועל שלו (מות יומת): ${numHe(n)} פעמים; מבנה של הדקדוק, נספר אך לא נבחן.`,
+    `מקור מוחלט עם הפועל שלו (מות יומת): ${numHe(n)} פעמים; מבנה דקדוקי, נספר אך לא נבחן.`,
   kinds: { cognate: 'פועל ושם', other: 'אחר', inf_abs: 'מקור מוחלט' },
   kind: 'סוג',
   anyKind: 'כל הסוגים',
@@ -29,7 +29,7 @@ export const rootHe: typeof rootEn = {
   hiddenTitle: 'שורשים מנחים שנראים רק לפי שורש',
   hiddenLede: (n: number, top: number) =>
     `${countHe(n, 'מילה מנחה אחת', 'שתי מילים מנחות', 'מילים מנחות')} של פרקים, בין ${numHe(top)} המובילות לפי שורש, שאוספות שתי מילים או יותר של הפרק ואף אחת מהן אינה בין המובילות לפי מילה: הפועל ושמותיו יחד (טמא וטהור בויקרא יג, זרע בבראשית א). כיווני חקירה, החזקים תחילה.`,
-  hiddenCols: { chapter: 'פרק', root: 'שורש', words: 'מילותיו כאן', count: 'פעמים', rank: 'מקום לפי שורש', lemmaRank: 'המילה הטובה' },
+  hiddenCols: { chapter: 'פרק', root: 'שורש', words: 'מילותיו כאן', count: 'פעמים', rank: 'מקום לפי שורש', lemmaRank: 'המילה הטובה ביותר' },
   familyTitle: (root: string) => `השורש ${root}`,
   familyLede: (n: number, verses: number) => `${countHe(n, 'מילה אחת', 'שתי מילים', 'מילים')} מן השורש הזה, ב־${countHe(verses, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}. לחיצה על מילה פותחת את הקונקורדנציה שלה.`,
   link: (l: string) => `(${l})`,
@@ -39,7 +39,7 @@ export const rootHe: typeof rootEn = {
   rootChip: (root: string) => `שורש ${root}`,
   rootChipTitle: 'כל המילים מן השורש הזה',
   rootLeitworte: 'לפי שורש',
-  rootLeitworteLede: 'שורשים שמילותיהם יחד שכיחות כאן מן הצפוי; ✦ = אף מילה של השורש אינה מילה מנחה בפני עצמה.',
+  rootLeitworteLede: 'שורשים שמילותיהם יחד שכיחות כאן יותר מן הצפוי; ✦ = אף מילה של השורש אינה מילה מנחה בפני עצמה.',
   rootLeitwortTitle: (count: number, expected: string, g2: string, words: string) => `${count} פעמים (צפוי ${expected}), G² ${g2}: ${words}`,
   hiddenMark: '✦',
 }

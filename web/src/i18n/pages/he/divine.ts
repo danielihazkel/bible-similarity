@@ -1,5 +1,5 @@
 // The Hebrew half of `../divine.ts` (loaded with the Hebrew interface only).
-import { countHe, numHe } from '../../fmt'
+import { countHe, inHe, numHe } from '../../fmt'
 import { NAMES, dvEn, fp, pct } from '../divine'
 
 export const dvHe: typeof dvEn = {
@@ -10,7 +10,7 @@ export const dvHe: typeof dvEn = {
   holds: 'מתאשר',
   fails: 'אינו מתאשר',
   elohistic: {
-    title: 'ספר התהלים האלוהיסטי, נמצא בלי שנאמר היכן',
+    title: 'הקובץ האלוהיסטי שבתהלים, נמצא בלי שנאמר היכן',
     notSplit: 'ספר תהלים לא נחתך בבנייה הזו.',
     text: (first: number, last: number, named: [number, number], shares: number[], p: number) =>
       `כשהוא נחתך לשלושה במקום שבו התמהיל של יהוה ואלהים משתנה יותר מכול, ספר תהלים מתחלק ל־1–${numHe(first - 1)}, ${numHe(first)}–${numHe(last)} ו־${numHe(last + 1)}–150, ושיעור יהוה מבין השניים ${shares.map((s) => pct(s, 'he-IL')).join(', ')}. החלק האמצעי שנקבע מראש הוא ${numHe(named[0])}–${numHe(named[1])}; מול אותו חיתוך של המזמורים בסדר מעורבב, p ${fp(p)}.`,
@@ -18,7 +18,7 @@ export const dvHe: typeof dvEn = {
   doubled: {
     title: 'המזמורים הכפולים',
     text: (eWard: number, yWard: number, p: number, n: number) =>
-      `ב${countHe(n, 'מזמור אחד שמופיע פעמיים', 'שני מזמורים שמופיעים פעמיים', 'מזמורים שמופיעים פעמיים')}, מיושרים מילה מול מילה: בעותק שבתוך תהלים מב–פג כתוב אלהים במקום שבו בעותק השני כתוב יהוה ${countHe(eWard, 'פעם אחת', 'פעמיים', 'פעמים')}, וההפך ${countHe(yWard, 'פעם אחת', 'פעמיים', 'פעמים')} (מבחן הסימן, p ${fp(p)}).`,
+      `${inHe(countHe(n, 'מזמור אחד שמופיע פעמיים', 'שני מזמורים שמופיעים פעמיים', 'מזמורים שמופיעים פעמיים'))}, מיושרים מילה מול מילה: בעותק שבתוך תהלים מב–פג כתוב אלהים במקום שבו בעותק השני כתוב יהוה ${countHe(eWard, 'פעם אחת', 'פעמיים', 'פעמים')}, וההפך ${countHe(yWard, 'פעם אחת', 'פעמיים', 'פעמים')} (מבחן הסימן, p ${fp(p)}).`,
     missing: (refs: string) => `אינם בקורפוס הזה: ${refs}.`,
   },
   stripTitle: 'לאורך המקרא',

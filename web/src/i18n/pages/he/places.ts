@@ -4,7 +4,7 @@ import { geoEn, plEn, versesHe } from '../places'
 
 export const geoHe: typeof geoEn = {
   keys: (label: string) => `${label}. גרירה מזיזה את המפה, + ו־− מגדילים ומקטינים; מקשי החצים עוברים בין המקומות, השכיחים קודם, ו־Enter פותח אחד מהם.`,
-  zoom: 'הגדלה',
+  zoom: 'הגדלה והקטנה',
   zoomIn: 'הגדלה',
   zoomOut: 'הקטנה',
   pointTitle: (he: string, n: number) => `${he}: ${versesHe(n)}`,
@@ -15,7 +15,7 @@ export const plHe: typeof plEn = {
   lede: 'כל מקום שהכתוב מזכיר, והיכן הוא שוכן. כל נקודה היא מקום, גדולה יותר ככל שיותר פסוקים מזכירים אותו, וצבעה לפי סוגו; אפשר לבחור ספר, פרק או סוג, ולפתוח מקום כדי לראות את הספרים שמזכירים אותו ואת המקומות שנזכרים עמו.',
   noData: 'לא חושב בבנייה זו: יש להריץ `bsim places` ואחר כך `bsim build-db`.',
   mapLabel: 'מקומות המקרא על מפת האזור',
-  summary: (n: number, located: number) => `${countHe(n, 'מקום אחד', 'שני מקומות', 'מקומות')} נזכרים, ${numHe(located)} מהם על המפה.`,
+  summary: (n: number, located: number) => `${countHe(n, 'מקום אחד נזכר', 'שני מקומות נזכרים', 'מקומות נזכרים')}, ${numHe(located)} מהם על המפה.`,
   inScope: (where: string) => `ב${where}: `,
   kind: 'סוג',
   all: 'הכול',
@@ -35,12 +35,12 @@ export const plHe: typeof plEn = {
   perBook: 'פסוקים בכל ספר',
   bookCount: (book: string, n: number) => `${book}: ${versesHe(n)}`,
   partners: 'נזכר יחד עם',
-  partnerTitle: (n: number) => `${versesHe(n)} מזכירים את שניהם`,
+  partnerTitle: (n: number) => `${versesHe(n)} ${n === 1 ? 'מזכיר' : 'מזכירים'} את שניהם`,
   verses: 'פסוקים',
   verseCount: (n: number) => versesHe(n),
   pageOf: (page: number, pages: number) => `עמוד ${numHe(page)} מתוך ${numHe(pages)}`,
   emptyVerses: 'אין פסוק שמזכיר את המקום הזה.',
   whereTitle: 'היכן זה קורה',
-  wherePlaces: (n: number, off: number) => `${countHe(n, 'מקום אחד', 'שני מקומות', 'מקומות')} נזכרים כאן${off ? `, ${numHe(off)} מהם אינם על המפה` : ''}.`,
+  wherePlaces: (n: number, off: number) => `${countHe(n, 'מקום אחד נזכר', 'שני מקומות נזכרים', 'מקומות נזכרים')} כאן${off ? `, ${numHe(off)} מהם אינם על המפה` : ''}.`,
   openMap: 'פתיחה במפה',
 }

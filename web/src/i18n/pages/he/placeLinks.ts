@@ -9,13 +9,13 @@ export const plkHe: typeof plkEn = {
   verdict: { holds: 'עומדת', fails: 'אינה עומדת' },
   summary: (pairs: number, places: number, min: number, rho: number, nullMean: number, q05: number, q95: number, p: number, shuffles: number) =>
     `${numHe(pairs)} זוגות של ${numHe(places)} מקומות נזכרים יחד ב־${numHe(min)} פסוקים או יותר. ככל שהקשר חזק יותר, המקומות קרובים יותר: ρ של ספירמן ${r2(rho)} בין חוזק הקשר למרחק, לעומת ${r2(nullMean)} כשנקודות המקומות מעורבבות ביניהם (90% מתוך ${numHe(shuffles)} ערבובים בין ${r2(q05)} ל־${r2(q95)}; p ${fp(p)}).`,
-  caveat: 'ערבוב הנקודות שומר על מי קשור עם מי ובאיזה חוזק; רק מקום המקומות נבחר מחדש.',
+  caveat: 'ערבוב הנקודות שומר על מי קשור עם מי ובאיזה חוזק; רק מיקום המקומות נבחר מחדש.',
   variantsTitle: 'שלוש דרכים',
   variants: { all: 'כל מקום שמיקומו ידוע', sure: 'אתרים ודאיים בלבד', no_lists: 'בלי רשימות המקומות' },
   variantHints: {
     all: 'הבדיקה',
-    sure: (score: number) => `שני המקומות קיבלו ב־OpenBible ${numHe(score)} קולות לפחות`,
-    no_lists: (lists: string) => `בלי ${lists}, שמונים שכנים מעצם טבעם`,
+    sure: (score: number) => `לשני המקומות ציון OpenBible של ${numHe(score)} לפחות`,
+    no_lists: (lists: string) => `בלי ${lists}, שמפרטים מקומות שכנים מעצם טבעם`,
   },
   vcols: { variant: 'מקומות', places: 'מקומות', pairs: 'זוגות קשורים', rho: 'ρ', shuffled: 'מעורבב (90%)', p: 'p' },
   rho: r2,
@@ -56,6 +56,6 @@ export const plkHe: typeof plkEn = {
   allPlaces: 'הצגת כל הזוגות',
   emptyPairs: 'אין זוגות קשורים.',
   pairLine: (k: number, g2: number, km: number) => `${versesHe(k)} יחד · חוזק ${g2.toFixed(1)} · ${kmHe(km)}`,
-  onMap: (he: string) => `${he} במקומות על המפה`,
+  onMap: (he: string) => `${he} בעמוד „מקומות על המפה”`,
   credit: 'מפה: Natural Earth (נחלת הכלל). מקומות: TIPNR של STEPBible ו־OpenBible.info (CC BY 4.0).',
 }

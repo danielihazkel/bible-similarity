@@ -32,7 +32,7 @@ export const elsHe: typeof elsEn = {
   blocksTitle: 'הקטעים מן הספרים האחרים',
   block: (label: string, r: number) => `${label}: R ${sr(r)}`,
   termsTitle: 'שם אחר שם',
-  termsLede: 'המופעים של כל שם מול הצפוי בדיוק כשהאותיות מעורבבות, ומול ההגרלות עצמן. שמות קצרים מופיעים מאות אלפי פעמים; ארוכים, קומץ.',
+  termsLede: 'המופעים של כל שם מול הערך הצפוי המדויק כשהאותיות מעורבבות, ומול ההגרלות עצמן. שמות קצרים מופיעים מאות אלפי פעמים; ארוכים, קומץ.',
   tcols: { term: 'שם', fwd: 'קדימה', back: 'אחורה', hits: 'מופעים', expected: 'צפוי', ratio: 'יחס', letters: 'אותיות מעורבבות (90%)', p: 'p', verses: 'פסוקים מעורבבים', blocks: 'ספרים אחרים' },
   ratio,
   num: (n: number) => numHe(Math.round(n)),

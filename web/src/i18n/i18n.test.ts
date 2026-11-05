@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { hebrewNumeral } from '../lib/hebrew'
 import { en } from './en'
+import { countHe, inHe } from './fmt'
 import { he } from './he'
 
 // every English page group, as a viewer that has opened every page has them (M145)
@@ -36,6 +37,12 @@ describe('catalogs', () => {
     expect(he.units.verses(1234)).toBe('1,234 פסוקים')
     expect(en.units.verses(1)).toBe('1 verse')
     expect(en.units.verses(1234)).toBe('1,234 verses')
+  })
+
+  it('put ב before a count with a maqaf only before a digit', () => {
+    expect(inHe(countHe(1, 'פסוק אחד', 'שני פסוקים', 'פסוקים'))).toBe('בפסוק אחד')
+    expect(inHe(countHe(2, 'פסוק אחד', 'שני פסוקים', 'פסוקים'))).toBe('בשני פסוקים')
+    expect(inHe(countHe(12, 'פסוק אחד', 'שני פסוקים', 'פסוקים'))).toBe('ב־12 פסוקים')
   })
 
   it('agree on gendered unit phrases and references', () => {

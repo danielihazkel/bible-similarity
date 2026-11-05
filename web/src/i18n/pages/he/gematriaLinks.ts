@@ -17,17 +17,17 @@ export const glHe: typeof glEn = {
   measureHints: {
     domains: 'הקוסינוס בין פרופילי תחומי SDBH של שתי המילים (0: אין תחום משותף, 1: זהים)',
     root: 'שיעור הזוגות שמילותיהם ממשפחת שורש אחת',
-    vector: 'הקוסינוס בין וקטורי BEREL של שתי המילים, כל אחד ממוצע שימושיה בהקשרם',
+    vector: 'הקוסינוס בין וקטורי BEREL של שתי המילים, כל אחד ממוצע שימושי מילתו בהקשר',
   },
   cols: { measure: 'מדד', pairs: 'זוגות אלה', matched: 'זוגות מותאמים', range: '90% מההגרלות', p: 'p' },
   testVerdict: (alpha: number) =>
     `הטענה עומדת כשהזוגות קרובים יותר מהזוגות המותאמים באחד המדדים ב־p ≤ ${(alpha / 3).toFixed(3)} (${alpha} מחולק בין שלושה).`,
   eqTitle: 'השקילויות שבמסורת',
-  eqLede: 'כל זוג, ומקומו בין כל הזוגות שווי הערך: ״קרוב מ־74%״ פירושו שמילותיו משמשות בדומה יותר מאשר ב־74% מהם.',
+  eqLede: 'כל זוג, ומקומו בין כל הזוגות שווי הערך: ״קרוב יותר מ־74%״ פירושו שמילותיו משמשות בדומה יותר מאשר ב־74% מהם.',
   eqCols: { pair: 'זוג', value: 'ערך', domains: 'תחומים', root: 'שורש', vector: 'שימוש דומה' },
-  same: 'אחד',
+  same: 'זהה',
   differ: 'שונה',
-  rank: (r: number) => `קרוב מ־${pct(r)}`,
+  rank: (r: number) => `קרוב יותר מ־${pct(r)}`,
   notFound: 'אינו בין המילים שנבדקו',
   verseTitle: (ref: string) => `המספרים של ${ref}`,
   props: (p: LinkProperty) =>
@@ -38,11 +38,11 @@ export const glHe: typeof glEn = {
       triangular: 'ערך משולש (1 + 2 + 3 + …)',
       prime_factors: `ערך בן ${p.n} גורמים ראשוניים`,
     })[p.kind],
-  propCols: { prop: 'תכונה', here: 'כאן', verses: 'פסוקים שבהם' },
+  propCols: { prop: 'תכונה', here: 'כאן', verses: 'פסוקים שיש להם' },
   allLine: (ref: string, all: number, expected: number) =>
-    `${all === 1 ? `רק ל־${ref} יש` : `ל־${numHe(all)} פסוקים יש`} את כולן; ${expected.toFixed(3)} היו, לו היו בלתי תלויות. אבל הן נבחרו מתוך התבוננות בו.`,
+    `${all === 1 ? `רק ל־${ref} יש` : `ל־${numHe(all)} פסוקים יש`} את כולן; לו היו בלתי תלויות, היו צפויים ${expected.toFixed(3)}. אבל הן נבחרו מתוך התבוננות בו.`,
   ownLine: (ref: string, words: number, letters: number, prime: number, twins: number, share: number) =>
-    `שאלה הוגנת יותר: האם ${ref} יחיד במספריו שלו? בתיאור לפיהם (${numHe(words)} מילים, ${numHe(letters)} אותיות, ערך שגורמו הראשוני הגדול הוא ${numHe(prime)}) ${twins ? `הוא חולק את תיאורו עם ${moreVersesHe(twins)}` : 'הוא הפסוק היחיד בתיאורו'}, ואילו ${pct(share)} מכל הפסוקים יחידים בתיאור שלהם.`,
+    `שאלה הוגנת יותר: האם ${ref} יחיד במספריו שלו? בתיאור לפיהם (${numHe(words)} מילים, ${numHe(letters)} אותיות, ערך שגורמו הראשוני הגדול ביותר הוא ${numHe(prime)}) ${twins ? `הוא חולק את תיאורו עם ${moreVersesHe(twins)}` : 'הוא הפסוק היחיד בתיאורו'}, ואילו ${pct(share)} מכל הפסוקים יחידים בתיאור שלהם.`,
   twins: 'תאומיו',
   pairsTitle: 'הזוגות',
   sort: 'סדר',

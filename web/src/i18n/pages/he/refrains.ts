@@ -11,8 +11,8 @@ export const refHe: typeof refEn = {
     `${countHe(observed, 'פזמון חוזר אחד', 'שני פזמונים חוזרים', 'פזמונים חוזרים')}, לעומת ${expected.toFixed(0)} רצפים חזקים כמותם כשפסוקי כל ספר מעורבבים (${numHe(shuffles)} ערבובים); ${numHe(distinct)} כשנשאר רק החזק מכל קבוצה החולקת פסוק.`,
   knownTitle: 'פזמונים שנקבעו מראש',
   knownLede: (found: number, n: number) =>
-    `נמצאו ${numHe(found)} מתוך ${numHe(n)}. פזמון נחשב נמצא כשצירוף אחד חוזר לפחות בשלושה מן הפסוקים שנמנו; פזמון שחזרותיו רחוקות זו מזו יותר מן המרווח המותר מוחמץ מעצם ההגדרה.`,
-  knownCols: { name: 'פזמון', where: 'נמנה מ־', found: 'נמצא', k: 'פסוקים', q: 'q' },
+    `נמצאו ${numHe(found)} מתוך ${numHe(n)}. פזמון נחשב לנמצא כשצירוף אחד חוזר לפחות בשלושה מן הפסוקים שנמנו; פזמון שחזרותיו רחוקות זו מזו יותר מן המרווח המותר מוחמץ מעצם ההגדרה.`,
+  knownCols: { name: 'פזמון', where: 'מקור', found: 'נמצא', k: 'פסוקים', q: 'q' },
   notFound: 'לא נמצא',
   regularTitle: 'במרווחים שווים?',
   regular: (regular: number, testable: number, share: number | null, p: number | null) =>
@@ -30,7 +30,7 @@ export const refHe: typeof refEn = {
   even: (p: number) => `מרווחים שווים (p ${fp(p)})`,
   uneven: 'מרווחים לא שווים',
   turn: (x: number) => `מפנה ${x2(x)}`,
-  turnTitle: 'ממוצע המעבר החד ליד כל אחד מפסוקיו (אחוזון בתוך הספר)',
+  turnTitle: 'ממוצע החד מבין שני המעברים ליד כל אחד מפסוקיו (אחוזון בתוך הספר)',
   q: (q: number) => `q ${fp(q)}`,
   qValue: (q: number) => fp(q),
   named: 'נקבע מראש: ',

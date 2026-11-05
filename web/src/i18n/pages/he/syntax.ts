@@ -24,7 +24,7 @@ export const synHe: typeof synEn = {
   textTypes: { N: 'סיפור', Q: 'דיבור ישיר', D: 'שיח' },
   panel: 'פסוקיות ודוברים',
   panelLede:
-    'מאגר התחביר של ETCBC ‏(BHSA): כל פסוקית עם סוגה ותפקיד כל צירוף; דיבור ישיר עם הדובר, שנמצא מן הפסוקית שמציגה אותו.',
+    'מאגר התחביר של ETCBC ‏(BHSA): כל פסוקית עם סוג הפסוקית ותפקיד כל צירוף; דיבור ישיר עם הדובר, שנמצא מן הפסוקית שמציגה אותו.',
   speaker: (s: Source, he: string) =>
     s === 'explicit' || s === 'formula'
       ? `אומר: ${he}`
@@ -53,7 +53,7 @@ export const synHe: typeof synEn = {
   title: 'מי מדבר',
   lede: 'כמה מכל ספר הוא סיפור, דיבור ישיר או שיח, ומי מדבר: חלק המילים בכל אחד, לפי סוגי הפסוקיות של BHSA, והדובר של כל ציטוט לפי הפסוקית שמציגה אותו (ויאמר משה, כה אמר יהוה, לאמר).',
   caveat: (explicit: number, carried: number, enclosing: number, formula: number, framed: number, unknown: number) =>
-    `פסוקיות ציטוט: הדובר נקוב בפסוקית המציגה ${numHe(explicit)}, משוער מן הפסוקית שלפניה ${numHe(carried)}, האל לפי „נאם ה׳” בפסקה ${numHe(formula)}, משה במסגרת ספר דברים ${numHe(framed)}, בתוך ציטוט עוטף ${numHe(enclosing)}, לא נמצא ${numHe(unknown)} (שירה וחכמה מרבות שלא לומר מי מדבר). בדיקה ידנית של 50 ציטוטים: 42 נכונים (נקוב 29 / 31, משוער 13 / 19); מתוך 50 שהכללים המתוקנים שינו, 37 מתוך 45 שקיבלו דובר נכונים.`,
+    `פסוקיות ציטוט: הדובר נקוב בפסוקית המציגה ${numHe(explicit)}, משוער מן הפסוקית שלפניה ${numHe(carried)}, האל לפי „נאם יהוה” בפרשה ${numHe(formula)}, משה במסגרת ספר דברים ${numHe(framed)}, בתוך ציטוט עוטף ${numHe(enclosing)}, לא נמצא ${numHe(unknown)} (שירה וחכמה מרבות שלא לומר מי מדבר). בדיקה ידנית של 50 ציטוטים: 42 נכונים (נקוב 29 / 31, משוער 13 / 19); מתוך 50 שהכללים המתוקנים שינו, 37 מתוך 45 שקיבלו דובר נכונים.`,
   legend: {
     narration: 'סיפור',
     divine: 'האל מדבר',
@@ -82,7 +82,7 @@ export const synHe: typeof synEn = {
     narrator: 'המספר',
     unattributed: 'דיבור, הדובר לא נמצא',
     speakers: 'דוברים, הייחודי ביותר ראשון',
-    cols: { speaker: 'דובר', book: 'בעיקר ב', words: 'מילים', delta: 'Delta', effect: 'ייחודיות', q: 'q' },
+    cols: { speaker: 'דובר', book: 'ספר עיקרי', words: 'מילים', delta: 'Delta', effect: 'ייחודיות', q: 'q' },
     effectTitle: 'ה־Delta מעל הצפוי בערבוב, ביחידות של סטיית התקן של הערבובים',
     explicit: (n: number, of: number) => `${numHe(n)} מתוך ${numHe(of)} מילים עם דובר נקוב`,
     deltaTitle: (d: string, n: string) => `Delta ${d} (בערבוב: ${n} בממוצע)`,
@@ -101,7 +101,7 @@ export const synHe: typeof synEn = {
         ? `${book}: ${who} אינו בין הדוברים שנבדקו`
         : `${book}: ${who} במקום ${numHe(rank)} מתוך ${numHe(of)} דוברים בייחודיות (הצפי: מקום 1)`,
     matrix: 'המרחק בין הקולות',
-    matrixLede: 'Delta של Burrows בין הדוברים, המספר והדיבור הלא משויך; כהה יותר = דומה יותר. בלי תיקון לגודל או לספר: תיאורי בלבד.',
+    matrixLede: 'Delta של Burrows בין הדוברים, המספר והדיבור הלא משויך; כהה יותר = דומה יותר. בלי תיקון לגודל או לספר: לתיאור בלבד.',
     pair: (a: string, b: string, d: string) => `${a} – ${b}: Delta ${d}`,
     profile: (who: string) => `מה בולט בדיבורו של ${who}`,
     more: 'משתמש יותר מאחרים באותם ספרים',

@@ -136,7 +136,7 @@ describe('FrameworksPage', () => {
 
   it('runs in the Hebrew interface', async () => {
     renderAt('/frameworks?k=jeroboam', 'he')
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('המסגרות של הסיפור')
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('מסגרות סיפוריות')
     expect(await screen.findByRole('heading', { name: '⁨ירבעם⁩: ההערכה' })).toBeTruthy()
     expect(screen.getAllByText('לא נמצאה').length).toBeGreaterThan(0)
   })

@@ -333,7 +333,7 @@ describe('GenealogyPage', () => {
   it('reads in Hebrew', async () => {
     const { container } = renderAt('/genealogy?p=5', 'he')
     expect(await screen.findByRole('heading', { name: 'אילן היוחסין' })).toBeTruthy()
-    await waitFor(() => expect(names(container)).toContain('בלי קשר'))
+    await waitFor(() => expect(names(container)).toContain('ללא שיוך'))
     const panel = await screen.findByRole('region', { name: 'אדם' })
     expect(await within(panel).findByText('צאצא ולא בן')).toBeTruthy()
     expect(panel.querySelector('.gt-child-group h4')?.textContent).toBe('ילדי עדה')

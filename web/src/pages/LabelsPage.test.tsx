@@ -131,7 +131,7 @@ describe('LabelsPage', () => {
   it('reads in Hebrew, read-only', async () => {
     mockApi(false)
     renderAt(<LabelsPage />, 'he')
-    expect(await screen.findByRole('heading', { level: 1, name: 'הסימונים שלך' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 1, name: 'התוויות שלכם' })).toBeTruthy()
     expect(await screen.findByText('השרת הזה מציג סימונים לקריאה בלבד.')).toBeTruthy()
     expect(screen.queryByRole('textbox')).toBeNull()
   })

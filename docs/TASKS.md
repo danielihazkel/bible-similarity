@@ -893,7 +893,12 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Dry run: 54 requests, about $3.20 (budget $8)
 - [x] Tests: the groups and rules found, the answer read, a run with a fake batch client and its report (pytest)
 - [x] The run (2026-11-05, $2.41): 252 suggestions in 54 groups (wording 79, meaning 61, agreement 34, consistency 31, grammar 24, term 23); in RESULTS.md
-- [ ] The owner's choices made in the catalogs (`artifacts/llm_ui/review.md`); `docs/HEBREW_UI.md`, the agreed terms
+- [x] The owner's choice (2026-11-05): all 252 applied to the Hebrew catalogs (243 by script where the current text was found, the 9 abbreviated ones by hand); one suggestion put code inside a template string (`sums.pairCount`) and was written with `countHe` instead
+- [x] The same terms carried to the strings the review did not list: the cipher names (אתב״ש, אלב״ם) across ciphers, dossier and Findings; the Labels page as התוויות שלכם with the reader in the plural, the dossier's and notebook's תיוגים; divisions' למות; `inHe` (ב־ before a digit) where ב stood before a count
+- [x] `docs/HEBREW_UI.md`: the agreed terms and conventions; pointed to from CLAUDE.md
+- [x] Tests: the Hebrew assertions that quoted the old wording updated (10 vitest files), `inHe` (vitest); vitest, and fixture e2e in Hebrew on every page with axe, on phone and desktop
+
+✔ The Hebrew interface uses one term for each thing, the glossary's, addresses the reader in the plural throughout, and its 252 reviewed strings read as Hebrew prose.
 
 ## M154: Claude's notes beside the strongest parallels (§16.88, D144; proposed L7)
 - [x] `eval/llm_notes.py`: `read_notes` gathers every calibrated run with a Hebrew rationale (about 25,000 pairs); `bsim llm-notes [--dry-run]` reads the 5,000 strongest fused verse discoveries not yet read, its own calibration
@@ -1658,6 +1663,6 @@ Analyses
 
 Viewer
 - [x] L7 (done, M154) Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
-- [ ] L8 (M155; the owner's choices wait) A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
+- [x] L8 (done, M155) A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
 
 Suggested order: L1 → L3 → L2 → L4 → L5 → L6 → L7 → L8.

@@ -104,7 +104,7 @@ describe('SynopsesPage', () => {
   it('reads in Hebrew', async () => {
     renderAt('/synopses', [], 'he')
     expect(await screen.findByRole('link', { name: /ירמיהו נב א–כז/ })).toBeTruthy()
-    expect(screen.getByRole('heading', { name: 'סינופסיס' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'סינופסיסים' })).toBeTruthy()
     expect(screen.getByText('סינופסיס אחד')).toBeTruthy()
   })
 })

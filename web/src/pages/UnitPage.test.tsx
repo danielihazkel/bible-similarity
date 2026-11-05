@@ -309,7 +309,7 @@ describe('UnitPage', () => {
     expect(screen.getByRole('link', { name: 'תחילת פרק בתוך טקסט רציף' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'שני מקומות במפה, הנזכר ביותר ירושלם' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'ערך האותיות 2,701, כמו ב־4 פסוקים אחרים · ערכי המסורת: אליעזר' })).toBeTruthy()
-    expect(bar.textContent).toContain('לא חושב בבנייה זו: מי שאל')
+    expect(bar.textContent).toContain('לא חושב בבנייה זו: כיוון השאילה')
   })
 
   it('says when an optional panel fails instead of hiding it', async () => {

@@ -38,7 +38,7 @@ export const plsHe: typeof plsEn = {
   stepsLede: 'כל מקום עם המרחק בק״מ מקודמו; אתר ודאי מסומן. צעד ארוך הוא מקום רחוק משכניו ברשימה: לא פעם זיהוי מפוקפק.',
   sure: 'ודאי',
   sureTitle: (score: number) => `אתר ודאי: ${numHe(score)} קולות מתוך 1,000 ב־OpenBible`,
-  onMap: (he: string) => `${he} במקומות על המפה`,
+  onMap: (he: string) => `${he} בעמוד ״מקומות על המפה״`,
   districtsTitle: 'ערי יהושע לפי מחוזות',
   districtsLede: 'ערי יהודה באות במחוזות, וכל אחד נחתם ב״ערים … וחצריהן״; וכך ערי השבטים. האם שתי ערים מאותו מחוז קרובות זו לזו יותר משתי ערים של הרשימה כשהמחוזות מעורבבים ביניהן?',
   grouping: 'חלוקה',
@@ -48,7 +48,7 @@ export const plsHe: typeof plsEn = {
   districtSure: (n: number, within: number, mean: number, p: number) =>
     `באתרים הוודאיים בלבד (${townsHe(n)}): ${numHe(Math.round(within))} ק״מ לעומת ${numHe(Math.round(mean))} ק״מ (p ${fp(p)}).`,
   districtMap: (label: string) => `ערי ${label} על המפה, צבועות לפי מחוז`,
-  dcols: { district: 'מחוז', towns: 'ערים', apart: 'ק״מ ביניהן', random: 'מעורבב', p: 'p', sure: 'אתרים ודאיים בלבד' },
+  dcols: { district: 'מחוז', towns: 'ערים', apart: 'ק״מ ביניהן', random: 'בערבוב', p: 'p', sure: 'אתרים ודאיים בלבד' },
   single: 'עיר אחת',
   credit: 'מפה: Natural Earth (נחלת הכלל). מקומות: TIPNR של STEPBible ו־OpenBible.info (CC BY 4.0).',
 }

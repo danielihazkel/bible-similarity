@@ -194,7 +194,7 @@ describe('FormsPage', () => {
   it('reads in Hebrew', async () => {
     renderAt('/forms?view=lists', 'he')
     expect(await screen.findByRole('heading', { name: 'מספרים ורשימות', level: 1 })).toBeTruthy()
-    expect(await screen.findByText('יחס')).toBeTruthy()
+    expect(await screen.findByText('יוחסין')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'בראשית ה:ו – בראשית ה:לא' })).toBeTruthy()
   })
 

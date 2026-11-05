@@ -4,13 +4,13 @@ import { FN_HE, fp, mirEn, range } from '../mirrors'
 
 export const mirHe: typeof mirEn = {
   views: { units: 'קטעים שלמים', small: 'בקנה מידה קטן' },
-  lede: 'הכיאזמוס (א ב … ב׳ א׳) נחשב לתבנית אהובה בסגנון המקראי, אך קטעים שלמים אינם מראים אותו מעבר למקריות. כאן הוא מבוקש במקום שבו התבנית אמורה לחיות, במבחן סדר שאינו צריך מדד דמיון: זוג מילים חוזרות, או שתי פסוקיות עם אותם שני חלקים, או הופכים את סדרם או חוזרים עליו, וסדר אקראי נותן לשניהם אותו סיכוי.',
+  lede: 'הכיאזמוס (א ב … ב׳ א׳) נחשב לתבנית אהובה בסגנון המקראי, אך קטעים שלמים אינם מראים אותו מעבר למקריות. כאן מחפשים אותו במקום שבו התבנית אמורה להימצא, במבחן סדר שאינו נזקק למדד דמיון: זוג מילים חוזרות, או שתי פסוקיות עם אותם שני חלקים, או הופכים את סדרם או חוזרים עליו, וסדר אקראי נותן לשניהם אותו סיכוי.',
   noData: 'לא חושב בבנייה זו: הריצו `bsim mirrors` ואחר כך `bsim build-db`.',
   wordsTitle: 'מילים חוזרות',
   words: (c: number, p: number, share: number, interval: string, pv: string) =>
     `כשפסוק משתמש בשתי מילים פעמיים כל אחת והופעותיהן חופפות, הסדר הפוך (x y … y x) ב־${numHe(c)} פסוקים וחוזר (x y … x y) ב־${numHe(p)} (מבחן סימן p ${pv}); ${pct(share)} מהזוגות הפוכים (בדגימה חוזרת של פרקים: ${interval}). צירוף שחוזר כולו אינו נספר.`,
   wordsGenre: (poetry: number, nP: number, prose: number, nR: number) =>
-    `שירה ${pct(poetry)} הפוכים (${countHe(nP, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}), פרוזה ${pct(prose)} (${countHe(nR, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}).`,
+    `בשירה ${pct(poetry)} הפוכים (${countHe(nP, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}), בפרוזה ${pct(prose)} (${countHe(nR, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}).`,
   wordsNote: 'מילים חוזרות שומרות על סדרן לעתים קרובות יותר משהן הופכות אותו, בפרוזה ובשירה כאחת: התבנית קיימת, אבל אינה ההרגל.',
   clausesTitle: 'חלקי הפסוקית',
   clauses: (poetry: number, nP: number, prose: number, nR: number, pv: string) =>
@@ -23,7 +23,7 @@ export const mirHe: typeof mirEn = {
       .map((f) => FN_HE[f] ?? f)
       .join(' + '),
   listsTitle: 'לקריאה',
-  lists: { clauses: 'זוגות פסוקיות', verses: 'מראות שלמות' },
+  lists: { clauses: 'זוגות פסוקיות', verses: 'היפוכים מלאים' },
   fullNote: (n: number, k: number) =>
     `${countHe(n, 'פסוק אחד', 'שני פסוקים', 'פסוקים')} שבהם ${numHe(k)} מילים או יותר החוזרות פעמיים מקוננות כולן (א ב ג … ג ב א). כל אחד נבחן מול מילותיו מעורבבות; אף אחד אינו מעבר למקריות כשמביאים בחשבון את ריבוי הפסוקים (q), ולכן הם דוגמאות לקריאה ולא ראיה.`,
   filters: { pair: 'חלקים', any: 'הכול', mirrored: 'הפוכים בלבד', genre: 'סוגה', poetry: 'שירה', prose: 'פרוזה' },
@@ -35,7 +35,7 @@ export const mirHe: typeof mirEn = {
   nest: (pairs: number, words: number) => `${numHe(words)} מילים, ${numHe(pairs)} זוגות מקוננים`,
   pq: (p: number, q: number) => `p ${fp(p)} · q ${fp(q)}`,
   page: (n: number, page: number, pages: number) => `${numHe(n)} · עמוד ${page} מתוך ${pages}`,
-  none: 'אין כאן.',
+  none: 'אין כאן דבר.',
   fp,
   range,
 }

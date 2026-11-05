@@ -165,7 +165,7 @@ describe('Hebrew interface', () => {
     expect(await screen.findByRole('heading', { name: 'תורה' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'עיון' })).toBeTruthy()
     expect(screen.queryByText('Genesis')).toBeNull()
-    expect(screen.getByRole('link', { name: /תהלים.*150 פרקים/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /תהלים.*150 פר׳/ })).toBeTruthy()
   })
 
   it('labels search hits and controls in Hebrew', async () => {

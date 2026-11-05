@@ -131,7 +131,7 @@ describe('CiphersPage', () => {
 
   it('reads in Hebrew', async () => {
     renderAt('/ciphers', 'he')
-    expect(await screen.findByRole('heading', { name: 'את״ב״ש ואל״ב״ם' })).toBeTruthy()
-    expect(await screen.findByText(/בירמיהו כה וירמיהו נא, את״ב״ש קורא 3 שמות/)).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'אתב״ש ואלב״ם' })).toBeTruthy()
+    expect(await screen.findByText(/בירמיהו כה וירמיהו נא, אתב״ש קורא 3 שמות/)).toBeTruthy()
   })
 })

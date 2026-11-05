@@ -1,5 +1,5 @@
 // The Hebrew half of `../sums.ts` (loaded with the Hebrew interface only).
-import { numHe } from '../../fmt'
+import { countHe, numHe } from '../../fmt'
 import { fp, pct, smEn } from '../sums'
 
 export const smHe: typeof smEn = {
@@ -17,7 +17,7 @@ export const smHe: typeof smEn = {
   step: {
     title: 'המקבילות נבדלות בצעד אחד',
     text: (k: number, n: number, share: number | null, expected: number | null, p: number) =>
-      `מתוך ${numHe(n)} המספרים ששונים בין פסוקים מקבילים בספרים שונים, ${numHe(k)} (${pct(share)}) רחוקים זה מזה בצעד אחד: חזקה של עשר (40,000 / 4,000) או ספרה אחת (18 / 8), כמו שמעתיק עשוי לשנות. כשהמספר השני נבחר באקראי מן הספר: ${pct(expected)} (p ${fp(p)}).`,
+      `מתוך ${numHe(n)} המספרים ששונים בין פסוקים מקבילים בספרים שונים, ${numHe(k)} (${pct(share)}) רחוקים זה מזה בצעד אחד: חזקה של עשר (40,000 / 4,000) או ספרה אחת (18 / 8), כמו שמעתיק עשוי לשנות. אילו נבחר המספר השני באקראי מספרו, היו כאלה ${pct(expected)} (p ${fp(p)}).`,
     every: (share: number | null, expected: number | null, p: number) =>
       `הריצה הראשונה ספרה גם צמדים בתוך ספר אחד (רובם נוסחאות חוזרות): ${pct(share)} מול ${pct(expected)} (p ${fp(p)}).`,
   },
@@ -40,7 +40,7 @@ export const smHe: typeof smEn = {
     num3: 'פקודי הלויים',
     num4: 'הלויים בעבודה',
     num26: 'המפקד בערבות מואב',
-    ezra1: 'כלי בית ה׳',
+    ezra1: 'כלי המקדש',
     ezra2: 'העולים (עזרא)',
     neh7: 'העולים (נחמיה)',
   } as Record<string, string>,
@@ -64,7 +64,7 @@ export const smHe: typeof smEn = {
   scope: { label: 'צמדים', across: 'ספרים שונים', every: 'כל הצמדים' },
   step3: { label: 'שוני', all: 'הכול', yes: 'צעד אחד', no: 'רחוקים יותר' },
   unit: { count: 'מניין', year: 'שנים', month: 'חודשים', day: 'ימים' } as Record<string, string>,
-  pairCount: (n: number) => `${numHe(n)} מספרים שונים`,
+  pairCount: (n: number) => countHe(n, 'מספר אחד שונה', 'שני מספרים שונים', 'מספרים שונים'),
   pageOf: (p: number, n: number) => `עמוד ${numHe(p)} מתוך ${numHe(n)}`,
   empty: 'אין כאן מספרים.',
   limits: 'המספרים נקראים מן המילים (מספרים יסודיים; מספרים סודרים אינם מניין). המספרים מוצמדים לפי הסדר ולפי היחידה בלבד, כך שצמד יכול להעמיד זה מול זה שני מספרים שאינם מונים את אותו הדבר.',

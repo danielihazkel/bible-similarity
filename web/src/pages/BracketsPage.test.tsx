@@ -153,7 +153,7 @@ describe('BracketsPage', () => {
 
   it('runs in the Hebrew interface', async () => {
     renderAt('/brackets', 'he')
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('חזרה מסגרת')
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('חזרה מקשרת')
     expect(await screen.findByText('מתאשר')).toBeTruthy()
     expect(await screen.findAllByText('30 פסוקים ביניהם')).toHaveLength(2)
   })

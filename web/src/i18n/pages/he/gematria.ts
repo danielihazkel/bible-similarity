@@ -4,7 +4,7 @@ import type { gmEn } from '../gematria'
 
 export const gmHe: typeof gmEn = {
   title: 'גימטריה',
-  lede: 'כל אות עברית היא גם מספר (א 1, י 10, ק 100 …), והגימטריה של מילה היא סכום אותיותיה. אפשר להקליד מילה או מספר: ערכם בארבע שיטות מניין, והמילים, הלמות והפסוקים במקרא שמסתכמים באותו ערך.',
+  lede: 'כל אות עברית היא גם מספר (א 1, י 10, ק 100 …), והגימטריה של מילה היא סכום אותיותיה. אפשר להקליד מילה או מספר ולקבל את ערכם בארבע שיטות מניין ואת המילים, הערכים המילוניים והפסוקים במקרא שמסתכמים באותו ערך.',
   noData: 'לא חושב בבנייה זו: יש להריץ `bsim gematria` ואחר כך `bsim build-db`.',
   input: 'מילה או מספר',
   placeholder: 'אליעזר · 318',
@@ -21,11 +21,11 @@ export const gmHe: typeof gmEn = {
   view: 'הצגה',
   views: {
     forms: (n: number) => `מילים (${numHe(n)})`,
-    lemmas: (n: number) => `למות (${numHe(n)})`,
+    lemmas: (n: number) => `ערכים מילוניים (${numHe(n)})`,
     verses: (n: number) => `פסוקים (${numHe(n)})`,
   },
   summary: (value: number, system: string, forms: number, words: number, lemmas: number, verses: number) =>
-    `${numHe(value)} (${system}): ${countHe(forms, 'צורה כתובה אחת', 'שתי צורות כתובות', 'צורות כתובות')} (${countHe(words, 'מילה אחת', 'שתי מילים', 'מילים')} בטקסט), ${countHe(lemmas, 'למה אחת', 'שתי למות', 'למות')} ו־${countHe(verses, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}.`,
+    `${numHe(value)} (${system}): ${countHe(forms, 'צורה כתובה אחת', 'שתי צורות כתובות', 'צורות כתובות')} (${countHe(words, 'מילה אחת', 'שתי מילים', 'מילים')} בטקסט), ${countHe(lemmas, 'ערך מילוני אחד', 'שני ערכים מילוניים', 'ערכים מילוניים')} ו־${countHe(verses, 'פסוק אחד', 'שני פסוקים', 'פסוקים')}.`,
   ledes: {
     forms: 'כל צורה כפי שהיא כתובה, עם תחיליותיה (והארץ אינה הארץ), השכיחה ראשונה.',
     lemmas: 'מילות מילון, לפי ערכה של מילת הערך במילון סטרונג, השכיחה ראשונה.',
@@ -33,7 +33,7 @@ export const gmHe: typeof gmEn = {
   },
   empty: {
     forms: 'אין צורה כתובה בערך זה.',
-    lemmas: 'אין למה בערך זה.',
+    lemmas: 'אין ערך מילוני בערך זה.',
     verses: 'אין פסוק בערך זה.',
   },
   formCount: (words: number, verses: number) =>

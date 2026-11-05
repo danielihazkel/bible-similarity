@@ -38,7 +38,7 @@ export const kqHe: typeof kqEn = {
     word: 'מילה אחרת',
   },
   booksTitle: 'לפי ספר',
-  bookCols: { book: 'ספר', words: 'מילים', n: 'כתיב וקרי', rate: 'לכל 1,000 מילים', fuller: 'כתיב מלא' },
+  bookCols: { book: 'ספר', words: 'מילים', n: 'כתיב וקרי', rate: 'לכל 1,000 מילים', fuller: 'הכתיב מלא יותר' },
   lettersTitle: 'אותיות שהוחלפו',
   lettersLede: 'הבדלים באות אחת לפי זוג אותיות, לעומת המספר הצפוי לפי שכיחות האותיות; ★ מסמן אותיות הדומות בכתב המרובע.',
   letterCols: { pair: 'אותיות', n: 'זוגות', expected: 'צפוי', ratio: 'יחס', q: 'q' },
@@ -54,7 +54,7 @@ export const kqHe: typeof kqEn = {
   parallelOpt: { qere: 'כותבת את הקרי', ketiv: 'כותבת את הכתיב', neither: 'כותבת צורה אחרת' },
   page: (total: number, page: number, pages: number) =>
     `${countHe(total, 'זוג אחד', 'שני זוגות', 'זוגות')} · עמוד ${numHe(page)} מתוך ${numHe(pages)}`,
-  none: 'אין כאן.',
+  none: 'אין כאן זוגות.',
   written: 'כתיב',
   read: 'קרי',
   nothing: '(אין)',

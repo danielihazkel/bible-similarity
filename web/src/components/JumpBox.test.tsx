@@ -226,7 +226,7 @@ describe('JumpBox', () => {
     fireEvent.click(screen.getByRole('button', { name: /מעבר אל/ }))
     fireEvent.change(box(), { target: { value: 'חברון' } })
     expect(await screen.findByRole('option', { name: /חברון.*עיר · 54 פסוקים · לראשונה ב־בראשית יג:יח/ })).toBeTruthy()
-    expect(screen.getByText('מקומות במפה')).toBeTruthy()
+    expect(screen.getAllByText('מקומות על המפה').length).toBeGreaterThan(0)
     fireEvent.change(box(), { target: { value: 'יפתח' } })
     expect(await screen.findByRole('option', { name: /יפתח.*לראשונה ב.*שופטים יא:א/ })).toBeTruthy()
     expect(screen.getByText('אנשים באילן היוחסין')).toBeTruthy()

@@ -22,7 +22,7 @@ export const paHe: typeof paEn = {
   pointTitle: (label: string, n: number, spread: number) =>
     `${label}: ${countHe(n, 'אזכור אחד', 'שני אזכורים', 'אזכורים')}, פיזור ${kmHe(spread)}`,
   chaptersTitle: 'פרק אחר פרק',
-  chaptersLede: 'כל פרק ממוקם עם המקום שהוא מזכיר הכי הרבה, המרחק בק״מ מהפרק הממוקם שלפניו והפיזור שלו. שלושת הצעדים הארוכים ביותר מסומנים.',
+  chaptersLede: 'כל פרק ממוקם עם המקום הנזכר בו ביותר, המרחק בק״מ מהפרק הממוקם שלפניו והפיזור שלו. שלושת הצעדים הארוכים ביותר מסומנים.',
   step: (km: number) => kmHe(km),
   stepFrom: (km: number, prev: number) => `${kmHe(km)} מפרק ${hebrewNumeral(prev)}`,
   spread: (km: number) => `פיזור ${kmHe(km)}`,
@@ -49,7 +49,7 @@ export const paHe: typeof paEn = {
   moveTitle: (move: string, label: string) => `${move}: ${label}`,
   oraclesTitle: 'הנבואות על הגויים',
   oraclesLede: (refs: string) =>
-    `הנבואות על הגויים (${refs}) מזכירות את ארצות העמים ואת עריהם. האם פרקיהן משתרעים על פני שטח רחב משאר פרקי הנביאים? פיזור, וטווח (מרחק המרכז מירושלים), כל אחד מול התוויות מעורבבות בין הפרקים הממוקמים של הנביאים, חד־צדדי.`,
+    `הנבואות על הגויים (${refs}) מזכירות את ארצות העמים ואת עריהם. האם פרקיהן משתרעים על פני שטח רחב משאר פרקי הנביאים? פיזור, וטווח (מרחק המרכז מירושלים), כל אחד מול התוויות כשהן מעורבבות בין הפרקים הממוקמים של הנביאים, חד־צדדי.`,
   oracleVerdict: (alpha: number) => `עומדת כשאחד המדדים רחב יותר ב־p ≤ ${alpha}.`,
   ocols: { measure: 'מדד', oracles: 'הנבואות', others: 'שאר פרקי הנביאים', shuffled: 'מעורבב', p: 'p' },
   measures: { spread: 'פיזור', reach: 'טווח מירושלים' },
