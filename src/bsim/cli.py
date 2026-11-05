@@ -1001,6 +1001,32 @@ def build_db(config: ConfigOpt = None) -> None:
         raise typer.Exit(code=1) from e
 
 
+@app.command("deploy-bundle")
+def deploy_bundle(
+    out: Annotated[
+        Path | None, typer.Option(help="Where to write it (default: deploy.out, bundle/)")
+    ] = None,
+    no_nc: Annotated[
+        bool,
+        typer.Option("--no-nc", help="Leave out the CC BY-NC data (deploy.noncommercial)"),
+    ] = False,
+    embeddings: Annotated[
+        bool, typer.Option(help="Include the verse vectors (/compare, semantic structure)")
+    ] = True,
+    config: ConfigOpt = None,
+) -> None:
+    """Copy what a public read-only server needs, nothing personal (docs/DEPLOY.md)."""
+    from bsim.deploy import run_deploy_bundle
+
+    try:
+        run_deploy_bundle(
+            load_config(config), out, no_nc=no_nc, embeddings=embeddings, log=typer.echo
+        )
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("compare-builds")
 def compare_builds(
     old: Annotated[Path, typer.Argument(help="The earlier results DB")],
@@ -1051,20 +1077,29 @@ def serve(
     uvicorn.run(api, host=host or cfg["serve"]["host"], port=port or cfg["serve"]["port"])
 
 
-def _fixture_app(workdir: Path):
+def _fixture_app(workdir: Path, public: bool = False):
     """The API over the tiny synthetic DB of `bsim.fixture`, built in `workdir`, with the
-    viewer build of the default config and a stub query encoder (no model, no GPU)."""
+    viewer build of the default config and a stub query encoder (no model, no GPU); `public`:
+    configs/public.yaml's serve switches (nothing personal, no query encoder)."""
     from bsim.api.app import create_app
+    from bsim.config import PROJECT_ROOT, merge
     from bsim.fixture import build_fixture_db, fixture_encoder
 
     cfg, _ = build_fixture_db(workdir)
     cfg["paths"]["web_dist"] = load_config()["paths"]["web_dist"]
+    if public:
+        prof = load_config(PROJECT_ROOT / "configs" / "public.yaml")
+        cfg = merge(cfg, {"serve": prof["serve"], "labels": prof["labels"]})
+        return create_app(cfg, log=lambda _: None)
     return create_app(cfg, encoder=fixture_encoder, log=lambda _: None)
 
 
 @app.command("fixture-serve")
 def fixture_serve(
     port: Annotated[int, typer.Option(help="Port")] = 8778,
+    public: Annotated[
+        bool, typer.Option("--public", help="As configs/public.yaml serves (DEPLOY.md)")
+    ] = False,
 ) -> None:
     """Serve the viewer over a tiny synthetic DB (CI end-to-end tests; no data or model)."""
     import tempfile
@@ -1072,7 +1107,7 @@ def fixture_serve(
     import uvicorn
 
     with tempfile.TemporaryDirectory(prefix="bsim-fixture-", ignore_cleanup_errors=True) as tmp:
-        uvicorn.run(_fixture_app(Path(tmp)), host="127.0.0.1", port=port)
+        uvicorn.run(_fixture_app(Path(tmp), public), host="127.0.0.1", port=port)
 
 
 @app.command()

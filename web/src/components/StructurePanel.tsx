@@ -24,10 +24,13 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
   const m = useT()
   const t = m.pat.panel
   const res = useStructure(unitId)
-  const [basis, setBasis] = useState<Basis>('semantic')
+  const [chosen, setBasis] = useState<Basis>('semantic')
   if (res.isPending) return <Loading label={t.computing} />
   if (res.error) return <ErrorBox error={res.error} />
-  const data = res.data[basis]
+  // no semantic basis where the server has no verse vectors (a public deploy without them)
+  const semantic = res.data.semantic
+  const basis: Basis = semantic ? chosen : 'lexical'
+  const data = basis === 'semantic' && semantic ? semantic : res.data.lexical
   const label = (vid: number) => {
     const v = verses.find((x) => x.verse_id === vid)
     return v ? m.cv(v.chapter, v.verse) : String(vid)
@@ -40,8 +43,8 @@ export function StructurePanel({ unitId, verses, lemma, onLemma }: Props) {
           value={basis}
           onChange={setBasis}
           options={[
-            { value: 'semantic', label: m.modes.names.semantic, title: t.hints.semantic },
-            { value: 'lexical', label: m.modes.names.lexical, title: t.hints.lexical },
+            ...(semantic ? [{ value: 'semantic' as const, label: m.modes.names.semantic, title: t.hints.semantic }] : []),
+            { value: 'lexical' as const, label: m.modes.names.lexical, title: t.hints.lexical },
           ]}
         />
         <span className="muted small">{t.verseByVerse(t.hints[basis])}</span>

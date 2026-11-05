@@ -88,14 +88,18 @@ The system has two halves:
 bible-similarity/
 ├── README.md
 ├── CLAUDE.md
-├── pyproject.toml / uv.lock        # uv-managed; torch from the cu126 index
-├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only); genealogy/PROGRESS.md (the family tree's hand-off)
+├── pyproject.toml / uv.lock        # uv-managed; torch from the cu126 index, in the default `ml` group (left out of the public image)
+├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only), DEPLOY (a public copy); genealogy/PROGRESS.md (the family tree's hand-off)
 ├── curation/genealogy/             # the family tree's review files, one per block (keys and references only; §16.63)
 ├── configs/
-│   └── default.yaml                # all paths, hyperparameters, k, seeds
+│   ├── default.yaml                # all paths, hyperparameters, k, seeds
+│   ├── public.yaml                 # a public read-only server: extends default.yaml (docs/DEPLOY.md)
+│   └── docker.yaml                 # the image's: extends public.yaml
+├── Dockerfile / .dockerignore      # the public image: viewer + server without the ML libraries (docs/DEPLOY.md)
 ├── src/bsim/
 │   ├── cli.py                      # Typer app: one command per pipeline stage
-│   ├── config.py                   # load + hash config (sections or dotted keys)
+│   ├── config.py                   # load + hash config (sections or dotted keys); `extends:` profiles
+│   ├── deploy.py                   # `bsim deploy-bundle`: what a public server needs, nothing personal (§10.3)
 │   ├── fixture.py                  # tiny synthetic results DB (pytest, `bsim fixture-serve`, `bsim openapi`)
 │   ├── pipeline.py                 # `bsim all`: stage order, stage graph (DEPS), system lists from config
 │   ├── incremental.py              # `bsim all` skips stages up to date: code, config keys, file hashes (§16.35)

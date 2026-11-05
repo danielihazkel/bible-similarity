@@ -283,6 +283,8 @@ def compare(a: str, b: str, state: State, conn: Conn) -> dict[str, Any]:
     cap = state.cfg["serve"]["max_compare_verses"]
     if max(ua["n_verses"], ub["n_verses"]) > cap:
         raise unprocessable(f"only units of at most {cap} verses can be compared")
+    if state.emb is None:
+        raise HTTPException(status_code=503, detail="no verse vectors on this server")
     a_ids = list(range(ua["start_verse_id"], ua["end_verse_id"] + 1))
     b_ids = list(range(ub["start_verse_id"], ub["end_verse_id"] + 1))
     ea = np.asarray(state.emb[a_ids[0] : a_ids[-1] + 1], dtype=np.float32)

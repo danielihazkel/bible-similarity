@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { useNotebook, useNotebookChange } from '../api/hooks'
+import { useNotebook, useNotebookChange, useServer } from '../api/hooks'
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
 import { ChangeError, DropButton, EntryEditor } from '../components/NotebookPanel'
-import { ErrorBox, Loading } from '../components/Status'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { downloadCsv, downloadText } from '../lib/csv'
@@ -22,6 +22,14 @@ export function NotebookPage() {
   const [params, update] = useQueryParams()
   const nb = useNotebook()
   const [filter, setFilter] = useState('')
+  const { personal } = useServer()
+  if (!personal)
+    return (
+      <div className="page notebook-page">
+        <h1>{t.title}</h1>
+        <NotComputed>{m.server.personalOff}</NotComputed>
+      </div>
+    )
   if (nb.isPending) return <Loading />
   if (nb.error) return <ErrorBox error={nb.error} />
   const { entries, collections, writable, hidden } = nb.data

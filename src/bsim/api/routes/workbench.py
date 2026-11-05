@@ -58,6 +58,8 @@ def _corpus(state: State, conn: sqlite3.Connection) -> Corpus:
         return None if u is None else (u["start_verse_id"], u["end_verse_id"])
 
     def collection_spans(collection_id: int) -> list[tuple[int, int]] | None:
+        if not state.cfg["serve"]["personal"]:  # no notebook on a public deploy
+            return None
         nconn = store.connect(resolve_path(state.cfg, "labels"))
         try:
             if store.collection(nconn, collection_id) is None:

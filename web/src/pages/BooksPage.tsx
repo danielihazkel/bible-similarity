@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
-import { useBooks, useWeek } from '../api/hooks'
+import { useBooks, useServer, useWeek } from '../api/hooks'
 import type { Book } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
-import { isGroup, NAV, type NavItem, navText } from '../lib/nav'
+import { isGroup, type NavItem, navFor, navText } from '../lib/nav'
 import { TourList } from './ToursPage'
 import { localToday, longDate } from '../lib/week'
 import '../i18n/pages/glossary'
@@ -94,6 +94,7 @@ function StartHere() {
 /** Every menu group's pages with their one-line hints (the nav's own list and texts). */
 function Explore() {
   const m = useT()
+  const { personal } = useServer()
   const pages = (items: NavItem[]) => (
     <ul className="explore-pages">
       {items.map((i) => {
@@ -112,7 +113,7 @@ function Explore() {
       <h2 id="explore-title">{m.books.explore}</h2>
       <p className="muted">{m.books.exploreLede}</p>
       <div className="explore-groups">
-        {NAV.filter(isGroup).map((g) => (
+        {navFor(personal).filter(isGroup).map((g) => (
           <div key={g.key} className="explore-group">
             <h3>{m.nav[g.key]}</h3>
             {g.sections

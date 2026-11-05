@@ -1879,6 +1879,9 @@ serve:                        # `bsim serve` (DESIGN.md §10)
   host: 127.0.0.1
   port: 8000
   labels_writable: true       # PUT / DELETE /api/labels (false: the viewer shows labels read-only)
+  personal: true              # your labels, notebook and label queue (false: their routes are 404 and the viewer leaves them out; a public deploy, DEPLOY.md)
+  encoder: true               # load the query encoder (false: semantic / fused search and /align answer 503 "off"; no torch needed when embeddings are off or CSLS hubness is computed in numpy)
+  embeddings: true            # memory-map the final system's verse vectors (false: /compare and the semantic structure basis answer without them; needs encoder: false)
   device: cuda                # query encoder + hubness; falls back to cpu if unavailable
   cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server
   default_k: 10
@@ -1945,3 +1948,20 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     max_query_chars: 500
     max_k: 200                # /search returns at most this many verses (ranked past retrieval.k)
     query_cache: 256          # query embeddings kept in memory (LRU) for repeated searches
+
+deploy:                       # `bsim deploy-bundle`: what a public read-only server needs, nothing personal (DESIGN.md §10.3, docs/DEPLOY.md)
+  out: bundle                 # under the project root (gitignored); configs/public.yaml serves from it
+  eval_files: [metrics.json, openbible.json, etcbc.json, supervision_experiments.json, encoder_experiments.json, unit_experiments.json]   # artifacts/eval files /eval reads
+  noncommercial:              # --no-nc: the stages (off the DB's stages_run: "not computed in this build"), their tables (emptied) and eval files carrying CC BY-NC data, by source
+    bhsa:                     # ETCBC BHSA: clauses, phrases, speech, and the analyses built on them
+      stages: [syntax, voices, dialogue, retold, mirrors]
+      tables: [clauses, syntax_phrases, syntax_neighbors, speech_chapters, speech_books, voice_speakers, voice_features, voice_pairs, dialogue_pairs, dialogue_exchanges, retold_pairs, retold_marks, mirror_verses, mirror_clauses]
+      eval_files: []
+    etcbc_parallels:          # ETCBC parallels: a gold set (and extra training pairs of the encoder in use: DEPLOY.md)
+      stages: []
+      tables: []
+      eval_files: [etcbc.json]
+    samaritan_scrolls:        # DT-UCPH Samaritan Pentateuch, ETCBC Dead Sea Scrolls
+      stages: [witnesses]
+      tables: [witnesses_verses, witnesses_changes, witnesses_books, witnesses_scrolls, witnesses_chronology]
+      eval_files: []

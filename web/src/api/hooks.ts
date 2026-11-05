@@ -434,19 +434,26 @@ export const useBorrowingBetween = (a: string | undefined, b: string | undefined
   })
 
 /** Your labelled pairs (DESIGN.md §16.25): they change while the viewer runs, unlike the DB. */
-export const useLabels = () =>
-  useQuery({ queryKey: ['labels'], queryFn: ({ signal }) => getJson<LabelsResponse>('/labels', {}, signal) })
+export const useLabels = () => {
+  const { personal } = useServer()
+  return useQuery({ queryKey: ['labels'], queryFn: ({ signal }) => getJson<LabelsResponse>('/labels', {}, signal), enabled: personal })
+}
 
-export const useLabelsEval = () =>
-  useQuery({ queryKey: ['labels-eval'], queryFn: ({ signal }) => getJson<LabelsEval>('/labels/eval', {}, signal) })
+export const useLabelsEval = () => {
+  const { personal } = useServer()
+  return useQuery({ queryKey: ['labels-eval'], queryFn: ({ signal }) => getJson<LabelsEval>('/labels/eval', {}, signal), enabled: personal })
+}
 
 /** The label queue (DESIGN.md §16.79): its own key, so a label does not refetch it at once (the
  * pair judged stays in view until "Next pairs" refetches). */
-export const useLabelQueue = (side: QueueSide, suggested = false) =>
-  useQuery({
+export const useLabelQueue = (side: QueueSide, suggested = false) => {
+  const { personal } = useServer()
+  return useQuery({
     queryKey: ['label-queue', side, suggested],
     queryFn: ({ signal }) => getJson<LabelQueue>('/labels/queue', { side, suggested: suggested ? 'true' : undefined }, signal),
+    enabled: personal,
   })
+}
 
 /** The key of a pair in either order. */
 export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`)
@@ -467,8 +474,10 @@ export function useSetLabel() {
 }
 
 /** Your notebook (DESIGN.md §16.47): like the labels, it changes while the viewer runs. */
-export const useNotebook = () =>
-  useQuery({ queryKey: ['notebook'], queryFn: ({ signal }) => getJson<NotebookResponse>('/notebook', {}, signal) })
+export const useNotebook = () => {
+  const { personal } = useServer()
+  return useQuery({ queryKey: ['notebook'], queryFn: ({ signal }) => getJson<NotebookResponse>('/notebook', {}, signal), enabled: personal })
+}
 
 const enc = encodeURIComponent
 
@@ -1416,6 +1425,20 @@ export const useBookStyle = (book: number | undefined) =>
 
 export const useMeta = () =>
   useQuery({ queryKey: ['meta'], queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal) })
+
+/** What this server offers (DESIGN.md §10.3): your labels and notebook, semantic search, the verse
+ * vectors. A public deploy turns them off (configs/public.yaml); all on until /meta says. */
+export interface ServerFeatures {
+  personal: boolean
+  encoder: boolean
+  embeddings: boolean
+}
+
+export const useServer = (): ServerFeatures => {
+  const rt = useQuery({ queryKey: ['meta'], queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal), staleTime: Infinity }).data
+    ?.runtime
+  return { personal: rt?.personal !== false, encoder: rt?.encoder_on !== false, embeddings: rt?.embeddings_shape !== null }
+}
 
 export interface SequencesQuery {
   book?: number

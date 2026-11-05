@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useBooks, useEncoderStatus, useResolve, useSearch } from '../api/hooks'
+import { useBooks, useEncoderStatus, useResolve, useSearch, useServer } from '../api/hooks'
 import { BookSelect, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
 import { HebrewText } from '../components/HebrewText'
@@ -17,7 +17,9 @@ export function SearchPage() {
   const { m, locale } = useLocale()
   const [params, update] = useQueryParams()
   const q = params.get('q') ?? ''
-  const mode = parseMode(params.get('mode'), SEARCH_MODES)
+  // a server without the query encoder (a public deploy) searches lexically only
+  const server = useServer()
+  const mode = server.encoder ? parseMode(params.get('mode'), SEARCH_MODES) : 'lexical'
   const k = parseK(params.get('k'), SEARCH_K_OPTIONS)
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' || !Number.isInteger(Number(bookParam)) ? undefined : Number(bookParam)
@@ -35,7 +37,9 @@ export function SearchPage() {
       {/* key: the draft restarts from the URL query on back / forward navigation */}
       <SearchForm key={q} initial={q} onSubmit={(text) => update({ q: text.trim() || null }, false)} />
       <div className="toolbar">
-        <ModeToggle modes={SEARCH_MODES} value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
+        {server.encoder && (
+          <ModeToggle modes={SEARCH_MODES} value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
+        )}
         <KSelect
           value={k}
           options={SEARCH_K_OPTIONS}
@@ -45,6 +49,7 @@ export function SearchPage() {
       </div>
       <p className="muted small">
         {m.modes.hints[mode]}. {m.search.hint}
+        {!server.encoder && <> {m.server.encoderOff}</>}
       </p>
 
       {needsEncoder && encoder.error ? (

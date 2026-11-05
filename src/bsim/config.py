@@ -14,13 +14,26 @@ DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "default.yaml"
 
 
 def load_config(path: str | Path | None = None) -> dict[str, Any]:
-    """Load a config file (default: configs/default.yaml)."""
+    """Load a config file (default: configs/default.yaml). A file with `extends: <file>` (relative
+    to it) is that file with its own keys merged over it, mapping by mapping (a profile such as
+    configs/public.yaml)."""
     cfg_path = Path(path) if path else DEFAULT_CONFIG
     with cfg_path.open(encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     if not isinstance(cfg, dict):
         raise ValueError(f"Config {cfg_path} must be a mapping")
+    base = cfg.pop("extends", None)
+    if base is not None:
+        cfg = merge(load_config(cfg_path.parent / base), cfg)
     return cfg
+
+
+def merge(base: dict[str, Any], over: dict[str, Any]) -> dict[str, Any]:
+    """`base` with `over`'s keys: mappings merged key by key, anything else replaced."""
+    out = dict(base)
+    for k, v in over.items():
+        out[k] = merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
 
 
 def _lookup(cfg: dict[str, Any], key: str) -> Any:

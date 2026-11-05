@@ -391,7 +391,8 @@ def dossier(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         state.dossier_cache.put(unit_id, entries)
     path = resolve_path(state.cfg, "labels")
     n_labels = 0
-    if path.exists():  # created with its table by the first label (`store.labels.connect`)
+    # created with its table by the first label (`store.labels.connect`); none on a public deploy
+    if state.cfg["serve"]["personal"] and path.exists():
         lconn = sqlite3.connect(path, timeout=5)
         try:
             n_labels = _count(

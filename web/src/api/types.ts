@@ -143,7 +143,15 @@ export type StyloFeature = S['StyloFeature']
 export type BookStyle = S['BookStyle']
 
 export type Meta = Omit<S['Meta'], 'runtime'> & {
-  runtime: Record<string, unknown> & { encoder_ready?: boolean; encoder_error?: string | null; startup_s?: number }
+  runtime: Record<string, unknown> & {
+    encoder_ready?: boolean
+    encoder_error?: string | null
+    startup_s?: number
+    /** serve.personal, serve.encoder; embeddings_shape null: serve.embeddings off (§10.3) */
+    personal?: boolean
+    encoder_on?: boolean
+    embeddings_shape?: number[] | null
+  }
 }
 
 export type SequenceSummary = S['SequenceSummary']

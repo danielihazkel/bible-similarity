@@ -295,14 +295,14 @@ def _sequence_detail(seq_id: int, state: ServeState, conn: sqlite3.Connection) -
                 rows += [LadderRow(a=None, b=y) for y in range(pb + 1, b)]
             elif r["direction"] == "reverse":
                 rows += [LadderRow(a=None, b=y) for y in range(pb - 1, b, -1)]
-        cos = float(np.dot(state.emb[a], state.emb[b]))
+        cos = None if state.emb is None else float(np.dot(state.emb[a], state.emb[b]))
         am, bm, _, shared = diff_marks(state, conn, a, b)
         rows.append(
             LadderRow(
                 a=a,
                 b=b,
                 weight=w,
-                cosine=round(cos, 4),
+                cosine=None if cos is None else round(cos, 4),
                 gold=gold,
                 a_marks=am,
                 b_marks=bm,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { useAlign, useCompare, useExplain, useVerseDiff } from '../api/hooks'
+import { useAlign, useCompare, useExplain, useServer, useVerseDiff } from '../api/hooks'
 import type { CompareResponse, Pair, UnitSummary, Verse, VerseDiff } from '../api/types'
 import { AlignChips } from '../components/AlignChips'
 import { BorrowLineBetween } from '../components/BorrowLine'
@@ -76,6 +76,8 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
   const df = diff.data && active && diff.data.a === active.a && diff.data.b === active.b ? diff.data : undefined
   const [focusLink, setFocusLink] = useState<number>()
   const align = useAlign(active?.a, active?.b, marks === 'meaning')
+  // links of meaning need the query encoder (off on a public deploy)
+  const { encoder } = useServer()
   const al = align.data && active && align.data.a === active.a && align.data.b === active.b ? align.data : undefined
   const highlight = (side: 'a' | 'b'): Highlight | undefined =>
     marks === 'changes'
@@ -150,7 +152,7 @@ function Alignment({ data, marks, onMarks }: { data: CompareResponse; marks: Mar
             {(pairOf(active.from, active.from === 'a' ? active.a : active.b)?.cosine ?? 0).toFixed(3)}
           </span>
           <span className="segmented" role="group" aria-label={m.hit.markBy}>
-            {MARKS.map((k) => (
+            {MARKS.filter((k) => encoder || k !== 'meaning').map((k) => (
               <button key={k} type="button" className={marks === k ? 'on' : ''} aria-pressed={marks === k} onClick={() => onMarks(k)}>
                 {k === 'shared' ? m.hit.sharedWords : k === 'changes' ? m.compare.changes : m.compare.meaning}
               </button>

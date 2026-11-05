@@ -204,7 +204,9 @@ describe('SearchPage', () => {
     renderAt('/search?q=נבל&mode=lexical', <Route path="/search" element={<SearchPage />} />)
     expect(await screen.findByText('Psalms 14:1')).toBeTruthy()
     expect(screen.queryByText(/semantic encoder is still loading/)).toBeNull()
-    expect(calls.some((c) => c.startsWith('/api/meta'))).toBe(false)
+    // /meta once, for what the server offers (useServer); never polled for the encoder
+    await new Promise((r) => setTimeout(r, 50))
+    expect(calls.filter((c) => c.startsWith('/api/meta')).length).toBeLessThanOrEqual(1)
   })
 
   it('stays quiet once the encoder is ready', async () => {

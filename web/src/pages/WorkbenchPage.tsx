@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { useBooks, useCheck, useContrast, useNotebook } from '../api/hooks'
+import { useBooks, useCheck, useContrast, useNotebook, useServer } from '../api/hooks'
 import type { Book, CheckResponse, ContrastResponse, ContrastRow, SetProblem, SetSummary, WorkbenchFeature, WorkbenchWithin } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { DomainName } from '../components/DomainName'
@@ -475,7 +475,8 @@ function AddItem({ name, allowOnly, onAdd }: { name: string; allowOnly: boolean;
   const t = m.wb
   const books = useBooks()
   const notebook = useNotebook()
-  const kinds: Kind[] = ['book', 'chapters', 'section', 'collection', 'pattern', ...(allowOnly ? (['only'] as Kind[]) : [])]
+  const { personal } = useServer() // no notebook collections on a public deploy
+  const kinds: Kind[] = ['book', 'chapters', 'section', ...(personal ? (['collection'] as Kind[]) : []), 'pattern', ...(allowOnly ? (['only'] as Kind[]) : [])]
   const [kind, setKind] = useState<Kind>('book')
   const [book, setBook] = useState('0')
   const [from, setFrom] = useState('1')

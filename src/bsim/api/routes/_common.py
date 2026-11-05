@@ -30,6 +30,16 @@ def get_conn(state: Annotated[ServeState, Depends(get_state)]) -> Iterator[sqlit
 State = Annotated[ServeState, Depends(get_state)]
 
 
+def personal(state: State) -> None:
+    """Your labels, notebook and label queue exist only where `serve.personal` is on: a public
+    deploy answers 404 (`code: personal_off`) and the viewer leaves them out."""
+    if not state.cfg["serve"]["personal"]:
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "personal_off", "message": "no labels or notebook on this server"},
+        )
+
+
 Conn = Annotated[sqlite3.Connection, Depends(get_conn)]
 
 

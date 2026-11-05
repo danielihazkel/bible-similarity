@@ -250,10 +250,9 @@ def _structure(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -
         bags[w["verse_id"]].extend(w["content_lemmas"].split())
     stats = queries.lemma_stats(conn, (t for b in bags.values() for t in b))
     idf = {t: math.log(state.n_verses / s["n_verses"]) for t, s in stats.items()}
-    mats = {
-        "semantic": st.semantic_matrix(np.asarray(state.emb[vids[0] : vids[-1] + 1])),
-        "lexical": st.lexical_matrix([bags[v] for v in vids], idf),
-    }
+    mats = {"lexical": st.lexical_matrix([bags[v] for v in vids], idf)}
+    if state.emb is not None:  # serve.embeddings
+        mats["semantic"] = st.semantic_matrix(np.asarray(state.emb[vids[0] : vids[-1] + 1]))
     bases = {}
     for basis, s in mats.items():
         inc = st.inclusio(s, c["min_verses_inclusio"], c["samples"], c["seed"])

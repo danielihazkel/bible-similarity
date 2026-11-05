@@ -1,0 +1,7 @@
+# The Docker image's config (Dockerfile, docs/DEPLOY.md): configs/public.yaml, with the bundle
+# mounted read-only at /app/bundle and the server's own caches (the surface index) in the image.
+extends: public.yaml
+
+serve:
+  port: 8000
+  cache_dir: /app/cache           # absolute: outside the read-only bundle

@@ -57,6 +57,7 @@ from bsim.api.patterns import WordTable
 from bsim.api.search import (
     BackgroundEncoder,
     Encoder,
+    OffEncoder,
     StEncoder,
     SurfaceIndex,
     load_hubness,
@@ -140,7 +141,7 @@ class ServeState:
     db_path: Path
     meta: dict[str, Any]
     n_verses: int
-    emb: np.ndarray
+    emb: np.ndarray | None  # None: `serve.embeddings: false` (a public deploy)
     hubness: np.ndarray | None
     encoder: Encoder
     surface: SurfaceIndex | Deferred
@@ -305,34 +306,46 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         conn.close()
 
     art = resolve_path(cfg, "artifacts")
-    emb_path = art / meta["embeddings"]
-    if not emb_path.exists():
-        raise RuntimeError(f"{emb_path} missing; run `bsim embed` for the semantic system first")
-    emb = np.load(emb_path, mmap_mode="r")
-    if emb.shape[0] != n:
-        raise RuntimeError(f"{emb_path} has {emb.shape[0]} rows, the DB has {n} verses")
-    device = get_device(serve["device"])
-    log(f"embeddings {emb_path.name}: {emb.shape[0]} x {emb.shape[1]} (memory-mapped)")
+    if serve["encoder"] and not serve["embeddings"]:
+        raise RuntimeError("serve.encoder needs serve.embeddings (semantic search ranks them)")
+    emb = None
+    if serve["embeddings"]:
+        emb_path = art / meta["embeddings"]
+        if not emb_path.exists():
+            raise RuntimeError(f"{emb_path} missing; run `bsim embed` for the semantic system")
+        emb = np.load(emb_path, mmap_mode="r")
+        if emb.shape[0] != n:
+            raise RuntimeError(f"{emb_path} has {emb.shape[0]} rows, the DB has {n} verses")
+        log(f"embeddings {emb_path.name}: {emb.shape[0]} x {emb.shape[1]} (memory-mapped)")
+    else:
+        log("embeddings off (serve.embeddings): no /compare, no semantic structure")
     t = step("db_and_embeddings", t0)
 
-    if encoder is None:
-        # Importing sentence-transformers alone takes ~15-25 s: load it while the rest starts and
-        # serves; semantic search waits for it.
-        base = meta["semantic_system"].removesuffix(CSLS_SUFFIX)
-        log(f"loading encoder {meta.get('semantic_encoder')} on {device} in the background")
-        encoder = BackgroundEncoder(_encoder_loader(cfg, base, str(device)), log)
-
+    # torch is imported for the encoder and its CSLS hubness only: with `serve.encoder: false`
+    # the server runs without it (the public image, DEPLOY.md)
+    device: Any = "none"
     hub = None
-    if meta.get("semantic_csls"):
-        hub = load_hubness(
-            emb,
-            emb_path,
-            art / serve["cache_dir"],
-            retrieval["csls_neighbors"],
-            retrieval["chunk_size"],
-            device,
-        )
-        log(f"CSLS hubness for {len(hub)} verses")
+    if encoder is None and not serve["encoder"]:
+        encoder = OffEncoder()
+        log("query encoder off (serve.encoder): semantic and fused search answer 503")
+    if serve["encoder"]:
+        device = get_device(serve["device"])
+        if encoder is None:
+            # Importing sentence-transformers alone takes ~15-25 s: load it while the rest starts
+            # and serves; semantic search waits for it.
+            base = meta["semantic_system"].removesuffix(CSLS_SUFFIX)
+            log(f"loading encoder {meta.get('semantic_encoder')} on {device} in the background")
+            encoder = BackgroundEncoder(_encoder_loader(cfg, base, str(device)), log)
+        if meta.get("semantic_csls"):
+            hub = load_hubness(
+                emb,
+                emb_path,
+                art / serve["cache_dir"],
+                retrieval["csls_neighbors"],
+                retrieval["chunk_size"],
+                device,
+            )
+            log(f"CSLS hubness for {len(hub)} verses")
     t = step("hubness", t)
 
     s, bm = serve["search"], cfg["lexical"]["bm25"]
@@ -348,7 +361,9 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
         "device": str(device),
         "semantic_system": meta["semantic_system"],
         "encoder": meta.get("semantic_encoder"),
-        "embeddings_shape": list(emb.shape),
+        "embeddings_shape": None if emb is None else list(emb.shape),
+        "encoder_on": bool(serve["encoder"]),
+        "personal": bool(serve["personal"]),
         "csls": hub is not None,
         "surface_terms": None,  # set when the surface index has loaded
         "started_at": time.time(),
@@ -391,7 +406,7 @@ def load_state(cfg: dict[str, Any], encoder: Encoder | None = None, log: Log = p
     )
     if serve["patterns"]["preload"]:
         threading.Thread(target=state.word_table, name="word-table", daemon=True).start()
-    if cfg["labels"]["queue"]["preload"]:
+    if cfg["labels"]["queue"]["preload"] and serve["personal"]:
         from bsim.api.label_queue import preload
 
         threading.Thread(

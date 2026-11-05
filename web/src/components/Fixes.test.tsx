@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -89,16 +90,18 @@ describe('HebrewText', () => {
 describe('Layout accessibility', () => {
   it('has a skip link, a copy-link button, and titles the page after its heading', async () => {
     render(
-      <TextModeProvider>
-        <MemoryRouter initialEntries={['/a']}>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/a" element={<h1>First page</h1>} />
-              <Route path="/b" element={<h1>Second page</h1>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </TextModeProvider>,
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <TextModeProvider>
+          <MemoryRouter initialEntries={['/a']}>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/a" element={<h1>First page</h1>} />
+                <Route path="/b" element={<h1>Second page</h1>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </TextModeProvider>
+      </QueryClientProvider>,
     )
     expect(screen.getByRole('link', { name: 'Skip to content' }).getAttribute('href')).toBe('#main')
     await waitFor(() => expect(document.title).toBe('First page · Tanakh Similarity'))

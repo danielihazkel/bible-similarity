@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getJson } from '../api/client'
-import { useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve } from '../api/hooks'
+import { useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve, useServer } from '../api/hooks'
 import type { LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
@@ -51,6 +51,7 @@ function buildOptions(
   lemmas: LemmaStat[],
   places: PlaceMatch[],
   people: PersonMatch[] = [],
+  personal = true,
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
@@ -81,7 +82,7 @@ function buildOptions(
     ...(unit ? [{ kind: 'passage' as const, to: unitLink(unit.unit_id), label: unitLabel(unit, locale) }] : []),
     ...(placesFirst(places, lemmas) ? [...sites, ...words] : [...words, ...sites]),
     ...persons,
-    ...matchPages(m, q, MAX_PAGES).map((p) => ({ kind: 'pages' as const, to: p.to, label: p.label, detail: p.hint })),
+    ...matchPages(m, q, MAX_PAGES, personal).map((p) => ({ kind: 'pages' as const, to: p.to, label: p.label, detail: p.hint })),
     { kind: 'search', to: `/search?q=${encodeURIComponent(q.trim())}`, label: t.searchFor(q.trim()) },
   ]
 }
@@ -109,6 +110,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
     return () => before?.focus?.()
   }, [])
 
+  const { personal } = useServer()
   const resolve = useResolve(settled)
   const lemmas = useLemmaLookup(settled)
   const places = usePlaceLookup(settled)
@@ -117,8 +119,8 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const words = lemmas.data?.query === settled ? lemmas.data.items : []
   const sites = places.data?.query === settled ? places.data.items : []
   const persons = people.data?.query === settled ? people.data.items : []
-  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons)
-  const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [], [])
+  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons, personal)
+  const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [], [], [], personal)
   const current = Math.min(active, shown.length - 1)
 
   const go = (o: Option | undefined) => {
@@ -136,7 +138,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
       client.fetchQuery({ queryKey: ['place-lookup', s], queryFn: ({ signal }) => getJson<PlaceLookup>('/places/lookup', { q: s }, signal) }),
       client.fetchQuery({ queryKey: ['person-lookup', s], queryFn: ({ signal }) => getJson<PersonLookup>('/genealogy/lookup', { q: s }, signal) }),
     ]).catch(() => [undefined, undefined, undefined, undefined] as const)
-    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [], f?.items ?? [])[0])
+    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [], f?.items ?? [], personal)[0])
   }
 
   const onKey = (e: KeyboardEvent) => {

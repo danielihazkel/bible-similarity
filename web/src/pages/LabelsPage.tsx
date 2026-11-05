@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ApiError } from '../api/client'
-import { useLabelQueue, useLabels, useLabelsEval, useSetLabel } from '../api/hooks'
+import { useLabelQueue, useLabels, useLabelsEval, useServer, useSetLabel } from '../api/hooks'
 import type { Label, LabelValue, LlmTriage, Mode, QueueItem, QueueSide, Suggestion } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
-import { ErrorBox, Loading } from '../components/Status'
+import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { formatScore } from '../lib/format'
@@ -30,6 +30,14 @@ export function LabelsPage() {
   const t = m.lab
   const [params, update] = useQueryParams()
   const queue = params.get('tab') === 'queue'
+  const { personal } = useServer()
+  if (!personal)
+    return (
+      <div className="page labels-page">
+        <h1>{t.title}</h1>
+        <NotComputed>{m.server.personalOff}</NotComputed>
+      </div>
+    )
   return (
     <div className="page labels-page">
       <h1>{t.title}</h1>

@@ -1,9 +1,10 @@
 """`/api` endpoints (DESIGN.md §10), one router per feature. Bad parameters -> 422, unknown
 ids -> 404."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from bsim.api.routes import (
+    _common,
     align,
     binomials,
     borrowing,
@@ -113,4 +114,6 @@ for _module in (
     findings,
     export,
 ):
-    router.include_router(_module.router)
+    # your labels and notebook: off on a public deploy (serve.personal)
+    personal = [Depends(_common.personal)] if _module in (labels, notebook) else []
+    router.include_router(_module.router, dependencies=personal)

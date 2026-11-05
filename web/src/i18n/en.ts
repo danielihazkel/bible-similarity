@@ -192,6 +192,12 @@ const core = {
     reload: 'Reload',
   },
 
+  /** What a public read-only server leaves out (useServer, DESIGN.md §10.3). */
+  server: {
+    personalOff: 'This site keeps no labels or notebook: it is a read-only copy of the results.',
+    encoderOff: 'Semantic and fused search are not offered on this site; lexical search is.',
+  },
+
   /** The offline app (components/AppBanner.tsx). */
   offline: {
     notice: "You're offline: the pages and answers already opened still work; the rest waits for the connection.",

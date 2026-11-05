@@ -10286,7 +10286,7 @@ export interface components {
             unit: components["schemas"]["UnitSummary"];
             /** Verse Ids */
             verse_ids: number[];
-            semantic: components["schemas"]["StructureBasis"];
+            semantic: components["schemas"]["StructureBasis"] | null;
             lexical: components["schemas"]["StructureBasis"];
             /** Leitworte */
             leitworte: components["schemas"]["Leitwort"][];

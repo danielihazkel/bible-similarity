@@ -1,7 +1,8 @@
 import { type RefObject, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
-import { isGroup, NAV, type NavGroup, type NavItem, navText } from '../lib/nav'
+import { useServer } from '../api/hooks'
+import { isGroup, type NavGroup, type NavItem, navFor, navText } from '../lib/nav'
 import { LocaleToggle, TextModeToggle } from './Controls'
 import { JumpBox } from './JumpBox'
 import { TourBar } from './TourBar'
@@ -12,6 +13,7 @@ import { Loading } from './Status'
 export function Layout() {
   const m = useT()
   const { pathname } = useLocation()
+  const { personal } = useServer()
   const mainRef = useRef<HTMLElement>(null)
   usePageTitle(mainRef, m.site.name)
   useNavigationFocus(mainRef, pathname)
@@ -57,7 +59,7 @@ export function Layout() {
           <span aria-hidden="true">{mobileOpen ? '✕' : '☰'}</span> {m.site.menu}
         </button>
         <nav id="main-nav" className={`nav ${mobileOpen ? 'open' : ''}`} aria-label={m.site.mainNav}>
-          {NAV.map((e) =>
+          {navFor(personal).map((e) =>
             isGroup(e) ? (
               <NavMenu key={e.key} group={e} pathname={pathname} mobileOpen={mobileOpen} />
             ) : (

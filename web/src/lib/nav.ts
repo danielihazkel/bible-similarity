@@ -135,11 +135,31 @@ export function navText(m: Messages, key: NavKey): { label: string; hint?: strin
   return typeof v === 'string' ? { label: v } : v
 }
 
+/** Your labels and notebook: left out where the server keeps nothing personal (a public deploy,
+ * `useServer().personal`). */
+export const PERSONAL_PAGES: ReadonlySet<string> = new Set(['/labels', '/notebook'])
+
+/** The nav as this server offers it: without the personal pages when `personal` is off. */
+export function navFor(personal: boolean): NavEntry[] {
+  if (personal) return NAV
+  const keep = (it: NavItem) => !PERSONAL_PAGES.has(it.to)
+  return NAV.flatMap((e): NavEntry[] => {
+    if (!isGroup(e)) return keep(e) ? [e] : []
+    const sections = e.sections?.map((s) => ({ ...s, items: s.items.filter(keep) }))
+    return [{ ...e, items: e.items.filter(keep), ...(sections ? { sections } : {}) }]
+  })
+}
+
 /** Pages whose label, hint or path contains the query (label matches first, at most `max`). */
-export function matchPages(m: Messages, q: string, max: number): { to: string; label: string; hint?: string }[] {
+export function matchPages(
+  m: Messages,
+  q: string,
+  max: number,
+  personal = true,
+): { to: string; label: string; hint?: string }[] {
   const s = q.trim().toLowerCase()
   if (s.length < 2) return []
-  const scored = NAV_PAGES.flatMap((p) => {
+  const scored = NAV_PAGES.filter((p) => personal || !PERSONAL_PAGES.has(p.to)).flatMap((p) => {
     const { label, hint } = navText(m, p.key)
     const l = label.toLowerCase()
     const rank = l.startsWith(s)

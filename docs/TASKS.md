@@ -888,6 +888,21 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M147: A public read-only server (§10.3, D137, docs/DEPLOY.md; proposed K8)
+- [x] Config profiles: `extends:` with a mapping merge; `configs/public.yaml` (nothing personal, no encoder, same-origin only) and `configs/docker.yaml`
+- [x] `serve.personal` (labels, notebook, label queue: 404 `personal_off`), `serve.encoder` (`OffEncoder`: semantic / fused search and `/align` 503, no hubness, no torch), `serve.embeddings` (`/compare` 503, no semantic structure basis, null ladder cosines); `/meta` reports them
+- [x] The viewer follows them (`useServer`): the nav and the jump box without the personal pages, their hooks idle, `/labels` and `/notebook` say so, lexical-only search, no meaning marks on Compare, the lexical structure basis only, no workbench collections; both catalogs
+- [x] `bsim deploy-bundle [--no-nc] [--no-embeddings]`: the DB by backup, the vectors, the Evaluation files, a manifest; nothing personal. `--no-nc` empties 19 tables (636,584 rows) of six stages and takes them off `stages_run`, and leaves out `etcbc.json`; the real bundle is 859 MB
+- [x] pyproject: torch, transformers, sentence-transformers, datasets and accelerate in a default `ml` group; a torch-free install of the server is 347 MB and serves the real bundle
+- [x] `Dockerfile` (Node build of the viewer, `uv sync --no-default-groups`, read-only bundle mount, unprivileged, health check) and `.dockerignore`
+- [x] `docs/DEPLOY.md`: what is served and left out, every source's terms, what `--no-nc` removes, and the decisions that are the user's (non-commercial use; the encoder trained on the ETCBC parallels; share-alike; where to host, with TLS and rate limits)
+- [x] Not done as the plan had it: "no embeddings, lexical only" as the public mode; the vectors stay by default, `--no-embeddings` drops them (D137)
+- [x] Tests: pytest (profiles, bundles, the public server, no torch imported in a fresh process), vitest (the nav without the personal pages), Playwright over `bsim fixture-serve --public`
+- [ ] The image built and run: Docker Desktop was not running here; `docker build` waits for the user
+- [ ] Publishing: the user's decision (DEPLOY.md, step 4)
+
+✔ A public copy runs the same code with nothing personal and without the ML libraries; what it leaves out says so instead of failing.
+
 ## M146: The offline app (§11.1, D136; proposed K15)
 - [x] `vite-plugin-pwa` 2.0.0, pinned (MIT): a manifest (English name, the Hebrew one as `name_localized`, the favicon and PNG icons from `scripts/icons.mjs`), Workbox precache of the whole built viewer (168 files, 1.6 MB uncompressed)
 - [x] `/api` GETs network first into `bsim-api` (1,000 answers, 200s only); labels, notebook, `/meta` and the CSV downloads network only (`NETWORK_ONLY`, kept in step with `NO_STORE_PATHS` by a pytest); `/dossier` cached for offline use (D136)
@@ -1534,7 +1549,7 @@ Tools
 - [x] K5 (done, M141) Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
 - [x] K6 (done, M136) This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
 - [x] K7 (done, M137) Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
-- [ ] K8 Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
+- [x] K8 (done, M147; publishing is the user's) Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
 
 Models
 - [x] K9 (done, M142; the variant's training waits for labels) Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant

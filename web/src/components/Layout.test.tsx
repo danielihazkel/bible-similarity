@@ -1,10 +1,16 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { cleanup, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { LocaleProvider } from '../context/Locale'
 import { TextModeProvider } from '../context/TextMode'
 import { Layout } from './Layout'
+
+// Layout reads what the server offers (useServer: /meta, not served here, so everything is on)
+const render = (ui: ReactElement) =>
+  rtlRender(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>{ui}</QueryClientProvider>)
 
 function Location() {
   const l = useLocation()

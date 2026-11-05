@@ -241,6 +241,20 @@ class EncoderLoading(EncoderUnavailable):
     """The encoder has not finished loading yet (temporary)."""
 
 
+class OffEncoder:
+    """No query encoder on this server (`serve.encoder: false`): every call is
+    `EncoderUnavailable`, and `/meta` reports why (`error`)."""
+
+    ready = False
+    error = "semantic search is off on this server"
+
+    def __call__(self, texts: list[str]) -> np.ndarray:
+        raise EncoderUnavailable(self.error)
+
+    def tokens(self, texts: list[str]) -> list[tuple[np.ndarray, np.ndarray]]:
+        raise EncoderUnavailable(self.error)
+
+
 def search(
     state: Any, query: str, mode: str, k: int, book_mask: np.ndarray | None = None
 ) -> tuple[str, list[str], pd.DataFrame]:

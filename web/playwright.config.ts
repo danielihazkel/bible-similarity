@@ -7,12 +7,15 @@ import { defineConfig, devices } from '@playwright/test'
 //   `bsim fixture-serve`, the tiny synthetic DB of `bsim.fixture` (no data, no model).
 // Locally both run in the installed Microsoft Edge (no browser download); CI uses Playwright's
 // own Chromium (`npx playwright install chromium`).
+export const PUBLIC_PORT = 8779
+
 export function e2eConfig(fixture: boolean) {
   const port = fixture ? 8778 : 8777
   const channel = process.env.CI ? undefined : 'msedge'
   return defineConfig({
     testDir: 'e2e',
-    testMatch: fixture ? 'fixture.spec.ts' : 'smoke.spec.ts',
+    // public.spec.ts: the fixture as a public read-only server serves it (DEPLOY.md), on PUBLIC_PORT
+    testMatch: fixture ? /(fixture|public)\.spec\.ts$/ : 'smoke.spec.ts',
     timeout: 30_000,
     expect: { timeout: 10_000 },
     // the fixture's tests are independent (its two writers run on desktop only, on separate
@@ -32,13 +35,26 @@ export function e2eConfig(fixture: boolean) {
       { name: 'desktop', use: { ...devices[channel ? 'Desktop Edge' : 'Desktop Chrome'], channel } },
       { name: 'phone', use: { viewport: { width: 390, height: 800 }, isMobile: false, channel } },
     ],
-    webServer: {
-      command: fixture ? `uv run bsim fixture-serve --port ${port}` : `uv run bsim serve --port ${port}`,
-      cwd: '..',
-      url: `http://127.0.0.1:${port}/api/books`,
-      reuseExistingServer: !process.env.CI,
-      timeout: 180_000,
-    },
+    webServer: [
+      {
+        command: fixture ? `uv run bsim fixture-serve --port ${port}` : `uv run bsim serve --port ${port}`,
+        cwd: '..',
+        url: `http://127.0.0.1:${port}/api/books`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
+      ...(fixture
+        ? [
+            {
+              command: `uv run bsim fixture-serve --public --port ${PUBLIC_PORT}`,
+              cwd: '..',
+              url: `http://127.0.0.1:${PUBLIC_PORT}/api/books`,
+              reuseExistingServer: !process.env.CI,
+              timeout: 180_000,
+            },
+          ]
+        : []),
+    ],
   })
 }
 

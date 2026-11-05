@@ -1,0 +1,22 @@
+# A public read-only server (docs/DEPLOY.md): `bsim serve --config configs/public.yaml`, or the
+# Docker image. It serves the bundle `bsim deploy-bundle` writes (deploy.out), and nothing
+# personal: no labels, notebook or label queue, no query encoder (lexical search; no torch).
+extends: default.yaml
+
+paths:
+  artifacts: bundle/artifacts
+  db: bundle/artifacts/results.sqlite
+  labels: bundle/labels.sqlite    # never read or written (serve.personal: false)
+
+serve:
+  host: 0.0.0.0
+  personal: false
+  labels_writable: false
+  encoder: false
+  embeddings: true                # /compare and the semantic structure basis; false with --no-embeddings
+  device: cpu
+  cors_origins: []                # the viewer is served from the same origin
+
+labels:
+  queue:
+    preload: false

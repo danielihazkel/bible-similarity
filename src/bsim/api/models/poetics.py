@@ -154,7 +154,7 @@ class RootLeitwort(ApiModel):
 class StructureResponse(ApiModel):
     unit: UnitSummary
     verse_ids: list[int]
-    semantic: StructureBasis
+    semantic: StructureBasis | None = None  # None: no verse vectors here (serve.embeddings)
     lexical: StructureBasis
     leitworte: list[Leitwort]
     root_leitworte: list[RootLeitwort] = []  # empty without `bsim roots`
