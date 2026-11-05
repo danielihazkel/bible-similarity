@@ -940,7 +940,7 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Train and tune (2026-11-05, GPU): `bsim train-rerank --config configs/rerank_llm.yaml`, `bsim rerank --tune --config configs/rerank_llm.yaml`; grid best `w_ce` 1.0, dev nDCG@10 0.204
 - [x] A control: the model in use over today's fused list (`fused_rerank_control`), since `fused_rerank` was built on 2026-10-04's
 - [x] Dev table in RESULTS.md (with the judged pool) and the adoption verdict: not adopted (against the control, Sefaria +0.0029 [−0.0035, +0.0095], ETCBC −0.0072; only the judged pool gains)
-- [ ] Rebuild `fused_rerank` over today's fused list with the model in use (`bsim rerank`; the owner's call): Sefaria +0.007, OpenBible +0.008 on dev
+- [x] Rebuild `fused_rerank` over today's fused list with the model in use (2026-11-05, `bsim rerank --tune`, at the owner's word): dev nDCG@10 0.194 → 0.201, against fused Sefaria +0.0077 [+0.0026, +0.0130]; `w_ce` 0.25 still the grid's best
 
 ✔ Soft targets from Claude do not make a better reranker by Sefaria, OpenBible or ETCBC; the margin over the list in use came from the newer fused list under it. `berel-rerank` stays.
 
