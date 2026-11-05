@@ -937,8 +937,12 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Dry run on the real data: 5,100 requests, about $8 (budget $15)
 - [x] Tests: the sample, the soft targets and extra rows, calibrated runs only, a run with a fake batch client, the profile (pytest)
 - [x] The run (2026-11-05, $9.07): calibration AUC 0.972; 1,647 of the 5,000 negatives called real (33 %)
-- [ ] Train and tune (GPU; the owner starts it): `bsim train-rerank --config configs/rerank_llm.yaml`, `bsim rerank --tune --config configs/rerank_llm.yaml`
-- [ ] Dev table in RESULTS.md (with the judged pool) and the adoption verdict
+- [x] Train and tune (2026-11-05, GPU): `bsim train-rerank --config configs/rerank_llm.yaml`, `bsim rerank --tune --config configs/rerank_llm.yaml`; grid best `w_ce` 1.0, dev nDCG@10 0.204
+- [x] A control: the model in use over today's fused list (`fused_rerank_control`), since `fused_rerank` was built on 2026-10-04's
+- [x] Dev table in RESULTS.md (with the judged pool) and the adoption verdict: not adopted (against the control, Sefaria +0.0029 [−0.0035, +0.0095], ETCBC −0.0072; only the judged pool gains)
+- [ ] Rebuild `fused_rerank` over today's fused list with the model in use (`bsim rerank`; the owner's call): Sefaria +0.007, OpenBible +0.008 on dev
+
+✔ Soft targets from Claude do not make a better reranker by Sefaria, OpenBible or ETCBC; the margin over the list in use came from the newer fused list under it. `berel-rerank` stays.
 
 ## M150: Training on Claude's verdicts (§16.84, D140; proposed L2)
 - [x] `eval/llm_train.py`, `bsim llm-train [--dry-run]`: the label queue's next 10,000 pairs after the triage's 500, its prompt and schema, a calibration of its own (seed 81), one batch on the core
@@ -947,8 +951,10 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 - [x] Dry run on the real queue: 10,100 requests, about $15 (budget $25)
 - [x] Tests: the runs read only when calibrated, the source's thresholds and splits, the negatives, the triage's pairs skipped, a run with a fake batch client (pytest)
 - [x] The run (2026-11-05, $17.57): calibration AUC 0.938; 3,196 real, 5,162 not, 1,640 unsure; the source 1,221 positive and 5,294 negative train pairs
-- [ ] Train the `llm` variant (about 2.5 h, GPU; the owner starts it: `bsim supervision-exp --only llm`)
-- [ ] Dev table in RESULTS.md and the adoption verdict
+- [x] Train the `llm` variant (2026-11-05, 2 h 25 min on the GPU: `bsim supervision-exp --only llm`)
+- [x] Dev table in RESULTS.md and the adoption verdict: not adopted (fused OpenBible +0.0006 [−0.0013, +0.0025], below the noise bar); the judged pool +0.0064 [+0.0018, +0.0111], read by no rule
+
+✔ Claude's verdicts on 10,500 queue pairs do not move the encoder by the rule fixed in advance: a gain on the judged pool and on the semantic list's Sefaria score, none on OpenBible. `berel_sup` stays.
 
 ## M149: A judged dev pool (§16.83, D139; proposed L3)
 - [x] `eval/llm_pool.py`, `bsim llm-pool [--dry-run | --score]`: the top 5 of lexical, semantic, fused and `fused_rerank` for each dev Sefaria query (neighbours dropped, Sefaria's pairs left out), the triage's prompt and schema, one batch on the core (L1)
@@ -1653,9 +1659,9 @@ Shared
 - [x] L1 (done, M148) One batch core (`eval/llm_batch.py`): the request, the answer read by a schema, submit / resume / poll / collect, the estimate from the measured tokens, `budget_usd`; `llm-triage` on it unchanged
 
 Models
-- [ ] L2 (M150; training waits) Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
+- [x] L2 (done, M150; not adopted) Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
 - [x] L3 (done, M149) A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
-- [ ] L4 (M151; training waits) The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
+- [x] L4 (done, M151; not adopted) The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
 
 Analyses
 - [x] L5 (done, M152) Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md

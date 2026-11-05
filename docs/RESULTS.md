@@ -209,6 +209,26 @@ The judged dev pool (§16.83, D139, M149): Claude (Sonnet 5.5, Message Batches) 
 
 About two thirds of the fused list's top 5 are connections Claude calls real, where Sefaria records one in eighteen. Fusion's lead holds on the pool: lexical −0.093 [−0.105, −0.082] and semantic −0.091 [−0.103, −0.080] against fused (paired bootstrap over the 884 queries). The cross-encoder is level, +0.002 [−0.006, +0.010], as on Sefaria. A pair only the lexical list pooled is real 27 % of the time, one only the semantic list pooled 33 %, one all four pooled 92 %. Real pairs by kind: shared formula 1,084, thematic 874, allusion 825, shared phrase 682, parallel account 590, quotation 40. The lists not pooled are judged on 22–31 % of their top 10, so their pool scores are rougher. One model judged, with the references in view.
 
+Training on Claude's verdicts (§16.84, D140, M150): the `llm` variant adds 1,810 rows from 10,500 judged queue pairs (real with p ≥ 0.7 positive, not with p ≤ 0.3 hard negatives) to `m115`'s sources. Gains over `berel_sup`, dev nDCG@10, paired over queries:
+
+| list | Sefaria | OpenBible | ETCBC | judged pool |
+|---|---|---|---|---|
+| semantic | +0.0062 [+0.0003, +0.0124] | +0.0012 [−0.0011, +0.0034] | +0.0025 [−0.0135, +0.0191] | +0.0053 [−0.0003, +0.0110] |
+| fused | +0.0010 [−0.0042, +0.0064] | +0.0006 [−0.0013, +0.0025] | −0.0034 [−0.0144, +0.0076] | +0.0064 [+0.0018, +0.0111] |
+
+Not adopted: the fused OpenBible gain's CI reaches 0 and the gain is below the noise bar (`m115_seed14`, 0.0007). The judged pool gains, but no rule reads it, and the same judge wrote the training verdicts.
+
+The reranker taught by Claude (§16.85, D141, M151): the cross-encoder trained with Claude's `p_real` as the target of 5,000 judged negatives (and the judged queue pairs as rows), beside the model in use. The `fused_rerank` list in use was built on 2026-10-04 over an older fused list, so the model in use was also run over today's (the control). Dev nDCG@10, each at its grid's best `w_ce`:
+
+| list | `w_ce` | Sefaria | OpenBible | ETCBC | judged pool | judged of top 10 |
+|---|---|---|---|---|---|---|
+| fused | | 0.193 | 0.132 | 0.824 | 0.764 | 0.74 |
+| `fused_rerank` (in use, 2026-10-04) | 0.25 | 0.194 | 0.126 | 0.843 | 0.766 | 0.67 |
+| control (model in use, today's fused) | 0.25 | 0.201 | 0.134 | 0.839 | 0.768 | 0.73 |
+| soft targets (`fused_rerank_llm`) | 1.0 | 0.204 | 0.133 | 0.831 | 0.784 | 0.61 |
+
+Against the control, paired: Sefaria +0.0029 [−0.0035, +0.0095], OpenBible −0.0016 [−0.0050, +0.0018], ETCBC −0.0072 [−0.0232, +0.0080], the judged pool +0.0163 [+0.0106, +0.0222]. Not adopted: the lead over the list in use (Sefaria +0.0079 [+0.0002, +0.0161]) is the newer fused list's, and only the judge's own pool gains, on 61 % of its top 10 (the pool was drawn from the other lists). Rebuilding `fused_rerank` with the model in use would gain on dev by itself.
+
 Detector precision by Claude's reading (§16.86, D142, M152): 50 findings drawn from each detector's 200 strongest (its own order), judged with the detector's definition, the claim and the pointed verses, for $1.53. Calibration fixed before the run: the owner's place sample 45 / 50 right (owner 49 / 50; 85 % needed), the known answers 127 / 138 (80 % needed): holds. Precision right / (right + wrong), unsure left out:
 
 | detector | right | wrong | unsure | precision | 95 % CI | known right |
