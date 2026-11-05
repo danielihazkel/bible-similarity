@@ -1073,6 +1073,24 @@ def llm_notes(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-ui-review")
+def llm_ui_review(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude reviews the Hebrew interface catalogs: a report for you (paid; DESIGN.md §16.89)."""
+    from bsim.eval.llm_ui import run_llm_ui
+
+    try:
+        run_llm_ui(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,

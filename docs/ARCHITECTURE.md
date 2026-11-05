@@ -221,6 +221,7 @@ bible-similarity/
 │   │   ├── llm_train.py            # `bsim llm-train`: Claude judges more queue pairs, for `extra_pairs: [llm]` (§16.84)
 │   │   ├── llm_triage.py           # `bsim llm-triage`: Claude's suggestions for the label queue, by Message Batch (§16.81)
 │   │   ├── llm_speakers.py         # `bsim llm-speakers` / `speaker-eval`: who speaks each quotation, a gold for the rules (§16.87)
+│   │   ├── llm_ui.py               # `bsim llm-ui-review`: the Hebrew interface catalogs reviewed, a report (§16.89)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
 │   │   ├── schema.sql              # every table and column of results.sqlite
@@ -304,6 +305,7 @@ bible-similarity/
 | — | `bsim llm-speakers` / `speaker-eval` | the quotations (`bsim dialogue`), the results DB; the Anthropic API (paid) | `artifacts/llm_speakers/{items,judged}.parquet`, `review.csv`; `artifacts/eval/speaker_eval.json` (§16.87) |
 | — | `bsim llm-genealogy` | `artifacts/genealogy/` (links, persons, mentions, proofs), verses; the Anthropic API (paid) | `artifacts/llm_genealogy/{items,judged}.parquet`, `review.md` (§16.87; never `curation/`) |
 | — | `bsim llm-notes` | the results DB (fused verse discoveries), the other series-L runs; the Anthropic API (paid) | `artifacts/llm_notes/{pairs,notes}.parquet`, `llm_notes.meta.json`; read by `/pair-note` and `/discoveries` (§16.88; personal only) |
+| — | `bsim llm-ui-review` | `web/src/i18n/` catalogs, DESIGN.md's rules; the Anthropic API (paid, Opus 5.5) | `artifacts/llm_ui/{items,issues}.parquet`, `review.md` (§16.89) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |

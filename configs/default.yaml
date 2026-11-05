@@ -1960,6 +1960,17 @@ llm_notes:                    # `bsim llm-notes`: Claude's reading of the strong
   typical_output_tokens: 160  # measured on the triage's runs (152)
   budget_usd: 15.0            # the plan's $9, with room
 
+llm_ui:                       # `bsim llm-ui-review`: Claude reviews the Hebrew interface, group by group (DESIGN.md §16.89, D145); run by hand, paid; a report, no catalog changed
+  model: claude-opus-5-5      # the owner's plan: Opus for the language review
+  effort: high                # Opus 5.5 defaults to medium; set explicitly
+  max_tokens: 32000           # a group's suggestions, the thinking included
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 2.0, output: 10.0}   # Message Batches price of Opus 5.5 (half its $4 / $20)
+  chars_per_token: 2.0
+  typical_output_tokens: 4000 # thinking at effort high over a whole catalog
+  budget_usd: 8.0
+
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files
   depth: 5                    # the top targets of each dev Sefaria query pooled from each list (neighbours dropped first)

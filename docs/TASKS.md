@@ -888,6 +888,13 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M155: A review of the Hebrew interface (§16.89, D145; proposed L8)
+- [x] `eval/llm_ui.py`, `bsim llm-ui-review [--dry-run]`: each of 54 catalog groups, English beside Hebrew, D54 and §11's rules, the Hebrew glossary; Claude Opus 5.5 at effort high; a checklist report, no catalog changed
+- [x] Dry run: 54 requests, about $3.20 (budget $8)
+- [x] Tests: the groups and rules found, the answer read, a run with a fake batch client and its report (pytest)
+- [ ] The run (paid; the owner's go-ahead)
+- [ ] The owner's choices made in the catalogs; `docs/HEBREW_UI.md`, the agreed terms
+
 ## M154: Claude's notes beside the strongest parallels (§16.88, D144; proposed L7)
 - [x] `eval/llm_notes.py`: `read_notes` gathers every calibrated run with a Hebrew rationale (about 25,000 pairs); `bsim llm-notes [--dry-run]` reads the 5,000 strongest fused verse discoveries not yet read, its own calibration
 - [x] API: `/pair-note` and `note` on verse discoveries (`api/notes.py`, cached by the runs' files); personal only (404 and no notes on a public server)

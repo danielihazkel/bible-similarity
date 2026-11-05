@@ -1,13 +1,16 @@
-"""Speaker and family-tree gold (series L6, §16.87):
+"""Speaker and family-tree gold, and the Hebrew interface review (series L6, L8; §16.87, §16.89):
 the helpers, the draws, the claims, and runs with a fake batch client."""
 
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 
-from bsim.config import load_config, resolve_path
+from bsim.config import PROJECT_ROOT, load_config, resolve_path
 from bsim.eval import llm_genealogy as lg
 from bsim.eval import llm_speakers as ls
+from bsim.eval import llm_ui as lu
 from llm_fakes import fake_client
 
 # --- speakers -------------------------------------------------------------------------------------
@@ -116,3 +119,37 @@ def test_genealogy_run(tmp_path, monkeypatch):
     sheet = (tmp_path / "llm_genealogy" / "review.md").read_text("utf-8")
     assert "link 4 (sibling; b / d): c4" in sheet and "holds" in sheet
     assert not (resolve_path(cfg, "curation") / "genealogy" / "llm").exists()
+
+
+# --- the Hebrew interface -------------------------------------------------------------------------
+
+
+def test_catalog_pairs_and_rules():
+    pairs = lu.catalog_pairs(PROJECT_ROOT / "web")
+    groups = [g for g, _, _ in pairs]
+    assert groups[0] == "core" and "glossary" in groups and "labels" in groups
+    assert all(en.exists() and he.exists() for _, en, he in pairs)
+    r = lu.rules(PROJECT_ROOT / "docs" / "DESIGN.md")
+    assert "| D54 |" in r and "Interface language (`src/i18n/`)" in r
+
+
+def test_ui_answer_and_run(tmp_path, monkeypatch):
+    issue = {"key": "a.b", "kind": "agreement", "current": "שני ספר", "suggested": "שני ספרים",
+             "reason": "plural"}  # fmt: skip
+    same = {**issue, "suggested": issue["current"]}
+    assert lu.answer({"issues": [issue, same, {"kind": "taste"}]}) == {
+        "issues": [issue],
+        "n_issues": 1,
+    }
+    assert lu.answer({"nope": 1}) is None
+    cfg = load_config()
+    cfg["paths"] = {**cfg["paths"], "artifacts": str(tmp_path)}
+    items = pd.DataFrame({"custom_id": ["ui-0", "ui-1"], "group": ["core", "labels"],
+                          "en": ["e", "e"], "he": ["h", "h"]})  # fmt: skip
+    monkeypatch.setattr(lu, "build_items", lambda cfg, log: (items, {"ui-0": "p", "ui-1": "p"}))
+    client, _ = fake_client({"ui-0": {"issues": [issue]}, "ui-1": {"issues": []}})
+    meta = lu.run_llm_ui(cfg, log=lambda s: None, client=client, sleep=lambda s: None)
+    assert (meta["groups"], meta["issues"], meta["by_kind"]["agreement"]) == (2, 1, 1)
+    report = (tmp_path / "llm_ui" / "review.md").read_text("utf-8")
+    assert "- [ ] `a.b` (agreement): שני ספר → שני ספרים — plural" in report
+    assert json.loads((tmp_path / "llm_ui" / "llm_ui.meta.json").read_text("utf-8"))["issues"] == 1
