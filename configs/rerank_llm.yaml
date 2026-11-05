@@ -1,0 +1,10 @@
+# The cross-encoder trained on Claude's soft targets (DESIGN.md §16.85, D141; series L4), beside
+# the one in use: `bsim train-rerank --config configs/rerank_llm.yaml`, then
+# `bsim rerank --tune --config configs/rerank_llm.yaml` (dev only). It writes its own model, list
+# and tuning file, so the model in use and `fused_rerank` stay as they are.
+extends: default.yaml
+
+rerank:
+  soft_labels: llm
+  output: berel-rerank-llm
+  system: fused_rerank_llm

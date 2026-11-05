@@ -166,7 +166,19 @@ def run_train_rerank(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
     corpus = Corpus(cfg)
     gold = gold_pairs(corpus.links, "dev")
     data = training_pairs(corpus, rc["negatives_per_query"], cfg["seed"])
-    n_pos = int(data.label.sum())
+    n_pos = int((data.label == 1).sum())
+    soft: dict[str, int] = {}
+    if rc.get("soft_labels", "none") == "llm":  # Claude's p_real as targets (§16.85, D141)
+        from bsim.eval.llm_rerank import apply_soft_labels, soft_targets
+
+        targets, own = soft_targets(cfg)
+        if not targets:
+            raise RuntimeError("rerank.soft_labels: llm needs a calibrated `bsim llm-rerank` run")
+        book, tb = corpus.book_id, corpus.train_book
+        data, soft = apply_soft_labels(
+            data, targets, own, lambda a, b: bool(tb[book[a]] and tb[book[b]]), rc["llm_extra"]
+        )
+        log(f"  soft targets: {soft}")
     device = get_device(cfg["encoders"].get("device", "cuda"))
     out_dir = resolve_path(cfg, "models") / rc["output"]
     run_dir = resolve_path(cfg, "models") / "_runs" / rc["output"]
@@ -242,6 +254,7 @@ def run_train_rerank(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
         "rerank": rc,
         "n_pairs": len(data),
         "n_positive": n_pos,
+        "soft_labels": soft,
         "seed": cfg["seed"],
         "best_epoch": best["epoch"],
         "best": best["metric"],
@@ -296,7 +309,8 @@ def run_rerank(cfg: dict[str, Any], log: Log = print, tune: bool = False) -> Pat
             )
         best = max((n for n in grid if n != "fused (no rerank)"), key=lambda n: grid[n][key])
         (art / "eval").mkdir(parents=True, exist_ok=True)
-        (art / "eval" / "rerank_tuning.json").write_text(
+        name = "rerank_tuning" + ("" if rc["system"] == "fused_rerank" else f"_{rc['system']}")
+        (art / "eval" / f"{name}.json").write_text(
             json.dumps(
                 {
                     "split": "dev",

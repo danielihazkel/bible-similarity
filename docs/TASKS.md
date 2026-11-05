@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M151: The reranker taught by Claude (§16.85, D141; proposed L4)
+- [x] `eval/llm_rerank.py`, `bsim llm-rerank [--dry-run]`: 5,000 of the cross-encoder's 37,457 training negatives (its own draw), the triage's prompt and schema, a calibration of its own (seed 91), one batch on the core
+- [x] `rerank.soft_labels: none | llm` (`train/rerank.py`): judged negatives take `p_real` as the BCE target; `llm_extra` adds the judged queue pairs as rows; calibrated runs only; the counts in the model's meta
+- [x] `configs/rerank_llm.yaml`: its own model, list and tuning file (`rerank_tuning_{system}.json` for any system but `fused_rerank`), the model in use untouched
+- [x] Dry run on the real data: 5,100 requests, about $8 (budget $15)
+- [x] Tests: the sample, the soft targets and extra rows, calibrated runs only, a run with a fake batch client, the profile (pytest)
+- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-rerank`
+- [ ] Train and tune (GPU; the owner starts it): `bsim train-rerank --config configs/rerank_llm.yaml`, `bsim rerank --tune --config configs/rerank_llm.yaml`
+- [ ] Dev table in RESULTS.md (with the judged pool) and the adoption verdict
+
 ## M150: Training on Claude's verdicts (§16.84, D140; proposed L2)
 - [x] `eval/llm_train.py`, `bsim llm-train [--dry-run]`: the label queue's next 10,000 pairs after the triage's 500, its prompt and schema, a calibration of its own (seed 81), one batch on the core
 - [x] `extra_pairs: [llm]` (`train/pairs.py`): both runs, each only when calibrated; real with p ≥ 0.7 as positives, not with p ≤ 0.3 as hard negatives (`train/negatives.py`, as labels); the Sefaria split rule; `split_pairs` / `both_ways` shared with labels

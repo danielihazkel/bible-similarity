@@ -256,6 +256,8 @@ rerank:                       # `bsim train-rerank` / `bsim rerank`: cross-encod
   rrf_k: 60
   w_ce: 0.25                  # weight of the cross-encoder rank vs the fused rank; null = alone (dev grid)
   w_ce_grid: [0.25, 0.5, 1.0, 2.0, 4.0, null]
+  soft_labels: none           # none | llm: the judged negatives' targets are Claude's p_real (`bsim llm-rerank`, §16.85, D141); tried through configs/rerank_llm.yaml
+  llm_extra: true             # with soft_labels: llm, the judged queue pairs (llm-triage, llm-train) join as rows with p_real targets
 
 context:                      # `bsim embed-context`: verses encoded with their neighbours (DESIGN.md §16.21, dev experiment)
   encoder: berel_sup          # an encoders.systems entry; writes {encoder}_ctx and {encoder}_late
@@ -1863,6 +1865,26 @@ llm_train:                    # `bsim llm-train`: Claude judges the label queue'
   chars_per_token: 2.0
   typical_output_tokens: 160  # measured on the triage's runs (152)
   budget_usd: 25.0            # the plan's $18, with room
+
+llm_rerank:                   # `bsim llm-rerank`: Claude judges the cross-encoder's training negatives, as soft targets (DESIGN.md §16.85, D141); run by hand, paid
+  sample: 5000                # training negatives judged (the same draw train-rerank makes)
+  model: claude-sonnet-5-5    # the triage's model, prompt and schema (§16.81)
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 400
+  rationale: hebrew
+  seed: 91
+  calibration:                # fixed before the run, as the triage's (its own seed)
+    split: dev
+    gold: 50
+    random: 50
+    min_auc: 0.75             # its answers are targets only when the AUC of p_real reaches this
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 160  # measured on the triage's runs (152)
+  budget_usd: 15.0            # the plan's $9, with room
 
 llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
   systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files

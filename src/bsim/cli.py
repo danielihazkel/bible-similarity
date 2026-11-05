@@ -971,6 +971,24 @@ def llm_train(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-rerank")
+def llm_rerank(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+) -> None:
+    """Claude judges the cross-encoder's negatives, as soft targets (paid; DESIGN.md §16.85)."""
+    from bsim.eval.llm_rerank import run_llm_rerank
+
+    try:
+        run_llm_rerank(load_config(config), log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command("llm-pool")
 def llm_pool(
     config: ConfigOpt = None,
