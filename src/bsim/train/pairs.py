@@ -29,6 +29,7 @@ EXTRA_SOURCES = {
     "etcbc": ("etcbc_links.parquet", "build-golds"),
 }
 LABELS = "labels"  # your labels (paths.labels), not a file under data_processed
+DEV_ONLY = ("llm_pool",)  # Claude's judgements of dev pairs (`bsim llm-pool`): never trained on
 SEFARIA = "sefaria"
 
 
@@ -84,6 +85,8 @@ def extra_links(cfg: dict[str, Any], source: str) -> pd.DataFrame:
     """A gold's verse pairs (`src_vid, tgt_vid, split`, both directions, every split)."""
     if source == LABELS:
         return label_links(cfg)
+    if source in DEV_ONLY:
+        raise RuntimeError(f"{source!r} is dev judgement (§16.83): it never trains a model")
     if source not in EXTRA_SOURCES:
         known = sorted([*EXTRA_SOURCES, LABELS])
         raise RuntimeError(f"unknown extra_pairs source {source!r}; known: {known}")

@@ -1840,6 +1840,28 @@ llm_triage:                   # `bsim llm-triage`: Claude's suggestions for the 
   typical_output_tokens: 160  # the estimate's typical answer, thinking included (the M144 runs: 152 measured; 1,200 before them overestimated 4x)
   budget_usd: 5.0             # a submission whose typical estimate is above this is refused (L1)
 
+llm_pool:                     # `bsim llm-pool`: a judged dev pool, Claude's verdicts on the systems' finds (DESIGN.md §16.83, D139); run by hand, paid; never trains a model
+  systems: [lexical, semantic, fused, fused_rerank]   # the lists pooled: lexical / semantic are the final lists, others top-k files
+  depth: 5                    # the top targets of each dev Sefaria query pooled from each list (neighbours dropped first)
+  score_systems: [lexical, semantic, fused, fused_rerank, berel_sup_csls, bm25_lemma]   # `--score`: the lists scored on the pool (condensed, so lists outside it are fair)
+  baseline: fused             # `--score`: each list's pool gain against this, paired bootstrap over queries
+  bootstrap_reps: 10000
+  unsure: drop                # an `unsure` verdict counts as unjudged (drop) or as not relevant (not)
+  model: claude-sonnet-5-5    # the triage's model, prompt and schema (§16.81): the instrument calibrated there
+  effort: medium
+  max_tokens: 8000
+  rationale_chars: 400
+  rationale: hebrew
+  seed: 71
+  calibration:                # fixed before the run
+    min_auc: 0.75             # every fair dev Sefaria verse link against as many random dev pairs; the pool is used only from this AUC
+  poll_seconds: 30
+  max_wait_hours: 24
+  price_per_mtok: {input: 1.0, output: 5.0}
+  chars_per_token: 2.0
+  typical_output_tokens: 160  # measured on the triage's runs (152)
+  budget_usd: 30.0            # the plan's $18 for the pool and $4 for the calibration, with room
+
 source_find:                  # POST /source-find: the biblical phrases of a pasted text (DESIGN.md §11.1, D131); fixed before the examples were first run
   max_chars: 5000             # a longer text is refused (422)
   seed_max: 50                # adjacent words found in more verses than this seed nothing (formulae)

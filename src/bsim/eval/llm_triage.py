@@ -153,13 +153,14 @@ def calibration_pairs(
     sefaria: pd.DataFrame,
     linked: set[tuple[int, int]],
     split_books: set[int],
-    n_gold: int,
-    n_random: int,
+    n_gold: int | None,
+    n_random: int | None,
     window: int,
     seed: int,
 ) -> pd.DataFrame:
     """`a, b, gold`: Sefaria's verse links of the split and random pairs of its books that no
-    gold links; neither kind a pair of neighbours (±window, one book) or of the same text."""
+    gold links; neither kind a pair of neighbours (±window, one book) or of the same text.
+    `n_gold` None takes every fair link, `n_random` None as many random pairs as links taken."""
     book = verses.book_id.to_numpy()
     text = verses.text_plain.to_numpy()
 
@@ -170,6 +171,8 @@ def calibration_pairs(
     gold = sorted(
         p for p in undirected(sefaria.src_vid.to_numpy(), sefaria.tgt_vid.to_numpy()) if fair(*p)
     )
+    n_gold = len(gold) if n_gold is None else n_gold
+    n_random = n_gold if n_random is None else n_random
     if len(gold) < n_gold:
         raise RuntimeError(f"only {len(gold)} gold pairs for calibration, {n_gold} asked")
     take = [gold[i] for i in sorted(rng.choice(len(gold), n_gold, replace=False))]

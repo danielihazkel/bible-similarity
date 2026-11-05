@@ -888,6 +888,16 @@ Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curatio
 
 ✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
 
+## M149: A judged dev pool (§16.83, D139; proposed L3)
+- [x] `eval/llm_pool.py`, `bsim llm-pool [--dry-run | --score]`: the top 5 of lexical, semantic, fused and `fused_rerank` for each dev Sefaria query (neighbours dropped, Sefaria's pairs left out), the triage's prompt and schema, one batch on the core (L1)
+- [x] Calibration fixed before the run: all 602 fair dev Sefaria links against 602 random dev pairs, AUC ≥ 0.75; Claude's recall of Sefaria reported
+- [x] The `llm` gold: Sefaria's and Claude's real pairs, `unsure` unjudged, scored on condensed lists; `Scorer` takes it; `--score` writes `artifacts/eval/llm_pool.{json,md}` (nDCG@10, P@5, the judged share of each top 10, the gain over fused)
+- [x] Dev judgements never train: `extra_pairs: [llm_pool]` refused
+- [x] Dry run on the real data: 9,239 pool pairs, 10,443 requests, about $16 (budget $30)
+- [x] Tests: the pool, the judged gold and condensed lists, P@5, a run with a fake batch client, a failed calibration, the training refusal (pytest)
+- [ ] The run (paid; the owner's go-ahead): `uv run --extra llm bsim llm-pool`
+- [ ] `bsim llm-pool --score`; the dev table in RESULTS.md
+
 ## M148: One batch core for the Claude jobs (§16.82, D138; proposed L1)
 - [x] `eval/llm_batch.py`: `make_request`, `parse_message` with the job's check, `run_batch` (estimate, dry run, budget, submit, batch id first, resume, poll, collect), `mark_collected`, `usage`; `pointed`, `clean_rationale`, `auc` moved here
 - [x] `budget_usd` per job (the triage's 5.0): a submission over its typical estimate is refused, nothing sent

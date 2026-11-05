@@ -953,6 +953,32 @@ def llm_triage(
         raise typer.Exit(code=1) from e
 
 
+@app.command("llm-pool")
+def llm_pool(
+    config: ConfigOpt = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
+    ] = False,
+    score: Annotated[
+        bool,
+        typer.Option("--score", help="Score the dev lists on the judged pool; send nothing"),
+    ] = False,
+) -> None:
+    """Claude judges the dev lists' top pairs, a gold beside Sefaria's (paid; DESIGN.md §16.83)."""
+    from bsim.eval.llm_pool import run_llm_pool, run_pool_scores
+
+    try:
+        cfg = load_config(config)
+        if score:
+            run_pool_scores(cfg, log=typer.echo)
+        else:
+            run_llm_pool(cfg, log=typer.echo, dry_run=dry_run)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
 @app.command()
 def structure(config: ConfigOpt = None) -> None:
     """Score inclusio and chiasm for every chapter, pericope and parasha."""

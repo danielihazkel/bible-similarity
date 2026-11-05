@@ -213,6 +213,7 @@ bible-similarity/
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
 │   │   ├── llm_batch.py            # the Claude jobs' Message Batches core: request, answer check, budget, submit / resume / collect (§16.82)
+│   │   ├── llm_pool.py             # `bsim llm-pool`: a judged dev pool, the `llm` gold on condensed lists (§16.83)
 │   │   ├── llm_triage.py           # `bsim llm-triage`: Claude's suggestions for the label queue, by Message Batch (§16.81)
 │   │   └── report.py               # markdown report of all systems
 │   ├── store/
@@ -290,6 +291,7 @@ bible-similarity/
 | 11a | `bsim eval-openbible` | OpenBible pairs, splits, final verse topk | `artifacts/eval/openbible.{json,md}` (§16.13) |
 | — | `bsim eval-labels` | `paths.labels` (written by the viewer), verses, splits, links, final verse topk | `artifacts/eval/labels.{json,md}` (§16.25; run by hand, not in `bsim all`) |
 | — | `bsim llm-triage` | verses, links, golds, splits, the results DB (the label queue), `paths.labels`; the Anthropic API (`ANTHROPIC_API_KEY`, paid) | `artifacts/llm/{pairs,calibration,triage}.parquet`, `llm_triage.meta.json`, `batch.json` (§16.81; run by hand, not in `bsim all`) |
+| — | `bsim llm-pool` | verses, links, golds, splits, the final verse lists, `fused_rerank`; the Anthropic API (paid) | `artifacts/llm_pool/{pairs,calibration,judged}.parquet`, `llm_pool.meta.json`, `batch.json`; `--score`: `artifacts/eval/llm_pool.{json,md}` (§16.83; by hand, not in `bsim all`) |
 | 11b' | `bsim sequences` | verses, fused verse topk | `artifacts/sequences/verse.parquet` + `.meta.json` (§16.7) |
 | 11b'' | `bsim diffs` | words, sequences | `artifacts/diffs/changes.parquet` + `diffs.meta.json` (§16.8) |
 | 11b''' | `bsim parallelism` | verses, words, final encoder | `artifacts/parallelism/verses.parquet` + `.meta.json` (§16.9) |

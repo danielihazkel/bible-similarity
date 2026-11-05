@@ -94,8 +94,16 @@ class Scorer:
         self.ctx = EvalContext.load(cfg, "dev")
         self.metric = metric or cfg["retrieval_experiments"]["metric"]
         self.golds = {"sefaria": self.ctx.gold("verse")}
+        self.judged = None  # the `llm` gold (§16.83): scored on condensed lists
         for g in golds:
             if g == "sefaria":
+                continue
+            if g == "llm":
+                from bsim.eval.llm_pool import load_judged_gold
+
+                self.judged = load_judged_gold(cfg, self.golds["sefaria"], log)
+                if self.judged is not None:
+                    self.golds["llm"] = self.judged.relevant
                 continue
             name, cmd = GOLD_FILES[g]
             path = resolve_path(cfg, "data_processed") / name
@@ -111,7 +119,8 @@ class Scorer:
         ranked = ranked_lists(self.ctx.filter("verse", df))
         out = {}
         for g, gold in self.golds.items():
-            pq = per_query(ranked, gold, self.metric)
+            lists = self.judged.condensed(ranked) if g == "llm" and self.judged else ranked
+            pq = per_query(lists, gold, self.metric)
             out[g] = np.array([pq[q] for q in self.queries[g]])
         return out
 
