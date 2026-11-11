@@ -1,0 +1,13 @@
+/* Controls.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Controls ---------- */
+
+.lang-seg button {
+  padding: 0.15rem 0.5rem;
+}
+
+.he-seg button {
+  font-family: var(--font-he);
+  font-size: 1rem;
+  padding: 0.15rem 0.6rem;
+}

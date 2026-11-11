@@ -1,7 +1,8 @@
 import numpy as np
+import pandas as pd
 import pytest
 
-from bsim.analysis.seams import changed_features, pick_peaks, shift_curve
+from bsim.analysis.seams import changed_features, pick_peaks, shift_curve, snap_to
 
 
 def book(n_a: int, n_b: int):
@@ -28,3 +29,12 @@ def test_pick_peaks_and_features():
     feats = changed_features(counts, w, np.array([0.1, 0.1]), 6, 30, 2)
     assert {i for i, _ in feats} == {0, 1}
     assert dict(feats)[1] == pytest.approx(5.0) and dict(feats)[0] == pytest.approx(-5.0)
+
+
+def test_snap_to():
+    """M159: a seam moves to the nearest paragraph start in reach (the earlier on a tie), one with
+    none in reach goes, and of two at one verse the stronger stays; ranks counted again."""
+    seams = pd.DataFrame({"book_id": [0, 0, 0, 1], "verse_id": [11, 20, 9, 50], "shift": 1.0,
+                          "threshold": 0.5, "rank": [1, 2, 3, 1], "features": "[]"})  # fmt: skip
+    got = snap_to(seams, np.array([10, 12, 30, 52]), 2)
+    assert got[["book_id", "verse_id", "rank"]].values.tolist() == [[0, 10, 1], [1, 52, 1]]

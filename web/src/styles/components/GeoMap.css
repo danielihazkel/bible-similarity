@@ -1,0 +1,51 @@
+/* GeoMap.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Places on the map (§16.57) */
+
+.geo-map { margin: 0; position: relative; }
+
+.geo-map svg { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius); touch-action: none; }
+
+.geo-map svg.pannable { cursor: grab; }
+
+.geo-map svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.geo-sea { fill: var(--geo-sea); }
+
+.geo-land { fill: var(--geo-land); }
+
+.geo-lake { fill: var(--geo-sea); stroke: var(--geo-river); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }
+
+.geo-river { fill: none; stroke: var(--geo-river); stroke-width: 1px; }
+
+.geo-pt { fill: var(--geo-none); fill-opacity: 0.85; stroke: var(--surface); stroke-width: 1px; cursor: pointer; }
+
+.geo-pt.kind-town { fill: var(--geo-town); }
+
+.geo-pt.kind-region { fill: var(--geo-region); }
+
+.geo-pt.kind-landform { fill: var(--geo-landform); }
+
+.geo-pt.kind-water { fill: var(--geo-water); }
+
+.geo-pt.selected,
+.geo-pt.current { stroke: var(--text); stroke-width: 2.5px; fill-opacity: 1; }
+
+.geo-label { fill: var(--text); font-family: var(--font-he); paint-order: stroke; stroke: var(--geo-land); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }
+
+.geo-zoom { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+
+.geo-zoom button { width: 2rem; height: 2rem; font-size: 1.1rem; line-height: 1; }
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+.geo-save { margin: 0.25rem 0 0; text-align: end; }
+
+@media print {
+  .geo-zoom,
+  .geo-save { display: none !important; }
+  .geo-map svg { border-color: #ccc; }
+}

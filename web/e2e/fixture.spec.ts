@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
+import { readFileSync } from 'node:fs'
 import { expect, type Locator, type Page, test } from '@playwright/test'
 
 // CI end-to-end tests against `bsim fixture-serve`: the tiny synthetic DB of `bsim.fixture` (six
@@ -164,6 +165,17 @@ const PAGES = [
   '/wordplay?view=rhyme&rq=all&unit=c%3A0%3A1',
   '/eval',
   '/about',
+  '/neighbourhood/v%3A0',
+  '/mainline',
+  '/mainline?order=canon&known=1',
+  '/read/c%3A0%3A1?layers=mainline',
+  '/prophetic',
+  '/prophetic?form=woe&known=1',
+  '/read/c%3A0%3A1?layers=prophetic',
+  '/laws',
+  '/laws?pair=1',
+  '/laws?view=laws&code=covenant',
+  '/neighbourhood/c%3A0%3A1?hops=1&off=fused',
 ]
 
 function collectErrors(page: Page): string[] {
@@ -289,11 +301,12 @@ test('gematria: a word in each system, its forms and lemmas, and a verse total f
 })
 
 test('atbash and albam: the checks, a name read through a swap, and its chapter', async ({ page }) => {
-  await page.goto('/ciphers')
+  // every swap, not only those named in advance (the default since M159)
+  await page.goto('/ciphers?known=0')
   await expect(page.locator('.dlg-verdict')).toHaveCount(4)
   await expect(page.locator('.cipher-hit')).toHaveCount(2)
   await page.getByRole('radio', { name: 'Atbash' }).click()
-  await expect(page).toHaveURL(/\/ciphers\?cipher=atbash$/)
+  await expect(page).toHaveURL(/\/ciphers\?known=0&cipher=atbash$/)
   await expect(page.locator('.cipher-hit')).toHaveCount(1)
   await expect(page.locator('.cipher-hit .w-shared')).toHaveCount(1)
   await page.goto('/findings')
@@ -621,7 +634,8 @@ test('naming etiologies: the checks, the namings, a filter', async ({ page }) =>
 })
 
 test('resumptive repetition: the checks, the repetitions, a filter', async ({ page }) => {
-  await page.goto('/brackets')
+  // every repetition, not only those named in advance (the default since M159)
+  await page.goto('/brackets?show=all')
   await expect(page.locator('.dv-verdict.holds')).toHaveCount(1)
   await expect(page.locator('.dv-verdict.fails')).toHaveCount(1)
   await expect(page.locator('li.brk-bracket')).toHaveCount(2)
@@ -950,6 +964,9 @@ test.describe('labels', () => {
     await expect(real).toHaveAttribute('aria-pressed', 'true')
     await page.goto('/labels')
     await expect(page.locator('.labels-list > li')).toHaveCount(1)
+    // the list with a label in it (the page-by-page check sees it empty)
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
     await page.locator('.labels-list').getByRole('button', { name: 'Real' }).click() // clear it again
     await expect(page.locator('.labels-list > li')).toHaveCount(0)
   })
@@ -967,8 +984,12 @@ test.describe('labels', () => {
     // the fixture's made-up `bsim llm-triage` run: a suggestion, never a label
     await expect(items.locator('.queue-suggestion')).toContainText('Claude suggests: Not (p 0.20, shared formula).')
     await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'false')
+    // the button shows the label at once; the queue asked again before the server has written it
+    // would still hold the pair (seen in a full run under load), so wait for the write
+    const written = page.waitForResponse((r) => r.url().endsWith('/api/labels') && r.request().method() === 'PUT')
     await items.getByRole('button', { name: 'Not' }).click()
     await expect(items.getByRole('button', { name: 'Not' })).toHaveAttribute('aria-pressed', 'true')
+    expect((await written).ok()).toBe(true)
     await page.getByRole('button', { name: 'Next pairs' }).click()
     await expect(page.getByText('Nothing left to judge here.')).toBeVisible()
     await page.getByRole('radio', { name: 'Your labels' }).click()
@@ -1001,6 +1022,20 @@ test('a verse is kept with a note and a collection, and shows in the notebook', 
   await expect(page).toHaveURL(/\/notebook\?c=\d+$/)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  // the study page (M162): one HTML file of what is shown, the verse and the note in it
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download a study page' }).click()])
+  expect(file.suggestedFilename()).toMatch(/^notebook-\d+-\d{4}-\d{2}-\d{2}\.html$/)
+  const html = readFileSync(await file.path(), 'utf8')
+  expect(html).toContain('<title>Notebook: Speeches</title>')
+  expect(html).toContain('ויאמר: the second time')
+  expect(html).toMatch(/href="http:\/\/127\.0\.0\.1:\d+\/unit\/v%3A1"/)
+  // printed: the note as text, the editors and the controls left out
+  await page.emulateMedia({ media: 'print' })
+  await expect(page.locator('.nb-print-note')).toHaveText('ויאמר: the second time')
+  await expect(page.locator('.notebook-entry textarea')).toBeHidden()
+  await expect(page.locator('.nb-collections-bar')).toBeHidden()
+  await page.emulateMedia({ media: 'screen' })
+  await expect(page.locator('.nb-print-note')).toBeHidden()
   // clean up: the collection, then the entry
   await page.getByRole('button', { name: 'Delete collection' }).click()
   await page.getByRole('button', { name: 'Delete', exact: true }).click()
@@ -1046,6 +1081,82 @@ for (const locale of ['en', 'he'] as const) {
     expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
   })
 }
+
+for (const locale of ['en', 'he'] as const) {
+  test(`how often an analysis is right, by Claude's reading (${locale})`, async ({ page }) => {
+    await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+    // the fixture's two made-up `bsim llm-audit` runs (§16.86, D147)
+    await page.goto('/etiologies')
+    const note = page.locator('.precision-note[data-detector="etiologies"]')
+    await expect(note.locator('summary')).toContainText(locale === 'en' ? '63% right [0.49, 0.75] of what this page lists' : '63% נכונים')
+    await note.locator('summary').click()
+    await expect(note.locator('li')).toHaveCount(3)
+    await page.goto('/findings')
+    const table = page.locator('.precision-table')
+    await expect(table.locator('tbody tr')).toHaveCount(2)
+    await expect(table.getByRole('link', { name: locale === 'en' ? 'Naming etiologies' : 'מדרשי שמות' })).toHaveAttribute('href', '/etiologies')
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  })
+}
+
+test("a verse's neighbourhood: from its page, a kind switched off, another verse in the middle", async ({ page }) => {
+  await page.goto('/unit/v%3A0')
+  await page.getByRole('link', { name: 'Its neighbourhood as a graph' }).click()
+  await expect(page).toHaveURL(/\/neighbourhood\/v%3A0$/)
+  await expect(page.locator('.nbh-node.centre')).toHaveCount(1)
+  const nodes = await page.locator('.nbh-graph circle').count()
+  expect(nodes).toBeGreaterThan(1)
+  const edges = await page.locator('.nbh-edge').count()
+  await page.getByRole('checkbox', { name: 'Only on the combined list' }).uncheck()
+  await expect(page).toHaveURL(/off=fused/)
+  expect(await page.locator('.nbh-edge').count()).toBeLessThanOrEqual(edges)
+  // v:5 has hits of its own (v:3's are all its neighbours, left out)
+  await page.getByRole('row', { name: /^v:5/ }).getByRole('link', { name: 'Put in the middle' }).click()
+  await expect(page).toHaveURL(/\/neighbourhood\/v%3A5\?off=fused$/)
+  await expect(page.locator('.nbh-node.centre')).toHaveCount(1)
+  await expect(page.getByRole('checkbox', { name: 'Only on the combined list' })).not.toBeChecked()
+  await page.goto('/neighbourhood/v%3A3')
+  await expect(page.getByText('Nothing is stored as like this passage.')).toBeVisible()
+})
+
+test('the main line: the claim, a pause, and its background marked in the reader', async ({ page }) => {
+  await page.goto('/mainline')
+  await expect(page.locator('.dv-verdict')).toHaveText('Not borne out')
+  await expect(page.locator('.ml-pause')).toHaveCount(1)
+  await page.getByRole('link', { name: 'read it with the layer' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=mainline$/)
+  await expect(page.locator('.reader-text .ml-background').first()).toBeVisible()
+})
+
+test('the prophetic forms: the passages named in advance, a woe saying, its words boxed in the reader', async ({ page }) => {
+  await page.goto('/prophetic')
+  await expect(page.locator('.pf-known .dv-verdict')).toHaveText(['Not all found', 'Found'])
+  await expect(page.locator('.pf-item')).toHaveCount(3)
+  await page.getByRole('radio', { name: 'Woe saying' }).click()
+  await expect(page).toHaveURL(/\/prophetic\?form=woe$/)
+  await expect(page.locator('.pf-item')).toHaveCount(1)
+  await expect(page.locator('.pf-item .w-focus')).toHaveCount(2)
+  await page.getByRole('link', { name: 'read it with the layer' }).click()
+  await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=prophetic$/)
+  await expect(page.locator('.reader-text .pf')).toHaveCount(3)
+})
+
+test('the law codes: the known pairs, a pair side by side, the laws by code', async ({ page }) => {
+  await page.goto('/laws')
+  await expect(page.locator('.lw-known .dv-verdict')).toHaveText(['Found', 'Not found'])
+  await expect(page.locator('.lw-pair')).toHaveCount(1)
+  await page.locator('.lw-pair').getByRole('button', { name: 'side by side' }).click()
+  await expect(page).toHaveURL(/\/laws\?pair=1$/)
+  await expect(page.locator('.lw-side')).toHaveCount(2)
+  await expect(page.locator('.lw-side .w-diff-substitution')).toHaveCount(1)
+  await expect(page.locator('.lw-side .w-diff-added')).toHaveCount(1)
+  await page.getByRole('radio', { name: 'Laws' }).click()
+  await page.getByRole('combobox', { name: 'Code' }).selectOption('covenant')
+  await expect(page).toHaveURL(/view=laws&code=covenant/)
+  await expect(page.locator('.lw-law')).toHaveCount(1)
+  await expect(page.locator('.lw-law')).toContainText('Apodictic')
+})
 
 test('a selection is in the URL: a reload keeps it, Back undoes it', async ({ page }) => {
   await page.goto('/map')

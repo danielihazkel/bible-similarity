@@ -201,7 +201,7 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 async function checkA11y(page: Page) {
-  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/labels?tab=queue', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/witnesses', '/witnesses?unit=v%3A2065', '/source?example=aleinu', '/read/c%3A1%3A20?layers=witnesses', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13']) {
+  for (const path of ['/', '/compare?a=c%3A26%3A14&b=c%3A26%3A53', '/style?book=26', '/sequences/4', '/poetry', '/names?e=1732', '/unit/c%3A0%3A1', '/findings', '/sequences?view=arcs', '/network', '/network?view=directions', '/acrostics', '/divisions?book=14', '/ketiv', '/citations', '/phrases?view=spread', '/structure?view=small', '/eval', '/typescenes', '/wordplay?view=rhyme', '/poetry?view=pairs', '/poetry?view=meter', '/unit/c%3A31%3A3?halves=1&meter=1', '/roots', '/roots?view=key', '/root/1288', '/refrains', '/psalms', '/read/c%3A26%3A22?layers=mood%2Cspeakers', '/pentateuch', '/read/c%3A0%3A7?layers=sources', '/read/c%3A0%3A3?layers=speakers%2Ccola%2Cleitworte%2Cphrases%2Crare%2Cwordplay%2Cketiv%2Cturns', '/domains', '/domains/001001', '/shifts', '/lemma/1350a', '/language?book=32', '/speech?book=2', '/speech?view=voices&voice=1732', '/speech?view=dialogue&book=7', '/forms', '/forms?view=lists', '/gematria?q=318', '/read/c%3A0%3A1?layers=gematria', '/gematria-links', '/ciphers', '/masorah', '/places', '/places?p=55', '/place-lists', '/place-arc', '/place-links', '/genealogy', '/genealogy?p=194', '/genealogy?p=1216', '/els', '/read/c%3A5%3A10?layers=places', '/query?q=%5Blemma%3D408%5D+%5Bform%3Djussive%5D', '/unit/c%3A0%3A22?syntax=1', '/labels', '/labels?tab=queue', '/notebook', '/borrowing', '/workbench?a=chapters%3A26%3A42-83&b=book%3A26', '/workbench?tab=check&q=%5Blemma%3D430%5D&set=chapters%3A26%3A42-83', '/divine?book=26', '/read/c%3A26%3A53?layers=divine', '/etiologies?order=strongest', '/brackets?order=strongest', '/retold?group=retold&order=most', '/haftarot?p=p%3AVayera', '/chronology', '/frameworks?k=hezekiah', '/binomials?pair=2091%2B3701', '/sums?list=num1', '/vocabulary', '/reception', '/reception?unit=v%3A5520', '/read/c%3A4%3A24?layers=reception', '/witnesses', '/witnesses?unit=v%3A2065', '/source?example=aleinu', '/read/c%3A1%3A20?layers=witnesses', '/glossary', '/tours', '/week?date=2019-08-01', '/findings?tour=parallels&step=1', '/synopses', '/synopses/13', '/neighbourhood/v%3A0', '/neighbourhood/c%3A26%3A23?hops=1', '/mainline', '/read/c%3A0%3A3?layers=mainline', '/prophetic', '/read/c%3A11%3A5?layers=prophetic', '/laws', '/laws?pair=4']) {
     await page.goto(path)
     await page.locator('h1').first().waitFor()
     await page.waitForLoadState('networkidle')
@@ -244,7 +244,7 @@ test('naming etiologies: the echo holds, Naphtali and Jacob first, Reuben marked
   await page.goto('/etiologies')
   await expect(page.locator('.dv-check').first().locator('.dv-verdict')).toHaveText('Borne out')
   await expect(page.locator('.dv-check').nth(1).locator('.dv-verdict')).toHaveText('Not borne out')
-  await expect(page.locator('li.ety-naming')).toHaveCount(111)
+  await expect(page.locator('li.ety-naming')).toHaveCount(65) // the namings whose verse explains (M159; 111 found)
   await page.getByRole('radio', { name: 'Strongest first' }).click()
   // tied at p 0.0002 and a full echo: canon order, ויעקבני (Gen 27:36) before נפתולי (30:8)
   await expect(page.locator('li.ety-naming').nth(0)).toContainText('יעקב')
@@ -259,13 +259,14 @@ test('resumptive repetition: the claim holds, Exodus 6 found and beyond chance, 
   await page.goto('/brackets')
   await expect(page.locator('.dv-check').first().locator('.dv-verdict')).toHaveText('Borne out')
   await expect(page.locator('.dv-check').nth(1).locator('.dv-verdict')).toHaveText('Not borne out')
-  await expect(page.locator('.brk-known li')).toHaveText([/^Genesis 37:36 … Genesis 39:1: found/, /^Exodus 6:10-12 … Exodus 6:29-30: found · p 0\.003/, /^Ezra 4:5 … Ezra 4:24: found/])
-  await page.getByRole('radio', { name: 'Named in advance' }).click()
+  await expect(page.locator('.brk-known li')).toHaveText([/^Genesis 37:36 … Genesis 39:1: found/, /^Exodus 6:10-12 … Exodus 6:29-30: found · p 0\.007/, /^Ezra 4:5 … Ezra 4:24: found/])
+  // those named in advance by default (M159)
+  await expect(page.getByRole('radio', { name: 'Named in advance' })).toBeChecked()
   await expect(page.locator('li.brk-bracket')).toHaveCount(3)
   await expect(page.locator('li.brk-bracket').nth(1)).toContainText('Exodus 6:30')
   await page.getByRole('radio', { name: 'All' }).click()
   await page.getByRole('radio', { name: 'Strongest first' }).click()
-  await expect(page.locator('li.brk-bracket').first()).toContainText('Ezekiel 48:8')
+  await expect(page.locator('li.brk-bracket').first()).toContainText('Isaiah 2:17') // Ezek 48's border formula left out (M159)
 })
 
 test('retold speech: the claim not borne out, the known retellings found, the woman retells God in Genesis 3', async ({ page }) => {
@@ -427,9 +428,8 @@ test('equal values link nothing; Genesis 1:1 shares its numbers with Psalm 44:5'
 test('atbash: the three places in Jeremiah are found, and the word panel reads ששך as בבל', async ({ page }) => {
   await page.goto('/ciphers')
   await expect(page.getByText(/The places named in advance are found: 3 of 3\./)).toBeVisible()
-  // the box follows the URL, a render after the click: click, then wait for it
+  // those named in advance by default (M159)
   const named = page.getByRole('checkbox', { name: 'Only those named in advance' })
-  await named.click()
   await expect(named).toBeChecked()
   await expect(page.locator('.cipher-hit')).toHaveCount(3)
   await expect(page.locator('.cipher-hit').first()).toContainText('בבל')
@@ -648,6 +648,46 @@ test('letters at equal skips: no more names in the Torah than its controls, and 
   await expect(page.locator('#known tbody tr').first()).toContainText('19 times')
   await page.getByRole('radio', { name: 'Genesis' }).click()
   await expect(page.getByText(/78,063 letters/)).toBeVisible()
+})
+
+test('the main line: not borne out at paragraph openings, the five known pauses found, Genesis 3:1 in the reader', async ({ page }) => {
+  await page.goto('/mainline')
+  await expect(page.locator('.dv-verdict')).toHaveText('Not borne out')
+  await expect(page.getByText('The pauses the commentaries point to are found: 5 of 5.')).toBeVisible()
+  await expect(page.locator('.precision-note summary')).toContainText('57% right')
+  await page.goto('/read/c%3A0%3A3?layers=mainline')
+  await expect(page.locator('.reader-text .ml-background').first()).toBeVisible()
+})
+
+test('the prophetic forms: every passage named in advance found, Isaiah’s first woe, the words boxed in the reader', async ({ page }) => {
+  await page.goto('/prophetic')
+  await expect(page.locator('.pf-known .dv-verdict')).toHaveText(['Found', 'Found', 'Found', 'Found'])
+  await expect(page.getByText('Call narrative: 12 findings')).toBeVisible()
+  await expect(page.locator('.precision-note summary')).toContainText('53% right')
+  await page.goto('/prophetic?form=woe&book=11')
+  await expect(page.locator('.pf-item').first().locator('.verse-ref')).toHaveText(/^Isaiah 1:4 – Isaiah 1:9$/)
+  await page.goto('/read/c%3A11%3A5?layers=prophetic')
+  await expect(page.locator('.reader-text .pf-woe').first()).toBeVisible()
+})
+
+test('the law codes: 18 of 21 known pairs, the slave release side by side', async ({ page }) => {
+  await page.goto('/laws')
+  await expect(page.getByText('18 of 21 pairs of passages found.')).toBeVisible()
+  await expect(page.getByRole('rowheader', { name: 'Holiness Code' })).toBeVisible()
+  await page.goto('/laws?pair=4')
+  await expect(page.getByRole('heading', { name: 'Covenant Code beside Deuteronomic Code' })).toBeVisible()
+  await expect(page.locator('.lw-side').first().locator('.verse-ref').first()).toHaveText('Exodus 21:2')
+  await expect(page.locator('.lw-side .w-diff-substitution').first()).toBeVisible()
+})
+
+test("names built on God's name: not borne out for the same names, Jeremiah long, and its line on Names", async ({ page }) => {
+  await page.goto('/language')
+  const section = page.locator('section.theophoric')
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Names built on God’s name')
+  await expect(section.locator('.dv-verdict')).toHaveText('Not borne out')
+  await expect(section.getByRole('listitem').first()).toHaveText(/^Jeremiah: mostly long \(‑יהו\): 24% short of 279 endings · holds$/)
+  await page.goto('/names?e=3414')
+  await expect(page.getByText('Built on יה: ‑יהו 129× · ‑יה 18×.')).toBeVisible()
 })
 
 test('the gazetteer: Jerusalem is a town at 31.78° N, Abel names two places', async ({ page }) => {

@@ -1,0 +1,62 @@
+/* LabelsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* your labels of proposed pairs (DESIGN.md §16.25) */
+
+.labels-list {
+  list-style: none;
+  padding: 0;
+}
+
+.labels-list > li {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}
+
+.labels-list .label-pair {
+  flex: 1 1 16rem;
+}
+
+/* two links in a line of text: underlined, so they are told apart from it without colour alone (axe link-in-text-block) */
+
+.labels-list .label-pair a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.labels-list input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+/* the label queue (DESIGN.md §16.79): two verses to judge, one under the other */
+
+.queue-list {
+  padding-inline-start: 1.6rem;
+}
+
+.queue-list > li {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+}
+
+.queue-list p {
+  margin: 0.25rem 0;
+}
+
+.queue-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+/* Detector precision by Claude's reading (DESIGN.md §16.86, D147) */
+
+.queue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}

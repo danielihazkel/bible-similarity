@@ -1,0 +1,10 @@
+/* SearchPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Word analysis (click a word in the source text) */
+
+.goto {
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+}

@@ -1,0 +1,10 @@
+/* ThemesPanel.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Semantic domains (DESIGN.md §16.22) */
+
+.unit-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: baseline;
+}

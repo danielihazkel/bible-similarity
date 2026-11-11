@@ -1,0 +1,25 @@
+/* RefrainsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* links inside running text must not rely on colour alone (WCAG 1.4.1) */
+
+.refrain-more a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* Refrains (§16.40) */
+
+.refrain-text {
+  font-family: var(--font-he);
+  font-size: 1.25rem;
+}
+
+.refrains-page .he-cell {
+  font-family: var(--font-he);
+  font-size: 1.1rem;
+}
+
+.refrain .verse-ref {
+  margin-inline-end: 0.4rem;
+}

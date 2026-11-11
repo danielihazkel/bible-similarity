@@ -10,6 +10,7 @@ import { readLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/psalms'
+import '../styles/pages/PsalmsPage.css'
 
 const PAGE_SIZE = 20
 const SHOWN = ['first_singular', 'first_plural', 'second', 'imperative_plural', 'distress', 'praise']

@@ -13,6 +13,7 @@ import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/ciphers'
+import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 25
 const CHAPTERS_SHOWN = 15
@@ -28,6 +29,7 @@ export function CiphersPage() {
     <div className="page ciphers-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="ciphers" />
       {res.isPending ? (
         <Loading />
       ) : res.error ? (
@@ -133,7 +135,8 @@ function Hits() {
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const unit = params.get('unit') ?? undefined
-  const known = params.get('known') === '1'
+  // those named in advance by default (M159): Claude judged 1 in 50 of the rest right (§16.86)
+  const known = params.get('known') !== '0'
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
@@ -142,6 +145,7 @@ function Hits() {
     <section aria-label={t.hitsTitle}>
       <h2>{t.hitsTitle}</h2>
       <p className="muted small">{t.hitsLede}</p>
+      {known && <p className="muted small">{t.knownDefault}</p>}
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <Segmented
@@ -152,7 +156,7 @@ function Hits() {
         />
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
+          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? null : '0' })} />
           {t.knownOnly}
         </label>
       </div>

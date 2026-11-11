@@ -1,0 +1,11 @@
+/* ToursPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* glossary terms and guided tours (§11) */
+
+.tour-list { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+
+.tour-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.8rem; background: var(--surface); }
+
+.tour-card h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+
+.tour-card p { margin: 0.2rem 0; }

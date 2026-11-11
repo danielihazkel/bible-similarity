@@ -3,6 +3,7 @@ import { useLocale } from '../context/localeContext'
 import type { TermKey } from '../i18n/pages/glossary'
 import '../i18n/pages/glossary'
 import { matches } from '../lib/gloss'
+import '../styles/components/Term.css'
 
 /** A term with its glossary entry in a popover, opened on hover, focus or a tap and closed by
  * Escape; the entry describes the button for screen readers (DESIGN.md §11). */

@@ -9,6 +9,7 @@ import { readLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/pentateuch'
+import '../styles/pages/PentateuchPage.css'
 
 const PAGE_SIZE = 60
 const BOOKS: [string, number][] = [

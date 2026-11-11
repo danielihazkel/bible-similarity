@@ -1,0 +1,5 @@
+/* UnitPanels.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Places on the map (§16.57) */
+
+.where-panel .geo-map { max-width: 34rem; }

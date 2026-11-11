@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from bsim.analysis.forms import (
     candidate_pairs,
+    counts_a_noun,
     free_numbers,
     likeness,
     list_runs,
@@ -223,3 +224,15 @@ def test_without_the_stage(built):
     assert not d["forms"]["computed"]
     m = c.get("/api/map/chapter").json()
     assert m["lists"] is False and all(p["list_verses"] == 0 for p in m["points"])
+
+
+def test_counts_a_noun():
+    """M159: a number counts a noun in the construct state or beside an agreeing noun without a
+    prefix; with a prefix, or beside a noun of the other gender, it stands alone (a saying)."""
+    m = {(0, 0): "HNcmsa", (0, 1): "HAcmsa",  # פַּר אֶחָד
+         (1, 0): "HAcmdc", (1, 1): "HNcmpa",  # שְׁנֵי אֲדָנִים
+         (2, 0): "HAcfsa", (2, 1): "HVpp3ms", (2, 2): "HNcmpa", (2, 3): "HAcfda",  # Ps 62:12
+         (3, 0): "HC/R/Acfda", (3, 1): "HTn"}  # וּבִשְׁתַּיִם לֹא  # fmt: skip
+    assert counts_a_noun(m, 0, 1) and counts_a_noun(m, 1, 0)
+    assert not counts_a_noun(m, 2, 0) and not counts_a_noun(m, 2, 3)
+    assert not counts_a_noun(m, 3, 0)

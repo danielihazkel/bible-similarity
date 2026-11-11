@@ -1,0 +1,9 @@
+/* SpreadView.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Rare words spread over verses (§16.32) ---------- */
+
+.spread-lemmas { margin: 0.25rem 0; font-size: 1.1rem; color: var(--accent); }
+
+.spread-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0.5rem 1.5rem; }
+
+.spread-side p { margin: 0.15rem 0; }

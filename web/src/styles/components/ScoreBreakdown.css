@@ -1,0 +1,52 @@
+/* ScoreBreakdown.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Unit detail ---------- */
+
+.breakdown {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rankbars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rankbar {
+  display: grid;
+  grid-template-columns: 2.2em 80px 2.6em;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.rankbar-track {
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rankbar-fill {
+  display: block;
+  height: 100%;
+}
+
+.rankbar-fill.lex {
+  background: var(--lex);
+}
+
+.rankbar-fill.sem {
+  background: var(--sem);
+}
+
+.rankbar-fill.phr {
+  background: var(--phr);
+}
+
+.rankbar-rank {
+  font-variant-numeric: tabular-nums;
+}

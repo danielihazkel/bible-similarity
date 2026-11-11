@@ -14,6 +14,7 @@ import { bookName, verseRef } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { parseKind, variantsPer100, witnessUrl } from '../lib/witnesses'
 import '../i18n/pages/chronology'
+import '../styles/pages/WitnessesPage.css'
 
 const PAGE = 25
 const SCROLLS = 15

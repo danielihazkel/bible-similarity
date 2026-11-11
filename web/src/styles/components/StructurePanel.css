@@ -1,0 +1,32 @@
+/* StructurePanel.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Structure */
+
+.structure-panel {
+  margin-top: 0.5rem;
+}
+
+.structure-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.structure-facts h3 {
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.multiple {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 720px) {
+  .structure-grid {
+      grid-template-columns: 1fr;
+    }
+}

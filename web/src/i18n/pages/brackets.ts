@@ -36,6 +36,7 @@ export const brkEn = {
   parts: (lex: number, sem: number) => `words ${x2(lex)}, meaning ${x2(sem)}`,
   pq: (p: number, q: number | null) => (q === null ? `p ${fp(p)}` : `p ${fp(p)}, q ${fp(q)}`),
   knownTag: 'named in advance',
+  knownDefault: 'Listed: the brackets named in advance. Under All, every repetition the detector found; by Claude’s reading almost none of them resumes a thread after an insertion.',
   read: 'read the block',
   compare: 'compare the two',
   count: (n: number) => countEn(n, 'repetition', 'repetitions'),

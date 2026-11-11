@@ -1,0 +1,13 @@
+/* PentateuchPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* The Pentateuch's sources (DESIGN.md §16.43): the reader's verse tag, the chapter bars */
+
+.src-bar { position: relative; display: inline-block; width: 8rem; height: 0.7rem; background: var(--surface); border: 1px solid var(--muted); vertical-align: middle; }
+
+.src-bar-fill { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--accent); }
+
+.src-bar-ref { position: absolute; inset-block: -3px; width: 2px; background: var(--text); }
+
+.pent-grid tr.fixed td { font-weight: 700; }
+
+.pent-words { columns: 2 14rem; padding-inline-start: 1.2rem; }

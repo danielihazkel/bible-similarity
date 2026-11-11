@@ -7,6 +7,12 @@ that recurs nearby.
 
 - **Tokens.** Each verse becomes its lemmas in order, prefixes dropped (ו, ה, ב, ל, כ, מ, ש vary
   freely between the repeats of one refrain: ולא / לא, בכל / כל).
+- **Repeats of words** (M159): a refrain repeats its words, not only their lemmas. Its most
+  common wording (the forms, consonants without prefixes) must stand in at least `form_share` of
+  its verses and in two (0 keeps all, the first runs): Ps 107's ויצעקו / ויזעקו keeps two of
+  four, a phrase found once among variants goes. `names: false` leaves out seeds holding a proper
+  name (a man's title through his story), and a seed of numbers alone (אלפים וחמש מאות) is not
+  one. `match: form` would make the form part of every token, stricter still (it loses Ps 107).
 - **Seeds and runs.** Every `min_tokens` lemmas in a row inside a verse holding at least
   `min_content` nouns, verbs or adjectives (names do not count: ישמעאל בן נתניה is a man named
   through his story, not a phrase) is a seed; the verses of one book holding it, chained while
@@ -35,7 +41,9 @@ first_vid, last_vid, n_tokens, p, q, cv, regular_p, turn, strongest, known, text
 
 from __future__ import annotations
 
+import math
 import time
+from collections import Counter
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,21 +51,28 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 from scipy import stats
 
 from bsim.analysis.stats import empirical_p, q_values
 from bsim.config import config_hash, resolve_path, write_meta
+from bsim.store.lexicon import strip_prefixes
+from bsim.text.normalize import fold_finals
 
 Log = Callable[[str], None]
 CONTENT = frozenset("NVA")
+DIVINE = frozenset({"3068", "3069", "430", "410", "433", "136", "3050"})  # not names here
 
 
 def token_stream(words: pd.DataFrame) -> pd.DataFrame:
     """One row per lemma, prefixes dropped: `verse_id, idx` (its word), `pos` (in the verse),
-    `lemma`, `content` (a noun, verb or adjective; not a name)."""
+    `lemma`, `content` (a noun, verb or adjective; not a name), `form` (the word's consonants
+    without its prefixes, finals folded; "" without `surface`), `name` (a proper name, not God's)
+    and `numeral` (a cardinal or ordinal number)."""
     rows = []
-    for vid, idx, lemma, morph in zip(
-        words.verse_id, words.idx, words.lemma, words.morph, strict=True
+    surface = words.surface if "surface" in words else pd.Series([""] * len(words))
+    for vid, idx, lemma, morph, surf in zip(
+        words.verse_id, words.idx, words.lemma, words.morph, surface, strict=True
     ):
         parts = str(lemma).split("/")
         codes = morph[1:].split("/") if isinstance(morph, str) and morph else []
@@ -66,16 +81,24 @@ def token_stream(words: pd.DataFrame) -> pd.DataFrame:
             if not lem[:1].isdigit():
                 continue  # a prefix
             m = codes[k] if k < len(codes) else ""
-            rows.append((int(vid), int(idx), lem, m[:1] in CONTENT and not m.startswith("Np")))
-    t = pd.DataFrame(rows, columns=["verse_id", "idx", "lemma", "content"])
+            form = fold_finals(strip_prefixes(str(surf), str(lemma))) if surf else ""
+            rows.append((int(vid), int(idx), lem, m[:1] in CONTENT and not m.startswith("Np"),
+                         form, m.startswith("Np") and lem not in DIVINE,
+                         m[:2] in ("Ac", "Ao")))  # fmt: skip
+    cols = ["verse_id", "idx", "lemma", "content", "form", "name", "numeral"]
+    t = pd.DataFrame(rows, columns=cols)
     t["pos"] = t.groupby("verse_id").cumcount()
     return t
 
 
-def seeds(t: pd.DataFrame, n: int, min_content: int) -> pd.DataFrame:
-    """Every `n` lemmas in a row inside a verse with at least `min_content` content lemmas:
-    `key` (the lemmas packed into one integer), `verse_id`, `start`; first one per verse."""
-    ids, vocab = pd.factorize(t.lemma)
+def seeds(
+    t: pd.DataFrame, n: int, min_content: int, by: str = "lemma", names: bool = True
+) -> pd.DataFrame:
+    """Every `n` tokens in a row inside a verse with at least `min_content` content lemmas, one
+    of them not a number: `key` (the tokens packed into one integer), `verse_id`, `start`; first
+    one per verse. `by`: the token column (`lemma`, or `tok`: lemma and form); `names` False: no
+    proper name inside (M159: ‎בן אחיקם בן שפן is a man's title, not a refrain)."""
+    ids, vocab = pd.factorize(t[by])
     bits = max(1, int(np.ceil(np.log2(len(vocab) + 1))))
     if n * bits > 63:
         raise ValueError(f"min_tokens {n} too long to pack {len(vocab)} lemmas")
@@ -87,8 +110,17 @@ def seeds(t: pd.DataFrame, n: int, min_content: int) -> pd.DataFrame:
     key = np.zeros(m, dtype=np.int64)
     for k in range(n):
         key = (key << bits) | ids[k : k + m]
-    c = np.concatenate([[0], np.cumsum(t.content.to_numpy(dtype=np.int64))])
-    ok = same & (c[n:] - c[:m] >= min_content)
+
+    def window(col: np.ndarray) -> np.ndarray:
+        c = np.concatenate([[0], np.cumsum(col.astype(np.int64))])
+        return c[n:] - c[:m]
+
+    content = t.content.to_numpy(dtype=bool)
+    ok = same & (window(content) >= min_content)
+    if "numeral" in t:
+        ok &= window(content & ~t.numeral.to_numpy(dtype=bool)) >= 1
+    if not names and "name" in t:
+        ok &= window(t.name.to_numpy(dtype=bool)) == 0
     g = pd.DataFrame({"key": key[ok], "verse_id": vid[:m][ok], "start": t.pos.to_numpy()[:m][ok]})
     return g.drop_duplicates(["key", "verse_id"]).reset_index(drop=True)
 
@@ -189,15 +221,18 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
     verses = pd.read_parquet(
         proc / "verses.parquet", columns=["verse_id", "book_id", "ref", "display_tokens"]
     )
-    words = pd.read_parquet(
-        proc / "words.parquet", columns=["verse_id", "idx", "lemma", "morph", "display_idx"]
-    ).sort_values(["verse_id", "idx"])
+    have = set(pq.read_schema(proc / "words.parquet").names)  # `surface`: the forms (M159)
+    cols = [c for c in ("verse_id", "idx", "lemma", "morph", "display_idx", "surface") if c in have]
+    words = pd.read_parquet(proc / "words.parquet", columns=cols).sort_values(["verse_id", "idx"])
     t = token_stream(words)
+    # M159: a refrain repeats its words, not only their lemmas (`match: form`)
+    by = "tok" if rc["match"] == "form" else "lemma"
+    t["tok"] = t.lemma + "|" + t.form
     n, min_count = rc["min_tokens"], rc["min_count"]
     book_of = dict(zip(verses.verse_id, verses.book_id, strict=True))
     n_book = np.bincount(verses.book_id.to_numpy())
 
-    g = seeds(t, n, rc["min_content"])
+    g = seeds(t, n, rc["min_content"], by, rc["names"])
     g["book_id"] = g.verse_id.map(book_of).to_numpy()
     g["df"] = g.groupby(["key", "book_id"]).verse_id.transform("size")
     g = g[g.df >= min_count].reset_index(drop=True)
@@ -218,6 +253,9 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
 
     # each refrain extended to the longest phrase its verses share
     lemmas = {v: list(s) for v, s in t.groupby("verse_id").lemma}
+    toks = {v: list(s) for v, s in t.groupby("verse_id")[by]}
+    forms = {v: list(s) for v, s in t.groupby("verse_id").form}
+    n_variants = 0  # refrains whose words vary more than `form_share` admits (M159)
     word_of = {v: list(s) for v, s in t.groupby("verse_id").idx}
     start = dict(zip(zip(g.key, g.verse_id, strict=True), g.start, strict=True))
     display = {
@@ -229,12 +267,18 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
     rows = []
     for h in hits.itertuples(index=False):
         vs = h.verses
-        starts, length = extend(vs, [start[h.key, v] for v in vs], n, lemmas)
+        starts, length = extend(vs, [start[h.key, v] for v in vs], n, toks)
         phrase = tuple(lemmas[vs[0]][starts[0] : starts[0] + length])
         spans = []
         for v, s in zip(vs, starts, strict=True):
             ds = [display[v, w] for w in word_of[v][s : s + length] if (v, w) in display]
             spans.append((v, int(min(ds)), int(max(ds))) if ds else (v, None, None))
+        wording = Counter(
+            tuple(forms[v][s : s + length]) for v, s in zip(vs, starts, strict=True)
+        ).most_common(1)[0][1]
+        if wording < max(2, math.ceil(rc["form_share"] * len(vs))):
+            n_variants += 1
+            continue
         rows.append((h.book_id, vs, phrase, length, h.p, h.q, spans))
     ref = pd.DataFrame(rows, columns=["book_id", "verses", "phrase", "n_tokens", "p", "q", "spans"])
     ref = ref.sort_values(["p", "n_tokens"], ascending=[True, False], kind="stable")
@@ -378,6 +422,7 @@ def run_refrains(cfg: dict[str, Any], log: Log = print) -> Path:
         "known_share": rc["known_share"],
         "regular": regular,
         "turns": turns,
+        "variants": n_variants,
         "seconds": round(time.perf_counter() - t0, 1),
     }
     write_meta(out / "refrains.meta.json", meta)

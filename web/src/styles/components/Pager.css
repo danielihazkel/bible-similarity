@@ -1,0 +1,49 @@
+/* Pager.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Discoveries ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.pager button {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.pager button:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+/* Network */
+
+.pager-jump {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.pager-jump input {
+  width: 4.5em;
+  color: var(--text); /* the label around it is muted */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .pager { display: none !important; }
+}

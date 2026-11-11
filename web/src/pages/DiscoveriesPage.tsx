@@ -15,6 +15,7 @@ import { compareLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { MODES, parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/parallels'
+import '../styles/pages/DiscoveriesPage.css'
 
 const UNIT_TYPES: UnitType[] = ['verse', 'chapter', 'pericope', 'parasha']
 const PAGE_SIZE = 50

@@ -13,6 +13,11 @@ of showing any seam by accident (family-wise). Seams are the curve's peaks above
 taken strongest first, at least `block_words` words apart; each lists the features that change
 most (z difference, sign = after minus before).
 
+A peak's verse is only as sharp as its blocks (600 words a side), so with `snap` (M159) each seam
+moves to the nearest paragraph start (the Masoretic pericopes) at most `snap` verses away, and one
+with none in reach is left out: Claude judged seams at a paragraph start right 15 times of 19 and
+the others 14 of 68 (§16.86). `snap: null` keeps the peaks where they are (the first runs).
+
 Like §16.6 this is descriptive: a seam is a change of style (genre, language, speaker, source),
 not a claim about authorship.
 
@@ -39,6 +44,23 @@ from bsim.config import config_hash, resolve_path, write_meta
 from bsim.store.lexicon import lemma_display_forms
 
 Log = Callable[[str], None]
+
+
+def snap_to(seams: pd.DataFrame, starts: np.ndarray, reach: int) -> pd.DataFrame:
+    """Each seam moved to the nearest paragraph start (the Masoretic pericopes) at most `reach`
+    verses away, the earlier on a tie; a seam with none in reach is left out, and of two moved to
+    one verse the stronger kept. Ranks counted again per book (M159)."""
+    starts = np.unique(starts)
+    out = []
+    for r in seams.itertuples(index=False):
+        d = np.abs(starts - r.verse_id)
+        i = int(np.argmin(d)) if len(d) else -1
+        if i >= 0 and d[i] <= reach:
+            out.append(r._replace(verse_id=int(starts[i])))
+    df = pd.DataFrame(out, columns=seams.columns)
+    df = df.sort_values(["book_id", "rank"]).drop_duplicates(["book_id", "verse_id"])
+    df["rank"] = df.groupby("book_id").cumcount() + 1
+    return df.reset_index(drop=True)
 
 
 def shift_curve(counts: np.ndarray, n_words: np.ndarray, sd: np.ndarray, block: int) -> np.ndarray:
@@ -163,6 +185,14 @@ def run_seams(cfg: dict[str, Any], log: Log = print) -> Path:
     seam_df = pd.DataFrame(
         seams, columns=["book_id", "verse_id", "shift", "threshold", "rank", "features"]
     )
+    n_found = len(seam_df)
+    if sc["snap"] is not None and len(seam_df):
+        units = pd.read_parquet(
+            proc / "units.parquet", columns=["unit_type", "book_id", "start_verse_id"]
+        )
+        starts = units[units.unit_type == "pericope"]
+        seam_df = snap_to(seam_df, starts.start_verse_id.to_numpy(), int(sc["snap"]))
+        log(f"{len(seam_df)} of {n_found} seams at or moved to a paragraph start (snap)")
     out = resolve_path(cfg, "artifacts") / "seams"
     out.mkdir(parents=True, exist_ok=True)
     curve_df.to_parquet(out / "curve.parquet")
@@ -172,6 +202,7 @@ def run_seams(cfg: dict[str, Any], log: Log = print) -> Path:
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "books": len(thresholds),
         "seams": int(len(seam_df)),
+        "found": int(n_found),
         "thresholds": thresholds,
         "seconds": round(time.perf_counter() - t0, 1),
     }

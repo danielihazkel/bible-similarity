@@ -1168,6 +1168,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/theophoric": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Theophoric
+         * @description Names built on God's name (§16.90): their forms by book, the claim that late books spell
+         *     the ending short, the known answers, and the most frequent names.
+         */
+        get: operations["theophoric_api_theophoric_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/syntax/{unit_id}": {
         parameters: {
             query?: never;
@@ -2401,6 +2422,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mainline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mainline
+         * @description The narrator's clauses on and off the main line, by book; the claim and the known pauses.
+         */
+        get: operations["mainline_api_mainline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mainline/pauses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mainline Pauses
+         * @description A page of pauses: background clauses between two wayyiqtols, with their verses.
+         */
+        get: operations["mainline_pauses_api_mainline_pauses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prophetic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prophetic
+         * @description Each form's findings, by book, and the passages named in advance.
+         */
+        get: operations["prophetic_api_prophetic_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prophetic/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prophetic Items
+         * @description A page of findings in canon order, with their first verses and the words that mark them.
+         */
+        get: operations["prophetic_items_api_prophetic_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/laws": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Laws
+         * @description Each code's laws by form and address, the matched pairs, the pairs named in advance.
+         */
+        get: operations["laws_api_laws_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/laws/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Law List
+         * @description A page of laws in canon order, with their form and address.
+         */
+        get: operations["law_list_api_laws_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/laws/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Law Pairs
+         * @description A page of matched pairs: the strongest first or in canon order.
+         */
+        get: operations["law_pairs_api_laws_pairs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/laws/pair/{pair_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Law Pair
+         * @description One matched pair side by side: the aligned span of each law, its words marked.
+         */
+        get: operations["law_pair_api_laws_pair__pair_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/haftarot": {
         parameters: {
             query?: never;
@@ -3289,6 +3470,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/detector-precision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detector Precision
+         * @description Each audited detector's precision, one row per population judged, and the runs.
+         */
+        get: operations["detector_precision_api_detector_precision_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reader/{unit_id}": {
         parameters: {
             query?: never;
@@ -3301,9 +3502,30 @@ export interface paths {
          * @description Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
          *     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
          *     non-P split, the turns and MAM breaks before each verse, each word's letter value, the
-         *     places named and the divine names.
+         *     places named, the divine names and the narrator's main line and background.
          */
         get: operations["reader_api_reader__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/neighbourhood/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Neighbourhood
+         * @description The unit, its fused list's hits and theirs (`hops`), each edge with the kinds that join it,
+         *     laid out around the unit.
+         */
+        get: operations["neighbourhood_api_neighbourhood__unit_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4919,6 +5141,15 @@ export interface components {
             /** Verses */
             verses: number | null;
         };
+        /** DetectorPrecisionResponse */
+        DetectorPrecisionResponse: {
+            /** Runs */
+            runs: components["schemas"]["PrecisionRun"][];
+            /** Detectors */
+            detectors: {
+                [key: string]: components["schemas"]["PrecisionRow"][];
+            };
+        };
         /** DialogueBook */
         DialogueBook: {
             /** Book Id */
@@ -5365,7 +5596,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "reception" | "witnesses" | "labels";
+            kind: "phrases" | "sequences" | "changes" | "borrowing" | "wordplay" | "alliteration" | "rhymes" | "typescenes" | "discoveries" | "seams" | "names" | "acrostic" | "dating" | "structure" | "speech" | "voices" | "network" | "divisions" | "ketiv" | "citations" | "allusions" | "mirrors" | "echoes" | "meter" | "roots" | "refrains" | "psalms" | "pentateuch" | "dialogue" | "forms" | "places" | "people" | "ciphers" | "divine" | "gematria" | "reception" | "witnesses" | "laws" | "labels";
             /**
              * Scope
              * @enum {string}
@@ -5722,6 +5953,7 @@ export interface components {
              * @default []
              */
             sites: components["schemas"]["PlaceSite"][];
+            theophoric: components["schemas"]["TheophoricName"] | null;
         };
         /** EntityLink */
         EntityLink: {
@@ -5904,7 +6136,7 @@ export interface components {
              * Key
              * @enum {string}
              */
-            key: "acrostics" | "divisions" | "dating" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known" | "reception_law" | "reception_bavli" | "reception_known" | "witnesses_parallel" | "witnesses_known";
+            key: "acrostics" | "divisions" | "dating" | "theophoric" | "mainline" | "prophetic" | "laws" | "borrowing" | "citations" | "voices" | "clauses" | "meter" | "cognate" | "echoes" | "sevens" | "chiasm" | "laments" | "root_leitworte" | "allusions" | "refrains" | "refrain_regular" | "refrain_turns" | "psalm_genres" | "psalm_forms" | "lament_turn" | "lament_turns" | "pentateuch_split" | "pentateuch_genesis" | "pentateuch_names" | "dialogue_deference" | "dialogue_particle" | "dialogue_last_word" | "forms_known" | "forms_chance" | "forms_parallel" | "forms_lists" | "ciphers_known" | "ciphers_jeremiah" | "ciphers_elsewhere" | "ciphers_albam" | "masorah_letter" | "masorah_words" | "masorah_verse" | "masorah_books" | "gematria_links" | "gematria_measures" | "gematria_genesis" | "place_lists_order" | "place_lists_districts" | "place_arc_order" | "place_arc_moves" | "place_arc_oracles" | "place_links_decay" | "place_links_known" | "els_counts" | "els_known" | "divine_elohistic" | "divine_doubled" | "etiology_echo" | "etiology_known" | "brackets_insertion" | "brackets_known" | "retold_claim" | "retold_known" | "haftarot_claim" | "haftarot_calendar" | "haftarot_known" | "chronology_known" | "chronology_syncs" | "chronology_digits" | "frameworks_cycle" | "frameworks_cycle_known" | "frameworks_verdicts" | "frameworks_verdicts_known" | "binomials_short" | "binomials_late" | "binomials_known" | "sums_lists" | "sums_parallels" | "vocabulary_late" | "vocabulary_known" | "reception_law" | "reception_bavli" | "reception_known" | "witnesses_parallel" | "witnesses_known";
             /**
              * Verdict
              * @enum {string}
@@ -7048,6 +7280,212 @@ export interface components {
              */
             loose: boolean;
         };
+        /** Law */
+        Law: {
+            /** Law Id */
+            law_id: number;
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly";
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            /** First Label */
+            first_label: string;
+            /** Last Label */
+            last_label: string;
+            /** First Label He */
+            first_label_he: string;
+            /** Last Label He */
+            last_label_he: string;
+            /** N Verses */
+            n_verses: number;
+            /**
+             * Form
+             * @enum {string}
+             */
+            form: "casuistic" | "apodictic" | "other";
+            /** Casuistic */
+            casuistic: boolean;
+            /** Apodictic */
+            apodictic: boolean;
+            /** Address */
+            address: ("2ms" | "2mp" | "3" | "mixed") | null;
+            /** Pairs */
+            pairs: number;
+        };
+        /** LawCodeRow */
+        LawCodeRow: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly";
+            /** Laws */
+            laws: number;
+            /** Verses */
+            verses: number;
+            /** Casuistic */
+            casuistic: number;
+            /** Apodictic */
+            apodictic: number;
+            /** Other */
+            other: number;
+            /** V2Ms */
+            v2ms: number;
+            /** V2Mp */
+            v2mp: number;
+            /** V3 */
+            v3: number;
+            /** Mixed */
+            mixed: number;
+        };
+        /** LawKnown */
+        LawKnown: {
+            /** Group */
+            group: string;
+            /** Members */
+            members: components["schemas"]["LawKnownMember"][];
+            /** Found */
+            found: number;
+            /** Of */
+            of: number;
+        };
+        /** LawKnownMember */
+        LawKnownMember: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /** Found */
+            found: boolean;
+            /** Strict */
+            strict: boolean;
+            /** Pairs */
+            pairs: number[];
+        };
+        /** LawList */
+        LawList: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["Law"][];
+            /** Code */
+            code: ("covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly") | null;
+            /** Form */
+            form: ("casuistic" | "apodictic" | "other") | null;
+        };
+        /** LawPair */
+        LawPair: {
+            /** Pair Id */
+            pair_id: number;
+            a: components["schemas"]["Law"];
+            b: components["schemas"]["Law"];
+            /** Links */
+            links: number;
+            /** Score */
+            score: number;
+            /** A First */
+            a_first: number;
+            /** A Last */
+            a_last: number;
+            /** B First */
+            b_first: number;
+            /** B Last */
+            b_last: number;
+            /** A Span */
+            a_span: string;
+            /** B Span */
+            b_span: string;
+            /** A Span He */
+            a_span_he: string;
+            /** B Span He */
+            b_span_he: string;
+            /** Ops */
+            ops: {
+                [key: string]: number;
+            };
+            /** Kept */
+            kept: number;
+            /** Known */
+            known: string | null;
+        };
+        /** LawPairs */
+        LawPairs: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["LawPair"][];
+            /**
+             * Order
+             * @enum {string}
+             */
+            order: "score" | "canon";
+            /** Code */
+            code: ("covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly") | null;
+        };
+        /** LawSideVerse */
+        LawSideVerse: {
+            verse: components["schemas"]["Verse"];
+            /** Marks */
+            marks: {
+                [key: string]: "spelling" | "form" | "substitution" | "omitted" | "added" | "moved";
+            };
+        };
+        /** LawSynopsis */
+        LawSynopsis: {
+            pair: components["schemas"]["LawPair"];
+            /** A */
+            a: components["schemas"]["LawSideVerse"][];
+            /** B */
+            b: components["schemas"]["LawSideVerse"][];
+        };
+        /** LawsResponse */
+        LawsResponse: {
+            /** Laws */
+            laws: number;
+            /** Pairs */
+            pairs: number;
+            /** Linked */
+            linked: number;
+            /** Top K */
+            top_k: number;
+            /** Min Links */
+            min_links: number;
+            /** Forms */
+            forms: {
+                [key: string]: number;
+            };
+            /** Known */
+            known: components["schemas"]["LawKnown"][];
+            /** Known Found */
+            known_found: number;
+            /** Known Total */
+            known_total: number;
+            /** Known Holds */
+            known_holds: boolean;
+            /** Known Strict */
+            known_strict: number;
+            /** Kept Mean */
+            kept_mean: number | null;
+            /** Codes */
+            codes: components["schemas"]["LawCodeRow"][];
+        };
         /** Leitwort */
         Leitwort: {
             /** Lemma */
@@ -7336,6 +7774,116 @@ export interface components {
             holds: boolean;
             /** Pairs */
             pairs: number;
+        };
+        /** MainlineBook */
+        MainlineBook: {
+            /** Book Id */
+            book_id: number;
+            /** Main */
+            main: number;
+            /** Background */
+            background: number;
+            /** Share */
+            share: number | null;
+            /** Pauses */
+            pauses: number;
+        };
+        /** MainlineClaim */
+        MainlineClaim: {
+            /** Excess */
+            excess: number;
+            /** Null Mean */
+            null_mean: number;
+            /** P */
+            p: number;
+            /** Holds */
+            holds: boolean;
+            /** Paragraphs */
+            paragraphs: number;
+        };
+        /** MainlineKnown */
+        MainlineKnown: {
+            /** Ref */
+            ref: string;
+            /** Found */
+            found: boolean;
+            /** Pause */
+            pause: number | null;
+        };
+        /** MainlinePause */
+        MainlinePause: {
+            /** Pause Id */
+            pause_id: number;
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            /** First Label */
+            first_label: string;
+            /** Last Label */
+            last_label: string;
+            /** First Label He */
+            first_label_he: string;
+            /** Last Label He */
+            last_label_he: string;
+            /** N Clauses */
+            n_clauses: number;
+            /** Types */
+            types: string[];
+            /** Known */
+            known: boolean;
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+        };
+        /** MainlinePauses */
+        MainlinePauses: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["MainlinePause"][];
+            /**
+             * Order
+             * @enum {string}
+             */
+            order: "longest" | "canon";
+            /** Book */
+            book: number | null;
+        };
+        /** MainlineResponse */
+        MainlineResponse: {
+            /** Clauses */
+            clauses: number;
+            /** Main */
+            main: number;
+            /** Background */
+            background: number;
+            /** Pauses */
+            pauses: number;
+            /** Min Run */
+            min_run: number;
+            /** Max Run */
+            max_run: number;
+            /** Opening */
+            opening: number;
+            claim: components["schemas"]["MainlineClaim"];
+            /** Shuffles */
+            shuffles: number;
+            /** Alpha */
+            alpha: number;
+            /** Known */
+            known: components["schemas"]["MainlineKnown"][];
+            /** Known Found */
+            known_found: number;
+            /** Books */
+            books: components["schemas"]["MainlineBook"][];
         };
         /** MapCluster */
         MapCluster: {
@@ -7727,6 +8275,41 @@ export interface components {
             q: number | null;
             /** Known */
             known: boolean;
+        };
+        /** NeighbourEdge */
+        NeighbourEdge: {
+            /** A */
+            a: string;
+            /** B */
+            b: string;
+            /** Kinds */
+            kinds: string[];
+            /** Score */
+            score: number | null;
+        };
+        /** NeighbourNode */
+        NeighbourNode: {
+            unit: components["schemas"]["UnitSummary"];
+            /** Hop */
+            hop: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
+        /** NeighbourhoodResponse */
+        NeighbourhoodResponse: {
+            unit: components["schemas"]["UnitSummary"];
+            /** K */
+            k: number;
+            /** Hops */
+            hops: number;
+            /** Truncated */
+            truncated: boolean;
+            /** Nodes */
+            nodes: components["schemas"]["NeighbourNode"][];
+            /** Edges */
+            edges: components["schemas"]["NeighbourEdge"][];
         };
         /** NetworkCommunity */
         NetworkCommunity: {
@@ -8519,6 +9102,46 @@ export interface components {
             /** Items */
             items: components["schemas"]["PlaceSite"][];
         };
+        /**
+         * PrecisionRow
+         * @description One population judged: `strongest` (a detector's strongest findings), `shown` (what its
+         *     page lists by default) or `marked` (what the page marks as strong).
+         */
+        PrecisionRow: {
+            /** Set */
+            set: string;
+            /** Population */
+            population: number | null;
+            /** Judged */
+            judged: number;
+            /** Right */
+            right: number;
+            /** Wrong */
+            wrong: number;
+            /** Unsure */
+            unsure: number;
+            /** Precision */
+            precision: number | null;
+            /** Lo */
+            lo: number | null;
+            /** Hi */
+            hi: number | null;
+        };
+        /** PrecisionRun */
+        PrecisionRun: {
+            /** Run */
+            run: string;
+            /** Population */
+            population: string;
+            /** Model */
+            model: string;
+            /** Collected At */
+            collected_at: string;
+            /** Places Right */
+            places_right: string;
+            /** Known Right */
+            known_right: string;
+        };
         /** ProofVerse */
         ProofVerse: {
             verse: components["schemas"]["Verse"];
@@ -8531,6 +9154,140 @@ export interface components {
              * @enum {string}
              */
             source: "auto" | "curated";
+        };
+        /** ProphBook */
+        ProphBook: {
+            /** Book Id */
+            book_id: number;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+        };
+        /** ProphDetail */
+        ProphDetail: {
+            /** Kind */
+            kind: ("thus" | "oracle") | null;
+            /** Next */
+            next: string | null;
+            /** Names */
+            names: components["schemas"]["ProphName"][] | null;
+            /** Heading */
+            heading: boolean | null;
+            /** Paragraphs */
+            paragraphs: number | null;
+            /** Dispute */
+            dispute: boolean | null;
+            /** Witnesses */
+            witnesses: boolean | null;
+            /** Objection */
+            objection: boolean | null;
+            /** Reassurance */
+            reassurance: boolean | null;
+        };
+        /** ProphItem */
+        ProphItem: {
+            /** Item Id */
+            item_id: number;
+            /**
+             * Form
+             * @enum {string}
+             */
+            form: "messenger" | "woe" | "nations" | "lawsuit" | "call";
+            /** Unit Id */
+            unit_id: string;
+            /** Book Id */
+            book_id: number;
+            /** First Vid */
+            first_vid: number;
+            /** Last Vid */
+            last_vid: number;
+            /** First Label */
+            first_label: string;
+            /** Last Label */
+            last_label: string;
+            /** First Label He */
+            first_label_he: string;
+            /** Last Label He */
+            last_label_he: string;
+            detail: components["schemas"]["ProphDetail"];
+            /** Known */
+            known: boolean;
+            /** Verses */
+            verses: components["schemas"]["Verse"][];
+            /** Marks */
+            marks: {
+                [key: string]: number[];
+            };
+        };
+        /** ProphItems */
+        ProphItems: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Limit */
+            limit: number;
+            /** Items */
+            items: components["schemas"]["ProphItem"][];
+            /** Form */
+            form: ("messenger" | "woe" | "nations" | "lawsuit" | "call") | null;
+            /** Book */
+            book: number | null;
+        };
+        /** ProphKnown */
+        ProphKnown: {
+            /** Refs */
+            refs: components["schemas"]["ProphKnownRef"][];
+            /** Found */
+            found: number;
+            /** Holds */
+            holds: boolean;
+        };
+        /** ProphKnownRef */
+        ProphKnownRef: {
+            /** Ref */
+            ref: string;
+            /** Found */
+            found: boolean;
+            /** Cover */
+            cover: number;
+            /** Item */
+            item: number | null;
+        };
+        /** ProphName */
+        ProphName: {
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            /** N */
+            n: number;
+        };
+        /** PropheticResponse */
+        PropheticResponse: {
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Items */
+            items: number;
+            /** Known */
+            known: {
+                [key: string]: components["schemas"]["ProphKnown"];
+            };
+            /** Known Found */
+            known_found: number;
+            /** Known Total */
+            known_total: number;
+            /** Known Holds */
+            known_holds: boolean;
+            /** Known Cover */
+            known_cover: number;
+            /** Known Overlap */
+            known_overlap: string[];
+            /** Books */
+            books: components["schemas"]["ProphBook"][];
         };
         /**
          * Psalm
@@ -8854,6 +9611,20 @@ export interface components {
              */
             witnesses: {
                 [key: string]: number;
+            };
+            /**
+             * Mainline
+             * @default {}
+             */
+            mainline: {
+                [key: string]: "main" | "background";
+            };
+            /**
+             * Prophetic
+             * @default {}
+             */
+            prophetic: {
+                [key: string]: "messenger" | "woe" | "nations" | "lawsuit" | "call";
             };
         };
         /** ReaderWordplay */
@@ -10679,6 +11450,98 @@ export interface components {
             score: number;
             /** Preview */
             preview: string;
+        };
+        /** TheophoricBook */
+        TheophoricBook: {
+            /** Yahu */
+            yahu: number;
+            /** Yah */
+            yah: number;
+            /** Yeho */
+            yeho: number;
+            /** Yo */
+            yo: number;
+            /** El First */
+            el_first: number;
+            /** El Last */
+            el_last: number;
+            /** Book Id */
+            book_id: number;
+        };
+        /** TheophoricClaim */
+        TheophoricClaim: {
+            /** Early Short */
+            early_short: number | null;
+            /** Late Short */
+            late_short: number | null;
+            /** Difference */
+            difference: number;
+            /** Null Mean */
+            null_mean: number;
+            /** P */
+            p: number;
+            /** Holds */
+            holds: boolean;
+            /** Occurrences */
+            occurrences: number;
+            /** Names */
+            names: number;
+        };
+        /** TheophoricKnown */
+        TheophoricKnown: {
+            /** Books */
+            books: string[];
+            /** Book Ids */
+            book_ids: number[];
+            /** Side */
+            side: string;
+            /** Short */
+            short: number | null;
+            /** Endings */
+            endings: number;
+            /** Holds */
+            holds: boolean;
+        };
+        /** TheophoricName */
+        TheophoricName: {
+            /** Yahu */
+            yahu: number;
+            /** Yah */
+            yah: number;
+            /** Yeho */
+            yeho: number;
+            /** Yo */
+            yo: number;
+            /** El First */
+            el_first: number;
+            /** El Last */
+            el_last: number;
+            /** Lemma */
+            lemma: string;
+            /** He */
+            he: string;
+            /** Divine */
+            divine: string;
+            /** N */
+            n: number;
+        };
+        /** TheophoricResponse */
+        TheophoricResponse: {
+            /** Names Total */
+            names_total: number;
+            /** Occurrences */
+            occurrences: number;
+            claim: components["schemas"]["TheophoricClaim"];
+            /** Alpha */
+            alpha: number;
+            /** Shuffles */
+            shuffles: number;
+            /** Known */
+            known: components["schemas"]["TheophoricKnown"][];
+            /** Books */
+            books: components["schemas"]["TheophoricBook"][];
+            /** Names */
+            names: components["schemas"]["TheophoricName"][];
         };
         /**
          * TreeNode
@@ -13321,6 +14184,37 @@ export interface operations {
             };
         };
     };
+    theophoric_api_theophoric_get: {
+        parameters: {
+            query?: {
+                names?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TheophoricResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     unit_syntax_api_syntax__unit_id__get: {
         parameters: {
             query?: never;
@@ -15073,6 +15967,240 @@ export interface operations {
             };
         };
     };
+    mainline_api_mainline_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MainlineResponse"];
+                };
+            };
+        };
+    };
+    mainline_pauses_api_mainline_pauses_get: {
+        parameters: {
+            query?: {
+                order?: "longest" | "canon";
+                known?: boolean;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+                book?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MainlinePauses"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prophetic_api_prophetic_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropheticResponse"];
+                };
+            };
+        };
+    };
+    prophetic_items_api_prophetic_items_get: {
+        parameters: {
+            query?: {
+                form?: ("messenger" | "woe" | "nations" | "lawsuit" | "call") | null;
+                known?: boolean;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+                book?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProphItems"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    laws_api_laws_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LawsResponse"];
+                };
+            };
+        };
+    };
+    law_list_api_laws_list_get: {
+        parameters: {
+            query?: {
+                code?: ("covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly") | null;
+                form?: ("casuistic" | "apodictic" | "other") | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LawList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    law_pairs_api_laws_pairs_get: {
+        parameters: {
+            query?: {
+                order?: "score" | "canon";
+                code?: ("covenant" | "ritual" | "holiness" | "deuteronomic" | "priestly") | null;
+                known?: boolean;
+                law?: number | null;
+                unit?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LawPairs"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    law_pair_api_laws_pair__pair_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pair_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LawSynopsis"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     haftarot_api_haftarot_get: {
         parameters: {
             query?: never;
@@ -16370,6 +17498,26 @@ export interface operations {
             };
         };
     };
+    detector_precision_api_detector_precision_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetectorPrecisionResponse"];
+                };
+            };
+        };
+    };
     reader_api_reader__unit_id__get: {
         parameters: {
             query?: never;
@@ -16388,6 +17536,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReaderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    neighbourhood_api_neighbourhood__unit_id__get: {
+        parameters: {
+            query?: {
+                k?: number | null;
+                hops?: number | null;
+            };
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NeighbourhoodResponse"];
                 };
             };
             /** @description Validation Error */

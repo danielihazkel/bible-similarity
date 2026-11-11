@@ -2,6 +2,7 @@ import { ApiError } from '../api/client'
 import type { AlignResponse } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { HebrewPlain } from './HebrewText'
+import '../styles/components/AlignChips.css'
 
 interface Props {
   align?: AlignResponse

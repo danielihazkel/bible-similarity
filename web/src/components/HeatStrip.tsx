@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router'
+import '../styles/components/HeatStrip.css'
 
 // Chapters as squares, a row of them per book (the divine names, §16.65; rabbinic reception,
 // §16.77): each square a chapter, its colour the page's measure, a click reads it.

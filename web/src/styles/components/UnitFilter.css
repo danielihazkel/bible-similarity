@@ -1,0 +1,7 @@
+/* UnitFilter.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* narrow screens: everything behind the menu button, groups as labelled lists */
+
+.unit-filter {
+  margin: 0.5rem 0;
+}

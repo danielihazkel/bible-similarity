@@ -11,6 +11,9 @@ again. Does a clause repeated a few verses later mark a block that interrupts it
   prefixes, so a Hebrew clause retold in Aramaic still aligns. The `pairing` keeps, for each
   verse, its best later repeat (`forward`, since M117; the first run took only pairs each the
   other's best, `mutual`, and so lost Ezra 4:5 / 4:24).
+- **Formulas left out** (M159, `formula_reach`): a repetition whose repeated tokens all stand in
+  some third verse of the book within `formula_reach` verses is a formula (the offering of Num 7,
+  חקת עולם לדרתיכם), not a clause resumed once around a block. 0 keeps them (the first runs).
 - **Bracket score.** The `window` verses before the first verse (*before*) and after the repeat
   (*after*), the two frame verses left out, against the block between: the cosine of before and
   after, less the cosine of the block and before + after. High when the text on the two sides
@@ -128,6 +131,30 @@ def mutual_best(pairs: pd.DataFrame) -> pd.DataFrame:
     return pairs[keep]
 
 
+def formulas(
+    pairs: pd.DataFrame,
+    lemmas: list[set[str]],
+    forms: list[set[str]],
+    rep: list[list[tuple[str, str]]],
+    book: np.ndarray,
+    reach: int,
+) -> np.ndarray:
+    """True where a repetition is a formula: some third verse of the book within `reach` verses of
+    the pair holds every repeated token (by lemma or by form), as the offering of Num 7 recurs
+    twelve times, or חקת עולם לדרתיכם through Lev 23. A resumption repeats its clause once, around
+    the block (M159). `rep[i]`: pair i's repeated tokens (lemma, form)."""
+    out = np.zeros(len(pairs), dtype=bool)
+    n = len(lemmas)
+    for i, (a, b) in enumerate(zip(pairs.a.to_numpy(), pairs.b.to_numpy(), strict=True)):
+        for v in range(max(0, a - reach), min(n, b + reach + 1)):
+            if v in (a, b) or book[v] != book[a]:
+                continue
+            if all(lem in lemmas[v] or f in forms[v] for lem, f in rep[i]):
+                out[i] = True
+                break
+    return out
+
+
 def window_sums(prefix: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> np.ndarray:
     """Sum of rows lo..hi-1 from a prefix-sum matrix (row k = sum of rows < k)."""
     return prefix[hi] - prefix[lo]
@@ -197,11 +224,23 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
         if len(al.a_pos) >= bc["min_tokens"] and al.score >= bc["min_score"]:
             rows.append((a, b, al.score, len(al.a_pos),
                          sorted({streams[a].word_idx[i] for i in al.a_pos}),
-                         sorted({streams[b].word_idx[j] for j in al.b_pos})))  # fmt: skip
-    pairs = pd.DataFrame(rows, columns=["a", "b", "score", "n_tokens", "a_words", "b_words"])
+                         sorted({streams[b].word_idx[j] for j in al.b_pos}),
+                         [(streams[a].tokens[i], forms[a][i]) for i in al.a_pos]))  # fmt: skip
+    cols = ["a", "b", "score", "n_tokens", "a_words", "b_words", "rep"]
+    pairs = pd.DataFrame(rows, columns=cols)
     log(f"{len(pairs)} repetitions")
     if len(pairs) and bc["pairing"] != "all":
         pairs = mutual_best(pairs) if bc["pairing"] == "mutual" else forward_best(pairs)
+    n_formulas = 0
+    if len(pairs) and bc["formula_reach"]:
+        is_formula = formulas(
+            pairs, [set(s.tokens) for s in streams], [set(f) for f in forms],
+            pairs.rep.tolist(), book, int(bc["formula_reach"]),
+        )  # fmt: skip
+        n_formulas = int(is_formula.sum())
+        pairs = pairs[~is_formula]
+        log(f"{n_formulas} formulas left out (a third verse within {bc['formula_reach']} has them)")
+    pairs = pairs.drop(columns="rep")
     # the windows must lie inside the book
     first = verses.groupby("book_id").verse_id.min()
     last = verses.groupby("book_id").verse_id.max()
@@ -305,6 +344,7 @@ def run_brackets(cfg: dict[str, Any], log: Log = print) -> Path:
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "candidates": int(len(cand)),
         "repetitions": int(len(rows)),
+        "formulas": n_formulas,
         "brackets": m,
         "books": dict(Counter(int(x) for x in df.book_id)),
         "mean": round(obs, 4) if m else None,

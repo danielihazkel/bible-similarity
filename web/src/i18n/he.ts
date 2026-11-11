@@ -47,6 +47,12 @@ import { rtHe } from './pages/he/retold'
 import { hfHe } from './pages/he/haftarot'
 import { rcHe } from './pages/he/reception'
 import { sfHe } from './pages/he/sourceFind'
+import { prcHe } from './pages/he/precision'
+import { nbhHe } from './pages/he/neighbourhood'
+import { theoHe } from './pages/he/theophoric'
+import { mlHe } from './pages/he/mainline'
+import { prophHe } from './pages/he/prophetic'
+import { lawsHe } from './pages/he/laws'
 import { wtHe } from './pages/he/witnesses'
 import { chHe } from './pages/he/chronology'
 import { smHe } from './pages/he/sums'
@@ -149,6 +155,7 @@ export const he: Messages = {
     etiologies: { label: 'מדרשי שמות', hint: 'שמות שהכתוב נותן, והמילה בפסוק שנשמעת כמו השם' },
     brackets: { label: 'חזרה מקשרת', hint: 'משפט שחוזר אחרי קטע: האם הקטע קוטע את הסיפור?' },
     retold: { label: 'דיבור שמסופר שוב', hint: 'מה משתנה כשדבר שנאמר מסופר שוב, בפי דובר אחר או כמעשה' },
+    mainline: { label: 'הקו העלילתי', hint: 'שרשרת וי״ו ההיפוך של הסיפור, והיכן היא נעצרת לרקע' },
     haftarot: { label: 'הפטרות', hint: 'ההפטרה של כל פרשה: היכן המערכות מדרגות אותה בין כל פרקי הנביאים' },
     reception: { label: 'בעיני חז״ל', hint: 'היכן המשנה והתלמודים מצטטים את המקרא: הספרים, הפרקים והפסוקים הנקראים ביותר' },
     witnesses: { label: 'עדי נוסח אחרים', hint: 'התורה השומרונית ומגילות מדבר יהודה מול נוסח המסורה, מילה במילה' },
@@ -164,6 +171,8 @@ export const he: Messages = {
     ciphers: { label: 'אתב״ש ואלב״ם', hint: 'שמות שמוסתרים בהמרת אותיות: בבל שנכתבת ששך' },
     masorah: { label: 'מניין המסורה', hint: 'האות, התיבה והפסוק שבאמצע התורה, ומספר הפסוקים בכל ספר, כפי שנמנים בנוסח הזה' },
     psalms: { label: 'תהלים', hint: 'סוגי גונקל מן הצורה הנמנית; היכן פונות הקינות' },
+    laws: { label: 'קובצי החוקים', hint: 'ספר הברית, קובץ הקדושה וחוקי דברים: צורת כל חוק, החוקים שניתנו שוב, זה בצד זה' },
+    prophetic: { label: 'צורות נבואיות', hint: 'נוסחת השליח, דברי „הוי”, נבואות על הגויים, הריב, ההקדשה לנבואה' },
     poetry: { label: 'שירה', hint: 'צלעות פסוק מקבילות' },
     wordplay: { label: 'משחקי לשון', hint: 'מילים בעלות צליל דומה' },
     names: { label: 'שמות', hint: 'אנשים ומקומות' },
@@ -561,6 +570,12 @@ export const he: Messages = {
   vc: vcHe,
   rc: rcHe,
   sf: sfHe,
+  prc: prcHe,
+  nbh: nbhHe,
+  theo: theoHe,
+  ml: mlHe,
+  proph: prophHe,
+  laws: lawsHe,
   wt: wtHe,
   gloss: glossHe,
   tr: trHe,

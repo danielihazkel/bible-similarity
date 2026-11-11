@@ -1,0 +1,21 @@
+/* FeatureBars.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Style */
+
+.feature-bars {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.feature-bars li {
+  display: grid;
+  grid-template-columns: 9em 1fr 3em;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.bar-fill.neg {
+  background: var(--sem);
+}

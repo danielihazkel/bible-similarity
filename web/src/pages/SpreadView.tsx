@@ -12,6 +12,8 @@ import type { Highlight } from '../lib/highlight'
 import { compareLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/parallels'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/SpreadView.css'
 
 const PAGE_SIZE = 20
 
@@ -37,6 +39,7 @@ export function SpreadView() {
   return (
     <>
       <p className="lede">{t.lede(meta.window ?? 3)}</p>
+      <PrecisionNote detector="allusions" />
       <p className="small">
         {t.finding(meta.pairs, meta.known ?? 0, meta.strong ?? 0, meta.strong_known ?? 0, meta.best_new_q == null ? '–' : meta.best_new_q.toFixed(2))}
       </p>

@@ -5,6 +5,7 @@ import { useBooks, useUnit, useUnits } from '../api/hooks'
 import type { ResolveResponse, UnitDetail, UnitType } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import { bookOption, unitLabel } from '../lib/names'
+import '../styles/components/UnitPicker.css'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha', 'verse']
 

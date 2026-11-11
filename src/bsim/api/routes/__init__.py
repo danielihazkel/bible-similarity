@@ -31,9 +31,12 @@ from bsim.api.routes import (
     haftarot,
     ketiv,
     labels,
+    laws,
+    mainline,
     masorah,
     meter,
     mirrors,
+    neighbourhood,
     notebook,
     notes,
     parallels,
@@ -42,6 +45,8 @@ from bsim.api.routes import (
     phrases,
     places,
     poetics,
+    precision,
+    prophetic,
     psalms,
     reader,
     reception,
@@ -94,6 +99,9 @@ for _module in (
     etiologies,
     brackets,
     retold,
+    mainline,
+    prophetic,
+    laws,
     haftarot,
     chronology,
     frameworks,
@@ -111,11 +119,14 @@ for _module in (
     workbench,
     notebook,
     notes,
+    precision,
     reader,
+    neighbourhood,
     dossier,
     findings,
     export,
 ):
-    # your labels, notebook and Claude's notes: off on a public deploy (serve.personal)
-    personal = [Depends(_common.personal)] if _module in (labels, notebook, notes) else []
+    # your labels, notebook and Claude's readings: off on a public deploy (serve.personal)
+    claude = (labels, notebook, notes, precision)
+    personal = [Depends(_common.personal)] if _module in claude else []
     router.include_router(_module.router, dependencies=personal)

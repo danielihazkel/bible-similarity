@@ -1,0 +1,31 @@
+/* UnitPicker.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Compare ---------- */
+
+.picker-ref {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.picker-ref button {
+  /* themed, not the browser's ButtonFace (too little contrast in dark mode) */
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.7rem;
+}
+
+.picker-ref input {
+  width: 11rem;
+}
+
+.picker-status {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.picker-status.error {
+  color: #b3261e;
+}

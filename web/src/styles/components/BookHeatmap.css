@@ -1,0 +1,14 @@
+/* BookHeatmap.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Map */
+
+.aff-cell {
+  fill: var(--accent);
+  cursor: pointer;
+}
+
+.aff-cell:hover,
+.aff-cell.on {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}

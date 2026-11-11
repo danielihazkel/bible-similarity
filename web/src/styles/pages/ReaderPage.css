@@ -1,0 +1,310 @@
+/* ReaderPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* links inside running text must not rely on colour alone (WCAG 1.4.1) */
+
+.reader-legend a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* The layered reader (§16.39): speakers as a background tint, Leitworte as coloured bold text,
+   shared phrases underlined, wordplay boxed, rare words and ketiv as small marks. Every
+   foreground here is ≥ 5:1 on every speaker tint, in both themes. */
+
+.layer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.6rem;
+}
+
+.layer-toggle {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+}
+
+.layer-toggle.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.reader-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.8rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.reader-legend li {
+  line-height: 1.9;
+}
+
+.reader-legend .segmented {
+  vertical-align: middle;
+}
+
+.layer-key {
+  display: inline-block;
+  margin-inline-end: 0.3rem;
+  line-height: 1.5;
+  border-radius: 999px;
+  padding: 0 0.55rem;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.layer-key [lang='he'] {
+  font-family: var(--font-he);
+  font-size: 1.05rem;
+}
+
+.layer-n {
+  font-size: 0.8rem;
+}
+
+.spk {
+  border-radius: 3px;
+}
+
+.spk-0 { background: var(--spk-0); }
+
+.spk-1 { background: var(--spk-1); }
+
+.spk-2 { background: var(--spk-2); }
+
+.spk-3 { background: var(--spk-3); }
+
+.spk-4 { background: var(--spk-4); }
+
+.spk-5 { background: var(--spk-5); }
+
+.spk-6 { background: var(--spk-6); }
+
+.spk-7 { background: var(--spk-7); }
+
+/* speech whose speaker was not found: poetry is mostly that, so it gets a dotted line, not a tint */
+
+.spk-unknown { border-bottom: 1px dotted var(--muted); border-radius: 0; }
+
+.layer-key.spk-unknown { border: 1px dotted var(--muted); border-radius: 999px; }
+
+.lw {
+  font-weight: 700;
+}
+
+.lw-0 { color: var(--lw-0); }
+
+.lw-1 { color: var(--lw-1); }
+
+.lw-2 { color: var(--lw-2); }
+
+.lw-3 { color: var(--lw-3); }
+
+.lw-4 { color: var(--lw-4); }
+
+.lw-5 { color: var(--lw-5); }
+
+.layer-key.lw {
+  background: var(--surface);
+}
+
+/* a refrain: a line above the words (the underline belongs to shared phrases) */
+
+.layer-key.rf-key {
+  border-top: 2px solid var(--sem);
+}
+
+.ph {
+  text-decoration-line: underline;
+  text-decoration-color: var(--lex);
+  text-underline-offset: 0.4em;
+}
+
+.ph-1 { text-decoration-thickness: 1px; }
+
+.ph-2 { text-decoration-thickness: 2px; }
+
+.ph-3 { text-decoration-thickness: 3px; }
+
+/* distress and praise (§16.42): a bar under the word, solid for praise, dashed for distress (after
+   the speaker tints, whose `background` shorthand would reset it) */
+
+.md-praise { background-image: linear-gradient(var(--md-praise), var(--md-praise)); }
+
+.md-distress { background-image: repeating-linear-gradient(to right, var(--md-distress) 0 4px, transparent 4px 7px); }
+
+.reader-text .wp,
+.reader-text .wp.w-click:hover,
+.reader-text .wp.w-click:focus-visible {
+  outline: 1.5px dashed var(--accent);
+  outline-offset: 1px;
+}
+
+.reader-text .wp-partner {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.reader-text li {
+  flex-wrap: wrap;
+}
+
+.reader-text li > .he {
+  flex: 1;
+  min-width: 0;
+}
+
+.reader-gap {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted);
+  cursor: help;
+}
+
+.reader-gap::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dotted var(--border);
+}
+
+.reader-gap.gap-turn::after {
+  border-top: 2px solid var(--accent);
+}
+
+.reader-gap.gap-cut::after {
+  border-top: 2px dashed var(--accent);
+}
+
+.paragraph-mark {
+  font-family: var(--font-he);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.gap-turn .gap-kind,
+.gap-cut .gap-kind {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* The Pentateuch's sources (DESIGN.md §16.43): the reader's verse tag, the chapter bars */
+
+.src-tag {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.15em 0.35em;
+  margin-inline-end: 0.35rem;
+  border-radius: 3px;
+  align-self: center;
+  white-space: nowrap;
+  border: 1px solid var(--accent);
+}
+
+.src-P { background: var(--accent); color: var(--bg); }
+
+.src-nonP { color: var(--muted); border-color: var(--muted); }
+
+.src-differs { border-style: dashed; border-width: 2px; }
+
+.src-P.src-differs { background: transparent; color: var(--accent); }
+
+/* Gematria (DESIGN.md §16.53): the page, the reader's verse totals, the word panel's chip */
+
+.gm-total {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.15em 0.35em;
+  margin-inline-end: 0.35rem;
+  border-radius: 3px;
+  align-self: center;
+  white-space: nowrap;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.gm-total:hover,
+.gm-total:focus-visible { color: var(--accent); border-color: var(--accent); }
+
+/* the reader's places layer: a box in the colour of the place's kind */
+
+.reader-text .pl { box-shadow: inset 0 0 0 1.5px var(--geo-none); border-radius: 3px; }
+
+.reader-text .pl-town { box-shadow: inset 0 0 0 1.5px var(--geo-town); }
+
+.reader-text .pl-region { box-shadow: inset 0 0 0 1.5px var(--geo-region); }
+
+.reader-text .pl-landform { box-shadow: inset 0 0 0 1.5px var(--geo-landform); }
+
+.reader-text .pl-water { box-shadow: inset 0 0 0 1.5px var(--geo-water); }
+
+.layer-key.pl { padding: 0 0.25rem; border-radius: 3px; border: 1.5px solid var(--geo-none); text-decoration: none; }
+
+.layer-key.pl-town { border-color: var(--geo-town); }
+
+.layer-key.pl-region { border-color: var(--geo-region); }
+
+.layer-key.pl-landform { border-color: var(--geo-landform); }
+
+.layer-key.pl-water { border-color: var(--geo-water); }
+
+/* the reader's layer: a line above each name */
+
+.reader-text .dv,
+.layer-key.dv { border-top: 2.5px solid var(--muted); }
+
+.reader-text .dv-yhwh,
+.layer-key.dv-yhwh { border-top-color: var(--dv-yhwh); }
+
+.reader-text .dv-elohim,
+.layer-key.dv-elohim { border-top-color: var(--dv-elohim); }
+
+/* rabbinic reception (§16.77) */
+
+.rc-total { border-color: var(--rc-4); color: var(--text); }
+
+/* other witnesses (§16.78) */
+
+.wt-total { border-color: var(--wt-added); color: var(--text); }
+
+.wt-total span { white-space: nowrap; }
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .layer-bar,
+  .no-print,
+  .reader-page > .lede { display: none !important; }
+}
+
+/* the words that mark a prophetic form (§16.92): a box, which stays apart from the underlines */
+.reader-text .pf {
+  outline: 1.5px solid var(--known);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* the narrator's background clauses (§16.91): a dashed line under the words, the main line left plain */
+.reader-text .ml-background {
+  text-decoration: underline dashed var(--accent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.35em;
+}
+

@@ -1,0 +1,22 @@
+/* ClaudeNote.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* the label queue (DESIGN.md §16.79): two verses to judge, one under the other */
+
+.queue-suggestion {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.6rem;
+  color: var(--muted);
+}
+
+.queue-suggestion.suggest-real {
+  border-inline-start-color: var(--known);
+}
+
+.queue-suggestion.suggest-not {
+  border-inline-start-color: var(--diff-sub);
+}
+
+.queue-suggestion-head {
+  color: var(--text);
+  font-weight: 600;
+}

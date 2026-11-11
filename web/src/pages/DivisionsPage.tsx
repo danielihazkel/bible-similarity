@@ -14,6 +14,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/divisions'
 import '../i18n/pages/parallels'
+import '../styles/pages/DivisionsPage.css'
 
 const PAGE_SIZE = 25
 const KINDS: SegmentKind[] = ['turn', 'cut', 'quiet']

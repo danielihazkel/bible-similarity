@@ -1,0 +1,45 @@
+/* ReceptionPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* haftarot (§16.69): a haftarah within the first chapters, the parasha shown, its list */
+
+.rc-cell { cursor: pointer; }
+
+.rc-cell:hover { stroke: var(--text); stroke-width: 1.5; }
+
+/* rabbinic reception (§16.77) */
+
+.rc-cell.rc-0,
+.dv-swatch.rc-0 { fill: var(--rc-0); background: var(--rc-0); }
+
+.rc-cell.rc-1,
+.dv-swatch.rc-1 { fill: var(--rc-1); background: var(--rc-1); }
+
+.rc-cell.rc-2,
+.dv-swatch.rc-2 { fill: var(--rc-2); background: var(--rc-2); }
+
+.rc-cell.rc-3,
+.dv-swatch.rc-3 { fill: var(--rc-3); background: var(--rc-3); }
+
+.rc-cell.rc-4,
+.dv-swatch.rc-4 { fill: var(--rc-4); background: var(--rc-4); }
+
+.rc-cell.rc-5,
+.dv-swatch.rc-5 { fill: var(--rc-5); background: var(--rc-5); }
+
+.rc-known { margin: 0; padding-inline-start: 1.1rem; }
+
+.rc-group h3 { font-size: 1rem; margin: 0.8rem 0 0.2rem; }
+
+.rc-cites { list-style: none; margin: 0; padding: 0; }
+
+.rc-cites li { margin: 0.15rem 0; }
+
+.rc-cites a[lang='he'] { font-family: var(--font-he); font-size: 1.1rem; }
+
+.rc-tag { display: inline-block; min-width: 4.8rem; font-size: 0.75rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0 0.45rem; text-align: center; }
+
+/* links inside a line of text are underlined (axe: link-in-text-block) */
+
+.reception-page > p a,
+.rc-known a,
+.rc-cites a { text-decoration: underline; text-underline-offset: 2px; }

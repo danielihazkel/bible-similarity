@@ -1,0 +1,1543 @@
+# Task list, finished milestones — bible-similarity
+
+Milestones M0–M141, M144–M146 and H1–H5, every box ticked, moved here verbatim from [TASKS.md](TASKS.md) (D146), with the review lists of 2026-10-09 to 2026-11-01 (all done) that followed M85. Section numbers (§) refer to [DESIGN.md](DESIGN.md); §16 is in [design/ANALYSES.md](design/ANALYSES.md).
+
+---
+
+## M0 — Project setup
+- [x] `git init`, `.gitignore` (data/, models/, artifacts/, .venv/, node_modules/, web/dist/)
+- [x] `uv init` → `pyproject.toml` (Python 3.11, package `bsim` under `src/`)
+- [x] Configure the PyTorch **cu126** index in `pyproject.toml` (`[[tool.uv.index]]` + `[tool.uv.sources]`), add torch, transformers, sentence-transformers, pandas, pyarrow, numpy, scipy, scikit-learn, lxml, typer, pyyaml, fastapi, uvicorn; dev: pytest, ruff
+- [x] `scripts/check_gpu.py`: print torch version, `torch.cuda.is_available()`, device name, capability `(6, 1)`, run a small fp32 matmul on GPU
+- [x] `configs/default.yaml` skeleton (§12) and `bsim/config.py` (load + section hashing)
+- [x] `bsim/cli.py` Typer skeleton with all commands as stubs (ARCHITECTURE §4)
+- [x] ruff config, pytest config, one trivial test
+
+✔ `uv sync` succeeds; `uv run python scripts/check_gpu.py` reports the GTX 1080 Ti with capability 6.1 and no "no kernel image" error; `uv run bsim --help` lists all commands; `uv run pytest` passes.
+
+## M1 — Download sources (§1)
+- [x] `data/download.py`: OSHB 39 `wlc/*.xml` at a pinned commit (record SHA)
+- [x] MAM JSON for all 39 books from the Sefaria-Export bucket (URL-encode spaces in paths)
+- [x] Schemas for the 5 Torah books (parasha `alts`) — and all 39 for book metadata
+- [x] all `linksN.csv` files, discovered by listing the bucket (17 files, ~680 MB; streamed, MD5-verified)
+- [x] `manifest.json` (url, sha256, bytes, date); skip files already present with matching hash
+- [x] Book table in `data/canon.py` (Sefaria name ↔ OSIS name ↔ Hebrew name, section, canon order)
+
+✔ `bsim download` is idempotent; all 39 + 39 + 39 + 17 files present; manifest complete.
+
+## M2 — Corpus build (§2–§4)
+- [x] `text/normalize.py` + tests (points, te'amim, maqaf, finals, `/` separators)
+- [x] `data/oshb.py`: parse `<w>` (surface, lemma, morph, id), ketiv/qere, `x-pe`/`x-samekh` segs → `words` rows
+- [x] `data/sefaria.py`: MAM HTML cleaning → `text_display`, ketiv note, pe/samekh positions
+- [x] Verse table with `verse_id` in canon order; per-chapter verse-count assertion OSHB vs MAM
+- [x] `data/align.py`: OSHB ↔ MAM word alignment → `words.display_idx`
+- [x] `data/units.py`: chapters, parashiyot (from schemas), pericopes (MAM markers, mid-verse breaks snapped, books always break)
+- [x] Write `verses/words/units/unit_members.parquet` + `corpus_report.md` (counts, alignment coverage, pe/samekh comparison, longest verse in BEREL tokens)
+
+✔ ~23.2k verses, 929 chapters, 54 parashiyot; every verse in exactly one chapter and one pericope; alignment coverage ≥ 99 %; longest verse ≤ max_seq_length.
+
+## M3 — Gold links & splits (§8.1–8.2)
+- [x] Ref parser for Sefaria citations (+ tests for all range forms)
+- [x] Filter Tanakh↔Tanakh, expand ranges (positional / Cartesian / unit-level), drop self & ±2, symmetrize, dedupe
+- [x] Book-level split 75/10/15 by pair count (seeded, balanced with a per-book share cap) → `splits.json`
+- [x] `links_report.md`: totals per split, per book, per connection type
+- [x] Leakage test: no train pair touches a dev/test book
+
+✔ `links.parquet` + `splits.json` exist; report shows non-empty dev and test; leakage test passes.
+
+## M4 — Lexical mode (§5.1)
+- [x] Lemma token streams (+ bigrams) from `words`
+- [x] Sparse BM25 (k1, b from config) with all-pairs via chunked sparse matmul
+- [x] `lexical/formulas.py`: frequent n-gram detection (n=3..6, > T verses), down-weighting α; export `formulas.parquet`
+- [x] `bm25_surface` baseline
+- [x] Unit-level TF-IDF (sublinear) on lemma bags
+
+✔ `formulas.parquet` lists the expected formulas (e.g. *וידבר ה' אל משה לאמר*); top-5 for Ps 14:1 contains Ps 53:2.
+
+## M5 — Retrieval core & evaluation harness (§6.1, §8.3)
+- [x] `retrieve/topk.py`: chunked GPU top-k (self excluded, k=50), CPU fallback; writes top-k Parquet
+- [x] `retrieve/filters.py`: neighbour/chapter/book filters (shared by eval and API)
+- [x] `eval/metrics.py` (recall@k, MRR@10, nDCG@10) + tests against hand-computed values
+- [x] `eval/report.py`: system × unit × metric table, worst misses, sanity spot-checks
+- [x] Run `bm25_lemma` and `bm25_surface` on dev (nDCG@10 0.176 vs 0.144)
+
+✔ `artifacts/eval/report.md` shows dev metrics for both BM25 systems; `bm25_lemma` ≥ `bm25_surface`.
+
+## M6 — Baseline encoders (§5.2)
+- [x] `embed/encoders.py`: BEREL mean pooling (AutoTokenizer!), BGE-M3 dense; batched fp32 inference → `.npy`
+- [x] Tokenizer sanity test: no `[UNK]` on sample verses (and none on the whole corpus; 0 truncated at 128)
+- [x] `embed/csls.py` + `*_csls` variants
+- [x] Top-k + eval for `berel_mean`, `bge_m3` (+ CSLS) (dev nDCG@10: bge_m3_csls 0.135, berel_mean_csls 0.124, bge_m3 0.123, berel_mean 0.113; CSLS helps both, all below bm25_lemma 0.176)
+
+✔ Report includes 4+ new systems on dev.
+
+## M7 — SimCSE (§7.1)
+- [x] `train/simcse.py` with sentence-transformers trainer, fp32, batch 64, lr 3e-5
+- [x] Epoch selection on dev recall@10 → `models/berel-simcse/` (dev recall@10 by epoch: 0.161 raw → 0.176 / **0.181** / 0.179; epoch 2 kept)
+- [x] Embed + top-k + eval `berel_simcse` (dev nDCG@10: berel_simcse_csls 0.132, berel_simcse 0.123 vs berel_mean 0.113; recall@50 0.302 vs 0.253; still below bm25_lemma 0.176)
+
+✔ `berel_simcse` beats `berel_mean` on dev nDCG@10 (if not: record the finding in the report and continue with the better one).
+
+## M8 — Supervised contrastive fine-tune (§7.2)
+- [x] `train/negatives.py`: BM25 hard negatives (rank 5–50, unlinked, not neighbours, train books only) (9,026 train rows, 24 random fallbacks)
+- [x] `train/supervised.py`: CachedMNRL (mini 32, batch 256), lr 2e-5, warmup 10 %, dev evaluator, best checkpoint → `models/berel-sup/` (peak VRAM 3.8 GB)
+- [x] Ablation on dev (recall@10 / nDCG@10 at the chosen step): SimCSE init + HN 0.208 / 0.141; SimCSE init, no HN 0.205 / 0.140; **raw BEREL + HN 0.210 / 0.144** → `init_from: base`
+- [x] Embed + top-k + eval `berel_sup` (+ CSLS) (dev nDCG@10: berel_sup_csls **0.150**, berel_sup 0.144; recall@50 0.346; still below bm25_lemma 0.176) → `final_systems.semantic: berel_sup_csls`
+
+✔ Training runs within 11 GB VRAM; best semantic system chosen on dev and recorded in config.
+
+## M9 — Fusion & unit-level results (§5.3, §6.2)
+- [x] `retrieve/fusion.py`: weighted RRF; tune `w_lex` on dev (grid extended to 2.0; verse dev nDCG@10: w_lex 1.0 → **0.189** vs bm25_lemma 0.176, berel_sup_csls 0.150 → `fusion.w_lex: 1.0`, one weight for all unit types)
+- [x] `retrieve/units.py`: mean and BMA aggregation (segment max on GPU) for chapter, pericope, parasha (5 systems × 3 unit types in ~22 s; dev nDCG@10 berel_sup_csls BMA vs mean: chapter 0.156 vs 0.147, pericope 0.098 vs 0.093 → `unit_aggregation: bma`)
+- [x] Unit-level lexical (TF-IDF) and fused lists (dev nDCG@10 tfidf / fused: chapter 0.192 / 0.168, pericope 0.112 / 0.114; fusion does not beat TF-IDF on dev at chapter level)
+- [x] Unit-level gold (≥ m shared links / unit-level links) + eval (dev: 154 chapter / 348 pericope queries; parasha has no dev/test gold, Torah = train)
+- [x] **Single final test-set run** of the chosen lexical / semantic / fused systems → report section "Test" (nDCG@10 lex / sem / fused: verse 0.118 / 0.118 / **0.136**, chapter 0.153 / 0.152 / **0.157**, pericope 0.062 / 0.061 / **0.068**)
+
+✔ Top-k Parquet for 4 unit types × 3 modes; report has dev + final test numbers; BMA vs mean comparison recorded.
+
+## M10 — Results database (§9)
+- [x] `store/schema.sql`, `store/db.py`: load books, verses, words, units, members, matches (3 modes × 4 unit types), lemma display forms, meta (4.14M matches, 9,204 lemma forms)
+- [x] Indexes; `VACUUM`; size check (241 MB, ~50 s build; `/similar` median 0.53 ms)
+
+✔ `results.sqlite` builds from scratch in one command; row counts match Parquet; a `/similar`-style query takes < 10 ms.
+
+## M11 — API (§10)
+- [x] App factory, startup loading (sqlite read-only, mmap embeddings, encoder, surface-BM25 index) (encoder on a background thread; CSLS hubness cached in `artifacts/api/`)
+- [x] Endpoints: books, units, unit, similar (with exclude filters), explain, compare, search, meta
+- [x] Pydantic response models; CORS for Vite dev (+ `Server-Timing` header)
+- [x] TestClient tests on a small fixture DB (`tests/conftest.py`, shared with `test_store`)
+- [x] Measured on the real DB: serving after ~12–14 s, encoder ready after ~32 s; CPU `/search` median lexical 8 / semantic 57 / fused 72 ms (max 87 ms); Ps 14:1 → Ps 53:2 rank 1 in all modes
+
+✔ All endpoints covered by tests; `bsim serve` starts in < 30 s; search responds in < 300 ms on CPU.
+
+## M12 — Frontend (§11)
+- [x] Vite + React + TS scaffold in `web/`, TanStack Query, react-router, API proxy (Vite 8, React 19, react-router 8; oxlint + vitest)
+- [x] Hebrew fonts (Ezra SIL / Noto Serif Hebrew), RTL layout, te'amim/niqqud toggle (Noto bundled via fontsource; Ezra SIL when installed)
+- [x] Browse page (book → chapter → verses; parasha & pericope tabs)
+- [x] Unit detail + results panel (mode toggle, k, filters, score breakdown bars)
+- [x] Shared-lemma highlighting via `/explain`
+- [x] Compare page (side-by-side, best-match pairs)
+- [x] Search page
+- [x] URL state for all views; MAM CC-BY-SA attribution footer
+- [x] Production build served by FastAPI (`paths.web_dist`, SPA fallback; JS 318 kB / 100 kB gzip)
+- [x] Walkthrough on the real DB (headless Edge): Ps 14:1 → Ps 53:2 at rank 1 in lexical / semantic / fused; II Sam 22 ↔ Ps 18 pairs all 51 verses (BMA 0.902); search "בראשית ברא אלהים" / "ויאמר אלהים יהי אור" → Gen 1:1 / 1:3 at rank 1 in every mode
+
+✔ Manual walkthrough: open Ps 14:1 → Ps 53:2 appears under all modes; compare II Sam 22 ↔ Ps 18 shows aligned verses; free-text search for a phrase returns its verse first.
+
+## M13 — Polish & end-to-end
+- [x] `bsim all` runs the full pipeline from a clean `data/` (`bsim/pipeline.py`, 13 stages, `--from/--to/--skip`; test split only when absent; 38 min on the 1080 Ti)
+- [x] README quickstart verified on a clean clone (clone → `uv sync` → `bsim all` → `npm ci && npm run build` → `bsim serve`; metrics identical to 3 decimals)
+- [x] Final eval report committed as `docs/RESULTS.md` (metrics only, no raw data)
+- [x] Update DESIGN decision log with any changes made during implementation (D25, §12 `pipeline` section)
+
+✔ Fresh clone → `uv sync` → `bsim all` → `bsim serve` works end-to-end.
+
+---
+
+## M14 — Known vs undiscovered parallels (roadmap A1)
+- [x] `build-db`: flag every stored match that is a Sefaria gold link (`matches.link_level` verse / unit, `link_type`); unit links expanded to verse pairs, mapped to chapters / pericopes / parashot
+- [x] `discoveries` table: unordered strong pairs (either direction within top `store.discoveries.max_rank`) with no gold link, verse neighbours dropped (515,782 rows; DB 241 → 303 MB, `/similar` median unchanged at 0.54 ms)
+- [x] API: `link` on `/similar` hits, `exclude=known`, paginated `/discoveries` (unit type, mode, book, cross-book)
+- [x] Viewer: "Sefaria link" / "Sefaria passage" badge on hits, "Hide Sefaria-linked" filter, Discoveries page (filters + paging in the URL)
+- [x] Tests: store (`gold_verse_pairs`, link flags, discoveries), API, vitest (badge, filter, Discoveries paging)
+
+✔ Ps 14:1 → Ps 53:2 is badged as a Sefaria link; unlinked strong pairs such as Ps 115:8 ↔ Ps 135:18, Judg 17:6 ↔ 21:25 and I Kings 17 ↔ II Kings 4 appear on the Discoveries page.
+
+## M15 — Word study and navigation (roadmap C + D)
+- [x] `text/morph.py`: OSHB morphology code → Hebrew description per morpheme (Hebrew and Aramaic stems, verb forms, person / gender / number / state)
+- [x] `build-db`: `lemma_gloss.n_words / n_verses`, `lemma_verses` concordance table (263,300 rows; DB 307 MB)
+- [x] API: `/resolve` (English / OSIS / Hebrew references, prefixes, Hebrew numerals), `/words/{verse_id}`, paginated `/lemma/{lemma}` with per-book counts
+- [x] Viewer: click any source word → morphology panel with concordance links; Concordance page (bars per book as a filter, highlighted occurrences, paging); Search offers the referenced verse / chapter ("Gen 1:1", "בראשית א א"); Verses tab shows the chapter's text
+- [x] Tests: resolver, morph decoder, endpoints (pytest); word panel, concordance, reference banner (vitest)
+
+✔ "שמואל א יז מט" → I Samuel 17:49; Gen 1:1 word 1 = מילת יחס + שם עצם · נקבה · יחיד · נפרד, lemma ראשית in 49 verses over 19 books.
+
+## M16 — Shared phrases (roadmap A2)
+- [x] `analysis/phrases.py` + `bsim phrases` (pipeline stage before build-db): Smith-Waterman over lemma streams of the lexical top-50 pairs, idf × formula-weight scoring, `spread` of each matched sequence (18,163 pairs, 51 s)
+- [x] `phrases` table; `/similar` verse hits carry `phrase`; `/phrases/{verse_id}`; paginated `/phrases` leaderboard
+- [x] Viewer: phrase badge on hits, "Shared phrases" section on verse pages, Phrases page (book, min length, cross-book, recurring-idiom filters) with matched words highlighted on both sides
+- [x] Tests: alignment, candidates, spread (pytest); endpoints; badge / section / leaderboard (vitest)
+
+✔ II Kings 18–19 ↔ Isaiah 36–37 lead the leaderboard; unlinked allusions such as Hos 13:8 ↔ Prov 17:12 appear with their shared words highlighted.
+
+## M17 — Inner-unit structure (roadmap A3)
+- [x] `analysis/structure.py`: semantic + lexical verse matrices, inclusio (frame pairs, max-null), chiasm (same-distance Monte Carlo null, pct + z), echoes, Leitworte (G², function-word POS skipped, ×7 / ×10 flags)
+- [x] `bsim structure` (pipeline stage before build-db; 4,464 units in ~6 s) → `structure` table; `lemma_gloss.pos`
+- [x] API: `/structure/{unit_id}` (on demand, ≤ 200 verses), `/structure` ranking
+- [x] Viewer: Structure panel on chapter / pericope / parasha pages (canvas heatmap with mirror pairs, scores, echoes, Leitwort highlighting in the text; `?structure=1`), Structure ranking page
+- [x] Tests: analysis functions, endpoints (pytest); panel + ranking (vitest)
+
+✔ Ps 8 inclusio 8:2 ↔ 8:10 at the 100th percentile; Ps 29 Leitwort קול ×7 flagged as a multiple of 7.
+
+## M18 — Cross-encoder reranker (roadmap B1)
+- [x] `train/rerank.py`: `bsim train-rerank` (BEREL cross-encoder, BCE, train-book anchors with in-list fused negatives, epoch chosen on dev) and `bsim rerank [--tune]` (RRF blend of cross-encoder and fused ranks, dev grid) → `fused_rerank`
+- [x] Dev: alone 0.135 / 0.128 / 0.120 nDCG@10 by epoch; best blend w_ce 0.25 → 0.194 vs fused 0.189; paired bootstrap +0.0042, 95 % CI [−0.0007, +0.0092]
+- [x] Decision: not adopted (fused stays the final list); `fused_rerank` reported in the dev eval; test split untouched
+- [x] Tests: blend and training-pair rules
+
+✔ Reranker trained and evaluated on dev; the gain is recorded as not significant and the final systems are unchanged.
+
+## M19 — Corpus map (roadmap A4)
+- [x] `analysis/corpus_map.py` + `bsim map` (pipeline stage before build-db, ~30 s): t-SNE layout and KMeans clusters of chapters / pericopes / parashot with G² lemma labels; book × book lift of fused cross-book verse pairs, clustered book order, example pairs
+- [x] `map_points`, `map_clusters`, `book_affinity`, `book_examples` tables + `meta.book_order`
+- [x] API: `/map/{unit_type}`, `/affinity`, `/affinity/{a}/{b}`
+- [x] Viewer: Map page (canvas scatter coloured by cluster or section, clickable points, cluster legend as a filter; book affinity heatmap in related / canon order with the strongest pairs of a clicked cell)
+- [x] Tests: map functions, endpoints (pytest); Map page (vitest)
+
+✔ Chapter clusters read as genres (wisdom, praise psalms, Tabernacle, sacrifices, genealogies); Ezra–Nehemiah and Haggai–Zechariah have the highest book lift.
+
+## M20 — Structural mode (roadmap A5)
+- [x] `lexical/morph.py`: word-shape tokens + n-grams; `bsim lexical` builds `bm25_morph` and `tfidf_morph_{type}`; `bsim topk` / `bsim units` handle them (pipeline lists updated)
+- [x] Fourth mode `structural` through `final_systems`, the DB (`matches`, discoveries), the API (`Mode`; search keeps three modes) and the viewer (mode toggle, hint)
+- [x] Dev: bm25_morph nDCG@10 0.068; 3-way fusion at best 0.192 vs 0.189 → not fused
+- [x] Tests: shape tokens and n-grams, 4-mode store counts, structural `/similar`, search rejects it, search page hides it
+
+✔ Prov 10:1 → antithetic proverbs; Gen 1:3 → the other fiats; Ex 20:13 → Deut 5:17.
+
+## M21 — Stylometry (roadmap A6)
+- [x] `analysis/stylometry.py` + `bsim stylometry` (pipeline stage before build-db): MFW + morphology rates, z-scores, Burrows' Delta and clustered book order, chapter PCA with described axes, per-book over / under features
+- [x] `stylo_points`, `stylo_delta`, `stylo_features` + `meta.stylometry`; `/stylometry`, `/stylometry/book/{id}`
+- [x] Viewer: Style page (chapter scatter with book highlight, axis descriptions, book profile with z bars and nearest books, Delta heatmap via a shared `BookHeatmap`)
+- [x] Tests: features, Delta, PCA (pytest); endpoints; Style page (vitest)
+
+✔ Late books (Esther–Chronicles) group together; Isaiah / Jeremiah / Ezekiel are mutual nearest neighbours.
+
+## H1 — Serving and viewer hardening (roadmap Part B/C quick wins)
+- [x] `/structure/{unit}` LRU (`serve.structure_cache`) and the corpus lemma total read once
+- [x] Surface BM25 index cached under `artifacts/api/` (sidecar pins DB size/mtime and parameters)
+- [x] GZip + `Cache-Control` (API max-age, `/meta` no-store, immutable `/assets`); `/compare` cap (`serve.max_compare_verses`)
+- [x] Viewer: `UnitPicker` reference box (`/resolve`: `Gen 1:1`, `בראשית א`) with loading / error states
+- [x] Viewer: shared DPR-aware `Scatter` (touch-sized hit radius, ←/→ + Enter) for Map and Style; Map affinity reuses `BookHeatmap` (arrow-key cursor + Enter)
+- [x] Tests: caches, headers, compare cap (pytest); `UnitPicker`, `BookHeatmap` (vitest)
+
+✔ Real DB: warm startup 1.8 s → 0.13 s (surface index cached); `/structure/c:0:1` 201 ms → 28 ms on repeat; responses gzipped.
+
+## M22 — Parallel sequences (roadmap A7)
+- [x] `analysis/sequences.py` + `bsim sequences` (pipeline stage after phrases, ~33 s): same-order chains over the fused verse top-20, within-chapter shuffle null, q-values
+- [x] `sequences` table with per-pair gold flags and `n_gold`; `/sequences` (book, cross-book, same-chapter, q, unit filters; paginated) and `/sequences/{id}` (ladder rows with skipped verses, cosine, gold)
+- [x] Viewer: Sequences page, side-by-side ladder page, "Runs parallel to" panel on unit pages
+- [x] Tests: candidates, chaining rules, shuffle, q-values (pytest); store + endpoints; Sequences / ladder pages (vitest)
+
+✔ Isaiah 36–38 ↔ II Kings 18–20, Ezra 2 ↔ Nehemiah 7, II Sam 22 ↔ Ps 18 and the Tabernacle command / execution chains lead; Genesis 24's retold journey is found (q 0.016).
+
+## M23 — How parallels differ (roadmap A8)
+- [x] `analysis/diffs.py` + `bsim diffs` (pipeline stage after sequences, seconds): word-level Needleman-Wunsch over lemma keys for strong sequences; spelling / form / substitution / added / omitted / moved; loose pairs left out
+- [x] `diff_changes` table + `meta.diffs`; `/changes` (grouped, counted, examples; book filters), `/diff` (any two verses); ladder rows carry word marks
+- [x] Viewer: Changes page; change marks + legend in the side-by-side sequence view
+- [x] Tests: alignment labels, moved, loose filter (pytest); endpoints; Changes page and ladder marks (vitest)
+
+✔ יהוה → אלהים, אל → על, דוד → דויד, אנכי → אני, ממלכות → מלכות and the Chronicler's name forms rise to the top unprompted.
+
+## M24 — Te'amim verse halves and poetic parallelism (roadmap A9)
+- [x] `text/accents.py`: cola from etnahta (+ oleh-ve-yored in Psalms / Proverbs / Job, Job's prose frame excepted)
+- [x] `analysis/parallelism.py` + `bsim parallelism` (pipeline stage, ~50 s on GPU): cola embeddings, cos / shared / shape / balance, logistic regression on poetic-accent vs narrative / law books; held-out-book AUC and known-poem ranks in the meta
+- [x] `parallelism` table + `meta.parallelism`; `/parallelism/{unit}`, `/parallelism` (ranked units + book shares)
+- [x] Viewer: verse-halves toggle on unit pages (‖ pauses, ∥ parallel badge); Poetry page
+- [x] Tests: accent pauses, features, model checks (pytest); endpoints; unit page halves and Poetry page (vitest)
+
+✔ Held-out AUC 0.85–0.90; Deut 33, Deut 32, Gen 49, 2 Sam 22 and Ex 15 are the top five poems among 435 narrative / law chapters; Hannah's song (1 Sam 2:1–10) and Habakkuk 3 surface unprompted.
+
+## M25 — Wordplay (roadmap A10)
+- [x] `analysis/wordplay.py` + `bsim wordplay` (pipeline stage, ~18 s): heard forms (prefix-stripped skeleton + vowel pattern), one-edit sound-alike pairs within 8 words, rarity score, within-chapter shuffle baseline
+- [x] `wordplay` table + `meta.wordplay`; `/wordplay` (book, kind, unit filters; paginated)
+- [x] Viewer: Wordplay page (both words highlighted, chance baseline), unit-page panel
+- [x] Tests: skeleton / relation / vowels / heard forms, neighbour index, window and chapter rules (pytest); endpoint; Wordplay page (vitest)
+
+✔ Shibboleth / sibboleth, mevusah / mevukhah, gopher / kopher, shetsef / qetsef and naneḥim / naneqim lead; requiring the same vowels turned 10k pairs with no excess over chance into 400 with ~120 excess.
+
+## M26 — People and places (roadmap A11)
+- [x] `analysis/entities.py` + `bsim entities` (pipeline stage, ~5 s): name lemmas, person / place from context cues, verse co-occurrence links by G²
+- [x] `entities`, `entity_mentions`, `entity_links` + `meta.entities`; `/entities`, `/entities/{lemma}`, `/unit-entities/{unit}`
+- [x] Viewer: Names page (chips, book strip, ego network, partner list); name chips on unit pages
+- [x] Tests: cues, classification, G² and links (pytest); endpoints; Names page (vitest)
+
+✔ 909 people and 333 places told apart without a lexicon; David's, Moses' and Abraham's strongest partners are the expected ones.
+
+## M27 — Where the style changes (roadmap A12)
+- [x] `analysis/seams.py` + `bsim seams` (pipeline stage, ~25 s): per-verse stylometry counts, Delta curve at every verse boundary (600 words each side), per-book shuffled-maxima threshold, peaks with their changing features
+- [x] `seam_curve`, `seams` + `meta.seams`; `/seams` (a book's curve and seams, or the corpus' strongest)
+- [x] Viewer: Style page shift chart and seam list
+- [x] Tests: curve, peaks, features (pytest); endpoint; Style page seams (vitest)
+
+✔ Daniel's and Ezra's language switches, Proverbs 22:17, Isaiah 36 / 40, Zechariah 9, Job's frame and Elihu, Ezekiel 40 found without being told where to look.
+
+## M28 — A second gold set (roadmap A13)
+- [x] `eval/openbible.py` + `bsim eval-openbible` (pipeline stage after evaluate): OpenBible cross-references (≥ 5 votes), KJV-versification-unsafe chapters dropped, Sefaria split rule, dev only
+- [x] Final verse systems scored on OpenBible and Sefaria dev gold side by side; gold overlap reported (`artifacts/eval/openbible.md`)
+- [x] Tests: reference parsing / ranges / unsafe chapters, gold construction, file reading (pytest)
+
+✔ 6,318 dev pairs, only 3 % shared with Sefaria; fused > lexical > semantic > structural on both, and the Sefaria-trained encoder drops no more than BM25.
+
+## H2 — Serving and viewer hardening, part 2
+- [x] `/search` query-embedding LRU; SQLite page cache, mmap, `query_only` per connection
+- [x] `/phrases/{verse}` `limit`; limit / offset edge tests for the newer list endpoints
+- [x] `api/routes.py` (1,250 lines) split into `api/routes/` feature routers; shared parameter checks (`check_unit_type` replaces five copies)
+- [x] Viewer: lazy page chunks (entry bundle 358 → 235 kB); Search shows the real encoder status from `/api/meta` (polled until ready)
+- [x] Viewer: "Export page (CSV)" on the list pages (UTF-8 + BOM)
+- [x] Tests: Books / Search / Compare pages, CSV, navigation (vitest)
+- [x] End-to-end: `npm run e2e` — Playwright in the installed Edge against `bsim serve` + the real DB: 16 pages load with no console errors at desktop and phone width, both navigation modes, no sideways scroll at 390 px, axe (WCAG 2 A/AA) with no serious violations in light and dark themes
+- [x] Accessibility fixes found by axe: links in running text underlined; contrast of the "known" green, the person tag, selected name chips and the pager buttons
+
+✔ Every page verified in a real browser for the first time.
+
+## H3 — Serving and viewer hardening, part 3
+- [x] Pooled read-only SQLite connections (`serve.sqlite_pool`), so the page cache outlives a request
+- [x] One query instead of one per row: `verse_links` (phrases, affinity examples), `/changes` examples; `/sequences/{id}` cached (`serve.sequence_cache`)
+- [x] Encoder state: semantic `/search` answers 503 + `Retry-After` at once while the encoder loads; `/meta` `encoder_error`; Search waits for the encoder and says when it failed
+- [x] Parameter checks: `/units/verse` needs `book`; `offset` for `/seams` and `/phrases/{verse}` (`X-Total-Count`); `min_pairs` / `min_tokens` / `min_verses` >= 1; `/affinity/{a}/{b}` 404 for unknown books; 422 messages without config key names
+- [x] Viewer: error boundary around every page (a stale lazy chunk reloads once); Unit-page panels show their errors and the real phrase count
+- [x] Viewer: Compare marks word changes A → B (`/api/diff`); Sequences / Wordplay honour `unit=` (linked from the Unit page); Evaluation page (`/api/eval`)
+- [x] README / DESIGN §10–11 brought up to date
+- [x] Tests: pool, fail-fast encoder, parameter checks, paging, caches, `/eval` (pytest); error boundary, panel errors, encoder failure, Compare changes, unit filter, Evaluation page (vitest)
+
+## M29 — Significance across many tests (roadmap A8)
+- [x] `analysis/stats.py`: Monte Carlo p, percentile → p, Benjamini–Hochberg q
+- [x] `bsim structure`: inclusio / chiasm q per unit type (`structure.*_q`); `/structure` ranking shows q
+- [x] Leitworte in sevens: multiples of m vs a count-matched baseline, m = 6…13 as controls (`meta.leitwort_numbers`, note on the Structure page)
+- [x] Tests: BH / p helpers, q columns, the sevens check (pytest); Structure page q and note (vitest)
+
+✔ 284 / 300 inclusio frames survive BH, no chiasm does; 7 shows the smallest excess of all divisors 6–13.
+
+## M30 — Acrostics (roadmap A1)
+- [x] `analysis/acrostic.py` + `bsim acrostics` (pipeline stage after parallelism): verse and colon first letters, best alphabetic chain per chapter (both פ/ע orders), line-shuffle null with an adaptive number of shuffles, BH q
+- [x] `acrostics` table, `/acrostics`, `/acrostics/{unit}`; Acrostics page; acrostic bar with letter marks on chapters
+- [x] Validation against the known acrostics (`acrostics.known`)
+- [x] Tests: chain DP (vectorised = traceback), blocks / gaps / skipped letters, significance, lines from cola (pytest); page and bar (vitest)
+
+✔ 13 significant chapters, all known acrostics (13 / 14; Nahum 1 missed), nothing else.
+
+## M31 — Systematic rewrites (roadmap A3)
+- [x] `bsim diffs` also writes `rewrites.parquet` (recurring substitutions / omissions / additions per book pair, G², BH q) and `profiles.parquet` (change counts, spelling direction)
+- [x] `rewrites`, `rewrite_profiles` tables, `/rewrites`, `/rewrite-profiles`; Changes page "Systematic rewrites" view
+- [x] Tests: rewrite statistics and profile on a constructed book pair (pytest); rewrites view (vitest)
+
+✔ II Sam → I Chr יהוה → אלהים tops 151 significant rewrites; Chronicles spells fuller than Samuel–Kings.
+
+## M32 — Mirrored and reordered parallels (roadmap A2)
+- [x] `find_chains(direction=forward|reverse|mixed)`; `all_chains`: kinds in order, overlap dedup, monotone mixed chains dropped; q per kind against the same kind's shuffle chains; spans stored as min / max, `direction` column
+- [x] `/sequences?direction=`; the ladder runs the b side backwards for reverse chains; Sequences page "Order" filter, card and detail wording; the Unit page keeps same-order runs
+- [x] Tests: reverse / nested / crossing chains, dedup, frame (pytest); order filter (vitest)
+
+✔ No mirrored or reordered chain beats the shuffle (best q 0.33 / 0.08); the wife–sister stories are found as weak chains only.
+
+## M33 — Network of echoes (roadmap A5)
+- [x] `analysis/network.py` + `bsim network` (pipeline stage after map): unit edges from the fused top-10, PageRank, Louvain communities with G² labels, per-community layout
+- [x] `network_*` tables, `/network/{type}`, `/network/{type}/{community}`, `/unit-network/{unit}`; Network page; "most echoed" line on unit pages
+- [x] Tests: edges, communities, centrality, layout bounds (pytest); API (pytest); Network page (vitest)
+
+✔ 28 chapter / 49 pericope communities, many across books; the Abraham-cycle community holds the wife–sister triad.
+
+## M34 — Finer accents and word pairs (roadmap A7)
+- [x] `text/accents.py`: disjunctive hierarchy for prose and poetry, `token_levels`, `clauses`; `parallelism.clauses`; "Finer clauses" on the Unit page
+- [x] Bicola across two verses (`next_prob`, ∥↓ badge)
+- [x] Word pairs across parallel members (G², BH, ≥ 3 chapters): `word_pairs` table, `/word-pairs`, Poetry page → Word pairs
+- [x] Parallelism typing by negation tried and dropped (Prov 10–15 lowest), documented
+- [x] Tests: accent levels / clauses, word pairs (pytest); API; clause toggle and word pairs view (vitest)
+
+✔ 683 significant word pairs (צדיק // רשע, יום // שנה, חכמה // בינה, ציון // ירושלם …).
+
+## M35 — Alliteration and rhyme (roadmap A6)
+- [x] `analysis/sound.py` + `bsim sound`: phoneme sounds, shape-conditioned alliteration per colon, rhyme runs; `alliteration`, `rhymes` tables, `/alliteration`, `/rhymes`; Wordplay page tabs
+- [x] Tests: sounds, prefixes, endings, tails, content words (pytest); API; views (vitest)
+
+✔ 4 significant rhymes (Job 10:8–11 ‑נִי); no alliteration beyond chance, shown as candidates.
+
+## M36 — Action sequences (roadmap A4)
+- [x] `analysis/typescenes.py` + `bsim typescenes`: verb-lemma Smith–Waterman between pericopes, verb-order shuffle null, textual parallels flagged; `typescenes` table, `/typescenes`, Action sequences page
+- [x] Tests: alignment, candidates, verb sequences (pytest); API; page (vitest)
+
+✔ Dan 3 ↔ 6, Dan 2 ↔ 7, Lev 8 ↔ 9, purity procedures; classic type-scenes not recovered (documented).
+
+## M37 — Retrieval experiments (roadmap A9)
+- [x] `embed/context.py` + `bsim embed-context`: ±1-verse window and late-chunked BEREL-sup embeddings (`berel_sup_ctx`, `berel_sup_late`), CSLS top-k
+- [x] `retrieve/maxsim.py` + `bsim maxsim`: symmetric token MaxSim over the fused top-50 (BEREL-sup, BEREL), `fused_maxsim`
+- [x] `eval/experiments.py` + `bsim retrieval-exp`: dev families vs fused, paired bootstrap (`eval/metrics.py`), 2-fold cross-fitting, OpenBible check; `artifacts/eval/retrieval_experiments.{json,md}`
+- [x] Tests: windows, centre tokens, pooling, MaxSim vs brute force, n-way RRF, bootstrap, cross-fitting (pytest)
+
+✔ Not adopted: best cross-fitted gain +0.0032 nDCG@10 (late chunking, CI [−0.0050, +0.0114]); MaxSim lowers the fused list; final systems unchanged (§16.21, D53).
+
+## H4 — Serving and viewer hardening, part 4
+- [x] List totals cached per DB file and query (`api.queries.count`); book-column indexes tried and rejected (slower counts)
+- [x] `/api/export/{list}.csv`: every row under the list's filters (15 lists, `serve.export_max_rows`); "Export all (CSV)" in the viewer, CSV for Concordance and Structure
+- [x] Search: `book` filter and `k` up to 200 (`serve.search.max_k`); `/units/verse?chapter=` and a chapter step in the verse picker
+- [x] Pager: page box, `aria-current`, past-the-end recovery on every list
+- [x] Accessibility: page titles, focus / scroll reset, skip link, roving tabindex for words, keyboard Names graph and Structure heatmap, reduced motion, cosine as text on the ladder, focus-highlight and new-control contrast
+- [x] Usability: j / k between hits, copy link, word changes on verse hits (`marks=changes`)
+- [x] Canvas: scatter points drawn once per change with the hover ring on an overlay and a bucket grid for hover; DPR-aware Structure heatmap
+- [x] Tests: export, search filters, units per chapter (pytest); pager, empty list, export link, word roving, layout, unit changes / j (vitest); e2e and axe on the new pages
+
+## M38 — Hebrew interface (§11, D54)
+Phase 1 (M38a): infrastructure, chrome and core flow
+- [x] `web/src/i18n/` catalogs (`en.ts` source, `he.ts` typed against it), `LocaleProvider` / `useT()`, `bsim.locale` in localStorage, `<html lang dir>` set before first paint
+- [x] EN / עב toggle in the header; Hebrew is fully RTL (physical CSS properties made logical or RTL-aware)
+- [x] Layout, nav, footer, page titles; shared components (pager, status, error boundary, hit / phrase / sequence / wordplay cards, score bars, unit picker, unit filter, CSV export, keypad, lemma chips, word panel, link badge, diff legend)
+- [x] Pages: Browse, Book, Unit, Search, Compare, Concordance, 404
+- [x] `Verse.ref_he` from the API; unit labels and book names per language (`UnitName`, `lib/names.ts`); `hebrewNumeral` for chapter:verse
+- [x] Text no longer parsed from English labels (unit picker chapter, compare partner reference); CSS classes and menu ids no longer derived from display text
+- [x] Tests: `ref_he` (pytest); catalog parity, Hebrew plurals and numerals, language toggle and persistence, Browse / Search / Unit in Hebrew (vitest)
+
+Phase 2 (M38b): analysis pages
+- [x] Parallels (`i18n/pages/parallels.ts`): Discoveries, Phrases, Sequences / Sequence, Changes + rewrites, Action sequences
+- [x] Patterns (`i18n/pages/patterns.ts`): Structure + StructurePanel, Acrostics, Poetry + word pairs, Wordplay + alliteration / rhyme
+- [x] Overview (`i18n/pages/overview.ts`): Map, Network, Style + SeamsPanel, Evaluation, Names; Scatter and BookHeatmap
+- [x] API `*_label_he` next to the English-only labels: change examples, wordplay pairs, names first / last, seams, alliteration, rhyme
+- [x] Charts in the interface language with left-to-right geometry (`dir="ltr"`); seam peaks from chapter / verse, not the English label; About as `AboutEn` / `AboutHe`
+- [x] English-only label tables removed from `lib/format.ts` and `lib/diff.ts`; Structure CSV columns keyed separately from their display labels
+- [x] Tests: the new label fields (pytest); every page group in Hebrew (vitest); e2e: switch, reload, every page in Hebrew without errors or overflow, axe in Hebrew
+
+✔ Phase 1: the core flow (browse → unit → compare / search / concordance) reads fully in Hebrew and RTL; English is unchanged.
+✔ Phase 2: every page reads in Hebrew; 68 / 68 e2e (desktop and phone) including the Hebrew run and its accessibility check.
+
+## H5: CI and generated API types (§13, D55)
+- [x] `bsim.fixture`: the pytest fixture DB moved from `tests/conftest.py` into the package, plus a stub query encoder
+- [x] `bsim fixture-serve` (API + viewer over the fixture DB, no data, model or GPU) and `bsim openapi` (the API schema)
+- [x] `ApiModel` base for the response models: fields with defaults are required in the schema (they are always sent)
+- [x] `npm run gen:api` / `check:api`: `src/api/schema.gen.ts` (openapi-typescript) and `drift.gen.ts`, a `tsc` check of every hand-written type against the schema of the same name
+- [x] Drift fixed: `SearchResponse.book`, `SequencesResponse.direction`, and always-sent fields typed optional (`SequenceSummary.direction`, `StructureRank.*_q`, `VerseHalves.clauses` / `next_prob`, `leitwort_numbers`)
+- [x] `e2e/fixture.spec.ts` (`npm run e2e:fixture`): 28 pages load without errors, overflow or error boxes in English and Hebrew, axe in both, desktop and phone
+- [x] Accessibility fixes found by it: underlined links in Compare headings and the seam list, `--sem-ink` for small `--sem` text, a themed unit-picker "Go" button (dark-mode contrast); Compare and Style added to the real-data axe pass
+- [x] `.github/workflows/ci.yml`: ruff, pytest, oxlint + tsc, vitest, `check:api`, build, fixture e2e in Chromium
+- [x] Tests: `openapi` / `fixture-serve` in the CLI tests
+
+✔ The full check runs without the 1.1 GB of artifacts; the fixture e2e suite passes 64 / 64 locally.
+
+## M39: Word senses and semantic domains (§16.22, D56; roadmap A1)
+Phase 1 (M39a): data, tagging, retrieval experiment
+- [x] `bsim download --only lexicon`: SDBH (UBS, CC BY-SA 4.0) and OpenScriptures HebrewStrong.xml (CC BY 4.0) at pinned commits
+- [x] `bsim lexicon` (`data/lexicon.py`): SDBH word references matched to OSHB morphemes (92.2 % of 288k; positions over lemma parts + the article in `Rd`, ±2 window); 262,588 of 299,516 lemma morphemes tagged with a meaning and its domains; synonym / antonym lemma pairs; Strong's name types. Glosses never stored
+- [x] `lexical/domains.py`: `bm25_domain`, `tfidf_domain_{unit}`, `bm25_lemma_domain` (expansion) in `bsim lexical`; `bm25_domain` in `pipeline.lexical_systems`
+- [x] `bsim retrieval-exp`: `lexical {system}` families (alone, in place of lexical, third list); results on dev: not adopted (lemma + domain beats lemma, not fused)
+- [x] Tests: Strong keys, references, morpheme counting, matching and fallback, relations, readers, domain tokens; download, CLI, pipeline order
+
+Phase 2 (M39b): analyses
+- [x] Antithetic / synonymous parallelism from SDBH antonym / synonym pairs and shared domains across the members of parallel verses (`relation`, `relation_pairs`); Prov 10–15 check (69.1 % vs 6.8 %, p 4e-77) and a shuffle null in the meta
+- [x] People and places typed from Strong's parts of speech first (2,253 of 2,548 names), context cues for the rest; agreement where both decide 94.8 %
+- [x] Tests: line typing (antonyms first, synonyms, domains of different lemmas), the typing check, Strong's name kinds and agreement
+
+Phase 3 (M39c): API and viewer
+- [x] DB: `domains`, `domain_verses`, `words.domains`, `parallelism.relation*`, `entities.kind_*` (empty without the lexicon); the `domain` mode (`bm25_domain`, `tfidf_domain`) in `matches`
+- [x] API: `/domains`, `/domain/{code}`, `/unit-domains/{unit_id}`; `/words` domains; typed `/parallelism/{unit}`; `/parallelism?sort=antithetic` (`typing_min_parallel`); `Entity.kind_source`
+- [x] Viewer: Patterns → Domains (tree, domain concordance), themes on units, domain chips in the word panel, Domains mode, `∥≠` antithetic halves with their pairs, Poetry sorted by antithetic share with the typing check, Names kind source; domain names in English and (top two levels) Hebrew
+- [x] SDBH / HebrewLexicon credits in the footer and About
+- [x] Tests: domains / themes / words / typed halves / ranking (pytest, fixture with word senses); Domains page, themes, Hebrew names, antithetic badge (vitest); e2e: new pages in both languages, axe (a chip contrast and an About link fixed)
+
+✔ Phase 1: every word carries its attested sense and domains; domains help the lemma list but not the fused one, so the final systems are unchanged.
+✔ Phase 2: antithetic parallelism is recovered where D49 failed; names are typed by the lexicon, confirming the cue heuristic.
+✔ Phase 3: domains, themes and antithetic lines are browsable in both languages; 72 / 72 fixture and 76 / 76 real-data e2e.
+
+## M40: Senses and uses across the canon (§16.23, D57; roadmap A3)
+- [x] `bsim senses` (`analysis/senses.py`): 611 frequent lemmas over six corpus groups; SDBH meanings and k-means clusters of pretrained-BEREL word vectors (subwords mapped to OSHB words by character offsets); MI against a shuffled-group null, BH q; Hebrew collocates and nearest examples per cluster; clusters vs SDBH NMI 0.20 (shuffled 0.03)
+- [x] Results: senses shift for 296 of 384 lemmas, uses for 539 of 611; גאל, פקד, עדות, קנה lead; תורה and נפש split into readable uses
+- [x] DB `lemma_shifts`, `lemma_senses` (+ `meta.senses`, empty without the stage); API `/shifts`, `/lemma/{lemma}/senses`
+- [x] Viewer: Overview → Shifts; *Senses across the canon* on the concordance (share per group, domains, collocates, highlighted examples); English and Hebrew (group names in the catalogs)
+- [x] Tests: spans and subword mapping, MI and the shuffle test, collocates, the run on the fixture (pytest); the API on the fixture DB; Shifts page and senses panel (vitest); e2e: new pages, axe
+
+✔ A word's senses and uses can be compared across the canon; the dictionary and the contextual reading agree well above chance; 76 / 76 fixture and 80 / 80 real-data e2e.
+
+## M41: A Late Biblical Hebrew profile (§16.24, D58; roadmap A4)
+- [x] `bsim dating` (`analysis/dating.py`): seven features (late words, אנכי, infinitive absolute, את + suffix, directional ה, ואשלחה forms, דויד) per chapter over Hebrew words, shrunk rates; logistic regression of the late books against Genesis–Kings, training chapters scored held out by book; poetic books and poem chapters flagged out of domain; drivers per chapter
+- [x] Checks: leave-one-book-out AUC 0.948 (grammar / spelling only 0.895); synoptic test, trained without Samuel, Kings and Chronicles: Chronicles later in 26 / 26 parallels (p 3e-8)
+- [x] DB `dating_chapters`, `dating_books` (+ `meta.dating`, empty without the stage); API `/dating`, `/dating/book/{id}`, `/unit-dating/{unit}`; `span_label` shared with the sequences
+- [x] Viewer: Overview → Language (book ranges, checks, synoptic gaps, chapters with drivers), profile line on chapter pages; English and Hebrew
+- [x] Tests: word flags, shrunk rates, held-out AUC, drivers, the sign test, a run without late books (pytest); the API on the fixture DB; the Language page in both languages (vitest); e2e: new pages, axe
+
+✔ Every chapter has a language profile whose evidence can be read back; the method passes the synoptic test it was not trained on, and its blind spots (post-exilic prophets, poetry, single spellings) are shown, not hidden; 80 / 80 fixture and 82 / 82 real-data e2e (a contrast issue on the selected book fixed).
+
+## M42: Your labels, a third gold set (§16.25, D59; roadmap B4)
+- [x] `store/labels.py`: real / not / unsure (+ note, the proposing list) per undirected pair in `paths.labels`, apart from the read-only results DB
+- [x] API: `GET` / `PUT /labels`, `DELETE /labels/{a}/{b}` (`no-store`; 403 with `serve.labels_writable: false`), `GET /labels/eval` (per mode: found real / not within `labels.k`, precision, AUC)
+- [x] `bsim eval-labels` (`eval/labels.py`): dev-split real verse pairs as gold for the final systems, separation over the same split, overlap with Sefaria and OpenBible
+- [x] Viewer: label buttons on Discoveries and on similar-passage hits; Parallels → Your labels (counts, separation per mode, the pairs with notes, CSV); English and Hebrew
+- [x] Tests: store, separation, ranks, splits, the API (order, validation, read-only), the CLI run (pytest); the Labels page and the buttons (vitest); e2e: the page in both languages and axe, labelling a hit and clearing it on the fixture server
+
+✔ Pairs the systems propose can be judged where they are shown, and the judgements score every mode, including on pairs neither gold set has; 81 / 81 fixture and 84 / 84 real-data e2e.
+
+## M43: Syntax — clauses, phrases and who speaks (§16.26, D60; roadmap A2)
+- [x] `bsim download --only syntax`: 18 BHSA Text-Fabric feature files (ETCBC, CC BY-NC 4.0) at a pinned commit, no glosses
+- [x] `bsim syntax` (`data/bhsa.py`): a Text-Fabric reader; BHSA words aligned to OSHB words by consonants (23,206 verses, 22,108 identical); 88,131 clauses and 253,203 phrases with types, functions and text types
+- [x] Speakers from the clause-atom link to the introducing clause: explicit subjects (beings by SDBH sense), carried subjects (third person, gender agreement), enclosing quotations; hand check 42 / 50 (explicit 29 / 31, carried 13 / 19)
+- [x] `bm25_syntax` (`lexical/syntax.py`) and `bm25_morph_syntax`; `bsim retrieval-exp` structural family (gain vs `bm25_morph`, text-type agreement, overlap): not adopted as fused or structural; top 10 per verse kept as *built the same way*
+- [x] DB `clauses`, `syntax_phrases`, `syntax_neighbors`, `speech_{chapters,books}`, `speakers` (+ `meta.syntax`); API `/syntax/{unit}`, `/speech`, `/speech/book/{id}`
+- [x] Viewer: Overview → Who speaks (stacked shares, speakers, chapters); *Clauses and speakers* on every passage with *built the same way* on verses; clause types and phrase functions named in English and Hebrew; BHSA credits in the footer and About
+- [x] Tests: Text-Fabric reading, alignment, a synthetic BHSA run (speech, explicit speaker, gender check), clause tokens, speech shares, segments, the API on the fixture DB (pytest); Speech page and clause panel (vitest); e2e: new pages in both languages, axe (a link style fixed)
+
+✔ Every clause of the Bible can be read with its structure and, in speech, its speaker; the speech map shows where God, Moses or the narrator speak, with the reliability of each attribution stated; clause shapes add a "built the same way" list but do not beat the existing modes; 91 / 91 fixture and 88 / 88 real-data e2e.
+
+## M44: Who borrowed — the direction of cross-book parallels (§16.27, D61; roadmap A7)
+- [x] `bsim borrowing` (`analysis/borrowing.py`): four signs fixed in advance (language features with literature signs, fuller spelling, rare → common substitutions, expansion) over the 43 word-aligned cross-book parallels
+- [x] Check on 35 parallels of accepted direction: language 30 / 35, spelling 29 / 31, smoothing 15 / 28, expansion 15 / 33; voting signs chosen by the check and validated leaving each book pair out (30 / 32 right, 3 undecided); the canon-order confound stated
+- [x] Results: Nehemiah 7 → Ezra 2, 2 Kgs 20 → Isa 38–39, Exod 29 → Lev 8, Lev 11 → Deut 14; 2 Sam 22 ↔ Ps 18 unclear; Ps 105 ↔ 1 Chr 16 and 2 Kgs 25 ↔ Jer 39 wrong
+- [x] DB `borrowing_sequences`, `borrowing_books` (+ `meta.borrowing`); API `/borrowing`, `/borrowing/sequence/{id}`, `/borrowing/between`
+- [x] Viewer: Parallels → Who borrowed (check, voting signs, book pairs with each parallel's signs); "Which borrowed?" on parallel sequences and Compare; English and Hebrew
+- [x] Tests: each sign, agreement, sign selection and the held-out check (pytest); the API on the fixture DB; the page and the line (vitest); e2e: new pages, axe
+
+✔ Every cross-book parallel carries a direction estimate with the evidence behind it, validated where the answer is known and honest about what that check cannot tell; 97 / 97 fixture and 90 / 90 real-data e2e.
+
+## M43b: Clause shapes as a mode (D62)
+- [x] `final_systems.syntax: bm25_syntax`, `unit_syntax: tfidf_syntax` (unit TF-IDF over the clause tokens, `bsim units`); `syntax` in the DB modes, API and viewer ("Clauses" / "פסוקיות"); `store.max_size_mb` 4096 (DB 616 MB)
+- [x] Tests: six modes in the fixture DB (matches, discoveries); e2e: the mode on a unit page in both languages
+
+## M45: Speaker voices (§16.28, D63)
+- [x] `stylometry.feature_counts` (features per word-level unit; `feature_matrix` is now a wrapper)
+- [x] `bsim voices` (`analysis/voices.py`, pipeline stage after stylometry, ~31 s): proper-name speakers (OSHB `Np` in most occurrences, `voices.exclude` peoples) and the divine names as one voice; Delta to the other attributed speech of the same books; within-book clause-label shuffle null (999), BH q; calibration shuffle; explicit-only sensitivity; Delta between voices, the narrator and unattributed speech; feature profiles
+- [x] Checks fixed in advance (`voices.checks`): author vs character (David in Samuel / Chronicles, God in Kings / Chronicles, Solomon in Kings / Chronicles), the most distinct speaker of Job (Elihu)
+- [x] DB `voice_speakers`, `voice_features`, `voice_pairs` (+ `meta.voices`, empty without the stage); API `/voices`, `/voices/{key}`
+- [x] Viewer: Who speaks → Voices (speakers with distinctiveness and q, the checks, Delta heatmap via the generalised `Heatmap`, a speaker's profile with `FeatureBars`, chapters where they speak); English and Hebrew
+- [x] Tests: feature counts, clause mapping, keys and proper names, within-group shuffle, a planted speaker found and an unplanted one not, the author check and its verdicts (pytest); the API on the fixture DB; the Voices tab and its empty state (vitest); e2e: the tab in both languages, axe
+
+✔ 23 speakers profiled, 18 distinct at q ≤ 0.05 (calibration shuffle 0 / 23, explicit-only ρ 0.88); David and God sound like the book that narrates them (p 0.001 / 0.045), Solomon does not differ between Kings and Chronicles; Elihu ranks second in Job, after Job (the named expectation fails, reported).
+
+## M46: The unit dossier (§10, D64)
+- [x] `/dossier/{unit}` (`api/routes/dossier.py`): one entry per analysis with `computed` (optional stages read from table presence, `ServeState.present`), counts / q / score / speaker, chapter scope for verses; cached (`serve.dossier_cache`) except your labels, read live
+- [x] `unit=` on `/phrases`, `/changes`, `/rhymes`, `/discoveries`, `/borrowing`; `/typescenes?unit=` matches any pericope overlapping the unit (was: the pericope itself); CSV export carries the filter
+- [x] Indexes for the lookups: `diff_changes (a)`, `(b)`, `discoveries (unit_type, mode, b_id)`, `typescenes (a_unit)`, `(b_unit)`, `seams (verse_id)`
+- [x] Viewer: `DossierBar` under the unit heading (findings as links to the filtered lists or panels; "nothing found"; "not computed in this build"); the phrases / wordplay / sequences panels are not fetched when the dossier found none; `?unit=` with `UnitFilter` on Phrases (recurring idioms included), Changes, Discoveries, Who borrowed, Action sequences, alliteration and rhyme
+- [x] Tests: dossier of a verse and a chapter (counts equal the filtered lists), live labels, not-computed stages, the new filters and 404s, the export (pytest); the bar in both languages, skipped panels, a dossier failure, the Phrases filter (vitest); e2e: filtered pages, a dossier chip to a filtered list
+
+✔ Every analysis that touches a passage is one click from it, and "nothing here" is told apart from "not run"; a dossier is computed in ~12 ms in-process on the real DB (cached after); 117 / 117 fixture and 100 / 100 real-data e2e.
+
+## M47: Where the text divides (§16.29, D65; proposed A2)
+- [x] `bsim segments` (`analysis/segments.py`, pipeline stage after voices, ~25 s): every verse boundary scored by TextTiling depth of lemma (idf) and embedding cohesion across a window, combined as a within-book percentile; window chosen on the dev books (`segments.window_grid`: 4)
+- [x] Divisions on the boundaries: MAM and Leningrad (OSHB) open / closed paragraphs, chapter starts, parashot, style seams; within-book shuffle tests per kind (999), contrasts (open vs closed, both traditions vs one, chapters with vs without a paragraph break), a calibration shuffle, seams near divisions, Pk / WindowDiff per book against random segmentations
+- [x] Lists: unmarked turns, chapters in running text, quiet paragraph breaks (`turn_min`, `turn_peak`, `cut_max`, `quiet_max`)
+- [x] `stats.permute_within` (moved from voices)
+- [x] DB `segment_gaps`, `segment_books` (+ `meta.segments`, empty without the stage); API `/segments`, `/segments/gaps?kind&book&unit`, `/segments/book/{id}`; dossier entry `divisions`
+- [x] Viewer: Patterns → Divisions (tests table and contrasts, a book's boundary scores by paragraph type with chapter lines and a chapter zoom, the three lists with the verses on either side, `?unit=` from the dossier); English and Hebrew
+- [x] Tests: window cosines, depth, scores and ties, Pk / WindowDiff, agreement, group tests and contrasts on planted data, gap labels across book ends, peaks, kinds, lemma weights (pytest); the API and dossier on the fixture DB; the page, its chart, chapter zoom, a unit's list in Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → list
+
+✔ Every kind of division falls at turns of the text more than chance (MAM open 0.650, closed 0.554, parashot 0.771, chapters 0.708; calibration 0.507); open over closed and agreed over single-tradition breaks hold (p 0.001); chapters without a paragraph break are weaker turns (0.616 vs 0.728); 20 chapters in running text led by known disputed divisions (Gen 47:1, Isa 64:1, Hag 2:1, Hos 6:1); `results.sqlite` 654 MB; 125 / 125 fixture (1 skipped by design) and 104 / 104 real-data e2e.
+
+## M48: Written and read — ketiv and qere (§16.30, D66; proposed A3)
+- [x] `data.oshb.kq_pairs`: both sides of every ketiv / qere from the raw OSHB, with the read words' position in the verse
+- [x] `bsim ketiv` (`analysis/ketiv.py`, pipeline stage after segments, ~8 s): letter classes, grammar from both sides' lemmas and morphology with the differing features, euphemisms (`ketiv.euphemisms`), the written form of an aligned parallel (sequences + diffs alignment)
+- [x] Findings: look-alike letters against letter frequencies (with and without ו / י), every letter pair (BH q), fuller written spelling in the late books (books permuted), parallels siding with qere or ketiv, written ־ו read ־יו, spread over the books
+- [x] DB `kq_pairs`, `kq_letters`, `kq_books` (+ `meta.ketiv`, empty without the stage); API `/ketiv`, `/ketiv/pairs?cls&grammar&parallel&euphemism&book&unit`; dossier entry `ketiv`
+- [x] Viewer: Patterns → Written and read (findings, kinds, books, letters, grammar in words, every pair with its verse and parallel); English and Hebrew
+- [x] Tests: the parser (both readings, positions), letter classes, morphology features and grammar, letter pairs and look-alikes, the late-book permutation, parallel readings, position checks (pytest); the API and dossier on the fixture DB; the page, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → pair → parallel
+
+✔ 1,260 pairs described; look-alike letters 71 % of one-letter swaps (3.9 % expected), the late books' written spelling fuller (82 % vs 40 %, p 0.006), aligned parallels write the qere 57 : 11; `results.sqlite` 655 MB.
+
+## M49: Explicit citations (§16.31, D67; proposed A4)
+- [x] `bsim citations` (`analysis/citations.py`, pipeline stage after ketiv, ~3 s): formula families (`citations.families`: as it is written, the word fulfilled, as commanded) with their allowed sources; BM25 + cosine z-score; resolved when the two signals agree; each family against random verses of the same books (binomial); percentiles of the scores
+- [x] Gold check (`citations.gold`, 20 sources named by scholarship): rank-1, top-5 and the precision of "resolved"
+- [x] DB `citations`, `citation_books` (+ `meta.citations`, empty without the stage); API `/citations`, `/citations/list?family&resolved&book&unit`; dossier entry `citations` (citing from the unit or resolved into it)
+- [x] Viewer: Parallels → Citations (families against random verses, gold, who cites whom, every citation with its source and candidates, Compare); English and Hebrew
+- [x] Tests: formula families, allowed sources, ranking and agreement, gold parsing and ranks (pytest); the API (unit as source or target) and the dossier on the fixture DB; the page, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the page in both languages with axe, dossier chip → citation → Compare
+
+✔ 116 citations, 41 resolved; only "as commanded" resolves above chance as a family (55 % vs 32 %, p 0.0008), "as it is written" and the fulfilment notices do not; gold 15 / 20 at rank 1, every resolved gold citation right (10 / 10); 141 / 141 fixture and 112 / 112 real-data e2e.
+
+## M50: Rare words over a few verses (§16.32, D68; proposed A5)
+- [x] `bsim allusions` (`analysis/allusions.py`, pipeline stage after citations, ~5 s): rare lemmas (Strong's numbers, 2–15 verses, no names, gentilics or Aramaic), three-verse windows of different chapters sharing ≥ 3, idf score, overlap suppression; within-chapter verse-shuffle null (null-ratio q, as §16.7); known = fused top 10 or a sequence
+- [x] DB `allusions` (+ `meta.allusions`, empty without the stage); API `/allusions?known&book&unit` with both passages and the shared words marked; dossier entry `allusions`
+- [x] Viewer: Phrases → Spread over verses (new pairs by default, the rare words, both passages marked, q, Compare); English and Hebrew
+- [x] Tests: rare lemmas (senses merged, names and Aramaic out), windows within a chapter, pairs and suppression (pytest); the API and dossier on the fixture DB; the view, its default, the toggle back to phrases, the dossier chip (vitest); e2e: the view in both languages with axe
+
+✔ 176 pairs, 171 known parallels; nothing new beats the within-chapter shuffle (the 3 at q ≤ 0.05 are known, the best new q 0.82): the five new echoes (Urim and Thummim, wormwood and gall, …) are shown as leads; 145 / 145 fixture and 114 / 114 real-data e2e.
+
+## M51: Chiasm at the small scale (§16.33, D69; proposed A6)
+- [x] `bsim mirrors` (`analysis/mirrors.py`, pipeline stage after allusions, ~16 s): mirrored against repeated order of lemmas used twice in a verse (bigrams apart; sign test, chapter-resampled interval, poetry / prose); constituent order of consecutive BHSA clause pairs (genre permuted over chapters, per constituent pair); full mirrors with a per-verse shuffle p and BH q
+- [x] DB `mirror_verses`, `mirror_clauses` (+ `meta.mirrors`, empty without the stage); API `/mirrors`, `/mirrors/verses`, `/mirrors/clauses`; dossier entry `mirrors`
+- [x] Viewer: Structure → Small scale (both tests, the constituent table, clause pairs with their two parts marked, full mirrors by depth); English and Hebrew
+- [x] Tests: order counts (mirrored, spread, bigram, no overlap, thrice), sign test and interval, clause pairs, the chapter permutation (pytest); the API and dossier on the fixture DB; the view, its lists, Hebrew, back to whole passages, the empty state, the dossier chip (vitest); e2e: the view in both languages with axe
+
+✔ Repeated words keep their order more often than they mirror it (2,790 vs 2,099 verses, p 5e-23, poetry too); poetry mirrors its clause constituents more than prose (23.5 % vs 16.7 %, p 0.0003); the 94 full mirrors are leads; 151 / 151 fixture and 118 / 118 real-data e2e.
+
+## M52: ETCBC's parallel passages as a third gold (§16.34, D70; proposed A7)
+- [x] `sources.etcbc_parallels` (pinned commit) and the `parallels` download group; `bsim eval-etcbc` (`eval/etcbc.py`, pipeline stage before build-db, ~7 s): Text-Fabric edges with values, BHSA verse nodes to verse ids, undirected pairs without neighbours, formula and list cliques set apart (`etcbc.max_partners`), the Sefaria split rule
+- [x] Dev retrieval of the final verse systems against ETCBC and Sefaria, fused recall@10 by similarity band; coverage of all parallels by sequences, phrases and the fused list; strong-sequence pairs ETCBC lists; overlap with Sefaria and OpenBible
+- [x] `/eval` → `etcbc`; Evaluation page section (both tables, bands, coverage); English and Hebrew
+- [x] Tests: edges with values (implicit sources), gold links (neighbours, split rule, best value), formula cliques, coverage (pytest); `/eval` with and without the file; the Evaluation section (vitest)
+
+✔ 1,973 near-verbatim parallels (13,645 formula pairs apart): lexical nDCG@10 0.853, fused 0.832 on dev; 94 % of all parallels in the fused top 10; 56 % of strong-sequence pairs are ETCBC parallels; only 11 % are Sefaria links; 151 / 151 fixture and 118 / 118 real-data e2e.
+
+## M53: Incremental `bsim all` (§16.35, D71; proposed C2)
+- [x] Fix first: `config_hash` takes dotted keys; `sound`, `parallelism`, `senses`, `map`, `network` hash `structure.leitwort_skip_pos`
+- [x] `bsim/incremental.py`: `TrackedConfig` (keys read, two levels), code hash over the import closure, an audit hook for files opened, outputs from folder snapshots, content hashes cached by size and mtime; `paths.pipeline_state`, `pipeline.roots`, `pipeline.ignore`
+- [x] `pipeline.DEPS` (each stage's upstream stages) with a note for any read it misses; `bsim all --force / --rerun / --dry-run / --adopt`
+- [x] `bsim` writes UTF-8 when its output is redirected (a log line with ≤ stopped `senses` under cp1252)
+- [x] Tests: tracked keys (dotted, missing, dumped, deep-copied), the import closure, DEPS order, skip / rerun / early cut-off / deleted and hand-edited outputs / dry run / adopt / undeclared reads on toy stages, the CLI flags (pytest)
+
+✔ A second `bsim all` with nothing changed takes 2.3 s; `--rerun mirrors` ran mirrors (27 s) and build-db (3:09; `mirrors.meta.json` carries a build time, so build-db follows) and skipped the other 38 stages: 3 min 42 s, against 38 min for the whole pipeline.
+
+## M54: Shared statistics (§16.14; proposed C3)
+- [x] `stats.g2_table` replaces the four copies of the 2 × 2 G² (diffs, parallelism, entities, senses); keyness (structure) and domain over-representation (API) are different two-cell statistics and stay
+- [x] `stats.shuffle_within` replaces the copies in sequences and wordplay (allusions imports it from there)
+- [x] Found by comparing the rerun with the run before: senses (example draws) and network (layout) depended on set order, so two runs of the same code differed; senses breaks count ties by sense id, network lays out each community from a copy in a fixed node order, and network now gives the same bytes under any `PYTHONHASHSEED`; senses differs only in one list of examples (the uses of דבר nearest their centre, near-identical formula verses whose order is GPU arithmetic)
+- [x] Incremental runs hash syntax trees (line endings, comments, layout do not rerun anything); `--adopt` on a stage with a record keeps it
+- [x] Tests: `g2_table` against SciPy's log-likelihood test, `shuffle_within` with split groups (pytest); the moved helpers' callers
+
+✔ `bsim all` reran those 24 stages in 13 min 30 s (the other 16 skipped). 65 of the 69 outputs were identical; entities' name links and parallelism's word pairs held the same rows with ties re-sorted (G² equal to the last digit, summed in another order); senses' examples and network's layout also differ between two runs of unchanged code, which led to two fixes (set order fed a seeded draw and a seeded layout).
+
+## M55: Who echoes whom (§16.36, D72; proposed A4b)
+- [x] `bsim echoes` (`analysis/echoes.py`, pipeline stage after allusions, ~5 s): the chapter network's cross-book edges plus the chapter pairs of resolved citations and decided borrowing sequences; directed by the first deciding layer (cited, borrowed, then the late-language profile at `echoes.language_gap`); conflicts kept apart
+- [x] Checks fixed in advance: language against citations, against the spelling sign, against borrowing (stated as not independent); directions against the canon order; book cycles of the explicit layers
+- [x] DB `echo_edges`, `echo_books`, `echo_chapters` (+ `meta.echoes`, empty without the stage); API `/echoes`, `/echoes/list?basis&directed&backward&book&unit`; dossier entry `echoes`
+- [x] Viewer: Network → Directions (checks, book to book, chapters drawn on most, every pair with its evidence, against-the-canon filter, Compare); English and Hebrew
+- [x] Tests: layer order, language vote, chapter pairs against the canon, cycles, a toy run (pytest); the API and the dossier on the fixture DB; the view, its filters, Hebrew, the empty state, the dossier chip (vitest); e2e: the view in both languages with axe, dossier chip → directions → Compare
+
+✔ 459 of 2,422 pairs directed; language agrees with spelling 23 / 23 (p 2e-7); 50 language directions against the canon (1 Kgs 20, Ezek 44 → Lev 21, the late Writings); the two contradictions are §16.27's known misses; 157 / 157 fixture and 122 / 122 real-data e2e.
+
+## M56: Jump box (§11.1; proposed B2)
+- [x] `GET /api/lemmas?q=`: lemmas by Strong's number or Hebrew form (pointing ignored, finals folded, prefix letters dropped when nothing matches), exact first, commonest first
+- [x] `components/JumpBox.tsx`: Ctrl+K / ⌘K anywhere or *Jump to…* in the top bar; a passage by reference, a word by form or number, a page by name (the nav list moved to `lib/nav.ts`, shared with the menus), a text search last; a modal combobox with arrows, Enter, Escape and focus return; Enter before the lookups settle looks up at once
+- [x] English and Hebrew; phone width without the key hints
+- [x] Tests: the lookup by number, pointed form, prefixed form and prefix (pytest); reference, word, page, arrows and wrap, Escape and focus, an Enter that beats the pause, Hebrew (vitest); e2e: Ctrl+K to a verse, a lemma and a page in both languages with axe on the open box (fixture), a chapter and a pointed word on the real DB
+
+✔ 131 / 131 vitest; 161 / 161 fixture and 124 / 124 real-data e2e.
+
+## M57: Findings (§10, §11.1; proposed B3)
+- [x] `GET /api/findings`: per analysis the tested claim's deciding numbers (from `meta`) and a verdict at `serve.findings.alpha` (holds / fails / lead); stages not run are left out
+- [x] Viewer: `/findings` (top bar, and a link on the home page): claims grouped borne out / not borne out / leads, each a sentence with its numbers and a link to the evidence; sentences branch on the direction of the numbers; English and Hebrew
+- [x] Tests: each verdict rule both ways, missing stages, a zero expected count (pytest); grouping, numbers, links, direction-dependent wording in Hebrew, the empty state (vitest); e2e: home → findings → evidence, the page in both languages with axe
+
+✔ Real DB: 8 claims hold (acrostics, divisions, the synoptic test, borrowing held out, "as commanded", voices, mirrored clauses, language against spelling), 2 fail (sevens, chiasm in repeated words), 1 lead (rare-word allusions); 165 / 165 fixture (the accessibility loops' time limit raised for the longer page list) and 126 / 126 real-data e2e; 134 / 134 vitest.
+
+## M58: Parallel sequences across the canon (§11.1; proposed B4)
+- [x] `GET /api/sequences/arcs?max_q&direction`: every matching chain at once, strongest first, up to `serve.max_arcs`, with the books' verse spans
+- [x] Viewer: Sequences → *Across the canon*: an arc per chain over the books in canon order (right to left in Hebrew), width by verse pairs, colour between / within books; the list's filters; a chosen book brings out its arcs; every arc a link to its chain; English and Hebrew
+- [x] Tests: the endpoint, its filters, the cap and bad parameters (pytest); arcs, links, drawing order, labels, filters, highlight, the view switch, right to left in Hebrew (vitest); e2e: keyboard from an arc to its chain, the view in both languages with axe
+
+✔ Real DB: 78 strong chains (43 between books), 1,228 in the same order, all 3,615 capped at the 2,000 strongest; 137 / 137 vitest, 171 / 171 fixture and 130 / 130 real-data e2e (the jump-box tests now find the box's field inside its dialog: the unit page has a combobox of its own).
+
+## M59: One paged list (§11.1; proposed B6)
+- [x] `PagedList` (`components/Pager.tsx`): the loading / error / empty / past-the-end states, summary line, stale marker and pager of a list page in one place
+- [x] 21 lists in 19 files moved to it (20 by a one-off script that rewrote only blocks matching the old skeleton exactly, Sequences by hand); concordance, domain verses and rare-word pairs keep their own states (their header comes from the same response)
+- [x] Tests: each state, past the end, stale, paging, a single page (vitest); every list page's existing tests unchanged
+
+✔ 141 / 141 vitest; 171 / 171 fixture and 130 / 130 real-data e2e.
+
+## M60: Meter — stresses per line and the falling lament line (§16.37, D73; proposed A1)
+- [x] `bsim meter` (`analysis/meter.py`, pipeline stage after mirrors, ~5 s): stresses from the accents (a word not ending in maqaf), lines = the largest spans of the accent dichotomy (strongest pause, the first of equals) of at most `max_stresses` stresses, split at their own main pause into `a:b`; net fall per chapter (falling − rising share of lines of 4–7 stresses)
+- [x] Test fixed in advance: Lam 1–4 against poetry under the same prose accents (top quarter of prose-accented chapters by parallel-halves probability) by drawing chapters; against Psalms / Proverbs / Job; a grid of line lengths; Lam 5 as control; chapters naming קינה (H7015) tested the same way
+- [x] DB `meter_lines`, `meter_chapters` (+ `meta.meter`, empty without the stage); API `/meter?group&book`, `/meter/{unit}`; dossier entry `meter` (`serve.dossier.meter_pct`); findings `meter` and `laments`; CSV export `meter`
+- [x] Viewer: Poetry → Meter (the test, control, line lengths, commonest lines, chapters naming a lament, ranking by group and book); *Stresses* next to the verse halves on unit pages (`a:b` per line, line ends marked, the chapter's net fall); English and Hebrew
+- [x] Tests: stresses, the dichotomy and its ties, lines and maqaf, chapter rates, the group test, the API, dossier, findings and DB on the fixture (pytest); the view, its filter, Hebrew, the empty state, the unit-page toggle, the dossier chip, the findings (vitest); e2e: the view and the unit toggle in both languages with axe, dossier chip → stresses
+
+✔ Lamentations 1–4 fall: net fall 0.39 against 0.17 for poetry under the same accents (p 0.008) and 0.14 for Psalms, Proverbs and Job (p 0.001), at every line length tried (p ≤ 0.011); 3:2 is Lamentations' commonest line; Lam 5 at the 74th percentile; chapters naming קינה not borne out (p 0.26), though Ezek 19 and 27 fall like Lamentations; 496 pytest, 146 / 146 vitest, 179 / 179 fixture (1 skipped by design) and 134 / 134 real-data e2e.
+
+## M61: Root families (§16.38, D74; proposed A2)
+- [x] `bsim roots` (`analysis/roots.py`, pipeline stage after meter, ~35 s): Strong's derivations followed at most `max_depth` links, kept where the word is the root's strong radicals in a Hebrew shape; names, Aramaic, patronymics, the divine names and `exclude` out
+- [x] Words of one root side by side (cognate verb + noun, other, infinitive absolute) against content words permuted within chapters; per book counts
+- [x] Leitworte by root per chapter; check fixed in advance on eight named Leitworte; hidden key roots (two or more words, none a Leitwort alone)
+- [x] DB `lemma_roots`, `root_pairs`, `root_books`, `root_leitworte` (+ `meta.roots`); API `/roots`, `/roots/pairs`, `/roots/hidden`, `/root/{root}`, `root_leitworte` on `/structure`, `roots` on `/words`; dossier `roots`; findings `cognate`, `root_leitworte`; CSV `root-pairs`, `hidden-roots`
+- [x] Viewer: Patterns → Roots (side by side, key roots), the root page, a root chip in the word panel, "By root" chips in the structure panel; English and Hebrew
+- [x] Tests: radicals and shapes, derivations, families (depth, names, exclude), tokens and pairs, the vectorised count against the pair list, the API, dossier, findings, export and DB on the fixture (pytest); the page, its views and filters, Hebrew, the empty state, the family page, both panels' chips, the dossier chip, the findings (vitest); e2e: the pages, dossier chip → pairs → root
+
+✔ A verb takes a noun of its own root nearby 4.1 times as often as chance (1,677 vs 406, p 0.005); counted by root, the eight named Leitworte do not rank higher (6 / 8 in the top 12 either way: 3 up, 3 down); 896 hidden key roots as leads; the infinitive absolute is rare in Chronicles (0.15 per 1,000 words vs ~1 in Kings); 506 pytest, 152 / 152 vitest, 189 / 189 fixture (1 skipped by design) and 140 / 140 real-data e2e (a word-chip contrast on the root page fixed).
+
+## M62: Layered reader (§16.39, D75; proposed B1)
+- [x] `GET /api/reader/{unit}`: speech per display token, phrase partners, rare words (`serve.reader.rare_verses`, names out), sound-alike pairs with their partner, ketiv / qere, the gap before each verse; `computed` per layer
+- [x] Viewer: the Reader page (`/read/:unit`), eight layers in `?layers=` (speakers, verse halves, Leitworte by word or root, shared phrases, rare words, wordplay, ketiv / qere, turns), a legend per layer, tooltips with every layer's word, the word panel, prev / next keeping the layers; "Read with layers" on the unit page; `HebrewText` takes a per-word `decorate`; colours ≥ 5:1 on every tint in both themes; English and Hebrew
+- [x] Tests: the endpoint on the fixture, across units, too long, without the stages (pytest); the layers in the URL, defaults, toggling, every layer's marks, wordplay partners, by root, not computed, Hebrew, a verse read in its chapter (vitest); e2e: the pages, unit page → reader → a layer → partner → next; axe on Genesis 3 with every layer
+
+## M63: Refrains (§16.40, D76; proposed A3)
+- [x] `bsim refrains` (`analysis/refrains.py`, pipeline stage after roots, ~6 s): 3-lemma seeds (prefixes dropped, two content words that are not names) in 3+ verses of a book within 20 verses of each other, scored by burst against the book rate; false discovery rate against verse orders shuffled within books; each refrain extended to its longest shared phrase
+- [x] Checks fixed in advance: nine refrains scholarship names; even spacing against random placements (untestable ones left out); the turns of §16.29 next to refrain verses; the strongest refrain of each group as the sample; a robustness grid (seed, gap, names)
+- [x] DB `refrains`, `refrain_verses` (+ `meta.refrains`); API `/refrains`, `/refrains/list`; dossier `refrains`; findings `refrains`, `refrain_regular`, `refrain_turns`; CSV `refrains`; the reader's Refrains layer
+- [x] Viewer: Patterns → Refrains (the three tests, the known table, the list with each refrain's verses marked, filters for book, the strongest of each group, named in advance, a unit); English and Hebrew
+- [x] Tests: tokens, seeds, runs and the burst, the false discovery rate, extension, spacing, the stage on a toy corpus (a refrain found, a name phrase not, the known check, spacing, turns), the API, dossier, findings, export, reader and DB on the fixture (pytest); the page, its tests, the list, filters, Hebrew, the empty state, the reader layer (vitest); e2e: the pages, dossier chip → refrains → reader
+
+✔ 925 refrains against 46 by chance (551 distinct); 8 of 9 named refrains found (the Song of Songs' adjuration is too far apart); even spacing 27 / 179 (15 % vs 5 %, p 3 × 10⁻⁷), mostly lists; refrain verses stand next to sharper turns, 0.679 vs 0.650 (p 0.001). Three choices changed after the first run are reported with a robustness grid.
+
+## M64: More supervision for the encoder (§16.41, D77; proposed C1)
+- [x] `train/pairs.py`: training pairs = Sefaria's train rows, then the train-split pairs of `train.supervised.extra_pairs` (OpenBible ≥ `extra_min_votes` votes, ETCBC parallels) that no earlier source links; hard negatives exclude every source's pairs; `bsim train-sup --extra`
+- [x] `bsim build-golds` (`data/golds.py`, pipeline stage after build-links): OpenBible and ETCBC pairs built before training; `eval-openbible` / `eval-etcbc` read them
+- [x] `bsim supervision-exp` (`eval/supervision.py`): variants `seed14`, `etcbc`, `openbible`, `both` trained with the same recipe; semantic and fused lists scored in memory on the Sefaria, OpenBible and ETCBC dev golds with paired bootstrap CIs; adoption rule fixed before training (fused OpenBible gain above 0 and beyond the reseeded retrain, no significant Sefaria / ETCBC loss)
+- [x] Adopted `both` (`extra_pairs: [openbible, etcbc]`): the experiment's model in place, the Sefaria-only one kept; `--adopt` now adds a newly declared dependency's outputs to a stage's inputs; embed and everything after rerun; test split not rerun
+- [x] API `/eval` → `supervision`; Evaluation page: *More supervision* (fused and semantic tables, the rule, the verdict); English and Hebrew
+- [x] Tests: merging and the gold files, variant configs, the adoption rule, negatives written under their name, adopt with a new dependency, the stage order (pytest); the section, its cells and verdict (vitest)
+
+✔ `both` passes the rule fixed in advance (fused OpenBible dev +0.0056, CI [+0.0017, +0.0096], against ±0.001 for a reseeded retrain; Sefaria +0.0051 and ETCBC +0.0006, CIs include 0); `openbible` alone fails it on ETCBC (−0.030), `etcbc` alone on OpenBible. Adopted: dev fused 0.1895 → 0.1946 (Sefaria), 0.1460 → 0.1516 (OpenBible); all 18 findings keep their verdict. 525 pytest, 167 / 167 vitest, 205 / 205 fixture (1 skipped by design) and 150 / 150 real-data e2e (a chapter link beside "out of domain" on the Language page is now underlined: with the new lists a chapter of Ecclesiastes became out of domain, and axe flagged the link).
+
+## M65: Psalm genres and the lament's turn (§16.42, D78; proposed A4)
+- [x] `bsim psalms` (`analysis/psalms.py`, pipeline stage after refrains, ~9 s): per psalm without its superscription (a leading run of title lemmas), persons, imperatives, plural imperatives, questions (OSHB morphology) and the shares of SDBH distress / praise words, per word
+- [x] Fixed before the first run: Gunkel's genres for 119 psalms (core cases, entered by hand) against 7 Ward clusters of the standardized counts (NMI, labels permuted); six genre profiles (BH); the turn as the split where praise − distress per word rises most (verse orders shuffled), twelve named turns within a verse (Poisson binomial), individual laments against hymns (Fisher); robustness: titles kept, form only, domains only, tolerance 0–2
+- [x] DB `psalms`, `psalm_verses` (+ `meta.psalms`); API `/psalms`, `/psalms/list`; dossier `psalms`; findings `psalm_genres`, `psalm_forms`, `lament_turn`, `lament_turns`; CSV `psalms`; the reader's *Distress and praise* layer (`mood`, any chapter)
+- [x] Viewer: Patterns → Psalms (the four tests, genres by cluster, what each cluster counts, the named turns, the list with each psalm's form, turn and a strip of its verses' mood); English and Hebrew
+- [x] Tests: morphology counts, superscriptions, the split statistic and its shuffles, Poisson binomial, profiles, the stage on a toy psalter, the API, findings, dossier, export, the reader layer and DB on the fixture (pytest); the page, its tests, filters, Hebrew, the empty state, the reader layer (vitest); e2e: dossier chip → psalms → reader with the mood layer; the pages with axe
+
+✔ The counted form recovers Gunkel's genres: NMI 0.262 against 0.082 with the genres shuffled (p 0.001; the form alone 0.294, the domains alone 0.142); 6 / 6 genre profiles hold; 7 of 12 named turns found within a verse against 3.4 by chance (p 0.016, but p 0.24 within 2 verses); individual laments do not turn above chance more often than hymns (7 / 37 against 2 / 30, p 0.13). 533 pytest, 173 / 173 vitest, 213 / 213 fixture (1 skipped by design) and 156 / 156 real-data e2e.
+
+## M66: The Pentateuch's sources (§16.43, D79; proposed A5)
+- [x] `bsim pentateuch` (`analysis/pentateuch.py`, pipeline stage after psalms, ~6 s): Genesis–Numbers split in two after Koppel–Dershowitz — chunks of 10 verses by their choices within 18 synonym sets (first principal component), the furthest 30 % of each side training a logistic regression on the synonym members and 60 function words, smoothed over ±2 verses; the side holding most of Leviticus P-like; the divine names never features
+- [x] Fixed before the first run: Noth's P entered by hand (2,787 verses, 88 unassigned); kappa over Genesis–Numbers and within Genesis, and יהוה's share before Exodus 6 on each side, each against the split shifted circularly within books; a grid of chunk size × smoothing
+- [x] DB `pentateuch_verses`, `pentateuch_chapters` (+ `meta.pentateuch`); API `/pentateuch`, `/pentateuch/chapters`, `source` on the reader's verses; dossier `pentateuch`; findings `pentateuch_split`, `pentateuch_genesis`, `pentateuch_names`; CSV `pentateuch`; the reader's *P / non-P* layer
+- [x] Viewer: Overview → The Pentateuch's sources (the checks, confusion, books, grid, the words that decide it, the synonym table, chapter by chapter against the reference); English and Hebrew
+- [x] The new config section was first named `sources`, which overwrote the download sources of the same name (a YAML duplicate key): found by the tests before any pipeline run, renamed `pentateuch` throughout
+- [x] A shadowed variable in `store/db.py` (the new meta block reused stylometry's `sm`) emptied the stylometry axes in one build: caught by the full test run, fixed, DB rebuilt
+- [x] Tests: tokens and the held-out names, chunks, choices, the first component, kappa, the names gap, circular shifts, smoothing, the stage on a toy Pentateuch, the API, reader, findings, dossier, export and DB on the fixture (pytest); the page, its tables, words and stems, chapters, the book switch, Hebrew, the empty state, the reader tag (vitest); e2e: dossier chip → reader with the split → the page
+
+✔ The split finds P: agreement 78 %, kappa 0.559 against 0.161 for the split shifted within books (p 0.001); within Genesis kappa 0.301 against 0.002 (p 0.004) — modest; the divine names, never seen, do not follow it (יהוה 37 % of divine names on the P-like side against 43 %, p 0.28; 1 % against 49 % in the reference). Leviticus, all P, only 69 % P-like. 540 pytest, 179 / 179 vitest, 221 / 221 fixture (1 skipped by design) and 162 / 162 real-data e2e.
+
+## M67: Who speaks to whom (§16.44, D80; proposed A6)
+- [x] Addressees in `bsim syntax` (`data/bhsa.py`; five more BHSA features, `nu`, `prs`, `prs_ps`, `prs_gn`, `prs_nu`): the introduction's אל / ל complement or the object of צוה, a vocative, a pronoun resolved to the other party, a bare ויאמר as an answer to the previous speaker; `quote` on every clause; speakers unchanged
+- [x] Rules tuned on two samples (40, 30), then frozen; hand check of 50 drawn after: 42 right — explicit 21 / 21, vocative 11 / 11, turn 6 / 9, pronoun 4 / 9; the checks rest on explicit and vocative addressees, every addressee as the sensitivity
+- [x] `bsim dialogue` (`analysis/dialogue.py`, pipeline stage after pentateuch, ~4 s): quotations with "your servant" forms, imperatives and נא; per-book pairs (the divine names one party); exchanges between two parties; checks fixed in advance: deference and נא toward God or a king (the "up" label permuted within books), the last word in unequal exchanges (the last turn drawn within each exchange); opener and turn lengths described
+- [x] The exchange definition changed after the first run (God's names one party, narrated turns only, a turn to someone else ends a run): stated with the first run's numbers (last word 142 / 250 against 130.5, p 0.075; same verdict)
+- [x] DB `clauses.addressee*`, `dialogue_pairs`, `dialogue_exchanges` (+ `meta.dialogue`); API `/dialogue`, `/dialogue/book/{id}`, `/dialogue/exchanges`; `addressee` on clauses, `to` on a book's speakers and the reader's; dossier `dialogue`; findings `dialogue_deference`, `dialogue_particle`, `dialogue_last_word`; CSV `exchanges`
+- [x] Viewer: Who speaks → To whom (counts, hand check, the three checks, a book's conversations as a network and a pairs table, exchanges linking to the reader); "to X" on the clause panel, a book's speakers and the reader's speaker legend; English and Hebrew
+- [x] Changing the `syntax` config section marked `train-simcse` / `train-sup` as changed (they read the whole section): adopted with `bsim all --adopt` rather than retrained, as D71 intends — the new keys cannot touch the encoders. Adopted before the upstream stages had rerun, the adoption did not hold: their reruns recorded more outputs, `train-simcse` started retraining on "new input corpus_meta.json" and was stopped before writing anything (the models are unchanged). After the upstream reruns the encoders were adopted again, and so were the stages whose only reason was a new, never-read input (their recorded inputs all matched)
+- [x] Tests: addressees on two synthetic BHSA texts (explicit, pronoun to the other party, pronoun to the being named before), word marks, quotation extents, ranks and parties, exchanges (third speaker, addressed elsewhere, unknown speaker, not narrated), the permutation test on a planted rate, turn checks, pairs, the stage on a toy text, the API, findings, dossier, export, without the stage (pytest); the view, its checks, network, pairs, party filter, unequal filter, Hebrew, the empty state; the clause panel, speakers and reader legend (vitest); e2e: the tab in both languages with axe
+
+✔ Speech to God or a king calls the speaker "your servant" 13.1 times per 1,000 words against 1.5 (p 0.001; 11.7 without Solomon's temple prayer); commands to them take נא 14 % of the time against 4 % (p 0.003), siding with the politeness reading; the higher party does not have the last word more than its share of the turns gives (96 of 170 against 89.4, p 0.17), nor open more, nor speak longer. All 25 earlier findings unchanged. 552 pytest, 183 / 183 vitest, 227 fixture e2e (1 skipped by design; axe first flagged the exchange links as colour-only, underlined like the other running-text links) and 168 / 168 real-data e2e.
+
+## M68: Graded numerical sayings and lists (§16.45, D81; proposed A7)
+- [x] `bsim forms` (`analysis/forms.py`, stage after dialogue, ~6 s): number words from the lemma table `forms.numbers` (cardinals, Hebrew and Aramaic); compound numbers left out; graded pairs within 8 words of one verse (`steps`); lists as runs of verses whose word-shape n-grams match a neighbour up to 3 verses away above the shuffled 0.99 quantile; kinds described
+- [x] Checks fixed in advance (`forms.checks`): the 19 sayings named in advance; graded pairs against the book's number values permuted; sayings against other number pairs by parallelism; the 10 lists named in advance among more lists than shuffled orders give
+- [x] Changed after the first run, stated: a NaN bug in the parallelism check fixed; the `names` kind; the sensitivity without 1 / 2 (described); the lists on their own random stream. No verdict changed
+- [x] DB `forms_sayings`, `forms_pairs`, `forms_lists`, `forms_books` (+ `meta.forms`); API `/forms`, `/forms/sayings`, `/forms/lists`; `list_verses` on map points; dossier `forms`; findings `forms_known`, `forms_chance`, `forms_parallel`, `forms_lists`; CSV `sayings`, `lists`
+- [x] Viewer: Patterns → Numbers and lists (the sayings with both numbers marked, the lists with their first verses, the checks and what was named in advance); the Map coloured by lists; English and Hebrew
+- [x] Tests: number words, compound numbers, candidate pairs and steps, likeness and runs, the stage on a toy text, the API, map, findings, dossier, without the stage (pytest); the page, its checks, filters, Hebrew, the empty state; the map's colour option (vitest); e2e: the page in both languages with axe, from a chapter's dossier, Amos 1 and Genesis 5 on the real build
+
+✔ 18 of the 19 sayings named in advance are found (Deut 32:30's אחד אלף ושנים reads as one number), and a verse with a graded pair is a parallel line more often than one with another pair of numbers (12 % against 5 %, p 0.026); but graded pairs are no more common than the books' numbers placed at random (105 against 96.2, p 0.20): "one … two" in the measurements of the Tabernacle and Temple swamps the sayings (without 1 / 2: 48 against 37.0, p 0.037, described). 69 lists against 0.7 by chance, 8 of the 10 named in advance (Num 7 and Neh 3 missed).
+
+## M69: Pattern search (§16.46, D82; proposed B2)
+- [x] `api/patterns.py`: the query language (bracketed word patterns, `key=value` / `!=` / `|`, `..N` and `..` gaps, `@` variables on lemma, root and word), a parser that reports errors as codes with a position, the word table from the results DB (OSHB morphology decoded per main morpheme, prefixes and suffix apart; BHSA functions, clause types, speech and speaker), matching by masks and word offsets
+- [x] `/patterns` (paged verses, matches per book, `error`), CSV `patterns`; the word table built in the background at server start (`serve.patterns`), queries cached
+- [x] Check: the infinitive absolute with a finite verb of the same lemma within three words, both orders, 432 + 41 = 473, the count of `bsim roots`
+- [x] Viewer: Patterns → Pattern search (`/query`): query box, examples, syntax guide with every key, errors worded and marked in place, counts per book as filters, matched words marked; English and Hebrew
+- [x] Tests: the morphology decoding, every parse error, matching on a small DB (variables, gaps, functions, speech, prefixes, suffixes, Hebrew lemmas, too broad), the endpoint, paging, filters and CSV, the table built once (pytest); the page, examples, book filter, errors, Hebrew (vitest); e2e: the page in both languages with axe, a query and an error on the fixture, the 432 pairs on the real build
+
+✔ A construction can be searched from the viewer: `[form=infabs root=@r] [root=@r form=finite]` lists the 377 verses of מות יומת and its kind, and the query language reproduces the roots stage's count of infinitive-absolute pairs exactly (473).
+
+## M70: Your notebook (§16.47, D83; proposed B3)
+- [x] `store/notebook.py`: entries (a unit with a note), collections, members, in the labels file; adding to a collection keeps the unit, removing an entry takes it out of its collections, deleting a collection keeps its entries
+- [x] API `/notebook` (entries in canon order with a verse's text, collections with counts, `hidden` for units an older build had), entries, collections and members (PUT / POST / DELETE; 403 read-only, 404, 409 for a name taken, 422 for limits `serve.notebook`); CORS allows POST
+- [x] Viewer: a Notebook panel on every unit page (keep, note, collections, create one in place, remove with an in-page confirmation); the Notebook page (collections as filters with create / rename / describe / delete, search over notes, Markdown and CSV export written in the browser); English and Hebrew
+- [x] Tests: the store, the API (order, limits, conflicts, read-only, units of an older build, the file shared with the labels) (pytest); the panel, the page, the Markdown file, against an in-memory server (vitest); e2e: keep a verse with a note and a new collection, see it in the notebook, axe, clean up (fixture, desktop only: one shared file); the page loads on the real build
+
+## M71: Newer encoders (§16.48, D84; proposed C2)
+- [x] Availability checked first: DictaBERT base / large, multilingual-E5-large, Qwen3-Embedding-0.6B on the hub, ungated, fast tokenizers, every verse within 128 tokens; NeoDictaBERT left out (`trust_remote_code`)
+- [x] `bsim encoder-exp [--retrain] [--only NAME]` (`eval/newer_encoders.py`): trained candidates through `train-sup` with BEREL's recipe, pairs and seed from their base model (`models/{name}-sup`); zero-shot candidates encoded with their own instruction (`encoders` `prompt`); semantic and fused lists on the Sefaria, OpenBible and ETCBC dev golds with paired bootstrap CIs; zero-shot ones also against BGE-M3; never edits the config
+- [x] Rule fixed before any candidate ran: Sefaria fused gain with CI above 0 and above the reseeded retrain's 0.0009, no significant loss on OpenBible or ETCBC
+- [x] API `/eval` → `encoders`; Evaluation page: *Newer encoders* (fused and semantic tables, the rule, the zero-shot comparison); English and Hebrew
+- [x] Tests: candidate configs, the noise bar, the adoption rule, the report (pytest); the section and its cells (vitest)
+
+✔ None passes, so BEREL stays. Fused Sefaria dev against `berel_sup` (0.1946): DictaBERT base −0.0164, CI [−0.0264, −0.0068], large −0.0213, CI [−0.0320, −0.0110], multilingual-E5 −0.0271, CI [−0.0395, −0.0151], Qwen3 −0.0476, CI [−0.0606, −0.0351]. Every candidate scores higher on ETCBC's near-verbatim parallels, significantly only DictaBERT base (+0.0275, CI [+0.0024, +0.0532]) and E5 (+0.0376, CI [+0.0105, +0.0659]). DictaBERT large trained 3 h 53 min and peaked at step 100 of 755. Zero-shot, multilingual-E5 is level with BGE-M3 and Qwen3 below it.
+
+## M72: Comparing two builds (§16.49, D85; proposed C4)
+- [x] `store/compare.py`: both DBs attached read-only; per table schema, row counts, keyed tables joined on the primary key (only old / only new / changed, exactly and beyond `compare_builds.float_tol`, example keys and columns), unkeyed tables as multisets plus their order; `meta` by flattened JSON paths, `volatile_meta` apart
+- [x] `bsim compare-builds OLD NEW [--json PATH] [--fail-on-diff]`; config `compare_builds`
+- [x] Tests: identical builds, tables and columns added and removed, keys, the tolerance, reordered and duplicate rows, `meta` paths, a missing file, the command's report, JSON and exit codes (pytest)
+- [x] Real check: the build before M71 against the one after, and against a copy edited by hand
+
+✔ The builds before and after M71 are identical in all 85 tables (about 75 s), so rewriting `surface_bm25.json` changed nothing served; only the build time and the `/similar` timings differ, now volatile. A copy with one row deleted, one score moved within the tolerance and one beyond it, and one `meta` count changed is reported as exactly that.
+
+## M73: A third fusion list for chapters and pericopes (§16.50, D86; proposed C3)
+- [x] `retrieve/unit_pairs.py`: unit lists summed from weighted verse pairs; `bsim unit-exp` (`eval/unit_experiments.py`): parallel sequences (every chain / q ≤ 0.2), shared phrases, fused verse hits (top 10 / 50) as a third RRF list at w 0.25 / 0.5 / 1, per unit type on the Sefaria, OpenBible and ETCBC dev unit golds, selected and cross-fitted, paired bootstrap; the two-list baseline rebuilt in memory
+- [x] Rule fixed before the first run: cross-fitted Sefaria CI above 0, no significant loss on OpenBible or ETCBC; the largest passing gain adopted
+- [x] Adopted phrases for chapters (`fusion.unit_phrases: {chapter: 1.0}`): `bsim fuse` writes `topk/chapter/phrases.parquet` and fuses three lists; the phrases stage moved before fuse; `matches.phr_score`, `phr_rank`; training stages adopted, the rest rerun (33 stages, 16 min)
+- [x] API `/similar` → `phrases` and `phr_*`; `/eval` → `units`; viewer: a third rank bar (*Phr*) on chapter pages, the Evaluation page's *A third list for chapters and pericopes* (per unit type: the verdict, gains, the lists alone); English and Hebrew
+- [x] Tests: aggregation, ranking, unit gold from verse pairs, scoring, the rule, the report, fusion with the phrase list, the API fields (pytest); the rank bar, the Evaluation section (vitest)
+- [x] Checked with `bsim compare-builds`: only chapter fused matches and what is built on them changed; all 32 findings keep their verdict
+- [x] Fixed: the server's `/search` caches are never stage files (`incremental.Scope` ignores `serve.cache_dir`, the state forgets recorded files it ignores); a viewer session after a rebuild no longer marks `phrases` and everything after it stale (§16.35)
+
+✔ Shared phrases pass for chapters: cross-fitted +0.0266 on Sefaria dev (CI [+0.0066, +0.0461]), OpenBible +0.0123 and ETCBC +0.0677 (CIs above 0); chapter fused 0.1710 → 0.1976, now above TF-IDF (0.1916). Nothing passes for pericopes: fused verse hits come nearest (cross-fitted +0.0095, CI [−0.0002, +0.0190]). Parallel sequences help little at either level.
+
+## M74: Code health (§16.51, D87; proposed C5)
+- [x] `api/models/` and `api/queries/`: one module per route module + `common` (routes import their own models; `queries` re-exported); `queries.domains` → `domain_tree`; the OpenAPI schema unchanged
+- [x] `store/analyses.py`: one `Source` per analysis stage (files, tables, fixes, meta keys) in place of the per-analysis read / adapt / insert code; columns from `schema.sql` (`store/schema.py`); `store/lexicon.py`, `store/links.py`; the analysis modules import the lemma helpers at the top; the DB built identical
+- [x] `Literal` fields in pydantic where the viewer narrows a string; `types.ts`: 214 aliases of the schema, 19 responses with open JSON fields written over it; the drift check only for those
+- [x] `components/UnitPanels.tsx`: the unit page's data panels with their unit types, place and dossier gate
+- [x] Checks: ruff, pytest, lint, vitest, fixture and real e2e; `bsim compare-builds` (identical after `bsim build-db`; after `bsim all`, `senses` differs between two runs of unchanged code: fixed in M75)
+
+✔ Same API, same DB: `models.py` 2,425 / `queries.py` 2,145 / `db.py` 2,031 lines became feature modules (the largest 303 lines), a 526-line `db.py` and the 689-line analyses registry, `types.ts` 3,130 → 1,263, the unit page 557 → 445. Found on the way: `bsim senses` is not deterministic across runs (one example or one clustering of a frequent lemma).
+
+## M75: Deterministic k-means (§16.52, D88)
+- [x] Found the cause of the senses run-to-run differences. The GPU word vectors are bitwise the same across runs and processes; sklearn's multi-threaded `KMeans` is not (centres in the last bits, and at times the optimum: כֹּל 3605)
+- [x] `stats.kmeans`: one thread via `threadpoolctl`, with sklearn imported first; used by `senses.cluster_uses` and `corpus_map.clusters`
+- [x] Test: four fits of 6,000 random points give one answer, where plain `KMeans` gives one per fit
+- [x] Two runs of `bsim senses` and of `bsim map`: byte-identical files, at the same speed. `bsim all` (31 stages, 12 min 30 s) gave the same senses files a third time; `bsim compare-builds` against the DB before: 82 of 85 tables the same, `lemma_senses` and `lemma_shifts` differ in those lemmas only, `word_pairs` holds the same rows in another order (as in M54)
+
+✔ `bsim senses` gives one answer per seed. Against the last run, the use clusters of בֵּן 1121a, כֹּל 3605 and מֶלֶךְ 4428 and one example list of דָּבַר 1696 changed; the counts in the meta and the map did not.
+
+## M76: Gematria (§16.53, D89; proposed G1)
+- [x] `text/gematria.py`: standard, gadol (finals 500–900), ordinal, katan over the consonants; `bsim gematria` (`analysis/gematria.py`, pipeline stage after forms, ~15 s): every written form (MAM display tokens, qere), lemma (Strong's headword, else its commonest form) and verse valued; the equivalences of `gematria.known` checked (the stage stops when one fails)
+- [x] DB `gematria_forms`, `gematria_lemmas`, `gematria_verses` (indexed by each system's value; + `meta.gematria`); API `/gematria/value?text=`, `/gematria?value&system`, `/gematria/{forms,lemmas,verses}`; `gematria` per token on `/reader/{unit}`
+- [x] Viewer: Patterns → Gematria (a word or a number, its four values, forms / lemmas / verses of that value, the equivalences), the word panel's value chip, a Gematria layer in the reader (word values, verse totals linked to their verses), `= 318` in the jump box; English and Hebrew
+- [x] Tests: tables, points and maqaf ignored, Genesis 1:1 = 2701, the known values, the stage, DB and API on the fixture, the reader layer (pytest); the page, its systems, views and equivalences, Hebrew, the empty state, the reader layer, the jump box (vitest); e2e on the fixture and the real build
+
+✔ 39,555 written forms, 9,204 lemmas and 23,206 verses valued; the eight equivalences hold. Seven verses add up to 2701 as Genesis 1:1 does, a reminder of how common equal values are before G2 tests them. 607 pytest, 209 vitest, 249 / 251 fixture e2e (2 skipped by design; one page load failed once under load and passed 12 / 12 on rerun) and 188 / 188 real-data e2e.
+
+## M77: Atbash and albam (§16.54, D90; proposed G3)
+- [x] `text/ciphers.py`: atbash, albam and random pairings of the 22 letters; `bsim ciphers` (`analysis/ciphers.py`, ~170 s): rare words and adjacent word pairs a swap turns into a name of the text (`Np`), against 999 random pairings; checks fixed in advance in `ciphers.checks` (known, Jeremiah 25 + 51, elsewhere, albam); per chapter p and BH q
+- [x] DB `cipher_hits`, `cipher_chapters` (+ `meta.ciphers`); API `/ciphers`, `/ciphers/hits`, `/ciphers/value`; findings `ciphers_known`, `ciphers_jeremiah`, `ciphers_elsewhere`, `ciphers_albam`
+- [x] Viewer: Patterns → Atbash and albam (the checks, the cases named in advance, the hits with their words marked, the chapters against random pairings), the word panel's "Swapped" line; English and Hebrew
+- [x] Tests: the swaps (pairs, no fixed letter), the known readings, names and spans, the stage on a small corpus (hits, known, checks, the same file twice, a bad reference), the API, findings (pytest); the page, its filters and chapters, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ The three places of Jeremiah are found and stand out there: 3 names against 0.64 for a random pairing (p 0.036). Elsewhere atbash reads 78 names against 104 (p 0.76) and albam 94 against 105 (p 0.53): neither hides names beyond chance; no chapter passes after correction. 615 pytest, 214 vitest, 256 / 258 fixture e2e (2 skipped by design) and 194 / 194 real-data e2e (the word-panel step first looked for the word with its te'amim, which the page does not show by default: fixed and rerun).
+
+## M78: The Masorah's counts (§16.55, D91; proposed G4)
+- [x] `bsim masorah` (`analysis/masorah.py`, ~4 s): the written and the read text from the MAM tokens and OSHB's ketiv / qere; the middles of `masorah.middles` (the Torah's letter, words and verse from Kiddushin 30a, the Masorah and Soferim; each Torah book's middle verse; Psalms) against ours; the Masorah's verse totals per book (Ginsburg's collation, other manuscripts' figures listed) and the sections against ours, each differing book with its reason
+- [x] DB `masorah_middles`, `masorah_totals`, `masorah_books` (+ `meta.masorah`); API `/masorah`; findings `masorah_letter`, `masorah_words`, `masorah_verse`, `masorah_books`
+- [x] Viewer: Patterns → The Masorah's counts (the middles, as written or as read, with both verses marked; the verse totals with their reasons; the sections; every book counted); English and Hebrew
+- [x] Tests: the two texts (a word shown as written, as read, written not read, read not written), the middles in letters, words and verses, the totals and their sum, bad claims, the same file twice, the API, findings (pytest); the page, the text switch, the totals, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ Written, the Torah has 304,801 letters (the printed count is 304,805) and 79,978 words in 5,846 verses. The ו of גחון is 4,829 letters past our middle letter (the ל of ליהוה, Lev 8:28), and דרש דרש are 932 words past our middle words. The Masorah's middle verse, Lev 8:8, lands (our middle is between 8:8 and 8:9), as do the middle verses of the five books and of Psalms. 18 of the Masorah's 24 books have its verse total. The other six differ by 1–2 verses: the Ten Commandments divided otherwise (Exodus, Deuteronomy), Gen 35:22 counted as two, Josh 21:36–37 left out, Kings untraced, and Jeremiah, where the manuscripts disagree. 621 pytest, 219 vitest, 258 / 260 fixture e2e (2 skipped by design; the page first failed axe's link-in-text-block: its in-text links are now underlined, and the accessibility runs pass) and 200 / 200 real-data e2e.
+
+## M79: The gazetteer (§16.56, D92; proposed P1)
+- [x] `bsim download --only geo`: STEPBible TIPNR and OpenBible.info's `ancient.jsonl`, both CC BY 4.0, at pinned commits (DESIGN §1); `data/geo.py` reads them
+- [x] `bsim places` (`analysis/places.py`, ~3 s): each name mention to a TIPNR place by Strong's number and the nearest reference (exact, shifted by English numbering, or a number's only place); the site located by OpenBible's best-voted identification (joined by name and TIPNR id, decided by shared verses); kinds from SDBH's name subdomains and OpenBible's types; every name's SDBH kind; hand check 49 / 50
+- [x] DB `places`, `place_mentions`, `name_kinds` (+ `meta.places`); API `/places`, `name_kind` and `sites` on `/entities/{lemma}`; the Names page shows a name's kind and sites (English and Hebrew)
+- [x] Tests: both readers (a psalm title's verse 0, the Septuagint skipped, spellings, votes sorted), matching mentions (exact, shifted, only, person, none), the OpenBible join, the stage on a small corpus, the API (pytest); the Names page's sites (vitest); e2e on the fixture and the real build
+
+✔ 6,463 name mentions are 820 sites, 818 located (802 by OpenBible); 574 towns, 97 regions, 94 landforms, 41 waters; 92 Strong's numbers name several sites (Abel: a stone, Abel-beth-maacah). Hand check: the site is the place meant in 49 of 50. Votes are often low (363 sites under 300 of 1,000), stated with every point. 630 pytest, 220 vitest, 264 / 266 fixture e2e (2 skipped by design) and 202 / 202 real-data e2e; adding the `geo` download group was adopted for every stage it does not feed (no corpus input changed), and the real DB only gained the three tables.
+
+## M80: A real map (§16.57, D93; proposed P2)
+- [x] Natural Earth's 1:10m land, lakes and rivers (public domain) in the `geo` download group; `data/basemap.py` clips (Sutherland–Hodgman, Liang–Barsky) and thins (Douglas–Peucker) them in plain Python; `bsim places` writes the base map (17,689 points, 280 KB); TIPNR's `@0,14z` no longer read as a point
+- [x] DB `map_shapes`; API `/places/basemap`, `/places/{id}` (names, verses per book, places named with it), `/places/{id}/verses`; `places` on `/reader/{unit}`
+- [x] Viewer: Overview → Places on the map (an SVG projected by hand: points sized on a fixed log scale and coloured by kind, labels kept apart, drag and zoom, keyboard; filters by book, chapter, unit and kind; three views; the place panel); "Where this happens" on chapter and pericope pages; a places layer in the reader; English and Hebrew, light and dark
+- [x] Tests: clipping, lines and simplification (pytest); the base map from a small corpus, the place panel, verses, the reader layer (pytest); the page, the panel, filters, keyboard and zoom, Hebrew, the empty state, the reader layer (vitest); e2e on the fixture and the real build
+
+✔ The 816 located places on a map of the region, drawn by hand from Natural Earth (no tiles, no map library), filterable down to a chapter; every place opens to its names, books, companions and verses; chapters and pericopes show where they happen; the reader boxes every place name. 635 pytest, 227 vitest, 272 / 274 fixture e2e (2 skipped by design) and 210 / 210 real-data e2e; the pipeline adopted the stages the new download does not feed, and the real DB gained `map_shapes` only.
+
+## M81: Place lists on the ground (§16.58, D94; proposed P3)
+- [x] `bsim place-lists` (`analysis/place_lists.py`, ~3 s): six lists fixed in `place_lists.lists` (Num 33, Num 34, Josh 15:1–12, Josh 15:21–62, Josh 19, Gen 10), places in the text's order by verse and word; the path against 9,999 random orders, with a nearest-neighbour + 2-opt short path for scale; Judah's districts and the tribes' lots against shuffled labels; every test again on sure sites (vote ≥ 500)
+- [x] DB `place_lists`, `place_list_steps`, `place_districts`, `place_district_towns` (+ `meta.place_lists`); API `/place-lists`, `/place-lists/{key}`, `/place-districts/{key}`; findings `place_lists_order`, `place_lists_districts`
+- [x] Viewer: Overview → Place lists on the ground (the lists' tests; a list's path on the map in the text's order or the short one, the random orders' histogram, its steps with the longest marked; the districts coloured on the map with their tests); the map draws lines and takes a colour per point; English and Hebrew
+- [x] Tests: distances, the short path, random orders, districts (pytest); the stage on a small corpus (word order in a verse, a region left out, a place named again, sure sites), the API, findings (pytest); the page, a list, the short path, districts, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ All six lists walk the ground: each path is shorter than all 9,999 random orders of its places (Num 33: 2,172 km against 8,728; Josh 15:21–62: 1,951 against 4,463), 67–88% of the way from random to a short path, and all six still hold on sure sites alone. Judah's districts cluster (27.6 km within against 38.5 shuffled, p 0.0001; sure sites 17.0 against 34.8), seven of the ten with two towns or more on their own, though not the wide Negev district; the tribes' towns, the known answer, at 23.6 against 84.8 km. The longest steps point at two doubtful joins of the gazetteer (Josh 15:3's Hezron as the northern Hazor, Num 34:11's Ain as the southern one), listed as leads. 642 pytest, 233 vitest, 278 / 280 fixture e2e (2 skipped by design) and 216 / 216 real-data e2e: the new page first failed axe's colour contrast (muted text on the chosen row, now full colour), and the old atbash smoke test's flake is fixed (its checkbox follows the URL a render late, so the test waits for it rather than `check()`).
+
+## M82: Equal values, related words? (§16.59, D95; proposed G2)
+- [x] `bsim gematria-links` (`analysis/gematria_links.py`, ~50 s with the GPU): 3,373 lemmas with domains, a root and a BEREL vector; every pair of equal standard value against 999 sets of pairs matched on letter count and frequency band, on SDBH domains, root family and vectors; pairs spelled alike left out; one-root pairs as the check; the tradition's equivalences ranked; Gen 1:1's properties over every verse with its own-numbers look-elsewhere control
+- [x] DB `gematria_pairs` (+ `meta.gematria_links`); API `/gematria-links`, `/gematria-links/pairs`; findings `gematria_links`, `gematria_measures`, `gematria_genesis`
+- [x] Viewer: Patterns → Equal values, related words? (the test and the check, the equivalences, Genesis 1:1's numbers and twins, the pairs sorted and filtered); English and Hebrew
+- [x] Tests: prime factors, triangular numbers, properties, matched draws (cell, value, spelling, either side kept), the stage on a small corpus (a name left out, pairs spelled alike, the equivalences, the verse and its twin), the API, findings (pytest); the page, the equivalences, Genesis 1:1, the pairs' sort and filters, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ Equal values link nothing. Over 11,328 pairs of equal standard value, semantic domains shared 0.0085 against 0.0097 for matched pairs (p 0.96), one root family 0.01% against 0.04% (p 0.99), BEREL vectors 0.602 against 0.601 (p 0.06), while pairs of one root family, the check, are far closer (domains 0.257 against 0.013, vectors 0.673 against 0.596). נחש = משיח is used more alike than 74% of equal-value pairs, יין = סוד 65%, אחד = אהבה 31%. Only Genesis 1:1 has the five properties claimed for it, but described by its own numbers it shares 7 words, 28 letters and largest prime factor 73 with four verses (Ps 44:5, Ps 54:9, Prov 7:7, Job 24:10), while 63% of verses are alone with theirs. 647 pytest, 238 vitest, 284 / 286 fixture e2e (2 skipped by design) and 222 / 222 real-data e2e: the new page first failed axe's link-in-text-block (a value link in each pair's line, now underlined).
+
+## M83: The geographic arc (§16.60, D96; proposed P4)
+- [x] `bsim place-arc` (`analysis/place_arc.py`, ~2 s): every chapter's centre (the mean on the sphere of its located place mentions, once per verse), spread and reach; consecutive placed chapters against 9,999 shuffled orders per book and over all; four known moves against anchor regions; the oracles against the nations against the other prophetic chapters on spread and reach (labels shuffled, α / 2 each)
+- [x] DB `place_arc_chapters`, `place_arc_books` (+ `meta.place_arc`); API `/place-arc`, `/place-arc/{book_id}`; findings `place_arc_order`, `place_arc_moves`, `place_arc_oracles`
+- [x] Viewer: Overview → The geographic arc (a book's chapters as a numbered path on the map with their steps and spreads, the books' table, the known moves as a table and arrows on the map, the oracles' tests and chapters); `GeoMap` takes a point's title; English and Hebrew
+- [x] Tests: centres, spreads, the label test, the stage on a small corpus (a place twice in a verse, an unplaced chapter passed over, a book too short to test, the moves both ways and one unplaced, the oracles), the API, findings (pytest); the page, the book switch, the moves and oracles, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ Consecutive chapters lie closer than shuffled: 223 km against 267 km over 556 placed chapters (p 0.0001), and 9 of 31 books on their own (Genesis 228 against 355 km, 2 Kings 145 against 268, Jeremiah 321 against 436). All four known moves hold (Gen 11's centre 135 km from Babylon, Gen 12's 106 km from Jerusalem). The oracles against the nations do not range wider at α / 2: spread 412 against 296 km (p 0.07), reach 331 against 275 km (p 0.19); an oracle names its nation's own towns, and those against Moab are the tightest chapters of all (Jer 48 26 km). 654 pytest, 243 vitest, 290 / 292 fixture e2e (2 skipped by design) and 228 / 228 real-data e2e: the new page first failed axe's link-in-text-block (the chapter links in its lists, now underlined), and its accessibility tests were rerun on their own.
+
+## M84: Named together, near together? (§16.61, D97; proposed P5)
+- [x] `bsim place-links` (`analysis/place_links.py`, ~6 s): located places linked by the verses they share (≥ 2, above independence), G² as strength; Spearman's rho between G² and km against 9,999 shuffles of the coordinates, on every located place, sure sites and without the place lists; the decay by km bins; far pairs (≥ 150 km) as leads with Dan–Beersheba as a known answer
+- [x] DB `place_links`, `place_link_bins` (+ `meta.place_links`); API `/place-links`, `/place-links/pairs`; findings `place_links_decay`, `place_links_known`
+- [x] Viewer: Overview → Named together, near together? (the test and its variants, the scatter, the decay per variant, the known answer and leads with lines on the map, the linked pairs by place and order); English and Hebrew
+- [x] Tests: links (a place twice in a verse, a pair below independence), rank correlation, the test and the bins on a line of places, the stage on a small corpus (a place without a point, the variants, a list verse, the known pairs found and not), the API, findings (pytest); the page, the variants, the decay switch, the leads and the known answer, the place filter, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ Places named together lie together: over 510 linked pairs of 277 places, rho −0.32 between link strength and km against −0.00 with the points shuffled (p 0.0001); −0.33 on sure sites, −0.30 without the place lists. 6.3% of the pairs within 10 km are linked, 0.2–0.4% beyond 50 km. Dan and Beersheba are the third of 149 far pairs; the others at the top are Babylon and Chaldea, the cities of the Assyrian boast, the exiles' Halah, Habor and Gozan, and Assyria with Egypt. 661 pytest, 249 vitest, 296 / 298 fixture e2e (2 skipped by design) and 234 / 234 real-data e2e.
+
+## M88: The family tree, data (§16.63, D101; proposed F1)
+- [x] `read_tipnr()` reads the family columns of a PERSON record (`TipnrFamily`: parents, siblings, partners, offspring, tribe, type, the `(?)` / `(a)` / `(d)` / `(f)` markers) and every reference as written (`eng_refs`, with `Exo.7.10a`); places unchanged (byte for byte)
+- [x] `data/kjv.py`: English (KJV) verse numbers to ours, 39 rules (1 Chr 6:1 = 5:27, Joel 3 = 4, ...)
+- [x] `bsim genealogy` (`analysis/genealogy.py`, ~3 s): people with Hebrew Bible names, links from both sides of TIPNR, proof verses by cue (construct, sons of, begot, kin, together; wife for spouses; a `nearby` hint for list headings), the review files of `curation/genealogy/` applied with strict validation, one drawn parent each, the married-in beside their spouse, the rest on their tribe's eponym or under "unattached" by book; `bsim genealogy-review <block>` writes the review sheet
+- [x] DB `genealogy_persons`, `genealogy_links`, `genealogy_proofs`, `genealogy_conflicts`, `genealogy_blocks` (+ `meta.genealogy`)
+- [x] Tests: the family columns, English numbering, the cues and the nearby hint, the stage on a small corpus (placement, proofs, tokens, determinism), a review file applied (confirmed, added, rejected, a conflict, missed), its errors, a cycle, the missing source (pytest)
+
+✔ 2,845 people (2,737 persons, 73 groups, 35 unnamed) and 1,818 parent links, 1,463 (80%) with a verse naming both before any review: construct 616, sons of 461, begot 217, kin 146, together 23; 218 more have a nearby hint and 137 nothing. TIPNR's references hit the name in 98.3% of verses once moved to Hebrew numbering (about 80% without the rules; 1 Chr 6 was 15 verses off). Placed: Adam, 1,553 under a parent, 169 on a tribe, 67 beside a spouse, 1,055 unattached (mostly people with no family in the text). 680 pytest; the stages flagged by the change but unchanged were adopted.
+
+## M89: The family tree, viewer (§16.63, D101; proposed F2)
+- [x] API `/genealogy/skeleton`, `/genealogy/person/{id}`, `/genealogy/lookup?q=`
+- [x] Viewer: Overview → Family tree (the tree with `d3-hierarchy`, collapse and expand anywhere, children by mother, cross-links, the markers and their legend, the side panel with proof verses, search, a bottom sheet on a phone, pinch and pan via a `usePanZoom` shared with the map); English and Hebrew
+- [x] Tests: the API (pytest); the tree, collapsing, the panel, search, Hebrew (vitest); e2e on the fixture and the real build, axe
+
+✔ Overview → Family tree: 2,816 nodes, 64 people drawn beside a spouse and 113 cross-links, laid out only where open and drawn only where in view. Jacob's sons sit under Leah, Bilhah, Zilpah and Rachel, each link with its verses and both names marked. Light and dark, English and Hebrew (mirrored), desktop and phone (bottom sheet). 683 pytest, 272 vitest; fixture e2e 309 passed (one Hebrew axe sweep failed once while other suites ran and passed on rerun); the real-data tree, page and axe sweeps pass.
+
+## M90: The family tree, review block by block (§16.63; proposed F3)
+Each block: `bsim genealogy-review`, the Hebrew read against the sheet, `curation/genealogy/NN-<block>.yaml`, rebuild, `docs/genealogy/PROGRESS.md` updated.
+- [x] 01 Gen 1–11
+- [x] 02 Gen 12–25:18
+- [x] 03 Gen 25:19–36
+- [x] 04 Gen 37–50
+- [x] 05 Exodus–Leviticus
+- [x] 06 Numbers–Deuteronomy
+- [x] 07 Joshua–Judges
+- [x] 08 1–2 Samuel
+- [x] 09 1–2 Kings
+- [x] 10 Isaiah–Malachi
+- [x] 11 Psalms, Proverbs, Job, Song, Ruth, Lamentations, Ecclesiastes
+- [x] 12 Esther, Daniel
+- [x] 13 Ezra–Nehemiah
+- [x] 14 1 Chr 1
+- [x] 15 1 Chr 2
+- [x] 15b 1 Chr 3–4
+- [x] 16 1 Chr 5–6
+- [x] 17 1 Chr 7
+- [x] 17b 1 Chr 8–9
+- [x] 18 1 Chr 10–29
+- [x] 19 2 Chronicles
+
+✔ Every family link that touches a verse has been read against the Hebrew, in 21 blocks: 1,969 links checked, 33 conflicts marked (Bible against Bible, or "בן" for a descendant), the cue verses no link uses each dismissed with a reason. The open identifications (one person under two keys) are left to M91.
+
+## M91: The family tree, across books (§16.63; proposed F4)
+- [x] The parallel genealogies against each other: Gen 36 / 1 Chr 1, Gen 46 / Num 26 / 1 Chr 2–8, Ezra 7 / 1 Chr 5:27–41, Samuel–Kings / Chronicles (`same:` merged / possible, steps 2–7)
+- [x] Every tribe attachment checked; "Unattached" kept to the fragments with no known tribe (steps 8–9; `Philistia` gains an eponym)
+- [x] A People group in the jump box and a dossier entry for the people of a unit (the D99 / D100 pattern; D102, `genealogy_mentions`)
+- [x] Tests: identities, adoption, tribe corrections, the mother headers, the mentions (pytest); the `people` entry on a verse and a chapter and "not computed" (pytest); the jump box's People group in both languages and the dossier chip (vitest)
+
+✔ The tree is read across books: 18 people merged from two or more TIPNR keys, 20 recorded as perhaps one, 47 conflicts; 323 people hang on a stated tribe or nation and "Unattached" fell from 1,076 to 908. A person's name opens the tree from anywhere (Ctrl+K), and every unit page names its people.
+
+## M92: The family tree, the look (§16.63, D103; F6)
+- [x] On most of the screen: full width, the screen's height, the search / zoom bar / legend over the tree, the person's card over its far side
+- [x] Round avatars (man, woman, nation, book), spouses beside as avatars joined by a dashed line, a mother's children from the line between her and the father
+- [x] The chosen person's line back to Adam lit
+- [x] Zoom: a plain wheel, double-click, fit, 100%, full screen, eased buttons; names alone and then dots when far out
+- [x] Tests: couples and routes (`familyTree.test.ts`), the wheel modes (`panZoom.test.tsx`), the avatars, the lit line, the wheel, fit and dots, the legend (`GenealogyPage.test.tsx`)
+
+✔ The tree reads like a printed family tree and uses the screen: avatars, couples, the line of the person chosen, and the mouse wheel to go from one family to the whole tree.
+
+## M146: The offline app (§11.1, D136; proposed K15)
+- [x] `vite-plugin-pwa` 2.0.0, pinned (MIT): a manifest (English name, the Hebrew one as `name_localized`, the favicon and PNG icons from `scripts/icons.mjs`), Workbox precache of the whole built viewer (168 files, 1.6 MB uncompressed)
+- [x] `/api` GETs network first into `bsim-api` (1,000 answers, 200s only); labels, notebook, `/meta` and the CSV downloads network only (`NETWORK_ONLY`, kept in step with `NO_STORE_PATHS` by a pytest); `/dossier` cached for offline use (D136)
+- [x] Not done as the plan had it: stale-while-revalidate, which would show a rebuilt DB's old answers once (D136)
+- [x] The banner (`components/AppBanner.tsx`, both catalogs): offline, and a new build waiting with Reload; an answer never fetched says it was not saved; queries `offlineFirst`, not retried offline, react-query's online state seeded from the browser so a page opened offline loads when the connection is back
+- [x] Reload into a new build waits for `controllerchange` (`lib/pwa.ts startServiceWorker`): the plugin's own reload skipped a worker found while the page was open (found by hand on the real build; a vitest now)
+- [x] `bsim serve`: `sw.js` and `index.html` `no-cache`, the manifest `application/manifest+json`
+- [x] Tests: pytest (the served files, the network-only list), vitest (the banner in both languages, `startServiceWorker`), fixture e2e (a page opened before opens offline under the banner, an unopened one says so and loads on reconnect, the manifest and icons); Playwright blocks service workers in every other test
+- [x] Fixed on the way: the two e2e tests that write labels (M142 added the second) raced on the server's one labels file, the queue's pair being the one the other test labels; they now run as one serial group (failed 2 of 1,374 in the K14 run, passed alone)
+
+✔ Pages and answers opened once stay available without a connection, in both languages, and a new build arrives when you reload, not under you.
+
+## M145: The catalog split by page (§11.1, D135; proposed K14, closes J14)
+- [x] `en.ts`: the core catalog and `Groups` (types only); each page group registers itself (`register`) in its file under `pages/`
+- [x] Every module reading `m.<group>` / `useT().<group>` imports the group's file (95 modules: a codemod gave 89 the import, and 9 had only an erased type import of a group, 3 of them also among the 89)
+- [x] `catalog.test.ts`: from the sources, a module reading a group must load its file, and each group file registers its keys; `i18n.test.ts` loads every group before comparing the catalogs
+- [x] The Hebrew group files take the English shapes as types; the Hebrew chunk as before (88 KB gzipped)
+- [x] Measured (gzipped JavaScript, a fresh browser, the same build before and after): the first load 196.4 → 126.6 KB (the app's own code 105.2 → 35.3 KB, the 91 KB vendor chunk unchanged); per page `/` 192 → 124, a unit 215 → 173, Findings 195 → 136, the label queue 197 → 131, the source finder 194 → 126, the reader 200 → 153, the family tree 209 → 140 KB
+- [x] Not done as the plan had it: a `useGroup` hook suspending on a per-locale import with per-route preloads; an import per reading module does the same without Suspense or a list to keep (D135)
+- [x] Tests: vitest (both catalog tests, every page's own), fixture e2e (every page in both languages, axe) and smoke on the real build
+
+✔ A first visit downloads 70 KB less; each page carries its own strings, and a page that reads a group it does not load fails a test, not a reader.
+
+## M144: Claude's suggestions for the label queue (§16.81, D134; proposed K11)
+- [x] `eval/llm_triage.py`, `bsim llm-triage` (`--dry-run`): one Message Batches request per pair, Claude Sonnet 5.5, a JSON-schema answer (verdict, p_real, kind, rationale), the verses' pointed Hebrew, never translated; the batch id saved first, a stopped run resumed; `anthropic` as the `llm` extra
+- [x] Calibration fixed before the run: 50 Sefaria dev links against 50 random dev pairs, shown only from AUC 0.75; the triage the queue's first 500 pairs
+- [x] The run (2026-11-04, about $1.02): AUC 0.983 (random pairs all *not*; Sefaria links 32 real, 11 not, 7 unsure); the queue 249 real, 142 not, 109 unsure, the semantic side more often real
+- [x] Glosses: 82 of 600 rationales glossed a Hebrew word in English all the same; `clean_rationale` removes them (73 of the 500 shown) and hides a rationale that glosses in prose (2)
+- [x] Rerun with the rationale in Hebrew (`llm_triage.rationale: hebrew`, about $1.06): AUC 0.986; the queue 257 real, 132 not, 111 unsure, 88.8 % the same verdicts; 2 of 600 rationales with any Latin letter, none a gloss. The run shown; the English one kept in `artifacts/llm_run1/`
+- [x] API: `/labels/queue` with `llm` and each item's `suggestion`, `?suggested=true`; read from `artifacts/llm/`, never the labels file
+- [x] Viewer: the suggestion under the two verses, the run's line, *Only pairs with a suggestion*; English and Hebrew
+- [x] Tests: the prompt, the answers read, the calibration pairs, a fake batch submitted, polled, collected and resumed, the gloss filter, the queue's suggestions over the fixture DB (pytest); the page (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ Claude reads 500 queue pairs for about a dollar and tells Sefaria's links from random pairs at AUC 0.98; its verdicts sit beside the buttons as suggestions, and the labels stay the reader's.
+
+## M141: Source finder (§11.1, D131; proposed K5)
+- [x] `api/source_find.py`: words keyed by consonants, the divine name's abbreviations written out and the skeleton; an index of the verses' adjacent word pairs, built on first use; seeds, Smith-Waterman weighted by rarity, a stretch found blanked and the rest aligned again; the best hits with their alternatives, consecutive verses joined (`source_find` in config)
+- [x] API `POST /source-find` (422 over `max_chars`), `GET /source-find/examples`
+- [x] Known, fixed before the first run and found: Ashrei (Ps 84:5, 144:15, 145:1–3), Aleinu (six verses), the priestly blessing (Num 6:24–26, one passage), Mishnah Berakhot 1:3 (Deut 6:7 twice, Deut 11:19 beside it); a modern sentence finds nothing
+- [x] Viewer: `/source` (Parallels → Source finder): the text with its passages marked and numbered, each passage's verses with the words matched, the alternatives, the examples (`?example=`); English and Hebrew
+- [x] Tests: the keys, a passage of three verses, a verse quoted twice, formulae, other Hebrew (pytest, a small corpus of verses); the endpoints over the fixture DB; the page (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ Paste Aleinu and its six verses come back, Isaiah to Zechariah; the Mishnah's "when you lie down and when you rise" is Deut 6:7, with Deut 11:19 beside it.
+
+## M140: Other witnesses, the Samaritan Pentateuch and the Dead Sea Scrolls (§16.78, D130; proposed K3)
+- [x] The licence first: both datasets CC BY-NC 4.0 (DT-UCPH/sp, ETCBC/dss); asked, and used as the BHSA (user, 2026-11-04); DESIGN §1 rows; a download group `witnesses` at pinned commits
+- [x] `bsim witnesses`: graphic words rebuilt from both datasets, letters decomposed; a scroll's word read only when no letter is restored or uncertain; each witness verse aligned to the MT over skeletons with `diffs.OPS` labels; pluses; per verse, book and scroll
+- [x] Claim fixed in advance: the Samaritan's pluses in the Torah's parallel verses (the label shifted round each book): not borne out (1.25 against 1.55, p 0.637). Known: seven readings (Gerizim, Jacob's dream, the sixth day, 1QIsa-a's "light", 4Q37's sons of God, 4QSam-a's Nahash) and the Samaritan Flood in 1307, all found. Two rules changed after the first run, both runs reported
+- [x] The Samaritan chronology from its own words (`chronology.phrases`, its lexemes mapped in `sp_lex` / `sp_tens`), beside the MT's: Jared, Methuselah and Lamech die in the Flood's year
+- [x] API `/witnesses`, `/witnesses/pluses`, `/witnesses/unit`; the reader's `witnesses` layer; a dossier entry; two findings
+- [x] Viewer: `/witnesses` (Patterns → Words and names): the checks, the largest pluses, a unit word by word, the two chronologies, the books and the scrolls; English and Hebrew
+- [x] Tests: the labels, the plus and omission rules, the shift, a run on made-up Text-Fabric datasets (pytest); the endpoints, the reader, the dossier, the findings; the page, its kinds in the URL, a verse compared, the reader's badge (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ The Samaritan's Gerizim command, 1QIsa-a's "light" and 4QSam-a's Nahash paragraph are found word by word, and the Samaritan's own ages put the Flood in 1307; its pluses do not cluster in the verses the MT's parallels pair (not borne out).
+
+## M139: Rabbinic identifications in the family tree (§16.63, D129; proposed K13, F5)
+- [x] An identity status `rabbinic` (`same:` in the review files): both persons kept, cross-referred, each identification with its `source:` (Sefaria references); a source on another status, a title with no Hebrew name or none at all stops the build
+- [x] The check: Sefaria's links (the M3 download, §16.77) must tie each source's page to one of the identity's proof verses; the pages' links read once per build (`analysis/reception.py`: `source_he`, `page_of`, `page_links`)
+- [x] `curation/genealogy/x10-rabbinic.yaml` (`genealogy.cross_blocks`): 24 identifications, 28 pairs, every passage read in Hebrew on Sefaria first; those whose page has no link to the verses, and what the rabbis add to a family, left out (listed in §16.63)
+- [x] API: `Identity.sources` (`cite`, `cite_he`, `url`), `genealogy_identities.sources`; the meta counts `rabbinic`; the person panel says "the rabbis read as the same person as …" with the sources linked to Sefaria in Hebrew, English and Hebrew
+- [x] Tests: the identities kept apart, the sources' Hebrew and links, the check passing and failing, the errors (pytest); the panel's card (vitest); fixture e2e
+
+✔ The tree now knows that the Talmud reads Hathach as Daniel and Iscah as Sarah: 24 identifications, each with the passage that makes it, checked against Sefaria's links before the build accepts it.
+
+## M138: Rabbinic reception (§16.77, D128; proposed K2)
+- [x] The licence first: Sefaria's links dataset is CC BY 4.0 (its "Copyright and Data Use"); the links already downloaded, no new download; no rabbinic text stored (their editions' licences vary), each passage linked to Sefaria in Hebrew
+- [x] `bsim reception`: the Mishnah, the Tosefta, the Bavli and the Yerushalmi by their own titles (commentaries, other editions, Alfasi and the Daf Shevui out), verse ranges of at most `max_span`; citations per verse, chapter and book; each passage's Hebrew reference and Sefaria link
+- [x] Claims fixed in advance: the Mishnah cites the Torah's law more per verse than its narrative (blocks shifted round their books; holds, 10.55, p 0.001); the Bavli less so (holds, 6.78, gap 3.76, p 0.001); four known citations (holds). Both runs reported (Alfasi and the Daf Shevui added to `exclude` after the first)
+- [x] API `/reception`, `/reception/verses`, `/reception/citations`; the reader's `reception` layer; a dossier entry; three findings
+- [x] Viewer: `/reception` (Patterns → Narrative): the checks, one corpus or all, the verses cited most (by book), who cites a unit, a chapter strip per book (`components/HeatStrip.tsx`, shared with the divine names now), every book; English and Hebrew
+- [x] Tests: the corpora's titles, the Hebrew references and links, the circular shift, a run on made-up links (pytest); the endpoints, the reader, the dossier, the findings; the page, the corpus in the URL, who cites a verse, the reader's counts (vitest); fixture e2e and smoke on the real build (axe)
+
+✔ The Mishnah cites the Torah's law ten times as often per verse as its stories, the Bavli seven; the bill of divorce (Deut 24:1) is the verse cited most, and Mishnah Berakhot 1:3 is found citing the Shema's "when you lie down and when you rise".
+
+## M137: Print and export (§11.1, D127; proposed K7)
+- [x] A print stylesheet: no menus, tour bar, controls or panels; the whole width on white, light from a dark screen (the dark tokens on screen only); marks' colours kept; rows and verses not split. A Print button on the synopsis and the reader
+- [x] The map as an SVG file (`lib/svgExport.ts`): the stylesheet's look written on each element, in the light theme, thin strokes kept thin; on every page that draws the map
+- [x] The family tree as a poster (`lib/treePoster.ts`): the people below a person as opened, with a title, the date, headers by mother, what is not opened and a legend; right to left in Hebrew; the avatars' figures shared with the page (`lib/avatarShapes.ts`)
+- [x] Tests: the poster's layout and markup, a standalone drawing, the map's and the panel's downloads, the Print button (vitest); on the real build Jacob's poster, the map's SVG and a synopsis in print media from a dark screen (smoke). Fixture e2e: the home page's 503 from `/api/week` (no parasha units, M136) no longer counted as an error; `/week`'s week buttons styled, as their browser default failed contrast in the dark theme (M136, axe)
+
+✔ A synopsis or a chapter prints clean, from either theme; the map saves as an SVG as drawn; Nahor's family (19 people, 4 generations) or Abraham's opened to the end (1,303 people, 40 generations) saves as a poster to print.
+
+## M136: This week's parasha (§11.1, D126; proposed K6)
+- [x] The reading cycle from `pyluach` (MIT, a new dependency; Hebcal's leyning file has no dates), checked first against known Shabbatot in config (`week.known`: the 2019 split after Pesach in Israel and abroad, Matot–Masei, Bereshit 5786, Vayakhel 5785)
+- [x] API `/week?date=&israel=` (`api/week.py`): the Shabbat on or after the date, its Hebrew date, one portion or two, the next weekly reading after a festival's Shabbat, each portion's haftarah; 503 without parasha units
+- [x] Viewer: `/week` (Overview): abroad or in Israel, the viewer's own date or any, the weeks before and after, in the URL; each portion with a link to read it, its haftarah and rank, its dossier; a line on the home page; English and Hebrew
+- [x] Tests: the next Shabbat, the known readings in both places, a festival's Shabbat, the endpoint (portions joined, the haftarah, 503 and 422) (pytest); the page, joined portions, the festival line, the URL, Hebrew, the home line and its absence (vitest); smoke on the real build (axe)
+
+✔ The home page says which portion is read this Shabbat (Chayei Sara on 7 November 2026), and its page gives the haftarah (I Kings 1) and what every analysis found in it.
+
+## M135: Glossary and guided tours (§11.1, D125; proposed K12)
+- [x] `/glossary`: 18 terms (statistics, evaluation, retrieval, the text) with anchors, English and Hebrew (catalog group `gloss`, with the patterns that find each term in running text)
+- [x] `components/Term.tsx`: the term popover (hover, focus, tap, Escape; `role="tooltip"` describing the button; left out of CSV by `data-nocsv`); on Findings each term marked where the page first uses it (`lib/gloss.ts`); in the first evaluation table, the workbench's G² and q, the haftarot's MRR
+- [x] Four tours of four steps (`lib/tours.ts`, captions in `tr`): the tour bar at the foot of a step's page (`?tour=&step=`), back, next, finish, leave; `/tours`, and *New here?* on the home page with the glossary; the captions checked against the build (Vayera's haftarah 3rd, the etiology claim, the acrostics' known list)
+- [x] Tests: first uses, the popover, Hebrew patterns, CSV without the entries, the tours' captions in both languages, the bar step to step, finish and leave, the glossary and tours pages (vitest); Findings' texts read without the entries; e2e: a tour from the home page and a term opened on Findings, axe on the glossary, the tours and a step with the bar
+
+✔ A first visitor can start a tour from the home page and walk four pages with a sentence each, and every p, q or G² on Findings explains itself.
+
+## M134: The vocabulary over the canon (§16.76, D124; proposed K4)
+- [x] `bsim vocabulary` (`analysis/vocabulary.py`, after sums, 5 s): each book's new lemmas in canon order against Heaps' law, its novelty over 999 random book orders, hapax and lemmas of one corpus; Hebrew common words only; the claims and known answers fixed in config before the first run
+- [x] DB `vocabulary_books`, `vocabulary_lemmas` (+ `meta.vocabulary`); API `/vocabulary`, and `first` on `/lemma/{lemma}` (a lemma's first use, one corpus, hapax); findings `vocabulary_late`, `vocabulary_known`
+- [x] Viewer: Patterns → Words and names → Vocabulary (`/vocabulary`): the checks, each book's novelty as bars (colours validated for colour blindness, legend, read-out on hover and focus), a table; the first use on the concordance; English and Hebrew
+- [x] Tests: counted words, the Heaps fit, the walk and the excess, a small canon end to end, the endpoints, the concordance's first use and the findings (pytest); the checks, the chart and its read-out, the table, Hebrew, the concordance line (vitest); e2e on the fixture and the smoke list
+
+✔ The late books bring in more new words than their length and place predict (−0.31 against −0.56, p 0.042). Job is not among the three richest books in words found once (fifth, behind Song, Nahum, Habakkuk, Lamentations): by rate, short poems lead.
+
+## M133: Do the sums add up? (§16.75, D123; proposed K1)
+- [x] `bsim sums` (`analysis/sums.py`, after binomials, 7 s): 13 lists against their stated totals; the numbers of parallel verses (sequences, ETCBC, Sefaria) aligned by unit, one step apart or not, against numbers drawn from the book; the claims and known answers fixed in config before the first run; two changes after it, both runs reported (the reader and the ordinals; pairs across books)
+- [x] Chronology's number reader extended (a smaller number after a hundred adds, a thousand multiplies only the groups since the last, the pointed dual, כאחד); chronology's and frameworks' outputs byte-identical
+- [x] DB `sums_lists`, `sums_items`, `sums_parallels` (+ `meta.sums`); API `/sums`, `/sums/items`, `/sums/parallels`; findings `sums_lists`, `sums_parallels`
+- [x] Viewer: Patterns → Letters and numbers → Do the sums add up? (`/sums`): the checks, the lists and a list's counts marked in its verses, the parallels' numbers side by side, filtered in the URL; English and Hebrew
+- [x] Tests: the reader on the verses that misread (Num 2:16, Num 26:51, Ezra 2:3, 2:64, 1 Chr 21:5), one step, alignment by unit, a small canon end to end, the endpoints and findings (pytest); the checks, the lists, a list opened, the filters, Hebrew (vitest); e2e on the fixture (axe) and the smoke list
+
+✔ Nine of the thirteen lists add up, each as known (Ezra 2's families 29,818 against the assembly's 42,360). Where parallels in different books give different numbers, a third (34 %) differ by a power of ten or one place, twice what chance gives (16.5 %, p 0.001).
+
+## M128: Stale numbers and a guard (proposed J10)
+- [x] RESULTS: the header says which build each table is from; fusion's 0.189 marked as of its day (0.193 now), the later-experiments table likewise; borrowing, citations, echoes and the ETCBC gold given their current-build numbers beside their first runs (ETCBC fused 0.824, semantic 0.762)
+- [x] DESIGN: the synoptic test now 24 of 24 (the sequences rerun with the retrained encoder); D41 (OpenBible's chapters renumbered since D118), D63 (Solomon underpowered since D119), D108 (3 of 3 since D120), D112 (letters hold since D120) amended; the reader's cross-references fixed (verse halves §16.9, wordplay §16.10, ketiv §16.30)
+- [x] ARCHITECTURE: the `lexical-topk` stage in the table; startup loads the encoder and BM25 in the background, torch only with the encoder; the quality line (ruff format in CI, no type checker); the audit's `results.sql` was not there
+- [x] `tests/test_docs_numbers.py`: 13 sentences of RESULTS about the current build checked against the meta files (the dev table, ETCBC, borrowing, echoes, citations, lists, the poetry AUC, the dialogue check); skipped without artifacts (CI)
+
+✔ RESULTS separates what each run gave, and a rebuild that changes a quoted number fails a local test.
+
+## M127: The noise bar on the new gold (§16.41; proposed J9)
+- [x] Rule committed before the run (DESIGN §16.41): the model in use's recipe and pairs with seed 14 (`supervision_experiments.variants.m115_seed14`); its fused OpenBible gain, either way, is the new bar; M115's adoption stands if its +0.0035 is above it
+- [x] Trained into `models/berel-sup-m115_seed14` (best step 560, recall@10 0.206; 2 h 24 min of training on the GPU, beside the other milestones); `models/berel-sup` untouched
+- [x] Against the model in use, fused: OpenBible −0.0007 [−0.0025, +0.0012], Sefaria −0.0030, ETCBC +0.0008; semantic within ±0.005, every CI across 0
+- [x] Found on the way: a stage run while the training wrote its checkpoints (gematria-links) recorded them as its outputs; rerun afterwards (memory note for later sessions)
+
+✔ The bar is 0.0007; M115's encoder stays.
+
+## M132: Speed (§11.1; proposed J14)
+- [x] Reader: the lookups over the layers' data (verses, places, verse halves, Leitworte and where they fall) built once per response, not on every render; a word click no longer rebuilds them. Rows are not memoised: choosing a word changes other verses too (the wordplay layer marks its partners)
+- [x] Map: the names' placement memoised on the view, the points, the selection and the label count (a key step no longer places them again; a pan moves the view, so it still does), `radius` stable on the scale and the default label function hoisted
+- [x] Not done: the English page strings split by route. Components shared across routes read more than 20 page groups (`m.ov`, `m.cph`, `m.bor`, … in the unit panels, the jump box, the dossier), so a split needs either a catalog that suspends until its group loads or a guaranteed order of registration, a redesign of the catalog whose failures `tsc` would not catch; the gain would be about 50–60 KB gzipped of the 91 KB first-load chunk, for English readers
+- [x] Tests: the map's keys (`SharedControls.test.tsx`, M129) and the reader's word (fixture end-to-end, M131) cover the changed paths
+
+✔ Less recomputation on a click or a key; the bundle as it was.
+
+## M131: Shareable selections (§11; proposed J13)
+- [x] `useIntParam` (`lib/urlState.ts`): a selection in one parameter, set with a history entry so Back undoes it: the map's cluster (`cluster`), the geographic arc's chapter (`ch`), a place list's place (`p`); the reader's chosen word as `w=verse:word`
+- [x] `useOpenSections`: the `<details>` opened by hand in one `open` parameter (network's passages, the language page's examples, a borrowing book pair, roots' books, the query help, the chronology's reigns)
+- [x] Left out: Compare's active pair follows the pointer (set on hover, cleared on leaving), so in the URL it would rewrite the address at every move; its word and link highlights depend on it
+- [x] Tests (fixture end-to-end, both devices): a reload keeps the map's cluster and Back clears it; the reader's word survives a reload; an opened section is in the URL and open after a reload
+
+✔ A shared link opens the same selection; 1,227 fixture end-to-end tests pass.
+
+## M130: Cross-links (§11.1; proposed J12)
+- [x] `placeLink` and `personLink` (`lib/links.ts`) in place of the URLs written out in the jump box, the dossier and the three place pages
+- [x] A name's places link to them on the map (`/places?p=`, named "… on Places on the map" in both languages); a type scene's verbs link to their lemma pages (the tooltip of raw verse ids gone)
+- [x] Not done: the family tree's card to the person's name entry, and a name to its people in the tree. The API gives a tree person no lemma and a name no person ids, so either link needs the API changed first
+- [x] Tests: the place link of a name's site (`NamesPage.test.tsx`), a verb's lemma link (`Step5Pages.test.tsx`)
+
+✔ Places and verbs shown as text where their page exists now link to it; 1,222 fixture end-to-end tests pass.
+
+## M126: Four small misses (§16.15, §16.20, §16.31, §16.45, D122; proposed J8)
+Each a rule changed after a run, reported with all its runs (DESIGN, RESULTS).
+- [x] §16.31 citations: a partner in a parallel sequence (q ≤ 0.05, ± 1 verse) carrying the same formula is not a source (`citations.exclude_parallels`; `sequences` added to the stage's inputs). The first form (every partner) also removed the commands that Exod 39 and Lev 8 carry out (Exod 28, 29): *as commanded* p 0.0096 → 0.12; narrowed to the copy, it changes only Isa 39:8, 2 Chr 6:10, 2 Chr 10:15 (resolved 41 → 38, *the word fulfilled* p 0.19 → 0.63), *as commanded* and the gold check unchanged
+- [x] §16.45 lists: alike in the first four words' shapes as well (`lists.opening`, its own 0.99 cutoff): Neh 3 reached on 12 of 31 verses, short of the two thirds that count as found: named lists still 9 / 10; 82 lists against 1.6 by chance (61 against 0.9), the new ones series that open alike (Gen 1, Amos 1–2 and 7, Eccl 3, Lev 20)
+- [x] §16.20 type scenes: 20 shuffles (was 5, the only null-ratio stage below 20): 36 → 33 at q ≤ 0.05, 6 not textual as before
+- [x] §16.15 acrostics: the two readings each against its own shuffles, the better p doubled — **not kept**: Ps 9 q 1.0 → 0.066, every other known q 0.008 → 0.014; reverted (acrostics' output identical to before)
+
+✔ No Findings verdict changes: *as commanded* still holds, the lists' check holds (9 / 10).
+
+## M129: Tables and numbers (§11.1; proposed J11)
+- [x] `TableCsv` on the tables that had no export: the eval page's (supervision, encoders, zero-shot, units, each named), haftarot (2), directions (2), word pairs, borrowing (one per book pair), divisions, dating's chapters, the network's two lists, shifts, small-scale clauses, synopses, voices, retold's groups, the about page's build table
+- [x] Their scroll wrappers keyboard-focusable and named (five had neither); retold's and the about page's tables given one (they overflowed on a phone)
+- [x] Checked and not done: numbers by locale. Every `toFixed` on the six pages named is a score under 1,000, where the two locales print the same digits and point; the eval tables are aggregates with no verse ids to link
+- [x] Checked: the voices, rewrites, spread, sound and word-pair views are tested through their pages (M118); new `SharedControls.test.tsx`: `TableCsv` (the named region, the export of what the table shows), `BookSelect`, `Segmented`, `GeoMap`'s keys (arrows step, Enter opens, + and − zoom)
+
+✔ Every table in the viewer can be exported; 1,222 fixture end-to-end tests pass, the per-page accessibility checks among them.
+
+## M125: The poetry model's labels (§16.9; proposed J7)
+- [x] Scored, not trained on: Job 1:1–3:1 and 42:7–17 (`parallelism.unlabelled`, the prose accents) and every psalm verse holding a superscription (`mask_titles`, `psalms.title_mask`); 164 verses, 114 training rows (16,118 → 16,004)
+- [x] Simpler than planned: a verse with title words leaves training whole, rather than its title words being cut and its cola encoded again
+- [x] Held-out AUC Job 0.858 → 0.873, Ps 0.835 → 0.839, Prov unchanged; parallel members 4,464 → 4,401; word pairs 1,708 → 1,657
+- [x] Downstream (12 stages rerun): meter pool p 0.0067 → 0.0071, sayings in parallel lines 20.0 % → 19.4 %; no verdict changes
+
+✔ The poetic books' labels now match their accents.
+
+## M124: The dialogue checks compare within books (§16.44, D121; proposed J6)
+- [x] Found by the audit: the statistic pooled rates over all books, the null shuffled within books, and the shuffles did not centre on 0 (נא: null −0.041, observed −0.013, p 0.001, verdict "not borne out")
+- [x] Rule written into DESIGN before the rerun: the difference of rates within each book, weighted by its "up" denominator (`dialogue.statistic: within_book`); a quotation with no known speaker out of the rank tests (`dialogue.known_speakers`; an unknown speaker had counted as rank 0)
+- [x] All four runs reported (DESIGN §16.44, RESULTS): deference holds in each; נא holds in each of the three changed ones, **+7.0 points within books, p 0.012** (14.3 % against 8.8 %), recorded as following a change made after the result was seen
+- [x] Viewer: the checks say they compare within each book and count known speakers only (both languages); the deference line shows the test's own difference
+- [x] Tests: `DialogueView.test.tsx` (the wording); the smoke test's verdicts (2 hold, 1 fails)
+
+✔ The null now centres on 0 (0.19 and −0.004), and a p-value and its verdict can no longer disagree.
+
+## M123: Solomon's speaker, tried and not kept (§16.26, §16.28; proposed J5)
+- [x] The rule: when the lookback finds no subject, a run of up to 8 clauses continuing it (a verb without a subject phrase agreeing in person, gender and number, or no verb), the subject taken from the clause before the run, another quotation's introduction ending it; at 0 it gives the build exactly
+- [x] Tuning sample of 20 (a first, looser form: 485 quotations changed): 9 right, 11 wrong; the form above set from them (56 changed; the tuning sample's 11 wrong ones all gone)
+- [x] Fresh check, after it was set (50 of the other 54): **26 right, 24 wrong**; of the five that had a speaker, four lost a right one (Exod 4:1, Deut 33:27, Isa 65:25, Dan 7:7), one gained (Isa 45:14)
+- [x] **Not kept**: half right, against 37 / 45 for the rules of M116, and no unseen changes are left to judge a third form; the code reverted, DESIGN §16.26 records it
+
+✔ 2 Chr 6:14 can be reached, but not without as many wrong speakers as right ones; Solomon's Kings / Chronicles check stays underpowered.
+
+## M122: Slow stages and DB size (proposed J4)
+- [x] acrostics: the chain scores' inner loops over the earlier lines and options vectorized (`chain_scores`, the same maximum over the same values): 107 → 60 s of the stage's profile, 116 → 85 s a run
+- [x] senses (and the map's clusters): one-thread k-means looks the thread pools up once (`stats._threadpools`), not on each of its ~1,800 calls (13.4 → 3.5 ms a call); the stage's remaining time is sklearn's own k-means, silhouette and distances
+- [x] Both stages and the map rerun: all 10 output files identical
+- [x] DB: no free pages, so `VACUUM` gives nothing; 8 KB pages 844 → 841 MB (not kept); every index of `discoveries` serves a query; `matches` is 453 of the 844 MB, and only integer keys would shrink it (a schema change: not done)
+- [x] Removed: `results.before-M115.sqlite` (844 MB). Kept: `berel_sup_ctx` and `berel_sup_late`, which `retrieval.context_systems` still names
+- [x] Every stage adopted after J1–J4 (formatting, `write_meta`, lazy imports: code changed, outputs not): `bsim all --dry-run` shows nothing stale
+
+✔ The slowest stage profiled in M114 left alone (els), the two never looked at made faster, outputs byte-identical.
+
+## M121: Shared helpers and gates (proposed J3)
+- [x] `stats.empirical_p(observed, null, tail)`: the 19 Monte Carlo p-values written out by hand (els, ciphers' neighbours, gematria links, the poetry null, the geographic arc, place links, place lists, refrains, senses) call it, each with its own comparison and epsilon
+- [x] `stats.q_values`: sequences' empirical-null FDR, now shared (allusions, wordplay, type scenes); refrains' `fdr` is the same on p negated (equal to the old one on 3,000 random inputs with ties)
+- [x] `config.write_meta`: the 59 `*.meta.json` writes in one layout (indented, Hebrew as is, a final newline); staleness hashes the parsed JSON, so no stage turns stale
+- [x] The twelve stages whose statistics code changed rerun: all 37 output files identical (meta compared without times)
+- [x] `ruff format` over the repo (79 files, in its own commit) and `ruff format --check` in CI
+- [x] Not kept: pyright (basic, on `api` and `store`) gave 160 errors; those checked by hand were loose annotations, narrowing it cannot follow, and pydantic's coercion of dicts into models, none a bug. A gate would need as many edits made only for the checker
+
+✔ One p-value, one FDR and one meta writer; the format checked in CI.
+
+## M120: Faster, steadier CI (proposed J2)
+- [x] Three jobs side by side (Python, viewer, end-to-end), the end-to-end tests over three runners (`--shard`), each uploading its report on failure
+- [x] The fixture's tests spread over the workers (`fullyParallel`); one Hebrew and two accessibility tests a page instead of three walks over all 142, so a failure names its page
+- [x] A page has loaded when its heading is there and no `Loading` is left, not at `networkidle`; one retry in CI, flaky tests reported
+- [x] Actions on Node 24 (checkout 7, setup-node 7, upload-artifact 7, setup-uv 10)
+
+✔ Fixture end-to-end locally 16.7 → 6.9 min (1,222 tests: the per-page split makes more, shorter ones). The CI time is measured on the next push.
+
+## M119: Fast pytest and serve start (proposed J1)
+- [x] The fixture DB built once a session (`built_once`); each test gets a copy under its own `tmp_path` (`built`), free to change: a client test's setup 6 s → 1.7 s
+- [x] torch imported only where scores are computed (`retrieve/topk.py`), `scipy.stats` only where the workbench tests (`api/workbench.py`): `import bsim.api.app` 13.8 s → 3.6 s
+- [x] Tests: the server starts without torch or `scipy.stats` (`test_api.py`)
+
+✔ `bsim serve`, `fixture-serve` and every test client start without loading torch.
+
+## M117: Known misses (§16.15, §16.40, §16.45, §16.66–§16.68, §16.72, D120; proposed I14)
+Each a rule changed after the first run, so each is reported with both runs (DESIGN and RESULTS).
+- [x] §16.72 word pairs: כל left out (`binomials.skip_lemmas`): 134 → 128 binomials; shorter first in letters 60 / 81 (p 8 × 10⁻⁶), syllables 39 / 58 (p 0.006): **claim (1) now holds** (failed on syllables before, p 0.052; the six pairs dropped were all longer first)
+- [x] §16.66 etiologies: a קרא after אל names no one (`etiologies.negation`): Ruth 1:20's נעמי dropped, its מרא (echo המר) kept; 112 → 111 namings, the claim holds
+- [x] §16.15 acrostics: a line's second word read as a second option, the shuffles reading lines the same way (`acrostics.second_word`, `chapter_options`, chains over line × option): Nahum 1 found (q 0.014, 4 letters on second words), Ps 9 lost (q 0.029 → 1.0: the null rises with two letters a line); known 13 / 14 in both runs
+- [x] §16.67 brackets: each verse paired with its best repeat after it (`brackets.pairing: forward`): 2,105 → 3,404 repetitions, the claim holds; Ezra 4:5 / 4:24 found but not beyond chance (p 0.42): the known check still fails
+- [x] §16.68 retold: six seeds a piece (`retold.seeds`): Gen 24:37–41 found (group `unclear`), known 3 / 3: **that check now holds**; the claim still fails
+- [x] §16.45 lists: verses compared six back too (`forms.extra_lags`): Num 7 found, Neh 3 still missed; named lists 9 / 10 (8 / 10)
+- [x] §16.40 refrains: `max_gap` 40 tried and **not kept**: the Song's four verses then form a run, but over 84 of 117 verses, four against λ 2.9 (p 0.32) — no burst at any gap; the gap stays 20 and the miss is documented as the test's
+- [x] Tests: the second-word chain and `chapter_options` (`test_acrostic.py`), `forward_best` (`test_brackets.py`)
+
+✔ Findings against the first run: `binomials_short` and `retold_known` fail → hold; nothing else of the seven changes its verdict.
+
+## M116: Speakers revised (§16.26, §16.28, §16.39, §16.44, D119; proposed I13)
+- [x] Rules tuned on samples of the changes, then frozen: a quotation stops at a book's end (BHSA's `book` sits on book nodes, so it had run from Exodus into Deuteronomy); a carried subject skips relative clauses (`syntax.carry_skip_rela`; Gen 3:1); the messenger formula names God in its MAM paragraph (`syntax.messenger`, `formula`); Deuteronomy's top-level quotations are Moses' (`syntax.frames`, `framed`); a quotation inside one that now has a speaker takes it
+- [x] Fresh check (50 random quotation starts whose speaker changed, none seen while tuning): 37 of the 45 given a speaker right (1 of 9 before); formula 4 / 5, framed 1 / 1, enclosing 27 / 28, carried 6 / 12
+- [x] Found in the full run, by the dialogue checks: a psalm's superscription and its body are one BHSA level, so Psalm 3's quotation ran to Psalm 150 (15,038 words). A quotation now also ends at a clause of its own level that is not speech (`bhsa.py`, and `dialogue.quotations`' extents): 632 speech clauses change speaker, 5,513 → 5,787 quotations; a judged sample of 20 changed runs: 12 better, 7 worse, 1 neutral (wrong speakers 10 → 2–3, right ones 7 → 3–4; Solomon's prayer in 2 Chr 6 among the lost)
+- [x] Speakers: unknown 21,616 → 18,773 (explicit 17,892, carried 8,710, enclosing 4,517, formula 1,153, framed 1,892); Deuteronomy 20 % → 74 % attributed
+- [x] Effects, all runs reported: voices 18 / 23 distinct as before, ρ 0.88 → 0.93, Solomon's Kings / Chronicles check underpowered (214 words in 2 Chronicles); dialogue: deference holds (13.1 / 1.5 → 6.7 / 1.8, p 0.001), **נא no longer holds** (14 % / 4 % → 4.6 % / 5.9 %: the psalms' prayers to God now count as speech up; without Psalms, described, 13.3 % / 6.6 %, p 0.002), the last word still fails; in between, with the book's end but not the superscription rule, both failed (p 0.057, 0.48); retold's claim still fails
+- [x] Viewer: `formula` and `framed` labelled in both languages (the speaker line and its title); Who speaks gives their counts and the revised check; the reader's limits (§16.39)
+- [x] Tests: the frame, the formula, a clause not speech ending a quotation (`test_syntax.py`); BHSA's qere and the counted fallbacks (M115)
+
+✔ Fewer wrong speakers and Deuteronomy attributed; one claim (נא) fell once the psalms were counted as the prayers they are.
+
+## M112: Consistency and small accessibility fixes (§11.1; proposed I9)
+- [x] `BookSelect` (`components/Controls.tsx`): one book filter for the lists, given its label, its "all" text and the books it offers; 25 copies in 23 files replaced (220 lines fewer); the three that differ (dialogue's book list, the Pentateuch's three books, the workbench's set builder) keep their own
+- [x] `TableCsv` (`components/TableCsv.tsx`): "Export table (CSV)" above a table, the table as shown (`lib/csv.tableRows`: the last header row names the columns); on the 33 tables of Masorah, places named together, equal values, equal skips, names of God, ketiv / qere, ciphers, place lists, the geographic arc, frameworks and the chronology. Gematria and citations show lists, which have no table to export
+- [x] The network's nodes out of the tab order: the passage list under the graph has the same links
+- [x] Checked and not needed: the family tree and the workbench already keep their state in the URL (the chosen person `p`, which opens the line to them and centres them; the two sets, the feature, the pattern and its scope); only drafts, the search box and hand-opened branches are local. Stylometry's chosen book is set apart by size and drawn in front, not by opacity alone; the network's chosen node grows; the shifts page is a table, with no colour to explain
+- [x] Tests: `tableRows` (columns by the last header row, repeated names numbered, cell text as shown); the pages' existing tests unchanged
+
+✔ 349 vitest; 376 fixture and 294 real-data e2e without retries.
+
+## M118: Test gaps (proposed I15)
+- [x] Checked first: of the pages the audit named untested, Search, Compare, Sequence, Synopses, Type scenes, Root and Books already have tests (some in `CorePages.test.tsx`), and the voices, rewrites and spread views are tested through their pages; every one of the 145 GET routes is named in the pytest suite, and `/verse-domains` and `/book-pairs` do not exist
+- [x] New (`PatternViews.test.tsx`): the fixed word pairs view (lemmas, example, "include all" in the URL and the request), alliteration (the four words marked) and rhyme (the ending, the verse, Hebrew), the About page (sources and licences, a link, Hebrew prose)
+- [x] Not done, by choice: `tests/test_api.py` stays one file (splitting it would move tests, not add any)
+
+✔ 5 new vitest tests; the gaps the audit found were mostly not there.
+
+## M115: Gold and alignment (§3.4, §16.13, §16.26, §16.41; proposed I12)
+- [x] OSHB ↔ MAM: words divided otherwise matched by their letters joined (בל אמים / בלאמים: two or three OSHB words to one MAM token, one to two or three); unaligned OSHB words 134 → 32 (20 of them Joshua 21:36–37, which MAM does not have); the encoder's text unchanged (decided before: alignment only)
+- [x] BHSA ↔ OSHB: where OSHB reads the qere (`text.kq`), BHSA's read consonants (`qere_utf8`, one more file at the pinned commit); the words given a neighbour's OSHB word counted in `syntax_meta.json`, those without letters (the hidden article) apart from those unmatched
+- [x] OpenBible: English references renumbered by `data/kjv.py` (the chapter rules, and `PSALM_TITLES`: 58 psalms one verse on, Pss 51, 52, 54, 60 two, derived from each psalm's Hebrew count against the highest English verse cited) instead of dropped (`unsafe_chapters`, gone); unresolved 22,714 → 379, pairs 30,311 → 57,543, Psalms in for the first time
+- **Rule, fixed before training** (as M64, `eval/supervision.py:adoption`): the encoder retrained on the new pairs (variant `m115`: the model in use's recipe, `extra_pairs: [openbible, etcbc]`) replaces it only if its fused list gains on the new OpenBible dev gold with a 95 % CI above 0 and by more than M64's noise bar (|`seed14`'s OpenBible gain| = 0.0009, kept from M64, not retrained), and loses nothing significant on Sefaria or ETCBC dev (each CI reaching 0). Otherwise the model in use stays and the result is reported. Test untouched.
+- [x] Trained (2 h 15 min, best step 460, recall@10 0.210; 9,026 Sefaria + 63,990 OpenBible + 1,700 ETCBC rows). Against the model in use on the new golds, fused nDCG@10: OpenBible **+0.0035 [+0.0011, +0.0059]**, Sefaria −0.0012 [−0.0072, +0.0045], ETCBC −0.0085 [−0.0219, +0.0044]: **passes, adopted** (`models/berel-sup`; the previous model kept as `models/berel-sup-pre115`)
+- [x] `bsim all` after it (trainers and download adopted, never retrained by cascade; 57 stages, 29.5 min): fused dev 0.1934 (Sefaria), 0.1320 (OpenBible, new gold: 10,286 directed pairs over 3,806 queries), 0.8240 (ETCBC); chapter 0.1964, pericope 0.1179; lexical lists byte-identical (the encoder's text unchanged)
+- [x] RESULTS.md dev tables refreshed with a dated note (the test tables and the training table as they were); DESIGN §3.4, §16.13, §16.41, D118
+
+✔ Psalms are in OpenBible's gold for the first time and the encoder trained on them is in use; the gain is small (+0.0035 on OpenBible) and the other golds hold.
+
+## M114: Faster slow stages (§16.54, §16.67; proposed I11)
+- [x] `ciphers` 169 → 8 s: each random pairing translates the names by its inverse (a swap is a permutation, so a span becomes a name exactly when it is a name turned back) and binary-searches them among the sorted spans; checked equal to the old lookup on both ciphers and 20 random pairings, the parquets byte-identical
+- [x] `brackets` 232 → 100 s: the 999 random brackets drawn in order from one stream, then scored on `pipeline.threads` (8) threads; the parquet byte-identical
+- [x] Profiled and left: `els` (302 s) waits on the GPU, a compaction per letter of each of 43k term × draw calls; counting through a mask is exact but only 20 % faster, and batching the draws into one call is a rewrite for a stage I1 keeps from rerunning needlessly. The Smith-Waterman aligner (phrases, brackets, retold) is pure Python: precomputing its match and score matrices in numpy gave 11 %; a compiled version would need a new dependency. `sequences` (123 s) not taken up
+- [x] `bsim all` after the change reran `retold` (its module imports `brackets`), wrote the same bytes and skipped build-db (I1's cut-off)
+
+✔ Two stages 6 min → under 2; every output byte-identical.
+
+## M113: Split overgrown files (proposed I10)
+- [x] `pages/GenealogyPage.tsx` (947 lines) → the page (132) and `pages/genealogy/`: `TreeView.tsx` (the drawing, its figures, the legend; 450), `PersonPanel.tsx` (the side panel, links, proofs; 278), `PersonSearch.tsx`, `Name.tsx`, `shared.ts` (view constants, how a person is named)
+- [x] `api/routes/findings.py` (896 lines) → `api/routes/findings/`: the router, the builders' order and the endpoint in `__init__.py`; the builders by area in `poetry.py`, `language.py`, `narrative.py`, `numbers.py`, `places.py`
+- [x] Not done, by choice: `api/queries/__init__.py`'s hand-kept `__all__` stays (ruff already rejects a name imported but not listed, F401, and one listed but not imported, F822; a generated list would hide the exports from editors and ruff)
+- [x] Checks: the real DB's `/findings` byte-identical before and after (10,287 bytes); the family tree's vitest and e2e unchanged
+
+## M111: Navigation and the home page (§11.1; proposed I8)
+- [x] Patterns under four headings (`lib/nav.ts` `sectioned`): poetry and form (with the query page and the workbench first), words and names, letters and numbers, narrative; one top-bar menu as before, its dropdown a column per heading; `items` stays the flat list, so the jump box and the active group are unchanged
+- [x] Phone menu: each group a disclosure (closed until tapped, the current page's group open with the menu; a tap elsewhere in the menu leaves it open), Patterns' headings inside it
+- [x] Home page: *Explore*, every menu group and heading with each page's link and its one-line hint (the nav's own texts, English and Hebrew)
+- [x] Tests: the four headings and 27 pages, the phone menu opening the current group and staying open (vitest); the Explore panel and the book links (vitest); the e2e menu test opens Patterns before tapping a page on a phone and checks a heading on the desktop
+
+✔ The Explore links are underlined: each sits in a line with its hint, which axe's `link-in-text-block` caught in the first e2e run. 376 fixture and 294 real-data e2e (accessibility in both languages and themes), 348 vitest.
+
+## M110: Faster first load (§11.1; proposed I7)
+- [x] The Hebrew interface on demand: each page catalog's Hebrew object moved to `i18n/pages/he/` (46 objects in 45 files, typed against their English shape as before); `he.ts` and those files are one chunk, fetched when Hebrew is chosen; the locale provider keeps the current language on screen until it arrives (English on a first Hebrew load, a few ms locally: rendering nothing instead let a Ctrl+K pressed at once miss the jump box, seen as a flaky Hebrew e2e test)
+- [x] The libraries in a `vendor` chunk (React, the router, react-query), which the browser keeps across viewer rebuilds
+- [x] The home page's Hebrew section names come from the English catalog (`units.sectionsHe`), no longer from the Hebrew one
+- [x] Not done, by choice: a global `staleTime`: 13 hooks are live on purpose (labels, notebook, dossier, meta) or large (gematria lists, workbench), so the 136 `forever` spreads would become 13 opt-outs and the tests' own clients would behave unlike the viewer's
+- [x] Tests: no English-side module imports the Hebrew catalog statically, Hebrew loads once and English stays loaded (vitest); the component tests load Hebrew first (`src/test/setup.ts`)
+
+✔ First load for an English reader 263 → 194 KB gzipped (−26 %); the Hebrew chunk is 263 KB raw. 376 fixture e2e (the Hebrew jump-box test 20 / 20 without retries) and 294 / 294 real-data e2e; 346 vitest.
+
+## M109: Caching and startup (§10.2; proposed I6)
+- [x] Weak ETag of the build on GET `/api` answers; `If-None-Match` → 304 before the handler runs; labels, notebook, `/meta` and `/dossier` `no-store` and untagged (`app.NO_STORE_PATHS`, one `NO_STORE` for the routes)
+- [x] `/dossier` no longer cached for 5 minutes: its label count is read live
+- [x] The surface index on a background thread (`app.Deferred`): `load_state` 2.7 → 0.1 s on the real DB; startup steps timed in the log and `/meta`
+- [x] The domain table has its own lock (the first workbench request waited for the word-table preload)
+- [x] Not done, by choice: one shared labels connection (opening one per request costs about a millisecond and needs no lock); the hubness off the main path (about 1 s, once per new embedding file); the query modules' DB-keyed caches folded into `ServeState` (they work and would need the state passed to every query)
+- [x] Tests: the ETag and 304, the four `no-store` routes; the surface index cached and reused once its thread is done (pytest)
+
+✔ Real DB: `bsim serve` answers after 0.1 s of loading (plus imports); a revalidated list page is an empty 304.
+
+## M108: One pagination shape (§10.2; proposed I5)
+- [x] `Page[T]` (`api/models/common.py`): the 44 paged responses subclass `Page[Item]` instead of each declaring `total`, `offset`, `limit`, `items`; the OpenAPI schema keeps every name and field (the generated types differ only in field order)
+- [x] The lookups' and overviews' caps from the config: `serve.max_lookup` (50: /lemmas, /places/lookup, /genealogy/lookup, a name's partners) and `serve.max_top` (100: /echoes `top`, /network `central`, /unit-entities), checked by `check_cap`
+- [x] Not done, by choice: `top` on /echoes stays (a top-N of chapters, not a page); `X-Total-Count` stays on /phrases only (every paged body carries `total`); bounds stay in `check_page` / `check_cap`, whose 422 messages the viewer prints as they are (FastAPI's own validation answers a list)
+
+✔ Same API: `schema.gen.ts` has the same lines in another order; pytest green.
+
+## M107: Errors the viewer tells apart (§10.2, D117; proposed I4)
+- [x] `stage(name)` route dependency: 98 summary and list routes of the analysis pages answer 503 `{code: "stage_missing", stage, message}` when their stage did not run (the nine that said 404 "not computed" among them); per-unit panels, the dossier and the reader keep answering empty
+- [x] build-db writes `meta.stages_run` (the stages whose files it found), so a stage that ran and found nothing is an empty list, not "not computed"; older DBs fall back to the meta entry or the table's rows
+- [x] A table the DB lacks (built before its stage existed) is 503 `stage_missing` naming the stage, not a bare 500; other database errors a logged 500
+- [x] `BookFilter`: all 37 `book=` filters, `a_book` / `b_book` and the book path parameters 404 for a number that is no book (the five hand-written checks replaced); CSV export applies the same check
+- [x] Viewer: `ApiError` carries `code` and `stage`; `ErrorBox` / `PanelError` say "not computed in this build: run `bsim X`" (English and Hebrew) instead of an alert, so every list page gets it; the eight pages with their own message (binomials, brackets, chronology, divine, etiologies, frameworks, haftarot, retold) show it only for a missing stage and the error box otherwise; the workbench's raw error text is the error box
+- [x] Not done: `/patterns` keeps its 200 with a structured `error`: the query page draws the problem under the query and the workbench embeds it per set, so a parse error is a result, not a failed request
+- [x] Tests: four routes with their stage removed from `stages_run`, a stage that found nothing, an older DB, a dropped table, eight unknown-book paths, a known book without rows (pytest); the eight pages' missing-stage mocks, a 500 against a missing stage (vitest)
+
+✔ 376 / 376 fixture e2e (2 skipped by design), 344 vitest, pytest and ruff green; a dated book with no chapters answers `[]`, book 99 answers 404.
+
+## M106: Query speed (§9; proposed I3)
+- [x] Indexes: verses by reference (`book_id, chapter, verse`); discoveries by `a_book` and by `b_book` (with score, tie and the other book, so each side's search covers its filter and order); genealogy conflicts by child and identities by either person, voice pairs by `b`, dating and speech chapters by book and chapter
+- [x] `/discoveries?book=` as two index searches and a join for the page's keys (`_discoveries_of_book`); totals were already cached across pages (`queries.count`)
+- [x] One query per page, not per row: the word → display maps of mirrors, mirrored clauses and root pairs (`display_maps`), the reader's places (`places_by_id`); a place-links known pair looked up directly instead of from 1,000 rows
+- [x] The plan's `books` span columns were not needed: the verses index already makes a book's verses an index-only read
+- [x] Tests: query plans of a verse by reference, a chapter's units, the book filter and a book's discoveries (with and without `cross_book`) search an index and never scan verses, discoveries, words or matches (pytest, fixture statistics removed); the API tests unchanged
+
+✔ Real DB, best of 7: a verse by reference 20.7 → 0.7 ms, a chapter's pericopes 21.5 → 0.7 ms, a book's verse discoveries 86 → 3.6 ms, mirrors of a book 66 → 2.7 ms. `bsim compare-builds`: all 134 tables the same; the DB 686 → 805 MB, build-db 2:16 → 4:02.
+
+## M105: Reproducible runs (§6.2, D116; proposed I2)
+- [x] `units`: each unit's best-match rows summed apart and added in order; `index_add_` added with CUDA atomics, so two runs differed in the last bits and reordered tied neighbours (chapter, pericope, parasha; PageRank and discoveries after them)
+- [x] `word_pairs` ties broken by the lemma pair (the pairs come from sets, whose order changes between runs)
+- [x] Thresholds still in code moved to the config: `typescenes.sequence_max_q`, `dating.driver_min`; diffs' `rewrites_q_below_0.05` counts `q < 0.05` like the other "below" counts
+- [x] Corpus report: the ketiv / qere counts explained (1,102 verses with an OSHB qere, 942 with a MAM note, 916 both; `bsim ketiv` groups the 1,278 qere words into 1,260 readings); the 2 verses MAM does not have (Joshua 21:36–37, 20 words) shown apart from alignment misses and left out of the least-aligned list
+- [x] Tests: tied word pairs in lemma order whatever the input order; three GPU runs of the BMA matrix bitwise equal on the real chapters and pericopes (0.3–0.6 s, as before)
+
+✔ `bsim all --rerun units --rerun parallelism --rerun entities` reruns those three and nothing after them; before, units and parallelism rewrote different bytes and set off a 20-minute cascade. The rebuild changed the DB once: chapter, pericope and parasha scores in their last bits, tied neighbours and discoveries reordered, `word_pairs` in lemma order.
+
+## M104: Incremental runs without false staleness (§16.35, D115; proposed I1)
+- [x] Downloads as inputs by pattern (`pipeline.RAW`), not through `data/raw/manifest.json` (ignored: any download rewrites it); `download` no longer in `_CORPUS`; a read of a download `RAW` does not list is noted
+- [x] JSON inputs and outputs hashed without `pipeline.volatile_keys` (build times, durations); the state records the list and restates matching JSON hashes when it changes; Markdown reports (`pipeline.reports`) are their stage's outputs, no stage's input
+- [x] `build-corpus`, `lexicon`, `haftarot` hash their own `sources.*` keys; `gematria-links` no longer records the whole config
+- [x] Models adopted without a run take their declared config and their model folder as outputs (`pipeline.UNTRACKED`); `train-sup` depends on `lexical-topk`, not all of `lexical`; `train-simcse` declares `build-links` (its dev check reads the links)
+- [x] Tests: a restamped meta, the hash migration, downloads by pattern and a new group, an unlisted download read, an untracked adoption and a model retrained by hand, reports (toy pipeline, pytest)
+
+✔ After adopting, the real state's dry run is empty. A new download group, a `sources.*` bump or a `syntax.*` edit no longer marks the corpus, lexical or model stages stale. One mishap along the way: a `--rerun` started before the report rule cascaded into `train-simcse` and overwrote `models/berel-simcse` mid-training. A full retrain gave the recorded dev numbers exactly (recall@10 0.181, best epoch 2), with vectors within 2 × 10⁻⁶ of the originals. Catching up the pipeline (26 stages, 21 min) left the DB the same apart from ties: chapter, pericope and parasha scores move by ≤ 2.4 × 10⁻⁷ (`units` sums on the GPU), a few near-equal neighbours swap places, PageRank follows, and `word_pairs` has the same rows in another order; both are I2.
+
+## M103: Synopses (§16.74, D114; proposed T3)
+- [x] `api/synopsis.py`: strong same-order chains joined through shared passages; rows through the aligned pairs (transitively, one passage once a row), in the lead book's order with the chains' own orders kept; columns, one book's passages sharing one; cells flagged where their column goes back
+- [x] API `/synopses` and `/synopses/{id}?base=` (every column diffed against the base column; cached)
+- [x] Viewer: *Synopses* under Parallels (the list; the columns side by side, stacked on a phone; the marks against a chosen column); the Sequences page and a chain's ladder link to them
+- [x] Tests: passages, groups, rows (three witnesses, transitive, skipped verses), a shared column out of order, one passage once a row; the endpoints (pytest); the list, the columns, the marks and the base in the URL, Hebrew, the ladder's link (vitest); e2e on the fixture (two chains in three columns, the base, axe) and the real build (Jeremiah 52 / 39 / II Kings 25:1 in one row; I Chronicles 16 with Psalms 105 + 96)
+
+✔ Thirteen synopses: the fall of Jerusalem in Jeremiah 52, Jeremiah 39 and II Kings 24–25 reads row by row in three columns, I Chronicles 16 against the two psalms it joins, Kings against both Isaiah passages and the close of II Chronicles 32.
+
+## M102: Words linked in meaning (§16.73, D113; proposed T2)
+- [x] `api/align.py`: a verse's words as the encoder reads them, word vectors from the tokens' last hidden states, mutual best links above `serve.align.min_cos`, stop lemmas left out; the encoders' `tokens()` (and the fixture's stand-in)
+- [x] API `/align` (cached; 503 while the encoder loads or without token vectors)
+- [x] Viewer: Compare's third mark mode, *Linked in meaning*: links of meaning blue, shared words yellow, a chip per link; the pair kept while the pointer moves onto the panel; the highlighted rows' meta line in full ink (contrast)
+- [x] Tests: the words and their spans, word vectors, mutual links, stop lemmas, the encoder errors, the endpoint (pytest); the mode, its chips and focus, the encoder loading (vitest); e2e on the fixture (hover, chips, axe) and the real build (בשעלו ~ ממדיה, Isa 40:12 / Job 38:5)
+
+✔ Compare now says which words carry a semantic match that shares none: in Isaiah 40:12 and Job 38:5, בשעלו (the hollow of his hand) and ממדיה (its measures) are each other's best match (0.44).
+
+## M101: Fixed word pairs (§16.72, D112; proposed D7)
+- [x] `bsim binomials` (`analysis/binomials.py`, after frameworks, 5 s): every A וB pair of one kind; the binomials, their order, fixedness and words' lengths (letters, syllables); the turns by period; the claims and known answers fixed in config before the first run; one described sensitivity added (without כסף וזהב)
+- [x] DB `binomials`, `binomial_occurrences` (+ `meta.binomials`); API `/binomials`, `/binomials/occurrences`; findings `binomials_short`, `binomials_late`, `binomials_known`
+- [x] Viewer: Patterns → Word pairs (`/binomials`): the checks, every binomial (filter both ways, sort by turns), a binomial's occurrences in each order spread through the canon, the words marked; English and Hebrew
+- [x] Tests: prefixes and lengths, the construct state, finding pairs, the sign test, a small canon end to end, the endpoints and findings (pytest); the checks, the list and its controls, a pair's occurrences, Hebrew (vitest); e2e on the fixture (axe) and the real build (כסף וזהב first, 14 of 25 turned in the late books)
+
+✔ The shorter word first holds in letters (60 of 87, p 0.0003) but not in syllables (39 of 64, p 0.052): not borne out, both were fixed. The rarer order is commoner in the late books (17 % against 7 %, p 0.029), though without כסף וזהב p 0.19. שמים וארץ and איש ואשה are fixed; זהב וכסף rises from 25 % early to 56 % late.
+
+## M100: Narrative frameworks (§16.71, D111; proposed D6)
+- [x] `bsim frameworks` (`analysis/frameworks.py`, after chronology, 3 s): the judges' cycle slots in six episodes; the kings' verdicts (on `chronology.kings`) and regnal slots; the claims and known answers fixed in config before the first run; one fix after it (the negation rule; both runs documented)
+- [x] DB `frameworks_episodes`, `frameworks_slots`, `frameworks_kings` (+ `meta.frameworks`); API `/frameworks`; findings `frameworks_cycle`, `frameworks_cycle_known`, `frameworks_verdicts`, `frameworks_verdicts_known`
+- [x] Viewer: Patterns → Narrative frameworks (`/frameworks`): the checks, the cycle table, every king with his verdict and slots, a verdict verse on choosing a king, each kingdom's shares; English and Hebrew
+- [x] Tests: slots, the exact rho, the wording statistic, the verdict and its negation, a small Judges and Kings end to end, the endpoint and findings (pytest); the checks, the cycle, a king's verdict, Hebrew (vitest); e2e on the fixture (axe) and the real build (Othniel whole, Samson 3 of 6, Hezekiah right)
+
+✔ The judges' cycle breaks down through the book: Othniel 6 of 6 slots, Ehud 6, Deborah 5, Gideon 5, Jephthah 4, Samson 3 (rho −0.97, exact p 0.006). Each kingdom's verdicts are worded alike (0.39 within Israel, 0.29 within Judah, 0.27 across; p 0.0001). The known verdicts read right after the negation fix (7 of 7; 5 of 7 in the first run).
+
+## M99: The text's own chronology (§16.70, D110; proposed D5)
+- [x] `bsim chronology` (`analysis/chronology.py`, after haftarot, 4 s): a reader of number phrases (the Genesis style, the duals, the teens, ages and dates); dates from Adam by the configured events; the kings' reigns and synchronisms on one count from the division under the two rules; Gen 5's last digits. The claims and known answers fixed in config before the first run (the reading checked by eye first: two bugs fixed)
+- [x] DB `chronology_events`, `chronology_kings`, `chronology_syncs`, `chronology_numbers` (+ `meta.chronology`); API `/chronology`; findings `chronology_known`, `chronology_syncs`, `chronology_digits`
+- [x] Viewer: Patterns → Chronology (`/chronology`): the checks, the lifespans chart, every date with the words its number was read from, the conflicts, the two kingdoms with their synchronisms, the rules, every reign, Gen 5's digits; English and Hebrew
+- [x] Tests: the number phrases (Genesis style, hundreds, thousands, duals, teens, ages, dates, units), reigns and dates, the two rules, the synchronisms and the best rules, a small canon end to end, a missing reign, the endpoint and findings (pytest); the checks, the dates and conflict, the charts, the digits, Hebrew (vitest); e2e on the fixture (axe) and the real build (the Flood and Methuselah's death in 1656, Abijam in Jeroboam's 18th)
+
+✔ The text's numbers give Seder Olam's years (the Flood 1656, Abram 1948, the Exodus 2448), with two known conflicts. 19 of 30 intervals between the kings' synchronisms agree in both kingdoms' counts, against 4.7 with the reigns shuffled (p 0.0001), both by the accession rule. 27 of Gen 5's 28 year numbers end in 0, 2, 5 or 7, against 72 % elsewhere (p 0.002).
+
+## M98: Haftarot (§16.69, D109; proposed D8)
+- [x] Data: Hebcal leyning (`src/aliyot.json`, v10.1.0, BSD 2-Clause) as download group `leyning`: Sefaria's export has no haftarah list (the user chose Hebcal)
+- [x] `bsim haftarot` (`analysis/haftarot.py`, after retold, 6 s): every parasha against the 380 chapters of the Prophets by words, meaning and both; the haftarah's rank; the two claims and the known fixed in config before the first run; each system as retrieval of the haftarah
+- [x] DB `haftarot`, `haftarah_lists` (+ `meta.haftarot`); API `/haftarot`; findings `haftarot_claim`, `haftarot_calendar`, `haftarot_known`
+- [x] Viewer: Patterns → Haftarot (`/haftarot`): the checks, the systems, every parasha with its haftarah and ranks, a parasha's first chapters with the haftarah marked; the credit to Hebcal; English and Hebrew
+- [x] Tests: Hebcal's parts and refs, a haftarah's chapters, ranks and fusion, both shuffles, a small canon end to end, the count check, the endpoint and findings (pytest); the checks, the systems, the table, a parasha's chapters, Hebrew (vitest); e2e on the fixture (axe) and the real build (Tetzaveh first, Vayera's II Kings 4 third)
+
+✔ The haftarot chosen for their parasha stand at percentile 12 % among the Prophets' 380 chapters, against 32 % shuffled (p 0.0001); the ten the calendar fixes stand at 33 %, no better than chance. Noach's Isaiah 54 is 17th (6th by meaning, 98th by words). The parashot have their first gold: words MRR 0.24, meaning 0.20, both 0.20.
+
+## M97: Retold speech (§16.68, D108; proposed D4)
+- [x] `bsim retold` (`analysis/retold.py`, after brackets, 68 s): every run of one teller cut into pieces, aligned with the earlier text of its book where it shares the most rare words, diffed word by word as `bsim diffs`; grouped by who tells it first and again; the claim (retold against carried, within length strata) and the known retellings fixed in config before the first run; seeds became windows after it
+- [x] DB `retold_pairs`, `retold_marks` (+ `meta.retold`); API `/retold`, `/retold/items` (paged: a group, named in advance; canon, most or least changed); findings `retold_claim`, `retold_known`
+- [x] Viewer: Patterns → Retold speech (`/retold`): the checks and the known, the groups with their change rates, both sides of each passage with their tellers and the changes marked; English and Hebrew
+- [x] Tests: tellers (a quoted quotation is its quoter's), pieces and runs, groups, window seeds, the search and its masking, the stratified shuffle, a small book end to end, the endpoints and findings (pytest); the checks, the groups, both sides marked, filters, Hebrew (vitest); e2e on the fixture (axe) and the real build (Genesis 3 found)
+
+✔ Not borne out: speech retold by another speaker changes no more of its words than speech the narrator carries out (29.0 % against 30.0 %, p 0.66); a speaker repeating their own words changes least (24.9 %). The woman's retelling of God's command is found (6 of 13 words changed), Pharaoh's dreams too; the servant's account of Abraham's charge is missed.
+
+## M96: Resumptive repetition (§16.67, D107; proposed D3)
+- [x] `bsim brackets` (`analysis/brackets.py`, after etiologies, 210 s): verse pairs 3–40 apart in a book aligned by lemma or form, mutual best; the block between scored against the verses around it (words and meaning) and against random brackets of the same span; the claim and the known brackets fixed in config before the first run
+- [x] DB `brackets` (+ `meta.brackets`); API `/brackets`, `/brackets/items` (paged: all, p ≤ alpha, named; canon or strongest; a book); findings `brackets_insertion`, `brackets_known`
+- [x] Viewer: Patterns → Resumptive repetition (`/brackets`): the checks and the known brackets, the repetitions a page at a time with the clause marked in both verses, links to read the block and to compare; English and Hebrew
+- [x] Tests: tokens matching by lemma or form, the candidate band, the mutual best, the bracket score, a small book end to end, the endpoints and findings (pytest); the checks, the marks and links, filters, order and book, Hebrew (vitest); e2e on the fixture (axe) and the real build (Exodus 6 found, Ezekiel 48 first)
+
+✔ Repeated clauses bracket blocks that interrupt their surroundings more than random brackets of the same span (−0.156 against −0.190, p 0.001), but the known brackets do not all show it: Exodus 6:12 / 6:30 does (p 0.003), Genesis 37:36 / 39:1 does not (p 0.19), and Ezra 4:5 / 4:24 is lost to the mutual-best rule. No single bracket passes BH; 1 Samuel 28:1 / 29:1 is among the strongest.
+
+## M95: Naming etiologies (§16.66, D106; proposed D2)
+- [x] `bsim etiologies` (`analysis/etiologies.py`, after divine, 27 s): the naming formulas from the OSHB lemmas and morphology; each name's echo in the content words of its verse; the claim against explanations shuffled among the namings and the known etiologies, both fixed in config before the first run; each naming against random verses, BH
+- [x] DB `etiologies` (+ `meta.etiologies`); API `/etiologies`; findings `etiology_echo`, `etiology_known`
+- [x] Viewer: Patterns → Naming etiologies (`/etiologies`): the checks, every naming with its name and echo marked in the verse, filtered (beyond chance, named in advance) and ordered (canon, strongest); English and Hebrew
+- [x] Tests: the echo and its ties, the formula's forms and non-forms (בשם, לא, שמי, a pronoun object), a small corpus end to end, the endpoint and findings (pytest); the checks, the marks, the filters and order, Hebrew (vitest); e2e on the fixture (axe) and the real build (Naphtali first, Reuben marked)
+
+✔ Names echo their own explanations: 51 % of a name's consonants stand in order in one word of its verse, against 25 % with the explanations shuffled (p 0.0001). The known etiologies are all found, but only 11 of 16 stand out among the explanations (12 asked for): short names of common letters (שת, לוי) are echoed by chance too. Eight namings pass one by one, Naphtali, Jacob's ויעקבני and Zebulun first.
+
+## M94: The names of God (§16.65, D105; proposed D1)
+- [x] `bsim divine` (`analysis/divine.py`, after ciphers, 11 s): the names of `divine.names` per chapter and book from the OSHB lemmas; each book cut in three where the mix of יהוה and אלהים changes most, against shuffled chapter orders, BH over books; the Elohistic Psalter and the doubled psalms as checks fixed in config before the first run
+- [x] DB `divine_chapters`, `divine_books`, `divine_pairs`, `divine_words` (+ `meta.divine`); API `/divine`, `/divine/pairs`; findings `divine_elohistic`, `divine_doubled`; dossier `divine`; reader layer `divine`
+- [x] Viewer: Patterns → Names of God (`/divine`): the checks, the canon as a diverging strip of chapters (palette validated for colour blindness in both schemes), the books and a book's chapters, the doubled psalms name by name; a line over each name in the reader; English and Hebrew
+- [x] Tests: lemma parts, the three-part cut and its shuffles, the sign test, both checks (a book not split, a passage missing), the endpoints, findings, dossier and reader (pytest); the strip, the cuts, the tables, the pairs, the reader layer, the dossier link, Hebrew (vitest); e2e on the fixture (axe) and the real build (Psalms 42–84, Psalm 53 in the reader)
+
+✔ The Elohistic Psalter is found without being named: Psalms falls into 1–41, 42–84 and 85–150 with יהוה at 85 %, 17 % and 85 % of the two names (p 0.001). The doubled psalms point the expected way, 6 places of אלהים for יהוה against 1, but p 0.06 does not pass. Isaiah 35–37, the Hezekiah narrative, is the only other cut beyond chance.
+
+## M93: The workbench (§16.64, D104; proposed T1)
+- [x] `api/workbench.py`: sets (book, chapters, section, unit, notebook collection, pattern; only speech / narration), contrast by G² with BH q over nine word features (lemma, root, SDBH domain, part of speech, stem, form, person, phrase function, clause type), a pattern checked on a set against its verses drawn again within book, chapter or canon; errors as codes with the item at fault
+- [x] API `/workbench/contrast`, `/workbench/check`; `serve.workbench` in config; the domain table and verse chapters read once by the server
+- [x] Viewer: Patterns → Workbench (`/workbench`): two tabs, sets built item by item or as text, both sides linked to lemma, root, domain and pattern search, CSV, the check's verdict in words; English and Hebrew
+- [x] Tests: set parsing and errors, the check's draws on exact cases, contrast counts and G² on the fixture, speech and narration, collections read live, the endpoints (pytest); set editing, both tabs, problems, Hebrew (vitest); e2e on the fixture (a set built from the form, axe) and the real build (the Elohistic Psalter)
+
+✔ Psalms 42–83 against the rest of Psalms puts אלהים first on A's side (245 against 117, G² 222) and יהוה first on B's (40 against 647, G² 260); `[lemma=430]` checked on it is 41.7 per 1,000 words against 18.5 for Psalms verses drawn at random (p 0.001). A contrast answers in under 0.1 s once the word table is loaded.
+
+## M87: Dossier entries for places, ciphers and letter values (D100; proposed V2)
+- [x] `/dossier/{unit}`: `places` (count, the most named place), `ciphers` (hits, the first one's words and name), `gematria` (the tradition's texts of `gematria.known` among the unit's words; a verse's value and the other verses of it); `known_texts_in` (whole words, up to two prefix letters)
+- [x] Viewer: three dossier chips on unit pages, linking to the map of the unit, the cipher hits of the unit, and the verses of a verse's value or the reader's letter-value layer; English and Hebrew. `DossierKind` now comes from the API schema
+- [x] Tests: the three entries on a verse and a chapter against the list endpoints, "not computed", the text matching (pytest); the chips, their links and the found rule (vitest); e2e on the fixture (each chip to its page) and the real build (Jeremiah 25's ששך, Genesis 49's יבא שילה)
+
+✔ A unit page now says which places it names, which names hide in a letter swap, and its letter values: Jeremiah 25 names 21 places (most often בבל) and hides בבל in ששך; Genesis 15:2 is worth 3,858, as are 6 other verses, and holds אליעזר. 672 pytest, 260 vitest, 302 / 304 fixture e2e (2 skipped by design) and 244 / 244 real-data e2e. Two needed a second look: the six whole-site accessibility runs had outgrown their 240 s budget (60 pages at about 4 s each: 250 s; now 480 s; no violations), and /phrases failed to load once on the phone and passed when rerun.
+
+## M86: Places in the jump box (§16.57, D99; proposed V1)
+- [x] `places.names`: the headword and TIPNR's other Hebrew names whose Strong's number the text uses for the site (ציון for Jerusalem, לוז for Bethel), from `bsim places`; downstream place stages adopted (unchanged)
+- [x] API `/places/lookup?q=`: a Hebrew name (pointing ignored, prefixes dropped, ו and י ignored as a last resort) or a Strong's number; its own name, another name, then a prefix; the lemma lookup's prefix drops shared (`form_keys`)
+- [x] Jump box: a Places group (kind, verses, first verse) before the words when a place is named by the whole query and no other word is commoner, else after them; Enter before the pause looks places up too. `= 318` was done in M76
+- [x] Map: `?p=` outside the view moves the view to centre on it (the jump box, a partner picked)
+- [x] Tests: the names kept and dropped, the lookup (pytest); places first and after, Enter before the pause, Hebrew, the map moved and left (vitest); e2e on the fixture (both languages) and the real build (Babylon in view, ציון to Jerusalem)
+
+- [x] Follow-up: names of several words as the text writes them (§16.56): TIPNR's compounds had run together (חברוןעמק), now from the verses that name them (עמק חברון, בית חורן תחתון, ערבת מואב); 33 headwords changed, downstream place stages adopted (they keep ids, not names)
+
+✔ A place's name opens the map at it: בבל moves the map to Babylon, ציון and ירושלים find Jerusalem, עין the eye comes before עין the town. 669 pytest, 258 vitest, 300 / 302 fixture e2e (2 skipped by design) and 242 / 242 real-data e2e; axe clean on the jump box and the map in both languages (the detail line on the highlighted option was too faint, 3.99:1, and is darker now).
+
+## M85: Letters at equal skips (§16.62, D98; proposed G5)
+- [x] `bsim els` (`analysis/els.py`, ~5 min with the GPU): 27 names fixed in config at skips 2–1,000 either way in the written letters of the Torah and of Genesis; each against its exact expectation under a letter shuffle; R against 199 letter shuffles, 199 verse shuffles and blocks of the other books; the tradition's five sequences at the start of the books as known answers
+- [x] DB `els_terms`, `els_draws` (+ `meta.els`); API `/els`; findings `els_counts`, `els_known`
+- [x] Viewer: Patterns → Letters at equal skips (the counts against each control, the draws as dots beside the text, the blocks, name by name, the tradition's sequences and how often they recur); English and Hebrew
+- [x] Tests: letter codes, hits against brute force (both ways, a palindrome once), the expectation against every arrangement, the log ratio, finding a sequence, the stage on the fixture's corpus, the API, findings (pytest); the page, the names and the tradition, the scope switch, Hebrew, the empty state (vitest); e2e on the fixture and the real build
+
+✔ No more names at equal skips than chance. The Torah's 304,801 letters hold 1,428,731 hits of 27 names against 1,429,940 expected (R −0.011): p 0.62 against shuffled letters, 0.57 against shuffled verses, 0.33 against the other books; Genesis alone R −0.009 (p 0.47, 0.45, 0.25). The tradition's five sequences (תורה at 50 from Genesis 1:1 and Exodus 1:1, יהוה at 8 from Leviticus 1:1, הרות from Numbers 1:1 and Deuteronomy 1:5) are all in our letters, but not rare: תורה at skip 50 occurs 19 times in the Torah, about 10 expected. 668 pytest, 254 vitest, 300 / 302 fixture e2e (2 skipped by design; the known page-load flake on /speech passed when rerun) and 240 / 240 real-data e2e.
+
+Every suggestion from the 2026-10-09 review is done (M45–M59). From the 2026-10-12 review (each analysis with a claim fixed in advance and a known answer, for the Findings page):
+
+Analyses
+- [x] A1 (done, M60) Meter: stresses per colon (accented words, maqaf-joined = one) over the existing cola (`text/accents.py`); balanced vs falling lines per book / chapter. Claim: Lamentations 1–4 have more falling (qinah, 3:2) lines than other poetry (chapter permutation); Isa 14:4–21, Amos 5:2 as known extras, Lam 5 as control. Poetry tab, stress counts on the verse halves
+- [x] A2 (done, M61) Root families: Strong's derivation links in HebrewStrong.xml (already downloaded; parse to check) → root families; Leitworte by root (§16.2 is by lemma) checked on Gen 27 ברך, Jonah ירד / גדל, 1 Sam 15 שמע / קול; figura etymologica (infinitive absolute + finite verb, cognate objects; out of scope in §16.10) per book against a shuffle; root chip and concordance by root
+- [x] A3 (done, M63) Refrains: Smith–Waterman within a book (`analysis/phrases.py`), phrases recurring ≥ 3 times, gap regularity against a verse shuffle; known list in config (Amos 4:6–11, Isa 9:11–10:4, Ps 42–43, Ps 107, Ps 136, Gen 1); second claim: refrains fall at the turns of §16.29
+- [x] A4 (done, M65) Psalm genres and the lament turn: per-psalm address / person / imperatives / SDBH distress vs praise domains, clusters against Gunkel's genres in config (NMI vs shuffled labels); a change point inside laments checked on known turns (Ps 6:9, 13:6, 22:23, 28:6)
+- [x] A5 (done, M66) Pentateuch decomposition (Koppel–Dershowitz style): unsupervised two-way split of Genesis–Numbers by synonym choice (SDBH synonym pairs) and function words, divine names held out; agreement with a P / non-P assignment in config against a shuffle; framed as a test either way
+- [x] A6 (done, M67) Who speaks to whom: addressee from the introducing clause's אל-complement and vocatives (hand check of 50, as M43); conversation network per book, turn length, last word; "To whom" on the Speech page
+- [x] A7 (done, M68) Graded numerical sayings (x / x+1 over consecutive cola: Prov 30:15–31, Amos 1–2, Prov 6:16, Job 5:19, Mic 5:4) and lists / genealogies by repeated verse shapes (`bm25_morph` tokens)
+
+Viewer
+- [x] B1 (done, M62) Layered reader: a chapter view with the existing analyses as toggleable overlays on the words (speakers, cola, Leitworte, wordplay, ketiv / qere, phrases shared elsewhere, rare words, turns); `?layers=` in the URL; existing endpoints first
+- [x] B2 (done, M69) Pattern search: a small query syntax over `words` (lemma, morph, POS, stem, BHSA phrase function, distance), paged results and CSV
+- [x] B3 (done, M70) Notebook: bookmarks, notes and collections on verses and units in the writable `paths.labels` file, Markdown / CSV export
+
+Backend, models, code health
+- [x] C1 (done, M64) Extra training pairs from OpenBible and ETCBC between train-split books (eases §8.4's bias); Sefaria / ETCBC / OpenBible dev with a paired bootstrap; test untouched
+- [x] C2 (done, M71) Newer encoders on dev: DictaBERT through `train-sup`; multilingual embedders (multilingual-e5-large, Qwen3-Embedding-0.6B) inference only, fp32; availability checked first
+- [x] C3 (done, M73) Pericope / chapter retrieval (test nDCG@10 0.068 / 0.157): sequence and phrase coverage as a third fusion list, on dev
+- [x] C4 (done, M72) `bsim compare-builds old new`: row and `meta` diff per table (what M54 did by hand)
+- [x] C5 (done, M74) Split `api/models.py`, `api/queries.py`, `store/db.py` per feature; `Literal` unions in pydantic so `schema.gen.ts` can replace most of `web/src/api/types.ts`; a panel registry for `UnitPage.tsx`
+
+Suggested order: A1 → A2 → B1 → A3 → C1 (all done, M60–M64).
+
+From the 2026-10-15 review: letters and numbers, and geography. Each is a test with a claim fixed in advance and known answers, as before. Gematria and codes are framed like the sevens check (§16.14), whose verdict can come out either way. Places are shown in Hebrew only (D5, D56); English gazetteer names are internal join keys.
+
+Letters and numbers
+- [x] G1 (done, M76) Gematria layer: `text/gematria.py` over the consonantal text in four systems listed in config (standard, mispar gadol with finals 500–900, ordinal, reduced); values per word, verse and lemma in the DB; `/gematria?value=&system=` (words, lemmas, verses, paged); value in the word panel, a reader layer, `= 318` in the jump box, a calculator page. Known values as unit tests: אליעזר 318 (Gen 14:14), נחש = משיח 358, יין = סוד 70
+- [x] G2 (done, M82) Do equal values link related words? Claim: words of equal standard gematria are no closer in meaning (SDBH domain overlap, root family §16.38, BEREL word vectors as §16.23) than pairs matched on letter count and frequency band; the traditional equivalences in config ranked. Verse check: the numerical properties claimed for Gen 1:1 (2701 = 37 × 73, 7 words, 28 letters) counted over all 23k verses, a look-elsewhere control
+- [x] G3 (done, M77) Atbash and albam: words whose atbash (א↔ת) or albam (א↔ל) form is a name or lemma elsewhere. Known answers: ששך = בבל (Jer 25:26, 51:41), לב קמי = כשדים (Jer 51:1). Claim: atbash gives more cipher → name hits in Jer 25 and 51 than 999 random involutive letter substitutions, and no more elsewhere. Atbash / albam forms in the word panel (linked when they are words), a Ciphers tab with q
+- [x] G4 (done, M78) The Masorah's counts: middle letter (the ו of גחון, Lev 11:42), middle words (דרש דרש, Lev 10:16), middle verse (Lev 8:8) of the Torah (Kiddushin 30a) and the Masorah's verse total per book, computed on our text (qere and ketiv apart); how far each lands from the tradition, book counts that differ listed with the reason. A check of our text and versification
+- [x] G5 (done, M85) Equidistant letter sequences: terms fixed in config (a rabbis-and-dates list or a smaller list of names), skips up to N over the Torah letter string against Genesis with letters shuffled, with verses shuffled, and a non-Torah block of the same length. Claim: no more hits than the controls; shown as counts against controls, not "codes"
+
+Geography
+- [x] P1 (done, M79) Gazetteer: download group `geo`, TIPNR (STEPBible, CC BY 4.0: Strong's → place) and OpenBible.info Bible Geocoding (CC BY 4.0: coordinates with confidence); availability and licenses checked first, recorded in DESIGN §1. Place lemma → site(s) → lat / lon, several sites per Strong's number resolved by the verses in `entity_mentions`; SDBH name subdomains split places into town / region / landform / water and peoples from persons; hand check of 50 (as M43); `places.parquet` and a DB table
+- [x] P2 (done, M80) A real map: offline SVG of the region (Natural Earth coastline, rivers, Dead Sea; public domain), projected by hand like the other charts, no tile server or new dependency; points by mentions and kind, filters by book / chapter / unit; place panel (book strip, co-mentioned places); "where this happens" on chapter and pericope pages; a places layer in the reader
+- [x] P3 (done, M81) Are place lists ordered on the ground? Claim: consecutive places in boundary and itinerary lists lie closer than in the list shuffled. Known lists in config: Num 33, Num 34, Josh 15:21–62, Josh 19, Gen 10. Second claim: Joshua's town lists cluster by district against a shuffle across districts
+- [x] P4 (done, M83) The geographic arc: each chapter's centroid weighted by its place mentions. Claims: consecutive chapters lie closer than in a shuffled order; known moves (Gen 11–12 Ur / Haran → Canaan, Gen 46 → Exodus Egypt, Exod 12 → Numbers wilderness, 2 Kgs 25 Babylon); the oracles against the nations (Amos 1–2, Isa 13–23, Jer 46–51, Ezek 25–32) spread wider than other prophetic chapters. The path of the centroids per book on the P2 map
+- [x] P5 (done, M84) Distance decay: place co-mention links (`entity_links`, G²) against distance. Claim: link strength falls with distance (Spearman, against coordinates shuffled among places); far apart but strongly linked pairs as leads ("Dan to Beersheba")
+
+Viewer
+- [x] V1 (done, M86; `= 318` in M76) Jump box: `= 318` (gematria), and a place name opens the map at it
+- [x] V2 (done, M87) Dossier entries: a unit's gematria and cipher hits and its places
+
+Suggested order: G1 → G3 → G4 (known answers, cheap), then P1 → P2 → P3 (geography needs P1's data first), then G2, P4, P5; G5 last.
+
+From the 2026-10-21 request: a family tree of everyone in the Hebrew Bible. Every link has its verse, conflicts in the text are marked, and the tree collapses at any node. The work is reviewed block by block and handed off in `docs/genealogy/PROGRESS.md`. Names are shown in Hebrew only (D5, D92).
+
+Family tree
+- [x] F1 (done, M88) Data: TIPNR's family columns, proof verses by cue, curated review files, the tables
+- [x] F2 (done, M89) Viewer: the collapsible tree, side panel, markers, search, responsive
+- [x] F3 (done, M90) The review in 21 blocks, in canon order
+- [x] F4 (done, M91) Parallel genealogies against each other, tribe attachments, jump box and dossier
+- [x] F5 (done in M139, K13) Rabbinic identifications: as identities with their sources rather than a third kind of conflict, checked against Sefaria's links
+- [x] F6 (done, M92) The look: on most of the screen, avatars, couples, the chosen person's line, wheel zoom
+
+Suggested order: F1 → F2 → F3 → F4; F5 when asked.
+
+From the 2026-10-23 review: more hidden patterns and tools to look with. Each analysis has a claim fixed in advance, known answers and a control, for the Findings page, as before.
+
+Analyses
+- [x] D1 (done, M94) Divine names across the canon: יהוה / אלהים / אדני / שדי / צבאות / אל per chapter, change points (`analysis/seams.py`). Claims: the Elohistic Psalter (Ps 42–83) comes out as one segment without its bounds; in the doubled psalms (Ps 14 / 53, Ps 40:14–18 / 70) the Elohistic side has אלהים for יהוה more than the reverse (`analysis/diffs.py`). A heat strip per book, a reader layer
+- [x] D2 (done, M95) Naming etiologies: the naming formula (ויקרא / ותקרא (את) שמו / שם המקום X + כי / לאמר / על כן) found with the pattern language (`api/patterns.py`); the name's consonants in its explanation (skeletons of `analysis/wordplay.py`) against names paired with the other explanations. Known: Jacob's sons (Gen 29:32–30:24), נח (Gen 5:29), משה (Exod 2:10), שת (Gen 4:25), באר שבע, בית אל
+- [x] D3 (done, M96) Resumptive repetition (Wiederaufnahme): a near-identical clause repeated 3–40 verses later in a book, the block between less cohesive with its surroundings than the frame (`analysis/phrases.py`, `analysis/segments.py`), against random brackets of the same span, BH q. Known: Gen 37:36 / 39:1, Exod 6:10–12 / 6:29–30, Ezra 4:5 / 4:24. Leads beside seams and divisions
+- [x] D4 (done, M97) Retold speech: quotations (`analysis/dialogue.py`) that retell an earlier speech or narration of the same book, aligned and word-diffed (`diffs.py`). Claim: speech retold by another speaker changes more than command → execution of the same length (§16.7). Known: Gen 2:16–17 / 3:2–3, Gen 24:2–8 / 24:37–41, Gen 41:1–7 / 41:17–24
+- [x] D5 (done, M99) The text's own chronology: years from Adam by Gen 5 and 11 and the stated spans (Exod 12:40, 1 Kgs 6:1); Kings' synchronisms and reign lengths (numbers as `analysis/forms.py`). Claims: Flood 1656, Abraham 1948, Exodus 2448 (Seder Olam) as known answers; synchronisms agree with reign lengths under a per-kingdom accession rule more than with reign lengths shuffled, conflicts listed; Gen 5's ages end in 0 / 2 / 5 / 7 above chance. A timeline page
+- [x] D6 (done, M100) Narrative frameworks: Judges' cycle slots (ויעשו הרע / וימכרם / ויזעקו / ויקם מושיע / ותשקט הארץ) and Kings' regnal slots (age, length, mother, verdict, high places, burial). Claims: the cycle grows less complete through Judges (Spearman against shuffled orders; Othniel full, Samson broken); Kings' verdict wording divides by kingdom. After D5
+- [x] D7 (done, M101) Fixed word pairs and their order: "A ו B" pairs found both ways, how fixed each order is. Claims: the shorter word first above chance (syllables, letters); reversals commoner in the late books (`analysis/dating.py`; כסף וזהב / זהב וכסף). Known: שמים וארץ, איש ואשה
+- [x] D8 (done, M98) Haftarot against their parashot: the sages' pairing as a gold set for parashot (which have none). Claims: the haftarah ranks above other prophetic chapters in its parasha's fused list; which mode explains the pairing. Known: Noach → Isa 54, Vayera → 2 Kgs 4. Availability and license of Sefaria's haftarah list checked first
+
+Tools
+- [x] T1 (done, M93) Workbench: two verse sets (books, ranges, a notebook collection, a pattern-search result) contrasted on lemmas, roots, SDBH domains, morphology and clause shapes (G², BH q, example verses); one pattern query tested on a set against shuffles that keep book and chapter (`analysis/stats.py`)
+- [x] T2 (done, M102) Why semantic: BEREL token alignments (`retrieve/maxsim.py`) drawn between the two passages in Compare, for semantic matches that share no words
+- [x] T3 (done, M103) Synopsis: parallel sequences chained into three or more aligned columns with the diff marks (2 Kgs 18–20 / Isa 36–39 / 2 Chr 32, Ps 18 / 2 Sam 22, Exod 20 / Deut 5, Ezra 2 / Neh 7, Ps 105 + 96 + 106 / 1 Chr 16)
+
+Suggested order: T1 → D1 → D2 → D3 → D4 → D8 → D5 → D6 → D7 → T2 → T3.
+
+From the 2026-11-01 review: improvements to what exists, no new features. Three audits (viewer, API timed on the real DB, pipeline and docs) found the items below; each milestone keeps the API and DB as they are unless it says otherwise (`bsim compare-builds`), and a rule changed after a claim's first run is reported with both runs.
+
+Pipeline and data
+- [x] I1 (done, M104) Stop false staleness: downloads as inputs by pattern (`pipeline.RAW`), not through the manifest every download rewrites; JSON times and durations left out of hashes (`pipeline.volatile_keys`); each stage's own `sources.*` keys; models adopted with their own config and folders as outputs; `gematria-links` stops recording the whole config
+- [x] I2 (done, M105) Determinism and hygiene: `word_pairs` and entity links in one order; thresholds still in code moved to the config, `q ≤` everywhere; the corpus report's ketiv / qere counts reconciled, Josh 21:36–37 labelled absent
+- [x] I11 (done, M114) Faster slow stages (els, brackets, ciphers, retold, sequences), outputs byte-identical
+- [x] I12 (done, M115) Gold and alignment: OpenBible's Psalms and renumbered chapters through `data/kjv.py`; OSHB↔MAM words divided differently; BHSA's fallback counted, qere aligned; the encoder retrained under a rule fixed first; RESULTS.md dev tables refreshed
+- [x] I13 (done, M116) Speakers: the carried subject skips relative clauses, the messenger formula, Deuteronomy's frame; a fresh hand check of 50
+- [x] I14 (done, M117) Known misses: Ezra 4:24, Gen 24:37–41, the Song's refrain, Num 7 and Neh 3, Nahum 1, Ruth 1:20, כל in word pairs
+
+API
+- [x] I3 (done, M106) Query speed: an index for verses by reference and for discoveries by book, books' verse spans, cached totals, N+1 loops batched; a query-plan test
+- [x] I4 (done, M107) Consistent errors: `stage_missing` for a stage not run, `book_or_404`, pattern errors as 422, missing tables handled; the eight pages that said "not computed" for any error tell the two apart
+- [x] I5 (done, M108) One pagination shape: `Page[T]`, limits from the config, bounds checked, `X-Total-Count`
+- [x] I6 (done, M109) Caching and startup: ETag by build, `/dossier` not cached, BM25 loaded in the background, timed startup, one cache style
+
+Viewer
+- [x] I7 (done, M110) Faster first load: the Hebrew catalog on demand, a vendor chunk, one `staleTime`
+- [x] I8 (done, M111) Navigation: Patterns split into groups, collapsible phone menu, an Explore panel on the home page
+- [x] I9 (done, M112) Consistency: one book filter, CSV on the table pages without it, the family tree and workbench in the URL, small accessibility fixes
+- [x] I10 (done, M113) Split overgrown files: the family tree page, `routes/findings.py`, the queries' `__all__`
+- [x] I15 (done, M118) Test gaps: Search, Compare, Sequence, Synopses and other untested pages and views; API tests per router
+
+Suggested order: I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I10 → I9 → I11 → I12 → I13 → I14 → I15.
+
+From the 2026-11-02 review: improvements again, no new features. Three audits (viewer, backend and CI, the analyses' limits) found the items below. Refactors keep outputs byte-identical; a rule changed after a claim's run is reported with both runs, and a verdict it changes is marked as following a change made after the result was seen.
+
+Tooling
+- [x] J1 (done, M119) Fast pytest and serve start: the fixture DB built once a session, each test given a copy; torch and `scipy.stats` off the serve path
+- [x] J2 (done, M120) Faster, steadier CI: Python and viewer jobs apart, the end-to-end tests sharded, one accessibility test a page, a ready marker instead of `networkidle`, actions off Node 20
+- [x] J3 (done, M121) Shared helpers and gates: `empirical_p` with a tail, one FDR, one meta writer; `ruff format` in CI (pyright tried, not kept)
+- [x] J4 (done, M122) Slow stages and DB size: senses and acrostics profiled, the DB's page size and unused indexes, stale artifacts removed
+
+Data and analysis
+- [x] J5 (done, M123) Solomon's speaker: a subject carried through clauses whose own subject was carried (2 Chr 6:12–14); a fresh hand check: 26 / 50 right, **not kept**
+- [x] J6 (done, M124) The dialogue tests' statistic: within-book differences, the null of a shuffle within books; unknown speakers out of the rank tests
+- [x] J7 (done, M125) The poetry model's labels: Job's prose frame and the psalm titles out of training
+- [x] J8 (done, M126) Four small misses: Ps 9's acrostic (tried, not kept), citations finding the parallel copy, Nehemiah 3's list, the type scenes' null at 20 shuffles
+
+Docs and evaluation
+- [x] J9 (done, M127) The seed-noise bar re-measured on the new OpenBible gold; whether M115's adoption stands: it does (bar 0.0007, gain 0.0035)
+- [x] J10 (done, M128) Stale numbers in RESULTS, DESIGN and ARCHITECTURE fixed; a test that checks quoted numbers against the build's meta
+
+Viewer
+- [x] J11 (done, M129) Tables and numbers: CSV and labelled scroll regions on the 14 remaining tables, numbers formatted by locale (checked: nothing to change), vitest for the untested views
+- [x] J12 (done, M130) Cross-links: place and person link helpers; names and type-scene verbs linked (the family tree's card: no lemma to link)
+- [x] J13 (done, M131) Shareable selections: the map's, the place pages' and the reader's selections in the URL (Compare's follows the pointer: left out); open sections kept on Back
+- [x] J14 (done, M132) Speed: the reader and the map's labels memoised; the English page strings split by route (not done: a redesign of the catalog, left for its own milestone)
+
+Suggested order: J1 → J2 → J3 → J4 → J5 → J6 → J7 → J8 → (J9 in the background) → J10 → J11 → J12 → J13 → J14.
+
+From the 2026-11-03 review: new features and improvements, all fifteen suggestions taken. Each analysis has a claim fixed in advance, known answers and a control, for the Findings page, as before; models are chosen on dev and adopted under the M127 rule; one milestone at a time, each reported before the next. Downloads have their license checked first (DESIGN §1), and anything NC or unclear is asked about.
+
+Analyses
+- [x] K1 (done, M133) Do the sums add up? Itemised lists against their stated totals (Num 1, Num 26, Ezra 2 / Neh 7's 42,360, Ezra 1:9–11, Num 7), values summed as `analysis/chronology.py` does; numbers that differ between synoptic parallels (2 Sam 24:9 / 1 Chr 21:5, 1 Kgs 5:6 / 2 Chr 9:25, 2 Kgs 24:8 / 2 Chr 36:9). Claims: the censuses match and Ezra 2 / Neh 7 do not; parallels' numbers differ by one number word more often than pairs shuffled
+- [x] K2 (done, M138) Rabbinic reception: Mishnah / Tosefta / Talmud citations of each verse from Sefaria's links export. Claim: the legal blocks in config (Exod 21–23, Leviticus, Deut 12–26) are cited more per verse than narrative, verse labels shuffled within books. A heat strip per book, a reader layer, a dossier entry
+- [x] K3 (done, M140) Other witnesses: a Samaritan Pentateuch (and the scrolls, if an open text exists) aligned to MT word by word (`analysis/diffs.py`); its Gen 5 / 11 ages as a second chronology (SP Flood 1307). Claim: SP's variants cluster in verses with a synoptic parallel (Exod 20 / Deut 5), a verse shuffle within books
+- [x] K4 (done, M134) Vocabulary over the canon: first occurrences, new lemmas per 1,000 words, hapax density, lemmas of one corpus only. Claim: the late books (M41's set) bring in more new lemmas than a Heaps fit on length predicts, against 999 shuffled book orders
+
+Tools
+- [x] K5 (done, M141) Source finder: paste a Hebrew text (a prayer, a Mishnah) and its biblical phrases are marked with their verses (consonantal seeds, Smith–Waterman as `analysis/phrases.py`). Known: Ashrei, Aleinu, the priestly blessing, a Mishnah quoting Deut 6:7
+- [x] K6 (done, M136) This week's parasha: the coming Shabbat's parasha by a local calendar (Israel / diaspora), with its haftarah, findings, people, places, refrains and synopses on one page; a card on the home page
+- [x] K7 (done, M137) Print and export: a print stylesheet; the map, a family-tree subtree (as a poster) and a synopsis as SVG
+- [x] K8 (done, M147; publishing is the user's) Public read-only deploy: serving without the embeddings (lexical search only), a read-only profile, a Dockerfile and `docs/DEPLOY.md` with each source's terms for redistribution; nothing published without asking
+
+Models
+- [x] K9 (done, M142; the variant's training waits for labels) Label queue: the discoveries the lexical and semantic lists disagree on most, from train-split books only (dev and test stay clean); labels as training pairs in a `train-sup` variant
+- [x] K10 (code done, M143; the two GPU runs wait for the user) Hard negatives from the model's own mistakes (`self`), and the cross-encoder dropping likely false negatives (`self_ce`), as `train-sup` variants
+- [x] K11 (done, M144) LLM triage: Claude (Sonnet, Batch API, 500 pairs at most) judges the top discoveries from the Hebrew alone, nothing translated; a calibration run on dev gold first; kept apart from the user's labels, shown as suggestions in the queue
+
+Improvements
+- [x] K12 (done, M135) Glossary and guided tours: the terms (G², BH q, nDCG, CSLS, RRF, …) explained on hover in both languages; three to five walks through the strongest findings from the home page
+- [x] K13 (done, M139) F5: rabbinic identifications in the family tree, as a kind of identity with its source
+- [x] K14 (done, M145) The catalog redesign J14 left: a core catalog, page groups loaded with their routes, a test that a page reads only groups it declares
+- [x] K15 (done, M146) Installable and offline: a manifest and a service worker, `/api` reads cached by build
+
+Suggested order: K1 → K4 → K12 → K6 → K7 → K2 → K13 → K3 → K5 → K9 → K10 → K11 → K14 → K15 → K8.
+
+From the 2026-11-05 review: the API credits (about $80 of $20–100), all seven suggestions taken. Claude reads the Hebrew through the Message Batches API and nothing is translated. Each run has a calibration fixed before it, a dry run with its estimate first and a budget it may not pass. Its answers are suggestions or a gold of their own, never labels and never the curation files. Dev golds and judged dev pairs never train a model, and the test split is not run.
+
+Shared
+- [x] L1 (done, M148) One batch core (`eval/llm_batch.py`): the request, the answer read by a schema, submit / resume / poll / collect, the estimate from the measured tokens, `budget_usd`; `llm-triage` on it unchanged
+
+Models
+- [x] L2 (done, M150; not adopted) Training on Claude's verdicts: 10,000 more train-book queue pairs judged; an `llm` extra source (real verdicts as positives, not as hard negatives) and a `train-sup` variant under the M127 rule
+- [x] L3 (done, M149) A judged dev pool: the top-5 of lexical, semantic, fused and reranked lists for each dev query judged, calibrated on all dev Sefaria pairs against random ones; an `llm` gold scored as a condensed list beside Sefaria's
+- [x] L4 (done, M151; not adopted) The reranker taught by Claude: a sample of its negatives judged; `p_real` as soft targets for the cross-encoder, chosen on dev
+
+Analyses
+- [x] L5 (done, M152) Precision checks: 50 findings of each rule-based detector judged right / wrong / unsure, calibrated on the places sample and each detector's known answers; a table with intervals and the wrong items in RESULTS.md
+- [x] L6 (M153) Gold for speakers and the family tree: 600 quotation starts given a speaker (30 checked by the owner first), `bsim speaker-eval` per source; the 3,850 unreviewed sibling / unstated links checked as suggestions in the review sheets
+
+Viewer
+- [x] L7 (done, M154) Hebrew notes for the strongest parallels: 5,000 fused verse discoveries, the note on Compare and the discovery cards as a suggestion; personal only
+- [x] L8 (done, M155) A review of the Hebrew interface: every page group, English beside Hebrew, against D54 and the glossary; a report for the owner and `docs/HEBREW_UI.md`
+
+Suggested order: L1 → L3 → L2 → L4 → L5 → L6 → L7 → L8.

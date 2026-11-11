@@ -393,6 +393,7 @@ acrostics:                    # `bsim acrostics`: alphabetic acrostics, whole or
   granularities: [verse, colon]   # line units: verse starts, colon starts (te'amim pauses)
   max_line_gap: 8             # lines between successive letters (Ps 119: 8 verses per letter)
   missing_penalty: 1.0        # score cost of a skipped letter
+  span_trim: true             # M159: the span starts at the last line opening with the first letter before the chain's second line, and runs out over the lines opening alike at either end: Prov 31:10-31 (not 31:3), Ps 119:1-176; the chain and its score unchanged; false: the chain's own first and last line (the first runs)
   second_word: true           # a line's letter may also be its second word's (a title or a leading word before it: Ps 25:1 לדוד, Nahum 1:3, 1:6); the shuffles read lines the same way; added after the first run (M117)
   null_reps: 9999             # line-order shuffles per chapter (p resolution 1e-4)
   null_screen: 199            # shuffles first; all null_reps only if fewer than screen_hits reach the score
@@ -413,6 +414,8 @@ typescenes:                   # `bsim typescenes`: recurring plot skeletons (DES
   null_reps: 20               # verb-order shuffles inside pericopes for q-values (5 until M126, after the first run: the other null-ratio stages use 20)
   seed: 13
   sequence_max_q: 0.05        # a pair inside a parallel sequence this strong (§16.7) is marked as already linked
+  etcbc_share: 0.5            # M159: ETCBC's parallel passages covering this share of the shorter pericope's verses mark the pair as one text (Ps 70 / Ps 40); 0: sequences only (the first runs)
+  skip_adjacent: true         # M159: pericopes side by side in a book are not paired (a vision and its interpretation, Dan 7:1-14 / 7:15-28); false pairs them (the first runs)
 
 sound:                        # `bsim sound`: alliteration and rhyme (DESIGN.md §16.19)
   min_words: 3                # cola with fewer content words are not scored for alliteration
@@ -648,6 +651,7 @@ dating:                       # `bsim dating`: a Late Biblical Hebrew profile pe
   poetic_share: 0.5           # ... and any chapter with this share of parallel verse halves (poems inside prose)
   drivers: 3                  # features listed per chapter as pushing its score up
   driver_min: 0.25            # a driver's contribution (coefficient × standardized value) must exceed this
+  features: [lbh_lexemes, anokhi, inf_abs, et_suffix, directional_he, cohortative_wayyiqtol, david_plene]   # what the model learns from (every feature is stored); M163: yah_short (the short ‑יה of names built on God's name) joins only if the held-out AUC, with and without the lexemes, and the synoptic test are no worse with it (fixed before measuring)
   lexemes: [4438, 107, 1002, 4082, 1881, 6901, 948, 3187, 3791, 3664, 2165, 1595, 7980]   # מלכות אגרת בירה מדינה דת קבל בוץ יחש כתב כנס זמן גנזים שלט
   min_words: 150              # Hebrew words a chapter needs to be scored
   shrink: 20                  # pseudo-counts pulling a chapter's rates towards the training mean
@@ -659,10 +663,119 @@ dating:                       # `bsim dating`: a Late Biblical Hebrew profile pe
     min_words: 40             # Hebrew words on each side
     examples: 8
 
+mainline:                     # `bsim mainline`: the narrative main line and where a story pauses (DESIGN.md §16.91); everything below fixed before the first run
+  domains: [N, D, "?"]        # BHSA clause domains of the narrator (N narrative, D discourse outside quotation, ? undecided), quoted speech left out
+  independent: [NA]           # BHSA `rela` of an independent clause; a subordinate clause belongs to the one it hangs on
+  main_types: [Way0, WayX]    # the wayyiqtol clause: the main line; every other independent narrator clause is background
+  min_run: 2                  # a pause: at least this many background clauses in a row
+  max_run: 30                 # ... and at most this many: a longer run between wayyiqtols is a law code, a list or Daniel's Aramaic chapters (no wayyiqtol), not a pause in a story
+  books: [Gen, Exod, Lev, Num, Deut, Josh, Judg, Ruth, 1Sam, 2Sam, 1Kgs, 2Kgs, Jonah, Esth, Dan, Ezra, Neh, 1Chr, 2Chr]   # pauses are looked for in the narrative books, inside the chain: a main-line clause just before and after the run in the narrator's stream (the plan's "inside a wayyiqtol chain"; the first run, by paragraph, listed Proverbs and Ecclesiastes)
+  opening: 3                  # the claim: background is more common among a paragraph's first this many narrator clauses than among the rest
+  shuffles: 999               # clause order shuffled within each paragraph
+  alpha: 0.05
+  seed: 19
+  known_share: 0.67           # the known pauses hold when at least this share is found
+  known:                      # pauses the commentaries point to (scene-setting, a flashback, a description); found when a pause overlaps the verses
+    - "Genesis 3:1"           # והנחש היה ערום
+    - "Genesis 29:16-17"      # וללבן שתי בנות … ועיני לאה רכות
+    - "I Samuel 3:1-3"        # והנער שמואל משרת … ונר אלהים טרם יכבה
+    - "Ruth 1:1-2"            # ושם האיש אלימלך
+    - "Judges 3:20-22"        # והוא ישב בעלית המקרה … ולא שלף החרב
+
+prophetic:                    # `bsim prophetic`: the forms of prophetic speech (DESIGN.md §16.92); everything below fixed before the first run. Lemmas are OSHB Strong's numbers with their sense letter (words.content_lemmas)
+  god: ["3068", "3069", "136", "430", "410"]   # יהוה (both pointings), אדני, אלהים, אל: the speaker of a commission, the name after a formula
+  messenger:                  # the messenger formula: כה אמר (אדני) יהוה, and נאם (אדני) יהוה
+    thus: ["3541", "559"]     # כה אמר, in this order
+    oracle: "5002"            # נאם
+    reach: 3                  # God's name within this many words after the formula's last word (כה אמר אדני יהוה צבאות)
+  woe:                        # the woe saying: הוי opening a clause, followed by a participle, a noun or an adjective (הוי מגיעי בית בבית)
+    word: "1945"              # הוי
+    next: [V-participle, N, A]   # what the next word of its clause may be (OSHB morph: a participle, a noun of any kind, an adjective)
+    mourning: ["251", "269", "113", "1935"]   # הוי אחי, הוי אחות, הוי אדון, הוי הודה: the cry over the dead (1 Kgs 13:30, Jer 22:18), not a woe oracle
+    max_verses: 6             # a woe saying runs from its הוי to the next one or the end of its paragraph, at most this many verses
+  nations:                    # oracles against the nations: a paragraph (Masoretic pericope) of the Latter Prophets headed משא + a nation's name, or naming the nations more than Israel
+    books: [Isa, Jer, Ezek, Hos, Joel, Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal]
+    heading: "4853b"          # משא (the oracle, not the load)
+    heading_reach: 2          # a nation's name within this many words after משא
+    min_names: 2              # the nations named at least this many times in the paragraph ...
+    narrative_share: 0.3      # ... in a paragraph of speech: fewer than this share of its clauses wayyiqtol (Jer 37-44, Isa 36-39 tell of Babylon and Assyria)
+    narrative_types: [Way0, WayX]   # the BHSA clause types of wayyiqtol
+    peoples: ["894", "3778", "4124", "4125", "123", "130", "8165a", "8487", "1224", "5983", "5984", "7237", "4714", "4713", "6547", "6624", "5297", "4996", "6430", "6429", "5804", "831", "795", "6138", "3774", "3731", "6865", "6721", "6722", "1834", "758", "761", "804", "5210", "6938", "5867a", "3568a", "3569", "1719a", "8485", "2674", "4074", "8659", "3120", "2574", "774", "6316", "3864"]   # Babylon, the Chaldeans, Moab, Edom, Seir, Teman, Bozrah, Ammon, Rabbah, Egypt, Pharaoh, Pathros, Noph, No, the Philistines, Gaza, Ashkelon, Ashdod, Ekron, the Cherethites, Caphtor, Tyre, Sidon, Damascus, Aram, Assyria, Nineveh, Kedar, Elam, Kush, Dedan, Tema, Hazor, Media, Tarshish, Javan, Hamath, Arpad, Put, the Libyans
+    israel: ["3478", "3063", "3064", "3389", "6726", "669", "8111", "3290"]   # Israel, Judah, the Jews, Jerusalem, Zion, Ephraim, Samaria, Jacob
+  lawsuit:                    # the covenant lawsuit (ריב): a call to hear, with ריב or heaven and earth (mountains, hills) called as witnesses within the window
+    hear: ["8085", "238"]     # שמעו, האזינו: as an imperative (OSHB morph v)
+    dispute: ["7378", "7379"] # ריב, the verb and the noun
+    witnesses: [["8064", "776"], ["2022"], ["1389"]]   # שמים and ארץ in one verse; הרים; גבעות
+    window: 5                 # verses after the call (and before it) in the same book
+  call:                       # the call narrative: God's commission with the one sent's objection, or God's reassurance, within the window (Habel's form)
+    send: "7971"              # שלח with a 2ms object: its suffix, or אותך within `send_reach` words (אשלחך, שלחתיך, שולח אני אותך)
+    send_reach: 3
+    go: ["3212", "1980"]      # לך … with a speaking verb in the 2ms in the same verse (לך ואמרת, לך … ודברת)
+    say: ["559", "1696", "7121"]
+    objection:                # spoken by the one sent (a speaker who is not God)
+      - ["162"]               # אהה
+      - ["4310", "595"]       # מי אנכי
+      - ["4310", "589"]       # מי אני
+      - ["994"]               # בי אדני
+      - ["188"]               # אוי לי
+      - ["3808", "3045"]      # לא ידעתי (דבר)
+    reassurance:              # spoken by God
+      - ["408", "3372"]       # אל תירא
+      - ["1961", "5973a"]     # אהיה עמך
+      - ["854", "589"]        # אתך אני
+    window: 5
+  known_cover: 0.5            # a known passage of a form that fills it (nations, woe) is found when the form's findings cover at least this share of its verses ...
+  known_overlap: [lawsuit, call]   # ... and of a form the passage only locates (whole chapters for the call, one verse for the lawsuit) when a finding overlaps it
+  known_share: 0.67           # each form's known passages hold when at least this share is found
+  known:                      # the passages the commentaries name, as the plan wrote them before the first run
+    nations: ["Isaiah 13-23", "Jeremiah 46-51", "Ezekiel 25-32", "Amos 1-2"]
+    lawsuit: ["Isaiah 1:2", "Micah 6:1-2", "Hosea 4:1", "Jeremiah 2:9", "Deuteronomy 32:1"]
+    call: ["Exodus 3-4", "Judges 6", "Isaiah 6", "Jeremiah 1", "Ezekiel 1-3"]
+    woe: ["Isaiah 5:8-23", "Habakkuk 2:6-19"]
+
+laws:                         # `bsim laws`: the law codes side by side (DESIGN.md §16.93); everything below fixed before the first run
+  codes:                      # each code's verse ranges; its laws are its Masoretic paragraphs (pericopes), clipped to the ranges
+    covenant: ["Exodus 20:22-23:33"]               # the Covenant Code
+    ritual: ["Exodus 34:10-26"]                    # the ritual decalogue (one paragraph in the MAM: one law)
+    holiness: ["Leviticus 17-26"]                  # the Holiness Code
+    deuteronomic: ["Deuteronomy 12-26"]            # the Deuteronomic Code
+    priestly: ["Leviticus 1-16", "Numbers 5-6", "Numbers 15", "Numbers 18-19", "Numbers 27:1-11", "Numbers 28-30", "Numbers 35-36"]   # the other priestly law
+  form:                       # each law's form, from its clauses (BHSA) and words (OSHB)
+    if: ["3588a", "518"]      # כי, אם opening a clause in the law's first `opening` verses: casuistic (וכי יגנב איש …)
+    opening: 2
+    if_reach: 3               # ... with a yiqtol within this many words after it (the protasis: וכי יגנב, אם כסף תלוה); the first run took every כי, and Exod 34:10's כי נורא הוא made the ritual decalogue casuistic
+    not: ["3808", "408"]      # לא + yiqtol, אל + jussive: apodictic (לא תגנב) ...
+    die: "4191"               # ... and מות יומת (the infinitive absolute and the yiqtol of מות)
+  top_k: 20                   # a verse's first this many neighbours on the fused verse list count as links
+  min_links: 2                # a law pair needs at least this many linked verse pairs ...
+  best: 1                     # ... and one law among the other's best this many in its code (score: the fused scores of the links over √(n₁·n₂))
+  max_words: 600              # a matched pair is aligned word by word over its linked verses (first to last on each side), each side cut to this many words
+  known_share: 0.5            # the known pairs hold when at least this share of their member pairs is found
+  known:                      # laws the commentaries set side by side, as the plan wrote them; each pair of members counts, found when a matched pair joins a law overlapping each
+    slave release: ["Exodus 21:2-11", "Leviticus 25:39-46", "Deuteronomy 15:12-18"]
+    asylum: ["Exodus 21:12-14", "Numbers 35", "Deuteronomy 19:1-13"]
+    festivals: ["Exodus 23:14-17", "Exodus 34:18-23", "Leviticus 23", "Deuteronomy 16"]
+    sabbatical year: ["Exodus 23:10-11", "Leviticus 25:1-7", "Deuteronomy 15:1-11"]
+    interest: ["Exodus 22:24", "Leviticus 25:35-37", "Deuteronomy 23:20-21"]
+    the kid in its mother's milk: ["Exodus 23:19", "Exodus 34:26", "Deuteronomy 14:21"]
+
+theophoric:                   # `bsim theophoric`: personal names built on God's name and their spellings (DESIGN.md §16.90); everything below fixed before the first run
+  exclude: ["3478"]           # ישראל: mostly the people's name, not a man's; left out of the counts
+  shuffles: 9999              # the book groups shuffled over each name's occurrences
+  alpha: 0.05
+  seed: 17
+  known:                      # the side each book's ending falls on (Kings and Jeremiah long; the late books short), as the plan wrote them before the first run
+    - {books: [Jer], side: long}
+    - {books: [1Kgs, 2Kgs], side: long}
+    - {books: [Ezra], side: short}
+    - {books: [Neh], side: short}
+    - {books: [1Chr, 2Chr], side: short}
+
 seams:                        # `bsim seams`: where a book's style changes (DESIGN.md §16.12)
   block_words: 600            # words compared on each side of a verse boundary
   null_reps: 50               # verse-order shuffles per book (threshold: 95th pct of the maxima)
   top_features: 6             # features listed per seam
+  snap: 2                     # M159: a seam moves to the nearest paragraph start (Masoretic pericope) at most this many verses away, and one with none in reach is left out (§16.86: right 15 / 19 at a paragraph start, 14 / 68 elsewhere); null keeps the peaks (the first runs)
   seed: 13
 
 structure:                    # `bsim structure` + /structure: inclusio, chiasm, Leitwort (DESIGN.md §16.2)
@@ -837,6 +950,9 @@ refrains:                     # `bsim refrains`: phrases that come back inside a
   min_tokens: 3               # a seed: this many lemmas in a row inside a verse (prefixes dropped)
   min_content: 2              # of which at least this many nouns, verbs or adjectives (names not counted)
   min_count: 3                # a refrain is in at least this many verses of one book
+  match: lemma                # a token is its lemma (prefixes dropped); `form` adds its form to every token (M159, stricter: it loses Ps 107's ויצעקו / ויזעקו)
+  form_share: 0.5             # M159: a refrain's most common wording (its forms) stands in at least this share of its verses, and in two; Claude judged most wrong refrains near-variants found once as written (§16.86); 0 keeps all (the first runs)
+  names: false                # M159: no seed holds a proper name (God's names apart): a man's title through his story is not a refrain; true (the first runs) kept them
   max_gap: 20                 # consecutive occurrences at most this many verses apart (40 tried in M117 for the Song of Songs refrain and not kept: its four verses do form a run, but over 84 of the book's 117 verses, a burst no gap admits)
   alpha: 0.05                 # a refrain: estimated false discovery rate against the shuffles at most this
   shuffles: 20                # verse orders shuffled within each book (the runs found by chance)
@@ -1118,6 +1234,7 @@ forms:                        # `bsim forms`: graded numerical sayings and lists
     "7240": 10000             # Aramaic רבו
   steps: [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 20], [20, 30], [30, 40], [40, 50], [50, 60], [60, 70], [70, 80], [80, 90], [1000, 10000]]   # x then the next: the graded step (x / x+1, the tens, a thousand / ten thousand)
   window: 8                   # the second number at most this many words after the first, in the same verse
+  alone_steps: [[1, 2]]       # M159: in these steps both numbers stand alone (not construct, no agreeing noun beside them without a prefix): פר אחד ... אילם שנים is a count, not a saying; Claude judged most listed sayings wrong so (§16.86); [] keeps all (the first runs)
   # a run of number words side by side is one compound number (שלשים ושנים, שלש מאות, שלש עשרה) and is left out, unless it is just two words a step apart (שנים שלשה, אלף ורבבה)
   known:                      # [name, verses]: graded numerical sayings named in advance (Roth 1962, VT 12; Haran 1972), cardinals on both sides; found when at least half its verses hold a graded pair
     - ["שלשה … ארבעה (Amos 1–2)", ["Amos 1:3", "Amos 1:6", "Amos 1:9", "Amos 1:11", "Amos 1:13", "Amos 2:1", "Amos 2:4", "Amos 2:6"]]
@@ -1264,6 +1381,9 @@ etiologies:                   # `bsim etiologies`: names given in the text and t
   place_words: ["4725", "5892b", "875"]   # מקום, עיר, באר between the verb and the name: a place's name
   negation: ["3808", "408"]   # לא, and אל (Ruth 1:20 "do not call me Naomi"; אל added after the first run, M117)
   negation_before: 2
+  explained_only: true        # M159: list only the namings whose verse explains (below); the claim and the known answers count every naming; false lists all (the first runs)
+  explain_lemmas: ["3588", "559"]   # כי, אמר (any form, its letter ignored): a naming explained in its own verse
+  explain_pairs: [["5921", "3651"]]  # על כן
   trigger_within: 3           # the verb to שם / למקום / a pronoun object, in words
   name_within: 4              # שם to the name's first word, in words
   skip_names: ["3068", "3069", "430"]   # a "name" that is God's (קרא בשם יהוה is another formula)
@@ -1300,6 +1420,7 @@ brackets:                     # `bsim brackets`: resumptive repetition (Wiederau
   min_tokens: 3               # aligned tokens (Smith-Waterman as `bsim phrases`: idf x formula weight, its mismatch and gap); a token matches by its lemma or by its form without prefixes (Hebrew / Aramaic: Ezra 4:5 / 4:24)
   min_score: 14
   pairing: forward            # forward: the repeat is its first verse's best later partner (since M117: Ezra 4:24 resumes 4:5 though its own best partner is 5:16); mutual (the first run): each the other's best; all
+  formula_reach: 40           # M159: a repetition whose tokens all stand in a third verse within this many verses is a formula, left out (Claude judged 0 / 49 of the listed brackets right, most of them formulas: §16.86); 0 keeps them
   window: 4                   # verses before the first and after the repeat (the two frame verses left out): the text the block interrupts
   lex_dims: 512               # the lemma counts (idf) randomly projected to this many dimensions, so window sums are prefix differences
   draws: 999                  # random brackets of the same span in the same book, per repetition
@@ -1905,6 +2026,20 @@ llm_audit:                    # `bsim llm-audit`: how often each detector is rig
   chars_per_token: 2.0
   typical_output_tokens: 250  # longer prompts than the triage's, more to weigh
   budget_usd: 10.0            # the plan's $6, with room
+  tag: null                   # M164: a run of some detectors only (`bsim llm-audit --detectors … --tag …`) writes its own folder, llm_audit_<population>_<tag>
+  shown_runs: [llm_audit, llm_audit_pages, llm_audit_pages_m164, llm_audit_pages_m165]   # the runs the pages show, in order: a later run's rows replace an earlier one's for the same detector and population
+  population: strongest       # which run (D147): `strongest` (M152: from each detector's `top` strongest) or `pages` (M158: what each page lists and marks); `bsim llm-audit --population`
+  pages:                      # the `pages` run's lists: SQL conditions on each detector's table, as its page's defaults (fixed before the run)
+    seed: 202                 # the draws (M158's run, kept in artifacts/llm_audit_pages_m158/, drew with llm_audit.seed 101; M159's re-audit with 202)
+    shown:                    # what the page lists by default; a detector not named here lists all its findings
+      brackets: "known = 1"   # M159: /brackets lists the brackets named in advance by default (?show=all for every one)
+      ciphers: "known IS NOT NULL"  # M159: /ciphers lists the swaps named in advance by default (?known=0 for every one)
+      acrostics: "q <= 0.05"  # /acrostics?q=0.05, the API's default
+      typescenes: "q <= 0.05" # /typescenes without ?q=all (parallel texts left out as in M152)
+      allusions: "known = 0"  # /phrases?view=spread: new pairs only, without ?all=1
+    marked:                   # what the page marks as strong among what it lists (serve.findings.alpha)
+      brackets: "p <= 0.05"   # `brk-strong`
+      etiologies: "q <= 0.05" # `ety-lead`
 
 llm_speakers:                 # `bsim llm-speakers` / `speaker-eval`: who speaks each quotation, by Claude, as a gold for the speaker rules (DESIGN.md §16.87, D143); run by hand, paid
   per_source: 100             # quotations drawn of each speaker source (and of those with none), seeded, fixed before the run
@@ -2094,6 +2229,23 @@ serve:                        # `bsim serve` (DESIGN.md §10)
     partners: 15              # places named in the same verses, most shared first
   reader:                     # /reader/{unit}: the layered reader (DESIGN.md §16.39)
     rare_verses: 3            # a word is rare when its rarest content word is in at most this many verses (names out)
+  laws:                       # /laws/pair/{id} (DESIGN.md §16.93)
+    max_verses: 40            # verses of each side shown side by side
+  prophetic:                  # /prophetic/items (DESIGN.md §16.92)
+    verses: 4                 # verses shown with each finding
+  mainline:                   # /mainline/pauses (DESIGN.md §16.91)
+    verses: 4                 # a pause's verses sent with it, at most
+  neighbourhood:              # /neighbourhood/{unit}: a unit's parallels two hops out, as a graph (DESIGN.md §11.1, D149)
+    k: 6                      # hits of each node's fused list followed (?k=, at most max_k)
+    max_k: 10
+    hops: 2                   # lists followed out from the unit (?hops=, at most max_hops)
+    max_hops: 2
+    max_nodes: 40             # the walk stops adding nodes here (`truncated`)
+    sequence_max_q: 0.05      # a parallel sequence (§16.7) this strong joins two nodes it spans
+    allusion_max_q: 0.05      # ... and an allusion (§16.32)
+    seed: 13                  # the spring layout
+    iterations: 50
+    margin: 0.04              # of the drawing kept clear on each side
   findings:                   # /findings: the headline result of each analysis (DESIGN.md §10)
     alpha: 0.05               # a test at or below this p (or q) counts as holding
   search:

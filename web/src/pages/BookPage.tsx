@@ -9,6 +9,7 @@ import { useLocale } from '../context/localeContext'
 import { verseRef } from '../lib/names'
 import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
+import '../styles/pages/BookPage.css'
 
 type Tab = 'chapters' | 'verses' | 'parashot' | 'pericopes'
 const TAB_TYPE: Partial<Record<Tab, UnitType>> = { parashot: 'parasha', pericopes: 'pericope' }

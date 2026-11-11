@@ -105,6 +105,9 @@ from bsim.api.queries.dating import (
     dating_books,
     dating_chapter_of,
     dating_chapters,
+    theophoric_books,
+    theophoric_name,
+    theophoric_names,
 )
 from bsim.api.queries.dialogue import (
     dialogue_books,
@@ -174,6 +177,20 @@ from bsim.api.queries.ketiv import (
     kq_books,
     kq_letters,
     kq_pairs_page,
+)
+from bsim.api.queries.laws import (
+    law_codes,
+    law_marks,
+    law_pair,
+    law_pairs_page,
+    law_pairs_touching,
+    laws_by_id,
+    laws_page,
+)
+from bsim.api.queries.mainline import (
+    mainline_books,
+    mainline_clauses_of,
+    mainline_pauses_page,
 )
 from bsim.api.queries.masorah import masorah_tables
 from bsim.api.queries.meter import (
@@ -247,6 +264,11 @@ from bsim.api.queries.poetics import (
     structure_page,
     word_pairs_page,
     wordplay_page,
+)
+from bsim.api.queries.prophetic import (
+    prophetic_books,
+    prophetic_items_page,
+    prophetic_words_of,
 )
 from bsim.api.queries.psalms import (
     PSALM_SORTS,
@@ -382,6 +404,22 @@ __all__ = [
     "count",
     "dating_books",
     "dating_chapter_of",
+    "theophoric_books",
+    "mainline_books",
+    "mainline_clauses_of",
+    "mainline_pauses_page",
+    "law_codes",
+    "law_marks",
+    "law_pair",
+    "law_pairs_page",
+    "law_pairs_touching",
+    "laws_by_id",
+    "laws_page",
+    "prophetic_books",
+    "prophetic_items_page",
+    "prophetic_words_of",
+    "theophoric_name",
+    "theophoric_names",
     "dating_chapters",
     "dialogue_books",
     "dialogue_exchanges_page",

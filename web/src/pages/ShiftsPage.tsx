@@ -8,6 +8,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/patterns'
 import '../i18n/pages/senses'
+import '../styles/pages/ShiftsPage.css'
 
 const PAGE_SIZE = 50
 

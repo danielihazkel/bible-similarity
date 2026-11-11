@@ -194,3 +194,18 @@ def test_refrains_in_db(built):
             conn.execute("SELECT value FROM meta WHERE key = 'refrains'").fetchone()[0]
         )
     assert meta["known_found"] == 1 and meta["known_share"] == 0.5
+
+
+def test_seeds_without_names_or_numbers_alone():
+    """M159: `names=False` drops a seed holding a proper name (a man's title); a seed of numbers
+    alone is no seed."""
+    t = pd.DataFrame({
+        "verse_id": [0] * 6, "pos": range(6),
+        "lemma": ["1121", "296", "1121", "8227", "505", "3967"],
+        "content": [True, False, True, False, True, True],
+        "name": [False, True, False, True, False, False],
+        "numeral": [False, False, False, False, True, True],
+    })  # fmt: skip
+    keys = lambda g: g.start.tolist()  # noqa: E731
+    assert keys(seeds(t, 3, 2)) == [0, 2]  # 1: one content word; 3: numbers alone
+    assert keys(seeds(t, 3, 2, names=False)) == []

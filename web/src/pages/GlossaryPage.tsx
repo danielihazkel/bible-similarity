@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { useLocale } from '../context/localeContext'
 import { TERMS } from '../i18n/pages/glossary'
+import '../styles/pages/GlossaryPage.css'
 
 /** The glossary (§11): every term the pages use, each with an anchor (`/glossary#g2`). */
 export function GlossaryPage() {

@@ -4,6 +4,7 @@ import { type NotebookChange, useNotebook, useNotebookChange } from '../api/hook
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { useT } from '../context/localeContext'
 import '../i18n/pages/notebook'
+import '../styles/components/NotebookPanel.css'
 
 const NEW = '__new__'
 

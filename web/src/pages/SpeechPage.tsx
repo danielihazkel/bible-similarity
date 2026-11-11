@@ -12,6 +12,7 @@ import { DialogueView } from './DialogueView'
 import { VoicesView } from './VoicesView'
 import '../i18n/pages/dialogue'
 import '../i18n/pages/syntax'
+import '../styles/pages/SpeechPage.css'
 
 const PARTS = ['narration', 'divine', 'other', 'unattributed', 'discourse'] as const
 type Part = (typeof PARTS)[number]

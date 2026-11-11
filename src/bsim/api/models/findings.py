@@ -7,7 +7,9 @@ from typing import Literal
 from bsim.api.models.common import ApiModel
 
 FindingKey = Literal[
-    "acrostics", "divisions", "dating", "borrowing", "citations", "voices", "clauses", "meter",
+    "acrostics", "divisions", "dating", "theophoric", "mainline", "prophetic", "laws", "borrowing",
+    "citations", "voices",
+    "clauses", "meter",
     "cognate", "echoes", "sevens", "chiasm", "laments", "root_leitworte", "allusions", "refrains",
     "refrain_regular", "refrain_turns", "psalm_genres", "psalm_forms", "lament_turn",
     "lament_turns", "pentateuch_split", "pentateuch_genesis", "pentateuch_names",

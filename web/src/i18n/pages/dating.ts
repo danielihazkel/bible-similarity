@@ -13,6 +13,7 @@ const FEATURES_EN = {
   directional_he: 'few directional ה (מצרימה)',
   cohortative_wayyiqtol: 'ואשלחה-type first-person forms',
   david_plene: 'David spelled דויד',
+  yah_short: 'names ending ‑יה rather than ‑יהו (ירמיה, not ירמיהו)',
 }
 
 export const datEn = {

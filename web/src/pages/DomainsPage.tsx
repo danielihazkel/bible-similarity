@@ -12,6 +12,7 @@ import { domainLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/domains'
+import '../styles/pages/DomainsPage.css'
 
 const PAGE_SIZE = 50
 

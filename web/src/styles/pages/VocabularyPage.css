@@ -1,0 +1,39 @@
+/* VocabularyPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* the vocabulary over the canon (§16.76) */
+
+.vc-chart { display: block; width: 100%; max-width: 560px; height: auto; }
+
+.vc-chart .axis { font-size: 10px; fill: var(--muted); }
+
+.vc-chart .chart-zero { stroke: var(--text); stroke-width: 1; }
+
+.vc-hit { fill: transparent; }
+
+.vc-row:focus { outline: none; }
+
+.vc-row.on .vc-hit,
+.vc-row:focus-visible .vc-hit { fill: var(--accent-soft); }
+
+.vc-bar { stroke: var(--surface); stroke-width: 1; }
+
+.vc-bar.vc-early,
+.vc-swatch.vc-early { fill: var(--vc-early); background: var(--vc-early); }
+
+.vc-bar.vc-late,
+.vc-swatch.vc-late { fill: var(--vc-late); background: var(--vc-late); }
+
+.vc-bar.vc-other,
+.vc-swatch.vc-other { fill: var(--vc-other); background: var(--vc-other); }
+
+.vc-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; list-style: none; margin: 0.3rem 0; padding: 0; font-size: 0.9rem; }
+
+.vc-legend li { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+.vc-swatch { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; margin-inline-end: 0.3rem; vertical-align: -1px; }
+
+.vc-legend .vc-swatch { margin-inline-end: 0; }
+
+.vc-readout { min-height: 1.3em; margin: 0.2rem 0; }
+
+.vc-known { margin: 0; padding-inline-start: 1.1rem; }

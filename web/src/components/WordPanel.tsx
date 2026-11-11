@@ -11,6 +11,7 @@ import '../i18n/pages/ciphers'
 import '../i18n/pages/domains'
 import '../i18n/pages/gematria'
 import '../i18n/pages/roots'
+import '../styles/components/WordPanel.css'
 
 const CIPHERS: CipherName[] = ['atbash', 'albam']
 

@@ -1,0 +1,17 @@
+/* HaftarotPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* haftarot (§16.69): a haftarah within the first chapters, the parasha shown, its list */
+
+.hf-table tr.hf-top td:last-child { font-weight: 600; }
+
+.hf-table tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--known); }
+
+.hf-table tr.selected button { font-weight: 600; }
+
+.hf-chapters { margin: 0.4rem 0; padding-inline-start: 1.6rem; }
+
+.hf-chapters li { margin: 0.15rem 0; }
+
+.hf-chapters a { text-decoration: underline; }
+
+.hf-chapters li.hf-hit { border-inline-start: 3px solid var(--known); padding-inline-start: 0.4rem; }

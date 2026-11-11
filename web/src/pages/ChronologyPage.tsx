@@ -8,6 +8,7 @@ import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { useOpenSections } from '../lib/urlState'
 import '../i18n/pages/chronology'
+import '../styles/pages/ChronologyPage.css'
 
 const RULES = ['accession', 'non-accession'] as const
 const MARKS = ['flood', 'exodus'] as const

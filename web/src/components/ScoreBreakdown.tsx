@@ -1,6 +1,7 @@
 import type { Breakdown, Mode } from '../api/types'
 import { useT } from '../context/localeContext'
 import { formatScore, rankFraction } from '../lib/format'
+import '../styles/components/ScoreBreakdown.css'
 
 // Stored lists hold the top 50 per mode (retrieval.k): a rank bar spans that range.
 const LIST_K = 50

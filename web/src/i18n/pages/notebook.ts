@@ -57,6 +57,13 @@ export const nbEn = {
   noMatch: 'No entry matches.',
   exportMd: 'Download Markdown',
   exportCsv: 'Download CSV',
+  exportHtml: 'Download a study page',
+  exportHtmlTitle: 'These entries as one page (HTML): the verses as shown, your notes, links back to each passage; to send, keep or print',
+  study: {
+    open: 'Open the passage',
+    source: 'The verses: Miqra according to the Masorah, from Sefaria (CC-BY-SA 4.0).',
+    madeWith: (site: string) => `Made with Tanakh Similarity, ${site}`,
+  },
   // the Markdown file
   md: {
     title: 'Notebook',

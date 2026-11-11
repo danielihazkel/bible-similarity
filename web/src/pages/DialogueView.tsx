@@ -10,6 +10,7 @@ import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/dialogue'
 import '../i18n/pages/patterns'
+import '../styles/pages/DialogueView.css'
 
 const PAGE_SIZE = 50
 const NODES = 14

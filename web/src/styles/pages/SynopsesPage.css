@@ -1,0 +1,7 @@
+/* SynopsesPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* synopses: three or more parallel passages in columns (§16.74) */
+
+.synopses-table .syn-passages span {
+  display: block;
+}

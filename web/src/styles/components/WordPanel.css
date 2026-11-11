@@ -1,0 +1,53 @@
+/* WordPanel.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Word analysis (click a word in the source text) */
+
+.word-panel {
+  margin-top: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+}
+
+.word-form {
+  font-size: 1.6rem;
+}
+
+.word-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.2rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.word-surface {
+  font-size: 1.25rem;
+  min-width: 5em;
+}
+
+.morph {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-he);
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* Semantic domains (DESIGN.md §16.22) */
+
+.word-domains {
+  margin-top: 0.3rem;
+}
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .word-panel { display: none !important; }
+}

@@ -54,3 +54,56 @@ class DatingResponse(ApiModel):
     synoptic: dict[str, Any]  # pairs, later, p, later_grammar, p_grammar
     synoptic_examples: list[SynopticExample]  # the largest gaps
     books: list[DatingBook]
+
+
+class TheophoricForms(ApiModel):
+    """Occurrences of names built on God's name by form (§16.90)."""
+
+    yahu: int  # ending ‑יהו
+    yah: int  # ending ‑יה
+    yeho: int  # opening יהו‑
+    yo: int  # opening יו‑
+    el_first: int  # אל‑
+    el_last: int  # ‑אל
+
+
+class TheophoricName(TheophoricForms):
+    lemma: str
+    he: str
+    divine: str  # yah | el
+    n: int
+
+
+class TheophoricBook(TheophoricForms):
+    book_id: int
+
+
+class TheophoricClaim(ApiModel):
+    early_short: float | None  # the short ending's share among the endings, early books
+    late_short: float | None
+    difference: float
+    null_mean: float
+    p: float
+    holds: bool
+    occurrences: int
+    names: int
+
+
+class TheophoricKnown(ApiModel):
+    books: list[str]  # OSIS
+    book_ids: list[int]
+    side: str  # long | short
+    short: float | None
+    endings: int
+    holds: bool
+
+
+class TheophoricResponse(ApiModel):
+    names_total: int
+    occurrences: int
+    claim: TheophoricClaim
+    alpha: float
+    shuffles: int
+    known: list[TheophoricKnown]
+    books: list[TheophoricBook]
+    names: list[TheophoricName]  # the most frequent

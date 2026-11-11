@@ -9,6 +9,8 @@ import { bookName } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/dating'
+import '../styles/pages/LanguagePage.css'
+import { TheophoricSection } from './TheophoricSection'
 
 const fmt = (x: number | null) => (x === null ? '—' : x.toFixed(2))
 
@@ -74,6 +76,7 @@ export function LanguagePage() {
             </ul>
           </section>
           {book !== undefined && <BookChapters bookId={book} name={names.get(book) ?? String(book)} />}
+          <TheophoricSection names={names} />
         </>
       )}
     </div>

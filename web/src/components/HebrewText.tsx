@@ -4,6 +4,7 @@ import { useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
 import { displayForm, endsWithMaqaf } from '../lib/hebrew'
 import type { Highlight } from '../lib/highlight'
+import '../styles/components/HebrewText.css'
 
 /** What the layered reader paints on one word: classes, a tooltip, small marks after it. */
 export interface WordLook {

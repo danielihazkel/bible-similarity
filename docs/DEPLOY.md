@@ -66,6 +66,11 @@ docker build -t bsim-public .
 docker run --rm -p 8000:8000 -v "$PWD/bundle:/app/bundle:ro" bsim-public
 ```
 
+To check a running image, start it on port 8001 (`-p 8001:8000`) and run
+`cd web && npx playwright test -c e2e-docker/playwright.docker.config.ts`: 15 pages in both
+languages on desktop and phone, each without serious accessibility violations, and the personal
+pages off (M157: 62 checks on the `--no-nc` bundle).
+
 The image builds the viewer (`npm ci && npm run build`) and installs the server with
 `uv sync --frozen --no-default-groups`. It runs as an unprivileged user. It serves
 `configs/docker.yaml`, which is the public profile with the surface-index cache inside the image,

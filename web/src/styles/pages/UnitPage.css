@@ -1,0 +1,66 @@
+/* UnitPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Unit detail ---------- */
+
+.source-text {
+  font-size: 1.7rem;
+  line-height: 2.1;
+  margin: 0;
+  text-align: right;
+}
+
+.results-head h2 {
+  margin-bottom: 0.2rem;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 720px) {
+  .source-text {
+      font-size: 1.4rem;
+    }
+}
+
+/* ---------- Verse halves / poetry (§16.9) ---------- */
+
+.parallel-badge {
+  margin-inline-start: 0.4rem;
+  color: var(--accent);
+  font-weight: 700;
+  cursor: help;
+}
+
+.halves-bar {
+  margin-bottom: 0.4rem;
+}
+
+.meter-badge {
+  margin-inline-start: 0.5rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: help;
+}
+
+/* Acrostics */
+
+.acrostic-bar {
+  gap: 0.75rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+/* Semantic domains (DESIGN.md §16.22) */
+
+.parallel-badge.antithetic {
+  color: var(--sem-ink);
+}
+
+/* The layered reader (§16.39): speakers as a background tint, Leitworte as coloured bold text,
+   shared phrases underlined, wordplay boxed, rare words and ketiv as small marks. Every
+   foreground here is ≥ 5:1 on every speaker tint, in both themes. */
+
+.read-link {
+  margin-inline-end: 0.75rem;
+  font-weight: 600;
+}

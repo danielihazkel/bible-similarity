@@ -5,6 +5,7 @@ import { type Bounds, type GeoPoint, panBounds, projectX, projectY, ringsPath, v
 import { usePanZoom } from '../lib/panZoom'
 import { downloadSvg, standaloneSvg } from '../lib/svgExport'
 import '../i18n/pages/places'
+import '../styles/components/GeoMap.css'
 
 interface Props {
   basemap: BasemapResponse | undefined

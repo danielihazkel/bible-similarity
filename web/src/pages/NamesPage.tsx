@@ -11,6 +11,10 @@ import { lemmaLink, placeLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/overview'
+import '../styles/pages/NamesPage.css'
+import '../i18n/pages/theophoric'
+
+const THEO_FORMS = ['yahu', 'yah', 'yeho', 'yo', 'el_first', 'el_last'] as const
 
 const PAGE_SIZE = 60
 const KINDS: EntityKind[] = ['person', 'place', 'mixed', 'unclear']
@@ -143,6 +147,17 @@ function EntityPanel({ lemma, books, onPick }: { lemma: string; books: Book[]; o
         <Link to={lemmaLink(e.lemma)}>{m.ov.names.allVerses}</Link>
       </p>
       {res.data.name_kind && <p className="muted small">{m.ov.names.sdbhKind(m.ov.names.nameKinds[res.data.name_kind])}</p>}
+      {res.data.theophoric && (
+        <p className="muted small">
+          {m.theo.line(
+            res.data.theophoric.divine,
+            THEO_FORMS.filter((f) => res.data.theophoric![f] > 0)
+              .map((f) => m.theo.times(m.theo.forms[f], res.data.theophoric![f]))
+              .join(' · '),
+          )}{' '}
+          <Link to="/language#theophoric">{m.theo.title}</Link>
+        </p>
+      )}
       {res.data.sites.length > 0 && <Sites sites={res.data.sites} />}
       <h3>{m.ov.names.where}</h3>
       {/* canon order runs left to right in either interface language, as its end labels say */}

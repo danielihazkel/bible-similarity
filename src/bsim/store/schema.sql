@@ -1296,6 +1296,7 @@ CREATE TABLE dating_chapters (
     directional_he REAL NOT NULL,
     cohortative_wayyiqtol REAL NOT NULL,
     david_plene REAL NOT NULL,
+    yah_short REAL NOT NULL,        -- the short ‑יה of names built on God's name (§16.90); stored, not in the model unless dating.features has it
     score REAL,                     -- NULL: too few Hebrew words
     drivers TEXT NOT NULL           -- JSON features pushing the score up most
 ) WITHOUT ROWID;
@@ -1314,7 +1315,32 @@ CREATE TABLE dating_books (
     et_suffix REAL NOT NULL,
     directional_he REAL NOT NULL,
     cohortative_wayyiqtol REAL NOT NULL,
-    david_plene REAL NOT NULL
+    david_plene REAL NOT NULL,
+    yah_short REAL NOT NULL
+);
+
+-- Personal names built on God's name (`bsim theophoric`, §16.90): each name's forms, and per book.
+CREATE TABLE theophoric_names (
+    lemma TEXT PRIMARY KEY,         -- Strong's key (entities.lemma)
+    he TEXT NOT NULL,
+    divine TEXT NOT NULL,           -- yah | el
+    n INTEGER NOT NULL,             -- occurrences with a form
+    yahu INTEGER NOT NULL,          -- ending ‑יהו
+    yah INTEGER NOT NULL,           -- ending ‑יה
+    yeho INTEGER NOT NULL,          -- opening יהו‑
+    yo INTEGER NOT NULL,            -- opening יו‑
+    el_first INTEGER NOT NULL,      -- אל‑
+    el_last INTEGER NOT NULL        -- ‑אל
+) WITHOUT ROWID;
+
+CREATE TABLE theophoric_books (
+    book_id INTEGER PRIMARY KEY,
+    yahu INTEGER NOT NULL,
+    yah INTEGER NOT NULL,
+    yeho INTEGER NOT NULL,
+    yo INTEGER NOT NULL,
+    el_first INTEGER NOT NULL,
+    el_last INTEGER NOT NULL
 );
 
 -- Who speaks to whom (`bsim dialogue`, §16.44): per book, speaker -> addressee (the divine names are
@@ -1984,3 +2010,129 @@ CREATE TABLE meta (
     key TEXT PRIMARY KEY,
     value TEXT                      -- JSON-encoded
 ) WITHOUT ROWID;
+
+-- The narrative main line (`bsim mainline`, §16.91): the wayyiqtol chain and where it pauses.
+CREATE TABLE mainline_pericopes (
+    unit_id TEXT PRIMARY KEY,       -- a Masoretic pericope with narrator clauses
+    book_id INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    main INTEGER NOT NULL,          -- independent narrator clauses on the main line (wayyiqtol)
+    background INTEGER NOT NULL,    -- ... and the others
+    share REAL                      -- main / (main + background)
+) WITHOUT ROWID;
+
+CREATE TABLE mainline_pauses (
+    pause_id INTEGER PRIMARY KEY,   -- 1 = the longest
+    unit_id TEXT NOT NULL,          -- the paragraph of its first clause
+    book_id INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_clauses INTEGER NOT NULL,     -- background clauses between two wayyiqtols
+    types TEXT NOT NULL,            -- JSON BHSA clause types, in order
+    known INTEGER NOT NULL
+);
+
+CREATE TABLE mainline_books (
+    book_id INTEGER PRIMARY KEY,
+    main INTEGER NOT NULL,
+    background INTEGER NOT NULL,
+    share REAL,
+    pauses INTEGER NOT NULL
+);
+
+CREATE TABLE mainline_clauses (
+    clause INTEGER PRIMARY KEY,     -- BHSA clause node
+    verse_id INTEGER NOT NULL,
+    words TEXT NOT NULL,            -- JSON OSHB word indexes (`words.idx`)
+    role TEXT NOT NULL              -- main | background
+);
+
+-- The law codes side by side (`bsim laws`, §16.93).
+CREATE TABLE laws (
+    law_id INTEGER PRIMARY KEY,     -- canon order
+    code TEXT NOT NULL,             -- covenant | ritual | holiness | deuteronomic | priestly
+    unit_id TEXT NOT NULL,          -- its Masoretic paragraph
+    book_id INTEGER NOT NULL,
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    n_verses INTEGER NOT NULL,
+    form TEXT NOT NULL,             -- casuistic | apodictic | other
+    casuistic INTEGER NOT NULL,     -- כי / אם + yiqtol opening a clause in its first verses
+    apodictic INTEGER NOT NULL,     -- לא + yiqtol, אל + jussive, מות יומת
+    address TEXT,                   -- 2ms | 2mp | 3 | mixed: the person of most finite verbs
+    v2ms INTEGER NOT NULL,
+    v2mp INTEGER NOT NULL,
+    v3 INTEGER NOT NULL
+);
+
+CREATE TABLE law_pairs (
+    pair_id INTEGER PRIMARY KEY,
+    a INTEGER NOT NULL,             -- laws.law_id, the earlier
+    b INTEGER NOT NULL,
+    code_a TEXT NOT NULL,
+    code_b TEXT NOT NULL,
+    links INTEGER NOT NULL,         -- verse pairs linked on the fused list
+    score REAL NOT NULL,            -- the links' fused scores over sqrt(n_a * n_b)
+    a_first INTEGER NOT NULL,       -- the aligned spans: the linked verses, first to last
+    a_last INTEGER NOT NULL,
+    b_first INTEGER NOT NULL,
+    b_last INTEGER NOT NULL,
+    same INTEGER NOT NULL,
+    spelling INTEGER NOT NULL,
+    form INTEGER NOT NULL,
+    substitution INTEGER NOT NULL,
+    omitted INTEGER NOT NULL,
+    added INTEGER NOT NULL,
+    moved INTEGER NOT NULL,
+    kept REAL NOT NULL,             -- share of aligned positions keeping their lemma
+    known TEXT                      -- the group named in advance it joins, or NULL
+);
+
+CREATE TABLE law_marks (
+    pair_id INTEGER NOT NULL,
+    side TEXT NOT NULL,             -- a | b
+    verse_id INTEGER NOT NULL,
+    display_idx INTEGER NOT NULL,
+    op TEXT NOT NULL                -- spelling | form | substitution | omitted | added | moved
+);
+
+CREATE TABLE law_codes (
+    code TEXT PRIMARY KEY,
+    laws INTEGER NOT NULL,
+    verses INTEGER NOT NULL,
+    casuistic INTEGER NOT NULL,
+    apodictic INTEGER NOT NULL,
+    other INTEGER NOT NULL,
+    v2ms INTEGER NOT NULL,
+    v2mp INTEGER NOT NULL,
+    v3 INTEGER NOT NULL,
+    mixed INTEGER NOT NULL
+) WITHOUT ROWID;
+
+-- The forms of prophetic speech (`bsim prophetic`, §16.92).
+CREATE TABLE prophetic_items (
+    item_id INTEGER PRIMARY KEY,
+    form TEXT NOT NULL,             -- messenger | woe | nations | lawsuit | call
+    book_id INTEGER NOT NULL,
+    unit_id TEXT NOT NULL,          -- the paragraph of its first verse
+    first_vid INTEGER NOT NULL,
+    last_vid INTEGER NOT NULL,
+    detail TEXT NOT NULL,           -- JSON, by form: kind; next; names, heading, paragraphs; dispute, witnesses; objection, reassurance
+    known INTEGER NOT NULL          -- covers or overlaps a passage named in advance
+);
+
+CREATE TABLE prophetic_books (
+    book_id INTEGER NOT NULL,
+    form TEXT NOT NULL,
+    n INTEGER NOT NULL,
+    PRIMARY KEY (book_id, form)
+) WITHOUT ROWID;
+
+CREATE TABLE prophetic_words (
+    verse_id INTEGER NOT NULL,
+    idx INTEGER NOT NULL,           -- OSHB word index (`words.idx`)
+    form TEXT NOT NULL,             -- the form this word marks
+    PRIMARY KEY (verse_id, idx)
+) WITHOUT ROWID;
+

@@ -1,0 +1,53 @@
+/* WorkbenchPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Workbench (§16.64): sets side by side, then the two sides of a contrast */
+
+.workbench-page .segmented { margin-block: 0.6rem; }
+
+.wb-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 0.8rem; margin-block: 0.8rem; }
+
+.wb-set { border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.8rem 0.7rem; min-width: 0; }
+
+.wb-set legend { font-weight: 600; padding-inline: 0.3rem; }
+
+.wb-items { list-style: none; padding: 0; margin: 0.2rem 0 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+.wb-items .chip { display: inline-flex; align-items: center; gap: 0.3rem; max-width: 100%; overflow-wrap: anywhere; }
+
+.wb-remove { font-size: 1.05rem; line-height: 1; padding-inline: 0.2rem; }
+
+.wb-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.4rem 0.7rem; margin-block: 0.3rem; }
+
+.wb-add input[type="number"] { width: 5.5rem; }
+
+.wb-pattern { flex: 1 1 16rem; }
+
+.wb-pattern input { width: 100%; }
+
+.wb-text { margin-top: 0.4rem; }
+
+.wb-text summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+
+.wb-counts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
+
+.wb-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+
+.wb-side { min-width: 0; }
+
+.wb-side h2 { font-size: 1.1rem; }
+
+.wb-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+
+.wb-table tr.wb-sig td:first-child { border-inline-start: 3px solid var(--accent); }
+
+.wb-examples { font-size: 0.85rem; min-width: 8rem; }
+
+.wb-verdict { font-size: 1.05rem; }
+
+.wb-table td.num,
+.wb-table th.num { white-space: nowrap; }
+
+/* the set editor's own buttons and fields take the page's colours, not the browser's (dark scheme contrast) */
+
+.workbench-page button[type='submit']:not(.primary),
+.wb-add input { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.3rem 0.6rem; }

@@ -43,6 +43,7 @@ export const NAV: NavEntry[] = [
       { to: '/phrases', key: 'phrases' },
       { to: '/sequences', key: 'sequences' },
       { to: '/synopses', key: 'synopses' },
+      { to: '/laws', key: 'laws' },
       { to: '/changes', key: 'changes' },
       { to: '/borrowing', key: 'borrowing' },
       { to: '/typescenes', key: 'typescenes' },
@@ -62,6 +63,7 @@ export const NAV: NavEntry[] = [
         { to: '/refrains', key: 'refrains' },
         { to: '/forms', key: 'forms' },
         { to: '/psalms', key: 'psalms' },
+        { to: '/prophetic', key: 'prophetic' },
         { to: '/wordplay', key: 'wordplay' },
         { to: '/brackets', key: 'brackets' },
         { to: '/divisions', key: 'divisions' },
@@ -96,6 +98,7 @@ export const NAV: NavEntry[] = [
       key: 'narrative',
       items: [
         { to: '/retold', key: 'retold' },
+        { to: '/mainline', key: 'mainline' },
         { to: '/chronology', key: 'chronology' },
         { to: '/frameworks', key: 'frameworks' },
         { to: '/haftarot', key: 'haftarot' },

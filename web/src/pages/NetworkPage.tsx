@@ -12,6 +12,7 @@ import { DirectionsView } from './DirectionsView'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/echoes'
 import '../i18n/pages/overview'
+import '../styles/pages/NetworkPage.css'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
 const SECTIONS = ['Torah', 'Prophets', 'Writings']

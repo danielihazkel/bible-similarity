@@ -1,0 +1,74 @@
+/* SynopsisPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* synopses: three or more parallel passages in columns (§16.74) */
+
+.syn-head,
+.syn-row {
+  display: grid;
+  grid-template-columns: repeat(var(--syn-cols, 3), minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.syn-head {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.syn-head .base {
+  color: var(--text);
+}
+
+.syn-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+  min-width: 0;
+}
+
+.syn-cell.base {
+  border-color: var(--accent);
+}
+
+.syn-cell.empty {
+  background: transparent;
+  border-style: dashed;
+}
+
+.syn-cell .hit-text {
+  font-size: 1.1rem;
+  margin: 0.15rem 0 0;
+}
+
+.syn-flag {
+  margin-inline-start: 0.4rem;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .syn-head {
+      display: none;
+    }
+  .syn-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+  .syn-cell.empty {
+      display: none;
+    }
+}
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .synopsis-page .toolbar { display: flex !important; }
+  .synopsis-page .toolbar > :not(.diff-legend) { display: none !important; }
+  .syn-row { break-inside: avoid; }
+}

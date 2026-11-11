@@ -118,7 +118,7 @@ describe('BracketsPage', () => {
   })
 
   it('lists the repetitions with both verses, the clause marked, and links to read and compare', async () => {
-    const { container } = renderAt('/brackets')
+    const { container } = renderAt('/brackets?show=all')
     await screen.findByText('2 repetitions · page 1 of 1')
     const items = [...container.querySelectorAll('li.brk-bracket')]
     expect(items).toHaveLength(2)
@@ -151,8 +151,15 @@ describe('BracketsPage', () => {
     expect(await screen.findByText(/The resumptive repetitions were not computed/)).toBeTruthy()
   })
 
+  it('lists the brackets named in advance by default, and says why (M159)', async () => {
+    const { container } = renderAt('/brackets')
+    expect(await screen.findByText(/^Listed: the brackets named in advance/)).toBeTruthy()
+    await vi.waitFor(() => expect(calls).toContain('/api/brackets/items?show=known&order=canon&limit=25&offset=0'))
+    await vi.waitFor(() => expect(container.querySelectorAll('li.brk-bracket')).toHaveLength(1))
+  })
+
   it('runs in the Hebrew interface', async () => {
-    renderAt('/brackets', 'he')
+    renderAt('/brackets?show=all', 'he')
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('חזרה מקשרת')
     expect(await screen.findByText('מתאשר')).toBeTruthy()
     expect(await screen.findAllByText('30 פסוקים ביניהם')).toHaveLength(2)

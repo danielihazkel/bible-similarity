@@ -2,6 +2,12 @@ export const unitLink = (id: string, search = '') => `/unit/${encodeURIComponent
 
 export const readLink = (id: string, search = '') => `/read/${encodeURIComponent(id)}${search}`
 
+/** A unit's neighbourhood graph (§11.1, D149), with its settings (k, hops, off) if any. */
+export const neighbourhoodLink = (id: string, params?: URLSearchParams) => {
+  const q = params?.toString()
+  return `/neighbourhood/${encodeURIComponent(id)}${q ? `?${q}` : ''}`
+}
+
 export const lemmaLink = (lemma: string) => `/lemma/${encodeURIComponent(lemma)}`
 export const rootLink = (root: string) => `/root/${encodeURIComponent(root)}`
 

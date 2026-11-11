@@ -25,9 +25,10 @@ import '../i18n/pages/places'
 import '../i18n/pages/reception'
 import '../i18n/pages/syntax'
 import '../i18n/pages/witnesses'
+import '../styles/pages/ReaderPage.css'
 
 // the layers `/reader/{unit}` serves (cola come from /parallelism, Leitworte from /structure)
-const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine', 'reception', 'witnesses']
+const READER_LAYERS: Layer[] = ['speakers', 'refrains', 'phrases', 'rare', 'wordplay', 'ketiv', 'mood', 'sources', 'turns', 'gematria', 'places', 'divine', 'reception', 'witnesses', 'mainline', 'prophetic']
 const COMPUTED: Partial<Record<Layer, string>> = {
   speakers: 'speech',
   refrains: 'refrains',
@@ -41,6 +42,8 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   divine: 'divine',
   reception: 'reception',
   witnesses: 'witnesses',
+  mainline: 'mainline',
+  prophetic: 'prophetic',
 }
 const LEITWORTE_SHOWN = 6
 const REFRAINS_SHOWN = 4
@@ -167,6 +170,16 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       if (site) {
         cls.push('pl', `pl-${site.kind ?? 'none'}`)
         titles.push(t.placeTitle(site.he, site.kind ? m.pl.kindOne[site.kind as PlaceKind] : m.pl.panel))
+      }
+      const ml = on('mainline') ? r?.mainline?.[i] : undefined
+      if (ml) {
+        cls.push('ml', `ml-${ml}`)
+        titles.push(t.mainlineTitle[ml])
+      }
+      const pf = on('prophetic') ? r?.prophetic?.[i] : undefined
+      if (pf) {
+        cls.push('pf', `pf-${pf}`)
+        titles.push(t.prophTitle[pf])
       }
       const dv = on('divine') ? (r?.divine[i] as DivineName | undefined) : undefined
       if (dv) {
@@ -449,6 +462,18 @@ function Legend({ layers, reader, speakers, leitworte, byRoot, hasRoots, onByRoo
         </>,
       )}
       {row('turns', t.turnsKey)}
+      {row(
+        'mainline',
+        <>
+          {t.mainlineKey} <Link to="/mainline">{t.allMainline}</Link>
+        </>,
+      )}
+      {row(
+        'prophetic',
+        <>
+          {t.prophKey} <Link to="/prophetic">{t.allProphetic}</Link>
+        </>,
+      )}
       {row(
         'places',
         !reader ? (

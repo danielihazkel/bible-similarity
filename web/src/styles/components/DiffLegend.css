@@ -1,0 +1,27 @@
+/* DiffLegend.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* word-level diff marks (parallel sequences, §16.8) */
+
+.w-diff-substitution { background: var(--diff-sub); }
+
+.w-diff-added { background: var(--diff-add); }
+
+.w-diff-omitted { background: var(--diff-omit); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+.w-diff-moved { background: var(--diff-move); }
+
+.w-diff-form { text-decoration: underline wavy var(--diff-form); text-underline-offset: 4px; }
+
+.w-diff-spelling { text-decoration: underline dotted var(--diff-spell); text-underline-offset: 4px; }
+
+.diff-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.diff-legend .w {
+  padding: 0 0.3rem;
+}

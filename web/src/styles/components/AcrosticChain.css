@@ -1,0 +1,25 @@
+/* AcrosticChain.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Acrostics */
+
+.acrostic-chain {
+  display: block;
+  font-size: 1.15rem;
+  letter-spacing: 0.15em;
+  margin-top: 0.35rem;
+}
+
+.acrostic-chain .acr-in {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.acrostic-chain .acr-skipped {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.acrostic-chain .acr-out {
+  color: var(--muted);
+  opacity: 0.5;
+}

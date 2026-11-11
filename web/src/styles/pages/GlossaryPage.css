@@ -1,0 +1,11 @@
+/* GlossaryPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* glossary terms and guided tours (§11) */
+
+.glossary-entry { padding: 0.5rem 0; border-bottom: 1px solid var(--border); scroll-margin-top: 4rem; }
+
+.glossary-entry dt { margin-bottom: 0.15rem; }
+
+.glossary-entry dd { margin: 0; }
+
+.glossary-entry:target { background: var(--accent-soft); }

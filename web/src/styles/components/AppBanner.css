@@ -1,0 +1,27 @@
+/* AppBanner.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* the offline app's banner (components/AppBanner.tsx): empty unless offline or a new build waits */
+
+.app-banner:empty {
+  display: none;
+}
+
+.app-banner {
+  background: var(--accent-soft);
+  border-block-end: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+}
+
+.app-banner p {
+  margin: 0.2rem 0;
+}
+
+.app-banner button {
+  margin-inline-start: 0.5rem;
+}
+
+@media print {
+  .app-banner {
+      display: none;
+    }
+}

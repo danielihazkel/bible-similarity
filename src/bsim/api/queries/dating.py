@@ -29,3 +29,23 @@ def dating_chapter_of(conn: sqlite3.Connection, verse_id: int) -> dict[str, Any]
         )
     )
     return rows[0] if rows else None
+
+
+def theophoric_books(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Each book's occurrences of names built on God's name, by form (§16.90), in canon order."""
+    return _dicts(conn.execute("SELECT * FROM theophoric_books ORDER BY book_id"))
+
+
+def theophoric_names(conn: sqlite3.Connection, limit: int) -> list[dict[str, Any]]:
+    """The names built on God's name, the most frequent first."""
+    sql = "SELECT * FROM theophoric_names ORDER BY n DESC, lemma LIMIT ?"
+    return _dicts(conn.execute(sql, (limit,)))
+
+
+def theophoric_name(conn: sqlite3.Connection, lemma: str) -> dict[str, Any] | None:
+    """One name's forms, or None (not built on God's name, or the stage not run)."""
+    try:
+        rows = _dicts(conn.execute("SELECT * FROM theophoric_names WHERE lemma = ?", (lemma,)))
+    except sqlite3.OperationalError:  # a build without the table
+        return None
+    return rows[0] if rows else None

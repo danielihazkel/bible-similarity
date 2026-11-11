@@ -11,7 +11,7 @@ DossierKind = Literal[
     "typescenes", "discoveries", "seams", "names", "acrostic", "dating", "structure", "speech",
     "voices", "network", "divisions", "ketiv", "citations", "allusions", "mirrors", "echoes",
     "meter", "roots", "refrains", "psalms", "pentateuch", "dialogue", "forms", "places",
-    "people", "ciphers", "divine", "gematria", "reception", "witnesses", "labels",
+    "people", "ciphers", "divine", "gematria", "reception", "witnesses", "laws", "labels",
 ]  # fmt: skip
 
 

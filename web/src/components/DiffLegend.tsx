@@ -1,5 +1,6 @@
 import { useT } from '../context/localeContext'
 import { DIFF_OPS } from '../lib/diff'
+import '../styles/components/DiffLegend.css'
 
 /** Key to the word-level diff marks of parallel passages. */
 export function DiffLegend() {

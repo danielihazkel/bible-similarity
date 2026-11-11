@@ -4,6 +4,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/parallels'
+import '../styles/pages/SynopsesPage.css'
 
 /** Parallel sequences joined into synopses of three or more passages (DESIGN.md §16.74). */
 export function SynopsesPage() {

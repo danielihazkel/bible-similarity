@@ -1,0 +1,24 @@
+/* LawsPage.tsx (§16.93, D155) */
+
+.lw-forms { margin: 0.3rem 0 0.6rem; }
+.lw-known > li { margin-bottom: 0.4rem; }
+.lw-known ul { margin-top: 0.15rem; }
+.lw-pair .hit-head, .lw-law .hit-head { font-weight: 600; }
+.lw-synopsis {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.6rem 0.8rem;
+  margin: 0.8rem 0;
+}
+.lw-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.lw-side h3 { font-size: 1rem; margin: 0.3rem 0; }
+.lw-verse { margin: 0.25rem 0; }
+
+@media (max-width: 640px) {
+  .lw-columns { grid-template-columns: minmax(0, 1fr); }
+}

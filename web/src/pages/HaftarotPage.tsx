@@ -9,6 +9,7 @@ import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { Term } from '../components/Term'
 import '../i18n/pages/haftarot'
+import '../styles/pages/HaftarotPage.css'
 
 const MODES = ['lexical', 'semantic', 'fused'] as const
 

@@ -1,0 +1,52 @@
+/* SeamsPanel.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* links inside running text must not rely on colour alone (WCAG 1.4.1) */
+
+.seam-list a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* ---------- Style seams (§16.12) ---------- */
+
+.shift-chart {
+  width: 100%;
+  max-width: 760px;
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0.5rem 0;
+}
+
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+
+.chart-threshold { stroke: var(--muted); stroke-dasharray: 4 3; }
+
+.chart-peak { fill: var(--sem); }
+
+.seam-list {
+  padding-inline-start: 1.2rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.seam-list li { margin: 0.25rem 0; }
+
+.seam-features {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-inline-start: 0.5rem;
+}
+
+.seam-feature {
+  font-size: 0.8rem;
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  background: var(--surface-2);
+}
+
+.seam-feature.up { color: var(--known); }
+
+.seam-feature.down { color: var(--sem-ink); }

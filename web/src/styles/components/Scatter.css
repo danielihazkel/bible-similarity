@@ -1,0 +1,18 @@
+/* Scatter.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Skip link: off screen until focused */
+
+.scatter-stack {
+  position: relative;
+  max-width: 720px;
+}
+
+.scatter .scatter-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  pointer-events: none;
+  color: var(--text);
+  background: transparent;
+  border-color: transparent;
+}

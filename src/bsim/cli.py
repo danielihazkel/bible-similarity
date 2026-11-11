@@ -101,6 +101,54 @@ def lexicon(config: ConfigOpt = None) -> None:
 
 
 @app.command()
+def laws(config: ConfigOpt = None) -> None:
+    """The law codes side by side: each law's form, the laws another code gives again (§16.93)."""
+    from bsim.analysis.laws import run_laws
+
+    try:
+        run_laws(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def prophetic(config: ConfigOpt = None) -> None:
+    """The forms of prophetic speech: messenger formula, woe, nations, lawsuit, call (§16.92)."""
+    from bsim.analysis.prophetic import run_prophetic
+
+    try:
+        run_prophetic(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def mainline(config: ConfigOpt = None) -> None:
+    """The narrative main line (wayyiqtol) and where a story pauses for background (§16.91)."""
+    from bsim.analysis.mainline import run_mainline
+
+    try:
+        run_mainline(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
+def theophoric(config: ConfigOpt = None) -> None:
+    """Personal names built on God's name: their forms by book, the short ending late (§16.90)."""
+    from bsim.analysis.theophoric import run_theophoric
+
+    try:
+        run_theophoric(load_config(config), log=typer.echo)
+    except RuntimeError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1) from e
+
+
+@app.command()
 def dating(config: ConfigOpt = None) -> None:
     """Score every chapter's Late Biblical Hebrew profile; validate on the synoptic parallels."""
     from bsim.analysis.dating import run_dating
@@ -996,12 +1044,34 @@ def llm_audit(
         bool,
         typer.Option("--dry-run", help="Write the requests and the cost estimate; send nothing"),
     ] = False,
+    population: Annotated[
+        str | None,
+        typer.Option(
+            "--population",
+            help="strongest (each detector's strongest) or pages (what the pages list); "
+            "default llm_audit.population",
+        ),
+    ] = None,
+    detectors: Annotated[
+        str | None,
+        typer.Option("--detectors", help="Comma-separated: judge only these (default all)"),
+    ] = None,
+    tag: Annotated[
+        str | None, typer.Option("--tag", help="Write to its own folder (with --detectors)")
+    ] = None,
 ) -> None:
     """Claude judges a sample of each detector's findings: their precision (paid; §16.86)."""
     from bsim.eval.llm_audit import run_llm_audit
 
+    cfg = load_config(config)
+    if population is not None:
+        cfg["llm_audit"]["population"] = population
+    if detectors is not None:
+        cfg["llm_audit"]["detectors"] = [d.strip() for d in detectors.split(",") if d.strip()]
+    if tag is not None:
+        cfg["llm_audit"]["tag"] = tag
     try:
-        run_llm_audit(load_config(config), log=typer.echo, dry_run=dry_run)
+        run_llm_audit(cfg, log=typer.echo, dry_run=dry_run)
     except RuntimeError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(code=1) from e

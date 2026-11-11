@@ -13,8 +13,10 @@ look at wording; here only the order of the actions counts.
 - Null: verb order shuffled inside every pericope (`null_reps` times), the same pairs aligned
   again: shared vocabulary is kept and only the order destroyed, so `q` (as for parallel
   sequences, §16.7) is the expected share of chance alignments among those at least as strong.
-- `parallel_text`: a significant parallel sequence (§16.7) joins verses of the two pericopes —
-  the same text told twice rather than a type-scene.
+- `parallel_text`: a significant parallel sequence (§16.7) joins verses of the two pericopes,
+  or (M159) ETCBC's parallel passages cover `etcbc_share` of the shorter one's verses (Ps 70 /
+  Ps 40:14-18) — the same text told twice rather than a type-scene. With `skip_adjacent` (M159)
+  two pericopes side by side in a book are not paired: one story (Dan 7:1-14, 7:15-28).
 
 Writes `artifacts/typescenes/pairs.parquet` (`a_unit, b_unit, a_book, b_book, score,
 n_matches, aligned` = JSON `[a_vid, b_vid, lemma]` per matched verb, `q`, `parallel_text`) plus
@@ -149,6 +151,11 @@ def run_typescenes(cfg: dict[str, Any], log: Log = print) -> Path:
     verbs = {u: s for u, s in verbs.items() if len(s) >= tc["min_matches"]}
     lemmas = {u: [lem for _, lem in s] for u, s in verbs.items()}
     pairs = candidates(lemmas, idf, tc["min_shared_idf"], tc["max_partners"])
+    if tc["skip_adjacent"]:
+        # M159: two pericopes side by side are one story (a vision and its interpretation)
+        pos = {u: i for i, u in enumerate(units.unit_id)}
+        bk = dict(zip(units.unit_id, units.book_id, strict=True))
+        pairs = [(a, b) for a, b in pairs if not (bk[a] == bk[b] and abs(pos[a] - pos[b]) == 1)]
     log(
         f"{len(verbs)} pericopes, {len(common)} common verbs left out, {len(pairs)} candidate pairs"
     )
@@ -169,6 +176,26 @@ def run_typescenes(cfg: dict[str, Any], log: Log = print) -> Path:
     seqs = pd.read_parquet(seq_path)
     strong = seqs[seqs.q <= tc["sequence_max_q"]]
     linked = {(int(a), int(b)) for p in strong.pairs for a, b, *_ in json.loads(p)}
+    # M159: ETCBC's parallel passages too, when they cover `etcbc_share` of the shorter pericope's
+    # verses (Ps 70 is Ps 40:14-18; a single formulaic verse linked is not a parallel text)
+    etcbc_path = proc / "etcbc_links.parquet"
+    etcbc = (
+        pd.read_parquet(etcbc_path, columns=["src_vid", "tgt_vid"])
+        if etcbc_path.exists()
+        else pd.DataFrame({"src_vid": [], "tgt_vid": []})
+    )
+    etcbc_of: dict[int, set[int]] = defaultdict(set)
+    for x, y in zip(etcbc.src_vid, etcbc.tgt_vid, strict=True):
+        etcbc_of[int(x)].add(int(y))
+        etcbc_of[int(y)].add(int(x))
+
+    def etcbc_text(a0: int, a1: int, b0: int, b1: int) -> bool:
+        if not tc["etcbc_share"]:
+            return False
+        ina = sum(any(b0 <= y <= b1 for y in etcbc_of[x]) for x in range(a0, a1 + 1))
+        inb = sum(any(a0 <= y <= a1 for y in etcbc_of[x]) for x in range(b0, b1 + 1))
+        short = min(a1 - a0 + 1, b1 - b0 + 1)
+        return min(ina, inb) >= tc["etcbc_share"] * short
 
     rows = []
     for (a, b), (score, path) in zip(pairs, found, strict=True):
@@ -181,7 +208,7 @@ def run_typescenes(cfg: dict[str, Any], log: Log = print) -> Path:
             for x in range(a0, a1 + 1)
             for y in range(b0, b1 + 1)
             if abs(x - y) > 0
-        )
+        ) or etcbc_text(a0, a1, b0, b1)
         rows.append(
             (a, b, book[a], book[b], round(score, 3), len(path), json.dumps(aligned), textual)
         )

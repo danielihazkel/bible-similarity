@@ -3,6 +3,7 @@ import { useMeta } from '../api/hooks'
 import { ErrorBox, Loading } from '../components/Status'
 import { useT } from '../context/localeContext'
 import { TableCsv } from '../components/TableCsv'
+import '../styles/pages/AboutPage.css'
 
 const show = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v))
 

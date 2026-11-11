@@ -10,6 +10,7 @@ import { HebrewText } from './HebrewText'
 import { PanelError } from './Status'
 import { UnitName } from './UnitName'
 import '../i18n/pages/senses'
+import '../styles/components/SensesPanel.css'
 
 /** A lemma's dictionary senses and contextual uses by corpus group (DESIGN.md §16.23). */
 export function SensesPanel({ lemma }: { lemma: string }) {

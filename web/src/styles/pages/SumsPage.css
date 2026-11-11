@@ -1,0 +1,16 @@
+/* SumsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* do the sums add up (§16.75) */
+
+.sm-table tr.sm-off td { font-weight: 600; }
+
+.sm-panel { margin-bottom: 1rem; }
+
+.sm-known { margin: 0; padding-inline-start: 1.1rem; }
+
+.sm-known a,
+.sm-parallel .hit-text a { text-decoration: underline; }
+
+.sm-total { border-top: 1px solid var(--border); padding-top: 0.4rem; }
+
+.sm-parallel .hit-text .verse-ref { margin-inline-end: 0.4rem; }

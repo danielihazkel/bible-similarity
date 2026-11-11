@@ -1,0 +1,14 @@
+/* GematriaLinksPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Equal values, related words? (§16.59) */
+
+.gl-pairs { padding-inline-start: 2.2rem; }
+
+.gl-pairs li { margin-block: 0.25rem; }
+
+.gl-pairs a { text-decoration: underline; text-underline-offset: 0.15em; }
+
+.gl-pairs .he,
+.gl-eq .he { font-size: 1.15rem; }
+
+.gl-tests td:first-child { white-space: nowrap; }

@@ -49,11 +49,12 @@ def test_diff_signs():
 
 def test_language_sign():
     cols = ["lex", "word", "anokhi", "pron_1cs", "inf_abs", "verb", "et_suffix", "verb_suffix",
-            "directional_he", "way1cs_h", "way1cs", "david_plene", "david"]  # fmt: skip
+            "directional_he", "way1cs_h", "way1cs", "david_plene", "david", "yah_short",
+            "yah_end"]  # fmt: skip
     a = pd.Series(dict.fromkeys(cols, 0) | {"word": 100, "verb": 20, "inf_abs": 4})
     b = pd.Series(dict.fromkeys(cols, 0) | {"word": 100, "verb": 20, "lex": 3})
     prior = dict.fromkeys(["lbh_lexemes", "anokhi", "inf_abs", "et_suffix", "directional_he",
-                           "cohortative_wayyiqtol", "david_plene"], 0.1)  # fmt: skip
+                           "cohortative_wayyiqtol", "david_plene", "yah_short"], 0.1)  # fmt: skip
     sd = pd.Series(1.0, index=list(prior))
     signs = {"lbh_lexemes": 1, "inf_abs": -1}
     # B has more late words and fewer infinitive absolutes: later

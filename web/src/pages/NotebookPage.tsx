@@ -3,15 +3,19 @@ import { Link } from 'react-router'
 import { useNotebook, useNotebookChange, useServer } from '../api/hooks'
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
+import { PrintButton } from '../components/PrintButton'
 import { ChangeError, DropButton, EntryEditor } from '../components/NotebookPanel'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
+import { useTextMode } from '../context/textModeContext'
 import { downloadCsv, downloadText } from '../lib/csv'
 import { unitLink } from '../lib/links'
 import { filterEntries, notebookMarkdown } from '../lib/notebook'
+import { studyPage } from '../lib/notebookPage'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/notebook'
+import '../styles/pages/NotebookPage.css'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -23,6 +27,7 @@ export function NotebookPage() {
   const nb = useNotebook()
   const [filter, setFilter] = useState('')
   const { personal } = useServer()
+  const { mode } = useTextMode()
   if (!personal)
     return (
       <div className="page notebook-page">
@@ -67,6 +72,19 @@ export function NotebookPage() {
             >
               {t.exportMd}
             </button>
+            <button
+              type="button"
+              className="linkish export-html"
+              title={t.exportHtmlTitle}
+              onClick={() => {
+                const stamp = today()
+                const html = studyPage(shown, collections, current, { ...t.md, ...t.study }, locale, stamp, window.location.origin, mode)
+                downloadText(`${file(stamp)}.html`, [html], 'text/html;charset=utf-8')
+              }}
+            >
+              {t.exportHtml}
+            </button>
+            <PrintButton />
             <button
               type="button"
               className="linkish export-csv"
@@ -121,6 +139,11 @@ function Entry({ e, collections, writable }: { e: NotebookEntry; collections: No
         </p>
       )}
       {!writable && !e.note && <p className="muted small">{t.emptyNote}</p>}
+      {e.note.trim() && (
+        <div className="nb-print-note" dir="auto">
+          {e.note}
+        </div>
+      )}
       <EntryEditor entry={e} collections={collections} writable={writable} />
       <ChangeError error={change.error} />
     </li>

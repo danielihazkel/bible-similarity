@@ -14,6 +14,7 @@ from bsim.api.models.common import (
     UnitType,
     Verse,
 )
+from bsim.api.models.dating import TheophoricName
 from bsim.api.models.places import NameKind, PlaceSite
 
 EntityKind = Literal["person", "place", "mixed", "unclear"]
@@ -66,6 +67,7 @@ class EntityDetail(ApiModel):
     links: list[EntityLink]  # links among the partners (for the network drawing)
     name_kind: NameKind | None = None  # its commonest SDBH name subdomain (`bsim places`)
     sites: list[PlaceSite] = []  # the places it is, with its verses at each (`n_here`)
+    theophoric: TheophoricName | None = None  # built on God's name: its forms (§16.90)
 
 
 class SeamFeature(ApiModel):

@@ -5,7 +5,7 @@ import type { Paragraph, SegmentKind } from '../../api/types'
 import { countEn } from '../fmt'
 import { register } from '../en'
 
-export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine' | 'reception' | 'witnesses'
+export type Layer = 'speakers' | 'cola' | 'leitworte' | 'refrains' | 'phrases' | 'rare' | 'wordplay' | 'ketiv' | 'mood' | 'sources' | 'turns' | 'gematria' | 'places' | 'divine' | 'reception' | 'witnesses' | 'mainline' | 'prophetic'
 
 export const pctOf = (x: number) => Math.round(x * 100)
 
@@ -33,6 +33,8 @@ export const readerEn = {
     divine: 'Names of God',
     reception: 'Rabbinic citations',
     witnesses: 'Other witnesses',
+    mainline: 'Main line',
+    prophetic: 'Prophetic forms',
   } satisfies Record<Layer, string>,
   hints: {
     speakers: 'Who speaks each word (BHSA quotations and the speakers found for them)',
@@ -51,6 +53,8 @@ export const readerEn = {
     divine: 'Each name of God marked by a line above it: יהוה, אלהים, and the others',
     reception: 'How many passages of the Mishnah, the Tosefta and the Talmuds cite each verse',
     witnesses: 'Where the Samaritan Pentateuch and the Dead Sea Scrolls differ from the Masoretic text',
+    mainline: 'Where the narrator steps off the chain of wayyiqtol to set a scene, describe or look back',
+    prophetic: 'The words that mark a form of prophetic speech: the messenger formula, a woe, an oracle against the nations, a lawsuit, a call',
   } satisfies Record<Layer, string>,
   notComputed: (layer: string) => `${layer}: not computed in this build.`,
   loading: (layer: string) => `Loading ${layer.toLowerCase()}…`,
@@ -115,6 +119,18 @@ export const readerEn = {
   // divine names
   divineKey: 'A line above each name of God: \u2068יהוה\u2069, \u2068אלהים\u2069, another name;',
   divineTitle: (he: string) => `a name of God: ${he}`,
+  mainlineKey: 'Underlined dashes: the narrator’s background clauses (description, circumstance, what had happened before), off the wayyiqtol chain of the story.',
+  mainlineTitle: { main: 'on the main line (wayyiqtol)', background: 'background: off the main line' } as Record<'main' | 'background', string>,
+  allMainline: 'Every pause on the main line page',
+  prophKey: 'A box around the words that mark a form of prophetic speech (its name on hovering).',
+  prophTitle: {
+    messenger: 'the messenger formula',
+    woe: 'a woe saying',
+    nations: 'an oracle against the nations: a nation named',
+    lawsuit: 'a covenant lawsuit',
+    call: 'a call narrative',
+  } as Record<'messenger' | 'woe' | 'nations' | 'lawsuit' | 'call', string>,
+  allProphetic: 'Every finding on the prophetic forms page',
   allDivine: 'the mix of every chapter',
 }
 

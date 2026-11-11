@@ -183,6 +183,22 @@ def null_scores(
     return null
 
 
+def span(lines: list[list[Line]], chained: list[int], first: str, last: str) -> tuple[int, int]:
+    """The acrostic's first and last line (M159). The chain takes the earliest line of its first
+    letter that reaches the second, so Prov 31's starts at the א of 31:3; the span starts instead
+    at the last line opening with that letter before the chain's second line (31:10 אשת חיל), and
+    runs back over the lines before it opening alike (Ps 119:1-8, Lam 3:1-3) and on after its last
+    line the same way (Ps 119:169-176). A line's letter here is its first word's."""
+    i0, i1 = chained[0], chained[-1]
+    if len(chained) > 1:
+        i0 = max(j for j in range(i0, chained[1]) if lines[j][0][2] == first or j == i0)
+    while i0 > 0 and lines[i0 - 1][0][2] == first:
+        i0 -= 1
+    while i1 < len(lines) - 1 and lines[i1 + 1][0][2] == last:
+        i1 += 1
+    return i0, i1
+
+
 def score_chapter(
     lines: dict[str, list[list[Line]]], cfg: dict[str, Any], rng: np.random.Generator
 ) -> dict[str, Any] | None:
@@ -209,6 +225,8 @@ def score_chapter(
     chain = [lines[unit][i][b] for i, b in zip(c.lines, picks, strict=True)]
     order = ORDERS[name]
     first, last = order.index(chain[0][2]), order.index(chain[-1][2])
+    ls = lines[unit]
+    i0, i1 = span(ls, c.lines, chain[0][2], chain[-1][2]) if a["span_trim"] else (0, 0)
     return {
         "granularity": unit,
         "order_name": name,
@@ -217,8 +235,8 @@ def score_chapter(
         "missing": last - first + 1 - len(chain),
         "first_letter": chain[0][2],
         "last_letter": chain[-1][2],
-        "start_vid": chain[0][0],
-        "end_vid": chain[-1][0],
+        "start_vid": ls[i0][0][0] if a["span_trim"] else chain[0][0],
+        "end_vid": ls[i1][0][0] if a["span_trim"] else chain[-1][0],
         "n_lines": len(lines[unit]),
         "second_words": int(sum(picks)),  # letters read on a line's second word
         "p": empirical_p(score - 1e-9, null),

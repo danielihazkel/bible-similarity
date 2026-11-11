@@ -13,6 +13,7 @@ import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/overview'
+import '../styles/pages/StylometryPage.css'
 
 const SECTIONS = ['Torah', 'Prophets', 'Writings']
 const HUES = [210, 25, 140]

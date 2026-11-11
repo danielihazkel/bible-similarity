@@ -1,0 +1,16 @@
+/* ShiftsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Senses across the canon (DESIGN.md §16.23) */
+
+.group-strip {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.group-cell {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  background: var(--accent);
+}

@@ -1,0 +1,52 @@
+/* WitnessesPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* other witnesses (§16.78) */
+
+.wt-known { margin: 0; padding-inline-start: 1.1rem; }
+
+.wt-known li { margin: 0.2rem 0; }
+
+.witnesses-page > p a,
+.wt-known a,
+.wt-pluses a,
+.wt-chron a { text-decoration: underline; text-underline-offset: 2px; }
+
+.wt-verse { margin: 0.8rem 0 1rem; }
+
+.wt-verse h3 { font-size: 1rem; margin: 0 0 0.3rem; }
+
+.wt-lines { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 0.8rem; margin: 0; }
+
+.wt-lines dt { color: var(--muted); font-size: 0.85rem; padding-top: 0.3rem; }
+
+.wt-lines dd { margin: 0; }
+
+.wt-lines .he { font-family: var(--font-he); font-size: 1.15rem; line-height: 1.8; }
+
+.wt-w { border-radius: 3px; padding: 0 0.1rem; }
+
+.wt-spelling { background: var(--wt-spelling); }
+
+.wt-form { background: var(--wt-form); }
+
+.wt-substitution { background: var(--wt-substitution); }
+
+.wt-added { background: var(--wt-added); }
+
+.wt-unread { color: var(--muted); }
+
+.wt-unread::before { content: '['; }
+
+.wt-unread::after { content: ']'; }
+
+.wt-omitted { text-decoration: line-through; }
+
+.wt-lacks { color: var(--muted); }
+
+.wt-flood th,
+.wt-flood td { font-weight: 600; }
+
+@media (max-width: 640px) {
+  .wt-lines { grid-template-columns: 1fr; }
+  .wt-lines dt { padding-top: 0.4rem; }
+}

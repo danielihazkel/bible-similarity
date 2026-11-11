@@ -78,6 +78,26 @@ def _brackets(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding |
     return build
 
 
+def _mainline(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    m = meta.get("mainline") or {}
+    c = m.get("claim")
+    if not c:
+        return None
+    values = {"excess": c["excess"], "null": c["null_mean"], "p": c["p"],
+              "known": m.get("known_found"), "of": len(m.get("known") or [])}  # fmt: skip
+    return Finding(key="mainline", verdict="holds" if c["holds"] else "fails", values=values)
+
+
+def _laws(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    """The law codes: the laws the commentaries set side by side found among the matched pairs."""
+    m = meta.get("laws") or {}
+    if not m.get("known"):
+        return None
+    values = {"known": m["known_found"], "of": m["known_total"], "pairs": m["pairs"],
+              "laws": m["laws"]}  # fmt: skip
+    return Finding(key="laws", verdict="holds" if m["known_holds"] else "fails", values=values)
+
+
 def _retold(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | None]:
     """Retold speech: a speech retold by another speaker changes more than one carried out in
     narration (labels shuffled within length strata); the retellings named in advance are

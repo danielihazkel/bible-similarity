@@ -124,6 +124,99 @@ CHECKS = [
         ("rows", 2, "llm_ndcg10"),
         f3,
     ),
+    (
+        r"with the same prompt, definitions and calibration, for \$1\.37\. Calibration: the owner's"
+        r" place sample (\d+) / 50 right",
+        "llm_audit_pages_m158/llm_audit.meta.json",
+        ("calibration", "places_right"),
+        lambda x: x.split(" / ")[0],
+    ),
+    (
+        r"the 302 resumptive repetitions at p ≤ 0\.05, (\d+) right of 50",
+        "llm_audit_pages_m158/llm_audit.meta.json",
+        ("detectors", "brackets", "marked", "right"),
+        str,
+    ),
+    (
+        r"\(seed 202\), for \$1\.22\. Calibration: the owner's place sample (\d+) / 50 right",
+        "llm_audit_pages/llm_audit.meta.json",
+        ("calibration", "places_right"),
+        lambda x: x.split(" / ")[0],
+    ),
+    (
+        r"\| naming etiologies \| 65 \(was 111\) \| 50 \| (\d+) \|",
+        "llm_audit_pages/llm_audit.meta.json",
+        ("detectors", "etiologies", "shown", "right"),
+        str,
+    ),
+    (
+        r"the claim itself is not borne out for the same names"
+        r" \(late 64 % short, early 26 %, p ([\d.]+)",
+        "theophoric/theophoric.meta.json",
+        ("claim", "p"),
+        f3,
+    ),
+    (
+        r"held-out AUC 0\.948 → 0\.889, without the lexemes 0\.895 → 0\.852,"
+        r" Chronicles later in (\d+) →",
+        "dating/dating.meta.json",
+        ("synoptic", "later"),
+        str,
+    ),
+    (
+        r"([\d,]+) pauses of background inside the chain in the narrative books",
+        "mainline/mainline.meta.json",
+        ("pauses",),
+        lambda x: f"{x:,}",
+    ),
+    (
+        r"Claude's reading of 50 pauses drawn from the list, for \$0\.22: (\d+) right",
+        "llm_audit_pages_m164/llm_audit.meta.json",
+        ("detectors", "mainline", "shown", "right"),
+        str,
+    ),
+    (
+        r"by rule over their words, \d+ messenger formulas, (\d+) woe sayings",
+        "prophetic/prophetic.meta.json",
+        ("counts", "woe"),
+        str,
+    ),
+    (
+        r"Claude's reading of 50 findings of the four judged forms, for \$0\.24: (\d+) right",
+        "llm_audit_pages_m165/llm_audit.meta.json",
+        ("detectors", "prophetic", "shown", "right"),
+        str,
+    ),
+    (
+        r"(\d+) law pairs matched across the codes on the fused list",
+        "laws/laws.meta.json",
+        ("pairs",),
+        str,
+    ),
+    (
+        r"set side by side, fixed before the run, (\d+) are found, by the aligned verses",
+        "laws/laws.meta.json",
+        ("known_found",),
+        str,
+    ),
+    (
+        r"by the aligned verses themselves also (\d+);",
+        "laws/laws.meta.json",
+        ("known_strict",),
+        str,
+    ),
+    (
+        r"\| `self` \| fused \| [^|]+ \| ([+−\-][\d.]+) \[",
+        "eval/supervision_experiments.json",
+        ("results", "self", "gains", "openbible", "fused", "mean"),
+        lambda x: f"{x:+.4f}",
+    ),
+    (
+        r"\| `self_ce` \| fused \| [^|]+ \| ([+−\-][\d.]+) \[",
+        "eval/supervision_experiments.json",
+        ("results", "self_ce", "gains", "openbible", "fused", "mean"),
+        lambda x: f"{x:+.4f}",
+    ),
 ]
 
 

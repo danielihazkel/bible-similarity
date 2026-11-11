@@ -12,6 +12,7 @@ import { unitLink } from '../../lib/links'
 import { Name } from './Name'
 import { MEMBERS_SHOWN } from './shared'
 import type { Namer, T } from './shared'
+import '../../styles/pages/genealogy-PersonPanel.css'
 
 interface PanelProps {
   personId: number

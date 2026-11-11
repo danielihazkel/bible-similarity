@@ -12,6 +12,7 @@ import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { placeLink } from '../lib/links'
 import '../i18n/pages/placeLinks'
+import '../styles/pages/PlaceLinksPage.css'
 
 const PAGE_SIZE = 25
 const SORTS: PlaceLinkSort[] = ['g2', 'km', 'near']

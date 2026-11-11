@@ -204,6 +204,30 @@ def stage_dating(cfg: dict[str, Any], log: Log) -> None:
     run_dating(cfg, log=log)
 
 
+def stage_mainline(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.mainline import run_mainline
+
+    run_mainline(cfg, log=log)
+
+
+def stage_laws(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.laws import run_laws
+
+    run_laws(cfg, log=log)
+
+
+def stage_prophetic(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.prophetic import run_prophetic
+
+    run_prophetic(cfg, log=log)
+
+
+def stage_theophoric(cfg: dict[str, Any], log: Log) -> None:
+    from bsim.analysis.theophoric import run_theophoric
+
+    run_theophoric(cfg, log=log)
+
+
 def stage_places(cfg: dict[str, Any], log: Log) -> None:
     from bsim.analysis.places import run_places
 
@@ -509,6 +533,10 @@ STAGES: dict[str, str] = {
     "place-links": "stage_place_links",
     "senses": "stage_senses",
     "dating": "stage_dating",
+    "theophoric": "stage_theophoric",
+    "mainline": "stage_mainline",
+    "prophetic": "stage_prophetic",
+    "laws": "stage_laws",
     "borrowing": "stage_borrowing",
     "seams": "stage_seams",
     "structure": "stage_structure",
@@ -591,7 +619,11 @@ DEPS: dict[str, tuple[str, ...]] = {
     "place-arc": (*_CORPUS, "places"),
     "place-links": (*_CORPUS, "places"),
     "senses": (*_CORPUS, "lexicon", *_MODELS),
-    "dating": (*_CORPUS, "parallelism", "sequences"),
+    "dating": ("download", *_CORPUS, "parallelism", "sequences"),
+    "theophoric": ("download", *_CORPUS),
+    "mainline": (*_CORPUS, "syntax"),
+    "prophetic": (*_CORPUS, "syntax"),
+    "laws": (*_CORPUS, "syntax", *_TOPK),
     "borrowing": (*_CORPUS, "sequences", "diffs", "dating"),
     "seams": (*_CORPUS,),
     "structure": (*_CORPUS, "embed"),
@@ -655,6 +687,8 @@ RAW: dict[str, tuple[str, ...]] = {
     "ketiv": ("oshb/*",),
     "roots": ("lexicon/HebrewStrong.xml",),
     "gematria": ("lexicon/HebrewStrong.xml",),
+    "dating": ("lexicon/HebrewStrong.xml",),
+    "theophoric": ("lexicon/HebrewStrong.xml",),
     "haftarot": ("leyning/*",),
     "reception": ("sefaria/links/*",),
     "witnesses": ("samaritan/*", "scrolls/*"),

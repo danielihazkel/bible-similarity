@@ -1,0 +1,7 @@
+/* Avatar.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* a person (or a spouse beside them): an avatar, the name under it */
+
+.gt-avatar-svg { display: block; width: 100%; height: 100%; border-radius: 50%; }
+
+.gt-avatar-svg .front { stroke: var(--gt-avatar); stroke-width: 1.6; }

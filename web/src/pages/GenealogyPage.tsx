@@ -13,6 +13,7 @@ import { PersonSearch } from './genealogy/PersonSearch'
 import { TreeView } from './genealogy/TreeView'
 import { OPEN_GENERATIONS, namer } from './genealogy/shared'
 import '../i18n/pages/genealogy'
+import '../styles/pages/GenealogyPage.css'
 
 export function GenealogyPage() {
   const { m, locale } = useLocale()

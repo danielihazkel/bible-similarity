@@ -14,8 +14,10 @@ import { useLocale, useT } from '../context/localeContext'
 import { similarityBand } from '../lib/format'
 import { unitLabel, verseRef } from '../lib/names'
 import { alignHighlight, diffHighlight, highlightFor, type Highlight } from '../lib/highlight'
-import { unitLink } from '../lib/links'
+import { neighbourhoodLink, unitLink } from '../lib/links'
+import '../i18n/pages/neighbourhood'
 import { useQueryParams } from '../lib/urlState'
+import '../styles/pages/ComparePage.css'
 
 /** The hovered verse pair, always as (verse in A, verse in B). */
 type Active = { a: number; b: number; from: 'a' | 'b' }
@@ -218,6 +220,9 @@ function Column({ side, unit, other, pairs, mutual, verse, active, highlight, on
         )}
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h2>
+      <p className="small">
+        <Link to={neighbourhoodLink(unit.unit_id)}>{m.nbh.link}</Link>
+      </p>
       <ol className="align-list" ref={listRef} onMouseLeave={(e) => onLeave(e.relatedTarget)}>
         {pairs.map((p) => {
           const v = verse(p.src)

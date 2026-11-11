@@ -15,6 +15,7 @@ import { readLink, unitLink } from '../lib/links'
 import { bookName, verseRef } from '../lib/names'
 import { bounds, CORPORA, countOf, parseCorpus, parts, step, STEPS } from '../lib/reception'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../styles/pages/ReceptionPage.css'
 
 const PAGE = 25
 

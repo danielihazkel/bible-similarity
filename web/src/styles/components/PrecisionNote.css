@@ -1,0 +1,24 @@
+/* PrecisionNote.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Detector precision by Claude's reading (DESIGN.md §16.86, D147) */
+
+.precision-note {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.6rem;
+  margin: 0.4rem 0 0.8rem;
+  color: var(--muted);
+}
+
+.precision-note summary {
+  color: var(--text);
+  cursor: pointer;
+}
+
+.precision-note ul {
+  margin: 0.3rem 0;
+  padding-inline-start: 1.2rem;
+}
+
+.precision-note p {
+  margin: 0.25rem 0;
+}

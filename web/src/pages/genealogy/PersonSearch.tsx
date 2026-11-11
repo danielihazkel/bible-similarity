@@ -5,6 +5,7 @@ import type { PersonMatch } from '../../api/types'
 import { useLocale } from '../../context/localeContext'
 import { personAbout } from '../../lib/people'
 import type { T } from './shared'
+import '../../styles/pages/genealogy-PersonSearch.css'
 
 export function PersonSearch({ t, onPick }: { t: T; onPick: (id: number) => void }) {
   const { locale } = useLocale()

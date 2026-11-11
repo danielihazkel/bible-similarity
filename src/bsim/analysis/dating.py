@@ -16,7 +16,11 @@ the context of a feature (no David, no first-person pronoun) sits at the mean:
 - `et_suffix`: את with a pronoun suffix (אתו) against a suffix on the verb (ויקחהו);
 - `directional_he`: the directional ה (מצרימה) per word;
 - `cohortative_wayyiqtol`: first-person singular wayyiqtols written with a final ה (ואשלחה);
-- `david_plene`: דויד among the spellings of David.
+- `david_plene`: דויד among the spellings of David;
+- `yah_short` (M163, §16.90): the short ending ‑יה among the endings of names built on God's
+  name (ירמיה against ירמיהו), the names by HebrewStrong's derivations.
+
+Every feature is computed and stored; the model learns from `dating.features`.
 
 A logistic regression (standardized, `C`) learns `late` books against `early` ones; `score` is its
 probability for every chapter. Checks, in the meta:
@@ -67,12 +71,25 @@ FEATURES = (
     "directional_he",
     "cohortative_wayyiqtol",
     "david_plene",
+    "yah_short",
 )
-GRAMMAR = tuple(f for f in FEATURES if f != "lbh_lexemes")
 
 
-def word_flags(words: pd.DataFrame, lexemes: set[str]) -> pd.DataFrame:
-    """Per Hebrew word the counts (numerator, denominator) each feature needs."""
+def model_features(dc: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """The features the model learns from (`dating.features`, of FEATURES), and those without
+    `lbh_lexemes` (grammar and spelling only)."""
+    feats = [f for f in dc["features"] if f in FEATURES]
+    unknown = set(dc["features"]) - set(FEATURES)
+    if unknown:
+        raise RuntimeError(f"dating.features: unknown {sorted(unknown)}")
+    return feats, [f for f in feats if f != "lbh_lexemes"]
+
+
+def word_flags(
+    words: pd.DataFrame, lexemes: set[str], yah: frozenset[str] | set[str] = frozenset()
+) -> pd.DataFrame:
+    """Per Hebrew word the counts (numerator, denominator) each feature needs. `yah`: the lemmas
+    of names ending in God's name (§16.90), whose ending is long ‑יהו or short ‑יה."""
     morph = words.morph.fillna("").astype(str)
     hebrew = ~morph.str.startswith("A")
     w = words[hebrew]
@@ -103,6 +120,14 @@ def word_flags(words: pd.DataFrame, lexemes: set[str]) -> pd.DataFrame:
             ],
             "david": [("1732" in b) for b in bare],
             "david_plene": [("1732" in b) and "דויד" in c for b, c in zip(bare, cons, strict=True)],
+            "yah_end": [
+                any(x in yah for x in lm) and c.endswith(("יהו", "יה"))
+                for lm, c in zip(lem, cons, strict=True)
+            ],
+            "yah_short": [
+                any(x in yah for x in lm) and c.endswith("יה")
+                for lm, c in zip(lem, cons, strict=True)
+            ],
         }
     )
     return out.astype({c: int for c in out.columns if c != "verse_id"})
@@ -117,6 +142,7 @@ RATES = {
     "directional_he": ("directional_he", "word"),
     "cohortative_wayyiqtol": ("way1cs_h", "way1cs"),
     "david_plene": ("david_plene", "david"),
+    "yah_short": ("yah_short", "yah_end"),
 }
 
 
@@ -191,8 +217,9 @@ def synoptic_test(
         seq = seq[seq.direction == "forward"]
     seq = seq[seq.q <= sy["max_q"]]
     keep = train & ~np.isin(books, list(a_books | b_books))
-    full = fit(x[keep].to_numpy(), y[keep], dc["C"])
-    grammar = fit(x.loc[keep, list(GRAMMAR)].to_numpy(), y[keep], dc["C"])
+    feats, gram = model_features(dc)
+    full = fit(x.loc[keep, feats].to_numpy(), y[keep], dc["C"])
+    grammar = fit(x.loc[keep, gram].to_numpy(), y[keep], dc["C"])
     rows = []
     for r in seq.itertuples():
         if {r.a_book, r.b_book} & a_books and {r.a_book, r.b_book} & b_books:
@@ -206,8 +233,8 @@ def synoptic_test(
             if counts.word.min() < sy["min_words"]:
                 continue
             f = rates(counts, prior, dc["shrink"])
-            p_full = full.predict_proba(f.to_numpy())[:, 1]
-            p_gram = grammar.predict_proba(f[list(GRAMMAR)].to_numpy())[:, 1]
+            p_full = full.predict_proba(f[feats].to_numpy())[:, 1]
+            p_gram = grammar.predict_proba(f[gram].to_numpy())[:, 1]
             rows.append((sides, p_full, p_gram, int(counts.word.min())))
     if not rows:
         return empty
@@ -250,13 +277,15 @@ def poetic_chapters(cfg: dict[str, Any], verses: pd.DataFrame) -> set[str]:
 
 
 def drivers(model: Any, x: pd.DataFrame, top: int, min_contrib: float) -> list[str]:
-    """Per row the features pushing the score up most (coefficient × standardized value)."""
+    """Per row the features pushing the score up most (coefficient × standardized value); `x`
+    holds the model's features, in its order."""
     scaler, lr = model[0], model[-1]
+    names = list(x.columns)
     contrib = (x.to_numpy() - scaler.mean_) / scaler.scale_ * lr.coef_[0]
     out = []
     for row in contrib:
         order = np.argsort(-row)
-        out.append(json.dumps([FEATURES[i] for i in order[:top] if row[i] > min_contrib]))
+        out.append(json.dumps([names[i] for i in order[:top] if row[i] > min_contrib]))
     return out
 
 
@@ -271,7 +300,13 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
     words = pd.read_parquet(
         proc / "words.parquet", columns=["verse_id", "surface", "lemma", "morph"]
     )
-    flags = word_flags(words, {str(x) for x in dc["lexemes"]})
+    from bsim.analysis.theophoric import names as theophoric_names
+
+    strong = resolve_path(cfg, "data_raw") / "lexicon" / "HebrewStrong.xml"
+    # without the lexicon: no names, yah_short at its prior
+    theo = theophoric_names(strong) if strong.exists() else None
+    yah = set(theo[theo.divine == "yah"].lemma) if theo is not None else set()
+    flags = word_flags(words, {str(x) for x in dc["lexemes"]}, yah)
     per_verse = flags.groupby("verse_id").sum()
     per_verse = per_verse.reindex(verses.verse_id, fill_value=0)
     chap_key = verses.book_id.astype(str) + ":" + verses.chapter.astype(str)
@@ -296,20 +331,22 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
             raise RuntimeError(f"dating: no {cls} chapter with {dc['min_words']} Hebrew words")
     prior = priors(per_chap[train])
     x = rates(per_chap, prior, dc["shrink"])
+    feats, gram = model_features(dc)
+    xm = x[feats]
     y = (role == "late").astype(int)
     books = chapters.book_id.to_numpy()
 
-    model = fit(x[train].to_numpy(), y[train], dc["C"])
+    model = fit(xm[train].to_numpy(), y[train], dc["C"])
     score = pd.Series(np.nan, index=x.index)
-    score[scored] = model.predict_proba(x[scored].to_numpy())[:, 1]
-    loo = held_out_auc(x[train], y[train], books[train], dc["C"])
-    loo_grammar = held_out_auc(x.loc[train, list(GRAMMAR)], y[train], books[train], dc["C"])
+    score[scored] = model.predict_proba(xm[scored].to_numpy())[:, 1]
+    loo = held_out_auc(xm[train], y[train], books[train], dc["C"])
+    loo_grammar = held_out_auc(x.loc[train, gram], y[train], books[train], dc["C"])
     # chapters of the training books are scored by the model that did not see their book
     held = pd.Series(np.nan, index=x.index)
     for b in np.unique(books[train]):
         out = train & (books == b)
-        m = fit(x[train & ~out].to_numpy(), y[train & ~out], dc["C"])
-        held[out] = m.predict_proba(x[out].to_numpy())[:, 1]
+        m = fit(xm[train & ~out].to_numpy(), y[train & ~out], dc["C"])
+        held[out] = m.predict_proba(xm[out].to_numpy())[:, 1]
     score[train] = held[train]  # never a chapter's own book in its model
 
     synoptic = synoptic_test(cfg, per_verse, x, y, train, books, prior, log)
@@ -321,7 +358,7 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
             chapters.book_id.isin(poetic) | chapters.index.isin(poetic_chapters(cfg, verses))
         ).to_numpy(),
         score=score.to_numpy(),
-        drivers=drivers(model, x, dc["drivers"], dc["driver_min"]),
+        drivers=drivers(model, xm, dc["drivers"], dc["driver_min"]),
     )
     for f in FEATURES:
         out_df[f] = x[f].to_numpy()
@@ -367,8 +404,8 @@ def run_dating(cfg: dict[str, Any], log: Log = print) -> Path:
     meta = {
         "config_hash": config_hash(cfg, "dating"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
-        "features": list(FEATURES),
-        "coefficients": dict(zip(FEATURES, (round(float(c), 4) for c in lr.coef_[0]), strict=True)),
+        "features": feats,
+        "coefficients": dict(zip(feats, (round(float(c), 4) for c in lr.coef_[0]), strict=True)),
         "prior": {f: round(v, 6) for f, v in prior.items()},
         "train_chapters": {
             "early": int((train & (role == "early")).sum()),

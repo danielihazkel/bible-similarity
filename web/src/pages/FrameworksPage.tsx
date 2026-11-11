@@ -9,6 +9,7 @@ import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import '../i18n/pages/frameworks'
+import '../styles/pages/FrameworksPage.css'
 
 /** The narrative frameworks (§16.71): the judges' cycle slot by slot, every king's verdict and
  * regnal slots, and the checks. */

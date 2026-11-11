@@ -1,0 +1,33 @@
+/* NotebookPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Your notebook (§16.47) */
+
+.nb-collection-edit textarea { width: 100%; box-sizing: border-box; font: inherit; }
+
+.notebook-page button:not(.linkish):not(.chip):not(.nb-chip-x) {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.7rem;
+}
+
+.notebook-page button.danger { border-color: var(--accent); font-weight: 600; }
+
+.nb-collections-bar .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.nb-collection-edit { display: grid; gap: 0.4rem; max-width: 34rem; margin-top: 0.5rem; }
+
+.notebook-entry .nb-entry-editor { margin-top: 0.3rem; }
+
+/* print (§11.1, M162): each entry's note as text, without the editors, collections and controls */
+.nb-print-note { display: none; white-space: pre-wrap; }
+@media print {
+  .nb-print-note { display: block; margin-top: 0.3rem; }
+  .notebook-page .nb-entry-editor,
+  .notebook-page .nb-collections-bar,
+  .notebook-page .toolbar,
+  .notebook-page .lede,
+  .notebook-entry .hit-head button { display: none; }
+  .notebook-entry { break-inside: avoid; }
+}

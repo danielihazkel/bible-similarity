@@ -1,0 +1,12 @@
+/* BorrowLine.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Who borrowed (DESIGN.md §16.27) */
+
+ul.borrow-line {
+  list-style: none;
+  padding: 0;
+}
+
+.borrow-line a {
+  text-decoration: underline;
+}

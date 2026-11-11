@@ -13,6 +13,8 @@ import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/BinomialsPage.css'
 
 /** Word pairs (§16.72): the recurring pairs joined by ו, how fixed each order is, its words'
  * lengths and its turns by period, a pair's occurrences, and the checks. */
@@ -25,6 +27,7 @@ export function BinomialsPage() {
     <div className="page binomials-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="binomials" />
       {isStageMissing(res.error) ? (
         <NotComputed>{t.notComputed}</NotComputed>
       ) : res.isError ? (

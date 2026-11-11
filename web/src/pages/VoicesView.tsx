@@ -12,6 +12,7 @@ import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/syntax'
+import '../styles/pages/VoicesView.css'
 
 const fmtQ = (q: number) => (q < 0.001 ? '< 0.001' : q.toFixed(3))
 

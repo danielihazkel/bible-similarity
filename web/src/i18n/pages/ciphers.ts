@@ -35,6 +35,7 @@ export const cphEn = {
   reads: 'reads',
   named: 'named in advance',
   knownOnly: 'Only those named in advance',
+  knownDefault: 'Listed: the swaps named in advance. Clear the box for every word that a swap turns into a name; by Claude’s reading nearly all of those are chance.',
   emptyHits: 'No name read through a swap here.',
   pageOf: (page: number, pages: number) => `page ${numEn(page)} of ${numEn(pages)}`,
   chaptersTitle: 'Chapters against random swaps',

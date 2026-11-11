@@ -1,5 +1,5 @@
 """`/findings` builders. Poetry and form: acrostics, sevens, chiasm, meter, laments, refrains,
-psalms, forms."""
+psalms, forms, prophetic forms."""
 
 from __future__ import annotations
 
@@ -201,3 +201,12 @@ def _forms(key: str) -> Callable[[Meta, sqlite3.Connection, float], Finding | No
         return Finding(key=key, verdict="holds" if holds else "fails", values=values)
 
     return build
+
+
+def _prophetic(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    """The prophetic forms: the passages named in advance found, each form's findings counted."""
+    m = meta.get("prophetic") or {}
+    if not m.get("known"):
+        return None
+    values = {"known": m["known_found"], "of": m["known_total"], **(m.get("counts") or {})}
+    return Finding(key="prophetic", verdict="holds" if m["known_holds"] else "fails", values=values)

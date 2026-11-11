@@ -1,0 +1,76 @@
+/* JumpBox.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Jump box (Ctrl+K): a passage, a word or a page */
+
+.jump-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10vh 16px 0;
+  background: rgb(20 14 6 / 0.35);
+}
+
+.jump-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1.05rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.jump-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 0.4rem;
+}
+
+.jump-heading {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 0.5rem 0.65rem 0.15rem;
+}
+
+.jump-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.jump-option[aria-selected='true'] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+:root[dir='rtl'] .jump-option[aria-selected='true'] {
+  box-shadow: inset -3px 0 var(--accent);
+}
+
+/* the grey of a detail is too faint on the highlight */
+
+.jump-option[aria-selected='true'] .muted {
+  color: var(--text);
+}
+
+.jump-option .he {
+  font-size: 1.15rem;
+}
+
+.jump-keys {
+  margin: 0.4rem 0.65rem 0;
+}
+
+@media (max-width: 720px) {
+  .jump-keys {
+      display: none;
+    }
+}

@@ -13,6 +13,8 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import '../i18n/pages/brackets'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/BracketsPage.css'
 
 const PAGE_SIZE = 25
 const SHOWS: BracketShow[] = ['all', 'strong', 'known']
@@ -29,6 +31,7 @@ export function BracketsPage() {
     <div className="page brackets-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="brackets" />
       {isStageMissing(res.error) ? (
         <NotComputed>{t.notComputed}</NotComputed>
       ) : res.isError ? (
@@ -87,7 +90,8 @@ function Repetitions({ d }: { d: BracketsResponse }) {
   const t = m.brk
   const [params, update] = useQueryParams()
   const sp = params.get('show')
-  const show: BracketShow = sp === 'strong' || sp === 'known' ? sp : 'all'
+  // the brackets named in advance by default (M159): Claude judged almost none of the rest right (§16.86)
+  const show: BracketShow = sp === 'strong' || sp === 'all' ? sp : 'known'
   const order: BracketOrder = params.get('order') === 'strongest' ? 'strongest' : 'canon'
   const bp = params.get('book')
   const book = bp === null || bp === '' ? undefined : Number(bp)
@@ -99,8 +103,9 @@ function Repetitions({ d }: { d: BracketsResponse }) {
   return (
     <section aria-labelledby="brk-list">
       <h2 id="brk-list">{t.listTitle}</h2>
+      {show === 'known' && <p className="muted small">{t.knownDefault}</p>}
       <div className="toolbar">
-        <Segmented<BracketShow> label={t.show.label} value={show} options={SHOWS.map((v) => ({ value: v, label: t.show[v] }))} onChange={(v) => set({ show: v === 'all' ? null : v })} />
+        <Segmented<BracketShow> label={t.show.label} value={show} options={SHOWS.map((v) => ({ value: v, label: t.show[v] }))} onChange={(v) => set({ show: v === 'known' ? null : v })} />
         <Segmented<BracketOrder> label={t.order.label} value={order} options={ORDERS.map((v) => ({ value: v, label: t.order[v] }))} onChange={(v) => set({ order: v === 'canon' ? null : v })} />
         <label className="control">
           <span>{m.search.book}</span>

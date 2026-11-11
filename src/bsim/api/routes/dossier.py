@@ -364,6 +364,12 @@ def _entries(u: dict[str, Any], state: ServeState, conn: sqlite3.Connection) -> 
     add("witnesses", computed=on, count=sum(by_wit.values()), key=best, total=wv[0])
 
     add(
+        "laws",
+        computed=state.present(conn, "law_pairs"),
+        count=queries.law_pairs_touching(conn, span),
+    )
+
+    add(
         "mirrors",
         computed=state.present(conn, "mirror_clauses"),
         count=queries.mirror_verses_page(conn, None, span, 1, 0)[0]

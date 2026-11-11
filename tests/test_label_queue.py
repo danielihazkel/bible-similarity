@@ -106,8 +106,12 @@ def test_api_queue(client):
     assert c.get("/api/labels/queue?limit=0").status_code == 422
 
 
-def test_api_queue_without_splits(client):
-    cfg, c = client
+def test_api_queue_without_splits(built):
+    cfg, _ = built
+    # no preload: its thread reads splits.json at start, and Windows will not delete an open file
+    queue = {**cfg["labels"]["queue"], "preload": False}
+    cfg = {**cfg, "labels": {**cfg["labels"], "queue": queue}}
+    c = TestClient(create_app(cfg, encoder=fixture_encoder, log=lambda _: None))
     (resolve_path(cfg, "data_processed") / "splits.json").unlink()
     r = c.get("/api/labels/queue")
     assert r.status_code == 503 and r.json()["detail"]["code"] == "splits_missing"

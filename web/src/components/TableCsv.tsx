@@ -1,6 +1,7 @@
 import { type HTMLAttributes, type ReactNode, useRef } from 'react'
 import { useT } from '../context/localeContext'
 import { downloadCsv, tableRows } from '../lib/csv'
+import '../styles/components/TableCsv.css'
 
 /** A table in its scroll wrapper, with "Export table (CSV)" above it: what the table shows. The
  * wrapper keeps the attributes a scrollable table needs (`tabIndex`, `role`, `aria-label`). */

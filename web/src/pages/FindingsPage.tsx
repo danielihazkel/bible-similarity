@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useFindings } from '../api/hooks'
 import type { Finding, FindingKey } from '../api/types'
+import { PrecisionTable } from '../components/PrecisionNote'
 import { ErrorBox, Loading } from '../components/Status'
 import { Glossed } from '../components/Term'
 import { firstUses } from '../lib/gloss'
@@ -8,6 +9,7 @@ import { useLocale } from '../context/localeContext'
 import { type NavKey, navText } from '../lib/nav'
 import '../i18n/pages/findings'
 import '../i18n/pages/glossary'
+import '../styles/pages/FindingsPage.css'
 
 const VERDICTS: Finding['verdict'][] = ['holds', 'fails', 'lead']
 // where each finding's evidence is read
@@ -15,6 +17,10 @@ const PAGES: Record<FindingKey, { to: string; nav: NavKey }> = {
   acrostics: { to: '/acrostics', nav: 'acrostics' },
   divisions: { to: '/divisions', nav: 'divisions' },
   dating: { to: '/language', nav: 'language' },
+  theophoric: { to: '/language#theophoric', nav: 'language' },
+  mainline: { to: '/mainline', nav: 'mainline' },
+  prophetic: { to: '/prophetic', nav: 'prophetic' },
+  laws: { to: '/laws', nav: 'laws' },
   borrowing: { to: '/borrowing', nav: 'borrowing' },
   citations: { to: '/citations?family=command', nav: 'citations' },
   voices: { to: '/speech?view=voices', nav: 'speech' },
@@ -145,6 +151,7 @@ export function FindingsPage() {
           </section>
         )
       })}
+      <PrecisionTable />
     </div>
   )
 }

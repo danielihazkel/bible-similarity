@@ -111,10 +111,17 @@ describe('CiphersPage', () => {
     await waitFor(() => expect(container.querySelector('.cipher-hit')).not.toBeNull())
     expect(container.querySelectorAll('.cipher-hit .w-shared')).toHaveLength(2)
     expect(container.querySelector('.cipher-hit')?.textContent).toContain('named in advance')
+    // those named in advance by default (M159), and the box says why
+    expect(calls.some((c) => c.includes('/ciphers/hits') && c.includes('known=true'))).toBe(true)
+    expect(screen.getByText(/^Listed: the swaps named in advance/)).toBeTruthy()
     fireEvent.click(screen.getByRole('radio', { name: 'Albam' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/ciphers?cipher=albam'))
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Only those named in advance' }))
-    await waitFor(() => expect(calls.some((c) => c.includes('cipher=albam') && c.includes('known=true'))).toBe(true))
+    const box = screen.getByRole('checkbox', { name: 'Only those named in advance' })
+    expect((box as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(box)
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/ciphers?cipher=albam&known=0'))
+    await waitFor(() => expect(calls.some((c) => c.includes('cipher=albam') && !c.includes('known='))).toBe(true))
+    expect(screen.queryByText(/^Listed: the swaps named in advance/)).toBeNull()
   })
 
   it('ranks the chapters against random swaps and filters by one', async () => {

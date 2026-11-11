@@ -9,6 +9,7 @@ import { unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/sourceFind'
+import '../styles/pages/SourcePage.css'
 
 /** The source finder (§11.1, D131): a pasted Hebrew text with the phrases it takes from the
  * Bible marked, each with its verses; `?example=` fills one of the examples and searches it. */

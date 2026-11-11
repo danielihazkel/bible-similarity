@@ -77,6 +77,10 @@ class ReaderVerse(ApiModel):
     # other witnesses (§16.78): sp = the Samaritan's variants, scrolls = scrolls with the verse,
     # scroll_variants = their variants; empty: no witness
     witnesses: dict[str, int] = {}
+    # the narrator's clauses (§16.91): display token -> main (the wayyiqtol chain) | background
+    mainline: dict[str, Literal["main", "background"]] = {}
+    # the words that mark a prophetic form (§16.92): display token -> the form
+    prophetic: dict[str, Literal["messenger", "woe", "nations", "lawsuit", "call"]] = {}
 
 
 class ReaderResponse(ApiModel):

@@ -60,6 +60,10 @@ const SpeechPage = lazy(() => import('./pages/SpeechPage').then((m) => ({ defaul
 const LabelsPage = lazy(() => import('./pages/LabelsPage').then((m) => ({ default: m.LabelsPage })))
 const EvalPage = lazy(() => import('./pages/EvalPage').then((m) => ({ default: m.EvalPage })))
 const NetworkPage = lazy(() => import('./pages/NetworkPage').then((m) => ({ default: m.NetworkPage })))
+const LawsPage = lazy(() => import('./pages/LawsPage').then((m) => ({ default: m.LawsPage })))
+const PropheticPage = lazy(() => import('./pages/PropheticPage').then((m) => ({ default: m.PropheticPage })))
+const MainlinePage = lazy(() => import('./pages/MainlinePage').then((m) => ({ default: m.MainlinePage })))
+const NeighbourhoodPage = lazy(() => import('./pages/NeighbourhoodPage').then((m) => ({ default: m.NeighbourhoodPage })))
 const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
 const NamesPage = lazy(() => import('./pages/NamesPage').then((m) => ({ default: m.NamesPage })))
 const PhrasesPage = lazy(() => import('./pages/PhrasesPage').then((m) => ({ default: m.PhrasesPage })))
@@ -148,11 +152,15 @@ export function App() {
           <Route path="week" element={<WeekPage />} />
           <Route path="notebook" element={<NotebookPage />} />
           <Route path="psalms" element={<PsalmsPage />} />
+          <Route path="prophetic" element={<PropheticPage />} />
+          <Route path="laws" element={<LawsPage />} />
           <Route path="pentateuch" element={<PentateuchPage />} />
           <Route path="citations" element={<CitationsPage />} />
           <Route path="findings" element={<FindingsPage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="network" element={<NetworkPage />} />
+          <Route path="neighbourhood/:unitId" element={<NeighbourhoodPage />} />
+          <Route path="mainline" element={<MainlinePage />} />
           <Route path="style" element={<StylometryPage />} />
           <Route path="shifts" element={<ShiftsPage />} />
           <Route path="language" element={<LanguagePage />} />

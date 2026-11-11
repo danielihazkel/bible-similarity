@@ -1,0 +1,10 @@
+/* PrintButton.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .print-button { display: none !important; }
+}

@@ -23,7 +23,8 @@ import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { UnitPanels } from '../components/UnitPanels'
 import { useLocale, useT } from '../context/localeContext'
-import { readLink, unitLink } from '../lib/links'
+import { neighbourhoodLink, readLink, unitLink } from '../lib/links'
+import '../i18n/pages/neighbourhood'
 import { unitLabel, verseRef } from '../lib/names'
 import { clauseBreaks, colonBreaks } from '../lib/cola'
 import { isFound } from '../lib/dossier'
@@ -33,6 +34,7 @@ import '../i18n/pages/meter'
 import '../i18n/pages/patterns'
 import '../i18n/pages/reader'
 import '../i18n/pages/syntax'
+import '../styles/pages/UnitPage.css'
 
 const ACROSTIC_MAX_Q = 0.05
 
@@ -128,6 +130,9 @@ function UnitView({ detail }: { detail: UnitDetail }) {
       <div className="toolbar halves-bar">
         <Link className="read-link" to={readLink(unit.unit_id)} title={m.reader.openTitle}>
           {m.reader.open}
+        </Link>
+        <Link className="read-link" to={neighbourhoodLink(unit.unit_id)}>
+          {m.nbh.link}
         </Link>
         <label className="check" title={m.unit.halvesTitle}>
           <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />

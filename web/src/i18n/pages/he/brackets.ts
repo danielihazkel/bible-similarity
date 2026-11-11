@@ -29,6 +29,7 @@ export const brkHe: typeof brkEn = {
   parts: (lex: number, sem: number) => `מילים ${x2(lex)}, משמעות ${x2(sem)}`,
   pq: (p: number, q: number | null) => (q === null ? `p ${fp(p)}` : `p ${fp(p)}, q ${fp(q)}`),
   knownTag: 'נקבעה מראש',
+  knownDefault: 'מוצגות: החזרות המקשרות שנקבעו מראש. תחת „הכול”, כל חזרה שנמצאה; לפי הקריאה של Claude כמעט אף אחת מהן אינה חוזרת אל חוט שנקטע בהוספה.',
   read: 'לקריאת הקטע',
   compare: 'להשוואת השניים',
   count: (n: number) => countHe(n, 'חזרה אחת', 'שתי חזרות', 'חזרות'),

@@ -65,7 +65,7 @@ describe('Layout navigation', () => {
   it('lays out big groups in two columns, Patterns under its four headings', () => {
     const { container } = renderAt('/')
     expect(container.querySelector('#menu-overview')?.classList.contains('wide')).toBe(true)
-    expect(container.querySelector('#menu-parallels')?.classList.contains('wide')).toBe(false)
+    expect(container.querySelector('#menu-parallels')?.classList.contains('wide')).toBe(true) // 11 with the law codes (M166)
     const patterns = container.querySelector('#menu-patterns')!
     expect(patterns.classList.contains('sectioned')).toBe(true)
     const lists = [...patterns.querySelectorAll('ul')]
@@ -75,7 +75,7 @@ describe('Layout navigation', () => {
       'Letters and numbers',
       'Narrative',
     ])
-    expect(lists.reduce((n, l) => n + l.querySelectorAll('a').length, 0)).toBe(31)
+    expect(lists.reduce((n, l) => n + l.querySelectorAll('a').length, 0)).toBe(33) // the main line (M164), the prophetic forms (M165)
   })
 
   it('opens the current page’s group with the phone menu', () => {

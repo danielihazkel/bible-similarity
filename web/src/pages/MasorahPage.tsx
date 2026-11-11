@@ -12,6 +12,7 @@ import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/masorah'
+import '../styles/pages/MasorahPage.css'
 
 const TEXTS: MasorahText[] = ['ketiv', 'qere']
 

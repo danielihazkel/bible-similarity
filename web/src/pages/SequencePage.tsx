@@ -12,6 +12,7 @@ import { diffHighlight, type Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
 import '../i18n/pages/parallels'
+import '../styles/pages/SequencePage.css'
 
 /** One parallel sequence as a ladder: aligned verse pairs side by side, skipped verses alone on their side. */
 export function SequencePage() {

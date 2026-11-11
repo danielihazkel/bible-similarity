@@ -11,6 +11,7 @@ from scipy import sparse
 from bsim.analysis.brackets import (
     Tok,
     candidates,
+    formulas,
     forward_best,
     insertion,
     mutual_best,
@@ -149,3 +150,17 @@ def test_brackets_findings(client):
     assert found["brackets_insertion"]["verdict"] == "holds"
     assert found["brackets_known"]["verdict"] == "fails"
     assert found["brackets_known"]["values"] == {"known_found": 1, "known_beat": 1, "known": 2}
+
+
+def test_formulas():
+    """M159: a repetition whose tokens all stand in a third verse nearby is a formula (Num 7's
+    offering), not a clause resumed once around a block."""
+    lemmas = [{"a", "b", "c"}, {"x"}, {"a", "b", "c"}, {"a", "b", "c", "d"}, {"y"}, {"p", "q"}]
+    forms = [set() for _ in lemmas]
+    pairs = pd.DataFrame({"a": [0, 4], "b": [2, 5]})
+    rep = [[("a", "-"), ("b", "-"), ("c", "-")], [("y", "-")]]
+    book = np.zeros(6, dtype=int)
+    assert formulas(pairs, lemmas, forms, rep, book, 5).tolist() == [True, False]
+    assert formulas(pairs, lemmas, forms, rep, book, 0).tolist() == [False, False]  # out of reach
+    book[3] = 1  # the third verse in another book does not count
+    assert formulas(pairs, lemmas, forms, rep, book, 5).tolist() == [False, False]

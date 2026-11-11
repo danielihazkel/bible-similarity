@@ -11,6 +11,7 @@ from bsim.analysis.acrostic import (
     known_unit_ids,
     positions,
     score_chapter,
+    span,
 )
 from bsim.config import load_config
 
@@ -19,6 +20,7 @@ CFG = {
         "granularities": ["verse", "colon"],
         "max_line_gap": 3,
         "missing_penalty": 1.0,
+        "span_trim": True,
         "null_reps": 199,
         "null_screen": 19,
         "screen_hits": 10,
@@ -111,3 +113,13 @@ def test_chapter_options_offer_the_next_word():
     opts = chapter_options([0, 1], tokens, {})
     assert [[x[2] for x in o] for o in opts["verse"]] == [["י", "ב"], ["ג"]]
     assert chapter_lines([0, 1], tokens, {})["verse"] == [(0, 0, "י"), (1, 0, "ג")]
+
+
+def test_the_span_starts_where_the_alphabet_does():
+    """M159: Prov 31's chain takes the א of 31:3; the span starts at the last א line before the
+    chain's ב (31:10), runs back over lines opening alike and on after its last letter."""
+    line = lambda v, letter: [(v, 0, letter)]  # noqa: E731
+    ls = [line(0, "א"), line(1, "ל"), line(2, "א"), line(3, "ב"), line(4, "ג"), line(5, "ג")]
+    assert span(ls, [0, 3, 4], "א", "ג") == (2, 5)
+    stanza = [line(0, "א"), line(1, "א"), line(2, "א"), line(3, "ב"), line(4, "ב")]
+    assert span(stanza, [0, 3], "א", "ב") == (0, 4)  # Ps 119's eight verses a letter

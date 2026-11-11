@@ -8,6 +8,7 @@ import { PanelError } from './Status'
 import '../i18n/pages/divine'
 import '../i18n/pages/dossier'
 import '../i18n/pages/witnesses'
+import '../styles/components/DossierBar.css'
 
 /**
  * What every analysis found about this unit (`/dossier`): findings as links to where they are

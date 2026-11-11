@@ -1,0 +1,41 @@
+/* SourcePage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* the source finder (§11.1) */
+
+.sf-form label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+
+.sf-form textarea { width: 100%; box-sizing: border-box; font-family: var(--font-he); font-size: 1.15rem; line-height: 1.7; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+
+.sf-actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+
+.sf-error { color: var(--text); border-inline-start: 3px solid var(--gt-conflict, #b5542f); padding-inline-start: 0.5rem; }
+
+.sf-text { font-family: var(--font-he); font-size: 1.2rem; line-height: 2; }
+
+.sf-text mark,
+.sf-passages mark { color: var(--text); border-radius: 3px; padding: 0 0.1rem; }
+
+.sf-hit-0 { background: var(--sf-0); }
+
+.sf-hit-1 { background: var(--sf-1); }
+
+.sf-hit-2 { background: var(--sf-2); }
+
+.sf-hit-3 { background: var(--sf-3); }
+
+.sf-text .sf-exact { text-decoration: underline; text-underline-offset: 4px; }
+
+.sf-passages mark.sf-exact { background: var(--sf-0); }
+
+.sf-num a { text-decoration: none; font-weight: 600; padding: 0 0.15rem; }
+
+.sf-passages { padding-inline-start: 1.6rem; }
+
+.sf-passages li { margin: 0.8rem 0; }
+
+.sf-passages p { margin: 0.15rem 0; }
+
+.sf-passages a,
+.source-page > p a { text-decoration: underline; text-underline-offset: 2px; }
+
+.sf-quote { font-family: var(--font-he); font-size: 1.1rem; }

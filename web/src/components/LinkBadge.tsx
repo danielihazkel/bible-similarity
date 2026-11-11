@@ -1,5 +1,6 @@
 import type { GoldLink } from '../api/types'
 import { useT } from '../context/localeContext'
+import '../styles/components/LinkBadge.css'
 
 /** Marks a pair that Sefaria already cross-references; unlinked pairs show nothing. */
 export function LinkBadge({ link }: { link: GoldLink | null }) {

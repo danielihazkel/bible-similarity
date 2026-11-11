@@ -113,6 +113,7 @@ def entity_detail(lemma: str, state: State, conn: Conn, partners: int = 15) -> d
         ],
         "name_kind": queries.name_kind(conn, lemma),
         "sites": [PlaceSite(**s) for s in queries.entity_sites(conn, lemma)],
+        "theophoric": queries.theophoric_name(conn, lemma),
     }
 
 

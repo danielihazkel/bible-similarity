@@ -5,6 +5,7 @@ import { LOCALES } from '../i18n'
 import { TEXT_MODES } from '../lib/hebrew'
 import { bookOption } from '../lib/names'
 import { allowedExcludes, K_OPTIONS, MODES } from '../lib/urlState'
+import '../styles/components/Controls.css'
 
 interface SegmentedProps<T extends string | number> {
   label: string

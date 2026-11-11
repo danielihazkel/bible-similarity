@@ -6,6 +6,7 @@ import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
 import { x2 } from '../i18n/pages/vocabulary'
+import '../styles/pages/VocabularyPage.css'
 
 /** The vocabulary over the canon (§16.76): each book's new lemmas against Heaps' law and random
  * orders of the books, words found once, and the checks. */

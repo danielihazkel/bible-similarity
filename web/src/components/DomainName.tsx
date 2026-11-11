@@ -4,6 +4,7 @@ import { useLocale } from '../context/localeContext'
 import { domainLink } from '../lib/links'
 import { domainLabel } from '../lib/names'
 import '../i18n/pages/domains'
+import '../styles/components/DomainName.css'
 
 /** A semantic domain's name. In the Hebrew interface a deeper domain keeps its English SDBH name,
  * isolated from the right-to-left text around it. */

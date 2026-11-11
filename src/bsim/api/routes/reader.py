@@ -51,7 +51,7 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
     """Who speaks each word, the words in phrases shared with other verses, rare words, sound-alike
     pairs, ketiv / qere, refrains, words of distress and praise, each verse's side of the P /
     non-P split, the turns and MAM breaks before each verse, each word's letter value, the
-    places named and the divine names."""
+    places named, the divine names and the narrator's main line and background."""
     u = unit_or_404(conn, unit_id)
     limit = state.cfg["serve"]["max_compare_verses"]
     if u["n_verses"] > limit:
@@ -195,6 +195,21 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
         else {}
     )
 
+    # the narrator's clauses on and off the main line (§16.91)
+    roles: dict[int, dict[int, str]] = defaultdict(dict)
+    for c in queries.mainline_clauses_of(conn, first, last):
+        v = c["verse_id"]
+        for i in json.loads(c["words"]):
+            if (v, i) in display:
+                roles[v][display[v, i]] = c["role"]
+
+    # the words that mark a form of prophetic speech (§16.92)
+    forms: dict[int, dict[int, str]] = defaultdict(dict)
+    for w in queries.prophetic_words_of(conn, first, last):
+        v = w["verse_id"]
+        if (v, w["idx"]) in display:
+            forms[v].setdefault(display[v, w["idx"]], w["form"])
+
     # the Samaritan's and the scrolls' variants of each verse (§16.78)
     witnessed = (
         queries.witnesses_verse_counts(conn, first, last)
@@ -218,6 +233,8 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
             "divine": state.present(conn, "divine_words"),
             "reception": state.present(conn, "reception_verses"),
             "witnesses": state.present(conn, "witnesses_verses"),
+            "mainline": state.present(conn, "mainline_clauses"),
+            "prophetic": state.present(conn, "prophetic_words"),
         },
         "speakers": speakers,
         "refrains": list(found.values()),
@@ -243,6 +260,8 @@ def reader(unit_id: str, state: State, conn: Conn) -> dict[str, Any]:
                 divine={str(t): n for t, n in sorted(divine.get(v, {}).items())},
                 reception=cited.get(v, {}),
                 witnesses=witnessed.get(v, {}),
+                mainline={str(t): x for t, x in sorted(roles.get(v, {}).items())},
+                prophetic={str(t): f for t, f in sorted(forms.get(v, {}).items())},
             )
             for v in vids
         ],

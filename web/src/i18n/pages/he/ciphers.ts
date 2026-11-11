@@ -30,6 +30,7 @@ export const cphHe: typeof cphEn = {
   reads: 'נקרא',
   named: 'נמנה מראש',
   knownOnly: 'רק אלה שנמנו מראש',
+  knownDefault: 'מוצגות: ההמרות שנמנו מראש. בטלו את הסימון כדי לראות כל מילה שהמרה הופכת לשם; לפי הקריאה של Claude כמעט כולן מקריות.',
   emptyHits: 'אין כאן שם שנקרא בהמרה.',
   pageOf: (page: number, pages: number) => `עמוד ${numHe(page)} מתוך ${numHe(pages)}`,
   chaptersTitle: 'פרקים מול המרות אקראיות',

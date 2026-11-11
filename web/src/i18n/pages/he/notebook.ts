@@ -53,6 +53,13 @@ export const nbHe: typeof nbEn = {
   noMatch: 'אין רשומה מתאימה.',
   exportMd: 'הורדה כ־Markdown',
   exportCsv: 'הורדה כ־CSV',
+  exportHtml: 'הורדה כדף לימוד',
+  exportHtmlTitle: 'הרשומות האלה כדף אחד (HTML): הפסוקים כפי שהם מוצגים, ההערות שלכם וקישורים לכל קטע; לשליחה, לשמירה או להדפסה',
+  study: {
+    open: 'פתיחת הקטע',
+    source: 'הפסוקים: מקרא על פי המסורה, מספריא (CC-BY-SA 4.0).',
+    madeWith: (site) => `נוצר במקבילות בתנ״ך, ${site}`,
+  },
   md: {
     title: 'מחברת',
     exported: (date: string) => `תאריך הייצוא: ${date}.`,

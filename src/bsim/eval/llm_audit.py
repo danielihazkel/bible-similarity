@@ -17,6 +17,13 @@ calls at least `min_places` of the place sample and `min_known` of the known ans
 Precision is right / (right + wrong) with a Wilson interval; `unsure` is left out and counted.
 Writes `artifacts/llm_audit/` and `artifacts/eval/llm_audit.md` (the wrong findings listed with
 their references, material for later known-miss milestones).
+
+Two populations (`llm_audit.population`, D147): `strongest` (M152) draws from each detector's
+`top` strongest; `pages` (M158) draws uniformly from what each page lists by default (`shown`:
+`llm_audit.pages.shown` names the pages that filter, the rest list everything) and from what a
+page marks as strong (`marked`), so the precision is the chance that a finding a reader sees is
+right. The `pages` run writes `artifacts/llm_audit_pages/` and `artifacts/eval/llm_audit_pages.md`.
+`read_precision` gathers the calibrated runs for the API (`/detector-precision`).
 """
 
 from __future__ import annotations
@@ -27,6 +34,7 @@ import sqlite3
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -45,6 +53,8 @@ from bsim.eval.llm_batch import (
 )
 
 OUT = "llm_audit"
+POPULATIONS = ("strongest", "pages")
+PAGE_SETS = ("shown", "marked")  # the `pages` run's drawn sets, in this order
 VERDICTS = ("right", "wrong", "unsure")
 SCHEMA = {
     "type": "object",
@@ -102,6 +112,13 @@ DEFINITIONS = {
     "another word or name, as ששך for בבל in Jer 25:26.",
     "seams": "Seams (§16.29): at this verse the vocabulary of the text shifts, marking a join "
     "between sources or sections.",
+    "mainline": "Pauses in the narrative main line (§16.91): the narrator steps off the chain of "
+    "wayyiqtol clauses (ויקם … וילך) for background: setting a scene, describing, or telling what "
+    "had happened before; then the chain takes up again.",
+    "prophetic": "Forms of prophetic speech (§16.92), as form criticism describes them: the woe "
+    "saying (הוי + a participle or noun, against those it names), the oracle against a foreign "
+    "nation, the covenant lawsuit (God's ריב with his people, heaven and earth or the mountains "
+    "called to hear), the call narrative (God sends someone, who objects or is reassured).",
     "places": "Place mentions (§16.56): a word in the verse is the name of a place (not a person "
     "of the same name and not a common noun).",
 }
@@ -112,6 +129,15 @@ DEFINITIONS = {
 
 def _q(conn: sqlite3.Connection, sql: str) -> pd.DataFrame:
     return pd.read_sql_query(sql, conn)
+
+
+def _sel(
+    conn: sqlite3.Connection, table: str, order: str, where: str | None, base: str | None = None
+) -> pd.DataFrame:
+    """A detector's table in its own order, under its own condition (`base`) and the page's."""
+    conds = [c for c in (base, where) if c]
+    w = " WHERE " + " AND ".join(f"({c})" for c in conds) if conds else ""
+    return _q(conn, f"SELECT * FROM {table}{w} ORDER BY {order}")
 
 
 def _words(tokens: list[str], idxs: list[int]) -> str:
@@ -142,11 +168,14 @@ class Source:
         return pointed(_words(self.tokens[int(vid)], idxs))
 
 
-def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.DataFrame:
-    """`key, claim, vids, known, strength`: a detector's findings, strongest first."""
+def findings(
+    conn: sqlite3.Connection, name: str, src: Source, cap: int, where: str | None = None
+) -> pd.DataFrame:
+    """`key, claim, vids, known, strength`: a detector's findings, strongest first; `where`, an
+    SQL condition on its table (`llm_audit.pages`), keeps those a page lists or marks."""
     rows: list[tuple[str, str, list[int], bool]] = []
     if name == "etiologies":
-        df = _q(conn, "SELECT * FROM etiologies ORDER BY p, score DESC")
+        df = _sel(conn, "etiologies", "p, score DESC", where)
         for r in df.itertuples():
             name_ = src.words(r.verse_id, list(range(int(r.name_first), int(r.name_last) + 1)))
             echo = ""
@@ -155,7 +184,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             claim = f"This verse names {name_} ({r.kind}) and explains the name{echo}."
             rows.append((f"naming {r.naming}", claim, [r.verse_id], _known(r.known)))
     elif name == "brackets":
-        df = _q(conn, "SELECT * FROM brackets ORDER BY q, score DESC")
+        df = _sel(conn, "brackets", "q, score DESC", where)
         for r in df.itertuples():
             a = src.words(r.a, json.loads(r.a_disp))
             b = src.words(r.b, json.loads(r.b_disp))
@@ -166,7 +195,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = [r.a, r.b] if r.n_between > 4 else _span(r.a, r.b, 8)
             rows.append((f"bracket {r.bracket}", claim, vids, _known(r.known)))
     elif name == "retold":
-        df = _q(conn, "SELECT * FROM retold_pairs ORDER BY score DESC")
+        df = _sel(conn, "retold_pairs", "score DESC", where)
         for r in df.itertuples():
             claim = (
                 f"{src.ref[r.later_first]}–{src.ref[r.later_last]} tells again, in largely the"
@@ -175,7 +204,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = _span(r.src_first, r.src_last, 3) + _span(r.later_first, r.later_last, 3)
             rows.append((f"retold {r.pair}", claim, vids, _known(r.known)))
     elif name == "binomials":
-        df = _q(conn, "SELECT * FROM binomials ORDER BY n DESC")
+        df = _sel(conn, "binomials", "n DESC", where)
         occ = _q(conn, "SELECT pair, verse_id FROM binomial_occurrences ORDER BY pair, verse_id")
         by = occ.groupby("pair").verse_id.apply(list).to_dict()
         for r in df.itertuples():
@@ -186,7 +215,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = by.get(r.pair, [])[:3]
             rows.append((f"pair {r.pair}", claim, vids, False))
     elif name == "typescenes":
-        df = _q(conn, "SELECT * FROM typescenes WHERE parallel_text = 0 ORDER BY q, score DESC")
+        df = _sel(conn, "typescenes", "q, score DESC", where, base="parallel_text = 0")
         units = _q(conn, "SELECT unit_id, label_en FROM units").set_index("unit_id").label_en
         for r in df.itertuples():
             al = json.loads(r.aligned)
@@ -198,7 +227,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = [a for a, _ in pairs] + [b for _, b in pairs]
             rows.append((f"{r.a_unit} {r.b_unit}", claim, vids, False))
     elif name == "acrostics":
-        df = _q(conn, "SELECT * FROM acrostics ORDER BY q, score DESC")
+        df = _sel(conn, "acrostics", "q, score DESC", where)
         for r in df.itertuples():
             chain = json.loads(r.chain)
             vids = list(dict.fromkeys(int(v) for v, _, _ in chain))[:8]
@@ -209,7 +238,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             )
             rows.append((f"{r.unit_id} {r.granularity} {r.order_name}", claim, vids, False))
     elif name == "wordplay":
-        df = _q(conn, "SELECT * FROM wordplay ORDER BY q, score DESC")
+        df = _sel(conn, "wordplay", "q, score DESC", where)
         for r in df.itertuples():
             claim = (
                 f"{pointed(r.a_form)} and {pointed(r.b_form)} are set side by side as a play on"
@@ -218,7 +247,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = list(dict.fromkeys([r.a_vid, r.b_vid]))
             rows.append((f"{r.a_vid}:{r.a_idx} {r.b_vid}:{r.b_idx}", claim, vids, False))
     elif name == "allusions":
-        df = _q(conn, "SELECT * FROM allusions ORDER BY q, score DESC")
+        df = _sel(conn, "allusions", "q, score DESC", where)
         for r in df.itertuples():
             words = " ".join(f for _, f in json.loads(r.lemmas))
             claim = (
@@ -229,7 +258,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = _span(r.a_start, r.a_end, 3) + _span(r.b_start, r.b_end, 3)
             rows.append((f"allusion {r.allusion_id}", claim, vids, _known(r.known)))
     elif name == "refrains":
-        df = _q(conn, "SELECT * FROM refrains WHERE strongest = 1 ORDER BY p")
+        df = _sel(conn, "refrains", "p", where, base="strongest = 1")
         for r in df.itertuples():
             claim = (
                 f"{pointed(r.text)} comes back {r.k} times between {src.ref[r.first_vid]} and"
@@ -238,12 +267,12 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = [r.first_vid, r.last_vid]
             rows.append((f"refrain {r.refrain_id}", claim, vids, _known(r.known)))
     elif name == "sayings":
-        df = _q(conn, "SELECT * FROM forms_sayings ORDER BY prob")
+        df = _sel(conn, "forms_sayings", "prob", where)
         for r in df.itertuples():
             claim = f"This verse has a graded numerical saying ({r.steps})."
             rows.append((f"saying {r.verse_id}", claim, [r.verse_id], _known(r.known)))
     elif name == "lists":
-        df = _q(conn, "SELECT * FROM forms_lists ORDER BY likeness DESC")
+        df = _sel(conn, "forms_lists", "likeness DESC", where)
         for r in df.itertuples():
             claim = (
                 f"{src.ref[r.first_vid]}–{src.ref[r.last_vid]} is a list of {r.n_like} like"
@@ -252,7 +281,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             vids = _span(r.first_vid, r.last_vid, 6)
             rows.append((f"list {r.list_id}", claim, vids, _known(r.known)))
     elif name == "mirrors":
-        df = _q(conn, "SELECT * FROM mirror_verses ORDER BY q, p")
+        df = _sel(conn, "mirror_verses", "q, p", where)
         for r in df.itertuples():
             claim = (
                 "The words "
@@ -261,7 +290,7 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             )
             rows.append((f"mirror {r.verse_id}", claim, [r.verse_id], False))
     elif name == "ciphers":
-        df = _q(conn, "SELECT * FROM cipher_hits ORDER BY known DESC, hit_id")
+        df = _sel(conn, "cipher_hits", "known DESC, hit_id", where)
         for r in df.itertuples():
             claim = (
                 f"The letters {r.span} in this verse are written in the {r.cipher} cipher and"
@@ -269,13 +298,52 @@ def findings(conn: sqlite3.Connection, name: str, src: Source, cap: int) -> pd.D
             )
             rows.append((f"cipher {r.hit_id}", claim, [r.verse_id], _known(r.known)))
     elif name == "seams":
-        df = _q(conn, "SELECT * FROM seams ORDER BY rank, shift DESC")
+        df = _sel(conn, "seams", "rank, shift DESC", where)
         for r in df.itertuples():
             claim = (
                 f"Between {src.ref[r.verse_id - 1]} and {src.ref[r.verse_id]} the vocabulary"
                 " shifts, marking a join between sources or sections."
             )
             rows.append((f"seam {r.verse_id}", claim, [r.verse_id - 1, r.verse_id], False))
+    elif name == "mainline":
+        df = _sel(conn, "mainline_pauses", "pause_id", where)
+        for r in df.itertuples():
+            claim = (
+                f"In {src.ref[r.first_vid]}–{src.ref[r.last_vid]} the narrator steps off the"
+                f" chain of wayyiqtol clauses for {r.n_clauses} clauses of background (a scene set,"
+                " a description, or what had happened before), and the chain takes up again after."
+            )
+            vids = _span(r.first_vid - 1, r.last_vid + 1, 6)  # the chain on either side
+            rows.append((f"pause {r.pause_id}", claim, vids, _known(r.known)))
+    elif name == "prophetic":  # the messenger formula is matched word for word: not judged
+        df = _sel(conn, "prophetic_items", "item_id", where, base="form != 'messenger'")
+        for r in df.itertuples():
+            d, span = json.loads(r.detail), f"{src.ref[r.first_vid]}–{src.ref[r.last_vid]}"
+            if r.form == "woe":
+                claim = (
+                    f"In {src.ref[r.first_vid]} a woe saying begins (הוי followed by the ones it is"
+                    " against): an oracle of woe as the prophets speak them, not a cry of mourning"
+                    " over the dead."
+                )
+            elif r.form == "nations":
+                names = ", ".join(x["he"] for x in d["names"][:4])
+                claim = (
+                    f"{span} is an oracle (or a run of oracles) against a foreign nation ({names}):"
+                    " spoken against that nation, not a story about it or an oracle to Israel."
+                )
+            elif r.form == "lawsuit":
+                claim = (
+                    f"In {span} God brings a covenant lawsuit (ריב): a call to hear, with the"
+                    " dispute or with heaven and earth or the mountains called as witnesses"
+                    " against the people."
+                )
+            else:
+                claim = (
+                    f"{span} tells of a call: God sends someone on a mission, and the one sent"
+                    " objects or God reassures him (the form of Exod 3, Judg 6, Isa 6, Jer 1)."
+                )
+            vids = _span(r.first_vid, r.last_vid, cap)
+            rows.append((f"{r.form} {r.item_id}", claim, vids, _known(r.known)))
     else:
         raise RuntimeError(f"unknown detector {name!r}")
     out = pd.DataFrame(rows, columns=["key", "claim", "vids", "known"])
@@ -304,7 +372,36 @@ def draw(df: pd.DataFrame, top: int, n: int, known_max: int, seed: int) -> pd.Da
     take = np.sort(rng.choice(len(pool), size=min(n, len(pool)), replace=False))
     sample = pool.iloc[take].assign(set="sample")
     known = df[df.known & ~df.key.isin(sample.key)].head(known_max).assign(set="known")
-    return pd.concat([sample, known], ignore_index=True)
+    return pd.concat([sample, known], ignore_index=True).assign(population=len(pool))
+
+
+def draw_pages(
+    full: pd.DataFrame, lists: dict[str, pd.DataFrame], n: int, known_max: int, seed: int
+) -> pd.DataFrame:
+    """The `pages` run (§16.86, D147): `n` findings drawn uniformly from each list a page shows
+    (set `shown`, or `marked`: what it marks as strong), all of a list shorter than `n`; and up to
+    `known_max` of all the detector's known answers not drawn (set `known`). `population`: the
+    size of the list each was drawn from."""
+    rng = np.random.default_rng(seed)
+    parts = []
+    for name, df in lists.items():
+        take = np.sort(rng.choice(len(df), size=min(n, len(df)), replace=False))
+        parts.append(df.iloc[take].assign(set=name, population=len(df)))
+    drawn = pd.concat(parts, ignore_index=True).key if parts else pd.Series([], dtype=str)
+    known = full[full.known & ~full.key.isin(drawn)].head(known_max)
+    parts.append(known.assign(set="known", population=int(full.known.sum())))
+    return pd.concat(parts, ignore_index=True)
+
+
+def out_dir(cfg: dict[str, Any]) -> str:
+    """`llm_audit` for the strongest (M152's run), `llm_audit_pages` for what the pages list; a
+    `tag` (a run of some detectors only, M164) gives its own folder, `llm_audit_pages_<tag>`."""
+    ac = cfg["llm_audit"]
+    pop = ac["population"]
+    if pop not in POPULATIONS:
+        raise RuntimeError(f"llm_audit.population {pop!r}: one of {', '.join(POPULATIONS)}")
+    base = OUT if pop == "strongest" else f"{OUT}_{pop}"
+    return f"{base}_{ac['tag']}" if ac.get("tag") else base
 
 
 def build_items(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
@@ -323,14 +420,27 @@ def build_items(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
     try:
         src = Source(conn)
         parts = []
+        pages = ac["population"] == "pages"
         for i, name in enumerate(ac["detectors"]):
             df = findings(conn, name, src, ac["max_verses"])
-            d = draw(df, ac["top"], ac["sample"], ac["known_max"], ac["seed"] + i)
+            if pages:
+                conds = {s: ac["pages"][s].get(name) for s in PAGE_SETS}
+                lists = {
+                    s: findings(conn, name, src, ac["max_verses"], c) if c else df
+                    for s, c in conds.items()
+                    if s == "shown" or c
+                }
+                d = draw_pages(df, lists, ac["sample"], ac["known_max"], ac["pages"]["seed"] + i)
+            else:
+                d = draw(df, ac["top"], ac["sample"], ac["known_max"], ac["seed"] + i)
             parts.append(d.assign(detector=name))
-            log(f"  {name}: {len(df)} findings, {int((d.set == 'sample').sum())} drawn,"
-                f" {int((d.set == 'known').sum())} known")  # fmt: skip
+            drawn = ", ".join(
+                f"{s} {int((d.set == s).sum())} of {int(d.population[d.set == s].iloc[0])}"
+                for s in d.set.unique()
+            )
+            log(f"  {name}: {len(df)} findings; {drawn}")
         places = place_claims(conn, json.loads(sample_path.read_text("utf-8")))
-        parts.append(places.assign(set="calibration", detector="places"))
+        parts.append(places.assign(set="calibration", detector="places", population=len(places)))
         texts = {
             v: {"ref": src.ref[v], "text": pointed(" ".join(src.tokens[v]))}
             for p in parts
@@ -345,7 +455,7 @@ def build_items(cfg: dict[str, Any], log: Log) -> pd.DataFrame:
         user_prompt(d, c, [texts[v] for v in vs])
         for d, c, vs in zip(items.detector, items.claim, items.vids, strict=True)
     ]
-    cols = ["set", "detector", "custom_id", "key", "claim", "vids", "known", "prompt"]
+    cols = ["set", "detector", "custom_id", "key", "claim", "vids", "known", "population", "prompt"]
     return items[cols]
 
 
@@ -382,7 +492,7 @@ def run_llm_audit(
     sleep: Callable[[float], None] = time.sleep,
 ) -> dict[str, Any]:
     lc = cfg["llm_audit"]
-    out = resolve_path(cfg, "artifacts") / OUT
+    out = resolve_path(cfg, "artifacts") / out_dir(cfg)
 
     def prepare() -> tuple[pd.DataFrame, list[dict]]:
         items = build_items(cfg, log)
@@ -394,8 +504,9 @@ def run_llm_audit(
 
     def describe(items: pd.DataFrame) -> str:
         n = items.set.value_counts().to_dict()
+        drawn = ", ".join(f"{n[s]} {s}" for s in ("sample", *PAGE_SETS) if n.get(s))
         return (
-            f"{len(items)} requests ({n.get('sample', 0)} findings, {n.get('known', 0)} known,"
+            f"{len(items)} requests ({drawn} findings, {n.get('known', 0)} known,"
             f" {n.get('calibration', 0)} places)"
         )
 
@@ -444,10 +555,26 @@ def precision(x: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+def _size(g: pd.DataFrame) -> int | None:
+    return int(g.population.iloc[0]) if "population" in g and len(g) else None
+
+
+def detector_summary(g: pd.DataFrame, population: str) -> dict[str, Any]:
+    """`strongest`: the sample's precision at the top level (M152's shape); `pages`: one entry per
+    set drawn (`shown`, `marked`), each with the size of the list it was drawn from."""
+    known = {"known": precision(g[g.known.astype(bool)].drop_duplicates("key"))}
+    if population == "strongest":
+        s = g[g.set == "sample"]
+        return {**precision(s), "population": _size(s), **known}
+    sets = {s: g[g.set == s] for s in PAGE_SETS if (g.set == s).any()}
+    return {**{s: {**precision(x), "population": _size(x)} for s, x in sets.items()}, **known}
+
+
 def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
     ac = cfg["llm_audit"]
     places = df[df.set == "calibration"]
-    known = df[df.set.isin(["sample", "known"]) & df.known.astype(bool)]
+    known = df[df.set.isin(["sample", *PAGE_SETS, "known"]) & df.known.astype(bool)]
+    known = known.drop_duplicates(["detector", "key"])
     pr, kn = precision(places), precision(known)
     share = lambda p: (p["right"] / p["judged"]) if p["judged"] else 0.0  # noqa: E731
     holds = share(pr) >= ac["min_places"] and share(kn) >= ac["min_known"]
@@ -465,11 +592,9 @@ def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> d
             "min_known": ac["min_known"],
             "holds": bool(holds),
         },
+        "population": ac["population"],
         "detectors": {
-            name: {
-                **precision(g[g.set == "sample"]),
-                "known": precision(g[g.known.astype(bool)]),
-            }
+            name: detector_summary(g, ac["population"])
             for name, g in df[df.set != "calibration"].groupby("detector", sort=False)
         },
         "usage": usage(df, ac),
@@ -477,41 +602,111 @@ def summarise(df: pd.DataFrame, cfg: dict[str, Any], state: dict[str, Any]) -> d
     }
 
 
+def rows(meta: dict[str, Any]) -> list[dict[str, Any]]:
+    """One row per detector and population judged: `strongest` (M152's run) or the `pages`
+    run's `shown` / `marked`, with the size of the list drawn from."""
+    out = []
+    for name, d in meta["detectors"].items():
+        sets = (
+            {"strongest": d}
+            if meta.get("population", "strongest") == "strongest"
+            else {s: d[s] for s in PAGE_SETS if s in d}
+        )
+        for s, x in sets.items():
+            keep = ("judged", "right", "wrong", "unsure", "precision", "lo", "hi", "population")
+            out.append({"detector": name, "set": s, **{k: x.get(k) for k in keep}})
+    return out
+
+
 def write_report(cfg: dict[str, Any], df: pd.DataFrame, meta: dict[str, Any]) -> None:
     from bsim.data.report import md_table
 
     c = meta["calibration"]
+    pop = meta.get("population", "strongest")
+    what = (
+        "a sample of each detector's strongest findings"
+        if pop == "strongest"
+        else "a sample of what each page lists (shown) and marks as strong (marked)"
+    )
     lines = [
-        "# How often the detectors are right (Claude's reading of a sample)",
+        f"# How often the detectors are right (Claude's reading of {what})",
         "",
         f"Calibration: the owner's place sample {c['places_right']} right (owner 49 / 50), known"
         f" answers {c['known_right']}: {'holds' if c['holds'] else 'fails, not published'}.",
         "",
         md_table(
-            ["detector", "judged", "right", "wrong", "unsure", "precision", "95 % CI", "known"],
+            [
+                "detector",
+                "set",
+                "of",
+                "judged",
+                "right",
+                "wrong",
+                "unsure",
+                "precision",
+                "95 % CI",
+                "known",
+            ],
             [
                 [
-                    name,
-                    d["judged"],
-                    d["right"],
-                    d["wrong"],
-                    d["unsure"],
-                    d["precision"],
-                    f"[{d['lo']}, {d['hi']}]",
-                    f"{d['known']['right']} / {d['known']['judged']}",
+                    r["detector"],
+                    r["set"],
+                    r["population"],
+                    r["judged"],
+                    r["right"],
+                    r["wrong"],
+                    r["unsure"],
+                    r["precision"],
+                    f"[{r['lo']}, {r['hi']}]",
+                    "{right} / {judged}".format(**meta["detectors"][r["detector"]]["known"]),
                 ]
-                for name, d in meta["detectors"].items()
+                for r in rows(meta)
             ],
         ),  # fmt: skip
         "",
         "## Findings judged wrong",
         "",
     ]
-    wrong = df[(df.verdict == "wrong") & (df.set != "calibration")]
+    wrong = df[(df.verdict == "wrong") & ~df.set.isin(["calibration", "known"])]
+    wrong = wrong.drop_duplicates(["detector", "key"])
     for name, g in wrong.groupby("detector", sort=False):
         lines.append(f"### {name}")
         lines += [f"- {k}: {cl}" for k, cl in zip(g.key, g.claim, strict=True)]
         lines.append("")
     ev = resolve_path(cfg, "artifacts") / "eval"
     ev.mkdir(parents=True, exist_ok=True)
-    (ev / "llm_audit.md").write_text("\n".join(lines) + "\n", "utf-8")
+    (ev / f"{out_dir(cfg)}.md").write_text("\n".join(lines) + "\n", "utf-8")
+
+
+# --- read back, for the API -------------------------------------------------------------------
+
+
+def run_files(cfg: dict[str, Any]) -> list[Path]:
+    """The meta files of the runs shown (`llm_audit.shown_runs`, folders under artifacts/), in
+    order: a later run's detectors replace an earlier one's; whether or not they are there."""
+    art = resolve_path(cfg, "artifacts")
+    return [art / f / "llm_audit.meta.json" for f in cfg["llm_audit"]["shown_runs"]]
+
+
+def read_precision(cfg: dict[str, Any]) -> dict[str, Any]:
+    """`runs` (each calibrated run: its population, model, date, calibration) and `detectors`
+    (detector -> one row per population judged). A run whose calibration fails is left out."""
+    runs, detectors = [], {}
+    for f in run_files(cfg):
+        if not f.exists():
+            continue
+        meta = json.loads(f.read_text("utf-8"))
+        if not meta.get("calibration", {}).get("holds"):
+            continue
+        c = meta["calibration"]
+        pop = meta.get("population", "strongest")
+        runs.append({
+            "run": f.parent.name, "population": pop, "model": meta["model"],
+            "collected_at": meta["collected_at"], "places_right": c["places_right"],
+            "known_right": c["known_right"],
+        })  # fmt: skip
+        for r in rows(meta):
+            d = r.pop("detector")
+            # a later run replaces an earlier one's row of the same population
+            detectors[d] = [x for x in detectors.get(d, []) if x["set"] != r["set"]] + [r]
+    return {"runs": runs, "detectors": detectors}

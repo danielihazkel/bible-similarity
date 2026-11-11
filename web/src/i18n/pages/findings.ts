@@ -45,6 +45,26 @@ export const findEn = {
       text: (v: V) =>
         `Trained without Samuel, Kings and Chronicles, the profile finds the Chronicles side later in ${numEn(n(v, 'later'))} of ${numEn(n(v, 'pairs'))} parallel passages (p ${fp(n(v, 'p'))}): the same content in two states of the language. Each book left out in turn, it tells the late books from the early at AUC ${x2(n(v, 'auc'))}.`,
     },
+    mainline: {
+      title: 'Background where a story begins',
+      text: (v: V) =>
+        `Among a paragraph’s first narrator clauses, background (description, circumstance, what had happened before) is ${(n(v, 'excess') * 100).toFixed(1)} points more common than in the rest, against ${(n(v, 'null') * 100).toFixed(1)} with the clauses shuffled within paragraphs (p ${fp(n(v, 'p'))}). ${numEn(n(v, 'known'))} of the ${numEn(n(v, 'of'))} pauses the commentaries name are found.`,
+    },
+    laws: {
+      title: 'Laws given twice, found again',
+      text: (v: V) =>
+        `Of the ${numEn(n(v, 'of'))} pairs of passages the commentaries set side by side (the release of a slave, asylum, the festivals, the sabbatical year, interest, the kid in its mother’s milk), ${numEn(n(v, 'known'))} are joined by the ${numEn(n(v, 'pairs'))} pairs of laws matched across the codes on the combined list.`,
+    },
+    prophetic: {
+      title: 'The prophets’ forms, found by their words',
+      text: (v: V) =>
+        `Rules over the words find ${numEn(n(v, 'messenger'))} messenger formulas, ${numEn(n(v, 'woe'))} woe sayings, ${numEn(n(v, 'nations'))} oracles against the nations, ${numEn(n(v, 'lawsuit'))} lawsuits and ${numEn(n(v, 'call'))} calls. Of the ${numEn(n(v, 'of'))} passages the commentaries name for four of the forms, ${numEn(n(v, 'known'))} are found.`,
+    },
+    theophoric: {
+      title: 'Names built on God’s name, spelled late',
+      text: (v: V) =>
+        `For the same names, the late books spell the ending of a name built on God’s name short (‑יה) ${pct(n(v, 'late_short'))} of the time, Genesis–Kings ${pct(n(v, 'early_short'))} (${numEn(n(v, 'names'))} names in both; p ${fp(n(v, 'p'))}, each name’s spellings shuffled between the two).`,
+    },
     borrowing: {
       title: 'Who borrowed',
       text: (v: V) =>

@@ -229,6 +229,25 @@ The reranker taught by Claude (§16.85, D141, M151): the cross-encoder trained w
 
 Against the control, paired: Sefaria +0.0029 [−0.0035, +0.0095], OpenBible −0.0016 [−0.0050, +0.0018], ETCBC −0.0072 [−0.0232, +0.0080], the judged pool +0.0163 [+0.0106, +0.0222]. Not adopted: the lead over the list in use (Sefaria +0.0079 [+0.0002, +0.0161]) is the newer fused list's, and only the judge's own pool gains, on 61 % of its top 10 (the pool was drawn from the other lists). `fused_rerank` was then rebuilt over today's fused list with the model in use (2026-11-05, `bsim rerank --tune`; the grid's best is still 0.25, and the list is the control's, row for row): against fused, Sefaria +0.0077 [+0.0026, +0.0130], OpenBible +0.0021 [−0.0001, +0.0043], ETCBC +0.0146 [+0.0044, +0.0271], the weight chosen on the same queries as before. The October list is kept as `fused_rerank.before-2026-11-05.parquet`.
 
+Hard negatives from the model's own mistakes (§16.80, D133, M143): `self` draws each training row's negative from the model in use's semantic list instead of BM25's, and `self_ce` also draws again where the cross-encoder scores the negative above 0.5 (2,205 rows). Both keep `m115`'s 74,716 rows and its recipe (2026-11-11; 2 h 21 min and 2 h 17 min on the GPU; best steps 830 and 800, dev recall@10 0.219 each). Gains over `berel_sup`, dev nDCG@10, paired over queries:
+
+| variant | list | Sefaria | OpenBible | ETCBC | judged pool |
+|---|---|---|---|---|---|
+| `self` | semantic | +0.0050 [−0.0012, +0.0113] | +0.0030 [+0.0004, +0.0055] | +0.0152 [+0.0012, +0.0297] | +0.0042 [−0.0011, +0.0097] |
+| `self` | fused | +0.0019 [−0.0033, +0.0074] | +0.0009 [−0.0012, +0.0029] | +0.0098 [−0.0005, +0.0216] | +0.0031 [−0.0016, +0.0081] |
+| `self_ce` | semantic | +0.0049 [−0.0012, +0.0111] | +0.0030 [+0.0004, +0.0055] | +0.0103 [−0.0035, +0.0248] | +0.0017 [−0.0040, +0.0075] |
+| `self_ce` | fused | +0.0003 [−0.0049, +0.0054] | +0.0007 [−0.0014, +0.0027] | +0.0092 [+0.0013, +0.0191] | +0.0040 [−0.0009, +0.0091] |
+
+Neither adopted: for both, the fused OpenBible gain's CI reaches 0, and the gain (+0.0009, +0.0007) is at the noise bar (`m115_seed14`, 0.0007). Nothing is lost on any list. The semantic list gains on OpenBible with both (CI above 0) and on ETCBC with `self`, but fusion takes most of that back. The cross-encoder's screen, which redrew 3 % of the rows, changes the result by no more than the noise; the fused ETCBC gain with `self_ce` is the one CI above 0, on 24 queries that move.
+
+The narrative main line (§16.91, D153, M164): of the narrator's 27,167 independent clauses, 14,625 are on the wayyiqtol chain; 1,250 pauses of background inside the chain in the narrative books. Scene-setting at paragraph openings, fixed before the run, is not borne out: −0.9 points against +2.9 with the clauses shuffled within paragraphs (p 1.0). Claude's reading of 50 pauses drawn from the list, for $0.22: 28 right, 21 wrong, 1 unsure, precision 0.57 [0.43, 0.70]; the wrong ones lists without a story, speech BHSA does not mark, and the closing formulas of laws.
+
+Forms of prophetic speech (§16.92, D154, M165): by rule over their words, 801 messenger formulas, 38 woe sayings, 70 oracles against the nations, 62 covenant lawsuits and 12 call narratives. The 16 passages the commentaries name, fixed before the run, are all found (the nations in Isa 13–23 cover 0.59, Amos 1–2 0.52). Claude's reading of 50 findings of the four judged forms, for $0.24: 26 right, 23 wrong, 1 unsure, precision 0.53 [0.39, 0.66]; woe 9 of 11, nations 13 of 23, call 1 of 1, lawsuit 3 of 14 (any mountain counts as a witness, any call to hear, prayers among them).
+
+The law codes side by side (§16.93, D155, M166): 257 laws in five codes (107 casuistic, 109 apodictic, 41 other; the Covenant Code mostly casuistic, 21 of 32, the Holiness Code mostly apodictic, 32 of 45). 344 law pairs matched across the codes on the fused list. Of the 21 pairs of passages the commentaries set side by side, fixed before the run, 18 are found, by the aligned verses themselves also 18; not found the sabbatical year in Leviticus and Deuteronomy, and Deut 14:21's kid against both Exodus verses. Aligned word by word, 11 % of the positions keep their lemma on average.
+
+The short ending of names built on God's name as a late-language feature (§16.24, §16.90, D152, M163): the late-language profile with `yah_short` (the share of ‑יה among the endings of such names, by chapter) against without, by the rule fixed before measuring (no worse on any check): held-out AUC 0.948 → 0.889, without the lexemes 0.895 → 0.852, Chronicles later in 24 → 22 of 24 synoptic parallels. Not adopted: 2 Chronicles, trained as late, keeps the long spellings of Kings (15 % short), and the claim itself is not borne out for the same names (late 64 % short, early 26 %, p 0.053 against the within-name shuffle).
+
 Detector precision by Claude's reading (§16.86, D142, M152): 50 findings drawn from each detector's 200 strongest (its own order), judged with the detector's definition, the claim and the pointed verses, for $1.53. Calibration fixed before the run: the owner's place sample 45 / 50 right (owner 49 / 50; 85 % needed), the known answers 127 / 138 (80 % needed): holds. Precision right / (right + wrong), unsure left out:
 
 | detector | right | wrong | unsure | precision | 95 % CI | known right |
@@ -249,6 +268,48 @@ Detector precision by Claude's reading (§16.86, D142, M152): 50 findings drawn 
 | ciphers | 1 | 49 | 0 | 0.02 | [0.00, 0.11] | 3 / 3 |
 
 The population is each detector's 200 strongest, not what it calls significant: resumptive repetition has no finding at q ≤ 0.05, acrostics 13, type scenes 6 beyond the parallel texts, and the ciphers are chance hits checked against three known ones, so their low shares say that most of what lies past the significant few is noise, as their own tests said. The detectors whose findings are read as found (wordplay, allusions, lists, retold speech, fixed pairs) are right four times in five; etiologies, refrains and the numerical sayings mix real cases with formula matches. The wrong findings are listed by key in `artifacts/eval/llm_audit.md`, material for known-miss milestones. One model judged, with the references in view.
+
+Detector precision on what the pages list (§16.86, D147, M158): M152 judged each detector's 200 strongest, but most pages list everything by default, and the three that filter (acrostics and type scenes at q ≤ 0.05, allusions new pairs only) list few. So 50 findings were drawn uniformly from each page's default list (all of it when shorter), and from what a page marks as strong, with the same prompt, definitions and calibration, for $1.37. Calibration: the owner's place sample 46 / 50 right, the known answers 87 / 91: holds.
+
+| detector | page lists | judged | right | wrong | unsure | precision, 95 % CI | M152's strongest |
+|---|---|---|---|---|---|---|---|
+| naming etiologies | 111 | 50 | 26 | 18 | 6 | 0.59 [0.44, 0.72] | 0.62 |
+| resumptive repetition | 3404 | 50 | 0 | 49 | 1 | 0.00 [0.00, 0.07] | 0.06 |
+| retold speech | 1480 | 50 | 27 | 23 | 0 | 0.54 [0.40, 0.67] | 0.80 |
+| fixed word pairs | 128 | 50 | 38 | 11 | 1 | 0.78 [0.64, 0.87] | 0.80 |
+| type scenes (not parallel texts) | 6 | 6 | 2 | 4 | 0 | 0.33 [0.10, 0.70] | 0.29 |
+| acrostics | 13 | 13 | 10 | 3 | 0 | 0.77 [0.50, 0.92] | 0.08 |
+| wordplay | 400 | 50 | 27 | 15 | 8 | 0.64 [0.49, 0.77] | 0.87 |
+| allusions | 9 | 9 | 4 | 4 | 1 | 0.50 [0.21, 0.79] | 0.84 |
+| refrains | 551 | 50 | 13 | 32 | 5 | 0.29 [0.18, 0.43] | 0.43 |
+| numerical sayings | 91 | 50 | 13 | 37 | 0 | 0.26 [0.16, 0.40] | 0.24 |
+| lists | 82 | 50 | 41 | 9 | 0 | 0.82 [0.69, 0.90] | 0.83 |
+| chiasm within a verse | 94 | 50 | 25 | 25 | 0 | 0.50 [0.37, 0.63] | 0.51 |
+| ciphers | 175 | 50 | 1 | 49 | 0 | 0.02 [0.00, 0.10] | 0.02 |
+| seams | 241 | 50 | 14 | 33 | 3 | 0.30 [0.19, 0.44] | 0.34 |
+
+Marked as strong: the 8 etiologies at q ≤ 0.05, 7 right and 1 unsure; the 302 resumptive repetitions at p ≤ 0.05, 2 right of 50 (0.04 [0.01, 0.14]), no better than the rest. Where a page filters, the filter works: the 13 acrostics at q ≤ 0.05 are right three times in four against 0.08 for the 200 strongest. Where a page lists everything, its full list is weaker than its top: retold speech 0.54 against 0.80, wordplay 0.64 against 0.87, refrains 0.29 against 0.43; the allusions a reader sees by default, the 9 not yet known as parallels, are right half the time, where M152's sample was mostly known ones. Resumptive repetition and the ciphers are noise as listed, marked or not. The wrong findings are in `artifacts/eval/llm_audit_pages_m158.md` (the run kept in `artifacts/llm_audit_pages_m158/`), the material for M159.
+
+After the fixes (§16.86, D148, M159): the rules chosen from these wrong findings, then a fresh draw from what each page lists now (seed 202), for $1.22. Calibration: the owner's place sample 47 / 50 right, the known answers 87 / 91: holds.
+
+| detector | page lists | judged | right | wrong | unsure | precision, 95 % CI | M158 |
+|---|---|---|---|---|---|---|---|
+| naming etiologies | 65 (was 111) | 50 | 41 | 7 | 2 | 0.85 [0.73, 0.93] | 0.59 |
+| resumptive repetition | 3 named (was all 3404) | 3 | 3 | 0 | 0 | 1.00 [0.44, 1.00] | 0.00 |
+| retold speech | 1480 | 50 | 30 | 19 | 1 | 0.61 [0.47, 0.74] | 0.54 |
+| fixed word pairs | 128 | 50 | 41 | 8 | 1 | 0.84 [0.71, 0.92] | 0.78 |
+| type scenes (not parallel texts) | 5 (was 6) | 5 | 2 | 3 | 0 | 0.40 [0.12, 0.77] | 0.33 |
+| acrostics | 13 | 13 | 11 | 2 | 0 | 0.85 [0.58, 0.96] | 0.77 |
+| wordplay | 400 | 50 | 18 | 21 | 11 | 0.46 [0.32, 0.61] | 0.64 |
+| allusions | 9 | 9 | 4 | 4 | 1 | 0.50 [0.21, 0.79] | 0.50 |
+| refrains | 440 (was 551) | 50 | 17 | 30 | 3 | 0.36 [0.24, 0.51] | 0.29 |
+| numerical sayings | 70 (was 91) | 50 | 15 | 35 | 0 | 0.30 [0.19, 0.44] | 0.26 |
+| lists | 82 | 50 | 38 | 12 | 0 | 0.76 [0.63, 0.86] | 0.82 |
+| chiasm within a verse | 94 | 50 | 30 | 20 | 0 | 0.60 [0.46, 0.72] | 0.50 |
+| ciphers | 3 named (was all 175) | 3 | 3 | 0 | 0 | 1.00 [0.44, 1.00] | 0.02 |
+| seams | 159 (was 241) | 49 | 30 | 17 | 2 | 0.64 [0.49, 0.76] | 0.30 |
+
+The six detectors left as they were measure the noise of two draws: wordplay 0.64 → 0.46, mirrors 0.50 → 0.60, retold 0.54 → 0.61, lists 0.82 → 0.76, binomials 0.78 → 0.84, up to 0.18 apart. Against that, etiologies explained in their verse (0.59 → 0.85) and seams moved to a paragraph's start (0.30 → 0.64) are clear gains; refrains (0.29 → 0.36) and sayings (0.26 → 0.30) are within the noise, though the lists are shorter by what Claude had called wrong, and the sayings' 0.47 on the findings judged before did not hold on a fresh draw (what remains wrong is mostly steps other than one … two in counts of things). Resumptive repetition after its formulas are left out is still noise (the 132 marked strong: 4 right of 49, 0.08 [0.03, 0.19]), so its page and the ciphers' list their known answers by default. Every detector's known answers are found as before (etiologies 16 / 16, refrains 8 / 9, sayings 18 / 19, acrostics 13 / 14, brackets 3 / 3). The wrong findings are in `artifacts/eval/llm_audit_pages.md`; each page and Findings show this run (personal server only).
 
 Speakers by Claude's reading (§16.87, D143, M153): 454 quotations, 100 of each rule source (formula 20 and framed 34, all there are), for $0.87. Where Claude named a speaker in the passage: explicit 94 named, the rule agrees 83 (88 %); formula 18, 17; carried 89, 55 (62 %); enclosing 73, 46 (63 %); framed 4 of 34 named (the passage shown, at most five verses before, rarely names Moses); of the 100 with no rule speaker, Claude named 54. The owner's check (2026-11-05): 26 of 30 answers right (87 %, Wilson 95 % [70 %, 95 %]); the four wrong took a word for the speaker that was only part of him (1 Kgs 20:35 אחד, Deut 21:6 זקני, 2 Chr 18:25 מלך) or the wrong one (Josh 10:12 יהושע), so the agreement is usable as a gold for the rules, an upper bound off by about one answer in eight. A lemma mismatch can still be the same person by another word (a title, יהוה and אלהים).
 

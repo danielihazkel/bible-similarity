@@ -37,6 +37,14 @@ test('a unit page has no label buttons and no notebook panel', async ({ page }) 
   expect(errors).toEqual([])
 })
 
+test("a verse's neighbourhood is drawn from the stored lists alone", async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/neighbourhood/v%3A0')
+  await expect(page.locator('.nbh-node.centre')).toHaveCount(1)
+  await expect(page.locator('.status.error')).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
 test('the labels and notebook pages say the site keeps none', async ({ page }) => {
   for (const path of ['/labels', '/notebook']) {
     await page.goto(path)
@@ -55,7 +63,7 @@ test('search is lexical only, and says so', async ({ page }) => {
 })
 
 test('the personal routes are not served', async ({ request }) => {
-  for (const path of ['/api/labels', '/api/notebook', '/api/labels/queue']) {
+  for (const path of ['/api/labels', '/api/notebook', '/api/labels/queue', '/api/detector-precision']) {
     const r = await request.get(path)
     expect(r.status(), path).toBe(404)
   }

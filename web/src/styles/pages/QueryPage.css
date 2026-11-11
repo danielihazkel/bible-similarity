@@ -1,0 +1,15 @@
+/* QueryPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Pattern search (§16.46) */
+
+.query-problem .query-code { margin: 0.3rem 0 0; overflow-wrap: anywhere; }
+
+.query-problem mark { background: var(--hl-focus); color: var(--hl-focus-text); }
+
+.query-books { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin: 0.6rem 0; }
+
+.query-examples { padding-inline-start: 1.2rem; }
+
+.query-examples li { margin-block: 0.3rem; }
+
+.query-examples code { overflow-wrap: anywhere; }

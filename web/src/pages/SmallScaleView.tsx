@@ -13,6 +13,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/mirrors'
 import '../i18n/pages/parallels'
+import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 20
 const MARKS: Mark[] = ['focus', 'shared', 'acrostic']
@@ -200,6 +201,7 @@ function VerseList({ book, unit, k, total }: { book?: number; unit?: string; k: 
   return (
     <>
       <p className="muted small">{t.fullNote(total, k)}</p>
+      <PrecisionNote detector="mirrors" />
       <PagedList
         res={res}
         empty={t.none}

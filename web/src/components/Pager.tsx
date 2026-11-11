@@ -3,6 +3,7 @@ import { type FormEvent, type ReactNode, useState } from 'react'
 import { useT } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { ErrorBox, Loading } from './Status'
+import '../styles/components/Pager.css'
 
 /** Previous / next, and a page number to jump to. */
 export function Pager({ page, pages, onPage }: { page: number; pages: number; onPage: (p: number) => void }) {

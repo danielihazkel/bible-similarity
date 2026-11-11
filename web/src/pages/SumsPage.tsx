@@ -15,6 +15,7 @@ import '../i18n/pages/sums'
 import type { Highlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
+import '../styles/pages/SumsPage.css'
 
 const PAGE_SIZE = 25
 

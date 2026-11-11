@@ -26,6 +26,7 @@ const DETAIL: EntityDetail = {
   links: [{ a: '175', b: '4714', n_verses: 20, g2: 40 }],
   name_kind: 'person',
   sites: [],
+  theophoric: null,
 }
 const abel = { lemma: '59', he: 'אבל', kind: 'place' as const, n_mentions: 2, n_verses: 2, n_here: null, first_vid: 7000, last_vid: 7600, kind_source: 'lexicon' as const }
 const site = (place_id: number, he: string, extra: object) => ({

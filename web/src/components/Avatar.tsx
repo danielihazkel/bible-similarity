@@ -5,6 +5,7 @@
 
 import type { TreeNode } from '../api/types'
 import { AVATAR_PARTS, avatarShape } from '../lib/avatarShapes'
+import '../styles/components/Avatar.css'
 
 export function Avatar({ sex, kind }: { sex: TreeNode['sex']; kind: TreeNode['kind'] }) {
   return (

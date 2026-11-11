@@ -1,0 +1,25 @@
+/* WeekPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* this week's parasha (§11.1) */
+
+.wk-date input { font: inherit; padding: 0.15rem 0.3rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); }
+
+.wk-nav { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.wk-nav button { padding: 0.25rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+
+.wk-shabbat { margin-bottom: 0.4rem; }
+
+.wk-festival { font-weight: 600; }
+
+.wk-parasha { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.7rem 1rem; margin: 0.8rem 0; background: var(--surface); }
+
+.wk-parasha h3 { margin: 0 0 0.2rem; font-size: 1.3rem; }
+
+.wk-parasha h4 { margin: 0.8rem 0 0.3rem; font-size: 1rem; }
+
+.wk-en { font-size: 1rem; color: var(--muted); font-weight: normal; }
+
+.wk-links { margin: 0.2rem 0; }
+
+.wk-haftarah p { margin: 0.2rem 0; }

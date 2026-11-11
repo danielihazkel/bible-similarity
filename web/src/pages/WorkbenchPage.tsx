@@ -14,6 +14,7 @@ import { addItem, formatP, joinSet, parseRange, patternFor, removeItem, splitSet
 import { Term } from '../components/Term'
 import '../i18n/pages/query'
 import '../i18n/pages/workbench'
+import '../styles/pages/WorkbenchPage.css'
 
 const FEATURES: WorkbenchFeature[] = ['lemma', 'root', 'domain', 'pos', 'stem', 'form', 'person', 'function', 'clause']
 const WITHINS: WorkbenchWithin[] = ['book', 'chapter', 'corpus']

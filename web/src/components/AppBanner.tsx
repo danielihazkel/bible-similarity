@@ -1,5 +1,6 @@
 import { useT } from '../context/localeContext'
 import { useOnline, useUpdate } from '../lib/pwa'
+import '../styles/components/AppBanner.css'
 
 /**
  * Under the header: that the browser is offline (pages and answers already opened still work,

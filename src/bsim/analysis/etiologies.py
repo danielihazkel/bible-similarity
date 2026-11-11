@@ -19,6 +19,10 @@ its name more than an explanation given for another name would?
   with the explanations shuffled among the names (`shuffles`), one-sided at `alpha`. Each naming's
   rank among the explanations (ties counted against it) says how it stands among them; its echo
   against `verse_draws` random verses without a naming gives its own p, BH q over the namings.
+- **Listed** (M159, `explained_only`): the namings whose verse explains, with כי, על כן or a form
+  of אמר (`explain_lemmas`, `explain_pairs`); the claim and the known answers still count every
+  naming. All 16 known etiologies are listed; Claude judged 35 of the 38 listed namings it read
+  right, against 5 of 20 of the others (§16.86).
 - **Known answers.** The etiologies of `known` are found by the formula with their names, and at
   least `known_share` of them echo: their own explanation beats all but `known_rank` of the others.
 
@@ -57,6 +61,19 @@ def key(part: str) -> str:
 
 def lemma_parts(lemma: Any) -> list[str]:
     return [key(p) for p in str(lemma).split("/")]
+
+
+def explaining_verses(words: pd.DataFrame, lemmas: list[str], pairs: list[list[str]]) -> set[int]:
+    """Verses holding a word that explains (כי, a form of אמר) or a pair of them in a row (על כן),
+    by Strong's number, its letter ignored (M159)."""
+    one = {str(x) for x in lemmas}
+    two = {(str(a), str(b)) for a, b in pairs}
+    out = set()
+    for v, g in words.groupby("verse_id", sort=False):
+        ks = [k.rstrip("abcdefgh") for lem in g.lemma for k in lemma_parts(lem)]
+        if one.intersection(ks) or any((x, y) in two for x, y in zip(ks, ks[1:], strict=False)):
+            out.add(int(v))
+    return out
 
 
 def morph_parts(morph: Any) -> tuple[str, list[str]]:
@@ -356,12 +373,20 @@ def run_etiologies(cfg: dict[str, Any], log: Log = print) -> Path:
         }
     ).astype({c: "Int64" for c in ("name_first", "name_last", "echo_idx", "echo_disp")})
 
+    # M159: listed only where the verse explains (כי, על כן, a form of אמר); Claude judged the
+    # namings without one mostly wrong (Seth, Er, Onan: a name given, not explained; §16.86)
+    found = len(df)
+    if ec["explained_only"]:
+        why = explaining_verses(words, ec["explain_lemmas"], ec["explain_pairs"])
+        df = df[df.verse_id.isin(why)].reset_index(drop=True)
+        log(f"{len(df)} of {found} namings in a verse that explains (כי, על כן, אמר)")
     out.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out / "namings.parquet", index=False)
     meta = {
         "config_hash": config_hash(cfg, "etiologies"),
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "namings": m,
+        "listed": int(len(df)),
         "places": int((df.kind == "place").sum()),
         "explained": int((df.words > 0).sum()),
         "mean_own": round(float(own.mean()), 4) if m else None,

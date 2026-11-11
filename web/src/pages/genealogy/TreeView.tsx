@@ -16,6 +16,7 @@ import { usePanZoom } from '../../lib/panZoom'
 import { Name } from './Name'
 import { DOT_MIN, FIT_PAD, KEY_STEP, K_DOT, K_DOTS, K_MAX, K_MIN, K_SMALL, MARGIN, ZOOM } from './shared'
 import type { Named, Namer, T } from './shared'
+import '../../styles/pages/genealogy-TreeView.css'
 
 interface View {
   x: number

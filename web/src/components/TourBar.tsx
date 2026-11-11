@@ -2,6 +2,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useLocale } from '../context/localeContext'
 import { TOURS, isTour, tourHref } from '../lib/tours'
 import '../i18n/pages/tours'
+import '../styles/components/TourBar.css'
 
 /** The guided tour's bar at the foot of a page whose address carries `?tour=&step=`: the step's
  * caption and the way on (DESIGN.md §11). */

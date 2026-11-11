@@ -8,6 +8,8 @@ import { compareLink, lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/parallels'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/TypeScenesPage.css'
 
 const PAGE_SIZE = 50
 
@@ -37,6 +39,7 @@ export function TypeScenesPage() {
     <div className="page typescenes-page">
       <h1>{m.par.typeScenes.title}</h1>
       <p className="lede">{m.par.typeScenes.lede}</p>
+      <PrecisionNote detector="typescenes" />
       <p className="muted small">{m.par.typeScenes.note}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">

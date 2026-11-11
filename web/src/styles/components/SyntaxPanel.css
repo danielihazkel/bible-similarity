@@ -1,0 +1,48 @@
+/* SyntaxPanel.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* BHSA clauses and speakers (DESIGN.md §16.26) */
+
+.syntax-panel .syntax-ref {
+  font-size: 0.9rem;
+  margin: 0.8rem 0 0.2rem;
+}
+
+.clause-type {
+  color: var(--muted);
+  min-width: 9rem;
+}
+
+.clause.speech .clause-type {
+  color: var(--text);  /* --muted on --surface-2 is below 4.5:1 */
+}
+
+.seg {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.seg .he {
+  font-size: 1.15rem;
+}
+
+.seg .fn {
+  font-size: 0.7rem;
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+
+.same-shape ol {
+  padding-inline-start: 1.4rem;
+}
+
+.same-shape li {
+  margin: 0.2rem 0;
+}
+
+/* Who speaks (DESIGN.md §16.26) */
+
+.same-shape a {
+  text-decoration: underline;  /* links inside running text (axe link-in-text-block) */
+}

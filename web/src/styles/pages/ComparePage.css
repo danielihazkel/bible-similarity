@@ -1,0 +1,127 @@
+/* ComparePage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* links inside running text must not rely on colour alone (WCAG 1.4.1) */
+
+.compare-page .column > h2 a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* ---------- Compare ---------- */
+
+.pickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bma {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.side-tag {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--surface);
+  border-radius: 4px;
+  padding: 0 0.4rem;
+  margin-inline-end: 0.5rem;
+}
+
+.align-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.align-row {
+  padding: 0.45rem 0.75rem 0.45rem 0.6rem;
+  border-inline-start: 5px solid var(--sim-0);
+  border-bottom: 1px solid var(--border);
+  font-size: 1.2rem;
+  line-height: 1.85;
+  text-align: right;
+  cursor: default;
+}
+
+.align-row.sim-1 { border-inline-start-color: var(--sim-1); }
+
+.align-row.sim-2 { border-inline-start-color: var(--sim-2); }
+
+.align-row.sim-3 { border-inline-start-color: var(--sim-3); }
+
+.align-row.sim-4 { border-inline-start-color: var(--sim-4); }
+
+.align-row.active {
+  background: var(--accent-soft);
+}
+
+.align-row.partner {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.align-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--muted);
+  direction: ltr;
+  text-align: left;
+}
+
+/* on the highlighted rows the muted ink falls below 4.5:1 against --accent-soft */
+
+.align-row.active .align-meta,
+.align-row.partner .align-meta {
+  color: var(--text);
+}
+
+/* the Hebrew interface reads the meta line (verse, partner, cosine) right to left too */
+
+:root[dir='rtl'] .align-meta {
+  direction: rtl;
+  text-align: right;
+}
+
+.align-meta .verse-num {
+  min-width: 0;
+  font-weight: 600;
+}
+
+.pair-panel {
+  position: sticky;
+  bottom: 0;
+  margin-top: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  box-shadow: var(--shadow);
+}
+
+.pair-panel .chips {
+  margin-top: 0.25rem;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 720px) {
+  .align-list {
+      max-height: 45vh;
+    }
+}

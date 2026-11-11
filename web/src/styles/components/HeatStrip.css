@@ -1,0 +1,18 @@
+/* HeatStrip.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* haftarot (§16.69): a haftarah within the first chapters, the parasha shown, its list */
+
+.heat-strip { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 0.25rem 0.8rem; align-items: start; }
+
+.heat-row { display: contents; }
+
+.heat-book { font-size: 0.85rem; text-align: end; line-height: 12px; padding-top: 0; }
+
+.heat-cells { max-width: 100%; height: auto; display: block; }
+
+/* a change keeps the text colour; the series colour is a bar beside it */
+
+@media (max-width: 600px) {
+  .heat-strip { grid-template-columns: 1fr; }
+  .heat-book { text-align: start; margin-top: 0.4rem; }
+}

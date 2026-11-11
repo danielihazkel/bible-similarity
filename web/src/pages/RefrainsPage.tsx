@@ -14,6 +14,8 @@ import { readLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/refrains'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/RefrainsPage.css'
 
 const PAGE_SIZE = 20
 
@@ -27,6 +29,7 @@ export function RefrainsPage() {
     <div className="page refrains-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede(meta?.min_tokens ?? 3, meta?.min_count ?? 3, meta?.max_gap ?? 20)}</p>
+      <PrecisionNote detector="refrains" />
       {res.isPending ? (
         <Loading />
       ) : res.error ? (

@@ -12,6 +12,7 @@ import { hasHebrew } from '../lib/hebrew'
 import { unitLabel } from '../lib/names'
 import { unitLink } from '../lib/links'
 import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_K_OPTIONS, SEARCH_MODES, useQueryParams } from '../lib/urlState'
+import '../styles/pages/SearchPage.css'
 
 export function SearchPage() {
   const { m, locale } = useLocale()

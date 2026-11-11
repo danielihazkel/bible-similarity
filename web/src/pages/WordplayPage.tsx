@@ -9,6 +9,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { AlliterationView, RhymeView } from './SoundViews'
 import { BookSelect, Segmented } from '../components/Controls'
 import '../i18n/pages/patterns'
+import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 50
 const KINDS: WordplayPair['kind'][] = ['substitution', 'metathesis', 'extension']
@@ -68,6 +69,7 @@ function PairsView() {
   return (
     <>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="wordplay" />
       {res.data && res.data.expected_by_chance !== null && !book && !kind && !unit && (
         <p className="muted small">
           {t.chance(

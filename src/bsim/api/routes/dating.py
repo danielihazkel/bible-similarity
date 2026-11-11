@@ -9,8 +9,23 @@ from fastapi import APIRouter
 
 from bsim.analysis.dating import FEATURES as DATING_FEATURES
 from bsim.api import queries
-from bsim.api.models.dating import DatingBook, DatingChapter, DatingResponse, SynopticExample
-from bsim.api.routes._common import Conn, State, book_or_404, span_label, stage, unit_or_404
+from bsim.api.models.dating import (
+    DatingBook,
+    DatingChapter,
+    DatingResponse,
+    SynopticExample,
+    TheophoricResponse,
+)
+from bsim.api.routes._common import (
+    Conn,
+    State,
+    book_or_404,
+    check_cap,
+    span_label,
+    stage,
+    unit_or_404,
+)
+from bsim.data.canon import BY_OSIS
 
 router = APIRouter()
 
@@ -81,3 +96,24 @@ def unit_dating(unit_id: str, conn: Conn) -> DatingChapter | None:
     u = unit_or_404(conn, unit_id)
     r = queries.dating_chapter_of(conn, u["start_verse_id"])
     return _chapter(r) if r else None
+
+
+@router.get("/theophoric", dependencies=[stage("theophoric")], response_model=TheophoricResponse)
+def theophoric(state: State, conn: Conn, names: int = 40) -> dict[str, Any]:
+    """Names built on God's name (§16.90): their forms by book, the claim that late books spell
+    the ending short, the known answers, and the most frequent names."""
+    check_cap(state, names, "names", "max_top")
+    meta = state.meta.get("theophoric") or {}
+    return {
+        "names_total": meta.get("names") or 0,
+        "occurrences": meta.get("occurrences") or 0,
+        "claim": meta.get("claim"),
+        "alpha": meta.get("alpha"),
+        "shuffles": meta.get("shuffles"),
+        "known": [
+            {**k, "book_ids": [BY_OSIS[o].book_id for o in k["books"] if o in BY_OSIS]}
+            for k in meta.get("known") or []
+        ],
+        "books": queries.theophoric_books(conn),
+        "names": queries.theophoric_names(conn, names),
+    }

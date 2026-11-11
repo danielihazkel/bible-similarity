@@ -2,8 +2,8 @@
 
 Hebrew Bible similarity project. Read these before working:
 - `docs/ARCHITECTURE.md`: pipeline stages, artifact contract, repo layout
-- `docs/DESIGN.md`: the authoritative technical decisions (§15 decision log)
-- `docs/TASKS.md`: milestone checklist; tick boxes as tasks are completed
+- `docs/DESIGN.md`: the authoritative technical decisions (§15 decision log). §16, the pattern analyses, is in `docs/design/ANALYSES.md` under the same numbers: read only the sections you need.
+- `docs/TASKS.md`: open milestones and the current series; tick boxes as tasks are completed. Finished milestones are in `docs/TASKS_DONE.md` (no need to read it).
 
 ## Conventions
 - Python 3.11, managed with `uv` (`uv run ...`). Package code lives in `src/bsim/`, and the CLI is `bsim` (Typer).

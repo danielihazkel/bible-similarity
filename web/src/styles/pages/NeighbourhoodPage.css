@@ -1,0 +1,112 @@
+/* A unit's neighbourhood graph (DESIGN.md §11.1, D149): the colours of the kinds are the
+   project's tokens (light and dark already); kinds that share a colour differ by their dashes. */
+
+.nbh-page {
+  --nbh-lexical: var(--lex);
+  --nbh-semantic: var(--sem);
+  --nbh-phrase: var(--phr);
+  --nbh-known: var(--accent);
+  --nbh-text: var(--geo-region);
+  --nbh-chapters: var(--dv-elohim);
+  --nbh-fused: var(--muted);
+}
+
+.nbh-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  border: 0;
+  padding: 0;
+  margin: 0.4rem 0;
+}
+.nbh-kinds legend {
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0.2rem;
+}
+.nbh-swatch {
+  display: inline-block;
+  width: 1.6rem;
+  height: 0;
+  border-top: 3px solid var(--muted);
+  vertical-align: middle;
+  margin-inline-end: 0.35rem;
+}
+
+/* the zoom and export buttons: the page's surface, not the browser's grey (4.2:1 in the dark theme) */
+.nbh-tools button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.7rem;
+}
+.nbh-tools button:hover {
+  border-color: var(--accent);
+}
+
+.nbh-graph {
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  touch-action: none;
+  cursor: grab;
+}
+.nbh-edge {
+  stroke: var(--muted);
+  stroke-opacity: 0.75;
+}
+.nbh-node {
+  fill: var(--surface-2);
+  stroke: var(--text);
+  stroke-width: 1;
+}
+.nbh-node.nbh-hop-1 {
+  fill: var(--accent-soft);
+}
+.nbh-node.centre {
+  fill: var(--accent);
+  stroke-width: 2;
+}
+.nbh-label {
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
+.nbh-graph a:hover .nbh-node,
+.nbh-graph a:focus-visible .nbh-node {
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+
+/* the kinds: the line and its swatch alike */
+.nbh-edge.nbh-lexical { stroke: var(--nbh-lexical); }
+.nbh-edge.nbh-semantic { stroke: var(--nbh-semantic); }
+.nbh-edge.nbh-phrase { stroke: var(--nbh-phrase); }
+.nbh-edge.nbh-known { stroke: var(--nbh-known); stroke-opacity: 1; }
+.nbh-edge.nbh-sequence { stroke: var(--nbh-text); stroke-opacity: 1; }
+.nbh-edge.nbh-allusion { stroke: var(--nbh-text); stroke-dasharray: 2 4; }
+.nbh-edge.nbh-citation { stroke: var(--nbh-text); stroke-dasharray: 8 4; stroke-opacity: 1; }
+.nbh-edge.nbh-borrowing { stroke: var(--nbh-chapters); stroke-opacity: 1; }
+.nbh-edge.nbh-echo { stroke: var(--nbh-chapters); stroke-dasharray: 8 4; }
+.nbh-edge.nbh-fused { stroke: var(--nbh-fused); stroke-opacity: 0.45; }
+.nbh-swatch.nbh-lexical { border-top-color: var(--nbh-lexical); }
+.nbh-swatch.nbh-semantic { border-top-color: var(--nbh-semantic); }
+.nbh-swatch.nbh-phrase { border-top-color: var(--nbh-phrase); }
+.nbh-swatch.nbh-known { border-top-color: var(--nbh-known); }
+.nbh-swatch.nbh-sequence { border-top-color: var(--nbh-text); }
+.nbh-swatch.nbh-allusion { border-top: 3px dotted var(--nbh-text); }
+.nbh-swatch.nbh-citation { border-top: 3px dashed var(--nbh-text); }
+.nbh-swatch.nbh-borrowing { border-top-color: var(--nbh-chapters); }
+.nbh-swatch.nbh-echo { border-top: 3px dashed var(--nbh-chapters); }
+.nbh-swatch.nbh-fused { border-top-color: var(--nbh-fused); opacity: 0.6; }
+
+@media print {
+  .nbh-tools,
+  .nbh-kinds input {
+    display: none;
+  }
+}

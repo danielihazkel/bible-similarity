@@ -9,6 +9,7 @@ import { bookName } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/borrowing'
+import '../styles/pages/BorrowingPage.css'
 
 const SIGNS = ['language', 'spelling', 'smoothing', 'expansion'] as const
 

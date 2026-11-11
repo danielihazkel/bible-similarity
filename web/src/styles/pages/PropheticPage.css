@@ -1,0 +1,8 @@
+/* PropheticPage.tsx (§16.92, D154) */
+
+.pf-forms { display: grid; gap: 0.35rem; margin: 0.4rem 0 0.8rem; }
+.pf-forms dt { font-weight: 600; }
+.pf-forms dd { margin: 0; }
+.pf-known > li { margin-bottom: 0.4rem; }
+.pf-known ul { margin-top: 0.15rem; }
+.pf-item .hit-head .muted { margin-inline-start: 0.4rem; }

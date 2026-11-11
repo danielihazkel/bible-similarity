@@ -8,6 +8,7 @@ import { Segmented } from './Controls'
 import { ErrorBox, Loading } from './Status'
 import '../i18n/pages/patterns'
 import '../i18n/pages/roots'
+import '../styles/components/StructurePanel.css'
 
 type Basis = 'semantic' | 'lexical'
 

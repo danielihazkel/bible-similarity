@@ -44,6 +44,14 @@ def _dating(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | Non
     return Finding(key="dating", verdict="holds" if s["p"] <= alpha else "fails", values=values)
 
 
+def _theophoric(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
+    c = (meta.get("theophoric") or {}).get("claim")
+    if not c:
+        return None
+    values = {k: c[k] for k in ("early_short", "late_short", "p", "names")}
+    return Finding(key="theophoric", verdict="holds" if c["holds"] else "fails", values=values)
+
+
 def _borrowing(meta: Meta, conn: sqlite3.Connection, alpha: float) -> Finding | None:
     h = (meta.get("borrowing") or {}).get("held_out")
     if not h:

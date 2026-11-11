@@ -596,6 +596,35 @@ export type Suggestion = S['Suggestion']
 export type LlmTriage = S['LlmTriage']
 export type PairNote = S['PairNote']
 export type PairNoteResponse = S['PairNoteResponse']
+/** Detector precision by Claude's reading (§16.86, D147): one row per population judged. */
+export type PrecisionRow = S['PrecisionRow']
+export type DetectorPrecisionResponse = S['DetectorPrecisionResponse']
+/** A unit's neighbourhood graph (§11.1, D149). */
+export type NeighbourhoodResponse = S['NeighbourhoodResponse']
+export type NeighbourNode = S['NeighbourNode']
+export type NeighbourEdge = S['NeighbourEdge']
+/** Names built on God's name (§16.90, D152). */
+export type TheophoricResponse = S['TheophoricResponse']
+export type TheophoricName = S['TheophoricName']
+export type TheophoricBook = S['TheophoricBook']
+/** The narrative main line (§16.91, D153). */
+export type MainlineResponse = S['MainlineResponse']
+export type MainlinePauses = S['MainlinePauses']
+export type MainlinePause = S['MainlinePause']
+export type MainlineOrder = 'longest' | 'canon'
+export type PropheticResponse = S['PropheticResponse']
+export type ProphItems = S['ProphItems']
+export type ProphItem = S['ProphItem']
+export type ProphForm = 'messenger' | 'woe' | 'nations' | 'lawsuit' | 'call'
+export type LawsResponse = S['LawsResponse']
+export type LawList = S['LawList']
+export type Law = S['Law']
+export type LawPairs = S['LawPairs']
+export type LawPair = S['LawPair']
+export type LawSynopsis = S['LawSynopsis']
+export type LawSideVerse = S['LawSideVerse']
+export type LawCode = 'covenant' | 'ritual' | 'holiness' | 'deuteronomic' | 'priestly'
+export type LawForm = 'casuistic' | 'apodictic' | 'other'
 
 export type QueueSide = 'all' | 'lexical' | 'semantic'
 
@@ -873,6 +902,10 @@ export type FindingKey =
   | 'acrostics'
   | 'divisions'
   | 'dating'
+  | 'theophoric'
+  | 'mainline'
+  | 'prophetic'
+  | 'laws'
   | 'borrowing'
   | 'citations'
   | 'voices'

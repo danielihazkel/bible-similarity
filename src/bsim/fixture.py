@@ -902,6 +902,7 @@ def write_inputs(cfg, tmp_path):
         "directional_he",
         "cohortative_wayyiqtol",
         "david_plene",
+        "yah_short",
     ]
     date_dir = art / "dating"
     date_dir.mkdir(parents=True, exist_ok=True)
@@ -2622,6 +2623,185 @@ def write_llm_notes(cfg):
     (out / "llm_notes.meta.json").write_text(json.dumps(meta), "utf-8")
 
 
+def write_llm_audit(cfg):
+    """Two `bsim llm-audit` runs (§16.86, D147), made up, both calibrated: M152's `strongest`
+    (no list sizes) for acrostics and etiologies, and a `pages` run with what the pages list
+    (`shown`) and, for etiologies, what they mark as strong (`marked`)."""
+    art = resolve_path(cfg, "artifacts")
+
+    def p(right, wrong, unsure=0, population=None, lo=0.1, hi=0.9):
+        return {"judged": right + wrong + unsure, "right": right, "wrong": wrong,
+                "unsure": unsure, "precision": round(right / (right + wrong), 3), "lo": lo,
+                "hi": hi, "population": population}  # fmt: skip
+
+    known = {"known": p(3, 0)}
+    runs = {
+        "llm_audit": {
+            "acrostics": {**p(4, 46, lo=0.03, hi=0.19), **known},
+            "etiologies": {**p(29, 18, 3, lo=0.47, hi=0.74), **known},
+        },
+        "llm_audit_pages": {
+            "acrostics": {"shown": p(9, 4, population=13, lo=0.42, hi=0.87), **known},
+            "etiologies": {"shown": p(30, 18, 2, population=111, lo=0.49, hi=0.75),
+                           "marked": p(7, 1, population=8, lo=0.53, hi=0.98), **known},
+        },
+    }  # fmt: skip
+    for folder, detectors in runs.items():
+        out = art / folder
+        out.mkdir(parents=True, exist_ok=True)
+        meta = {
+            "model": "claude-sonnet-5-5", "batch_id": "msgbatch_fixture",
+            "collected_at": "2026-11-10T12:00:00+00:00",
+            "calibration": {"places_right": "45 / 50", "known_right": "127 / 138", "holds": True},
+            "detectors": detectors,
+        }  # fmt: skip
+        if folder.endswith("_pages"):
+            meta["population"] = "pages"
+        (out / "llm_audit.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
+def write_theophoric(cfg):
+    """A `bsim theophoric` run (§16.90), made up: Jeremiah spelled long three times and short once
+    in Genesis, Ishmael once in Exodus; the claim not borne out, one known answer holding."""
+    out = resolve_path(cfg, "artifacts") / "theophoric"
+    out.mkdir(parents=True, exist_ok=True)
+    forms = ["yahu", "yah", "yeho", "yo", "el_first", "el_last"]
+    pd.DataFrame(
+        [("3414", "יִרְמְיָה", "yah", 4, 3, 1, 0, 0, 0, 0),
+         ("3458", "יִשְׁמָעֵאל", "el", 1, 0, 0, 0, 0, 0, 1)],
+        columns=["lemma", "he", "divine", "n", *forms],
+    ).to_parquet(out / "names.parquet", index=False)  # fmt: skip
+    rows = [(0, 3, 1, 0, 0, 0, 0), (1, 0, 0, 0, 0, 0, 1)]
+    books = pd.DataFrame(rows, columns=["book_id", *forms])
+    books.to_parquet(out / "books.parquet", index=False)
+    meta = {
+        "names": 2, "occurrences": 5, "forms": dict(zip(forms, [3, 1, 0, 0, 0, 1], strict=True)),
+        "claim": {"early_short": 0.25, "late_short": 0.5, "difference": 0.25, "null_mean": 0.1,
+                  "p": 0.2, "holds": False, "occurrences": 4, "names": 1},
+        "shuffles": 99, "alpha": 0.05,
+        "known": [
+            {"books": ["Gen"], "side": "long", "short": 0.25, "endings": 4, "holds": True},
+            {"books": ["Exod"], "side": "short", "short": None, "endings": 0, "holds": False},
+        ],
+        "known_holds": False,
+    }  # fmt: skip
+    (out / "theophoric.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
+def write_mainline(cfg):
+    """A `bsim mainline` run (§16.91), made up: Genesis 1:1-3's narrator clauses, one pause of two
+    background clauses at v:1 (a known one), the claim not borne out."""
+    out = resolve_path(cfg, "artifacts") / "mainline"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [("c:0:1", 0, 0, 2, 2, 2, 0.5)],
+        columns=["unit_id", "book_id", "first_vid", "last_vid", "main", "background", "share"],
+    ).to_parquet(out / "pericopes.parquet", index=False)
+    pd.DataFrame(
+        [(1, "c:0:1", 0, 1, 1, 2, json.dumps(["NmCl", "Ptcp"]), True)],
+        columns=["pause_id", "unit_id", "book_id", "first_vid", "last_vid", "n_clauses", "types",
+                 "known"],
+    ).to_parquet(out / "pauses.parquet", index=False)  # fmt: skip
+    pd.DataFrame(
+        [(0, 2, 2, 0.5, 1)], columns=["book_id", "main", "background", "share", "pauses"]
+    ).to_parquet(out / "books.parquet", index=False)
+    pd.DataFrame(
+        [(1, 0, json.dumps([0]), "main"), (2, 1, json.dumps([0, 1]), "background"),
+         (3, 1, json.dumps([2]), "background"), (4, 2, json.dumps([0]), "main")],
+        columns=["clause", "verse_id", "words", "role"],
+    ).to_parquet(out / "clauses.parquet", index=False)  # fmt: skip
+    meta = {
+        "clauses": 4, "main": 2, "background": 2, "pauses": 1, "min_run": 2, "opening": 3,
+        "claim": {"excess": -0.01, "null_mean": 0.03, "p": 0.9, "holds": False, "paragraphs": 1},
+        "shuffles": 99, "alpha": 0.05,
+        "known": [{"ref": "Genesis 1:2", "found": True, "pause": 1}], "known_found": 1,
+        "known_holds": True,
+    }  # fmt: skip
+    (out / "mainline.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
+def write_laws(cfg):
+    """A `bsim laws` run (§16.93), made up: a deuteronomic law over v3-v4 (casuistic, 3rd person)
+    and a covenant law at v5 (apodictic, 2ms), matched (a known pair), one change marked on each
+    side."""
+    out = resolve_path(cfg, "artifacts") / "laws"
+    out.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        [(1, "deuteronomic", "c:0:2", 0, 3, 4, 2, "casuistic", True, False, "3", 0, 0, 3),
+         (2, "covenant", "c:1:1", 1, 5, 5, 1, "apodictic", False, True, "2ms", 2, 0, 0)],
+        columns=["law_id", "code", "unit_id", "book_id", "first_vid", "last_vid", "n_verses",
+                 "form", "casuistic", "apodictic", "address", "v2ms", "v2mp", "v3"],
+    ).to_parquet(out / "laws.parquet", index=False)  # fmt: skip
+    pd.DataFrame(
+        [(1, 1, 2, "deuteronomic", "covenant", 2, 0.012, 3, 3, 5, 5, 4, 0, 1, 1, 0, 1, 0, 0.71,
+          "slave release")],
+        columns=["pair_id", "a", "b", "code_a", "code_b", "links", "score", "a_first", "a_last",
+                 "b_first", "b_last", "same", "spelling", "form", "substitution", "omitted",
+                 "added", "moved", "kept", "known"],
+    ).to_parquet(out / "pairs.parquet", index=False)  # fmt: skip
+    pd.DataFrame(
+        [(1, "a", 3, 0, "substitution"), (1, "b", 5, 1, "added")],
+        columns=["pair_id", "side", "verse_id", "display_idx", "op"],
+    ).to_parquet(out / "marks.parquet", index=False)
+    pd.DataFrame(
+        [("covenant", 1, 1, 0, 1, 0, 1, 0, 0, 0), ("deuteronomic", 1, 2, 1, 0, 0, 0, 0, 1, 0)],
+        columns=["code", "laws", "verses", "casuistic", "apodictic", "other", "v2ms", "v2mp", "v3",
+                 "mixed"],
+    ).to_parquet(out / "codes.parquet", index=False)  # fmt: skip
+    known = [
+        {"group": "slave release", "members": [
+            {"a": "Genesis 2:1", "b": "Exodus 1:1", "found": True, "strict": True,
+             "pairs": [1]}], "found": 1,
+         "of": 1},
+        {"group": "asylum", "members": [
+            {"a": "Genesis 1:1", "b": "Exodus 1:1", "found": False, "strict": False,
+             "pairs": []}], "found": 0,
+         "of": 1},
+    ]  # fmt: skip
+    meta = {
+        "laws": 2, "pairs": 1, "linked": 1, "top_k": 20, "min_links": 2,
+        "forms": {"casuistic": 1, "apodictic": 1, "other": 0}, "known": known, "known_found": 1,
+        "known_total": 2, "known_holds": True, "known_strict": 1,
+        "kept_mean": 0.71,
+    }  # fmt: skip
+    (out / "laws.meta.json").write_text(json.dumps(meta), "utf-8")
+
+
+def write_prophetic(cfg):
+    """A `bsim prophetic` run (§16.92), made up: a woe saying at v1 (named in advance), a
+    messenger formula at v2, a nations oracle over v0-v2; the reader's marks on v1 and v2."""
+    out = resolve_path(cfg, "artifacts") / "prophetic"
+    out.mkdir(parents=True, exist_ok=True)
+    names = [{"lemma": "894", "he": "בָּבֶל", "n": 3}]
+    pd.DataFrame(
+        [(1, "nations", 0, "c:0:1", 0, 2, json.dumps({"names": names, "heading": True,
+                                                       "paragraphs": 1}), False),
+         (2, "woe", 0, "c:0:1", 1, 1, json.dumps({"next": "5060"}), True),
+         (3, "messenger", 0, "c:0:1", 2, 2, json.dumps({"kind": "thus"}), False)],
+        columns=["item_id", "form", "book_id", "unit_id", "first_vid", "last_vid", "detail",
+                 "known"],
+    ).to_parquet(out / "items.parquet", index=False)  # fmt: skip
+    pd.DataFrame(
+        [(0, "messenger", 1), (0, "nations", 1), (0, "woe", 1)], columns=["book_id", "form", "n"]
+    ).to_parquet(out / "books.parquet", index=False)
+    pd.DataFrame(
+        [(1, 0, "woe"), (1, 1, "woe"), (2, 0, "messenger")], columns=["verse_id", "idx", "form"]
+    ).to_parquet(out / "words.parquet", index=False)
+    known = {
+        "nations": {"refs": [{"ref": "Genesis 1:1-2", "found": True, "cover": 1.0, "item": 1}],
+                    "found": 1, "holds": True},
+        "woe": {"refs": [{"ref": "Genesis 1:2", "found": True, "cover": 1.0, "item": 2},
+                         {"ref": "Genesis 1:3", "found": False, "cover": 0.0, "item": None}],
+                "found": 1, "holds": False},
+    }  # fmt: skip
+    meta = {
+        "counts": {"messenger": 1, "woe": 1, "nations": 1, "lawsuit": 0, "call": 0}, "items": 3,
+        "known": known, "known_found": 2, "known_total": 3, "known_holds": False,
+        "known_cover": 0.5, "known_overlap": ["lawsuit", "call"],
+    }  # fmt: skip
+    (out / "prophetic.meta.json").write_text(json.dumps(meta, ensure_ascii=False), "utf-8")
+
+
 def write_witnesses(cfg):
     """Other witnesses (`bsim witnesses`), made up: the Samaritan has v0 (a spelling), v1 (a plus of
     four words) and v2 (a word changed, one left out); 4Q51 has v2, partly reconstructed; 1Qisaa
@@ -2733,6 +2913,11 @@ def build_fixture_db(tmp_path, semantic="sm"):
     write_witnesses(cfg)
     write_llm_triage(cfg)
     write_llm_notes(cfg)
+    write_llm_audit(cfg)
+    write_theophoric(cfg)
+    write_mainline(cfg)
+    write_prophetic(cfg)
+    write_laws(cfg)
     return cfg, run_build_db(cfg, log=lambda _: None)
 
 

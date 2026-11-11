@@ -18,7 +18,8 @@ Status: milestones M0–M28 and hardening rounds H1–H3 are done (see [docs/TAS
 ## Docs
 - [Architecture](docs/ARCHITECTURE.md): system overview, pipeline stages, repo layout, stack
 - [Design](docs/DESIGN.md): data sources, text processing, models, evaluation, DB/API/UI design, decision log
-- [Tasks](docs/TASKS.md): milestones with acceptance criteria
+- [Pattern analyses](docs/design/ANALYSES.md): DESIGN's §16, one section per analysis
+- [Tasks](docs/TASKS.md): open milestones and the latest series, with acceptance criteria; the finished ones in [TASKS_DONE.md](docs/TASKS_DONE.md)
 - [Results](docs/RESULTS.md): evaluation metrics (dev, the single test run, ablations)
 
 ## Quickstart

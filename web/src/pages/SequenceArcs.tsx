@@ -6,6 +6,7 @@ import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 import '../i18n/pages/parallels'
+import '../styles/pages/SequenceArcs.css'
 
 const W = 1000
 const H = 380

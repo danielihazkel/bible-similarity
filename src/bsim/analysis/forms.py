@@ -27,6 +27,10 @@ Numbers 33, the kings of Joshua 12.
   named in advance, each found when half its verses are in a list, among more lists than the
   shuffled orders give.
 
+M159: in `alone_steps` (one ... two) a pair is listed only where both numbers stand alone
+(`counts_a_noun`): פר אחד ... אילם שנים counts things; אחת דבר אלהים שתים זו שמעתי is a saying.
+The chance test still counts every pair.
+
 Writes `artifacts/forms/`: `sayings.parquet` (`verse_id, book_id, n_pairs, steps, prob, known`),
 `pairs.parquet` (`verse_id, a_tok, b_tok, a_value, b_value`: display tokens), `lists.parquet`
 (`list_id, book_id, first_vid, last_vid, n_like, likeness, kind, known`), `books.parquet`
@@ -105,6 +109,30 @@ def candidate_pairs(free: pd.DataFrame, window: int) -> tuple[np.ndarray, np.nda
     if not a:
         return np.array([], dtype=np.int64), np.array([], dtype=np.int64)
     return np.concatenate(a), np.concatenate(b)
+
+
+def counts_a_noun(morph: dict[tuple[int, int], str], vid: int, i: int) -> bool:
+    """Whether number word `i` of verse `vid` counts a noun: in the construct state (שְׁנֵי
+    אֲדָנִים), or beside a noun without a prefix that agrees with it in gender (פַּר אֶחָד). A
+    number with a prefix (וּבִשְׁתַּיִם) or among other words (אַחַת דִּבֶּר אֱלֹהִים שְׁתַּיִם) stands
+    alone, as in a saying (M159)."""
+
+    def parts(m: str | None) -> list[str]:
+        return m[1:].split("/") if isinstance(m, str) and m else []
+
+    ps = parts(morph.get((vid, i)))
+    if len(ps) != 1:
+        return False
+    num = ps[0]
+    if num.endswith("c"):
+        return True
+    for j in (i - 1, i + 1):
+        q = parts(morph.get((vid, j)))
+        if len(q) == 1 and q[0][:1] == "N" and not q[0].startswith("Np"):
+            g, h = num[2:3], q[0][2:3]
+            if "b" in (g, h) or g == h:
+                return True
+    return False
 
 
 def step_table(values: np.ndarray, steps: set[tuple[int, int]]) -> tuple[np.ndarray, np.ndarray]:
@@ -229,6 +257,33 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
             "b_value": free.value.to_numpy()[gj],
         }
     )
+    # M159: in `alone_steps` (one ... two) both numbers stand alone; one bull and two rams is a
+    # count, not a saying (Claude judged 37 of 50 listed sayings wrong, most of them so: §16.86)
+    alone = {(int(a), int(b)) for a, b in fc["alone_steps"]}
+    n_counts = 0
+    if alone and len(pairs):
+        widx = {
+            (int(v), int(d)): int(i)
+            for v, i, d in zip(words.verse_id, words.idx, words.display_idx, strict=True)
+            if pd.notna(d)
+        }
+        wmorph = {
+            (int(v), int(i)): m
+            for v, i, m in zip(words.verse_id, words.idx, words.morph, strict=True)
+        }
+
+        def counted(v: int, tok: Any) -> bool:
+            if pd.isna(tok) or (v, int(tok)) not in widx:
+                return False
+            return counts_a_noun(wmorph, v, widx[v, int(tok)])
+
+        drop = np.array([
+            (int(a), int(b)) in alone and (counted(int(v), ta) or counted(int(v), tb))
+            for v, ta, tb, a, b in zip(pairs.verse_id, pairs.a_tok, pairs.b_tok,
+                                       pairs.a_value, pairs.b_value, strict=True)
+        ], dtype=bool)  # fmt: skip
+        n_counts = int(drop.sum())
+        pairs = pairs[~drop].reset_index(drop=True)
     say = (
         pairs.groupby("verse_id", sort=True)
         .apply(
@@ -410,6 +465,7 @@ def run_forms(cfg: dict[str, Any], log: Log = print) -> Path:
         },  # fmt: skip
         "chance": chance,
         "parallel": parallel,
+        "counts_left_out": n_counts,
         "known": known,
         "known_found": n_found,
         "known_share": fc["known_share"],

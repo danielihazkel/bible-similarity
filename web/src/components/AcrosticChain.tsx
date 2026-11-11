@@ -1,6 +1,7 @@
 import type { Acrostic } from '../api/types'
 import { useT } from '../context/localeContext'
 import '../i18n/pages/patterns'
+import '../styles/components/AcrosticChain.css'
 
 const ALPHABET = 'אבגדהוזחטיכלמנסעפצקרשת'
 const ORDERS: Record<Acrostic['order_name'], string> = {

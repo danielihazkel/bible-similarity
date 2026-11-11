@@ -2,6 +2,21 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { hasHebrew } from '../lib/hebrew'
 import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
+  DetectorPrecisionResponse,
+  MainlineOrder,
+  MainlinePauses,
+  MainlineResponse,
+  ProphForm,
+  LawCode,
+  LawForm,
+  LawList,
+  LawPairs,
+  LawsResponse,
+  LawSynopsis,
+  ProphItems,
+  PropheticResponse,
+  NeighbourhoodResponse,
+  TheophoricResponse,
   PairNoteResponse,
   DialogueBookResponse,
   DialogueExchangesResponse,
@@ -465,6 +480,103 @@ export const usePairNote = (a: number | undefined, b: number | undefined) => {
     enabled: personal && a !== undefined && b !== undefined,
   })
 }
+
+/** Each audited detector's precision by Claude's reading (§16.86, D147); personal only, as the
+ * notes are. Read once: the runs change by hand. */
+export const useDetectorPrecision = () => {
+  const { personal } = useServer()
+  return useQuery({
+    queryKey: ['detector-precision'],
+    queryFn: ({ signal }) => getJson<DetectorPrecisionResponse>('/detector-precision', {}, signal),
+    enabled: personal,
+    staleTime: Infinity,
+  })
+}
+
+/** A unit's parallels two steps out, as a graph (§11.1, D149): stored lists only, so a public
+ * server has it too. */
+export const useNeighbourhood = (unitId: string, k?: number, hops?: number) =>
+  useQuery({
+    queryKey: ['neighbourhood', unitId, k, hops],
+    queryFn: ({ signal }) => getJson<NeighbourhoodResponse>(`/neighbourhood/${encodeURIComponent(unitId)}`, { k, hops }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** Names built on God's name (§16.90): their forms by book, the claim, the known answers. */
+export const useTheophoric = () =>
+  useQuery({
+    queryKey: ['theophoric'],
+    queryFn: ({ signal }) => getJson<TheophoricResponse>('/theophoric', {}, signal),
+    ...forever,
+  })
+
+/** The narrative main line (§16.91): the books, the claim, the known pauses. */
+export const useMainline = () =>
+  useQuery({ queryKey: ['mainline'], queryFn: ({ signal }) => getJson<MainlineResponse>('/mainline', {}, signal), ...forever })
+
+/** A page of the main line's pauses. */
+export const useMainlinePauses = (q: { order: MainlineOrder; book?: number; known: boolean; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['mainline-pauses', q],
+    queryFn: ({ signal }) =>
+      getJson<MainlinePauses>(
+        '/mainline/pauses',
+        { order: q.order, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** The prophetic forms (§16.92): each form's findings by book, the passages named in advance. */
+export const useProphetic = () =>
+  useQuery({ queryKey: ['prophetic'], queryFn: ({ signal }) => getJson<PropheticResponse>('/prophetic', {}, signal), ...forever })
+
+/** A page of the prophetic forms' findings, in canon order. */
+export const usePropheticItems = (q: { form?: ProphForm; book?: number; known: boolean; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['prophetic-items', q],
+    queryFn: ({ signal }) =>
+      getJson<ProphItems>(
+        '/prophetic/items',
+        { form: q.form, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** The law codes (§16.93): each code's profile, the pairs named in advance. */
+export const useLaws = () =>
+  useQuery({ queryKey: ['laws'], queryFn: ({ signal }) => getJson<LawsResponse>('/laws', {}, signal), ...forever })
+
+/** A page of laws in canon order. */
+export const useLawList = (q: { code?: LawCode; form?: LawForm; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['law-list', q],
+    queryFn: ({ signal }) => getJson<LawList>('/laws/list', { code: q.code, form: q.form, limit: q.limit, offset: q.offset }, signal),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** A page of matched law pairs. */
+export const useLawPairs = (q: { order: 'score' | 'canon'; code?: LawCode; known: boolean; unit?: string; limit: number; offset: number }) =>
+  useQuery({
+    queryKey: ['law-pairs', q],
+    queryFn: ({ signal }) =>
+      getJson<LawPairs>(
+        '/laws/pairs',
+        { order: q.order, code: q.code, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+    ...forever,
+  })
+
+/** One matched pair side by side. */
+export const useLawPair = (id: number) =>
+  useQuery({ queryKey: ['law-pair', id], queryFn: ({ signal }) => getJson<LawSynopsis>(`/laws/pair/${id}`, {}, signal), ...forever })
 
 /** The key of a pair in either order. */
 export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`)

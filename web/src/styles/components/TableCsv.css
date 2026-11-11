@@ -1,0 +1,9 @@
+/* TableCsv.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* "Export table (CSV)" above a table (TableCsv) */
+
+.table-csv {
+  margin: 0.3rem 0 0.2rem;
+  text-align: end;
+  font-size: 0.85rem;
+}

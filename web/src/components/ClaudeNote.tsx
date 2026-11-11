@@ -1,6 +1,7 @@
 import type { LabelValue } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import '../i18n/pages/labels'
+import '../styles/components/ClaudeNote.css'
 
 /** What a note needs: Claude's verdict on a pair, its probability, kind and rationale. */
 export interface NoteLike {

@@ -1,0 +1,22 @@
+/* FrameworksPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* the narrative frameworks (§16.71) */
+
+.fw-cycle .he,
+.fw-kings .he { font-family: var(--font-he); font-size: 1.1rem; }
+
+.fw-slot { text-align: center; }
+
+.fw-hit { font-weight: 700; color: var(--known); text-decoration: none; }
+
+.fw-hit:hover { text-decoration: underline; }
+
+.type-tag.fw-good { color: var(--known); border-color: var(--known); }
+
+.type-tag.fw-bad { color: var(--gt-conflict-ink); border-color: var(--gt-conflict-ink); }
+
+.fw-kings tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
+
+.fw-kings tr.fw-israel th .muted { font-style: italic; }
+
+.fw-panel .hit-text { margin: 0.3rem 0; }

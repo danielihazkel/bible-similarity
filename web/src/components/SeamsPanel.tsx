@@ -5,6 +5,8 @@ import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { ErrorBox, Loading } from './Status'
 import '../i18n/pages/overview'
+import { PrecisionNote } from './PrecisionNote'
+import '../styles/components/SeamsPanel.css'
 
 /** Where the style of a book changes: the shift curve along the book, its threshold and seams.
  * Without a book: the strongest seams of the corpus. */
@@ -18,6 +20,7 @@ export function SeamsPanel({ book, name }: { book?: number; name: Map<number, st
     <section aria-label={m.ov.seams.label}>
       <h2>{m.ov.seams.title}</h2>
       <p className="muted small">{m.ov.seams.lede(block_words)}</p>
+      <PrecisionNote detector="seams" />
       {book !== undefined && curve.length > 0 && threshold !== null && (
         <ShiftChart curve={curve} seams={seams} threshold={threshold} />
       )}

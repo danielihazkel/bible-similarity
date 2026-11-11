@@ -1,0 +1,35 @@
+/* SequenceArcs.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Parallel sequences as arcs across the canon */
+
+.arc-diagram {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.arc-diagram path.arc-cross,
+.swatch.arc-cross {
+  stroke: var(--sem);
+  background: var(--sem);
+}
+
+.arc-diagram path.arc-within,
+.swatch.arc-within {
+  stroke: var(--lex);
+  background: var(--lex);
+}
+
+.arc.faded path {
+  opacity: 0.07;
+}
+
+.arc-book-label {
+  font-size: 10px;
+  fill: var(--muted);
+}
+
+.arc-book.on rect {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}

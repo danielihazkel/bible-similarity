@@ -1,0 +1,21 @@
+/* LinkBadge.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Sefaria-linked hits */
+
+.link-badge {
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  white-space: nowrap;
+}
+
+.link-badge {
+  color: var(--known);
+  background: var(--known-soft);
+  border: 1px solid var(--known);
+}
+
+.link-badge.unit {
+  background: transparent;
+  border-style: dashed;
+}

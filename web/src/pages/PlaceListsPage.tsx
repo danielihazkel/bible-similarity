@@ -11,6 +11,7 @@ import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
 import { useIntParam, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/placeLists'
+import '../styles/pages/PlaceListsPage.css'
 
 const NAMED_UP_TO = 20 // a list this long has its places' names written on the map; a longer one, their numbers
 const LONGEST = 3 // steps named as the longest

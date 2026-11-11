@@ -1,0 +1,24 @@
+/* TourBar.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* glossary terms and guided tours (§11) */
+
+.tour-bar { position: sticky; bottom: 0; z-index: 40; border-top: 2px solid var(--accent); background: var(--surface); box-shadow: 0 -2px 10px rgb(0 0 0 / 0.08); }
+
+.tour-bar-inner { max-width: 60rem; margin: 0 auto; padding: 0.6rem 1rem 0.7rem; }
+
+.tour-bar-title { margin: 0; font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+
+.tour-bar-caption { margin: 0.25rem 0 0.5rem; }
+
+.tour-bar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+
+.tour-bar-actions .linkish { margin-inline-start: auto; }
+
+/* ---------- Print (§11.1) ----------
+   A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
+   screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
+   colours kept; verses and synopsis rows not split across pages. */
+
+@media print {
+  .tour-bar { display: none !important; }
+}

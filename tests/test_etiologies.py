@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from bsim.analysis.etiologies import (
     Word,
     echo,
+    explaining_verses,
     explanation,
     find_namings,
     lcs,
@@ -113,10 +114,30 @@ def corpus(tmp_path):
     cfg = load_config()
     cfg["paths"] = {**cfg["paths"], "data_processed": str(proc),
                     "artifacts": str(tmp_path / "artifacts")}  # fmt: skip
-    cfg["etiologies"] = {**EC, "shuffles": 99, "verse_draws": 4,
+    cfg["etiologies"] = {**EC, "shuffles": 99, "verse_draws": 4, "explained_only": False,
                          "known": [{"ref": "Genesis 1:1", "name": "גד"},
                                    {"ref": "Genesis 1:2", "name": "שת"}]}  # fmt: skip
     return cfg
+
+
+def test_only_the_explained_are_listed(tmp_path):
+    """M159: with `explained_only`, a naming is listed where its verse explains (כי, על כן, a
+    form of אמר); the claim still counts every naming."""
+    cfg = corpus(tmp_path)
+    words = pd.read_parquet(tmp_path / "processed" / "words.parquet")
+    extra = pd.DataFrame(
+        [(1, 9, "כִּי", "3588a", ["3588a"], "HC", 9),
+         (3, 9, "עַל", "5921a", ["5921a"], "HR", 9), (3, 10, "כֵּן", "3651c", ["3651c"], "HD", 10)],
+        columns=words.columns,
+    )  # fmt: skip
+    pd.concat([words, extra]).to_parquet(tmp_path / "processed" / "words.parquet")
+    cfg["etiologies"]["explained_only"] = True
+    run_etiologies(cfg, log=lambda _: None)
+    out = tmp_path / "artifacts" / "etiologies"
+    assert pd.read_parquet(out / "namings.parquet").name.tolist() == ["נח", "דן"]
+    meta = json.loads((out / "etiologies.meta.json").read_text("utf-8"))
+    assert (meta["namings"], meta["listed"]) == (4, 2)
+    assert explaining_verses(extra, ["3588"], [["5921", "3651"]]) == {1, 3}
 
 
 def test_run_etiologies(tmp_path):

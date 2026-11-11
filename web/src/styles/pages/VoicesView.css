@@ -1,0 +1,31 @@
+/* VoicesView.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Speaker voices (DESIGN.md §16.28) */
+
+.voice-checks ul,
+.voice-profile .inline-list {
+  padding-inline-start: 1.2rem;
+}
+
+.voice-checks li + li {
+  margin-top: 0.3rem;
+}
+
+.voice-table tr.on td {
+  background: var(--accent-soft);
+}
+
+.voice-table button.linkish {
+  font: inherit;
+  font-size: 1.1rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.voice-profile .inline-list {
+  columns: 14rem;
+}
+
+.voice-profile .inline-list a {
+  text-decoration: underline;
+}

@@ -293,7 +293,9 @@ def run_speaker_eval(cfg: dict[str, Any], log: Log = print) -> dict[str, Any]:
             random_state=sc["seed"],
         )
         pick[["custom_id", "verse_id", "answer", "answer_ref"]].assign(owner="").to_csv(
-            sheet, index=False, encoding="utf-8-sig"  # the BOM keeps Excel from losing the Hebrew
+            sheet,
+            index=False,
+            encoding="utf-8-sig",  # the BOM keeps Excel from losing the Hebrew
         )
         log(f"wrote {sheet}: mark `owner` right or wrong for each of {len(pick)} answers")
     marks = pd.read_csv(sheet, dtype=str).fillna("")

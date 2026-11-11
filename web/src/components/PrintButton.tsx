@@ -1,4 +1,5 @@
 import { useT } from '../context/localeContext'
+import '../styles/components/PrintButton.css'
 
 /** "Print": the page through the print stylesheet (no menus or controls, light, on white); the
  * print dialog also saves it as a PDF (§11.1). */

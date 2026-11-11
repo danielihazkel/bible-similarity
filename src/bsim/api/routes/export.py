@@ -22,6 +22,7 @@ from bsim.api.routes import (
     core,
     dialogue,
     forms,
+    laws,
     meter,
     parallels,
     patterns,
@@ -64,6 +65,8 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "sayings": forms.forms_sayings,
     "lists": forms.forms_lists,
     "patterns": patterns.patterns,
+    "laws": laws.law_list,
+    "law-pairs": laws.law_pairs,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",

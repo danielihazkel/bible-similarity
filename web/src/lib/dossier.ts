@@ -69,6 +69,8 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
       return `/reception?unit=${u}`
     case 'witnesses':
       return `/witnesses?unit=${u}`
+    case 'laws':
+      return `/laws?unit=${u}`
     case 'gematria':
       // a verse: the verses of its value; a passage: its words' values in the reader
       return unit.unit_type === 'verse' && e.value !== null ? `/gematria?q=${e.value}&view=verses` : readLink(unit.unit_id, '?layers=gematria')

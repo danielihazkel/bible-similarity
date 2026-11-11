@@ -14,6 +14,7 @@ import { bookName } from '../lib/names'
 import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/query'
+import '../styles/pages/QueryPage.css'
 
 const PAGE_SIZE = 20
 

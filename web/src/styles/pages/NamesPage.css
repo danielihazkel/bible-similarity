@@ -1,0 +1,77 @@
+/* NamesPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* ---------- People and places (§16.11) ---------- */
+
+.names-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.name-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.name-list.stale {
+  opacity: 0.55;
+}
+
+/* ≥ 4.5:1 with white */
+
+.entity-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.ego {
+  width: 100%;
+  max-width: 340px;
+  display: block;
+  margin: 0 auto;
+}
+
+.ego-spoke { stroke: var(--accent); stroke-opacity: 0.55; }
+
+.ego-side { stroke: var(--border); stroke-width: 1; }
+
+.ego-node { cursor: pointer; }
+
+.ego-node circle,
+.ego-centre { fill: var(--muted); }
+
+.ego-node.kind-person circle,
+.ego-centre.kind-person { fill: var(--lex); }
+
+.ego-node.kind-place circle,
+.ego-centre.kind-place { fill: var(--known); }
+
+.ego-node text,
+.ego-centre-label {
+  font-family: var(--font-he);
+  font-size: 13px;
+  fill: var(--text);
+}
+
+.ego-centre-label { font-weight: 700; font-size: 15px; }
+
+@media (max-width: 720px) {
+  .names-grid { grid-template-columns: 1fr; }
+  .entity-panel { position: static; }
+}
+
+/* Skip link: off screen until focused */
+
+.ego-node:focus-visible circle {
+  stroke: var(--text);
+  stroke-width: 3;
+}

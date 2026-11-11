@@ -10,6 +10,7 @@ import '../i18n/pages/week'
 import { readLink, unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 import { isIsoDate, localToday, longDate } from '../lib/week'
+import '../styles/pages/WeekPage.css'
 
 /** This week's parasha (§11.1): the coming Shabbat's reading in Israel or abroad (`?israel=1`),
  * any date's (`?date=`), each portion with its haftarah and what the analyses found in it. */

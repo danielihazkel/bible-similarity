@@ -1,0 +1,5 @@
+/* EtiologiesPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* naming etiologies (§16.66): a naming beyond chance carries a bar at its start */
+
+.ety-naming.ety-lead { border-inline-start: 3px solid var(--known); padding-inline-start: 0.6rem; }

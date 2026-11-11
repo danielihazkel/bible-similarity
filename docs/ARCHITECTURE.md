@@ -89,7 +89,7 @@ bible-similarity/
 ├── README.md
 ├── CLAUDE.md
 ├── pyproject.toml / uv.lock        # uv-managed; torch from the cu126 index, in the default `ml` group (left out of the public image)
-├── docs/                           # ARCHITECTURE, DESIGN, TASKS, RESULTS (metrics only), DEPLOY (a public copy); genealogy/PROGRESS.md (the family tree's hand-off)
+├── docs/                           # ARCHITECTURE, DESIGN (§16 in design/ANALYSES.md), TASKS (finished ones in TASKS_DONE), RESULTS (metrics only), DEPLOY (a public copy); genealogy/PROGRESS.md (the family tree's hand-off)
 ├── curation/genealogy/             # the family tree's review files, one per block (keys and references only; §16.63)
 ├── configs/
 │   ├── default.yaml                # all paths, hyperparameters, k, seeds
@@ -176,6 +176,10 @@ bible-similarity/
 │   │   ├── reception.py            # `bsim reception`: where the Mishnah, the Tosefta and the Talmuds cite each verse (Sefaria's links; §16.77)
 │   │   ├── witnesses.py            # `bsim witnesses`: the Samaritan Pentateuch and the Dead Sea Scrolls against the MT, word by word; the Samaritan chronology (§16.78)
 │   │   ├── borrowing.py            # `bsim borrowing`: which side of a parallel looks later (§16.27)
+│   │   ├── theophoric.py           # `bsim theophoric`: names built on God's name, their spellings by book (§16.90)
+│   │   ├── mainline.py             # `bsim mainline`: the narrator's wayyiqtol chain and where it pauses (§16.91)
+│   │   ├── prophetic.py            # `bsim prophetic`: the messenger formula, woe sayings, oracles against the nations, the lawsuit, the call (§16.92)
+│   │   ├── laws.py                 # `bsim laws`: the law codes cut into laws, each law's form, the laws another code gives again, side by side (§16.93)
 │   │   ├── voices.py               # `bsim voices`: each speaker's style against the same books (§16.28)
 │   │   ├── segments.py             # `bsim segments`: paragraphs, chapters and seams against cohesion (§16.29)
 │   │   ├── ketiv.py                # `bsim ketiv`: ketiv against qere, letters, grammar, parallels (§16.30)
@@ -212,7 +216,7 @@ bible-similarity/
 │   │   ├── openbible.py            # `bsim eval-openbible`: second gold set, dev only (§16.13)
 │   │   ├── etcbc.py                # `bsim eval-etcbc`: ETCBC parallel passages as a third gold (§16.34)
 │   │   ├── labels.py               # your labels: live separation per mode, `bsim eval-labels` (§16.25)
-│   │   ├── llm_audit.py            # `bsim llm-audit`: detector precision by Claude's reading of a sample (§16.86)
+│   │   ├── llm_audit.py            # `bsim llm-audit`: detector precision by Claude's reading of a sample, of the strongest or of what the pages list (§16.86)
 │   │   ├── llm_batch.py            # the Claude jobs' Message Batches core: request, answer check, budget, submit / resume / collect (§16.82)
 │   │   ├── llm_genealogy.py        # `bsim llm-genealogy`: the family tree's unreviewed links checked, as suggestions (§16.87)
 │   │   ├── llm_notes.py            # `bsim llm-notes`: Claude's notes on verse pairs, gathered from every run (§16.88)
@@ -238,7 +242,7 @@ bible-similarity/
 │       ├── align.py                # two verses' words linked through the encoder's token vectors, for Compare (§16.73)
 │       ├── synopsis.py             # parallel sequences chained into synopses: rows, columns, the lead book's order (§16.74)
 │       ├── routes/                 # /api endpoints, one router per feature: core, phrases, parallels,
-│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating, syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, witnesses, source_find, week, masorah, els, places, patterns, workbench, notebook, reader, dossier, findings, export (+ _common: dependencies, parameter checks)
+│       │                           #   align, synopsis, poetics, corpus, domains, senses, dating (+ theophoric), syntax (+ voices), borrowing, labels, segments, ketiv, citations, echoes, mirrors, meter, roots, refrains, psalms, pentateuch, dialogue, forms, gematria, ciphers, divine, etiologies, brackets, retold, mainline, haftarot, chronology, frameworks, binomials, sums, vocabulary, reception, witnesses, source_find, week, masorah, els, places, patterns, workbench, notebook, notes, precision, reader, neighbourhood, dossier, findings, export (+ _common: dependencies, parameter checks)
 │       ├── models/                 # pydantic response models, one module per route module + common
 │       ├── patterns.py             # pattern search: the query language, the word table, matching (§16.46)
 │       ├── workbench.py            # the workbench: sets of verses, contrast by G², a pattern checked against shuffles (§16.64)
@@ -246,6 +250,8 @@ bible-similarity/
 │       ├── resolve.py              # reference parsing for /resolve
 │       ├── source_find.py          # the source finder: a pasted text's biblical phrases, by seeds and Smith-Waterman (§11.1)
 │       ├── label_queue.py          # the label queue: train-book pairs the lexical and semantic lists disagree on (§16.79)
+│       ├── notes.py, precision.py  # Claude's notes on pairs (§16.88) and the detectors' precision (§16.86), read from the runs' files
+│       ├── neighbourhood.py        # a unit's parallels two steps out as a graph: the stored lists walked, the links joined, a seeded layout (§11.1, D149)
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
 │   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),
@@ -255,12 +261,12 @@ bible-similarity/
 │   ├── vite.config.ts              # the build, and the offline app: manifest + service worker (DESIGN.md §11.1)
 │   └── src/
 │       ├── api/                    # types (aliases of the generated schema; open JSON fields by hand + drift check), fetch client, TanStack Query hooks
-│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list, SVG export and the family tree's poster (+ vitest)
+│       ├── lib/                    # Hebrew text modes, URL state, highlights, formatting, the nav's page list, SVG export, the family tree's poster and the notebook's study page (+ vitest)
 │       ├── i18n/                   # interface strings: en.ts (the core; page groups register themselves), he.ts (same shape), pages/ per page group, imported by the modules that read it
 │       ├── context/                # te'amim / niqqud / consonants and interface-language preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the unit page's panel registry (UnitPanels)
 │       ├── pages/                  # books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, reception, other witnesses, source finder, glossary, tours, week, about
-│       └── styles/global.css
+│       └── styles/                 # global.css (tokens, base, layout, what pages share); pages/<Page>.css and components/<Component>.css, each imported by its module (D150)
 ├── video/                          # two short films about the project: scripts, voice, score, subtitles,
 │                                   #   a line-art page rendered in Edge (video/README.md; renders in video/out/, gitignored)
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)
@@ -301,7 +307,7 @@ bible-similarity/
 | — | `bsim llm-pool` | verses, links, golds, splits, the final verse lists, `fused_rerank`; the Anthropic API (paid) | `artifacts/llm_pool/{pairs,calibration,judged}.parquet`, `llm_pool.meta.json`, `batch.json`; `--score`: `artifacts/eval/llm_pool.{json,md}` (§16.83; by hand, not in `bsim all`) |
 | — | `bsim llm-train` | verses, links, golds, splits, the results DB (the label queue), the triage's run; the Anthropic API (paid) | `artifacts/llm_train/{pairs,calibration,judged}.parquet`, `llm_train.meta.json`, `batch.json` (§16.84; by hand, not in `bsim all`) |
 | — | `bsim llm-rerank` | verses, links, golds, splits, the fused list (the cross-encoder's training draw); the Anthropic API (paid) | `artifacts/llm_rerank/{pairs,calibration,judged}.parquet`, `llm_rerank.meta.json`, `batch.json` (§16.85; by hand, not in `bsim all`) |
-| — | `bsim llm-audit` | the results DB (the detectors' tables), the places sample; the Anthropic API (paid) | `artifacts/llm_audit/{items,judged}.parquet`, `llm_audit.meta.json`; `artifacts/eval/llm_audit.md` (§16.86) |
+| — | `bsim llm-audit` | the results DB (the detectors' tables), the places sample; the Anthropic API (paid) | `artifacts/llm_audit/{items,judged}.parquet`, `llm_audit.meta.json`; `artifacts/eval/llm_audit.md`; with `--population pages` the same in `llm_audit_pages/` (§16.86, D147); read by `/detector-precision` |
 | — | `bsim llm-speakers` / `speaker-eval` | the quotations (`bsim dialogue`), the results DB; the Anthropic API (paid) | `artifacts/llm_speakers/{items,judged}.parquet`, `review.csv`; `artifacts/eval/speaker_eval.json` (§16.87) |
 | — | `bsim llm-genealogy` | `artifacts/genealogy/` (links, persons, mentions, proofs), verses; the Anthropic API (paid) | `artifacts/llm_genealogy/{items,judged}.parquet`, `review.md` (§16.87; never `curation/`) |
 | — | `bsim llm-notes` | the results DB (fused verse discoveries), the other series-L runs; the Anthropic API (paid) | `artifacts/llm_notes/{pairs,notes}.parquet`, `llm_notes.meta.json`; read by `/pair-note` and `/discoveries` (§16.88; personal only) |
@@ -326,7 +332,11 @@ bible-similarity/
 | 11d' | `bsim network` | units, words, fused chapter / pericope topk | `artifacts/network/{nodes,edges,communities}.parquet` + `network.meta.json` (§16.17) |
 | 11e | `bsim stylometry` | verses, words, units | `artifacts/stylometry/{points,book_delta,book_features}.parquet` + `.meta.json` (§16.6) |
 | 11f | `bsim senses` | verses, words, word senses, BEREL | `artifacts/senses/{lemmas,senses}.parquet` + `senses.meta.json` (§16.23) |
-| 11g | `bsim dating` | verses, words, parallelism, sequences | `artifacts/dating/{chapters,books}.parquet` + `dating.meta.json` (§16.24) |
+| 11g | `bsim dating` | verses, words, parallelism, sequences, HebrewStrong.xml | `artifacts/dating/{chapters,books}.parquet` + `dating.meta.json` (§16.24) |
+| 11g' | `bsim theophoric` | verses, words, HebrewStrong.xml | `artifacts/theophoric/{names,books}.parquet` + `theophoric.meta.json` (§16.90) |
+| 11g'' | `bsim mainline` | verses, units, BHSA clauses (`bsim syntax`) | `artifacts/mainline/{pericopes,pauses,books,clauses}.parquet` + `mainline.meta.json` (§16.91) |
+| 11g''' | `bsim prophetic` | verses, words, units, BHSA clauses (`bsim syntax`), HebrewStrong.xml (headwords) | `artifacts/prophetic/{items,books,words}.parquet` + `prophetic.meta.json` (§16.92) |
+| 11g'''' | `bsim laws` | verses, words, units, BHSA clauses (`bsim syntax`), the fused verse top-k | `artifacts/laws/{laws,pairs,marks,codes}.parquet` + `laws.meta.json` (§16.93) |
 | 11h | `bsim borrowing` | verses, words, sequences, diffs | `artifacts/borrowing/{sequences,books}.parquet` + `borrowing.meta.json` (§16.27) |
 | 11e' | `bsim voices` | verses, words, syntax clauses | `artifacts/voices/{speakers,features,pairs}.parquet` + `voices.meta.json` (§16.28; empty without `bsim syntax`) |
 | 11e'' | `bsim segments` | verses, words, units, final semantic embeddings, seams | `artifacts/segments/{gaps,books}.parquet` + `segments.meta.json` (§16.29) |

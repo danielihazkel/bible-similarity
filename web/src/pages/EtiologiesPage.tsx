@@ -12,6 +12,8 @@ import { unitLink } from '../lib/links'
 import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/EtiologiesPage.css'
 
 /** Naming etiologies (§16.66): every naming the formula finds, the word of its verse that echoes
  * the name best, and the two checks. */
@@ -24,6 +26,7 @@ export function EtiologiesPage() {
     <div className="page etiologies-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="etiologies" />
       {isStageMissing(res.error) ? (
         <NotComputed>{t.notComputed}</NotComputed>
       ) : res.isError ? (

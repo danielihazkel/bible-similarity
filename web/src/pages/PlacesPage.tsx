@@ -17,6 +17,7 @@ import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/overview'
 import '../i18n/pages/places'
+import '../styles/pages/PlacesPage.css'
 
 const KINDS: PlaceKind[] = ['town', 'region', 'landform', 'water']
 const LABELS = 12 // names written on the map

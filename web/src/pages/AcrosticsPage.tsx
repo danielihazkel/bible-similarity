@@ -9,6 +9,7 @@ import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
+import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 50
 const Q_OPTIONS = ['0.05', '0.5', 'all']
@@ -42,6 +43,7 @@ export function AcrosticsPage() {
     <div className="page acrostics-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="acrostics" />
       {res.data?.known_recall != null && <p className="muted small">{t.check(res.data.known_recall)}</p>}
       <div className="toolbar">
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />

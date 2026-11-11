@@ -1,0 +1,24 @@
+/* ElsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Letters at equal skips (§16.62) */
+
+.els-table td:has(.dlg-verdict) { white-space: nowrap; }
+
+.els-terms .he { font-size: 1.1rem; }
+
+.els-strip { margin: 1rem 0 0; max-width: 40rem; }
+
+.els-strip svg { display: block; width: 100%; height: auto; }
+
+.els-row,
+.els-tick { fill: var(--muted); font-size: 11px; font-family: var(--font-ui); }
+
+.els-axis { stroke: var(--border); }
+
+.els-dot { fill: var(--geo-none); opacity: 0.55; }
+
+.els-text { stroke: var(--accent); stroke-width: 2px; }
+
+.els-text-label { fill: var(--accent); font-size: 11px; font-family: var(--font-ui); }
+
+.els-blocks li { margin-block: 0.15rem; }

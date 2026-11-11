@@ -14,6 +14,8 @@ import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/retold'
+import { PrecisionNote } from '../components/PrecisionNote'
+import '../styles/pages/RetoldPage.css'
 
 const PAGE_SIZE = 20
 const GROUPS: RetoldGroup[] = ['retold', 'repeated', 'carried', 'told', 'narrated', 'unclear']
@@ -31,6 +33,7 @@ export function RetoldPage() {
     <div className="page retold-page">
       <h1>{t.title}</h1>
       <p className="lede">{t.lede}</p>
+      <PrecisionNote detector="retold" />
       {isStageMissing(res.error) ? (
         <NotComputed>{t.notComputed}</NotComputed>
       ) : res.isError ? (

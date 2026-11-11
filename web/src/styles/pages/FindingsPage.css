@@ -1,0 +1,19 @@
+/* FindingsPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
+
+/* Findings: each analysis's tested claim, grouped by verdict */
+
+.findings-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0.75rem;
+}
+
+.findings-group.fails .finding {
+  border-inline-start-color: var(--muted);
+}
+
+.findings-group.lead .finding {
+  border-inline-start-style: dashed;
+}

@@ -14,6 +14,7 @@ import { unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/forms'
 import '../i18n/pages/patterns'
+import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 20
 const KINDS: FormsKind[] = ['genealogy', 'itinerary', 'census', 'offering', 'kings', 'names', 'other']
@@ -174,6 +175,7 @@ function Sayings() {
   return (
     <section aria-label={t.sayingsTitle}>
       <h2>{t.sayingsTitle}</h2>
+      <PrecisionNote detector="sayings" />
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />
@@ -318,6 +320,7 @@ function Lists() {
   return (
     <section aria-label={t.listsTitle}>
       <h2>{t.listsTitle}</h2>
+      <PrecisionNote detector="lists" />
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />

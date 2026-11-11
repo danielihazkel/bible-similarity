@@ -12,6 +12,7 @@ import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/citations'
 import '../i18n/pages/parallels'
+import '../styles/pages/CitationsPage.css'
 
 const PAGE_SIZE = 20
 const FAMILIES: CitationFamily[] = ['written', 'word', 'command']

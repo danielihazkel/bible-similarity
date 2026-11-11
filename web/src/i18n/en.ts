@@ -40,6 +40,12 @@ import type { rtEn } from './pages/retold'
 import type { hfEn } from './pages/haftarot'
 import type { rcEn } from './pages/reception'
 import type { sfEn } from './pages/sourceFind'
+import type { prcEn } from './pages/precision'
+import type { nbhEn } from './pages/neighbourhood'
+import type { theoEn } from './pages/theophoric'
+import type { mlEn } from './pages/mainline'
+import type { prophEn } from './pages/prophetic'
+import type { lawsEn } from './pages/laws'
 import type { wtEn } from './pages/witnesses'
 import type { chEn } from './pages/chronology'
 import type { smEn } from './pages/sums'
@@ -143,6 +149,7 @@ const core = {
     etiologies: { label: 'Naming etiologies', hint: 'Names given in the text, and the word of the verse that sounds like the name' },
     brackets: { label: 'Resumptive repetition', hint: 'A clause said again after a block: does the block interrupt its story?' },
     retold: { label: 'Retold speech', hint: 'What changes when something said is told again, by another speaker or as done' },
+    mainline: { label: 'Main line', hint: 'The wayyiqtol chain of a story, and where it pauses for background' },
     haftarot: { label: 'Haftarot', hint: 'Each parasha’s reading from the Prophets: where the systems rank it among all the chapters' },
     reception: { label: 'Rabbinic reception', hint: 'Where the Mishnah and the Talmuds cite the Bible: the books, chapters and verses read most' },
     witnesses: { label: 'Other witnesses', hint: 'The Samaritan Pentateuch and the Dead Sea Scrolls against the Masoretic text, word by word' },
@@ -158,6 +165,8 @@ const core = {
     ciphers: { label: 'Atbash and albam', hint: 'Names hidden by a letter swap: Babel written ששך' },
     masorah: { label: 'The Masorah’s counts', hint: 'The middle letter, word and verse of the Torah, and each book’s verses, counted on this text' },
     psalms: { label: 'Psalms', hint: 'Gunkel\'s genres from the counted form; where the laments turn' },
+    laws: { label: 'Law codes', hint: 'The Covenant, Holiness and Deuteronomic codes: each law’s form, the laws given again, side by side' },
+    prophetic: { label: 'Prophetic forms', hint: 'The messenger formula, woe sayings, oracles against the nations, the lawsuit, the call' },
     poetry: { label: 'Poetry', hint: 'Parallel verse halves' },
     wordplay: { label: 'Wordplay', hint: 'Sound-alike words' },
     names: { label: 'Names', hint: 'People and places' },
@@ -573,6 +582,12 @@ export interface Groups {
   vc: typeof vcEn
   rc: typeof rcEn
   sf: typeof sfEn
+  prc: typeof prcEn
+  nbh: typeof nbhEn
+  theo: typeof theoEn
+  ml: typeof mlEn
+  proph: typeof prophEn
+  laws: typeof lawsEn
   wt: typeof wtEn
   gloss: typeof glossEn
   tr: typeof trEn
