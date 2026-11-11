@@ -384,7 +384,7 @@ const core = {
     showAll: 'Show all',
   },
 
-  csv: { page: 'Export page (CSV)', all: 'Export all (CSV)', table: 'Export table (CSV)' },
+  csv: { page: 'Export page (CSV)', all: 'Export all (CSV)', table: 'Export table (CSV)', region: 'Table' },
   // print and save (§11.1): a page to paper or PDF, a drawing as an SVG file
   out: {
     print: 'Print',

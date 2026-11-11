@@ -10,6 +10,7 @@ import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/meter'
 import '../i18n/pages/patterns'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 const GROUPS: MeterGroup[] = ['test', 'control', 'pool', 'poetic', 'prose']
@@ -225,6 +226,6 @@ function ChapterTable({ rows, stale = '', withGroup = false, label }: { rows: Me
       {table}
     </div>
   ) : (
-    <div className="table-wrap">{table}</div>
+    <TableWrap>{table}</TableWrap>
   )
 }

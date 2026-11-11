@@ -12,6 +12,7 @@ import { bookOption } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { RewritesView } from './RewritesView'
 import '../i18n/pages/parallels'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 
@@ -124,7 +125,7 @@ function ChangesByWord() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableWrap>
             <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
@@ -142,7 +143,7 @@ function ChangesByWord() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         )}
       </PagedList>
     </>

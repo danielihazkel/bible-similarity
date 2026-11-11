@@ -214,6 +214,10 @@ for (const path of PAGES) {
     expect(errors).toEqual([])
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
     expect(overflow).toBeLessThanOrEqual(1)
+    // a table that scrolls sideways in its wrapper can be reached from the keyboard (M167)
+    await expect
+      .poll(() => page.evaluate(() => [...document.querySelectorAll('.table-wrap')].filter((w) => w.scrollWidth > w.clientWidth + 1 && !w.hasAttribute('tabindex')).length))
+      .toBe(0)
   })
 }
 
@@ -1227,5 +1231,84 @@ test.describe('the offline app', () => {
     expect(manifest.name_localized.he.value).toBe('מקבילות בתנ״ך')
     for (const icon of manifest.icons) expect((await request.get(icon.src)).ok(), icon.src).toBe(true)
     expect((await request.get('/sw.js')).headers()['cache-control']).toBe('no-cache')
+  })
+})
+
+// M167: the faults the UI/UX audit found
+test.describe('the audit’s faults (M167)', () => {
+  test('no table is left to the browser’s defaults', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    for (const path of ['/laws', '/mainline', '/prophetic', '/reception', '/witnesses?unit=c%3A0%3A1', '/neighbourhood/c%3A0%3A1', '/language', '/findings']) {
+      await loads(page, path)
+      await expect(page.locator('main table').first()).toBeVisible()
+      const bare = await page.evaluate(() =>
+        [...document.querySelectorAll('main table')].filter((t) => getComputedStyle(t).borderCollapse !== 'collapse').map((t) => t.className || '(no class)'),
+      )
+      expect(bare, path).toEqual([])
+    }
+    // the precision table scrolls inside its own region on a narrow screen
+    await expect(page.locator('.table-wrap > .precision-table')).toBeVisible()
+  })
+
+  test('the law pairs of one passage say so, with the way back to all of them', async ({ page }) => {
+    await loads(page, '/laws?unit=c%3A0%3A1')
+    await expect(page.locator('.unit-filter')).toContainText('Only those touching')
+    await page.getByRole('button', { name: 'Show all' }).click()
+    await expect(page).toHaveURL(/\/laws$/)
+    await expect(page.locator('.unit-filter')).toHaveCount(0)
+  })
+
+  test('a choice of a few is one tab stop, moved with the arrow keys', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await loads(page, '/laws')
+    const strongest = page.getByRole('radio', { name: 'Strongest first' })
+    const canon = page.getByRole('radio', { name: 'Canon order' })
+    await strongest.focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(page).toHaveURL(/order=canon/)
+    await expect(canon).toBeFocused()
+    await expect(canon).toHaveAttribute('aria-checked', 'true')
+    await expect(strongest).toHaveAttribute('tabindex', '-1')
+    await page.keyboard.press('ArrowLeft')
+    await expect(page).not.toHaveURL(/order=canon/)
+    await expect(strongest).toBeFocused()
+  })
+
+  test('the Hebrew top bar keeps a menu’s arrow on its label’s line', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
+    await loads(page, '/')
+    const heights = await page.evaluate(() => {
+      const h = (el: Element) => Math.round(el.getBoundingClientRect().height)
+      return { link: h(document.querySelector('#main-nav > a')!), menus: [...document.querySelectorAll('.nav-group-button')].map(h) }
+    })
+    expect(heights.menus).toEqual([heights.link, heights.link, heights.link])
+  })
+
+  test('the phone menu closes on Escape', async ({ page }, info) => {
+    test.skip(info.project.name !== 'phone')
+    await loads(page, '/')
+    const toggle = page.getByRole('button', { name: /Menu/ })
+    await toggle.click()
+    await expect(page.locator('#main-nav')).toHaveClass(/open/)
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#main-nav')).not.toHaveClass(/open/)
+    await expect(toggle).toBeFocused()
+  })
+
+  test.describe('in the dark theme', () => {
+    test.use({ colorScheme: 'dark' })
+    for (const locale of ['en', 'he'] as const) {
+      test(`an error box passes axe (${locale})`, async ({ page }) => {
+        await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+        await page.goto('/unit/v%3A999999')
+        const box = page.locator('.status.error')
+        await expect(box).toBeVisible()
+        const results = await new AxeBuilder({ page }).include('.status.error').withTags(['wcag2a', 'wcag2aa']).analyze()
+        expect(results.violations.map((v) => v.id)).toEqual([])
+        // the token, not the light theme's red
+        expect(await box.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(242, 139, 130)')
+      })
+    }
   })
 })

@@ -89,5 +89,5 @@ export default defineConfig({
     },
   },
   // component tests opt in with `// @vitest-environment jsdom`; e2e/ is Playwright's (`npm run e2e`)
-  test: { environment: 'node', exclude: ['e2e/**', 'node_modules/**'], setupFiles: ['src/test/setup.ts'] },
+  test: { environment: 'node', exclude: ['e2e/**', 'e2e-docker/**', 'node_modules/**'], setupFiles: ['src/test/setup.ts'] },
 })

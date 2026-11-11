@@ -15,6 +15,7 @@ import { bookName, unitLabel } from '../lib/names'
 import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/roots'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 20
 const KINDS: RootPairKind[] = ['cognate', 'inf_abs', 'other']
@@ -262,7 +263,7 @@ function KeyRoots({ data }: { data: RootsResponse }) {
           )}
         >
           {(d, stale) => (
-            <div className="table-wrap">
+            <TableWrap>
               <table className={`change-table ${stale}`}>
                 <thead>
                   <tr>
@@ -298,7 +299,7 @@ function KeyRoots({ data }: { data: RootsResponse }) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
           )}
         </PagedList>
       </section>

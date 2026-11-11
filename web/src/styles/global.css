@@ -10,6 +10,7 @@
   --accent: #8a5a1f;
   --accent-soft: #f1e2c8;
   --focus: #b5731f;
+  --error: #b3261e; /* 6.1:1 on --bg */
 
   --hl-shared: #ffe08a;
   --hl-shared-text: #3a2a00;
@@ -102,6 +103,7 @@
       --accent: #e0aa62;
       --accent-soft: #3a2d1a;
       --focus: #e0aa62;
+      --error: #f28b82; /* 7.1:1 on --surface */
       --hl-shared: #6b5310;
       --hl-shared-text: #fff3cf;
       --hl-formula: #3a352c;
@@ -342,6 +344,7 @@ h2 {
 
 .nav-group-button {
   font: inherit;
+  white-space: nowrap;
   border: 0;
   background: none;
   cursor: pointer;
@@ -577,7 +580,7 @@ h2 {
 }
 
 .status.error {
-  color: #b3261e;
+  color: var(--error);
 }
 
 .status.small {

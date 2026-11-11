@@ -8,6 +8,7 @@ import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
+import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { diffHighlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
@@ -71,7 +72,7 @@ function Profile({ d }: { d: LawsResponse }) {
         ))}
       </ul>
       <TableCsv name="law-codes" tabIndex={0} role="region" aria-labelledby="lw-profile">
-        <table className="data">
+        <table className="change-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.code}</th>
@@ -201,6 +202,7 @@ function Pairs({ d }: { d: LawsResponse }) {
   return (
     <>
       <p className="muted small">{t.pairsLede(d.top_k, d.min_links)}</p>
+      {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <Segmented<'score' | 'canon'>
           label={t.order.label}

@@ -288,7 +288,7 @@ function Chronology({ rows }: { rows: ChronologyRow[] }) {
       <h2 id="wt-chron">{t.chronTitle}</h2>
       <p className="muted small">{t.chronHint}</p>
       <TableCsv name="witnesses-chronology" tabIndex={0} role="region" aria-labelledby="wt-chron">
-        <table className="data wt-chron">
+        <table className="change-table wt-chron">
           <thead>
             <tr>
               <th scope="col">{t.chronCols.event}</th>
@@ -326,7 +326,7 @@ function Books({ d }: { d: WitnessesResponse }) {
     <section aria-labelledby="wt-books">
       <h2 id="wt-books">{t.booksTitle}</h2>
       <TableCsv name="witnesses-books" tabIndex={0} role="region" aria-labelledby="wt-books">
-        <table className="data">
+        <table className="change-table">
           <thead>
             <tr>
               <th scope="col">{t.kindLabel}</th>
@@ -369,7 +369,7 @@ function Scrolls({ d }: { d: WitnessesResponse }) {
       <h2 id="wt-scrolls">{t.scrollsTitle}</h2>
       <p className="muted small">{t.scrollsHint(rows.length)}</p>
       <TableCsv name="witnesses-scrolls" tabIndex={0} role="region" aria-labelledby="wt-scrolls">
-        <table className="data">
+        <table className="change-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.scroll}</th>

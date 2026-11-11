@@ -48,6 +48,8 @@ export const prcEn = {
     mirrors: 'Chiasm within a verse',
     ciphers: 'Atbash and albam',
     seams: 'Style shifts',
+    mainline: 'Main line',
+    prophetic: 'Prophetic forms',
   } as Record<string, string>,
 }
 

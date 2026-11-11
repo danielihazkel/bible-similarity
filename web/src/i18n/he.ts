@@ -380,7 +380,7 @@ export const he: Messages = {
     showAll: 'הצגת הכול',
   },
 
-  csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)', table: 'ייצוא הטבלה (CSV)' },
+  csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)', table: 'ייצוא הטבלה (CSV)', region: 'טבלה' },
   out: {
     print: 'הדפסה',
     printTitle: 'הדפסת העמוד, או שמירתו כ־PDF מחלון ההדפסה',

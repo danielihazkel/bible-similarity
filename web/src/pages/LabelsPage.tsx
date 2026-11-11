@@ -17,6 +17,7 @@ import { verseRef } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/labels'
 import '../styles/pages/LabelsPage.css'
+import { TableWrap } from '../components/TableCsv'
 
 const SHOW = ['all', 'real', 'not', 'unsure'] as const
 type Show = (typeof SHOW)[number]
@@ -216,7 +217,7 @@ function Separation() {
     <section aria-label={t.evalTitle}>
       <h2>{t.evalTitle}</h2>
       <p className="muted small">{t.evalLede(ev.data.k, ev.data.min_pairs)}</p>
-      <div className="table-wrap">
+      <TableWrap>
         <table className="change-table">
           <thead>
             <tr>
@@ -245,7 +246,7 @@ function Separation() {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </section>
   )
 }

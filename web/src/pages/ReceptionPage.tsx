@@ -288,7 +288,7 @@ function Books({ d, corpus }: { d: ReceptionResponse; corpus: CorpusChoice }) {
     <section aria-labelledby="rc-books">
       <h2 id="rc-books">{t.booksTitle}</h2>
       <TableCsv name="reception-books">
-        <table className="data">
+        <table className="change-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.book}</th>

@@ -7,6 +7,7 @@ import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/parallels'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 const OPS: RewriteOp[] = ['substitution', 'omitted', 'added']
@@ -110,7 +111,7 @@ export function RewritesView() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableWrap>
             <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
@@ -132,7 +133,7 @@ export function RewritesView() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         )}
       </PagedList>
     </>

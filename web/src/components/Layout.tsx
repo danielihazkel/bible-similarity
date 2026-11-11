@@ -30,6 +30,19 @@ export function Layout() {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [])
+  // Escape closes the phone menu and gives the focus back to its button; an open group inside it
+  // takes the key first (NavMenu closes itself)
+  const menuToggle = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!mobileOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('#main-nav .nav-group.open')) return
+      setMobileOpen(false)
+      menuToggle.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [mobileOpen])
   // a new page closes the mobile menu
   const [seenPath, setSeenPath] = useState(pathname)
   if (seenPath !== pathname) {
@@ -52,6 +65,7 @@ export function Layout() {
         <button
           type="button"
           className="menu-toggle"
+          ref={menuToggle}
           aria-expanded={mobileOpen}
           aria-controls="main-nav"
           onClick={() => setMobileOpen((o) => !o)}

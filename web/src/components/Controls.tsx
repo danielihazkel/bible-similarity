@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react'
 import type { Exclude, Mode, UnitType } from '../api/types'
 import { useLocale, useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
@@ -15,15 +16,46 @@ interface SegmentedProps<T extends string | number> {
   className?: string
 }
 
+/** One choice of a few, as a radio group: Tab reaches the chosen option, the arrow keys (and Home /
+ * End) move to another and choose it. */
 export function Segmented<T extends string | number>({ label, value, options, onChange, className }: SegmentedProps<T>) {
+  // the group's one tab stop: the chosen option, or the first when the value is none of them
+  const stop = Math.max(
+    0,
+    options.findIndex((o) => o.value === value),
+  )
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const radios = [...e.currentTarget.querySelectorAll<HTMLButtonElement>('button[role="radio"]')]
+    const at = radios.indexOf(e.target as HTMLButtonElement)
+    if (at < 0 || e.altKey || e.ctrlKey || e.metaKey) return
+    // Left and Right follow the reading direction of the group (the Hebrew text toggle is right to left)
+    const forward = getComputedStyle(e.currentTarget).direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
+    const back = forward === 'ArrowLeft' ? 'ArrowRight' : 'ArrowLeft'
+    const n = radios.length
+    const next =
+      e.key === forward || e.key === 'ArrowDown'
+        ? (at + 1) % n
+        : e.key === back || e.key === 'ArrowUp'
+          ? (at + n - 1) % n
+          : e.key === 'Home'
+            ? 0
+            : e.key === 'End'
+              ? n - 1
+              : -1
+    if (next < 0) return
+    e.preventDefault()
+    radios[next].focus()
+    if (next !== at) onChange(options[next].value)
+  }
   return (
-    <div className={`segmented ${className ?? ''}`} role="radiogroup" aria-label={label}>
-      {options.map((o) => (
+    <div className={`segmented ${className ?? ''}`} role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
+      {options.map((o, i) => (
         <button
           key={o.value}
           type="button"
           role="radio"
           aria-checked={o.value === value}
+          tabIndex={i === stop ? 0 : -1}
           className={o.value === value ? 'on' : undefined}
           title={o.title}
           onClick={() => onChange(o.value)}

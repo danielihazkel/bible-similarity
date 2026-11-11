@@ -80,7 +80,7 @@ function Books({ d }: { d: MainlineResponse }) {
       <h2 id="ml-books">{t.booksTitle}</h2>
       <p className="muted small">{t.booksLede}</p>
       <TableCsv name="mainline-books">
-        <table className="data">
+        <table className="change-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.book}</th>

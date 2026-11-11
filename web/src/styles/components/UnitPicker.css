@@ -27,5 +27,5 @@
 }
 
 .picker-status.error {
-  color: #b3261e;
+  color: var(--error);
 }

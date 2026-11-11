@@ -4,6 +4,7 @@ import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
 import '../i18n/pages/overview'
 import '../styles/components/BookHeatmap.css'
+import { TableWrap } from './TableCsv'
 
 interface HeatmapProps<K extends string | number> {
   /** Row / column labels by key. */
@@ -58,7 +59,7 @@ export function Heatmap<K extends string | number>({ names: name, order, value, 
   const size = pad + order.length * cell
   return (
     // left to right in either interface language (rows and columns keep their order)
-    <div className="table-wrap" dir="ltr">
+    <TableWrap dir="ltr">
       <svg
         width={size + 36}
         height={size}
@@ -107,6 +108,6 @@ export function Heatmap<K extends string | number>({ names: name, order, value, 
           {title(order[cursor[0]], order[cursor[1]])}
         </p>
       )}
-    </div>
+    </TableWrap>
   )
 }

@@ -14,6 +14,112 @@ Finished milestones (M0–M141, M144–M146, H1–H5) are in [TASKS_DONE.md](TAS
 
 ---
 
+## Series O (chosen 2026-11-11): a round of UI/UX work on the viewer; the order of work is M167 → M177, one milestone at a time
+
+Chosen after an audit of the code and of the screen (30 desktop pages from `bsim fixture-serve`, English and Hebrew, light and dark). In scope: finding a page, the reading flow, fewer controls, one way to filter, tables and terms, look and theme, saving and feedback. Out of scope: phone and touch (phone layouts must not get worse). The owner's own use on a desktop comes first. Every milestone: strings in both catalogs, a page's rules in its own stylesheet (D150), view state in the URL and an old URL still read, no change to the pipeline or the DB; vitest, fixture e2e with axe, smoke on the real build, the changed pages looked at on the real build in both languages and both themes.
+
+## M167: The faults the audit found (D156; proposed O1)
+- [x] The eleven tables of class `data` (Laws, Mainline, Prophetic, Reception, Witnesses ×3, Theophoric ×2, Neighbourhood, the precision table) had no CSS rule: the shared `change-table` style (the audit counted the eight with that class alone; the e2e check found the others)
+- [x] `PrecisionNote`'s `PAGES` and the catalog's `detectors`: `mainline` and `prophetic`, so their Findings rows are named and linked; `PrecisionTable` in a table wrapper
+- [x] The error red as a token `--error` (`global.css`, `UnitPicker.css`): #b3261e on light (6.1:1), #f28b82 on dark (7.1:1; the light red was 2.8:1 there)
+- [x] `/laws?unit=…` shows the `UnitFilter` strip with its way back to every pair
+- [x] The Hebrew top bar: a menu's arrow stays on its label's line (`white-space: nowrap`)
+- [x] `Segmented`: one tab stop, the arrow keys, Home and End move and choose, Left and Right by the group's direction
+- [x] The phone menu closes on Escape (an open group inside it first), the focus back on its button
+- [x] Found on the way: restyled, three tables (Mainline, Reception, the theophoric names) scroll sideways on a phone and their wrapper could not be reached from the keyboard (the smoke's accessibility sweep, `scrollable-region-focusable`). `TableWrap` (in `TableCsv.tsx`): a wrapper is a tab stop and a region named after the heading above it while its table is wider than it, and adds no tab stop otherwise; `TableCsv`, `PrecisionTable` and the ten wrappers written by hand use it; the fixture e2e checks it on every route (five routes failed it on the phone: `/lemma`, `/poetry?view=pairs`, `/poetry?view=meter` with and without its group, `/style`)
+- [x] Found on the way: `npm test` collected `e2e-docker/docker.spec.ts` (a Playwright spec, M157) and reported a failed file; `e2e-docker/**` left out in `vite.config.ts`
+- [x] Tests: vitest (475: the keys, the phone menu, the table's links and wrapper, the laws strip, `TableWrap`), fixture e2e with axe (1,500 passed: no bare table, the strip, the keys, the Hebrew bar, the phone menu, the error box in dark in both languages, every route's wrappers), smoke on the real build (344 passed, both accessibility sweeps), ruff and pytest (no Python changed; both pass); the changed pages looked at on the real build
+
+✔ No table renders with the browser's defaults; axe passes on the error box in the dark theme.
+
+## M168: The top bar, the Display menu and a theme switch (proposed O2)
+- [ ] `components/DisplayMenu.tsx`: text display, language, theme (auto / light / dark) and Copy link behind one button
+- [ ] Theme: `context/Theme.tsx`, stored as `bsim.theme`; `lib/theme.ts` sets `data-theme` on `<html>` before the first render; the dark token blocks under one selector `:root[data-theme='dark']`; `lib/svgExport.ts` still restores the theme after an export
+- [ ] The bar in one row from 1280px in both languages (109px tall in English at 1366px today)
+- [ ] Tests: the menu, the theme kept over a reload and following the OS on auto, the bar's height (e2e)
+
+✔ One row at 1280px in English and Hebrew; the theme survives a reload and follows the OS on auto.
+
+## M169: Pinned pages, recent pages, the All pages index (proposed O3)
+- [ ] `lib/recent.ts`: `bsim.pins` and `bsim.recent` (pages and passages, capped), written by `Layout` on a new path
+- [ ] A pin button in the bar for the current nav page; a Pinned menu, first in the nav, when there is a pin
+- [ ] `/pages`: every page by menu and section with its hint, a filter box (`matchPages`), a star on each row; linked at the foot of each menu
+- [ ] The jump box: pinned and recent on an empty query; a book by the start of its name ("gen" → Genesis)
+- [ ] Tests
+
+✔ A page pinned once is one click away from anywhere; "gen" offers Genesis.
+
+## M170: The start page (proposed O4)
+- [ ] `/`: a jump field, Continue (recent passages and pages), pinned pages, the latest notebook entries (personal server only), this week's parasha and Findings, then the books; the tours in one line; the Explore list gone to `/pages`
+- [ ] A first visit with nothing stored shows the tours in Continue's place
+- [ ] Tests, a public server too
+
+✔ From a cold start the last passage read is one click away; a public server shows no notebook.
+
+## M171: The reading flow (proposed O5)
+- [ ] The reader lands on the verse (`#v<verse_id>`, scrolled to and marked)
+- [ ] A Read link on `HitCard`, Search results and Query hits
+- [ ] `components/CopyButton.tsx`: the reference, and the verse in the text display in use
+- [ ] Back keeps your place (scroll saved per history entry); a new page still starts at the top
+- [ ] A page change in `PagedList` scrolls the list's top into view
+- [ ] Search results get the row actions that fit a free-text query
+- [ ] `UnitPicker`'s reference field suggests as you type
+- [ ] Tests
+
+✔ "Read with layers" from Genesis 22:2 opens chapter 22 at verse 2; Back from a hit returns to the same hit.
+
+## M172: The unit page (proposed O6)
+- [ ] `DossierBar`: the chips grouped under the nav's families (from the nav section of the page a chip links to), the rest behind "more"
+- [ ] A sticky strip that jumps to the page's sections, the one in view marked
+- [ ] The results controls in one row, a Reset link, the text options under one group
+- [ ] Tests
+
+✔ On a chapter page the similar passages are one click from the top; the chips read as groups.
+
+## M173: The reader's layers (proposed O7)
+- [ ] The 18 toggles grouped, with presets (default, poetry, narrative, none) and a reset
+- [ ] The legends in one Key block that folds, kept in the URL
+- [ ] What the layers say about a word listed in the `WordPanel` on a click
+- [ ] Tests
+
+✔ With eight layers on, the first verse is visible without scrolling at 1366×860.
+
+## M174: One way to filter (proposed O8)
+- [ ] `SignificanceFilter` and `KnownOnly` in `Controls.tsx`, used by every page with such a filter; the old parameter forms still read; the conventions in DESIGN §11
+- [ ] A toolbar's rule (up to five short options a `Segmented`, more a `select`) applied to the 13 mixed toolbars; Gematria's chips a `Segmented`
+- [ ] The hand-written empty states through `EmptyList`; the six hand-placed `Pager`s through `PagedList` where the response fits; Root's CSV
+- [ ] The 19 paged lists without an export: the page export, and the all-rows export where the server's export table takes the list
+- [ ] Tests
+
+✔ The significance filter looks and behaves the same on every page that has one; every paged list can be exported.
+
+## M175: Tables and terms (proposed O9)
+- [ ] One table style; `.num` on every numeric column
+- [ ] Sticky table headers on desktop
+- [ ] p, q, G² and the glossary's other terms in table headings through `Term`
+- [ ] Tests
+
+✔ Every p / q heading opens its glossary entry; numbers line up on the right on every page.
+
+## M176: A type and spacing scale; headings before data (proposed O10)
+- [ ] Tokens: a type scale, a spacing scale, radii, shadows through `--shadow`; two breakpoints, written in §11
+- [ ] The section and district palettes hard-coded in five page modules as tokens with dark values
+- [ ] The 33 pages that show "Loading…" before their heading draw the heading and lede first; a quiet placeholder for lists
+- [ ] Screenshots of every fixture route before and after, gone through by eye
+- [ ] Tests
+
+✔ No raw font size or radius left in `global.css`; a page's title is there before its data.
+
+## M177: Saving and feedback (proposed O11)
+- [ ] `components/Toaster.tsx`, `useToast`: one live region for saved, removed with Undo, and failures
+- [ ] Labels: a note says saved or failed; clearing a label offers Undo
+- [ ] Notebook: a note saves itself after a pause and on blur; a save in flight guarded on leaving; removing from a collection offers Undo; the text filter in the URL
+- [ ] Tests
+
+✔ No edit is lost silently: every save says so, every removal can be undone for a few seconds.
+
+---
+
 ## Series N (chosen 2026-11-10): the order of work is M156 → M166, one milestone at a time
 
 ## M166: Law codes side by side (§16.93, D155; proposed N10)

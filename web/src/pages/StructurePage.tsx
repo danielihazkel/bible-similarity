@@ -11,6 +11,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import { SmallScaleView } from './SmallScaleView'
 import '../i18n/pages/mirrors'
 import '../i18n/pages/patterns'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -125,7 +126,7 @@ function UnitRanking() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableWrap>
             <table className={`rank-table ${stale}`}>
               <thead>
                 <tr>
@@ -169,7 +170,7 @@ function UnitRanking() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         )}
       </PagedList>
     </>

@@ -168,6 +168,26 @@ describe('LawsPage (DESIGN.md §16.93, D155)', () => {
     await vi.waitFor(() => expect(calls).toContain('/api/laws/list?code=holiness&form=apodictic&limit=25&offset=0'))
   })
 
+  it('says which passage the pairs are limited to, with the way back to all of them (M167)', async () => {
+    mockApi()
+    const { container } = renderAt('/laws?unit=c%3A1%3A21&order=canon')
+    await vi.waitFor(() => expect(calls.some((c) => c.startsWith('/api/laws/pairs?') && c.includes('unit=c%3A1%3A21'))).toBe(true))
+    const strip = container.querySelector('.unit-filter')!
+    expect(strip.textContent).toContain('Only those touching')
+    expect(strip.querySelector('a')?.getAttribute('href')).toBe('/unit/c%3A1%3A21')
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }))
+    expect(screen.getByTestId('loc').textContent).toBe('/laws?order=canon')
+    expect(container.querySelector('.unit-filter')).toBeNull()
+  })
+
+  it('has no filter strip without a passage, and its profile table has the shared style', async () => {
+    mockApi()
+    const { container } = renderAt('/laws')
+    await screen.findByRole('heading', { level: 2, name: 'Matched pairs' })
+    expect(container.querySelector('.unit-filter')).toBeNull()
+    expect(container.querySelector('table')?.className).toBe('change-table')
+  })
+
   it('runs in the Hebrew interface', async () => {
     mockApi()
     renderAt('/laws', 'he')

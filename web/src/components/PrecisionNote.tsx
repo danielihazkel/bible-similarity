@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useDetectorPrecision } from '../api/hooks'
 import type { PrecisionRow } from '../api/types'
 import { useLocale } from '../context/localeContext'
+import { TableWrap } from './TableCsv'
 import '../i18n/pages/precision'
 import '../styles/components/PrecisionNote.css'
 
@@ -53,6 +54,8 @@ const PAGES: Record<string, string> = {
   mirrors: '/structure?view=small',
   ciphers: '/ciphers',
   seams: '/style',
+  mainline: '/mainline',
+  prophetic: '/prophetic',
 }
 
 /** Every audited detector's precision on what its page lists, and on what it marks as strong
@@ -69,28 +72,30 @@ export function PrecisionTable() {
     <section aria-labelledby="precision-table">
       <h2 id="precision-table">{t.tableTitle}</h2>
       <p className="muted small">{t.tableLede}</p>
-      <table className="data precision-table">
-        <thead>
-          <tr>
-            <th scope="col">{t.cols.detector}</th>
-            <th scope="col" className="num">
-              {t.cols.listed}
-            </th>
-            <th scope="col">{t.cols.shown}</th>
-            <th scope="col">{t.cols.marked}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {detectors.map(({ name, shown, marked }) => (
-            <tr key={name}>
-              <td>{PAGES[name] ? <Link to={PAGES[name]}>{t.detectors[name] ?? name}</Link> : (t.detectors[name] ?? name)}</td>
-              <td className="num">{shown.population ?? '–'}</td>
-              <td>{t.share(shown.precision, shown.lo, shown.hi, shown.judged)}</td>
-              <td>{marked ? t.share(marked.precision, marked.lo, marked.hi, marked.judged) : '–'}</td>
+      <TableWrap>
+        <table className="change-table precision-table">
+          <thead>
+            <tr>
+              <th scope="col">{t.cols.detector}</th>
+              <th scope="col" className="num">
+                {t.cols.listed}
+              </th>
+              <th scope="col">{t.cols.shown}</th>
+              <th scope="col">{t.cols.marked}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {detectors.map(({ name, shown, marked }) => (
+              <tr key={name}>
+                <td>{PAGES[name] ? <Link to={PAGES[name]}>{t.detectors[name] ?? name}</Link> : (t.detectors[name] ?? name)}</td>
+                <td className="num">{shown.population ?? '–'}</td>
+                <td>{t.share(shown.precision, shown.lo, shown.hi, shown.judged)}</td>
+                <td>{marked ? t.share(marked.precision, marked.lo, marked.hi, marked.judged) : '–'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrap>
     </section>
   )
 }

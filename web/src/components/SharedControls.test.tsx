@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as csv from '../lib/csv'
 import { BookSelect, Segmented } from './Controls'
 import { GeoMap } from './GeoMap'
-import { TableCsv } from './TableCsv'
+import { TableCsv, TableWrap } from './TableCsv'
 
 afterEach(() => {
   cleanup()
@@ -40,6 +40,78 @@ describe('TableCsv', () => {
   })
 })
 
+describe('TableWrap (M167)', () => {
+  // jsdom lays nothing out: the observer reports at once, and the widths are given by the test
+  function widths(scroll: number, client: number) {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        cb: () => void
+        constructor(cb: () => void) {
+          this.cb = cb
+        }
+        observe() {
+          this.cb()
+        }
+        disconnect() {}
+      },
+    )
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(scroll)
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(client)
+  }
+  const page = (wrap: React.ReactNode) => (
+    <main>
+      <h2>Names over time</h2>
+      <section>
+        <p>About the table.</p>
+        {wrap}
+      </section>
+    </main>
+  )
+  const table = (
+    <table>
+      <tbody>
+        <tr>
+          <td>ירמיהו</td>
+        </tr>
+      </tbody>
+    </table>
+  )
+
+  it('is a tab stop named after the heading above it while its table is wider than it', async () => {
+    widths(900, 390)
+    const { container } = render(page(<TableWrap>{table}</TableWrap>))
+    const region = await screen.findByRole('region', { name: 'Names over time' })
+    expect(region).toBe(container.querySelector('.table-wrap'))
+    expect(region.tabIndex).toBe(0)
+    vi.unstubAllGlobals()
+  })
+
+  it('adds no tab stop while the table fits', async () => {
+    widths(390, 390)
+    const { container } = render(page(<TableWrap>{table}</TableWrap>))
+    await new Promise((r) => setTimeout(r, 20))
+    expect(screen.queryByRole('region')).toBeNull()
+    expect(container.querySelector('.table-wrap')?.hasAttribute('tabindex')).toBe(false)
+    vi.unstubAllGlobals()
+  })
+
+  it('keeps a name the page gave it, and falls back to "Table" with no heading before it', async () => {
+    widths(900, 390)
+    render(
+      <>
+        <TableWrap>{table}</TableWrap>
+        <TableCsv name="x" tabIndex={0} role="region" aria-label="Speakers">
+          {table}
+        </TableCsv>
+      </>,
+    )
+    expect(await screen.findByRole('region', { name: 'Table' })).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'Speakers' })).toBeTruthy()
+    vi.unstubAllGlobals()
+  })
+})
+
 describe('BookSelect and Segmented', () => {
   const books = [
     { book_id: 0, name: 'Genesis', he_name: 'בראשית' },
@@ -65,6 +137,49 @@ describe('BookSelect and Segmented', () => {
     expect(screen.getByRole('radio', { name: 'One' }).getAttribute('aria-checked')).toBe('true')
     fireEvent.click(screen.getByRole('radio', { name: 'Two' }))
     expect(onChange).toHaveBeenCalledWith('b')
+  })
+
+  it('Segmented has one tab stop, and the arrows, Home and End move to an option and choose it (M167)', () => {
+    const onChange = vi.fn()
+    const options = [
+      { value: 'a', label: 'One' },
+      { value: 'b', label: 'Two' },
+      { value: 'c', label: 'Three' },
+    ]
+    const { rerender } = render(<Segmented label="View" value="b" options={options} onChange={onChange} />)
+    const radio = (name: string) => screen.getByRole('radio', { name })
+    expect(['One', 'Two', 'Three'].map((n) => radio(n).tabIndex)).toEqual([-1, 0, -1])
+    radio('Two').focus()
+    fireEvent.keyDown(radio('Two'), { key: 'ArrowRight' })
+    expect(onChange).toHaveBeenLastCalledWith('c')
+    expect(document.activeElement).toBe(radio('Three'))
+    fireEvent.keyDown(radio('Three'), { key: 'ArrowDown' }) // past the last: round to the first
+    expect(onChange).toHaveBeenLastCalledWith('a')
+    fireEvent.keyDown(radio('One'), { key: 'ArrowLeft' })
+    expect(onChange).toHaveBeenLastCalledWith('c')
+    fireEvent.keyDown(radio('Three'), { key: 'Home' })
+    expect(onChange).toHaveBeenLastCalledWith('a')
+    fireEvent.keyDown(radio('One'), { key: 'End' })
+    expect(onChange).toHaveBeenLastCalledWith('c')
+    const n = onChange.mock.calls.length
+    fireEvent.keyDown(radio('Three'), { key: 'End' }) // already there: nothing chosen again
+    fireEvent.keyDown(radio('Three'), { key: 'a' })
+    fireEvent.keyDown(radio('Three'), { key: 'ArrowLeft', ctrlKey: true })
+    expect(onChange).toHaveBeenCalledTimes(n)
+    // a value that is none of the options leaves the first as the tab stop
+    rerender(<Segmented label="View" value="z" options={options} onChange={onChange} />)
+    expect(['One', 'Two', 'Three'].map((name) => radio(name).tabIndex)).toEqual([0, -1, -1])
+  })
+
+  it('Segmented reads Left and Right in the direction of its group', () => {
+    const onChange = vi.fn()
+    render(
+      <div dir="rtl" style={{ direction: 'rtl' }}>
+        <Segmented label="תצוגה" value="a" options={[{ value: 'a', label: 'אחת' }, { value: 'b', label: 'שתיים' }]} onChange={onChange} />
+      </div>,
+    )
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'אחת' }), { key: 'ArrowLeft' })
+    expect(onChange).toHaveBeenLastCalledWith('b')
   })
 })
 

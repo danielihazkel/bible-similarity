@@ -11,6 +11,7 @@ import { PanelError } from './Status'
 import { UnitName } from './UnitName'
 import '../i18n/pages/senses'
 import '../styles/components/SensesPanel.css'
+import { TableWrap } from './TableCsv'
 
 /** A lemma's dictionary senses and contextual uses by corpus group (DESIGN.md §16.23). */
 export function SensesPanel({ lemma }: { lemma: string }) {
@@ -51,7 +52,7 @@ function SenseTable({ title, rows, order }: { title: string; rows: LemmaSense[];
   return (
     <>
       <h3>{title}</h3>
-      <div className="table-wrap">
+      <TableWrap>
         <table className="change-table senses-table">
           <thead>
             <tr>
@@ -108,7 +109,7 @@ function SenseTable({ title, rows, order }: { title: string; rows: LemmaSense[];
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </>
   )
 }

@@ -44,5 +44,7 @@ export const prcHe: typeof prcEn = {
     mirrors: 'כיאזם בתוך פסוק',
     ciphers: 'אתב״ש ואלב״ם',
     seams: 'מעברי סגנון',
+    mainline: 'הקו העלילתי',
+    prophetic: 'צורות נבואיות',
   },
 }

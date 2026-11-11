@@ -30,8 +30,12 @@ const data: DetectorPrecisionResponse = {
     acrostics: [row('strongest', 4, 46, null, 0.08)],
   },
 }
+const withLater: DetectorPrecisionResponse = {
+  ...data,
+  detectors: { ...data.detectors, mainline: [row('shown', 28, 21, 2890, 0.57)], prophetic: [row('shown', 26, 23, 983, 0.53)] },
+}
 
-function mockApi(personal = true) {
+function mockApi(personal = true, served: DetectorPrecisionResponse = data) {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -40,7 +44,7 @@ function mockApi(personal = true) {
         u.pathname === '/api/meta'
           ? { runtime: { personal, encoder_on: true, embeddings_shape: [1, 1] } }
           : u.pathname === '/api/detector-precision' && personal
-            ? data
+            ? served
             : null
       return new Response(JSON.stringify(body), { status: body ? 200 : 404 })
     }),
@@ -116,5 +120,22 @@ describe('PrecisionTable', () => {
     const cells = screen.getAllByRole('cell').map((c) => c.textContent)
     expect(cells).toEqual(['Naming etiologies', '111', '59% [0.40, 0.90] (44 judged)', '100% [0.40, 0.90] (7 judged)'])
     expect(screen.queryByText('Acrostics')).toBeNull() // only M152's run: not on the table
+  })
+
+  it('has the shared table style inside a scroll region, and links the main line and the prophetic forms (M167)', async () => {
+    mockApi(true, withLater)
+    const { container } = renderIt(<PrecisionTable />)
+    expect((await screen.findByRole('link', { name: 'Main line' })).getAttribute('href')).toBe('/mainline')
+    expect(screen.getByRole('link', { name: 'Prophetic forms' }).getAttribute('href')).toBe('/prophetic')
+    const table = container.querySelector('table')!
+    expect(table.className).toBe('change-table precision-table')
+    expect(table.parentElement?.className).toBe('table-wrap')
+  })
+
+  it('names the two in Hebrew', async () => {
+    mockApi(true, withLater)
+    renderIt(<PrecisionTable />, 'he')
+    expect(await screen.findByRole('link', { name: 'הקו העלילתי' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'צורות נבואיות' })).toBeTruthy()
   })
 })

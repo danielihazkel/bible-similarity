@@ -7,6 +7,7 @@ import { lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 
@@ -52,7 +53,7 @@ export function WordPairsView() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableWrap>
             <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
@@ -97,7 +98,7 @@ export function WordPairsView() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         )}
       </PagedList>
     </>

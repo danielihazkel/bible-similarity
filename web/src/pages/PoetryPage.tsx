@@ -12,6 +12,7 @@ import { MeterView } from './MeterView'
 import { WordPairsView } from './WordPairsView'
 import '../i18n/pages/meter'
 import '../i18n/pages/patterns'
+import { TableWrap } from '../components/TableCsv'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -132,7 +133,7 @@ function UnitsView() {
         )}
       >
         {(data, stale) => (
-          <div className="table-wrap">
+          <TableWrap>
             <table className={`change-table ${stale}`}>
               <thead>
                 <tr>
@@ -173,7 +174,7 @@ function UnitsView() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         )}
       </PagedList>
     </>

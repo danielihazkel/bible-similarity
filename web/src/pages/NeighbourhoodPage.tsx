@@ -192,7 +192,7 @@ function NodeTable({ nodes, edges, centre, keep }: { nodes: NeighbourNode[]; edg
     <section aria-labelledby="nbh-table">
       <h2 id="nbh-table">{t.tableTitle(nodes.length)}</h2>
       <TableCsv name="neighbourhood">
-      <table className="data nbh-table">
+      <table className="change-table nbh-table">
         <thead>
           <tr>
             <th scope="col">{t.cols.passage}</th>

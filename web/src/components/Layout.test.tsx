@@ -98,6 +98,21 @@ describe('Layout navigation', () => {
     expect(container.querySelector('#main-nav')?.className).toContain('open')
     expect(screen.getByRole('button', { name: /Overview/ }).className).toContain('active')
   })
+
+  it('closes the phone menu on Escape, an open group first (M167)', async () => {
+    const { container } = renderAt('/map')
+    const toggle = screen.getByRole('button', { name: /Menu/ })
+    const overview = screen.getByRole('button', { name: /Overview/ })
+    fireEvent.click(toggle)
+    expect(overview.getAttribute('aria-expanded')).toBe('true') // the current page's group
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(overview.getAttribute('aria-expanded')).toBe('false'))
+    expect(toggle.getAttribute('aria-expanded')).toBe('true') // the menu itself is still open
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(toggle.getAttribute('aria-expanded')).toBe('false'))
+    expect(container.querySelector('#main-nav')?.className).not.toContain('open')
+    expect(document.activeElement).toBe(toggle)
+  })
 })
 
 describe('Interface language', () => {
