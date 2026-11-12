@@ -32,6 +32,9 @@ export function joinTokens(tokens: string[]): string {
   return tokens.map((t, i) => (i < tokens.length - 1 && !endsWithMaqaf(t) ? `${t} ` : t)).join('')
 }
 
+/** A verse's tokens as plain text in a text mode (what is copied): te'amim, niqqud or letters only. */
+export const displayText = (tokens: string[], mode: TextMode): string => joinTokens(tokens.map((t) => displayForm(t, mode)))
+
 /** True when `s` contains a Hebrew letter (the API's requirement for free-text search). */
 export const hasHebrew = (s: string) => /[\u05D0-\u05EA]/.test(s)
 

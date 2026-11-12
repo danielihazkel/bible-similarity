@@ -6,6 +6,7 @@ import { useBooks, useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve, 
 import type { Book, LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
+import { matchBooks } from '../lib/books'
 import { personLink, placeLink, unitLink } from '../lib/links'
 import { ALL_PAGES, matchPages, NAV_PAGE, navText, PERSONAL_PAGES } from '../lib/nav'
 import { bookName, unitLabel } from '../lib/names'
@@ -42,22 +43,6 @@ function placesFirst(places: PlaceMatch[], lemmas: LemmaStat[]): boolean {
   if (!top?.exact) return false
   const other = lemmas.find((l) => !top.lemmas.includes(l.lemma))
   return !other || other.n_verses <= top.n_verses
-}
-
-/** Books by the start of a name ("gen" → Genesis, "sam" → both Samuels, "שמ" → שמות): the name
- * in either language, a word of the English one, or the OSIS code. `exact`: the whole name. */
-function matchBooks(books: Book[], q: string): { book: Book; exact: boolean }[] {
-  const s = q.trim().toLowerCase()
-  if (s.length < 2) return []
-  return books
-    .flatMap((book) => {
-      const en = book.name.toLowerCase()
-      const names = [en, book.he_name, book.osis.toLowerCase()]
-      const exact = names.includes(s)
-      const starts = names.some((n) => n.startsWith(s)) || en.split(' ').some((w) => w.length > 2 && w.startsWith(s))
-      return starts ? [{ book, exact }] : []
-    })
-    .slice(0, MAX_BOOKS)
 }
 
 /** Nothing typed yet: the pinned pages, the passages and pages opened last (not the one on screen),
@@ -105,7 +90,7 @@ function buildOptions(
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
-  const found = matchBooks(books, q)
+  const found = matchBooks(books, q, MAX_BOOKS)
   const volumes = found.map(({ book }) => ({
     kind: 'books' as const,
     to: `/browse/${book.book_id}`,

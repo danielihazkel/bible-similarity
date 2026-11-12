@@ -209,8 +209,8 @@ describe('the pin button and the Pinned menu of the top bar', () => {
   it('speaks Hebrew', () => {
     localStorage.setItem(PINS_KEY, JSON.stringify(['/map']))
     renderAt('/phrases', { locale: 'he' })
-    expect(screen.getByRole('button', { name: /^מוצמדים/ })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'הצמדת העמוד „צירופים”' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^נעוצים/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'נעיצת העמוד „צירופים”' })).toBeTruthy()
   })
 })
 
@@ -372,6 +372,6 @@ describe('/pages: every page by menu', () => {
     const { container } = renderAt('/pages?q=גימטריה', { locale: 'he' })
     expect(screen.getByRole('heading', { level: 1, name: 'כל העמודים' })).toBeTruthy()
     expect(rows(container)[0]).toBe('גימטריה')
-    expect(screen.getByRole('button', { name: 'הצמדת העמוד „גימטריה”' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'נעיצת העמוד „גימטריה”' })).toBeTruthy()
   })
 })

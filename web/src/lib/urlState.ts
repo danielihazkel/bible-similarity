@@ -1,6 +1,6 @@
 // View state lives in the URL (DESIGN.md §11): /unit/v:123?mode=fused&k=20&exclude=neighbors
 import { useCallback } from 'react'
-import { useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import type { Exclude, Mode, UnitType } from '../api/types'
 
 export const MODES: Mode[] = ['lexical', 'semantic', 'fused', 'structural', 'domain', 'syntax']
@@ -44,23 +44,24 @@ export function parseExclude(v: string | null, type: UnitType): Exclude[] {
   return EXCLUDES.filter((e) => allowed.includes(e) && v.split(',').includes(e))
 }
 
-/** Read and update a set of query parameters, replacing the history entry for toggles. */
+/** Read and update a set of query parameters, replacing the history entry for toggles. The hash
+ * stays (the router's own setter drops it): the verse the reader landed on (`#v…`) is still in the
+ * address after a layer is switched. */
 export function useQueryParams() {
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
+  const navigate = useNavigate()
+  const { hash } = useLocation()
   const update = useCallback(
-    (changes: Record<string, string | null>, replace = true) =>
-      setParams(
-        (prev) => {
-          const next = new URLSearchParams(prev)
-          for (const [k, v] of Object.entries(changes)) {
-            if (v === null) next.delete(k)
-            else next.set(k, v)
-          }
-          return next
-        },
-        { replace },
-      ),
-    [setParams],
+    (changes: Record<string, string | null>, replace = true) => {
+      const next = new URLSearchParams(params)
+      for (const [k, v] of Object.entries(changes)) {
+        if (v === null) next.delete(k)
+        else next.set(k, v)
+      }
+      const search = next.toString()
+      navigate({ search: search ? `?${search}` : '', hash }, { replace })
+    },
+    [navigate, params, hash],
   )
   return [params, update] as const
 }

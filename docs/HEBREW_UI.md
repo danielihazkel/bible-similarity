@@ -31,7 +31,7 @@ The Hebrew catalogs (`web/src/i18n/he.ts`, `web/src/i18n/pages/he/`) are an inte
 | synopses (the page) | סינופסיסים | סינופסיס |
 | continue (the start page) | המשיכו מכאן | המשך |
 | zoom (the control group) | הגדלה והקטנה | הגדלה (the zoom-in button) |
-| pin (a page), pinned | הצמדה, מוצמדים | נעיצה, נעוצים |
+| pin (a page, a hit), pinned | נעיצה, נעוצים | הצמדה, מוצמדים (צמד is a pair) |
 | the top bar | הסרגל העליון | סרגל הכלים |
 
 ## Conventions

@@ -3,14 +3,16 @@ import { Link } from 'react-router'
 import { useBooks, useEncoderStatus, useResolve, useSearch, useServer } from '../api/hooks'
 import { BookSelect, KSelect, ModeToggle } from '../components/Controls'
 import { HebrewKeypad } from '../components/HebrewKeypad'
+import { CopyPassage } from '../components/CopyButton'
 import { HebrewText } from '../components/HebrewText'
+import { KeepButton } from '../components/NotebookPanel'
 import { ScoreBreakdown } from '../components/ScoreBreakdown'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { hasHebrew } from '../lib/hebrew'
 import { unitLabel } from '../lib/names'
-import { unitLink } from '../lib/links'
+import { readLink, unitLink } from '../lib/links'
 import { DEFAULT_K, DEFAULT_MODE, parseK, parseMode, SEARCH_K_OPTIONS, SEARCH_MODES, useQueryParams } from '../lib/urlState'
 import '../styles/pages/SearchPage.css'
 
@@ -115,6 +117,13 @@ export function SearchPage() {
                       <UnitName en={h.label_en} he={h.label_he} />
                     </Link>
                     <ScoreBreakdown hit={h} mode={search.data.mode} />
+                    <span className="hit-actions">
+                      <Link className="linkish" to={readLink(`v:${h.verse.verse_id}`)} title={m.hit.readTitle}>
+                        {m.hit.read}
+                      </Link>
+                      <KeepButton unitId={`v:${h.verse.verse_id}`} />
+                      <CopyPassage en={h.label_en} he={h.label_he} verses={[h.verse]} />
+                    </span>
                   </div>
                   <p className="hit-text">
                     <HebrewText verse={h.verse} />

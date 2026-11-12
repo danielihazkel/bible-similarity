@@ -1612,3 +1612,123 @@ test.describe('the start page (M170)', () => {
     await expect(page).toHaveURL(/\/unit\/v%3A2$/)
   })
 })
+
+// M171: the reading flow
+test.describe('the reading flow (M171)', () => {
+  const scrollY = (page: Page) => page.evaluate(() => Math.round(window.scrollY))
+
+  test('"Read with layers" from a verse opens its chapter at the verse, marked, and a layer keeps it', async ({ page }) => {
+    await page.setViewportSize({ width: page.viewportSize()!.width, height: 420 }) // short: the chapter scrolls
+    await loads(page, '/unit/v%3A1')
+    await page.getByRole('link', { name: 'Read with layers' }).click()
+    await expect(page).toHaveURL(/\/read\/c%3A0%3A1#v1$/)
+    const verse = page.locator('.reader-text li.at')
+    await expect(verse).toHaveAttribute('id', 'v1')
+    await expect(verse).toBeInViewport()
+    await expect(page.locator('.reader-text li.at')).toHaveCount(1)
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
+      const results = await new AxeBuilder({ page }).include('.reader-text').withTags(['wcag2a', 'wcag2aa']).analyze()
+      expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id), theme).toEqual([])
+    }
+    await page.getByRole('button', { name: 'Rare words' }).click()
+    await expect(page).toHaveURL(/layers=[^#]*rare[^#]*#v1$/)
+    await expect(verse).toHaveAttribute('id', 'v1')
+    // the address opened cold lands on the verse too
+    await page.goto('/read/v%3A4')
+    await expect(page).toHaveURL(/\/read\/c%3A[^#]+#v4$/)
+    await expect(page.locator('.reader-text li.at')).toHaveAttribute('id', 'v4')
+  })
+
+  test('a new page starts at the top; Back returns to the hit that was left, and a reload stays there', async ({ page }) => {
+    await page.setViewportSize({ width: page.viewportSize()!.width, height: 360 })
+    await loads(page, '/unit/v%3A0')
+    const hit = page.locator('.hits .hit').last()
+    await hit.scrollIntoViewIfNeeded()
+    await expect.poll(() => scrollY(page)).toBeGreaterThan(100)
+    await page.waitForTimeout(150) // the scroll is the entry's place once its event has run
+    const left = await scrollY(page)
+    await hit.locator('.hit-ref').click()
+    await expect(page).toHaveURL(/\/unit\/v%3A[1-9]$/)
+    await expect(page.locator('h1').first()).not.toBeEmpty()
+    await expect.poll(() => scrollY(page)).toBe(0)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/unit\/v%3A0$/)
+    // the hit is on screen again (the browser may move the window as the panels above it load)
+    await expect(hit).toBeInViewport()
+    expect(await scrollY(page)).toBeGreaterThanOrEqual(left - 4)
+    await page.reload()
+    await expect(page.locator('.hits .hit').last()).toBeInViewport()
+    await page.goForward()
+    await expect(page).toHaveURL(/\/unit\/v%3A[1-9]$/)
+    await expect.poll(() => scrollY(page)).toBe(0)
+  })
+
+  test('a hit is read in the reader, and its reference and text are copied as the text display shows them', async ({ page, context }, info) => {
+    test.skip(info.project.name !== 'desktop') // the clipboard is read back once
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await loads(page, '/unit/v%3A0')
+    const hit = page.locator('.hits .hit').first()
+    const target = (await hit.locator('.hit-ref').getAttribute('href'))!.replace('/unit/', '')
+    await expect(hit.getByRole('link', { name: 'Read' })).toHaveAttribute('href', `/read/${target}`)
+    await hit.getByRole('button', { name: 'Copy reference' }).click()
+    await expect(hit.getByRole('button', { name: 'Copied' })).toBeVisible()
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(decodeURIComponent(target)) // the fixture's label is the id
+    // letters only: the copy follows the text display
+    await page.getByRole('button', { name: /Display/ }).click()
+    await page.getByRole('radio', { name: 'אותיות' }).click()
+    await page.keyboard.press('Escape')
+    await hit.getByRole('button', { name: 'Copy text' }).click()
+    const copied = await page.evaluate(() => navigator.clipboard.readText())
+    expect(copied).toMatch(/^[\u05d0-\u05ea\u05be\u05c3\u05c0 ]+$/)
+    // the unit's own heading has the two as well
+    await expect(page.locator('.head-actions').getByRole('button')).toHaveCount(2)
+    await hit.getByRole('link', { name: 'Read' }).click()
+    await expect(page).toHaveURL(/\/read\/c%3A[^#]+#v\d+$/)
+  })
+
+  for (const locale of ['en', 'he'] as const) {
+    test(`a search result is read, kept and copied from its row (${locale})`, async ({ page }) => {
+      // the notebook answered here, not written on the server: other tests keep and count its entries
+      const entries: unknown[] = []
+      await page.route('**/api/notebook', (route) => route.fulfill({ json: { writable: true, hidden: 0, collections: [], entries } }))
+      await page.route('**/api/notebook/entries/**', (route) => {
+        const id = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop()!)
+        const entry = { unit: { unit_id: id, unit_type: 'verse', label_en: id, label_he: id, book_id: 0, start_verse_id: 0, end_verse_id: 0, n_verses: 1, marker: null }, note: '', collections: [], created_at: '', updated_at: '', verse: null }
+        entries.push(entry)
+        return route.fulfill({ json: entry })
+      })
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      await loads(page, '/search?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA&mode=lexical')
+      const row = page.locator('.hits .hit').first()
+      await expect(row.locator('.hit-actions').getByRole('button')).toHaveCount(3) // keep, and the two copies
+      const results = await new AxeBuilder({ page }).include('.hits').withTags(['wcag2a', 'wcag2aa']).analyze()
+      expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow).toBeLessThanOrEqual(1)
+      await row.getByRole('button', { name: locale === 'en' ? /Keep in notebook/ : /שמירה במחברת/ }).click()
+      await expect(row.getByRole('link', { name: locale === 'en' ? /In your notebook/ : /במחברת שלכם/ })).toBeVisible()
+      await row.getByRole('link', { name: locale === 'en' ? 'Read' : 'קריאה', exact: true }).click()
+      await expect(page).toHaveURL(/\/read\/c%3A[^#]+#v\d+$/)
+      await expect(page.locator('.reader-text li.at')).toHaveCount(1)
+    })
+  }
+
+  test('the unit picker suggests as the reference is typed: a book completed, then its chapter', async ({ page }) => {
+    await loads(page, '/compare')
+    const field = page.getByRole('combobox', { name: /reference/ }).first()
+    await field.fill('gen')
+    const list = page.locator('.picker-suggest').first()
+    await expect(list.getByRole('option')).toHaveText([/^Genesis/])
+    const results = await new AxeBuilder({ page }).include('.picker').withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.map((v) => v.id)).toEqual([])
+    await field.press('ArrowDown')
+    await field.press('Enter')
+    await expect(field).toHaveValue('Genesis ')
+    await field.pressSequentially('1')
+    await expect(list.getByRole('option').first()).toHaveText('c:0:1') // the fixture's label of Genesis 1
+    await field.press('ArrowDown')
+    await field.press('Enter')
+    await expect(page).toHaveURL(/[?&]a=c%3A0%3A1/)
+  })
+})

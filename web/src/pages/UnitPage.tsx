@@ -17,6 +17,7 @@ import { HitCard } from '../components/HitCard'
 import { StructurePanel } from '../components/StructurePanel'
 import { DossierBar } from '../components/DossierBar'
 import { NotebookPanel } from '../components/NotebookPanel'
+import { CopyPassage } from '../components/CopyButton'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
@@ -124,6 +125,9 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <UnitName en={unit.label_en} he={unit.label_he} big spaced />
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h1>
+      <p className="head-actions small no-print">
+        <CopyPassage en={unit.label_en} he={unit.label_he} verses={verses} />
+      </p>
       <DossierBar unit={unit} dossier={dossier.data} error={dossier.error} />
       <NotebookPanel unitId={unit.unit_id} />
 

@@ -1,10 +1,11 @@
-import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { type RefObject, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigationType } from 'react-router'
 import { useT } from '../context/localeContext'
 import { useServer, useUnit } from '../api/hooks'
 import { useFitInWindow } from '../lib/menuFit'
 import { ALL_PAGES, isGroup, NAV_PAGE, type NavItem, type NavSection, navFor, navText, PERSONAL_PAGES } from '../lib/nav'
 import { isNavPage, passageLink, passageOf, usePins, visitPage, visitPassage } from '../lib/recent'
+import { enterEntry, restoreScroll, savedScroll, scrollToAnchor, scrollToTop, watchScroll } from '../lib/scroll'
 import { DisplayMenu } from './DisplayMenu'
 import { JumpBox } from './JumpBox'
 import { PinButton } from './PinButton'
@@ -19,7 +20,7 @@ export function Layout() {
   const { personal } = useServer()
   const mainRef = useRef<HTMLElement>(null)
   usePageTitle(mainRef, m.site.name)
-  useNavigationFocus(mainRef, pathname)
+  useNavigationFocus(mainRef)
   useRecordVisit(pathname)
   // the pinned pages this server offers, as nav items
   const pins = usePins()
@@ -285,16 +286,37 @@ function usePageTitle(main: RefObject<HTMLElement | null>, site: string) {
   }, [main, site])
 }
 
-/** A new page (not a new filter on the same page) starts at the top with focus on the content,
- * so keyboard and screen-reader users are not left on the old link. */
-function useNavigationFocus(main: RefObject<HTMLElement | null>, pathname: string) {
-  const first = useRef(true)
+/** Where a navigation leaves the window and the focus. A new page (not a new filter on the same
+ * page) starts at the top with focus on the content, so keyboard and screen-reader users are not
+ * left on the old link. Back and Forward (and a reload) return to where the entry was left
+ * (`lib/scroll.ts`), once the page is as tall as it was. An address with a `#hash` brings the
+ * element it names into view (a verse in the reader). */
+function useNavigationFocus(main: RefObject<HTMLElement | null>) {
+  const { key, pathname, search, hash } = useLocation()
+  const type = useNavigationType()
+  const at = pathname + search
+  const shown = useRef<{ key: string; pathname: string } | undefined>(undefined)
+  useEffect(() => watchScroll(), [])
+  // before the new page is laid out, so the entry left keeps the place the viewer scrolled to
+  useLayoutEffect(() => {
+    const before = shown.current
+    enterEntry(key, at, !!before && before.pathname === pathname && type !== 'POP')
+    // one run per history entry: the address and the kind of navigation belong to the key
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
   useEffect(() => {
-    if (first.current) {
-      first.current = false
+    const before = shown.current
+    shown.current = { key, pathname }
+    const newPage = !!before && before.pathname !== pathname
+    if (newPage) main.current?.focus({ preventScroll: true })
+    const saved = type === 'POP' ? savedScroll(key, at) : undefined
+    if (saved !== undefined) {
+      if (saved > 0) return restoreScroll(saved)
+      if (before) scrollToTop()
       return
     }
-    window.scrollTo(0, 0)
-    main.current?.focus({ preventScroll: true })
-  }, [main, pathname])
+    if (hash) return scrollToAnchor(hash)
+    if (newPage) scrollToTop()
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
 }

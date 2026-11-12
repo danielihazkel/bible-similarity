@@ -2,6 +2,14 @@
 
 /* ---------- Discoveries ---------- */
 
+/* where a page change scrolls back to: the list's top, clear of the sticky bar (two rows at most) */
+
+.list-top {
+  display: block;
+  height: 0;
+  scroll-margin-top: 6.5rem;
+}
+
 .pager {
   display: flex;
   align-items: center;

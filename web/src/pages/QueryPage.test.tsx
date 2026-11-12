@@ -85,7 +85,8 @@ describe('QueryPage', () => {
     expect(await screen.findByText(/1 match in 1 verse/)).toBeTruthy()
     expect(container.querySelectorAll('.query-hit .w-shared')).toHaveLength(2)
     expect((screen.getByRole('searchbox', { name: 'Query' }) as HTMLInputElement).value).toBe(FOUND.q)
-    expect(screen.getByRole('link', { name: 'Read the chapter' }).getAttribute('href')).toBe('/unit/c%3A0%3A2')
+    // in the reader, at the verse (M171)
+    expect(screen.getByRole('link', { name: 'Read the chapter' }).getAttribute('href')).toBe('/read/v%3A47')
     expect(screen.getByRole('link', { name: /Genesis 2:17/ }).getAttribute('href')).toBe('/unit/v%3A47')
   })
 

@@ -64,3 +64,12 @@
   margin-inline-end: 0.75rem;
   font-weight: 600;
 }
+
+/* under the heading: copy the reference, copy the text */
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: -0.4rem 0 0.6rem;
+}

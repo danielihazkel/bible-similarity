@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Book, ResolveResponse } from '../api/types'
 import { UnitPicker } from './UnitPicker'
@@ -66,5 +66,65 @@ describe('UnitPicker', () => {
   it('shows an error when books fail to load', async () => {
     renderPicker(() => undefined)
     expect((await screen.findByRole('alert')).textContent).toBe('Could not load books')
+  })
+
+  const api = (p: string, u: URL) => {
+    if (p === '/api/books') return [...BOOKS, { book_id: 1, name: 'Exodus', he_name: 'שמות', osis: 'Exod', section: 'Torah', n_chapters: 40 }]
+    if (p === '/api/resolve') {
+      const q = u.searchParams.get('q')!
+      const r: ResolveResponse = { query: q, unit: q === 'Genesis 1' || q === 'Gen 1' ? GEN1 : null }
+      return r
+    }
+  }
+  const field = () => screen.getByRole('combobox', { name: 'A reference' }) as HTMLInputElement
+  // the suggestions' own list: the selects have options too
+  const suggestion = async (name: string | RegExp) => within(await screen.findByRole('listbox')).findByRole('option', { name })
+
+  it('suggests the passage the reference names so far, and takes it on a click', async () => {
+    const onChange = renderPicker(api)
+    expect(field().getAttribute('aria-expanded')).toBe('false')
+    fireEvent.focus(field())
+    fireEvent.change(field(), { target: { value: 'Gen 1' } })
+    const option = await suggestion('Genesis 1')
+    expect(field().getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('listbox', { name: 'A: passages and books that match' })).toBeTruthy()
+    fireEvent.click(option)
+    expect(onChange).toHaveBeenCalledWith('c:0:1')
+    expect(field().value).toBe('')
+    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('completes a book by the start of its name, then the chapter typed after it', async () => {
+    const onChange = renderPicker(api)
+    fireEvent.focus(field())
+    fireEvent.change(field(), { target: { value: 'gen' } })
+    const book = await suggestion(/^Genesis/)
+    expect(book.textContent).toBe('Genesisbook')
+    // nothing is marked until an arrow: Enter would send the text as typed
+    expect(book.getAttribute('aria-selected')).toBe('false')
+    fireEvent.keyDown(field(), { key: 'ArrowDown' })
+    expect(book.getAttribute('aria-selected')).toBe('true')
+    expect(field().getAttribute('aria-activedescendant')).toBe(book.id)
+    fireEvent.keyDown(field(), { key: 'Enter' })
+    expect(field().value).toBe('Genesis ')
+    expect(screen.queryByRole('listbox')).toBeNull() // written out: not offered again
+    fireEvent.change(field(), { target: { value: 'Genesis 1' } })
+    await suggestion('Genesis 1')
+    fireEvent.keyDown(field(), { key: 'ArrowDown' })
+    fireEvent.keyDown(field(), { key: 'Enter' })
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith('c:0:1'))
+  })
+
+  it('closes the suggestions on Escape and when the focus leaves', async () => {
+    renderPicker(api)
+    fireEvent.focus(field())
+    fireEvent.change(field(), { target: { value: 'ex' } })
+    await suggestion(/^Exodus/)
+    fireEvent.keyDown(field(), { key: 'Escape' })
+    expect(screen.queryByRole('listbox')).toBeNull()
+    fireEvent.change(field(), { target: { value: 'exo' } })
+    await suggestion(/^Exodus/)
+    fireEvent.blur(field())
+    expect(screen.queryByRole('listbox')).toBeNull()
   })
 })

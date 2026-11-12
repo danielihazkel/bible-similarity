@@ -107,10 +107,10 @@ export const he: Messages = {
     theme: 'ערכת צבעים',
     themes: { auto: 'אוטומטי', light: 'בהיר', dark: 'כהה' },
     themeAuto: 'בהיר או כהה, לפי הגדרת המערכת שלכם',
-    pinned: 'מוצמדים',
-    pin: (page: string) => `הצמדת העמוד „${page}”`,
-    pinTitle: 'הצמדת העמוד הזה: הוא יישאר במרחק לחיצה אחת, בתפריט „מוצמדים”',
-    unpinTitle: 'העמוד מוצמד. לחצו כדי להוציא אותו מתפריט „מוצמדים”',
+    pinned: 'נעוצים',
+    pin: (page: string) => `נעיצת העמוד „${page}”`,
+    pinTitle: 'נעיצת העמוד הזה: הוא יישאר במרחק לחיצה אחת, בתפריט „נעוצים”',
+    unpinTitle: 'העמוד נעוץ. לחצו כדי להוציא אותו מתפריט „נעוצים”',
     allPages: 'כל העמודים',
     footer: {
       display: 'טקסט התצוגה: ספריא,',
@@ -321,8 +321,17 @@ export const he: Messages = {
     keepShared: 'השארת המילים המשותפות מודגשות',
     compare: 'השוואה',
     compareTitle: 'השוואה זה לצד זה',
+    read: 'קריאה',
+    readTitle: 'קריאה בתוך הפרק, בקורא',
     moreVerses: (n: number) => ` … (${n} פסוקים)`,
     markBy: 'סימון מילים לפי',
+  },
+
+  copy: {
+    ref: 'העתקת ההפניה',
+    refTitle: 'העתקת ההפניה של הקטע הזה',
+    text: 'העתקת הטקסט',
+    textTitle: 'העתקת הטקסט העברי כפי שתצוגת הטקסט מראה אותו',
   },
 
   lemmas: {
@@ -370,7 +379,7 @@ export const he: Messages = {
     verses: (n: number) => (n === 1 ? 'פסוק אחד' : n === 2 ? 'שני פסוקים' : `${n.toLocaleString('he-IL')} פסוקים`),
     keys: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לסגירה',
     keysInline: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לניקוי',
-    pinned: 'עמודים מוצמדים',
+    pinned: 'עמודים נעוצים',
     recentPassages: 'קטעים אחרונים',
     recentPages: 'עמודים אחרונים',
     books: 'ספרים',
@@ -378,7 +387,7 @@ export const he: Messages = {
   },
   pageIndex: {
     title: 'כל העמודים',
-    lede: 'כל עמודי האתר לפי התפריט, ומה כל אחד מראה. סמנו עמוד בכוכב כדי להצמיד אותו: העמודים המוצמדים נמצאים בתפריט „מוצמדים” שבסרגל העליון ובראש החלון „מעבר אל…” (Ctrl+K).',
+    lede: 'כל עמודי האתר לפי התפריט, ומה כל אחד מראה. סמנו עמוד בכוכב כדי לנעוץ אותו: העמודים הנעוצים נמצאים בתפריט „נעוצים” שבסרגל העליון ובראש החלון „מעבר אל…” (Ctrl+K).',
     filter: 'סינון',
     filterPlaceholder: 'שם, או מילה מן התיאור',
     count: (n: number) => countHe(n, 'עמוד אחד', 'שני עמודים', 'עמודים'),
@@ -400,6 +409,8 @@ export const he: Messages = {
     reference: (label: string) => `${label}: הפניה`,
     bookPlaceholder: 'ספר…',
     refPlaceholder: 'בראשית א · Gen 1:1',
+    suggestions: (label: string) => `${label}: קטעים וספרים מתאימים`,
+    bookTag: 'ספר',
     go: 'מעבר',
   },
 

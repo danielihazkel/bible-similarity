@@ -1,5 +1,5 @@
 import type { UseQueryResult } from '@tanstack/react-query'
-import { type FormEvent, type ReactNode, useState } from 'react'
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react'
 import { useT } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { ErrorBox, Loading } from './Status'
@@ -100,6 +100,20 @@ export function PagedList<T extends Page>({
 }) {
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
+  const top = useRef<HTMLSpanElement>(null)
+  // a new page of the list is read from its top: the pager is at its foot. Scrolled once the new
+  // history entry is on screen (an effect), so the entry left keeps its own place for Back
+  const turned = useRef(false)
+  const toPage = (p: number) => {
+    turned.current = true
+    update({ page: p === 1 ? null : String(p) }, false)
+  }
+  useEffect(() => {
+    if (!turned.current) return
+    turned.current = false
+    const el = top.current
+    if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: 'start' })
+  }, [page])
   if (res.isPending) return <Loading />
   if (res.isError) return <ErrorBox error={res.error} />
   const data = res.data
@@ -113,9 +127,10 @@ export function PagedList<T extends Page>({
   const pages = Math.max(1, Math.ceil(data.total / data.limit))
   return (
     <>
+      <span ref={top} className="list-top" />
       {summary && <p className="muted small">{summary(data, page, pages)}</p>}
       {children(data, res.isPlaceholderData ? 'stale' : '')}
-      <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
+      <Pager page={page} pages={pages} onPage={toPage} />
     </>
   )
 }

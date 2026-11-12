@@ -62,15 +62,16 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ From a cold start the last passage read is one click away; a public server shows no notebook.
 
-## M171: The reading flow (proposed O5)
-- [ ] The reader lands on the verse (`#v<verse_id>`, scrolled to and marked)
-- [ ] A Read link on `HitCard`, Search results and Query hits
-- [ ] `components/CopyButton.tsx`: the reference, and the verse in the text display in use
-- [ ] Back keeps your place (scroll saved per history entry); a new page still starts at the top
-- [ ] A page change in `PagedList` scrolls the list's top into view
-- [ ] Search results get the row actions that fit a free-text query
-- [ ] `UnitPicker`'s reference field suggests as you type
-- [ ] Tests
+## M171: The reading flow (D160; proposed O5)
+- [x] The reader lands on the verse: a verse opened in the reader goes to its chapter with `#v<verse_id>`; every verse row has that id, the one the address names is brought to the middle of the window (by `Layout`, for any `#hash`) and marked. The hash stays when a layer is switched: `useQueryParams` (`lib/urlState.ts`) keeps it, where the router's own setter drops it
+- [x] A Read link on `HitCard` and on Search results (the reader, at the verse); the pattern search's "Read the chapter" goes to the reader at the verse too (it went to the chapter's unit page)
+- [x] `components/CopyButton.tsx`: `CopyButton` (a text, "Copied" for a moment; the Display menu's Copy link is one) and `CopyPassage`, the reference in the interface language and the text as the text display shows it (`lib/hebrew.ts displayText`), a verse to a line; under the unit page's heading, on hit cards and on search results
+- [x] Back keeps your place: `lib/scroll.ts` keeps the window's position per history entry (`sessionStorage`, `bsim.scroll`, by the router's key and the address); `Layout` restores it on Back, Forward and a reload once the page is as tall as it was (up to 3 s, given up when the viewer scrolls first); a new page still starts at the top, a toggle on the same page keeps its place. The browser's own restoring is off (`history.scrollRestoration = 'manual'`)
+- [x] A page change in `PagedList` scrolls the list's top into view when it is out of sight; Back returns to the foot of the page before
+- [x] Search results get the row actions that fit a free-text query: Read, Keep in notebook (`KeepButton` in `components/NotebookPanel.tsx`: one click, then a link to the passage's page; a personal server only), copy
+- [x] `UnitPicker`'s reference field suggests as you type (`lib/books.ts matchBooks`, shared with the jump box, and `/resolve`): the passage the text names so far, and the books a name of which starts so; a book chosen writes its name, ready for the chapter
+- [x] Found on the way: the hit card's actions wrap as whole items (a phone had them broken mid-word once there were more); the Hebrew for pinning is נעיצה, as a hit card already had it (`hit.unpin`), not הצמדה (M169): צמד is a pair in these catalogs
+- [x] Tests: vitest (`components/ReadingFlow.test.tsx`: where a navigation leaves the window, the copies, a hit card, a search result's actions; the reader's landing, the pager and the picker's suggestions in their own files); the fixture e2e (the landing with axe in both themes, Back to a hit and a reload, the copies read back from the clipboard, a search result's row in both languages, the picker); the smoke on the real build (Genesis 22:2 to chapter 22 at verse 2 and Back to the same hit; a list's page change and Back); the flow gone through on the real build in a browser (the landing, Back to a hit, the copies read back from the clipboard, the pager, the picker), the hit card looked at on a phone and in Hebrew
 
 ✔ "Read with layers" from Genesis 22:2 opens chapter 22 at verse 2; Back from a hit returns to the same hit.
 

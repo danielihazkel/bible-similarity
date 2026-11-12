@@ -1,5 +1,18 @@
 /* ReaderPage.tsx's own rules, split from global.css (M160): loaded with its chunk. */
 
+/* the verse the address names (`#v…`): where a verse's "read" link lands */
+
+/* a card's surface and a bar at the verse's start, not a tint: the small grey marks of the layers
+   (a verse's total, a count) keep their contrast on it */
+
+.reader-text li.at {
+  background: var(--surface);
+  box-shadow:
+    inset -4px 0 var(--accent),
+    0 0 0 1px var(--border);
+  border-radius: var(--radius);
+}
+
 /* links inside running text must not rely on colour alone (WCAG 1.4.1) */
 
 .reader-legend a {

@@ -324,8 +324,17 @@ const core = {
     keepShared: 'Keep the shared words highlighted',
     compare: 'Compare',
     compareTitle: 'Side-by-side comparison',
+    read: 'Read',
+    readTitle: 'Read it in its chapter, in the reader',
     moreVerses: (n: number) => ` … (${n} verses)`,
     markBy: 'Mark words by',
+  },
+
+  copy: {
+    ref: 'Copy reference',
+    refTitle: 'Copy the reference of this passage',
+    text: 'Copy text',
+    textTitle: 'Copy the Hebrew text as the text display shows it',
   },
 
   lemmas: {
@@ -405,6 +414,8 @@ const core = {
     bookPlaceholder: 'Book…',
     refPlaceholder: 'Gen 1:1 · בראשית א',
     go: 'Go',
+    suggestions: (label: string) => `${label}: passages and books that match`,
+    bookTag: 'book',
   },
 
   filter: {

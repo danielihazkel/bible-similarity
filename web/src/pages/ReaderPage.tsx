@@ -57,8 +57,8 @@ export function ReaderPage() {
   if (detail.isPending) return <Loading />
   if (detail.error) return <ErrorBox error={detail.error} />
   const { unit, verses } = detail.data
-  // a verse is read in its chapter
-  if (unit.unit_type === 'verse') return <Navigate replace to={readLink(`c:${unit.book_id}:${verses[0].chapter}`, search)} />
+  // a verse is read in its chapter, at the verse
+  if (unit.unit_type === 'verse') return <Navigate replace to={`${readLink(`c:${unit.book_id}:${verses[0].chapter}`, search)}#v${verses[0].verse_id}`} />
   return <ReaderView key={unitId} detail={detail.data} />
 }
 
@@ -67,7 +67,7 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
   const t = m.reader
   const { unit, verses } = detail
   const [params, update] = useQueryParams()
-  const { search } = useLocation()
+  const { search, hash } = useLocation()
   const layers = parseLayers(params.get('layers'))
   const on = (l: Layer) => layers.has(l)
   const byRoot = params.get('lw') === 'root'
@@ -258,8 +258,9 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
         {verses.map((v) => {
           const r = rv.get(v.verse_id)
           const h = on('cola') ? halvesOf.get(v.verse_id) : undefined
+          // the verse the address names (`#v…`, where a verse's link lands): scrolled to by Layout, marked here
           return (
-            <li key={v.verse_id}>
+            <li key={v.verse_id} id={`v${v.verse_id}`} className={hash === `#v${v.verse_id}` ? 'at' : undefined}>
               {on('turns') && r?.gap && <GapRow gap={r.gap} />}
               <Link className="verse-num" to={unitLink(`v:${v.verse_id}`)} title={m.units.similarVerses(verseRef(v, locale))}>
                 {v.verse}

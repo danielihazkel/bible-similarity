@@ -9,7 +9,7 @@ import { UnitFilter } from '../components/UnitFilter'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
-import { unitLink } from '../lib/links'
+import { readLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { parsePage, useOpenSections, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
@@ -169,7 +169,7 @@ function Hit({ v }: { v: PatternVerse }) {
         <span className="muted small" dir="rtl" lang="he">
           {v.text}
         </span>{' '}
-        <Link className="small" to={unitLink(v.unit_id)}>
+        <Link className="small" to={readLink(`v:${v.verse_id}`)}>
           {t.read}
         </Link>
       </div>

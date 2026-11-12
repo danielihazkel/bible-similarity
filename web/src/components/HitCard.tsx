@@ -4,7 +4,8 @@ import { diffHighlight, highlightFor } from '../lib/highlight'
 import { useT } from '../context/localeContext'
 import { DiffLegend } from './DiffLegend'
 import { LabelButtons } from './LabelButtons'
-import { compareLink, unitLink } from '../lib/links'
+import { compareLink, readLink, unitLink } from '../lib/links'
+import { CopyPassage } from './CopyButton'
 import { HebrewPlain, HebrewText } from './HebrewText'
 import { LemmaChips } from './LemmaChips'
 import { LinkBadge } from './LinkBadge'
@@ -76,6 +77,10 @@ export function HitCard(p: Props) {
           <Link className="linkish" to={compareLink(source.unit_id, hit.unit.unit_id)} title={m.hit.compareTitle}>
             {m.hit.compare}
           </Link>
+          <Link className="linkish" to={readLink(hit.unit.unit_id)} title={m.hit.readTitle}>
+            {m.hit.read}
+          </Link>
+          <CopyPassage en={hit.unit.label_en} he={hit.unit.label_he} verses={hit.verse ? [hit.verse] : undefined} />
         </span>
       </div>
       {hit.verse ? (

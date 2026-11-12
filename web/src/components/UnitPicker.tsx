@@ -1,13 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
 import { getJson } from '../api/client'
-import { useBooks, useUnit, useUnits } from '../api/hooks'
+import { useBooks, useResolve, useUnit, useUnits } from '../api/hooks'
 import type { ResolveResponse, UnitDetail, UnitType } from '../api/types'
 import { useLocale } from '../context/localeContext'
-import { bookOption, unitLabel } from '../lib/names'
+import { matchBooks } from '../lib/books'
+import { bookName, bookOption, unitLabel } from '../lib/names'
 import '../styles/components/UnitPicker.css'
 
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha', 'verse']
+const MAX_BOOKS = 4
+const DEBOUNCE_MS = 150
 
 interface Props {
   label: string
@@ -17,8 +20,10 @@ interface Props {
 
 /**
  * Unit type → book → unit, from /api/books and /api/units/{type}?book=, or a typed reference
- * (`Gen 1:1`, `בראשית א א`, `Ps 23`) resolved by /api/resolve. Type and book follow the selected
- * unit until the user changes them (render with `key={value}` to reset on a new value).
+ * (`Gen 1:1`, `בראשית א א`, `Ps 23`) resolved by /api/resolve. The reference field suggests as it
+ * is typed, as the jump box does: the passage the text names so far, and the books a name of which
+ * starts so (choosing one writes its name, ready for the chapter). Type and book follow the
+ * selected unit until the user changes them (render with `key={value}` to reset on a new value).
  */
 export function UnitPicker({ label, value, onChange }: Props) {
   const { m, locale } = useLocale()
@@ -63,6 +68,63 @@ export function UnitPicker({ label, value, onChange }: Props) {
     }
   }
   const error = booksQuery.isError ? m.picker.booksFailed : unitsQuery.isError ? m.picker.unitsFailed : undefined
+
+  // suggestions under the reference field, once the typing pauses
+  const listId = useId()
+  const refInput = useRef<HTMLInputElement>(null)
+  const [settled, setSettled] = useState('')
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(-1)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettled(ref.trim()), DEBOUNCE_MS)
+    return () => window.clearTimeout(timer)
+  }, [ref])
+  const resolved = useResolve(settled)
+  const named = settled === ref.trim() && resolved.data?.query === settled ? resolved.data.unit : undefined
+  const suggestions: { key: string; label: string; tag?: string; pick: () => void }[] = [
+    ...(named
+      ? [
+          {
+            key: named.unit_id,
+            label: unitLabel(named, locale),
+            pick: () => {
+              setRef('')
+              setOpen(false)
+              onChange(named.unit_id)
+            },
+          },
+        ]
+      : []),
+    // a book whose name is already written out, with the space after it, is not offered again
+    ...matchBooks(books, ref, MAX_BOOKS)
+      .filter(({ exact }) => !(exact && /\s$/.test(ref)))
+      .map(({ book }) => ({
+        key: `book-${book.book_id}`,
+        label: bookName(book, locale),
+        tag: m.picker.bookTag,
+        pick: () => {
+          setRef(`${bookName(book, locale)} `)
+          setActive(-1)
+          refInput.current?.focus()
+        },
+      })),
+  ]
+  const listed = open && suggestions.length > 0
+  const marked = Math.min(active, suggestions.length - 1)
+  const onRefKey = (e: KeyboardEvent) => {
+    if (!listed) return
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      const n = suggestions.length
+      setActive(e.key === 'ArrowDown' ? (marked + 1) % n : marked <= 0 ? n - 1 : marked - 1)
+    } else if (e.key === 'Enter' && marked >= 0) {
+      e.preventDefault()
+      suggestions[marked].pick()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      setOpen(false)
+    }
+  }
 
   return (
     <fieldset className="picker">
@@ -111,16 +173,48 @@ export function UnitPicker({ label, value, onChange }: Props) {
       </select>
       <form className="picker-ref" onSubmit={goTo} role="search">
         <input
+          ref={refInput}
           type="text"
+          role="combobox"
           aria-label={m.picker.reference(label)}
+          aria-expanded={listed}
+          aria-controls={listed ? listId : undefined}
+          aria-autocomplete="list"
+          aria-activedescendant={listed && marked >= 0 ? `${listId}-${marked}` : undefined}
+          autoComplete="off"
+          spellCheck={false}
           placeholder={m.picker.refPlaceholder}
           value={ref}
           onChange={(e) => {
             setRef(e.target.value)
             setRefStatus(undefined)
+            setActive(-1)
+            setOpen(true)
           }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onKeyDown={onRefKey}
         />
         <button type="submit">{m.picker.go}</button>
+        {listed && (
+          <div id={listId} className="picker-suggest" role="listbox" aria-label={m.picker.suggestions(label)}>
+            {suggestions.map((s, i) => (
+              <div
+                key={s.key}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === marked}
+                className="picker-option"
+                onMouseMove={() => i !== marked && setActive(i)}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={s.pick}
+              >
+                <span>{s.label}</span>
+                {s.tag && <span className="muted small">{s.tag}</span>}
+              </div>
+            ))}
+          </div>
+        )}
       </form>
       {(error ?? refStatus) && (
         <p className={`picker-status${error ? ' error' : ''}`} role={error ? 'alert' : 'status'}>

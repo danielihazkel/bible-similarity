@@ -2,7 +2,7 @@
 import type { UseQueryResult } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PagedList } from './Pager'
 
 interface Data {
@@ -75,5 +75,25 @@ describe('PagedList', () => {
     show(ok({ items: ['a'], total: 1, limit: 10 }))
     expect(screen.queryByRole('navigation')).toBeNull()
     expect(screen.getByRole('list').className).toBe('rows ')
+  })
+
+  it('goes back to the list’s top on a page change, when the top is out of sight', () => {
+    const into = vi.fn()
+    Element.prototype.scrollIntoView = into
+    const top = vi.spyOn(Element.prototype, 'getBoundingClientRect')
+    // the list's top is above the window: the pager at its foot was clicked
+    top.mockReturnValue({ top: -900 } as DOMRect)
+    show(ok({ items: ['a', 'b'], total: 25, limit: 10 }))
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(screen.getByTestId('loc').textContent).toBe('/list?page=2')
+    expect(into).toHaveBeenCalledWith({ block: 'start' })
+    expect((into.mock.instances[0] as unknown as Element).className).toBe('list-top')
+    // in sight already (a short list): the window stays
+    into.mockClear()
+    top.mockReturnValue({ top: 140 } as DOMRect)
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(screen.getByTestId('loc').textContent).toBe('/list?page=3')
+    expect(into).not.toHaveBeenCalled()
+    top.mockRestore()
   })
 })

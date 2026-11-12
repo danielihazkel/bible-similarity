@@ -149,7 +149,7 @@ describe('the start page with something to go back to', () => {
     togglePin('/gematria')
     renderHome({ locale: 'he' })
     await screen.findByRole('heading', { level: 3, name: 'תורה' })
-    expect(headings()).toEqual(['המשיכו מכאן', 'מוצמדים', 'הספרים'])
+    expect(headings()).toEqual(['המשיכו מכאן', 'נעוצים', 'הספרים'])
     expect(within(screen.getByRole('list', { name: 'קטעים אחרונים' })).getByRole('link').textContent).toBe('בראשית כבבקורא')
     expect(screen.queryByText('Genesis 22')).toBeNull()
     expect(screen.getByRole('link', { name: 'צאו לסיור מודרך' })).toBeTruthy()

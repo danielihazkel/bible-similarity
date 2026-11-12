@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { type NotebookChange, useNotebook, useNotebookChange } from '../api/hooks'
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { useT } from '../context/localeContext'
+import { unitLink } from '../lib/links'
 import '../i18n/pages/notebook'
 import '../styles/components/NotebookPanel.css'
 
@@ -43,6 +44,29 @@ export function NotebookPanel({ unitId }: { unitId: string }) {
       )}
       <ChangeError error={change.error} />
     </section>
+  )
+}
+
+/** Keep a passage from a row of a list (a search result): one click, and from then on a link to
+ * its page, where the note is written. Nothing while the notebook loads, on a server without one,
+ * or on a read-only one that does not hold the passage. */
+export function KeepButton({ unitId }: { unitId: string }) {
+  const t = useT().nb
+  const nb = useNotebook()
+  const change = useNotebookChange()
+  if (!nb.data) return null
+  if (nb.data.entries.some((e) => e.unit.unit_id === unitId)) {
+    return (
+      <Link className="linkish" to={unitLink(unitId)}>
+        <span aria-hidden="true">★</span> {t.kept}
+      </Link>
+    )
+  }
+  if (!nb.data.writable) return null
+  return (
+    <button type="button" className="linkish" title={t.keepTitle} disabled={change.isPending} onClick={() => change.mutate({ kind: 'keep', unit: unitId })}>
+      <span aria-hidden="true">☆</span> {t.keep}
+    </button>
   )
 }
 

@@ -120,7 +120,12 @@ const HALVES = {
 
 function Location() {
   const l = useLocation()
-  return <output data-testid="loc">{l.pathname + l.search}</output>
+  return (
+    <>
+      <output data-testid="loc">{l.pathname + l.search}</output>
+      <output data-testid="hash">{l.hash}</output>
+    </>
+  )
 }
 
 function renderAt(path: string, locale: 'en' | 'he' = 'en', reader: ReaderResponse = READER) {
@@ -329,8 +334,24 @@ describe('ReaderPage', () => {
     expect(container.querySelector('.gap-kind')?.textContent).toBe('מפנה')
   })
 
-  it('reads a verse in its chapter', async () => {
-    renderAt('/read/v%3A1?layers=rare')
+  it('reads a verse in its chapter, at the verse', async () => {
+    const { container } = renderAt('/read/v%3A1?layers=rare')
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe("/read/c%3A0%3A1?layers=rare"))
+    expect(screen.getByTestId('hash').textContent).toBe('#v1')
+    // every verse can be landed on; the one the address names is marked
+    await waitFor(() => expect(container.querySelector('.reader-text li.at')?.id).toBe('v1'))
+    expect(container.querySelectorAll('.reader-text li.at')).toHaveLength(1)
+    expect(container.querySelectorAll('.reader-text li[id^="v"]').length).toBe(container.querySelectorAll('.reader-text li').length)
+    // a layer switched: the verse is still in the address, and still marked
+    fireEvent.click(screen.getByRole('button', { name: 'Speakers' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toContain('speakers'))
+    expect(screen.getByTestId('hash').textContent).toBe('#v1')
+    expect(container.querySelector('.reader-text li.at')?.id).toBe('v1')
+  })
+
+  it('marks no verse when a chapter is opened as a whole', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1')
+    await screen.findByRole('button', { name: 'Speakers' })
+    expect(container.querySelector('.reader-text li.at')).toBeNull()
   })
 })

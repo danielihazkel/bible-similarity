@@ -3,8 +3,46 @@
 /* ---------- Compare ---------- */
 
 .picker-ref {
+  position: relative;
   display: flex;
   gap: 0.3rem;
+}
+
+/* what the reference typed so far names, under the field */
+
+.picker-suggest {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  inset-inline-start: 0;
+  z-index: 5;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(22rem, 90vw);
+  padding: 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.picker-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.picker-option[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+
+/* the grey of the tag is too faint on the highlight */
+
+.picker-option[aria-selected='true'] .muted {
+  color: var(--text);
 }
 
 .picker-ref button {

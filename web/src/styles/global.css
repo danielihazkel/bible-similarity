@@ -893,11 +893,18 @@ a.verse-num {
   font-weight: 600;
 }
 
+/* the actions wrap as whole items (a narrow window: a second line, not words broken in two) */
+
 .hit-actions {
   margin-inline-start: auto;
   display: flex;
-  gap: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
   font-size: 0.85rem;
+}
+
+.hit-actions > * {
+  white-space: nowrap;
 }
 
 .hit-text {

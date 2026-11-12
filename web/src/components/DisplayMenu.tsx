@@ -3,6 +3,7 @@ import { useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
 import { useFitInWindow } from '../lib/menuFit'
 import { LocaleToggle, TextModeToggle, ThemeToggle } from './Controls'
+import { CopyButton } from './CopyButton'
 import '../styles/components/DisplayMenu.css'
 
 /** The viewer's own settings behind one button of the top bar: how the Hebrew text is shown, the
@@ -68,35 +69,10 @@ export function DisplayMenu() {
             <span className="display-label">{m.site.theme}</span>
             <ThemeToggle />
           </div>
-          <CopyLink />
+          {/* every view's state is in its URL */}
+          <CopyButton className="copy-link" text={() => window.location.href} label={m.site.copyLink} title={m.site.copyLinkTitle} />
         </div>
       )}
     </div>
-  )
-}
-
-/** Copies the current page's address (every view's state is in its URL). */
-function CopyLink() {
-  const m = useT()
-  const [done, setDone] = useState(false)
-  useEffect(() => {
-    if (!done) return
-    const t = window.setTimeout(() => setDone(false), 1500)
-    return () => window.clearTimeout(t)
-  }, [done])
-  return (
-    <button
-      type="button"
-      className="copy-link"
-      title={m.site.copyLinkTitle}
-      onClick={() => {
-        navigator.clipboard
-          ?.writeText(window.location.href)
-          .then(() => setDone(true))
-          .catch(() => setDone(false))
-      }}
-    >
-      <span aria-live="polite">{done ? m.site.copied : m.site.copyLink}</span>
-    </button>
   )
 }
