@@ -46,6 +46,7 @@ const PsalmsPage = lazy(() => import('./pages/PsalmsPage').then((m) => ({ defaul
 const PentateuchPage = lazy(() => import('./pages/PentateuchPage').then((m) => ({ default: m.PentateuchPage })))
 const DivisionsPage = lazy(() => import('./pages/DivisionsPage').then((m) => ({ default: m.DivisionsPage })))
 const AcrosticsPage = lazy(() => import('./pages/AcrosticsPage').then((m) => ({ default: m.AcrosticsPage })))
+const PagesPage = lazy(() => import('./pages/PagesPage').then((m) => ({ default: m.PagesPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 const BookPage = lazy(() => import('./pages/BookPage').then((m) => ({ default: m.BookPage })))
 const ChangesPage = lazy(() => import('./pages/ChangesPage').then((m) => ({ default: m.ChangesPage })))
@@ -168,6 +169,7 @@ export function App() {
           <Route path="search" element={<SearchPage />} />
           <Route path="eval" element={<EvalPage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="pages" element={<PagesPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

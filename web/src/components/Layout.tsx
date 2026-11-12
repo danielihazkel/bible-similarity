@@ -1,11 +1,13 @@
 import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
-import { useServer } from '../api/hooks'
+import { useServer, useUnit } from '../api/hooks'
 import { useFitInWindow } from '../lib/menuFit'
-import { isGroup, type NavGroup, type NavItem, navFor, navText } from '../lib/nav'
+import { ALL_PAGES, isGroup, NAV_PAGE, type NavItem, type NavSection, navFor, navText, PERSONAL_PAGES } from '../lib/nav'
+import { isNavPage, passageLink, passageOf, usePins, visitPage, visitPassage } from '../lib/recent'
 import { DisplayMenu } from './DisplayMenu'
 import { JumpBox } from './JumpBox'
+import { PinButton } from './PinButton'
 import { TourBar } from './TourBar'
 import { AppBanner } from './AppBanner'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -18,6 +20,14 @@ export function Layout() {
   const mainRef = useRef<HTMLElement>(null)
   usePageTitle(mainRef, m.site.name)
   useNavigationFocus(mainRef, pathname)
+  useRecordVisit(pathname)
+  // the pinned pages this server offers, as nav items
+  const pins = usePins()
+  const pinned = pins.flatMap((to) => {
+    const page = personal || !PERSONAL_PAGES.has(to) ? NAV_PAGE.get(to) : undefined
+    return page ? [page] : []
+  })
+  const within = (items: NavItem[]) => items.some((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
   const [mobileOpen, setMobileOpen] = useState(false)
   const [jumpOpen, setJumpOpen] = useState(false)
   // Ctrl+K (⌘K) opens the jump box anywhere, and closes it again
@@ -74,9 +84,10 @@ export function Layout() {
           <span aria-hidden="true">{mobileOpen ? '✕' : '☰'}</span> {m.site.menu}
         </button>
         <nav id="main-nav" className={`nav ${mobileOpen ? 'open' : ''}`} aria-label={m.site.mainNav}>
+          {pinned.length > 0 && <NavMenu id="menu-pinned" label={m.site.pinned} items={pinned} active={false} pathname={pathname} mobileOpen={mobileOpen} />}
           {navFor(personal).map((e) =>
             isGroup(e) ? (
-              <NavMenu key={e.key} group={e} pathname={pathname} mobileOpen={mobileOpen} />
+              <NavMenu key={e.key} id={`menu-${e.key}`} label={m.nav[e.key]} items={e.items} sections={e.sections} active={within(e.items)} pathname={pathname} mobileOpen={mobileOpen} />
             ) : (
               <NavLink key={e.to} to={e.to} end={e.to === '/'}>
                 {navText(m, e.key).label}
@@ -84,6 +95,7 @@ export function Layout() {
             ),
           )}
         </nav>
+        {isNavPage(pathname) && (personal || !PERSONAL_PAGES.has(pathname)) && <PinButton to={pathname} className="copy-link" />}
         <button type="button" className="copy-link jump-open" title={m.jump.openTitle} aria-haspopup="dialog" onClick={() => setJumpOpen(true)}>
           {m.jump.open} <kbd aria-hidden="true">Ctrl K</kbd>
         </button>
@@ -118,18 +130,33 @@ export function Layout() {
   )
 }
 
-/** A dropdown of related pages: opens on click, closes on Escape, outside click or navigation. A
- * big group is laid out in two columns, a sectioned one (Patterns) in a column per heading, so it
- * fits under the sticky top bar. On narrow screens (inside the open mobile menu) each group is a
- * disclosure: the current page's group opens with the menu, the others on a tap. */
-function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: string; mobileOpen: boolean }) {
+/** A dropdown of pages (a group of the nav, or the pinned pages): opens on click, closes on Escape,
+ * outside click or navigation. A big group is laid out in two columns, a sectioned one (Patterns)
+ * in a column per heading, so it fits under the sticky top bar; each ends with the link to the
+ * index of every page. On narrow screens (inside the open mobile menu) each group is a disclosure:
+ * the current page's group (`active`) opens with the menu, the others on a tap. */
+function NavMenu({
+  id,
+  label,
+  items,
+  sections,
+  active,
+  pathname,
+  mobileOpen,
+}: {
+  id: string
+  label: string
+  items: NavItem[]
+  sections?: NavSection[]
+  active: boolean
+  pathname: string
+  mobileOpen: boolean
+}) {
   const m = useT()
-  const label = m.nav[group.key]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
-  const active = group.items.some((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
   const [seenPath, setSeenPath] = useState(pathname)
   if (seenPath !== pathname) {
     setSeenPath(pathname)
@@ -165,7 +192,11 @@ function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: s
 
   useFitInWindow(menuRef, open)
 
-  const id = `menu-${group.key}`
+  const foot = (
+    <NavLink to={ALL_PAGES} className="nav-menu-foot">
+      {m.site.allPages}
+    </NavLink>
+  )
   return (
     <div className={`nav-group ${open ? 'open' : ''}`} ref={ref}>
       <button
@@ -178,9 +209,9 @@ function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: s
       >
         {label} <span aria-hidden="true">▾</span>
       </button>
-      {group.sections ? (
+      {sections ? (
         <div id={id} ref={menuRef} className="nav-menu sectioned">
-          {group.sections.map((sec) => (
+          {sections.map((sec) => (
             <div key={sec.key} className="nav-section">
               <span className="nav-section-title" id={`${id}-${sec.key}`}>
                 {m.navSections[sec.key]}
@@ -188,10 +219,12 @@ function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: s
               <NavItems items={sec.items} labelledBy={`${id}-${sec.key}`} />
             </div>
           ))}
+          {foot}
         </div>
       ) : (
-        <div id={id} ref={menuRef} className={`nav-menu ${group.items.length > 10 ? 'wide' : ''}`}>
-          <NavItems items={group.items} label={label} />
+        <div id={id} ref={menuRef} className={`nav-menu ${items.length > 10 ? 'wide' : ''}`}>
+          <NavItems items={items} label={label} />
+          {foot}
         </div>
       )}
     </div>
@@ -215,6 +248,24 @@ function NavItems({ items, label, labelledBy }: { items: NavItem[]; label?: stri
       })}
     </ul>
   )
+}
+
+/** The page or passage on screen goes to the head of the recent ones (`lib/recent.ts`): a nav page
+ * by its path, a passage once its unit is known (the unit page and the reader ask for the same
+ * unit, so this is no second request). A verse opened in the reader is not recorded: the reader
+ * sends it on to its chapter. */
+function useRecordVisit(pathname: string) {
+  const passage = passageOf(pathname)
+  const unit = useUnit(passage?.id).data?.unit
+  useEffect(() => {
+    visitPage(pathname)
+  }, [pathname])
+  const view = passage?.view
+  useEffect(() => {
+    if (!view || !unit || unit.unit_id !== passageOf(pathname)?.id) return
+    if (view === 'read' && unit.unit_type === 'verse') return
+    visitPassage({ to: passageLink(view, unit.unit_id), en: unit.label_en, he: unit.label_he })
+  }, [pathname, view, unit])
 }
 
 /** `document.title` follows the page's heading (pages fill it in once their data loads). */

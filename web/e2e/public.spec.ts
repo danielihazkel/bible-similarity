@@ -68,3 +68,12 @@ test('the personal routes are not served', async ({ request }) => {
     expect(r.status(), path).toBe(404)
   }
 })
+
+test('the index of every page leaves them out too, and a pin of one is not shown', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('bsim.pins', '["/notebook","/map"]'))
+  await page.goto('/pages')
+  await expect(page.locator('.pages-row a[href="/findings"]')).toHaveCount(1)
+  await expect(page.locator('a[href="/labels"]')).toHaveCount(0)
+  await expect(page.locator('a[href="/notebook"]')).toHaveCount(0)
+  await expect(page.locator('#menu-pinned a[href="/map"]')).toHaveCount(1)
+})

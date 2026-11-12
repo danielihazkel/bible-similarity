@@ -176,6 +176,8 @@ const PAGES = [
   '/laws?pair=1',
   '/laws?view=laws&code=covenant',
   '/neighbourhood/c%3A0%3A1?hops=1&off=fused',
+  '/pages',
+  '/pages?q=gematria',
 ]
 
 function collectErrors(page: Page): string[] {
@@ -1413,5 +1415,116 @@ test.describe('the Display menu and the theme (M168)', () => {
     expect(await background(page)).toBe(DARK)
     await page.emulateMedia({ media: 'print' })
     expect(await background(page)).toBe('rgb(255, 255, 255)')
+  })
+})
+
+// M169: pinned pages, recent pages, the index of every page, the jump box before typing
+test.describe('pinned and recent pages, the index of every page (M169)', () => {
+  // the lines the bar's visible parts sit on
+  const rows = (page: Page) =>
+    page.evaluate(() => {
+      const boxes = [...document.querySelector('.topbar')!.children].map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0)
+      boxes.sort((a, b) => a.top - b.top)
+      let n = 0
+      let bottom = -Infinity
+      for (const r of boxes) {
+        if (r.top >= bottom) n++
+        bottom = Math.max(bottom, r.bottom)
+      }
+      return n
+    })
+  const start = (page: Page, locale: 'en' | 'he', pins: string[]) =>
+    page.addInitScript(
+      ([l, p]) => {
+        localStorage.setItem('bsim.locale', l as string)
+        if (!localStorage.getItem('bsim.pins')) localStorage.setItem('bsim.pins', JSON.stringify(p))
+      },
+      [locale, pins] as const,
+    )
+
+  for (const locale of ['en', 'he'] as const) {
+    test(`the bar at its fullest, a pin and the pin button in it, is one row from 1280px (${locale})`, async ({ page }, info) => {
+      test.skip(info.project.name !== 'desktop')
+      await start(page, locale, ['/map'])
+      for (const width of [1280, 1263]) {
+        await page.setViewportSize({ width, height: 800 })
+        await loads(page, '/phrases')
+        await expect(page.locator('.topbar > .pin-button')).toBeVisible()
+        await expect(page.locator('#menu-pinned')).toHaveCount(1)
+        expect(await rows(page), `${width}px`).toBe(1)
+      }
+      for (const width of [1150, 1000, 905]) {
+        await page.setViewportSize({ width, height: 800 })
+        await loads(page, '/phrases')
+        expect(await rows(page), `${width}px`).toBeLessThanOrEqual(2)
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+        expect(overflow, `${width}px`).toBeLessThanOrEqual(1)
+      }
+    })
+
+    test(`before typing, the jump box lists the pinned pages and what was opened last; "gen" finds Genesis (${locale})`, async ({ page }) => {
+      await start(page, locale, ['/gematria'])
+      await loads(page, '/unit/c%3A0%3A1')
+      await loads(page, '/map')
+      await loads(page, '/search')
+      await page.keyboard.press('Control+k')
+      const box = page.getByRole('dialog').getByRole('combobox')
+      await expect(box).toBeFocused()
+      // the jump box's own options: a page may have a select's of its own
+      const list = page.getByRole('dialog').getByRole('listbox')
+      const options = list.getByRole('option')
+      await expect(options.first()).toContainText(locale === 'en' ? 'Gematria' : 'גימטריה')
+      await expect(options.first()).toHaveAttribute('aria-selected', 'true')
+      await expect(list.getByRole('option', { name: 'c:0:1' })).toHaveCount(1) // the fixture's label of Genesis 1
+      await expect(list.getByRole('option', { name: locale === 'en' ? /^Map/ : /^מפה/ })).toHaveCount(1)
+      await expect(options.last()).toHaveText(locale === 'en' ? 'All pages' : 'כל העמודים')
+      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+      expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+      // a book by the start of its name
+      await box.fill(locale === 'en' ? 'gen' : 'ברא')
+      await list.getByRole('option', { name: locale === 'en' ? /^Genesis/ : /^בראשית/ }).click()
+      await expect(page).toHaveURL(/\/browse\/0$/)
+    })
+  }
+
+  test('a page pinned from the bar is in the Pinned menu from any page, and still there after a reload', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop') // a phone pins from the index (the next test)
+    await loads(page, '/phrases')
+    await expect(page.getByRole('button', { name: /^Pinned/ })).toHaveCount(0)
+    const pin = page.getByRole('button', { name: 'Pin Phrases' })
+    await pin.click()
+    await expect(pin).toHaveAttribute('aria-pressed', 'true')
+    await page.reload()
+    await expect(page.getByRole('button', { name: 'Pin Phrases' })).toHaveAttribute('aria-pressed', 'true')
+    await loads(page, '/unit/v%3A0')
+    await expect(page.locator('.topbar > .pin-button')).toHaveCount(0) // a passage is not a page of the nav
+    const menu = page.getByRole('button', { name: /^Pinned/ })
+    await menu.click()
+    for (const theme of ['Light', 'Dark']) {
+      await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t.toLowerCase()), theme)
+      const results = await new AxeBuilder({ page }).include('.topbar').withTags(['wcag2a', 'wcag2aa']).analyze()
+      expect(results.violations.map((v) => v.id), theme).toEqual([])
+    }
+    await page.locator('#menu-pinned').getByRole('link', { name: /Phrases/ }).click()
+    await expect(page).toHaveURL(/\/phrases$/)
+    // each menu ends with the link to every page
+    await page.getByRole('button', { name: /^Parallels/ }).click()
+    await page.locator('#menu-parallels').getByRole('link', { name: 'All pages' }).click()
+    await expect(page).toHaveURL(/\/pages$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'All pages' })).toBeVisible()
+  })
+
+  test('the index of every page: a filter in the URL, a page pinned from its row', async ({ page }) => {
+    await loads(page, '/pages')
+    expect(await page.locator('.pages-row').count()).toBeGreaterThan(60)
+    await page.getByRole('searchbox', { name: 'Filter' }).fill('gematria')
+    await expect(page).toHaveURL(/\/pages\?q=gematria$/)
+    await expect(page.locator('.pages-row')).toHaveCount(2)
+    await page.getByRole('button', { name: 'Pin Gematria' }).click()
+    await expect(page.getByRole('heading', { level: 2, name: 'Pinned' })).toBeVisible()
+    await page.reload()
+    await expect(page.locator('.pages-row')).toHaveCount(3) // the two, and Gematria again under Pinned
+    await expect(page.getByRole('button', { name: 'Pin Gematria' }).first()).toHaveAttribute('aria-pressed', 'true')
+    expect(await page.evaluate(() => localStorage.getItem('bsim.pins'))).toBe('["/gematria"]')
   })
 })

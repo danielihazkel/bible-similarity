@@ -8,6 +8,7 @@
 //   cross-reference הפניה · Sefaria ספריא
 
 import { hebrewNumeral } from '../lib/hebrew'
+import { countHe, numHe } from './fmt'
 import type { Messages } from './en'
 import { ovHe } from './pages/he/overview'
 import { parHe } from './pages/he/parallels'
@@ -106,6 +107,11 @@ export const he: Messages = {
     theme: 'ערכת צבעים',
     themes: { auto: 'אוטומטי', light: 'בהיר', dark: 'כהה' },
     themeAuto: 'בהיר או כהה, לפי הגדרת המערכת שלכם',
+    pinned: 'מוצמדים',
+    pin: (page: string) => `הצמדת העמוד „${page}”`,
+    pinTitle: 'הצמדת העמוד הזה: הוא יישאר במרחק לחיצה אחת, בתפריט „מוצמדים”',
+    unpinTitle: 'העמוד מוצמד. לחצו כדי להוציא אותו מתפריט „מוצמדים”',
+    allPages: 'כל העמודים',
     footer: {
       display: 'טקסט התצוגה: ספריא,',
       mam: 'מקרא על פי המסורה',
@@ -363,6 +369,22 @@ export const he: Messages = {
     gematriaOf: (q: string) => `ערך האותיות: ${q}`,
     verses: (n: number) => (n === 1 ? 'פסוק אחד' : n === 2 ? 'שני פסוקים' : `${n.toLocaleString('he-IL')} פסוקים`),
     keys: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לסגירה',
+    pinned: 'עמודים מוצמדים',
+    recentPassages: 'קטעים אחרונים',
+    recentPages: 'עמודים אחרונים',
+    books: 'ספרים',
+    inReader: 'בקורא',
+  },
+  pageIndex: {
+    title: 'כל העמודים',
+    lede: 'כל עמודי האתר לפי התפריט, ומה כל אחד מראה. סמנו עמוד בכוכב כדי להצמיד אותו: העמודים המוצמדים נמצאים בתפריט „מוצמדים” שבסרגל העליון ובראש החלון „מעבר אל…” (Ctrl+K).',
+    filter: 'סינון',
+    filterPlaceholder: 'שם, או מילה מן התיאור',
+    count: (n: number) => countHe(n, 'עמוד אחד', 'שני עמודים', 'עמודים'),
+    matching: (n: number, of: number) => `${numHe(n)} מתוך ${numHe(of)} עמודים`,
+    none: (q: string) => `אין עמוד שמתאים ל„${q}”.`,
+    clear: 'הצגת הכול',
+    top: 'בסרגל העליון',
   },
   picker: {
     lookingUp: 'מחפש…',

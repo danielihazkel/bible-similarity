@@ -1,15 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { getJson } from '../api/client'
-import { useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve, useServer } from '../api/hooks'
-import type { LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
+import { useBooks, useLemmaLookup, usePersonLookup, usePlaceLookup, useResolve, useServer } from '../api/hooks'
+import type { Book, LemmaLookup, LemmaStat, PersonLookup, PersonMatch, PlaceLookup, PlaceMatch, ResolveResponse, UnitSummary } from '../api/types'
 import { useLocale } from '../context/localeContext'
 import type { Messages } from '../i18n'
 import { personLink, placeLink, unitLink } from '../lib/links'
-import { matchPages } from '../lib/nav'
-import { unitLabel } from '../lib/names'
+import { ALL_PAGES, matchPages, NAV_PAGE, navText, PERSONAL_PAGES } from '../lib/nav'
+import { bookName, unitLabel } from '../lib/names'
 import { personAbout } from '../lib/people'
+import { passageOf, type Recent, usePins, useRecent } from '../lib/recent'
 import '../i18n/pages/genealogy'
 import '../i18n/pages/places'
 import '../styles/components/JumpBox.css'
@@ -18,9 +19,11 @@ const MAX_WORDS = 6
 const MAX_PLACES = 4
 const MAX_PEOPLE = 4
 const MAX_PAGES = 6
+const MAX_BOOKS = 4
+const MAX_RECENT = 5
 const DEBOUNCE_MS = 150
 
-type Kind = 'gematria' | 'passage' | 'places' | 'words' | 'people' | 'pages' | 'search'
+type Kind = 'pinned' | 'recentPassages' | 'recentPages' | 'gematria' | 'passage' | 'books' | 'places' | 'words' | 'people' | 'pages' | 'search'
 interface Option {
   kind: Kind
   to: string
@@ -41,9 +44,54 @@ function placesFirst(places: PlaceMatch[], lemmas: LemmaStat[]): boolean {
   return !other || other.n_verses <= top.n_verses
 }
 
-/** Every choice for a query, best first: a letter value (`= …`), the passage it names, the places and
- * the words (a place named exactly first, to the map), the people (to the family tree), the pages, a
- * text search. */
+/** Books by the start of a name ("gen" → Genesis, "sam" → both Samuels, "שמ" → שמות): the name
+ * in either language, a word of the English one, or the OSIS code. `exact`: the whole name. */
+function matchBooks(books: Book[], q: string): { book: Book; exact: boolean }[] {
+  const s = q.trim().toLowerCase()
+  if (s.length < 2) return []
+  return books
+    .flatMap((book) => {
+      const en = book.name.toLowerCase()
+      const names = [en, book.he_name, book.osis.toLowerCase()]
+      const exact = names.includes(s)
+      const starts = names.some((n) => n.startsWith(s)) || en.split(' ').some((w) => w.length > 2 && w.startsWith(s))
+      return starts ? [{ book, exact }] : []
+    })
+    .slice(0, MAX_BOOKS)
+}
+
+/** Nothing typed yet: the pinned pages, the passages and pages opened last (not the one on screen),
+ * and the index of every page. */
+function startOptions(m: Messages, locale: 'en' | 'he', pins: string[], recent: Recent, pathname: string, personal: boolean): Option[] {
+  const page = (kind: Kind) => (to: string): Option[] => {
+    const p = personal || !PERSONAL_PAGES.has(to) ? NAV_PAGE.get(to) : undefined
+    if (!p) return []
+    const { label, hint } = navText(m, p.key)
+    return [{ kind, to, label, detail: hint }]
+  }
+  const here = passageOf(pathname)?.id
+  return [
+    ...pins.flatMap(page('pinned')),
+    ...recent.passages
+      .filter((p) => passageOf(p.to)?.id !== here)
+      .slice(0, MAX_RECENT)
+      .map((p) => ({
+        kind: 'recentPassages' as const,
+        to: p.to,
+        label: locale === 'he' ? p.he : p.en,
+        detail: passageOf(p.to)?.view === 'read' ? m.jump.inReader : undefined,
+      })),
+    ...recent.pages
+      .filter((to) => to !== pathname && !pins.includes(to))
+      .slice(0, MAX_RECENT)
+      .flatMap(page('recentPages')),
+    { kind: 'pages', to: ALL_PAGES, label: m.site.allPages },
+  ]
+}
+
+/** Every choice for a query, best first: a letter value (`= …`), the passage it names, a book named
+ * in full, the places and the words (a place named exactly first, to the map), the people (to the
+ * family tree), the books a name of which starts so, the pages, a text search. */
 function buildOptions(
   m: Messages,
   locale: 'en' | 'he',
@@ -53,9 +101,19 @@ function buildOptions(
   places: PlaceMatch[],
   people: PersonMatch[] = [],
   personal = true,
+  books: Book[] = [],
 ): Option[] {
   const t = m.jump
   if (!q.trim()) return []
+  const found = matchBooks(books, q)
+  const volumes = found.map(({ book }) => ({
+    kind: 'books' as const,
+    to: `/browse/${book.book_id}`,
+    label: bookName(book, locale),
+    detail: locale === 'he' ? m.units.chaptersShort(book.n_chapters) : `${book.he_name} · ${m.units.chaptersShort(book.n_chapters)}`,
+  }))
+  // a book named in full comes before the words; by the start of its name, after them
+  const named = found.some((f) => f.exact)
   const gm = GEMATRIA.exec(q.trim())?.[1]
   const words = lemmas.slice(0, MAX_WORDS).map((l) => ({
     kind: 'words' as const,
@@ -81,15 +139,19 @@ function buildOptions(
   return [
     ...(gm ? [{ kind: 'gematria' as const, to: `/gematria?q=${encodeURIComponent(gm)}`, label: t.gematriaOf(gm) }] : []),
     ...(unit ? [{ kind: 'passage' as const, to: unitLink(unit.unit_id), label: unitLabel(unit, locale) }] : []),
+    ...(named ? volumes : []),
     ...(placesFirst(places, lemmas) ? [...sites, ...words] : [...words, ...sites]),
     ...persons,
+    ...(named ? [] : volumes),
     ...matchPages(m, q, MAX_PAGES, personal).map((p) => ({ kind: 'pages' as const, to: p.to, label: p.label, detail: p.hint })),
     { kind: 'search', to: `/search?q=${encodeURIComponent(q.trim())}`, label: t.searchFor(q.trim()) },
   ]
 }
 
-/** Ctrl+K: a passage by its reference, a word by its form or Strong's number, a place by its name (to
- * the map), a person by their name (to the family tree), a page by its name, or else a search of the text. A modal combobox: arrows move, Enter opens, Escape closes. */
+/** Ctrl+K: a passage by its reference, a book by the start of its name, a word by its form or
+ * Strong's number, a place by its name (to the map), a person by their name (to the family tree), a
+ * page by its name, or else a search of the text; before anything is typed, the pinned pages and
+ * what was opened last. A modal combobox: arrows move, Enter opens, Escape closes. */
 export function JumpBox({ onClose }: { onClose: () => void }) {
   const { m, locale } = useLocale()
   const t = m.jump
@@ -112,6 +174,10 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   }, [])
 
   const { personal } = useServer()
+  const { pathname } = useLocation()
+  const pins = usePins()
+  const recent = useRecent()
+  const books = useBooks().data ?? []
   const resolve = useResolve(settled)
   const lemmas = useLemmaLookup(settled)
   const places = usePlaceLookup(settled)
@@ -120,8 +186,12 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const words = lemmas.data?.query === settled ? lemmas.data.items : []
   const sites = places.data?.query === settled ? places.data.items : []
   const persons = people.data?.query === settled ? people.data.items : []
-  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons, personal)
-  const shown = options.length > 0 ? options : buildOptions(m, locale, q, undefined, [], [], [], personal)
+  const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons, personal, books)
+  const shown = !q.trim()
+    ? startOptions(m, locale, pins, recent, pathname, personal)
+    : options.length > 0
+      ? options
+      : buildOptions(m, locale, q, undefined, [], [], [], personal, books)
   const current = Math.min(active, shown.length - 1)
 
   const go = (o: Option | undefined) => {
@@ -139,7 +209,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
       client.fetchQuery({ queryKey: ['place-lookup', s], queryFn: ({ signal }) => getJson<PlaceLookup>('/places/lookup', { q: s }, signal) }),
       client.fetchQuery({ queryKey: ['person-lookup', s], queryFn: ({ signal }) => getJson<PersonLookup>('/genealogy/lookup', { q: s }, signal) }),
     ]).catch(() => [undefined, undefined, undefined, undefined] as const)
-    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [], f?.items ?? [], personal)[0])
+    go(buildOptions(m, locale, s, r?.unit, l?.items ?? [], p?.items ?? [], f?.items ?? [], personal, books)[0])
   }
 
   const onKey = (e: KeyboardEvent) => {
@@ -161,7 +231,19 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
 
   // the groups in the order of their options (places before or after the words)
   const groups = [...new Set(shown.map((o) => o.kind))]
-  const heading: Record<Kind, string> = { gematria: t.gematria, passage: t.passage, places: t.places, words: t.words, people: t.people, pages: t.pages, search: t.search }
+  const heading: Record<Kind, string> = {
+    pinned: t.pinned,
+    recentPassages: t.recentPassages,
+    recentPages: t.recentPages,
+    gematria: t.gematria,
+    passage: t.passage,
+    books: t.books,
+    places: t.places,
+    words: t.words,
+    people: t.people,
+    pages: t.pages,
+    search: t.search,
+  }
   const optionId = (i: number) => `${id}-o${i}`
   return (
     <div

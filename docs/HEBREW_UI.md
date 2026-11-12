@@ -31,6 +31,8 @@ The Hebrew catalogs (`web/src/i18n/he.ts`, `web/src/i18n/pages/he/`) are an inte
 | synopses (the page) | סינופסיסים | סינופסיס |
 | explore (the books panel) | חקירה | סיור (the guided tours) |
 | zoom (the control group) | הגדלה והקטנה | הגדלה (the zoom-in button) |
+| pin (a page), pinned | הצמדה, מוצמדים | נעיצה, נעוצים |
+| the top bar | הסרגל העליון | סרגל הכלים |
 
 ## Conventions
 

@@ -366,7 +366,8 @@ test('workbench: the Elohistic Psalter against the rest of Psalms, and אלהי�
 test('pattern search finds the infinitive absolute with its finite verb, as the roots stage counts it', async ({ page }) => {
   await page.goto('/query')
   await page.getByRole('searchbox', { name: 'Query' }).fill('[form=infabs lemma=@l lang=hebrew] ..3 [lemma=@l form=finite]')
-  await page.getByRole('button', { name: 'Search' }).click()
+  // the form's own button: the bar's pin star is named "Pin Pattern search" (M169)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
   await expect(page.getByText(/432 matches in 391 verses/)).toBeVisible({ timeout: 30_000 })
   const first = page.locator('.query-hit').first()
   await expect(first).toContainText('Genesis 2:16')
@@ -801,4 +802,43 @@ test('the theme: dark by choice on a light system, kept over a reload', async ({
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(23, 20, 15)')
+})
+
+// M169: on the real data, the bar at its fullest (a pin in the Pinned menu, the pin button)
+for (const locale of ['en', 'he'] as const) {
+  test(`the top bar with a pinned page is one row from 1280px (${locale})`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await page.addInitScript((l) => {
+      localStorage.setItem('bsim.locale', l)
+      localStorage.setItem('bsim.pins', '["/map"]')
+    }, locale)
+    for (const width of [1280, 1263]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.goto('/phrases')
+      await expect(page.locator('h1').first()).not.toBeEmpty()
+      await expect(page.locator('.topbar > .pin-button')).toBeVisible()
+      await expect(page.locator('#menu-pinned')).toHaveCount(1)
+      const oneRow = await page.evaluate(() => {
+        const boxes = [...document.querySelector('.topbar')!.children].map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0)
+        return Math.max(...boxes.map((r) => r.top)) < Math.min(...boxes.map((r) => r.bottom))
+      })
+      expect(oneRow, `${width}px`).toBe(true)
+    }
+  })
+}
+
+test('a chapter read is offered again by the jump box, "gen" finds Genesis, and the index pins a page', async ({ page }) => {
+  await page.goto('/unit/c%3A26%3A23')
+  await expect(page.locator('h1').first()).toContainText('Psalms 23')
+  await page.goto('/pages?q=acrostic')
+  await page.getByRole('button', { name: 'Pin Acrostics' }).click()
+  await page.goto('/search')
+  await page.keyboard.press('Control+k')
+  const box = page.getByRole('dialog').getByRole('combobox')
+  await expect(page.getByRole('option').first()).toContainText('Acrostics')
+  await expect(page.getByRole('option', { name: 'Psalms 23' })).toHaveCount(1)
+  await box.fill('gen')
+  await expect(page.getByRole('option').first()).toContainText('Genesis')
+  await box.press('Enter')
+  await expect(page).toHaveURL(/\/browse\/0$/)
 })

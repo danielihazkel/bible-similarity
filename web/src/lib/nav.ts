@@ -184,3 +184,9 @@ export function matchPages(
 export const NAV_PAGES: (NavItem & { group?: GroupKey })[] = NAV.flatMap((e) =>
   isGroup(e) ? e.items.map((i) => ({ ...i, group: e.key })) : [e],
 )
+
+/** A nav page by its path. */
+export const NAV_PAGE: ReadonlyMap<string, NavItem> = new Map(NAV_PAGES.map((p) => [p.to, p]))
+
+/** The index of every page (`pages/PagesPage.tsx`), linked at the foot of each menu. */
+export const ALL_PAGES = '/pages'

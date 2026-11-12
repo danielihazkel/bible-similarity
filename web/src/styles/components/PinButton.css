@@ -1,0 +1,22 @@
+/* The pin star (PinButton.tsx): in the top bar for the page on screen, and on the rows of /pages */
+
+.pin-button {
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.pin-button[aria-pressed='true'] {
+  color: var(--accent);
+}
+
+/* in the top bar it is a bordered button like its neighbours (`.copy-link`) */
+
+.topbar .pin-button {
+  padding: 0.2rem 0.45rem;
+}
+
+.topbar .pin-button span {
+  font-size: 1rem;
+}

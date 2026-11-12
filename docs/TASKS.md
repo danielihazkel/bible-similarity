@@ -41,12 +41,14 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ One row at 1280px in English and Hebrew; the theme survives a reload and follows the OS on auto.
 
-## M169: Pinned pages, recent pages, the All pages index (proposed O3)
-- [ ] `lib/recent.ts`: `bsim.pins` and `bsim.recent` (pages and passages, capped), written by `Layout` on a new path
-- [ ] A pin button in the bar for the current nav page; a Pinned menu, first in the nav, when there is a pin
-- [ ] `/pages`: every page by menu and section with its hint, a filter box (`matchPages`), a star on each row; linked at the foot of each menu
-- [ ] The jump box: pinned and recent on an empty query; a book by the start of its name ("gen" → Genesis)
-- [ ] Tests
+## M169: Pinned pages, recent pages, the All pages index (D158; proposed O3)
+- [x] `lib/recent.ts`: `bsim.pins` (nav paths, in the order pinned) and `bsim.recent` (the last 8 nav pages and the last 8 passages, a passage once, in the view it was opened in last, with its label in both languages), read through `usePins` / `useRecent`; written by `Layout` on a new path: a nav page by its path, a passage once its unit is known (the unit the page itself asks for), a verse sent on by the reader not at all
+- [x] A pin button (`components/PinButton.tsx`, a star, a toggle button) in the bar for the nav page on screen; a Pinned menu, first in the nav, when there is a pin (the nav's own menu, with the pages' hints); the personal pages left out of both on a public server
+- [x] `/pages` (`pages/PagesPage.tsx`): every page by menu and section with its hint, a filter box (`matchPages`, kept in the URL as `q`), a star on each row, the pinned pages first; linked at the foot of each menu
+- [x] The jump box: before anything is typed, the pinned pages, the passages and pages opened last (not the one on screen, a pinned page not twice) and the index; a book by the start of its name in either language, a word of the English name or the OSIS code ("gen" → Genesis, "sam" → both Samuels), ahead of the pages, and ahead of the words too when the name is whole
+- [x] Room in the bar: with the Pinned menu and the pin button English needs 1,323px, so the site's English name beside the Hebrew mark is shown from 1340px (without it 1,197px: one row from 1220px as before); Hebrew needs 1,120px, so its second row starts under 1140px (was 1010px); a phone's bar has no star (pages are pinned from `/pages` there), so it is as tall as it was
+- [x] Found on the way: the grey of a nav entry on its hover background was 4.34:1 (axe, with the mouse left on an open menu's button); a hovered entry takes the text colour
+- [x] Tests: vitest (`components/Pins.test.tsx`: the two lists, the star and the Pinned menu, the visits recorded, the jump box before typing and its books, `/pages`, a public server, Hebrew); the fixture e2e (`/pages` in every route's checks, the rows of the fullest bar in both languages, the Pinned menu with axe in both themes, the index's filter and star, the jump box in both languages, a public server's index); the smoke on the real build (the fullest bar on the real nav, a chapter read offered again, "gen" to Genesis); the bar, the Pinned menu, `/pages` and the jump box looked at on the real build in both languages and themes, and on a phone
 
 ✔ A page pinned once is one click away from anywhere; "gen" offers Genesis.
 

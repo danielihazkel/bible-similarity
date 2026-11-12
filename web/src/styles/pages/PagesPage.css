@@ -1,0 +1,60 @@
+/* PagesPage.tsx (/pages): every page by menu and section, a star and a hint on each row */
+
+.pages-index h3 {
+  margin: 0.9rem 0 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+/* the rows run down each column, in the menu's order */
+
+.pages-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 3 19rem;
+  column-gap: 1.75rem;
+}
+
+.pages-row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  column-gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.3rem 0;
+  line-height: 1.35;
+  break-inside: avoid;
+}
+
+.pages-link {
+  grid-column: 2;
+  justify-self: start;
+  font-weight: 600;
+}
+
+.pages-hint {
+  grid-column: 2;
+}
+
+.pages-star {
+  grid-column: 1;
+  grid-row: 1;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  font-size: 1.05rem;
+}
+
+.pages-index .toolbar input[type='search'] {
+  width: min(22rem, 100%);
+}
+
+button.pages-star:hover {
+  background: var(--accent-soft);
+}

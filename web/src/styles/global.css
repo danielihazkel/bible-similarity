@@ -327,9 +327,12 @@ h2 {
   color: var(--muted);
 }
 
+/* the grey of an entry is too faint on the hover's background (4.34:1): the text colour there */
+
 .nav a:hover,
 .nav-group-button:hover {
   background: var(--surface-2);
+  color: var(--text);
   text-decoration: none;
 }
 
@@ -435,6 +438,17 @@ h2 {
   color: var(--muted);
 }
 
+/* the link to the index of every page, at the foot of each menu (across a wide menu's columns) */
+
+.nav-menu a.nav-menu-foot {
+  grid-column: 1 / -1;
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  font-size: 0.85rem;
+}
+
 .menu-toggle {
   display: none;
   font: inherit;
@@ -449,26 +463,53 @@ h2 {
 
 /* between the phone menu and the width the bar fits in one row (half a wide screen): the pages on
    a row of their own under the brand and the buttons, not whatever happens to wrap. The widths
-   are where each language's bar stops fitting, a scrollbar counted; the e2e holds them (one row
-   from 1280px, never more than two above the phone menu) */
+   are where each language's bar stops fitting at its fullest (the Pinned menu and the pin button
+   there, M169), a scrollbar counted; the e2e holds them (one row from 1280px, never more than two
+   above the phone menu) */
 
 @media (min-width: 901px) and (max-width: 1219px) {
   :root:not([lang='he']) .nav {
       order: 10;
       flex-basis: 100%;
     }
-  :root:not([lang='he']) .jump-open {
+  :root:not([lang='he']) .jump-open,
+  :root:not([lang='he']) .topbar > .pin-button {
       margin-inline-start: auto;
+    }
+  :root:not([lang='he']) .topbar > .pin-button + .jump-open {
+      margin-inline-start: 0;
     }
 }
 
-@media (min-width: 901px) and (max-width: 1009px) {
+@media (min-width: 901px) and (max-width: 1139px) {
   :root[lang='he'] .nav {
       order: 10;
       flex-basis: 100%;
     }
-  :root[lang='he'] .jump-open {
+  :root[lang='he'] .jump-open,
+  :root[lang='he'] .topbar > .pin-button {
       margin-inline-start: auto;
+    }
+  :root[lang='he'] .topbar > .pin-button + .jump-open {
+      margin-inline-start: 0;
+    }
+}
+
+/* the site's English name beside the Hebrew mark needs 1,323px with the Pinned menu and the pin
+   button in the bar: under that (a scrollbar counted) the mark stands alone, as it does in Hebrew */
+
+@media (min-width: 901px) and (max-width: 1339px) {
+  .brand-name {
+      display: none;
+    }
+}
+
+/* a phone's bar has no room for the star (the Hebrew one is a single row): pages are pinned from
+   the index of every page there */
+
+@media (max-width: 720px) {
+  .topbar > .pin-button {
+      display: none;
     }
 }
 
