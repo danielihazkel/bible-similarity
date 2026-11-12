@@ -369,6 +369,7 @@ export const he: Messages = {
     gematriaOf: (q: string) => `ערך האותיות: ${q}`,
     verses: (n: number) => (n === 1 ? 'פסוק אחד' : n === 2 ? 'שני פסוקים' : `${n.toLocaleString('he-IL')} פסוקים`),
     keys: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לסגירה',
+    keysInline: '↑ ↓ לתזוזה · Enter לפתיחה · Esc לניקוי',
     pinned: 'עמודים מוצמדים',
     recentPassages: 'קטעים אחרונים',
     recentPages: 'עמודים אחרונים',
@@ -444,8 +445,10 @@ export const he: Messages = {
     title: 'עיון',
     lede: 'בחרו ספר, ואחר כך פרק, פרשה או פיסקה. כל יחידה מציגה את היחידות הדומות לה ביותר בניסוח, במשמעות או בשניהם.',
     findings: 'מה מצאו הניתוחים: הטענות שכל אחד בדק, ואילו מהן עומדות במבחן',
-    explore: 'חקירה',
-    exploreLede: 'כל דרכי ההתבוננות בטקסט, לפי התפריט: מה כל אחת מראה.',
+    allPages: 'כל העמודים: כל דרכי ההתבוננות בטקסט, לפי התפריט',
+    resume: 'המשיכו מכאן',
+    booksTitle: 'הספרים',
+    notebookAll: 'המחברת כולה',
   },
 
   unit: {

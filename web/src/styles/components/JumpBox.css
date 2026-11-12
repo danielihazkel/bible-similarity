@@ -74,3 +74,28 @@
       display: none;
     }
 }
+
+/* the same field on the start page (JumpField inline): the list drops under it while typing */
+
+.jump-inline {
+  position: relative;
+  max-width: 40rem;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.jump-pop {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 0.3rem);
+  z-index: 5;
+  padding: 0.3rem 0.4rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.jump-pop .jump-list {
+  max-height: min(60vh, 26rem);
+  margin-top: 0;
+}

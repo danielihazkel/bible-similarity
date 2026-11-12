@@ -52,10 +52,13 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ A page pinned once is one click away from anywhere; "gen" offers Genesis.
 
-## M170: The start page (proposed O4)
-- [ ] `/`: a jump field, Continue (recent passages and pages), pinned pages, the latest notebook entries (personal server only), this week's parasha and Findings, then the books; the tours in one line; the Explore list gone to `/pages`
-- [ ] A first visit with nothing stored shows the tours in Continue's place
-- [ ] Tests, a public server too
+## M170: The start page (D159; proposed O4)
+- [x] `/` (`pages/BooksPage.tsx`, its own rules in `styles/pages/BooksPage.css`): a jump field, Continue (the six passages opened last as cards, each in the view it was left in, and the six pages opened last as a row of links), the pinned pages (not again among the recent ones), the three notebook entries changed last with the first line of each note (a personal server with something kept), this week's parasha, the Findings and the All pages links, then the books under one heading, the canon's sections under it; the tours one line at the foot (`/tours`, the glossary); the Explore panel gone (`/pages` has it), its strings and rules removed
+- [x] The jump field: `JumpField` (`components/JumpBox.tsx`), the box's own field and list, `inline` here: the list drops under the field while something is typed, Escape clears, Tab moves on, and nothing is listed before typing (the page lists the recent ones itself)
+- [x] A first visit with nothing stored (no recent passage or page, no pin) shows the tours in Continue's place
+- [x] The page's own parts are there before the books load, and stay when the books cannot be loaded
+- [x] Found on the way: the notebook was asked for before `/meta` had said whether the server keeps one, so a public server's start page would have asked for it; `useNotebook` waits for `/meta`. In the jump box a book's Hebrew name is isolated (FSI … PDI), so the chapter count after it stays in its place in English
+- [x] Tests: vitest (`pages/StartPage.test.tsx`: a first visit, Continue and the pinned row, the notebook's latest and a server without one, the jump field, the books failing, Hebrew); the fixture e2e (a first visit, a cold start after a passage read in both languages with axe in both themes, the jump field, the notebook's latest answered in the browser; a public server's start page asks for no notebook); the smoke on the real build (a psalm found from the field and one click away after a cold start); the page looked at on the real build on a first visit and with something to go back to, in both languages and themes, and on a phone
 
 ✔ From a cold start the last passage read is one click away; a public server shows no notebook.
 

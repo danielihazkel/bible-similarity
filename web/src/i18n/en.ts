@@ -116,7 +116,7 @@ const core = {
     backToBooks: 'Back to the books',
   },
 
-  // headings of a big menu's pages (Patterns), in the menu and the home page's Explore panel
+  // headings of a big menu's pages (Patterns), in the menu and the index of every page
   navSections: {
     poetryForm: 'Poetry and form',
     wordsNames: 'Words and names',
@@ -372,6 +372,7 @@ const core = {
     gematriaOf: (q: string) => `Letter value: ${q}`,
     verses: (n: number) => `${n.toLocaleString('en-US')} ${n === 1 ? 'verse' : 'verses'}`,
     keys: '↑ ↓ to move · Enter to open · Esc to close',
+    keysInline: '↑ ↓ to move · Enter to open · Esc to clear',
     pinned: 'Pinned pages',
     recentPassages: 'Recent passages',
     recentPages: 'Recent pages',
@@ -449,8 +450,10 @@ const core = {
     title: 'Browse',
     lede: 'Pick a book, then a chapter, parasha or pericope. Every unit lists its most similar units by shared wording, meaning, or both.',
     findings: 'What the analyses found: the claims each one tested, and which of them hold',
-    explore: 'Explore',
-    exploreLede: 'Every view of the text, by menu: what each one shows.',
+    allPages: 'All pages: every view of the text, by menu',
+    resume: 'Continue',
+    booksTitle: 'The books',
+    notebookAll: 'The whole notebook',
   },
 
   unit: {

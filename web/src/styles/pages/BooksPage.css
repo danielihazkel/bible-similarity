@@ -1,0 +1,102 @@
+/* BooksPage.tsx (/, the start page): the way back in above the books. The book grid and its cards
+   are in global.css (the book page uses them too). */
+
+.start-page .section {
+  margin-bottom: 1.5rem;
+}
+
+/* a passage opened last: a card like a book's, its reference in Hebrew over the English one */
+
+.start-passages {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+.start-passage-he {
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* pages (pinned, opened last) as a row of links */
+
+.start-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.start-pages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.start-page-link {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.start-page-link:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+/* the notebook's latest entries: the passage, then the first line of its note */
+
+.start-notes {
+  list-style: none;
+  margin: 0 0 0.4rem;
+  padding: 0;
+}
+
+.start-notes li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+}
+
+.start-notes a {
+  flex: none;
+}
+
+.start-note {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* the findings and the index of every page */
+
+.start-more {
+  list-style: none;
+  margin: 0.8rem 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+/* the books, by section of the canon */
+
+.start-books .lede {
+  margin-top: 0;
+}
+
+.start-canon h3 {
+  margin: 1.1rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.start-tours {
+  margin-top: 1.5rem;
+}

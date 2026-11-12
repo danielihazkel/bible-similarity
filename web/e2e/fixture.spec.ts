@@ -1528,3 +1528,87 @@ test.describe('pinned and recent pages, the index of every page (M169)', () => {
     expect(await page.evaluate(() => localStorage.getItem('bsim.pins'))).toBe('["/gematria"]')
   })
 })
+
+// M170: the start page
+test.describe('the start page (M170)', () => {
+  test('a first visit has the guided tours where the recent passages will be', async ({ page }) => {
+    await loads(page, '/')
+    await expect(page.locator('main h2')).toHaveText(['New here?', 'The books'])
+    await expect(page.locator('.tour-card')).toHaveCount(4)
+    await page.getByRole('link', { name: /^All pages/ }).click()
+    await expect(page).toHaveURL(/\/pages$/)
+  })
+
+  for (const locale of ['en', 'he'] as const) {
+    test(`from a cold start the passage read last is one click away (${locale})`, async ({ page }) => {
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      await loads(page, '/unit/v%3A1')
+      await loads(page, '/read/c%3A0%3A1')
+      await loads(page, '/map')
+      // a cold start: the address typed again
+      await loads(page, '/')
+      await expect(page.locator('main h2')).toHaveText(locale === 'en' ? ['Continue', 'The books'] : ['המשיכו מכאן', 'הספרים'])
+      const cards = page.locator('.start-passages a')
+      await expect(cards).toHaveCount(2)
+      await expect(cards.first()).toContainText('c:0:1') // the fixture's label of Genesis 1
+      await expect(cards.first()).toContainText(locale === 'en' ? 'in the reader' : 'בקורא')
+      await expect(page.locator('.start-pages a')).toHaveText([locale === 'en' ? 'Map' : 'מפה'])
+      // the tours are one line now
+      await expect(page.locator('.tour-card')).toHaveCount(0)
+      await expect(page.locator('.start-tours a').first()).toHaveAttribute('href', '/tours')
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
+        const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+        expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id), theme).toEqual([])
+      }
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow).toBeLessThanOrEqual(1)
+      await cards.first().click()
+      await expect(page).toHaveURL(/\/read\/c%3A0%3A1$/)
+    })
+  }
+
+  test('the jump field of the start page: a reference, a book, Escape', async ({ page }) => {
+    await loads(page, '/')
+    const field = page.locator('.jump-inline').getByRole('combobox')
+    await expect(page.locator('.jump-pop')).toHaveCount(0)
+    await field.fill('gen')
+    const list = page.locator('.jump-pop').getByRole('listbox')
+    await expect(list.getByRole('option').first()).toContainText('Genesis')
+    const results = await new AxeBuilder({ page }).include('.jump-inline').withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.map((v) => v.id)).toEqual([])
+    await field.press('Escape')
+    await expect(field).toHaveValue('')
+    await expect(page.locator('.jump-pop')).toHaveCount(0)
+    await field.fill('Gen 1:2')
+    await expect(list.getByRole('option').first()).toHaveAttribute('aria-selected', 'true')
+    await field.press('Enter')
+    await expect(page).toHaveURL(/\/unit\/v%3A1$/)
+    // Ctrl+K still opens the box over the start page, beside the field
+    await page.goto('/')
+    await page.keyboard.press('Control+k')
+    await expect(page.getByRole('dialog').getByRole('combobox')).toBeFocused()
+  })
+
+  test('the notebook entries changed last are on the start page, each with the start of its note', async ({ page }) => {
+    // the notebook answered here, not written on the server: other tests keep and count its entries
+    const unit = (id: string) => ({ unit_id: id, unit_type: 'verse', label_en: id, label_he: id, book_id: 0, start_verse_id: 0, end_verse_id: 0, n_verses: 1, marker: null })
+    const entry = (id: string, note: string, updated_at: string) => ({ unit: unit(id), note, collections: [], created_at: updated_at, updated_at, verse: null })
+    await page.route('**/api/notebook', (route) =>
+      route.fulfill({
+        json: {
+          writable: true,
+          hidden: 0,
+          collections: [],
+          entries: [entry('v:0', 'an older note', '2026-11-01T08:00:00'), entry('v:2', 'the note changed last\nits second line', '2026-11-12T08:00:00')],
+        },
+      }),
+    )
+    await loads(page, '/')
+    await expect(page.locator('.start-notes li')).toHaveText(['v:2the note changed last', 'v:0an older note'])
+    const results = await new AxeBuilder({ page }).include('.start-page').withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+    await page.locator('.start-notes a').first().click()
+    await expect(page).toHaveURL(/\/unit\/v%3A2$/)
+  })
+})

@@ -842,3 +842,19 @@ test('a chapter read is offered again by the jump box, "gen" finds Genesis, and 
   await box.press('Enter')
   await expect(page).toHaveURL(/\/browse\/0$/)
 })
+
+// M170: the start page on the real data
+test('the start page: a chapter read is one click away from a cold start, and its field finds a psalm', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.tour-card')).toHaveCount(4) // a first visit
+  await page.locator('.jump-inline').getByRole('combobox').fill('Ps 23')
+  await expect(page.locator('.jump-pop').getByRole('option', { name: 'Psalms 23' })).toBeVisible()
+  await page.locator('.jump-inline').getByRole('combobox').press('Enter')
+  await expect(page).toHaveURL(/\/unit\/c%3A26%3A23$/)
+  await expect(page.locator('h1').first()).toContainText('Psalms 23')
+  await page.goto('/')
+  await expect(page.locator('main h2').first()).toHaveText('Continue')
+  await expect(page.locator('.tour-card')).toHaveCount(0)
+  await page.locator('.start-passages a', { hasText: 'Psalms 23' }).click()
+  await expect(page).toHaveURL(/\/unit\/c%3A26%3A23$/)
+})

@@ -25,6 +25,7 @@ export const trEn = {
   end: 'Leave the tour',
   homeTitle: 'New here?',
   homeLede: 'Take a guided tour, or look up a term in the glossary.',
+  homeTours: 'Take a guided tour',
   tours: {
     parallels: {
       title: 'One text, told twice',

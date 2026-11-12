@@ -19,7 +19,8 @@ test('the nav and the jump box leave out your labels and notebook', async ({ pag
   await expect(page.locator('a[href="/labels"]')).toHaveCount(0)
   await expect(page.locator('a[href="/notebook"]')).toHaveCount(0)
   await page.keyboard.press('Control+k')
-  const box = page.getByRole('combobox')
+  // the box's own field: the start page has the same field inline (M170)
+  const box = page.getByRole('dialog').getByRole('combobox')
   await box.fill('findings')
   await expect(page.getByRole('option', { name: /^Findings/ })).toHaveCount(1) // pages are offered
   await box.fill('notebook')
@@ -76,4 +77,18 @@ test('the index of every page leaves them out too, and a pin of one is not shown
   await expect(page.locator('a[href="/labels"]')).toHaveCount(0)
   await expect(page.locator('a[href="/notebook"]')).toHaveCount(0)
   await expect(page.locator('#menu-pinned a[href="/map"]')).toHaveCount(1)
+})
+
+test('the start page has no notebook and does not ask for one', async ({ page }) => {
+  const asked: string[] = []
+  page.on('request', (r) => {
+    if (new URL(r.url()).pathname.startsWith('/api/notebook')) asked.push(r.url())
+  })
+  const errors = collectErrors(page)
+  await page.goto('/')
+  await expect(page.locator('.start-books .book-card').first()).toBeVisible()
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('#start-notebook')).toHaveCount(0)
+  expect(asked).toEqual([])
+  expect(errors).toEqual([])
 })

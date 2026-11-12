@@ -598,8 +598,15 @@ export function useSetLabel() {
 
 /** Your notebook (DESIGN.md §16.47): like the labels, it changes while the viewer runs. */
 export const useNotebook = () => {
-  const { personal } = useServer()
-  return useQuery({ queryKey: ['notebook'], queryFn: ({ signal }) => getJson<NotebookResponse>('/notebook', {}, signal), enabled: personal })
+  // not before the server has said what it offers (the start page asks at once): a public one
+  // does not serve the notebook
+  const meta = useQuery({ queryKey: ['meta'], queryFn: ({ signal }) => getJson<Meta>('/meta', {}, signal), staleTime: Infinity })
+  const personal = meta.data?.runtime?.personal !== false
+  return useQuery({
+    queryKey: ['notebook'],
+    queryFn: ({ signal }) => getJson<NotebookResponse>('/notebook', {}, signal),
+    enabled: personal && !meta.isPending,
+  })
 }
 
 const enc = encodeURIComponent

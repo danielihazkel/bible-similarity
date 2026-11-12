@@ -287,7 +287,7 @@ describe('the jump box finds a book by the start of its name', () => {
     openJump()
     fireEvent.change(box(), { target: { value: 'gen' } })
     const genesis = await screen.findByRole('option', { name: /^Genesis/ })
-    expect(genesis.textContent).toBe('Genesisבראשית · 50 ch.')
+    expect(genesis.textContent).toBe('Genesis\u2068בראשית\u2069 · 50 ch.')
     expect(options()[0]).toBe(genesis.textContent) // before "Family tree" (genealogy) and the search
     await waitFor(() => expect(genesis.getAttribute('aria-selected')).toBe('true'))
     fireEvent.keyDown(box(), { key: 'Enter' })

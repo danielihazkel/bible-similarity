@@ -110,7 +110,8 @@ function buildOptions(
     kind: 'books' as const,
     to: `/browse/${book.book_id}`,
     label: bookName(book, locale),
-    detail: locale === 'he' ? m.units.chaptersShort(book.n_chapters) : `${book.he_name} · ${m.units.chaptersShort(book.n_chapters)}`,
+    // the Hebrew name isolated, so the count after it stays in its place in a left-to-right line
+    detail: locale === 'he' ? m.units.chaptersShort(book.n_chapters) : `\u2068${book.he_name}\u2069 · ${m.units.chaptersShort(book.n_chapters)}`,
   }))
   // a book named in full comes before the words; by the start of its name, after them
   const named = found.some((f) => f.exact)
@@ -153,6 +154,26 @@ function buildOptions(
  * page by its name, or else a search of the text; before anything is typed, the pinned pages and
  * what was opened last. A modal combobox: arrows move, Enter opens, Escape closes. */
 export function JumpBox({ onClose }: { onClose: () => void }) {
+  const t = useLocale().m.jump
+  return (
+    <div
+      className="jump-backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="jump" role="dialog" aria-modal="true" aria-label={t.label}>
+        <JumpField onDone={onClose} />
+      </div>
+    </div>
+  )
+}
+
+/** The jump box's field and its list of choices. In the box (the default) the list is always there,
+ * with the pinned and recent pages before anything is typed, and the field holds the focus.
+ * `inline` (the start page): the list drops under the field while something is typed in it, Escape
+ * clears the field, and Tab moves on. */
+export function JumpField({ onDone, inline = false }: { onDone?: () => void; inline?: boolean }) {
   const { m, locale } = useLocale()
   const t = m.jump
   const navigate = useNavigate()
@@ -162,16 +183,18 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const [q, setQ] = useState('')
   const [settled, setSettled] = useState('')
   const [active, setActive] = useState(0)
+  const [open, setOpen] = useState(false)
   useEffect(() => {
     const timer = window.setTimeout(() => setSettled(q.trim()), DEBOUNCE_MS)
     return () => window.clearTimeout(timer)
   }, [q])
-  // focus moves in on open and back to where it was on close
+  // in the box, focus moves in on open and back to where it was on close
   useEffect(() => {
+    if (inline) return
     const before = document.activeElement as HTMLElement | null
     input.current?.focus()
     return () => before?.focus?.()
-  }, [])
+  }, [inline])
 
   const { personal } = useServer()
   const { pathname } = useLocation()
@@ -187,8 +210,11 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
   const sites = places.data?.query === settled ? places.data.items : []
   const persons = people.data?.query === settled ? people.data.items : []
   const options = buildOptions(m, locale, settled === q.trim() ? q : '', unit, words, sites, persons, personal, books)
+  // the start page lists the pinned and recent ones itself
   const shown = !q.trim()
-    ? startOptions(m, locale, pins, recent, pathname, personal)
+    ? inline
+      ? []
+      : startOptions(m, locale, pins, recent, pathname, personal)
     : options.length > 0
       ? options
       : buildOptions(m, locale, q, undefined, [], [], [], personal, books)
@@ -196,7 +222,8 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
 
   const go = (o: Option | undefined) => {
     if (!o) return
-    onClose()
+    setQ('')
+    onDone?.()
     navigate(o.to)
   }
   // Enter before the lookups have caught up with the typing: look the query up now
@@ -214,8 +241,10 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
 
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
+      if (inline && !q) return
       e.preventDefault()
-      onClose()
+      if (inline) setQ('')
+      else onDone?.()
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       const n = shown.length
@@ -224,7 +253,7 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
       e.preventDefault()
       if (settled === q.trim() && !resolve.isFetching && !lemmas.isFetching && !places.isFetching && !people.isFetching) go(shown[current])
       else void goNow()
-    } else if (e.key === 'Tab') {
+    } else if (e.key === 'Tab' && !inline) {
       e.preventDefault() // the input is the dialog's one stop; the list is reached with the arrows
     }
   }
@@ -245,68 +274,87 @@ export function JumpBox({ onClose }: { onClose: () => void }) {
     search: t.search,
   }
   const optionId = (i: number) => `${id}-o${i}`
-  return (
-    <div
-      className="jump-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
+  // inline, the list is there while something is typed in the focused field
+  const listed = shown.length > 0 && (!inline || open)
+  const field = (
+    <input
+      ref={input}
+      className="jump-input"
+      type="text"
+      role="combobox"
+      aria-label={t.label}
+      aria-expanded={listed}
+      aria-controls={listed || !inline ? `${id}-list` : undefined}
+      aria-autocomplete="list"
+      aria-activedescendant={listed ? optionId(current) : undefined}
+      placeholder={t.placeholder}
+      value={q}
+      spellCheck={false}
+      autoComplete="off"
+      onChange={(e) => {
+        setQ(e.target.value)
+        setActive(0)
+        setOpen(true)
       }}
-    >
-      <div className="jump" role="dialog" aria-modal="true" aria-label={t.label}>
-        <input
-          ref={input}
-          className="jump-input"
-          type="text"
-          role="combobox"
-          aria-label={t.label}
-          aria-expanded={shown.length > 0}
-          aria-controls={`${id}-list`}
-          aria-autocomplete="list"
-          aria-activedescendant={shown.length > 0 ? optionId(current) : undefined}
-          placeholder={t.placeholder}
-          value={q}
-          spellCheck={false}
-          autoComplete="off"
-          onChange={(e) => {
-            setQ(e.target.value)
-            setActive(0)
-          }}
-          onKeyDown={onKey}
-        />
-        <div id={`${id}-list`} className="jump-list" role="listbox" aria-label={t.label}>
-          {groups.map((g) => {
-            const items = shown.map((o, i) => [o, i] as const).filter(([o]) => o.kind === g)
-            if (items.length === 0) return null
-            return (
-              <div key={g} role="group" aria-labelledby={`${id}-${g}`}>
-                <div id={`${id}-${g}`} className="jump-heading" role="presentation">
-                  {heading[g]}
-                </div>
-                {items.map(([o, i]) => (
-                  <div
-                    key={o.to}
-                    id={optionId(i)}
-                    role="option"
-                    aria-selected={i === current}
-                    className="jump-option"
-                    onMouseMove={() => i !== current && setActive(i)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => go(o)}
-                  >
-                    <span className={o.hebrew ? 'he' : undefined} dir={o.hebrew ? 'rtl' : undefined} lang={o.hebrew ? 'he' : undefined}>
-                      {o.label}
-                    </span>
-                    {o.detail && <span className="muted small">{o.detail}</span>}
-                  </div>
-                ))}
+      onFocus={() => setOpen(true)}
+      onBlur={() => setOpen(false)}
+      onKeyDown={onKey}
+    />
+  )
+  const list = (
+    <div id={`${id}-list`} className="jump-list" role="listbox" aria-label={t.label}>
+      {groups.map((g) => {
+        const items = shown.map((o, i) => [o, i] as const).filter(([o]) => o.kind === g)
+        if (items.length === 0) return null
+        return (
+          <div key={g} role="group" aria-labelledby={`${id}-${g}`}>
+            <div id={`${id}-${g}`} className="jump-heading" role="presentation">
+              {heading[g]}
+            </div>
+            {items.map(([o, i]) => (
+              <div
+                key={o.to}
+                id={optionId(i)}
+                role="option"
+                aria-selected={i === current}
+                className="jump-option"
+                onMouseMove={() => i !== current && setActive(i)}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => go(o)}
+              >
+                <span className={o.hebrew ? 'he' : undefined} dir={o.hebrew ? 'rtl' : undefined} lang={o.hebrew ? 'he' : undefined}>
+                  {o.label}
+                </span>
+                {o.detail && <span className="muted small">{o.detail}</span>}
               </div>
-            )
-          })}
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+  const keys = (
+    <p className="jump-keys muted small" aria-hidden="true">
+      {inline ? t.keysInline : t.keys}
+    </p>
+  )
+  if (!inline)
+    return (
+      <>
+        {field}
+        {list}
+        {keys}
+      </>
+    )
+  return (
+    <div className="jump-inline">
+      {field}
+      {listed && (
+        <div className="jump-pop">
+          {list}
+          {keys}
         </div>
-        <p className="jump-keys muted small" aria-hidden="true">
-          {t.keys}
-        </p>
-      </div>
+      )}
     </div>
   )
 }

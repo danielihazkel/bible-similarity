@@ -14,6 +14,7 @@ export const trHe: typeof trEn = {
   end: 'יציאה מהסיור',
   homeTitle: 'חדשים כאן?',
   homeLede: 'צאו לסיור מודרך, או חפשו מונח במילון המונחים.',
+  homeTours: 'צאו לסיור מודרך',
   tours: {
     parallels: {
       title: 'טקסט אחד, מסופר פעמיים',

@@ -1961,48 +1961,6 @@ kbd {
 
 .wk-home-title { font-weight: 600; }
 
-/* the home page's Explore panel: every menu group and its pages with their hints */
-
-.explore-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  gap: 1rem 1.5rem;
-  align-items: start;
-}
-
-.explore-group h3 {
-  margin: 0 0 0.3rem;
-  font-size: 1rem;
-}
-
-.explore-group h4 {
-  margin: 0.6rem 0 0.2rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-}
-
-.explore-pages {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.explore-pages li {
-  margin: 0.25rem 0;
-  line-height: 1.35;
-}
-
-/* each link sits in a line with its hint: told apart by more than colour (axe link-in-text-block) */
-
-.explore-pages a {
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-  text-decoration-thickness: 1px;
-}
-
 /* rabbinic reception (§16.77) */
 
 .rc-found { color: var(--known); }
