@@ -749,6 +749,7 @@ test('the Hebrew interface is right to left, persists and loads every page clean
   test.setTimeout(120_000)
   const errors = collectErrors(page)
   await page.goto('/')
+  await page.getByRole('button', { name: /Display/ }).click()
   await page.getByRole('radio', { name: 'עב' }).click()
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await page.reload()
@@ -770,4 +771,34 @@ test('the Hebrew interface has no serious accessibility violations', async ({ pa
   test.setTimeout(480_000) // axe on every listed page
   await page.addInitScript(() => localStorage.setItem('bsim.locale', 'he'))
   await checkA11y(page)
+})
+
+// M168: on the real data (every nav entry, the notebook and the labels among them)
+for (const locale of ['en', 'he'] as const) {
+  test(`the top bar is one row from 1280px (${locale})`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+    // 1280px, and the same window with a scrollbar's width taken from it
+    for (const width of [1280, 1263]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.goto('/')
+      await expect(page.locator('h1').first()).not.toBeEmpty()
+      const oneRow = await page.evaluate(() => {
+        const boxes = [...document.querySelector('.topbar')!.children].map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0)
+        return Math.max(...boxes.map((r) => r.top)) < Math.min(...boxes.map((r) => r.bottom))
+      })
+      expect(oneRow, `${width}px`).toBe(true)
+    }
+  })
+}
+
+test('the theme: dark by choice on a light system, kept over a reload', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.goto('/')
+  await page.getByRole('button', { name: /Display/ }).click()
+  await page.getByRole('radio', { name: 'Dark' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(23, 20, 15)')
 })

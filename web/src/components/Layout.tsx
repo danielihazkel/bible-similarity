@@ -1,9 +1,10 @@
-import { type RefObject, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { type RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useT } from '../context/localeContext'
 import { useServer } from '../api/hooks'
+import { useFitInWindow } from '../lib/menuFit'
 import { isGroup, type NavGroup, type NavItem, navFor, navText } from '../lib/nav'
-import { LocaleToggle, TextModeToggle } from './Controls'
+import { DisplayMenu } from './DisplayMenu'
 import { JumpBox } from './JumpBox'
 import { TourBar } from './TourBar'
 import { AppBanner } from './AppBanner'
@@ -31,12 +32,12 @@ export function Layout() {
     return () => document.removeEventListener('keydown', onKey)
   }, [])
   // Escape closes the phone menu and gives the focus back to its button; an open group inside it
-  // takes the key first (NavMenu closes itself)
+  // or the open Display menu takes the key first (each closes itself)
   const menuToggle = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (!mobileOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || document.querySelector('#main-nav .nav-group.open')) return
+      if (e.key !== 'Escape' || document.querySelector('#main-nav .nav-group.open, .display-menu.open')) return
       setMobileOpen(false)
       menuToggle.current?.focus()
     }
@@ -86,9 +87,7 @@ export function Layout() {
         <button type="button" className="copy-link jump-open" title={m.jump.openTitle} aria-haspopup="dialog" onClick={() => setJumpOpen(true)}>
           {m.jump.open} <kbd aria-hidden="true">Ctrl K</kbd>
         </button>
-        <CopyLink />
-        <TextModeToggle />
-        <LocaleToggle />
+        <DisplayMenu />
       </header>
       <AppBanner />
       {jumpOpen && <JumpBox onClose={() => setJumpOpen(false)} />}
@@ -164,23 +163,7 @@ function NavMenu({ group, pathname, mobileOpen }: { group: NavGroup; pathname: s
     }
   }, [open, mobileOpen])
 
-  // an open menu that would spill past the window's edge is slid back inside it
-  useLayoutEffect(() => {
-    const menu = menuRef.current
-    if (!menu) return
-    const fit = () => {
-      menu.style.setProperty('--menu-shift', '0px')
-      if (!open) return
-      const { left, right } = menu.getBoundingClientRect()
-      const edge = document.documentElement.clientWidth - 8
-      const shift = right > edge ? edge - right : left < 8 ? 8 - left : 0
-      menu.style.setProperty('--menu-shift', `${Math.round(shift)}px`)
-    }
-    fit()
-    if (!open) return
-    window.addEventListener('resize', fit)
-    return () => window.removeEventListener('resize', fit)
-  }, [open])
+  useFitInWindow(menuRef, open)
 
   const id = `menu-${group.key}`
   return (
@@ -263,30 +246,4 @@ function useNavigationFocus(main: RefObject<HTMLElement | null>, pathname: strin
     window.scrollTo(0, 0)
     main.current?.focus({ preventScroll: true })
   }, [main, pathname])
-}
-
-/** Copies the current page's address (every view's state is in its URL). */
-function CopyLink() {
-  const m = useT()
-  const [done, setDone] = useState(false)
-  useEffect(() => {
-    if (!done) return
-    const t = window.setTimeout(() => setDone(false), 1500)
-    return () => window.clearTimeout(t)
-  }, [done])
-  return (
-    <button
-      type="button"
-      className="copy-link"
-      title={m.site.copyLinkTitle}
-      onClick={() => {
-        navigator.clipboard
-          ?.writeText(window.location.href)
-          .then(() => setDone(true))
-          .catch(() => setDone(false))
-      }}
-    >
-      <span aria-live="polite">{done ? m.site.copied : m.site.copyLink}</span>
-    </button>
-  )
 }

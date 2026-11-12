@@ -25,11 +25,12 @@ describe('svgExport', () => {
 
   it('makes a drawing standalone: the stylesheet’s look on each element, in the light theme', () => {
     document.head.innerHTML = `<style>
-      :root { --ink: #111111 } :root:not([data-theme='light']) { --ink: #eeeeee }
+      :root { --ink: #111111 } :root[data-theme='dark'] { --ink: #eeeeee }
       .dot { fill: #aa0000; stroke: #000000; vector-effect: non-scaling-stroke }
-      :root:not([data-theme='light']) .dot { fill: #00ff00 }
+      :root[data-theme='dark'] .dot { fill: #00ff00 }
     </style>`
     document.body.innerHTML = `<svg viewBox="0 0 100 50" role="img" aria-label="map" tabindex="0" class="m"><circle class="dot" cx="5" cy="5" r="2"><title>עיר</title></circle></svg>`
+    document.documentElement.setAttribute('data-theme', 'dark') // the screen is dark
     const out = standaloneSvg(document.querySelector('svg')!, 'המפה')
     const doc = new DOMParser().parseFromString(out, 'image/svg+xml')
     expect(doc.getElementsByTagName('parsererror')).toHaveLength(0)
@@ -49,6 +50,7 @@ describe('svgExport', () => {
     expect(dot.getAttribute('style')).not.toMatch(/fill-rule/)
     expect(out.match(/xmlns=/g)).toHaveLength(1)
     expect(lightTokens({ ink: '--ink', none: '--none' })).toEqual({ ink: '#111111' })
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
   })
 
   it('saves the markup as an SVG file', async () => {

@@ -2,9 +2,11 @@ import type { KeyboardEvent } from 'react'
 import type { Exclude, Mode, UnitType } from '../api/types'
 import { useLocale, useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
+import { useTheme } from '../context/themeContext'
 import { LOCALES } from '../i18n'
 import { TEXT_MODES } from '../lib/hebrew'
 import { bookOption } from '../lib/names'
+import { THEMES } from '../lib/theme'
 import { allowedExcludes, K_OPTIONS, MODES } from '../lib/urlState'
 import '../styles/components/Controls.css'
 
@@ -170,6 +172,20 @@ export function TextModeToggle() {
       value={mode}
       onChange={setMode}
       options={TEXT_MODES.map((t) => ({ ...t, title: m.modes.textModes[t.value] }))}
+    />
+  )
+}
+
+/** The colour theme: the system's (auto), light or dark. */
+export function ThemeToggle() {
+  const m = useT()
+  const { theme, setTheme } = useTheme()
+  return (
+    <Segmented
+      label={m.site.theme}
+      value={theme}
+      onChange={setTheme}
+      options={THEMES.map((t) => ({ value: t, label: m.site.themes[t], title: t === 'auto' ? m.site.themeAuto : undefined }))}
     />
   )
 }

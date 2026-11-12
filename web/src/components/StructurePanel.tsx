@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useStructure } from '../api/hooks'
 import type { Leitwort, RootLeitwort, StructureBasis, StructureScore, Verse } from '../api/types'
 import { useLocale, useT } from '../context/localeContext'
+import { useTheme } from '../context/themeContext'
 import { compareLink } from '../lib/links'
 import { Segmented } from './Controls'
 import { ErrorBox, Loading } from './Status'
@@ -168,6 +169,7 @@ function cssColor(name: string, fallback: [number, number, number]): [number, nu
  * density; the mouse or, once focused, the arrow keys read out a cell. */
 function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] }) {
   const t = useT().pat.panel
+  const { shade } = useTheme()
   const ref = useRef<HTMLCanvasElement>(null)
   const [cursor, setCursor] = useState<[number, number]>()
   const n = basis.matrix.length
@@ -206,7 +208,8 @@ function Heatmap({ basis, labels }: { basis: StructureBasis; labels: string[] })
       ctx.lineWidth = 2
       ctx.strokeRect(cursor[1] * cell + 1, cursor[0] * cell + 1, cell - 2, cell - 2)
     }
-  }, [basis, n, cell, cursor])
+    // the colours are read from the theme's tokens: drawn again when the theme changes
+  }, [basis, n, cell, cursor, shade])
   const keys: Record<string, [number, number]> = {
     ArrowUp: [-1, 0],
     ArrowDown: [1, 0],

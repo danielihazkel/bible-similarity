@@ -32,11 +32,12 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ No table renders with the browser's defaults; axe passes on the error box in the dark theme.
 
-## M168: The top bar, the Display menu and a theme switch (proposed O2)
-- [ ] `components/DisplayMenu.tsx`: text display, language, theme (auto / light / dark) and Copy link behind one button
-- [ ] Theme: `context/Theme.tsx`, stored as `bsim.theme`; `lib/theme.ts` sets `data-theme` on `<html>` before the first render; the dark token blocks under one selector `:root[data-theme='dark']`; `lib/svgExport.ts` still restores the theme after an export
-- [ ] The bar in one row from 1280px in both languages (109px tall in English at 1366px today)
-- [ ] Tests: the menu, the theme kept over a reload and following the OS on auto, the bar's height (e2e)
+## M168: The top bar, the Display menu and a theme switch (D157; proposed O2)
+- [x] `components/DisplayMenu.tsx`: the text display, the language, the theme (auto / light / dark) and Copy link behind one button of the bar; it opens on a click, closes on Escape (the focus back on its button), a click outside it or a new page, and is slid inside the window as the nav menus are (`lib/menuFit.ts`, shared with them)
+- [x] Theme: `lib/theme.ts` and `context/Theme.tsx`, stored as `bsim.theme`; `index.html` writes `data-theme` on `<html>` before the first paint and `main.tsx` before the first render; on auto the system is followed as it changes; the dark token blocks (`global.css` ×2, `PlacesPage.css`) under the one selector `:root[data-theme='dark']`, still inside `@media screen`; `lib/svgExport.ts` puts the theme back after an export (its test now starts from a dark screen); the structure heatmap, which reads its colours from the tokens, is drawn again when the theme changes
+- [x] The bar in one row from 1280px in both languages: English needs 1,196px (it needed more than 1366px: 109px tall there), Hebrew 984px, measured on the personal server; the bar's gap 1.5 → 1rem and a nav entry's side padding 0.7 → 0.55rem
+- [x] Found on the way: under that width and above the phone menu (half a wide screen) the bar wrapped as it fell, to three rows at 950px in English. There the pages now take a row of their own under the brand and the buttons (English under 1220px, Hebrew under 1010px), never a third row
+- [x] Tests: vitest (485: the menu's opening and closing, the theme chosen, kept and following the system, the link copied, Hebrew), fixture e2e with axe (1,512 passed: the bar's rows at 1280, 1263, 1150, 1000 and 905px in both languages, the menu inside the window and through axe in both themes, the theme over a reload, auto following the system, paper light from a chosen dark theme), smoke on the real build (348 passed: the bar's rows, the theme over a reload, both accessibility sweeps), ruff and pytest pass; the bar, the menu and both themes looked at on the real build in both languages, and on a phone
 
 ✔ One row at 1280px in English and Hebrew; the theme survives a reload and follows the OS on auto.
 

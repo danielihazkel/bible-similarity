@@ -17,11 +17,11 @@
 .type-tag.place-landform,
 .type-tag.place-water { color: #fff; }
 
-@media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .type-tag.place-town,
-  :root:not([data-theme='light']) .type-tag.place-region,
-  :root:not([data-theme='light']) .type-tag.place-landform,
-  :root:not([data-theme='light']) .type-tag.place-water { color: #17140f; }
+@media screen {
+  :root[data-theme='dark'] .type-tag.place-town,
+  :root[data-theme='dark'] .type-tag.place-region,
+  :root[data-theme='dark'] .type-tag.place-landform,
+  :root[data-theme='dark'] .type-tag.place-water { color: #17140f; }
 }
 
 .place-panel .he { font-size: 1.15rem; }

@@ -1312,3 +1312,106 @@ test.describe('the audit’s faults (M167)', () => {
     }
   })
 })
+
+// M168: the top bar in one row, the Display menu, the theme switch
+test.describe('the Display menu and the theme (M168)', () => {
+  // the lines the bar's visible parts sit on
+  const rows = (page: Page) =>
+    page.evaluate(() => {
+      const boxes = [...document.querySelector('.topbar')!.children].map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0)
+      boxes.sort((a, b) => a.top - b.top)
+      let n = 0
+      let bottom = -Infinity
+      for (const r of boxes) {
+        if (r.top >= bottom) n++
+        bottom = Math.max(bottom, r.bottom)
+      }
+      return n
+    })
+  const background = (page: Page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+  const LIGHT = 'rgb(250, 246, 238)'
+  const DARK = 'rgb(23, 20, 15)'
+
+  for (const locale of ['en', 'he'] as const) {
+    test(`the top bar is one row from 1280px (${locale})`, async ({ page }, info) => {
+      test.skip(info.project.name !== 'desktop')
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      // 1280px, and the same window with a scrollbar's width taken from it
+      for (const width of [1280, 1263]) {
+        await page.setViewportSize({ width, height: 800 })
+        await loads(page, '/')
+        expect(await rows(page), `${width}px`).toBe(1)
+      }
+      // narrower, down to the phone menu: the pages on a second row, never a third
+      for (const width of [1150, 1000, 905]) {
+        await page.setViewportSize({ width, height: 800 })
+        await loads(page, '/')
+        expect(await rows(page), `${width}px`).toBeLessThanOrEqual(2)
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+        expect(overflow, `${width}px`).toBeLessThanOrEqual(1)
+      }
+    })
+
+    test(`the Display menu opens inside the window and passes axe in both themes (${locale})`, async ({ page }) => {
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      await loads(page, '/')
+      const button = page.getByRole('button', { name: locale === 'he' ? /תצוגה/ : /Display/ })
+      await button.click()
+      const panel = page.locator('#display-panel')
+      await expect(panel).toBeVisible()
+      await expect(panel.getByRole('radiogroup')).toHaveCount(3)
+      const box = (await panel.boundingBox())!
+      expect(box.x).toBeGreaterThanOrEqual(0)
+      expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width)
+      for (const theme of locale === 'he' ? ['בהיר', 'כהה'] : ['Light', 'Dark']) {
+        await panel.getByRole('radio', { name: theme }).click()
+        const results = await new AxeBuilder({ page }).include('.topbar').withTags(['wcag2a', 'wcag2aa']).analyze()
+        expect(results.violations.map((v) => v.id), theme).toEqual([])
+      }
+      await page.keyboard.press('Escape')
+      await expect(panel).toHaveCount(0)
+      await expect(button).toBeFocused()
+    })
+  }
+
+  test('a chosen theme is kept over a reload, whatever the system says', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' })
+    await loads(page, '/')
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await page.getByRole('button', { name: /Display/ }).click()
+    await page.getByRole('radio', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    expect(await background(page)).toBe(DARK)
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    expect(await background(page)).toBe(DARK)
+    await page.getByRole('button', { name: /Display/ }).click()
+    await expect(page.getByRole('radio', { name: 'Dark' })).toBeChecked()
+    // light on a dark system
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await page.getByRole('radio', { name: 'Light' }).click()
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    expect(await background(page)).toBe(LIGHT)
+  })
+
+  test('on auto the theme follows the system as it changes', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await loads(page, '/')
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    expect(await background(page)).toBe(DARK)
+    await page.emulateMedia({ colorScheme: 'light' })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    expect(await background(page)).toBe(LIGHT)
+    await page.getByRole('button', { name: /Display/ }).click()
+    await expect(page.getByRole('radio', { name: 'Auto' })).toBeChecked()
+  })
+
+  test('paper is light from a chosen dark theme', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('bsim.theme', 'dark'))
+    await loads(page, '/')
+    expect(await background(page)).toBe(DARK)
+    await page.emulateMedia({ media: 'print' })
+    expect(await background(page)).toBe('rgb(255, 255, 255)')
+  })
+})

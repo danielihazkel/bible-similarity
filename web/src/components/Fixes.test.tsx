@@ -88,7 +88,7 @@ describe('HebrewText', () => {
 })
 
 describe('Layout accessibility', () => {
-  it('has a skip link, a copy-link button, and titles the page after its heading', async () => {
+  it('has a skip link, a copy-link button (in the Display menu), and titles the page after its heading', async () => {
     render(
       <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
         <TextModeProvider>
@@ -105,6 +105,7 @@ describe('Layout accessibility', () => {
     )
     expect(screen.getByRole('link', { name: 'Skip to content' }).getAttribute('href')).toBe('#main')
     await waitFor(() => expect(document.title).toBe('First page · Tanakh Similarity'))
+    fireEvent.click(screen.getByRole('button', { name: /Display/ }))
     expect(screen.getByRole('button', { name: /Copy link/ })).toBeTruthy()
   })
 })

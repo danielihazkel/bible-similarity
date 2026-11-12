@@ -94,6 +94,11 @@ const core = {
     copyLinkTitle: 'Copy a link to this view',
     textDisplay: 'Text display',
     language: 'Interface language',
+    display: 'Display',
+    displayTitle: 'Text display, language, theme and a link to this view',
+    theme: 'Theme',
+    themes: { auto: 'Auto', light: 'Light', dark: 'Dark' },
+    themeAuto: 'Light or dark as your system is set',
     footer: {
       display: 'Display text: Sefaria,',
       mam: 'Miqra according to the Masorah',

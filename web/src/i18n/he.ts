@@ -101,6 +101,11 @@ export const he: Messages = {
     copyLinkTitle: 'העתקת קישור לתצוגה הזאת',
     textDisplay: 'תצוגת הטקסט',
     language: 'שפת הממשק',
+    display: 'תצוגה',
+    displayTitle: 'תצוגת הטקסט, שפה, ערכת צבעים וקישור לתצוגה הזאת',
+    theme: 'ערכת צבעים',
+    themes: { auto: 'אוטומטי', light: 'בהיר', dark: 'כהה' },
+    themeAuto: 'בהיר או כהה, לפי הגדרת המערכת שלכם',
     footer: {
       display: 'טקסט התצוגה: ספריא,',
       mam: 'מקרא על פי המסורה',

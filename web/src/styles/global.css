@@ -92,8 +92,8 @@
   color-scheme: light;
 }
 
-@media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+@media screen {
+  :root[data-theme='dark'] {
       --bg: #17140f;
       --surface: #201c16;
       --surface-2: #2a251d;
@@ -280,7 +280,8 @@ h2 {
 .topbar {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  /* one row from 1280px in both languages (M168; the e2e measures it) */
+  gap: 0.5rem 1rem;
   flex-wrap: wrap;
   padding: 0.6rem 1.25rem;
   background: var(--surface);
@@ -321,7 +322,7 @@ h2 {
 
 .nav a,
 .nav-group-button {
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem 0.55rem;
   border-radius: var(--radius);
   color: var(--muted);
 }
@@ -368,8 +369,9 @@ h2 {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   z-index: 20;
-  /* the top bar is sticky, so a menu taller than the window could never be scrolled into view */
-  max-height: calc(100vh - 5rem);
+  /* the top bar is sticky, so a menu taller than the window could never be scrolled into view
+     (the bar is two rows under 1220px) */
+  max-height: calc(100vh - 6.5rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   /* set by NavMenu to keep the open menu inside the window */
@@ -443,6 +445,31 @@ h2 {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+}
+
+/* between the phone menu and the width the bar fits in one row (half a wide screen): the pages on
+   a row of their own under the brand and the buttons, not whatever happens to wrap. The widths
+   are where each language's bar stops fitting, a scrollbar counted; the e2e holds them (one row
+   from 1280px, never more than two above the phone menu) */
+
+@media (min-width: 901px) and (max-width: 1219px) {
+  :root:not([lang='he']) .nav {
+      order: 10;
+      flex-basis: 100%;
+    }
+  :root:not([lang='he']) .jump-open {
+      margin-inline-start: auto;
+    }
+}
+
+@media (min-width: 901px) and (max-width: 1009px) {
+  :root[lang='he'] .nav {
+      order: 10;
+      flex-basis: 100%;
+    }
+  :root[lang='he'] .jump-open {
+      margin-inline-start: auto;
+    }
 }
 
 /* narrow screens: everything behind the menu button, groups as labelled lists */
@@ -1719,8 +1746,8 @@ kbd {
   --md-distress: #a1251a;
 }
 
-@media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+@media screen {
+  :root[data-theme='dark'] {
       --spk-0: #4d3418;
       --spk-1: #24412a;
       --spk-2: #22385e;

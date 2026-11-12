@@ -8,7 +8,9 @@ import { ApiError } from './api/client'
 import { App } from './App'
 import { LocaleProvider } from './context/Locale'
 import { TextModeProvider } from './context/TextMode'
+import { ThemeProvider } from './context/Theme'
 import { startServiceWorker } from './lib/pwa'
+import { applyTheme, loadTheme } from './lib/theme'
 import { registerSW } from 'virtual:pwa-register'
 
 // react-query assumes online until an `offline` event; a page opened offline (the offline app)
@@ -33,12 +35,17 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   startServiceWorker(registerSW)
 }
 
+// the theme before the first render (index.html has set it before the first paint already)
+applyTheme(loadTheme())
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
         <TextModeProvider>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </TextModeProvider>
       </LocaleProvider>
     </QueryClientProvider>

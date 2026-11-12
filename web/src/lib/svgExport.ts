@@ -30,8 +30,9 @@ const LOOK = [
   'visibility',
 ]
 
-/** Run with the light theme's tokens (the stylesheet's dark tokens apply only without
- * `data-theme="light"`): what is saved or printed is for paper. Synchronous, so nothing repaints. */
+/** Run with the light theme's tokens (the stylesheet's dark tokens apply only under
+ * `data-theme="dark"`, lib/theme.ts): what is saved or printed is for paper. Synchronous, so
+ * nothing repaints, and the theme in use is put back. */
 export function asLight<T>(f: () => T): T {
   const root = document.documentElement
   const was = root.getAttribute('data-theme')

@@ -1,0 +1,47 @@
+/* The Display menu of the top bar: text display, interface language, theme, the link to this view */
+
+.display-menu {
+  position: relative;
+}
+
+.display-button span {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+.display-button[aria-expanded='true'] {
+  background: var(--accent-soft);
+}
+
+.display-panel {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  inset-inline-end: 0;
+  display: grid;
+  gap: 0.75rem;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 20;
+  /* set by useFitInWindow to keep the open panel inside the window */
+  transform: translateX(var(--menu-shift, 0px));
+}
+
+.display-row {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: start;
+}
+
+.display-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.display-panel > .copy-link {
+  padding: 0.35rem 0.55rem;
+}

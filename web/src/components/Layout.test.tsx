@@ -139,6 +139,7 @@ describe('Interface language', () => {
 
   it('switches to Hebrew, right to left, and remembers the choice', async () => {
     renderLocalized('/')
+    fireEvent.click(screen.getByRole('button', { name: /Display/ }))
     fireEvent.click(screen.getByRole('radio', { name: 'עב' }))
     expect(screen.getByRole('link', { name: 'עיון' })).toBeTruthy()
     expect(screen.getByRole('button', { name: /מקבילות/ })).toBeTruthy()
@@ -150,6 +151,7 @@ describe('Interface language', () => {
     // a new visit starts in Hebrew
     renderLocalized('/')
     expect(screen.getByRole('link', { name: 'עיון' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /תצוגה/ }))
     fireEvent.click(screen.getByRole('radio', { name: 'EN' }))
     expect(document.documentElement.dir).toBe('ltr')
     expect(localStorage.getItem('bsim.locale')).toBe('en')
