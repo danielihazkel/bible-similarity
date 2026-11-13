@@ -329,6 +329,15 @@ export const he: Messages = {
     markBy: 'סימון מילים לפי',
   },
 
+  toast: {
+    region: 'שמירות והסרות',
+    saved: 'נשמר',
+    undo: 'ביטול הפעולה',
+    dismiss: 'סגירה',
+    failed: 'השמירה נכשלה:',
+    offline: 'אין חיבור',
+  },
+
   copy: {
     ref: 'העתקת ההפניה',
     refTitle: 'העתקת ההפניה של הקטע הזה',

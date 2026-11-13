@@ -1026,3 +1026,22 @@ test('a page’s heading is there before its data, and a passage’s place is he
   release()
   await expect(page.locator('main h1')).toContainText('Genesis 1', { timeout: 30_000 })
 })
+
+// M177: saving and feedback, on the real build. Every change is answered here, in the browser, so
+// nothing reaches the labels and the notebook of this machine.
+test('a save that fails says so (no change is sent to the server)', async ({ page }) => {
+  let sent = 0
+  await page.route('**/api/**', (route) => {
+    if (route.request().method() === 'GET') return route.continue()
+    sent++
+    return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ detail: 'held by the test' }) })
+  })
+  await page.goto('/unit/v%3A0')
+  const unsure = page.locator('.hit').first().getByRole('button', { name: 'Unsure' })
+  await expect(page.locator('.hit').first()).toBeVisible({ timeout: 30_000 })
+  test.skip((await unsure.count()) === 0, 'labels are read-only on this server')
+  await expect(page.getByRole('region', { name: 'Saved and removed' }).getByRole('status')).toBeEmpty()
+  await unsure.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not save: 500: held by the test' })).toBeVisible()
+  expect(sent).toBe(1)
+})

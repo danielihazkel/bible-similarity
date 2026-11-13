@@ -121,13 +121,13 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ No raw font size or radius left in `global.css` (nor in any other stylesheet); a page's title is there before its data.
 
-## M177: Saving and feedback (proposed O11)
-- [ ] `components/Toaster.tsx`, `useToast`: one live region for saved, removed with Undo, and failures
-- [ ] Labels: a note says saved or failed; clearing a label offers Undo
-- [ ] Notebook: a note saves itself after a pause and on blur; a save in flight guarded on leaving; removing from a collection offers Undo; the text filter in the URL
-- [ ] Tests
+## M177: Saving and feedback (D166; proposed O11)
+- [x] `components/Toaster.tsx` over `lib/toast.ts` (`showToast`, `failToast`, `useToast`): the page's one live region, drawn by `Layout`, for what a save did. A note goes after 3.5s, one with an action (Undo) after 8s, and waits while the pointer or the focus is on it; a failure is an alert and stays until it is closed. The hooks of a save (`useSetLabel`, `useNotebookChange`) say their own failures there, so every caller has them: keeping a passage from a search result had no way to say that it failed
+- [x] Labels: a pair's note says "Note saved" (its box does not change); clearing a label says "Label removed" with Undo, which puts it back with its note and where it was judged, after its row has gone; a failure goes to the toaster in place of the line beside the buttons
+- [x] Notebook: a note saves itself 1.2s after the writing stops, when its box is left, on Ctrl+Enter and as its editor goes away, and the line under it says where it stands (not saved yet, saving, saved, could not save with "Try again"); the "Save note" button is gone. What is written while a save is on its way is kept. The browser asks before the page is left with a note unsaved or on its way. Taking a passage out of a collection offers Undo. The text filter is in the address (`?f=`)
+- [x] Tests: vitest 602 (`Toaster.test.tsx`: the store, the timers, the pause, failures that stay, Hebrew; the labels: Undo of a cleared label, a failure, "Note saved"; the notebook: the note saved after a pause, on Ctrl+Enter, kept while a save is on its way, a failure and "Try again", the question on leaving and the save as the editor goes, Undo out of a collection, the filter in the address); fixture e2e 1,665 passed, none failed (the two writers extended: a cleared label put back and a pair’s note, a note that saves itself and is there after a reload, out of a collection and back, the filter after a reload; a failure answered in the browser, in English and in Hebrew and dark, with axe); smoke 372 on the real build (a failing save says so, with every change answered in the browser so that nothing is written)
 
-✔ No edit is lost silently: every save says so, every removal can be undone for a few seconds.
+✔ No edit is lost silently: every save says so, every removal can be undone for a few seconds. (Two removals still ask first instead of offering Undo, as before: a passage out of the notebook, which takes its note with it, and a collection.)
 
 ---
 

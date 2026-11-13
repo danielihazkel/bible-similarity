@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { type NotebookChange, useNotebook, useNotebookChange } from '../api/hooks'
+import { changeNotebook, type NotebookChange, useNotebook, useNotebookChange } from '../api/hooks'
 import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
+import { showToast } from '../lib/toast'
 import '../i18n/pages/notebook'
 import '../styles/components/NotebookPanel.css'
 
@@ -42,7 +44,6 @@ export function NotebookPanel({ unitId }: { unitId: string }) {
           <EntryEditor entry={entry} collections={nb.data.collections} writable={writable} />
         </>
       )}
-      <ChangeError error={change.error} />
     </section>
   )
 }
@@ -94,54 +95,137 @@ export function DropButton({ onDrop }: { onDrop: () => void }) {
   )
 }
 
+/** Beside a form that names a collection: the name is taken. Every other failure of a save is
+ * said by the toaster (`useNotebookChange`). */
 export function ChangeError({ error }: { error: Error | null }) {
   const t = useT().nb
-  if (!error) return null
+  if (!error?.message.startsWith('409')) return null
   return (
     <p role="alert" className="error small">
-      {error.message.startsWith('409') ? t.conflict : t.saveFailed(error.message)}
+      {t.conflict}
     </p>
+  )
+}
+
+/** How long after the last keystroke a note is saved (ms). */
+export const AUTOSAVE_MS = 1200
+
+/**
+ * A note that saves itself (M177): a moment after the writing stops, when the box is left, on
+ * Ctrl+Enter, and as the editor goes away with something unsaved. The line under it says where the
+ * note stands (not saved yet, saving, saved, could not save with a way to try again), and the
+ * browser asks before the page is left with a note unsaved or on its way.
+ */
+function NoteEditor({ unit, note }: { unit: string; note: string }) {
+  const t = useT().nb
+  const client = useQueryClient()
+  const save = useNotebookChange()
+  const [draft, setDraft] = useState(note)
+  const [seen, setSeen] = useState(note)
+  // the text of a save that failed: not sent again by itself, only when it changes or on "Try again"
+  const [failed, setFailed] = useState<string>()
+  if (seen !== note) {
+    // the note changed on the server (this save, another tab, the notebook page): follow it,
+    // unless there is writing here that it would wipe out
+    setSeen(note)
+    if (draft === seen) setDraft(note)
+  }
+  const dirty = draft !== note
+  const send = (text: string) => {
+    if (text === note || save.isPending) return
+    setFailed(undefined)
+    save.mutate({ kind: 'keep', unit, note: text }, { onError: () => setFailed(text) })
+  }
+  // a moment after the last change; again after a save, if the writing went on meanwhile
+  useEffect(() => {
+    if (!dirty || save.isPending || draft === failed) return
+    const timer = window.setTimeout(() => send(draft), AUTOSAVE_MS)
+    return () => window.clearTimeout(timer)
+    // `send` reads what this effect depends on
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, dirty, save.isPending, failed])
+  // leaving the page with a note unsaved or on its way: the browser asks first
+  const open = dirty || save.isPending
+  useEffect(() => {
+    if (!open) return
+    const ask = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener('beforeunload', ask)
+    return () => window.removeEventListener('beforeunload', ask)
+  }, [open])
+  // the editor goes (another page of the viewer) with something unsaved: saved on the way out
+  const sending = save.isPending && save.variables?.kind === 'keep' ? save.variables.note : undefined
+  const last = useRef({ draft, note, sending })
+  useEffect(() => {
+    last.current = { draft, note, sending }
+  })
+  useEffect(
+    () => () => {
+      const { draft, note, sending } = last.current
+      if (draft !== note && draft !== sending) void changeNotebook(client, { kind: 'keep', unit, note: draft })
+    },
+    [client, unit],
+  )
+  const state = save.isPending ? t.saving : failed !== undefined && dirty ? t.notSaved : dirty ? t.unsaved : note ? t.saved : ''
+  return (
+    <div className="nb-note">
+      <label>
+        <span className="sr-only">{t.note}</span>
+        <textarea
+          dir="auto"
+          rows={3}
+          value={draft}
+          placeholder={t.notePlaceholder}
+          title={t.noteHint}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={() => send(draft)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(draft)
+          }}
+        />
+      </label>
+      <span className="nb-note-state muted small" aria-live="polite">
+        {state}
+      </span>
+      {failed !== undefined && dirty && !save.isPending && (
+        <>
+          {' '}
+          <button type="button" className="linkish small" onClick={() => send(draft)}>
+            {t.retry}
+          </button>
+        </>
+      )}
+    </div>
   )
 }
 
 /** An entry's note and collections; editable on a writable server. */
 export function EntryEditor({ entry, collections, writable }: { entry: NotebookEntry; collections: NotebookCollection[]; writable: boolean }) {
-  const t = useT().nb
+  const m = useT()
+  const t = m.nb
   const change = useNotebookChange()
-  const [draft, setDraft] = useState(entry.note)
-  const [saved, setSaved] = useState(entry.note)
-  if (saved !== entry.note) {
-    // the note changed elsewhere (another tab, the notebook page): follow it
-    setSaved(entry.note)
-    setDraft(entry.note)
-  }
+  const client = useQueryClient()
   const unit = entry.unit.unit_id
   const mine = collections.filter((c) => entry.collections.includes(c.collection_id))
   const others = collections.filter((c) => !entry.collections.includes(c.collection_id))
   const [naming, setNaming] = useState(false)
   const [name, setName] = useState('')
   const run = (c: NotebookChange) => change.mutate(c)
+  // taken out of a collection: it can be put back for a few seconds (the chip is gone by then)
+  const takeOut = (c: NotebookCollection) =>
+    void change
+      .mutateAsync({ kind: 'remove', id: c.collection_id, unit })
+      .then(() =>
+        showToast(t.takenOut(c.name), {
+          key: `nb:${c.collection_id}:${unit}`,
+          action: { label: m.toast.undo, run: () => void changeNotebook(client, { kind: 'add', id: c.collection_id, unit }) },
+        }),
+      )
+      .catch(() => {}) // said by the toaster
   return (
     <div className="nb-entry-editor">
       {writable ? (
-        <form
-          className="nb-note"
-          onSubmit={(e) => {
-            e.preventDefault()
-            run({ kind: 'keep', unit, note: draft })
-          }}
-        >
-          <label>
-            <span className="sr-only">{t.note}</span>
-            <textarea dir="auto" rows={3} value={draft} placeholder={t.notePlaceholder} onChange={(e) => setDraft(e.target.value)} />
-          </label>
-          <button type="submit" disabled={draft === entry.note || change.isPending}>
-            {t.save}
-          </button>{' '}
-          <span className="muted small" aria-live="polite">
-            {draft === entry.note ? (entry.note ? t.saved : '') : t.unsaved}
-          </span>
-        </form>
+        // a new editor for another passage: a note being written never moves to the next one
+        <NoteEditor key={unit} unit={unit} note={entry.note} />
       ) : (
         entry.note && (
           <p className="nb-note-text" dir="auto">
@@ -156,7 +240,7 @@ export function EntryEditor({ entry, collections, writable }: { entry: NotebookE
             <span key={c.collection_id} className="chip nb-chip">
               {c.name}
               {writable && (
-                <button type="button" className="nb-chip-x" aria-label={t.removeFrom(c.name)} title={t.removeFrom(c.name)} onClick={() => run({ kind: 'remove', id: c.collection_id, unit })}>
+                <button type="button" className="nb-chip-x" aria-label={t.removeFrom(c.name)} title={t.removeFrom(c.name)} onClick={() => takeOut(c)}>
                   ×
                 </button>
               )}

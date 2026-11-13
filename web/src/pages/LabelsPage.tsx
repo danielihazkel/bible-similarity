@@ -15,6 +15,7 @@ import { useLocale } from '../context/localeContext'
 import { formatScore } from '../lib/format'
 import { compareLink, unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
+import { showToast } from '../lib/toast'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/labels'
 import '../styles/pages/LabelsPage.css'
@@ -257,9 +258,13 @@ function LabelRow({ l, writable }: { l: Label; writable: boolean }) {
   const t = m.lab
   const set = useSetLabel()
   const [note, setNote] = useState(l.note)
+  // the box does not change when its note is saved, so the toaster says so (M177); a failure too
   const save = () => {
     if (note !== l.note)
-      set.mutate({ a_id: l.a.unit_id, b_id: l.b.unit_id, label: l.label as LabelValue, note, mode: l.mode, score: l.score })
+      set.mutate(
+        { a_id: l.a.unit_id, b_id: l.b.unit_id, label: l.label as LabelValue, note, mode: l.mode, score: l.score },
+        { onSuccess: () => void showToast(t.noteSaved, { key: 'label-note' }) },
+      )
   }
   return (
     <li>

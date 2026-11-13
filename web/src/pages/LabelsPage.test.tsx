@@ -5,7 +5,9 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Label, LabelQueue, LabelsEval, LabelsResponse, UnitSummary, Verse } from '../api/types'
 import { LabelButtons } from '../components/LabelButtons'
+import { Toaster } from '../components/Toaster'
 import { LocaleProvider } from '../context/Locale'
+import { clearToasts } from '../lib/toast'
 import { LabelsPage } from './LabelsPage'
 
 const unit = (id: number, en: string, he: string): UnitSummary => ({
@@ -74,13 +76,14 @@ const QUEUE: LabelQueue = {
   llm: { model: 'claude-sonnet-5-5', rationale: 'english', collected_at: '2026-11-04T12:00:00+00:00', auc: 0.91, min_auc: 0.75, holds: true, pairs: 500 },
 }
 
-function mockApi(writable = true) {
+function mockApi(writable = true, failing = false) {
   let labels: LabelsResponse = { writable, counts: { real: 1, not: 0, unsure: 0 }, items: [LABEL] }
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
     const path = new URL(url, 'http://x').pathname
+    if (failing && init?.method) return new Response(JSON.stringify({ detail: 'disk full' }), { status: 500 })
     if (init?.method === 'PUT') {
       const body = JSON.parse(String(init.body))
-      const item = { ...LABEL, label: body.label, note: body.note }
+      const item = { ...LABEL, label: body.label, note: body.note, mode: body.mode ?? LABEL.mode, score: body.score ?? LABEL.score }
       labels = { ...labels, counts: { real: 0, not: 1, unsure: 0 }, items: [item] }
       return new Response(JSON.stringify(item), { status: 200 })
     }
@@ -106,6 +109,7 @@ function renderAt(ui: React.ReactNode, locale: 'en' | 'he' = 'en', path = '/labe
             <Route path="/labels" element={ui} />
           </Routes>
         </MemoryRouter>
+        <Toaster />
       </LocaleProvider>
     </QueryClientProvider>,
   )
@@ -113,6 +117,7 @@ function renderAt(ui: React.ReactNode, locale: 'en' | 'he' = 'en', path = '/labe
 
 afterEach(() => {
   cleanup()
+  clearToasts()
   vi.unstubAllGlobals()
 })
 
@@ -185,5 +190,48 @@ describe('LabelButtons', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Not' }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Not' }).getAttribute('aria-pressed')).toBe('false'))
     expect(fetchMock.mock.calls.some(([u, init]) => init?.method === 'DELETE' && u === '/api/labels/v%3A3/v%3A0')).toBe(true)
+  })
+})
+
+describe('saving feedback on the labels (M177)', () => {
+  it('offers to put a cleared label back, with its note and where it was judged', async () => {
+    const fetchMock = mockApi()
+    renderAt(<LabelButtons a="v:3" b="v:0" />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Real' }))
+    expect(await screen.findByText('Label removed')).toBeTruthy()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Real' }).getAttribute('aria-pressed')).toBe('false'))
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Real' }).getAttribute('aria-pressed')).toBe('true'))
+    const put = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
+    expect(JSON.parse(String(put[1]!.body))).toEqual({ a_id: 'v:3', b_id: 'v:0', label: 'real', note: 'creation', mode: 'semantic', score: 0.91 })
+    expect(screen.queryByText('Label removed')).toBeNull()
+  })
+
+  it('says that a label could not be saved, and leaves the old one pressed', async () => {
+    mockApi(true, true)
+    renderAt(<LabelButtons a="v:0" b="v:3" />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Not' }))
+    expect((await screen.findByRole('alert')).textContent).toContain('Could not save: 500: disk full')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Real' }).getAttribute('aria-pressed')).toBe('true'))
+    // clearing fails the same way: no "removed", nothing to undo
+    fireEvent.click(screen.getByRole('button', { name: 'Real' }))
+    await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(1))
+    expect(screen.queryByText('Label removed')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
+  })
+
+  it('says that a pair’s note was saved, on leaving the box', async () => {
+    const fetchMock = mockApi()
+    renderAt(<LabelsPage />)
+    const note = await screen.findByRole('textbox', { name: 'Note' })
+    fireEvent.change(note, { target: { value: 'creation, again' } })
+    fireEvent.blur(note)
+    expect(await screen.findByText('Note saved')).toBeTruthy()
+    const put = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
+    expect(JSON.parse(String(put[1]!.body)).note).toBe('creation, again')
+    // unchanged: nothing sent, nothing said
+    clearToasts()
+    fireEvent.blur(note)
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(1)
   })
 })

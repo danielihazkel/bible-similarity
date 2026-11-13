@@ -25,7 +25,8 @@ export function NotebookPage() {
   const t = m.nb
   const [params, update] = useQueryParams()
   const nb = useNotebook()
-  const [filter, setFilter] = useState('')
+  // the words searched for are part of the view: in the address, kept on a reload and in a link (M177)
+  const filter = params.get('f') ?? ''
   const { personal } = useServer()
   const { mode } = useTextMode()
   if (!personal)
@@ -58,7 +59,7 @@ export function NotebookPage() {
           <div className="toolbar">
             <label className="control">
               <span>{t.filter}</span>
-              <input type="search" dir="auto" value={filter} placeholder={t.filterPlaceholder} onChange={(e) => setFilter(e.target.value)} />
+              <input type="search" dir="auto" value={filter} placeholder={t.filterPlaceholder} onChange={(e) => update({ f: e.target.value || null })} />
             </label>
             <span className="muted small">{t.count(shown.length, inCollection.length)}</span>
             <button

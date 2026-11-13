@@ -9,6 +9,7 @@ import { enterEntry, restoreScroll, savedScroll, scrollToAnchor, scrollToTop, wa
 import { DisplayMenu } from './DisplayMenu'
 import { JumpBox } from './JumpBox'
 import { PinButton } from './PinButton'
+import { Toaster } from './Toaster'
 import { TourBar } from './TourBar'
 import { AppBanner } from './AppBanner'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -122,6 +123,7 @@ export function Layout() {
           </Suspense>
         </ErrorBoundary>
       </main>
+      <Toaster />
       <TourBar />
       <footer className="footer">
         <p>

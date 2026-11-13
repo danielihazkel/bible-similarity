@@ -332,6 +332,16 @@ const core = {
     markBy: 'Mark words by',
   },
 
+  // the notes of a save, at the foot of the window (components/Toaster.tsx)
+  toast: {
+    region: 'Saved and removed',
+    saved: 'Saved',
+    undo: 'Undo',
+    dismiss: 'Close',
+    failed: 'Could not save:',
+    offline: 'no connection',
+  },
+
   copy: {
     ref: 'Copy reference',
     refTitle: 'Copy the reference of this passage',

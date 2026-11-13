@@ -1,6 +1,7 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { keepPreviousData, type QueryClient, useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
-import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
+import { failToast } from '../lib/toast'
+import { ApiError, getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
   DetectorPrecisionResponse,
   MainlineOrder,
@@ -616,19 +617,33 @@ export const useLawPair = (id: number) =>
 /** The key of a pair in either order. */
 export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`)
 
-/** Label a pair (`label` given) or clear its label (`label` null). */
+export type LabelChange = LabelIn | { a_id: string; b_id: string; label: null }
+
+const sendLabel = (v: LabelChange) =>
+  v.label === null ? sendJson<null>('DELETE', `/labels/${encodeURIComponent(v.a_id)}/${encodeURIComponent(v.b_id)}`) : sendJson<Label>('PUT', '/labels', v)
+
+function labelsChanged(client: QueryClient) {
+  void client.invalidateQueries({ queryKey: ['labels'] })
+  void client.invalidateQueries({ queryKey: ['labels-eval'] })
+}
+
+/** Label a pair (`label` given) or clear its label (`label` null). A failure is said by the
+ * toaster (M177), whichever component asked. */
 export function useSetLabel() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: (v: LabelIn | { a_id: string; b_id: string; label: null }) =>
-      v.label === null
-        ? sendJson<null>('DELETE', `/labels/${encodeURIComponent(v.a_id)}/${encodeURIComponent(v.b_id)}`)
-        : sendJson<Label>('PUT', '/labels', v),
-    onSettled: () => {
-      void client.invalidateQueries({ queryKey: ['labels'] })
-      void client.invalidateQueries({ queryKey: ['labels-eval'] })
-    },
+    mutationFn: sendLabel,
+    onError: (error) => void failToast(error, 'label'),
+    onSettled: () => labelsChanged(client),
   })
+}
+
+/** The same change outside a component's life: an Undo, pressed after the row it was on has gone. */
+export function changeLabel(client: QueryClient, v: LabelChange): Promise<void> {
+  return sendLabel(v)
+    .then(() => undefined)
+    .catch((error) => void failToast(error, 'label'))
+    .finally(() => labelsChanged(client))
 }
 
 /** Your notebook (DESIGN.md §16.47): like the labels, it changes while the viewer runs. */
@@ -656,32 +671,49 @@ export type NotebookChange =
   | { kind: 'add'; id: number; unit: string }
   | { kind: 'remove'; id: number; unit: string }
 
+async function sendNotebook(c: NotebookChange): Promise<unknown> {
+  switch (c.kind) {
+    case 'keep':
+      return sendJson<NotebookEntry>('PUT', `/notebook/entries/${enc(c.unit)}`, { note: c.note ?? null })
+    case 'drop':
+      return sendJson<null>('DELETE', `/notebook/entries/${enc(c.unit)}`)
+    case 'create': {
+      const made = await sendJson<NotebookCollection>('POST', '/notebook/collections', { name: c.name, description: c.description ?? '' })
+      if (made && c.unit) await sendJson<NotebookEntry>('PUT', `/notebook/collections/${made.collection_id}/entries/${enc(c.unit)}`)
+      return made
+    }
+    case 'rename':
+      return sendJson<NotebookCollection>('PUT', `/notebook/collections/${c.id}`, { name: c.name, description: c.description })
+    case 'delete':
+      return sendJson<null>('DELETE', `/notebook/collections/${c.id}`)
+    case 'add':
+      return sendJson<NotebookEntry>('PUT', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
+    case 'remove':
+      return sendJson<null>('DELETE', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
+  }
+}
+
+/** A name that is taken (409) is said beside the form that asked (`ChangeError`); every other
+ * failure by the toaster (M177). */
+const notebookFailed = (error: Error) => {
+  if (!(error instanceof ApiError && error.status === 409)) failToast(error, 'notebook')
+}
+
 export function useNotebookChange() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: async (c: NotebookChange): Promise<unknown> => {
-      switch (c.kind) {
-        case 'keep':
-          return sendJson<NotebookEntry>('PUT', `/notebook/entries/${enc(c.unit)}`, { note: c.note ?? null })
-        case 'drop':
-          return sendJson<null>('DELETE', `/notebook/entries/${enc(c.unit)}`)
-        case 'create': {
-          const made = await sendJson<NotebookCollection>('POST', '/notebook/collections', { name: c.name, description: c.description ?? '' })
-          if (made && c.unit) await sendJson<NotebookEntry>('PUT', `/notebook/collections/${made.collection_id}/entries/${enc(c.unit)}`)
-          return made
-        }
-        case 'rename':
-          return sendJson<NotebookCollection>('PUT', `/notebook/collections/${c.id}`, { name: c.name, description: c.description })
-        case 'delete':
-          return sendJson<null>('DELETE', `/notebook/collections/${c.id}`)
-        case 'add':
-          return sendJson<NotebookEntry>('PUT', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
-        case 'remove':
-          return sendJson<null>('DELETE', `/notebook/collections/${c.id}/entries/${enc(c.unit)}`)
-      }
-    },
+    mutationFn: sendNotebook,
+    onError: notebookFailed,
     onSettled: () => void client.invalidateQueries({ queryKey: ['notebook'] }),
   })
+}
+
+/** The same change outside a component's life: an Undo, or a note saved as its editor goes. */
+export function changeNotebook(client: QueryClient, c: NotebookChange): Promise<void> {
+  return sendNotebook(c)
+    .then(() => undefined)
+    .catch(notebookFailed)
+    .finally(() => void client.invalidateQueries({ queryKey: ['notebook'] }))
 }
 
 /** A unit's BHSA clauses and speakers; for a verse, the verses built the same way (§16.26). */
