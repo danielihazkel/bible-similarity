@@ -351,6 +351,7 @@ export const he: Messages = {
     unaligned: 'אין מילת OSHB המיושרת למילה הזאת.',
     verses: (n: number) => `${n} פסוקים`,
     clickHint: 'לחיצה על מילה מציגה את המורפולוגיה והקונקורדנציה שלה.',
+    layers: 'מה השכבות אומרות על המילה הזאת',
     pause: 'הפסק',
     ketiv: 'כתיב',
   },

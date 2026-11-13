@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ReaderResponse, StructureResponse, UnitDetail, UnitParallelism, UnitSummary, Verse } from '../api/types'
 import { LocaleProvider } from '../context/Locale'
-import { parseLayers, toggleLayer } from '../lib/layers'
+import { layerFamilies, LAYERS, layersParam, parseLayers, PRESETS, presetOf, toggleLayer } from '../lib/layers'
 import { ReaderPage } from './ReaderPage'
 
 const CHAPTER: UnitSummary = {
@@ -182,6 +182,28 @@ describe('layers in the URL', () => {
     expect(toggleLayer(parseLayers('speakers,cola,leitworte,turns'), 'cola')).toBeNull()
     expect(toggleLayer(parseLayers('rare'), 'rare')).toBe('')
   })
+  it('puts every layer under the nav family of its analysis, in the nav’s order', () => {
+    const groups = layerFamilies()
+    expect(groups.map((g) => [g.section ?? g.group, g.items])).toEqual([
+      ['parallels', ['phrases']],
+      ['poetryForm', ['cola', 'leitworte', 'refrains', 'wordplay', 'mood', 'turns', 'prophetic']],
+      ['wordsNames', ['rare', 'ketiv', 'divine', 'witnesses']],
+      ['lettersNumbers', ['gematria']],
+      ['narrative', ['reception', 'mainline']],
+      ['overview', ['speakers', 'sources', 'places']],
+    ])
+    expect(groups.flatMap((g) => g.items).sort()).toEqual([...LAYERS].sort())
+  })
+  it('names sets of layers, and knows the set that is on', () => {
+    expect(layersParam(PRESETS.default)).toBeNull()
+    expect(layersParam(PRESETS.none)).toBe('')
+    expect(layersParam(PRESETS.poetry)).toBe('cola,leitworte,refrains,wordplay,mood')
+    expect(layersParam(PRESETS.narrative)).toBe('speakers,turns,places,mainline')
+    expect(presetOf(parseLayers(null))).toBe('default')
+    expect(presetOf(parseLayers(''))).toBe('none')
+    expect(presetOf(parseLayers('mood,cola,leitworte,wordplay,refrains'))).toBe('poetry')
+    expect(presetOf(parseLayers('speakers,turns'))).toBeUndefined()
+  })
 })
 
 describe('ReaderPage', () => {
@@ -353,5 +375,83 @@ describe('ReaderPage', () => {
     const { container } = renderAt('/read/c%3A0%3A1')
     await screen.findByRole('button', { name: 'Speakers' })
     expect(container.querySelector('.reader-text li.at')).toBeNull()
+  })
+
+  it('groups the layers under the nav’s families, each a named group', async () => {
+    renderAt('/read/c%3A0%3A1')
+    await screen.findByRole('button', { name: 'Speakers' })
+    const layers = screen.getByRole('group', { name: 'Layers' })
+    const names = ['Parallels', 'Poetry and form', 'Words and names', 'Letters and numbers', 'Narrative', 'Overview']
+    for (const n of names) expect(within(layers).getByRole('group', { name: n })).toBeTruthy()
+    expect(within(within(layers).getByRole('group', { name: 'Overview' })).getAllByRole('button').map((b) => b.textContent)).toEqual(['Speakers', 'P / non-P', 'Places'])
+    expect(within(within(layers).getByRole('group', { name: 'Letters and numbers' })).getAllByRole('button').map((b) => b.textContent)).toEqual(['Gematria'])
+  })
+
+  it('switches to a named set of layers, marks the one that is on, and resets', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1')
+    await screen.findByRole('button', { name: 'Speakers' })
+    const set = (name: string) => screen.getByRole('button', { name })
+    expect(set('Default').getAttribute('aria-pressed')).toBe('true')
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull()
+    fireEvent.click(set('Poetry'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1?layers=cola%2Cleitworte%2Crefrains%2Cwordplay%2Cmood'))
+    expect(set('Poetry').getAttribute('aria-pressed')).toBe('true')
+    expect(set('Default').getAttribute('aria-pressed')).toBe('false')
+    expect(container.querySelectorAll('.layer-toggle.on')).toHaveLength(5)
+    // a layer switched by hand: no set is on
+    fireEvent.click(screen.getByRole('button', { name: 'Places' }))
+    await waitFor(() => expect(container.querySelectorAll('.layer-toggle.on')).toHaveLength(6))
+    expect(container.querySelectorAll('.layer-preset.on')).toHaveLength(0)
+    fireEvent.click(set('None'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1?layers='))
+    expect(container.querySelector('details.reader-key')).toBeNull() // nothing to explain
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1'))
+    expect(set('Default').getAttribute('aria-pressed')).toBe('true')
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull()
+  })
+
+  it('folds the key to the marks, and keeps it folded in the address', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1')
+    await screen.findByRole('button', { name: 'Speakers' })
+    const key = container.querySelector('details.reader-key') as HTMLDetailsElement
+    expect(key.open).toBe(true)
+    expect(key.querySelector('summary')?.textContent).toBe('Key what the marks of 3 layers mean')
+    expect(key.querySelectorAll('.reader-legend > li')).toHaveLength(3)
+    key.open = false
+    fireEvent(key, new Event('toggle'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/read/c%3A0%3A1?key=0'))
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeTruthy()
+    cleanup()
+    const again = renderAt('/read/c%3A0%3A1?key=0&layers=rare')
+    await screen.findByRole('button', { name: 'Speakers' })
+    const folded = again.container.querySelector('details.reader-key') as HTMLDetailsElement
+    expect(folded.open).toBe(false)
+    expect(folded.querySelector('summary')?.textContent).toBe('Key what the marks of 1 layer mean')
+  })
+
+  it('lists what the layers say about a clicked word, by layer', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1')
+    await waitFor(() => expect(container.querySelector('.reader-text .spk-0')).toBeTruthy())
+    const word = container.querySelector('.reader-text .spk-0') as HTMLElement
+    const said = word.getAttribute('title')!.split('\n')
+    fireEvent.click(word)
+    const notes = within(await screen.findByLabelText('Word analysis')).getByRole('list', { name: 'What the layers say about this word' })
+    const rows = within(notes).getAllByRole('listitem')
+    // the tooltip's lines, each under its layer's name
+    expect(rows.map((li) => li.textContent!.replace(/^(Speakers|Leitworte) /, ''))).toEqual(said)
+    expect(rows[0].querySelector('b')?.textContent).toBe('Speakers')
+    // a word no layer marks has no such list
+    const plain = [...container.querySelectorAll<HTMLElement>('.reader-text [data-word]')].find((w) => !w.getAttribute('title'))!
+    fireEvent.click(plain)
+    await waitFor(() => expect(within(screen.getByLabelText('Word analysis')).queryByRole('list', { name: 'What the layers say about this word' })).toBeNull())
+  })
+
+  it('names the sets, the families and the key in Hebrew', async () => {
+    const { container } = renderAt('/read/c%3A0%3A1', 'he')
+    await screen.findByRole('button', { name: 'מילים מנחות' })
+    expect(screen.getByRole('button', { name: 'ברירת המחדל' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('group', { name: 'שירה וצורה' })).toBeTruthy()
+    expect(container.querySelector('details.reader-key summary')?.textContent).toBe('מקרא הסימנים 3 שכבות: מה הן מסמנות')
   })
 })

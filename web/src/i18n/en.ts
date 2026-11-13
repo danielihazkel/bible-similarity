@@ -354,6 +354,7 @@ const core = {
     unaligned: 'No OSHB word is aligned to this token.',
     verses: (n: number) => `${n} verses`,
     clickHint: 'Click a word for its morphology and concordance.',
+    layers: 'What the layers say about this word',
     pause: 'pause',
     ketiv: 'Ketiv (written form)',
   },

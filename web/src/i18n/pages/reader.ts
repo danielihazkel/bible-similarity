@@ -11,11 +11,22 @@ export const pctOf = (x: number) => Math.round(x * 100)
 
 export const readerEn = {
   title: 'Reader',
-  lede: 'The text with what the analyses found painted onto its words. Turn layers on and off; hover a word for what each layer says about it, click it for its grammar.',
+  lede: 'What the analyses found, painted onto the words. Click a word for what each layer says about it.',
   open: 'Read with layers',
   openTitle: 'The text with its speakers, Leitworte, verse halves, wordplay and more marked on the words',
   unitPage: 'Similar passages and every analysis',
   layersLabel: 'Layers',
+  presetsLabel: 'Sets:',
+  presets: { default: 'Default', poetry: 'Poetry', narrative: 'Narrative', none: 'None' },
+  presetTitles: {
+    default: 'Speakers, Leitworte and turns: what a chapter opens with',
+    poetry: 'Verse halves, Leitworte, refrains, wordplay, distress and praise',
+    narrative: 'Speakers, the main line, turns and places',
+    none: 'The text alone',
+  },
+  resetTitle: 'Back to the default layers, with the key open',
+  key: 'Key',
+  keyOf: (n: number) => `what the marks of ${countEn(n, 'layer', 'layers')} mean`,
   layers: {
     speakers: 'Speakers',
     cola: 'Verse halves',

@@ -12,7 +12,7 @@ import { useLocale, useT } from '../context/localeContext'
 import type { Layer } from '../i18n/pages/reader'
 import '../i18n/pages/reader'
 import { clauseBreaks, colonBreaks } from '../lib/cola'
-import { LAYERS, parseLayers, toggleLayer } from '../lib/layers'
+import { layerFamilies, layersParam, parseLayers, PRESET_KEYS, PRESETS, presetOf, toggleLayer } from '../lib/layers'
 import { type Counts, parts } from '../lib/reception'
 import { readLink, unitLink } from '../lib/links'
 import { verseRef } from '../lib/names'
@@ -46,6 +46,12 @@ const COMPUTED: Partial<Record<Layer, string>> = {
   prophetic: 'prophetic',
 }
 const LEITWORTE_SHOWN = 6
+
+/** What one layer says about a word. */
+interface LayerNote {
+  label: string
+  text: string
+}
 const REFRAINS_SHOWN = 4
 const SPEAKER_COLOURS = 8
 
@@ -81,6 +87,10 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
   const setWord = (w: { verse: Verse; idx: number } | undefined) => update({ w: w ? `${w.verse.verse_id}:${w.idx}` : null }, false)
 
   const toggle = (l: Layer) => update({ layers: toggleLayer(layers, l) }, false)
+  // the Key (what each layer's marks mean) is open unless the address folds it (`key=0`)
+  const keyOpen = params.get('key') !== '0'
+  const preset = presetOf(layers)
+  const changed = preset !== 'default' || !keyOpen || byRoot
   // lookups over the layers' data, built once per response (not on every click of a word)
   const { rv, placeOf } = useMemo(
     () => ({
@@ -116,36 +126,42 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
 
   const decorate =
     (v: Verse, r: ReaderVerse | undefined) =>
-    (i: number): WordLook | undefined => {
+    (i: number): (WordLook & { notes: LayerNote[] }) | undefined => {
       const cls: string[] = []
       const titles: string[] = []
       const marks: string[] = []
+      // what a layer says about the word: in its tooltip, and listed when the word is clicked
+      const notes: LayerNote[] = []
+      const say = (l: Layer, text: string) => {
+        titles.push(text)
+        notes.push({ label: t.layers[l], text })
+      }
       const s = on('speakers') ? r?.speech[i] : undefined
       if (s !== undefined && speakers[s]) {
         const sp = speakers[s]
         cls.push('spk', sp.lemma === null ? 'spk-unknown' : `spk-${s % SPEAKER_COLOURS}`)
-        titles.push(t.spokenBy(sp.he ?? t.unknownSpeaker))
+        say('speakers', t.spokenBy(sp.he ?? t.unknownSpeaker))
       }
       const lw = on('leitworte') ? lwAt.get(`${v.verse_id}:${i}`) : undefined
       if (lw !== undefined) {
         const l = leitworte[lw]
         cls.push('lw', `lw-${lw}`)
-        titles.push(t.leitwortTitle(l.he, l.count, l.expected.toFixed(1)))
+        say('leitworte', t.leitwortTitle(l.he, l.count, l.expected.toFixed(1)))
       }
       const rf = on('refrains') ? r?.refrains[i] : undefined
       if (rf !== undefined && reader.data?.refrains[rf]) {
         const x = reader.data.refrains[rf]
         cls.push('rf')
-        titles.push(t.refrainTitle(x.text, x.k))
+        say('refrains', t.refrainTitle(x.text, x.k))
       }
       const ph = on('phrases') ? r?.phrases[i] : undefined
       if (ph !== undefined) {
         cls.push('ph', `ph-${ph >= 5 ? 3 : ph >= 2 ? 2 : 1}`)
-        titles.push(t.phraseTitle(ph))
+        say('phrases', t.phraseTitle(ph))
       }
       if (on('wordplay') && r) {
         for (const w of r.wordplay.filter((x) => x.display === i)) {
-          titles.push(t.wordplayTitle(w.partner_form, locale === 'he' ? w.partner_label_he : w.partner_label, m.pat.wordplay.kinds[w.kind]))
+          say('wordplay', t.wordplayTitle(w.partner_form, locale === 'he' ? w.partner_label_he : w.partner_label, m.pat.wordplay.kinds[w.kind]))
           if (!cls.includes('wp')) cls.push('wp')
         }
         if (partners.has(`${v.verse_id}:${i}`)) cls.push('wp-partner')
@@ -153,46 +169,46 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
       const rare = on('rare') ? r?.rare[i] : undefined
       if (rare !== undefined) {
         marks.push(String(rare))
-        titles.push(t.rareTitle(rare))
+        say('rare', t.rareTitle(rare))
       }
       const md = on('mood') ? r?.mood[i] : undefined
       if (md) {
         cls.push('md', `md-${md}`)
-        titles.push(t.moodTitle[md])
+        say('mood', t.moodTitle[md])
       }
       const gm = on('gematria') ? r?.gematria[i] : undefined
       if (gm) {
         marks.push(`=${gm}`)
-        titles.push(t.gematriaTitle(gm))
+        say('gematria', t.gematriaTitle(gm))
       }
       const pl = on('places') ? r?.places[i] : undefined
       const site = pl === undefined ? undefined : placeOf.get(pl)
       if (site) {
         cls.push('pl', `pl-${site.kind ?? 'none'}`)
-        titles.push(t.placeTitle(site.he, site.kind ? m.pl.kindOne[site.kind as PlaceKind] : m.pl.panel))
+        say('places', t.placeTitle(site.he, site.kind ? m.pl.kindOne[site.kind as PlaceKind] : m.pl.panel))
       }
       const ml = on('mainline') ? r?.mainline?.[i] : undefined
       if (ml) {
         cls.push('ml', `ml-${ml}`)
-        titles.push(t.mainlineTitle[ml])
+        say('mainline', t.mainlineTitle[ml])
       }
       const pf = on('prophetic') ? r?.prophetic?.[i] : undefined
       if (pf) {
         cls.push('pf', `pf-${pf}`)
-        titles.push(t.prophTitle[pf])
+        say('prophetic', t.prophTitle[pf])
       }
       const dv = on('divine') ? (r?.divine[i] as DivineName | undefined) : undefined
       if (dv) {
         cls.push('dv', `dv-${dv === 'yhwh' || dv === 'elohim' ? dv : 'other'}`)
-        titles.push(t.divineTitle(m.dv.names[dv]))
+        say('divine', t.divineTitle(m.dv.names[dv]))
       }
       const kq = on('ketiv') ? r?.ketiv.find((k) => k.display.includes(i)) : undefined
       if (kq) {
         marks.push('ק')
-        titles.push(t.ketivTitle(kq.ketiv, kq.qere, m.kq.classes[kq.cls].label))
+        say('ketiv', t.ketivTitle(kq.ketiv, kq.qere, m.kq.classes[kq.cls].label))
       }
       if (!cls.length && !marks.length) return undefined
-      return { className: cls.join(' '), title: titles.join('\n'), marks }
+      return { className: cls.join(' '), title: titles.join('\n'), marks, notes }
     }
 
   const pick = (verse: Verse) => (idx: number) =>
@@ -230,22 +246,66 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
         <span className="type-tag">{t.title}</span>
       </h1>
       <p className="lede">{t.lede}</p>
-      <div className="toolbar layer-bar" role="group" aria-label={t.layersLabel}>
-        {LAYERS.map((l) => (
-          <button key={l} type="button" className={`layer-toggle ${on(l) ? 'on' : ''}`} aria-pressed={on(l)} title={t.hints[l]} onClick={() => toggle(l)}>
-            {t.layers[l]}
-          </button>
-        ))}
+      <div className="layer-panel" role="group" aria-label={t.layersLabel}>
+        {/* the layers under the nav's families: each belongs with the page of its analysis */}
+        <div className="layer-bar">
+          {layerFamilies().map((f) => {
+            const name = f.section ? m.navSections[f.section] : f.group ? m.nav[f.group] : ''
+            return (
+              <span key={f.section ?? f.group ?? 'other'} className="layer-family" role="group" aria-label={name}>
+                <span className="muted small" aria-hidden="true">
+                  {name}
+                </span>
+                {f.items.map((l) => (
+                  <button key={l} type="button" className={`layer-toggle ${on(l) ? 'on' : ''}`} aria-pressed={on(l)} title={t.hints[l]} onClick={() => toggle(l)}>
+                    {t.layers[l]}
+                  </button>
+                ))}
+              </span>
+            )
+          })}
+          <div className="layer-presets">
+            <span className="muted small" id="layer-sets">
+              {t.presetsLabel}
+            </span>
+            <span className="layer-preset-list" role="group" aria-labelledby="layer-sets">
+              {PRESET_KEYS.map((p) => (
+                <button key={p} type="button" className={`layer-preset ${preset === p ? 'on' : ''}`} aria-pressed={preset === p} title={t.presetTitles[p]} onClick={() => update({ layers: layersParam(PRESETS[p]) }, false)}>
+                  {t.presets[p]}
+                </button>
+              ))}
+            </span>
+            {changed && (
+              <button type="button" className="linkish small" title={t.resetTitle} onClick={() => update({ layers: null, key: null, lw: null }, false)}>
+                {m.unit.reset}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-      <Legend
-        layers={layers}
-        reader={reader.data}
-        speakers={speakers}
-        leitworte={leitworte}
-        byRoot={byRoot}
-        hasRoots={!!structure.data?.root_leitworte.length}
-        onByRoot={(r) => update({ lw: r ? 'root' : null }, false)}
-      />
+      {layers.size > 0 && (
+        <details
+          className="reader-key"
+          open={keyOpen}
+          onToggle={(e) => {
+            const open = e.currentTarget.open
+            if (open !== keyOpen) update({ key: open ? null : '0' })
+          }}
+        >
+          <summary>
+            {t.key} <span className="muted small">{t.keyOf(layers.size)}</span>
+          </summary>
+          <Legend
+            layers={layers}
+            reader={reader.data}
+            speakers={speakers}
+            leitworte={leitworte}
+            byRoot={byRoot}
+            hasRoots={!!structure.data?.root_leitworte.length}
+            onByRoot={(r) => update({ lw: r ? 'root' : null }, false)}
+          />
+        </details>
+      )}
       {reader.isFetching && !reader.data && (
         <p className="muted small" role="status">
           {t.loading(t.layersLabel)}
@@ -288,7 +348,11 @@ function ReaderView({ detail }: { detail: UnitDetail }) {
           )
         })}
       </ol>
-      {word ? <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} /> : <p className="muted small hint">{m.word.clickHint}</p>}
+      {word ? (
+        <WordPanel verse={word.verse} displayIdx={word.idx} onClose={() => setWord(undefined)} notes={decorate(word.verse, rv.get(word.verse.verse_id))(word.idx)?.notes} />
+      ) : (
+        <p className="muted small hint">{m.word.clickHint}</p>
+      )}
     </div>
   )
 }

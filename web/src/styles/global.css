@@ -949,6 +949,13 @@ a.verse-num {
   font-size: 1.05rem;
 }
 
+/* a count inside a chip takes the chip's own ink: the grey is too faint on its yellow (3.95:1,
+   2.64:1 in the dark theme) */
+
+.chip .muted {
+  color: inherit;
+}
+
 .chip.formula {
   background: var(--hl-formula);
   color: var(--muted);

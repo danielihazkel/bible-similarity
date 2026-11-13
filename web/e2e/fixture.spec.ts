@@ -1825,3 +1825,71 @@ test.describe('the unit page (M172)', () => {
     expect(Math.max(...tops.map((t) => t[0]))).toBeLessThan(Math.min(...tops.map((t) => t[1])))
   })
 })
+
+// M173: the reader's layers
+test.describe('the reader’s layers (M173)', () => {
+  const EIGHT = 'speakers,leitworte,turns,cola,refrains,phrases,rare,places'
+  const ALL = 'speakers,cola,leitworte,refrains,phrases,rare,wordplay,ketiv,mood,sources,turns,gematria,places,divine,reception,witnesses,mainline,prophetic'
+
+  for (const locale of ['en', 'he'] as const) {
+    test(`the layers are grouped, a set switches them, and the key folds into the address (${locale})`, async ({ page }) => {
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      await loads(page, '/read/c%3A0%3A1')
+      const layers = page.locator('.layer-panel')
+      await expect(layers.locator('.layer-family')).toHaveCount(6)
+      await expect(layers.locator('.layer-toggle')).toHaveCount(18)
+      await expect(layers.locator('.layer-preset.on')).toHaveText(locale === 'en' ? 'Default' : 'ברירת המחדל')
+      await layers.getByRole('button', { name: locale === 'en' ? 'Poetry' : 'שירה', exact: true }).click()
+      await expect(page).toHaveURL(/layers=cola%2Cleitworte%2Crefrains%2Cwordplay%2Cmood/)
+      await expect(layers.locator('.layer-toggle.on')).toHaveCount(5)
+      const key = page.locator('details.reader-key')
+      await expect(key.locator('.reader-legend > li')).toHaveCount(5)
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
+        const results = await new AxeBuilder({ page }).include('.layer-panel').include('.reader-key').withTags(['wcag2a', 'wcag2aa']).analyze()
+        expect(results.violations.map((v) => v.id), theme).toEqual([])
+      }
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow).toBeLessThanOrEqual(1)
+      await key.locator('summary').click()
+      await expect(page).toHaveURL(/key=0/)
+      await expect(key.locator('.reader-legend')).toBeHidden()
+      await page.reload()
+      await expect(page.locator('details.reader-key')).not.toHaveAttribute('open', '')
+      await page.locator('.layer-panel').getByRole('button', { name: locale === 'en' ? 'Reset' : 'איפוס' }).click()
+      await expect(page).toHaveURL(/\/read\/c%3A0%3A1$/)
+      await expect(page.locator('details.reader-key')).toHaveAttribute('open', '')
+    })
+  }
+
+  test('with eight layers on the first verse is on the first screen; folded, the text starts under the layers whatever is on', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await page.setViewportSize({ width: 1366, height: 860 })
+    await loads(page, `/read/c%3A0%3A1?layers=${EIGHT}`)
+    const first = page.locator('.reader-text li').first()
+    await expect(page.locator('.reader-legend > li')).toHaveCount(8)
+    await expect(first).toBeInViewport({ ratio: 1 })
+    // every layer, the key folded: the text is right under the layers
+    await loads(page, `/read/c%3A0%3A1?layers=${ALL}&key=0`)
+    await expect(page.locator('.layer-toggle.on')).toHaveCount(18)
+    await expect(first).toBeInViewport({ ratio: 1 })
+    const at = await page.evaluate(() => ({
+      key: document.querySelector('details.reader-key')!.getBoundingClientRect().bottom,
+      text: document.querySelector('.reader-text')!.getBoundingClientRect().top,
+    }))
+    expect(at.text - at.key).toBeLessThan(80)
+  })
+
+  test('a clicked word lists what the layers say about it', async ({ page }) => {
+    await loads(page, '/read/c%3A0%3A1')
+    const word = page.locator('.reader-text .spk').first()
+    const said = (await word.getAttribute('title'))!.split('\n')
+    await word.click()
+    const notes = page.locator('.word-panel .word-notes li')
+    await expect(notes).toHaveCount(said.length)
+    await expect(notes.first()).toContainText(said[0])
+    await expect(notes.first().locator('b')).toHaveText('Speakers')
+    const results = await new AxeBuilder({ page }).include('.word-panel').withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  })
+})

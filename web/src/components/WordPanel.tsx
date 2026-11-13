@@ -15,8 +15,19 @@ import '../styles/components/WordPanel.css'
 
 const CIPHERS: CipherName[] = ['atbash', 'albam']
 
-/** Morphology and lemmas of the OSHB words on one display token, with concordance links. */
-export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displayIdx: number; onClose: () => void }) {
+/** Morphology and lemmas of the OSHB words on one display token, with concordance links. `notes`
+ * (the layered reader): what each layer that is on says about the word, as its tooltip does. */
+export function WordPanel({
+  verse,
+  displayIdx,
+  onClose,
+  notes,
+}: {
+  verse: Verse
+  displayIdx: number
+  onClose: () => void
+  notes?: { label: string; text: string }[]
+}) {
   const { m, locale } = useLocale()
   const words = useWords(verse.verse_id)
   const domains = useDomains()
@@ -41,6 +52,15 @@ export function WordPanel({ verse, displayIdx, onClose }: { verse: Verse; displa
           {m.word.close}
         </button>
       </div>
+      {notes && notes.length > 0 && (
+        <ul className="word-notes small" aria-label={m.word.layers}>
+          {notes.map((n, i) => (
+            <li key={i}>
+              <b>{n.label}</b> {n.text}
+            </li>
+          ))}
+        </ul>
+      )}
       {swapped && (
         <p className="muted small word-ciphers">
           {m.cph.wordCiphers}:{' '}

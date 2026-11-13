@@ -190,3 +190,37 @@ export const NAV_PAGE: ReadonlyMap<string, NavItem> = new Map(NAV_PAGES.map((p) 
 
 /** The index of every page (`pages/PagesPage.tsx`), linked at the foot of each menu. */
 export const ALL_PAGES = '/pages'
+
+/** A family of pages: a menu of the nav, or a section of a sectioned menu (Patterns). The unit
+ * page's findings and the reader's layers are grouped under these, each by the page it belongs to. */
+export interface Family {
+  group?: GroupKey
+  section?: SectionKey
+}
+
+const FAMILY_OF = new Map<string, Family>(
+  NAV.filter(isGroup).flatMap((g) =>
+    g.sections
+      ? g.sections.flatMap((s) => s.items.map((i): [string, Family] => [i.to, { group: g.key, section: s.key }]))
+      : g.items.map((i): [string, Family] => [i.to, { group: g.key }]),
+  ),
+)
+
+/** The family of a nav page, by its path. */
+export const familyOfPage = (path: string): Family | undefined => FAMILY_OF.get(path)
+
+export const familyKey = (f: Family): string => f.section ?? f.group ?? ''
+
+/** Things under their families: the families in the nav's order (any without one last), the
+ * things of a family in the order given. */
+export function byFamily<T>(items: T[], familyOf: (item: T) => Family): (Family & { items: T[] })[] {
+  const order = [...new Set([...FAMILY_OF.values()].map(familyKey)), '']
+  const by = new Map<string, Family & { items: T[] }>()
+  for (const item of items) {
+    const f = familyOf(item)
+    const k = familyKey(f)
+    if (!by.has(k)) by.set(k, { ...f, items: [] })
+    by.get(k)!.items.push(item)
+  }
+  return order.flatMap((k) => (by.has(k) ? [by.get(k)!] : []))
+}

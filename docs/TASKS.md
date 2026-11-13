@@ -85,11 +85,13 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ On a chapter page the similar passages are one click from the top; the chips read as groups.
 
-## M173: The reader's layers (proposed O7)
-- [ ] The 18 toggles grouped, with presets (default, poetry, narrative, none) and a reset
-- [ ] The legends in one Key block that folds, kept in the URL
-- [ ] What the layers say about a word listed in the `WordPanel` on a click
-- [ ] Tests
+## M173: The reader's layers (D162; proposed O7)
+- [x] The 18 toggles grouped under the nav's families (`lib/layers.ts LAYER_PAGE`: each layer's family is that of the nav page of its analysis, by `lib/nav.ts byFamily`, which the unit page's findings share), with named sets (`PRESETS`: default, poetry, narrative, none; the one that is on is marked) and a Reset when anything is off the default; the URL still carries `layers=`
+- [x] The legends in one Key block that folds (`key=0` in the URL; open by default: the speakers' colours and the Leitworte are read from it); no Key when no layer is on
+- [x] What the layers say about a word listed in the `WordPanel` on a click, each line under its layer's name (the tooltip's own lines)
+- [x] Room: the toggles smaller, the sets at the end of the toggles' last row, the lede one line; on a phone the toggles run on as one list without the families' names. On the real build at 1366×860 the first verse of Genesis 22 starts at 462px with the default layers (456px before), at 594px with eight (610px), at 904px with all eighteen (967px) and right under the layers with the Key folded; on a phone at 1,161px with eight (1,254px)
+- [x] Found on the way: the count inside a word's lemma chip was 3.95:1 on the chip's yellow (2.64:1 in the dark theme), on the unit page too; a count in a chip takes the chip's ink
+- [x] Tests: vitest (`pages/ReaderPage.test.tsx`: the families of the layers and the sets in `lib/layers.ts`, the grouped bar, a set switched and Reset, the Key folded in the address, a word's layer notes, Hebrew); the fixture e2e (the bar, a set and the Key in both languages with axe in both themes; eight layers and the first verse on the first screen at 1366×860, eighteen with the Key folded; a word's notes with axe); the smoke on the real build (Genesis 22 with eight layers and with all eighteen folded, the narrative set, a spoken word's note); the reader looked at on the real build with the default set, eight and eighteen layers, in both languages and themes and on a phone
 
 ✔ With eight layers on, the first verse is visible without scrolling at 1366×860.
 

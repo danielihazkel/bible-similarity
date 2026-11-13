@@ -2,7 +2,7 @@
 
 import type { DossierEntry, DossierKind, UnitSummary } from '../api/types'
 import { personLink, readLink, unitLink } from './links'
-import { type GroupKey, isGroup, NAV, type SectionKey } from './nav'
+import { byFamily, type Family, familyOfPage } from './nav'
 
 /** Whether an entry is a finding (a chip) rather than "nothing found". */
 export function isFound(e: DossierEntry): boolean {
@@ -100,21 +100,6 @@ export function entryLink(e: DossierEntry, unit: UnitSummary): string | undefine
   }
 }
 
-/** A family of findings: a menu of the nav, or a section of a sectioned menu (Patterns). */
-export interface Family {
-  group?: GroupKey
-  section?: SectionKey
-}
-
-// every nav page's family, by its path
-const FAMILY_OF = new Map<string, Family>(
-  NAV.filter(isGroup).flatMap((g) =>
-    g.sections
-      ? g.sections.flatMap((s) => s.items.map((i): [string, Family] => [i.to, { group: g.key, section: s.key }]))
-      : g.items.map((i): [string, Family] => [i.to, { group: g.key }]),
-  ),
-)
-
 // a finding read on the unit page itself or in the reader: the nav page of its analysis
 const HOME: Partial<Record<DossierKind, string>> = {
   acrostic: '/acrostics',
@@ -132,21 +117,11 @@ const HOME: Partial<Record<DossierKind, string>> = {
  * the menus' own and a page moved in the nav moves its findings with it. */
 export function entryFamily(e: DossierEntry, unit: UnitSummary): Family {
   const path = entryLink(e, unit)?.split(/[?#]/)[0] ?? ''
-  return FAMILY_OF.get(path) ?? FAMILY_OF.get(HOME[e.kind] ?? '') ?? {}
+  return familyOfPage(path) ?? familyOfPage(HOME[e.kind] ?? '') ?? {}
 }
 
 /** Findings under their families, families in the nav's order (any without one last), findings in
  * the dossier's own order. */
 export function families(entries: DossierEntry[], unit: UnitSummary): (Family & { entries: DossierEntry[] })[] {
-  const order = [...new Set([...FAMILY_OF.values()].map(familyKey)), '']
-  const by = new Map<string, Family & { entries: DossierEntry[] }>()
-  for (const e of entries) {
-    const f = entryFamily(e, unit)
-    const k = familyKey(f)
-    if (!by.has(k)) by.set(k, { ...f, entries: [] })
-    by.get(k)!.entries.push(e)
-  }
-  return order.flatMap((k) => (by.has(k) ? [by.get(k)!] : []))
+  return byFamily(entries, (e) => entryFamily(e, unit)).map(({ items, ...f }) => ({ ...f, entries: items }))
 }
-
-const familyKey = (f: Family) => f.section ?? f.group ?? ''

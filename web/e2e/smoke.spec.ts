@@ -922,3 +922,24 @@ test('on a chapter page the similar chapters are one click from the top, and the
     await expect(strip.locator('a[aria-current]')).toHaveText('Similar chapters')
   }
 })
+
+// M173: the reader's layers on the real data
+test('the reader: eight layers and the first verse of Genesis 22 on the first screen; every layer with the key folded', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop')
+  await page.setViewportSize({ width: 1366, height: 860 })
+  await page.goto('/read/c%3A0%3A22?layers=speakers,leitworte,turns,cola,refrains,phrases,rare,places')
+  const first = page.locator('.reader-text li').first()
+  await expect(page.locator('.reader-legend > li')).toHaveCount(8)
+  await expect(page.locator('.reader-legend .layer-key.spk').first()).toBeVisible() // the layers' data is in
+  await expect(first).toBeInViewport({ ratio: 1 })
+  await page.locator('.layer-panel').getByRole('button', { name: 'Narrative', exact: true }).click()
+  // the toggles are in the families' order, not the set's
+  await expect(page.locator('.layer-toggle.on')).toHaveCount(4)
+  expect((await page.locator('.layer-toggle.on').allInnerTexts()).sort()).toEqual(['Main line', 'Places', 'Speakers', 'Turns'])
+  await page.goto('/read/c%3A0%3A22?layers=speakers,cola,leitworte,refrains,phrases,rare,wordplay,ketiv,mood,sources,turns,gematria,places,divine,reception,witnesses,mainline,prophetic&key=0')
+  await expect(page.locator('.layer-toggle.on')).toHaveCount(18)
+  await expect(first).toBeInViewport({ ratio: 1 })
+  // a word under a speaker's tint says who speaks it
+  await page.locator('.reader-text .spk').first().click()
+  await expect(page.locator('.word-panel .word-notes li').first()).toContainText('Speakers')
+})
