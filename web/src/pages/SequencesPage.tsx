@@ -2,19 +2,18 @@ import { Link } from 'react-router'
 import { useBooks, useSequences, sequencesParams } from '../api/hooks'
 import type { SequenceDirection } from '../api/types'
 import { PagedList } from '../components/Pager'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, SignificanceFilter, Choice } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { SequenceCard } from '../components/SequenceCard'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import { SequenceArcs } from './SequenceArcs'
 import '../i18n/pages/parallels'
 
 const PAGE_SIZE = 50
 // The default hides chains that a text with shuffled verse order produces about as often.
 const ORDERS: (SequenceDirection | 'any')[] = ['forward', 'reverse', 'mixed', 'any']
-const Q_OPTIONS = ['0.05', '0.2', 'all']
 
 /** Passages that run parallel verse by verse, in the same order (retellings, synoptic accounts); as a
  * list, or (`?view=arcs`) as arcs across the canon. */
@@ -26,8 +25,7 @@ export function SequencesPage() {
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const crossBook = params.get('cross') === '1'
   const hideSameChapter = params.get('internal') === '0'
-  const qRaw = params.get('q') ?? '0.05'
-  const qChoice = Q_OPTIONS.includes(qRaw) ? qRaw : '0.05'
+  const sig = parseSignificance(params, '0.2')
   const unit = params.get('unit') || undefined
   const orderRaw = params.get('order')
   const order = ORDERS.find((o) => o === orderRaw) ?? 'forward'
@@ -39,7 +37,7 @@ export function SequencesPage() {
     hideSameChapter,
     unit,
     direction: order === 'any' ? undefined : order,
-    maxQ: qChoice === 'all' ? undefined : Number(qChoice),
+    maxQ: sig.maxQ,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   }
@@ -65,26 +63,8 @@ export function SequencesPage() {
       {unit && !arcs && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="control">
-          <span>{m.par.sequences.order}</span>
-          <select value={order} onChange={(e) => set({ order: e.target.value === 'forward' ? null : e.target.value })}>
-            {ORDERS.map((o) => (
-              <option key={o} value={o} title={m.par.sequences.orders[o].hint}>
-                {m.par.sequences.orders[o].label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="control">
-          <span>{m.par.sequences.significance}</span>
-          <select value={qChoice} onChange={(e) => set({ q: e.target.value === '0.05' ? null : e.target.value })}>
-            {Q_OPTIONS.map((o) => (
-              <option key={o} value={o}>
-                {m.par.sequences.qOptions[o]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice label={m.par.sequences.order} value={order} options={ORDERS.map((o) => ({ value: o, label: m.par.sequences.orders[o].label, title: m.par.sequences.orders[o].hint }))} onChange={(v) => set({ order: v === 'forward' ? null : v })} />
+        <SignificanceFilter value={sig.choice} second="0.2" onChange={(v) => set(significanceChange(v))} />
         <label className="check">
           <input type="checkbox" checked={crossBook} onChange={(e) => set({ cross: e.target.checked ? '1' : null })} />
           {m.par.differentBooks}
@@ -114,7 +94,7 @@ export function SequencesPage() {
           empty={
             <>
               {m.par.sequences.none}
-              {order !== 'forward' && qChoice !== 'all' && m.par.sequences.mirroredHint}
+              {order !== 'forward' && sig.choice !== 'all' && m.par.sequences.mirroredHint}
             </>
           }
           summary={(data) => (

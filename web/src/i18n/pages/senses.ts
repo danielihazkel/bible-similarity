@@ -22,7 +22,6 @@ export const senEn = {
   caveat: 'Uses in context also carry genre and style: a shift there means "used differently", a shift in dictionary senses means "means something else".',
   by: 'Compare',
   bys: { sense: 'Dictionary senses', use: 'Uses in context' } as Record<'sense' | 'use', string>,
-  includeAll: 'Include q > 0.05',
   check: (nmi: string, nul: string) => `Check: the contextual clusters match the dictionary senses with NMI ${nmi} on average (shuffled clusters: ${nul}).`,
   ranked: (n: number) => `${numEn(n)} words, the most shifted first`,
   word: 'Word',

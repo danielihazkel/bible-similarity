@@ -100,7 +100,7 @@ function Pairs({ d }: { d: BinomialsResponse }) {
       <p className="muted small">{t.limits}</p>
       {sel && <PairPanel b={sel} examples={d.examples} onClose={() => update({ pair: null }, false)} />}
       {shown.length === 0 ? (
-        <p className="muted">{t.empty}</p>
+        <p className="status">{t.empty}</p>
       ) : (
         <TableCsv name="binomials-1" tabIndex={0} role="region" aria-labelledby="bn-list">
           <table className="change-table bn-table">

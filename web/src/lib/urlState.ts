@@ -44,6 +44,26 @@ export function parseExclude(v: string | null, type: UnitType): Exclude[] {
   return EXCLUDES.filter((e) => allowed.includes(e) && v.split(',').includes(e))
 }
 
+/** The default of a list's significance filter: Benjamini–Hochberg q ≤ 0.05. */
+export const Q_DEFAULT = '0.05'
+
+/**
+ * A list's significance filter in the address (DESIGN.md §11): `q` absent is the default
+ * (q ≤ 0.05), `q=<a list's second step>` (0.2, 0.5) the looser one, `q=all` everything. `legacy`:
+ * older spellings of "all" that are still read (`rq=all`, `pq=all`, `all=1`).
+ */
+export function parseSignificance(params: URLSearchParams, second?: string, legacy: [string, string][] = []): { choice: string; maxQ: number | undefined } {
+  const raw = params.get('q')
+  const all = raw === 'all' || (raw === null && legacy.some(([k, v]) => params.get(k) === v))
+  const choice = all ? 'all' : second !== undefined && raw === second ? second : Q_DEFAULT
+  return { choice, maxQ: choice === 'all' ? undefined : Number(choice) }
+}
+
+/** The change of parameters that sets the filter (an older spelling is taken out with it). */
+export function significanceChange(choice: string, legacy: [string, string][] = []): Record<string, string | null> {
+  return { q: choice === Q_DEFAULT ? null : choice, ...Object.fromEntries(legacy.map(([k]) => [k, null])) }
+}
+
 /** Read and update a set of query parameters, replacing the history entry for toggles. The hash
  * stays (the router's own setter drops it): the verse the reader landed on (`#v…`) is still in the
  * address after a layer is switched. */

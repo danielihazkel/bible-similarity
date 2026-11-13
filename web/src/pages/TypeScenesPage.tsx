@@ -1,12 +1,12 @@
 import { Link } from 'react-router'
-import { BookSelect } from '../components/Controls'
+import { BookSelect, SignificanceFilter } from '../components/Controls'
 import { useBooks, useTypeScenes } from '../api/hooks'
 import { PagedList } from '../components/Pager'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import '../i18n/pages/parallels'
 import { PrecisionNote } from '../components/PrecisionNote'
 import '../styles/pages/TypeScenesPage.css'
@@ -19,14 +19,14 @@ export function TypeScenesPage() {
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
-  const all = params.get('q') === 'all'
+  const sig = parseSignificance(params)
   const showTextual = params.get('textual') === '1'
   const unit = params.get('unit') || undefined
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useTypeScenes({
     book,
-    maxQ: all ? undefined : 0.05,
+    maxQ: sig.maxQ,
     hideTextual: !showTextual,
     unit,
     limit: PAGE_SIZE,
@@ -44,16 +44,14 @@ export function TypeScenesPage() {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="check">
-          <input type="checkbox" checked={all} onChange={(e) => set({ q: e.target.checked ? 'all' : null })} />
-          {m.par.includeQ}
-        </label>
+        <SignificanceFilter value={sig.choice} onChange={(v) => set(significanceChange(v))} />
         <label className="check" title={m.par.typeScenes.textualTitle}>
           <input type="checkbox" checked={showTextual} onChange={(e) => set({ textual: e.target.checked ? '1' : null })} />
           {m.par.typeScenes.textual}
         </label>
       </div>
       <PagedList
+        csv="typescenes"
         res={res}
         empty={m.par.typeScenes.none}
         summary={(data) => m.par.pairsPage(data.total, page, pages)}

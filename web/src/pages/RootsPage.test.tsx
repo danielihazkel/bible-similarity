@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { HiddenRootsResponse, RootFamily, RootPairsResponse, RootsResponse, UnitSummary, Verse } from '../api/types'
@@ -174,7 +174,7 @@ describe('RootsPage', () => {
     expect(container.querySelectorAll('.root-pair .w-focus')).toHaveLength(1)
     expect(container.querySelectorAll('.root-pair .w-shared')).toHaveLength(1)
     expect(screen.getByRole('link', { name: /root חָלַם/ }).getAttribute('href')).toBe('/root/2492')
-    fireEvent.change(screen.getByRole('combobox', { name: 'Kind' }), { target: { value: 'inf_abs' } })
+    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Kind' })).getByRole('radio', { name: 'Infinitive absolute' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/roots?kind=inf_abs'))
   })
 

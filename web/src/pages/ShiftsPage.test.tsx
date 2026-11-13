@@ -144,7 +144,7 @@ describe('ShiftsPage', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Uses in context' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/shifts?by=use'))
     expect(await screen.findByText('0.80')).toBeTruthy()
-    fireEvent.click(screen.getByLabelText('Include q > 0.05'))
+    fireEvent.click(screen.getByRole('radio', { name: 'All' }))
     await waitFor(() => expect(calls.some((c) => c.includes('max_q=1'))).toBe(true))
   })
 })

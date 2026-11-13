@@ -5,9 +5,10 @@ import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import '../i18n/pages/parallels'
 import { TableWrap } from '../components/TableCsv'
+import { SignificanceFilter, Choice } from '../components/Controls'
 
 const PAGE_SIZE = 50
 const OPS: RewriteOp[] = ['substitution', 'omitted', 'added']
@@ -35,13 +36,14 @@ export function RewritesView() {
   const profile = profiles.data?.find((p) => pairKey(p) === pairParam)
   const rawOp = params.get('rop') as RewriteOp | null
   const op = OPS.some((o) => o === rawOp) ? rawOp! : undefined
-  const all = params.get('rq') === 'all'
+  // `rq=all` is this filter's older spelling
+  const sig = parseSignificance(params, undefined, [['rq', 'all']])
   const page = parsePage(params.get('page'))
   const query = {
     aBook: profile?.a_book,
     bBook: profile?.b_book,
     op,
-    maxQ: all ? undefined : 0.05,
+    maxQ: sig.maxQ,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   }
@@ -65,21 +67,8 @@ export function RewritesView() {
             ))}
           </select>
         </label>
-        <label className="control">
-          <span>{m.par.rewrites.change}</span>
-          <select value={op ?? ''} onChange={(e) => set({ rop: e.target.value || null })}>
-            <option value="">{m.par.rewrites.any}</option>
-            {OPS.map((o) => (
-              <option key={o} value={o} title={m.par.rewrites.ops[o].hint}>
-                {m.par.rewrites.ops[o].label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={all} onChange={(e) => set({ rq: e.target.checked ? 'all' : null })} />
-          {m.par.includeQ}
-        </label>
+        <Choice<string> label={m.par.rewrites.change} value={op ?? ''} options={[{ value: '', label: m.par.rewrites.any }, ...OPS.map((o) => ({ value: o as string, label: m.par.rewrites.ops[o].label, title: m.par.rewrites.ops[o].hint }))]} onChange={(v) => set({ rop: v || null })} />
+        <SignificanceFilter value={sig.choice} onChange={(v) => set(significanceChange(v, [['rq', 'all']]))} />
       </div>
       {profile && <Profile p={profile} from={name(profile.a_book)} to={name(profile.b_book)} />}
 

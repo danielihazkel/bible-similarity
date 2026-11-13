@@ -341,7 +341,7 @@ function Pairs() {
           </span>
         )}
       </div>
-      <PagedList res={res} empty={t.emptyPairs} summary={(d, pg, pages) => `${t.pairsSummary(d.total)} · ${t.pageOf(pg, pages)}`}>
+      <PagedList csv="place-links" res={res} empty={t.emptyPairs} summary={(d, pg, pages) => `${t.pairsSummary(d.total)} · ${t.pageOf(pg, pages)}`}>
         {(d, stale) => (
           <ol className={`plk-pairs ${stale}`}>
             {d.items.map((x) => (

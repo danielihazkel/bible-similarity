@@ -245,7 +245,7 @@ function Parallels() {
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
       </div>
       <p className="muted small">{t.limits}</p>
-      <PagedList res={res} empty={t.empty} summary={(d, p, pages) => `${t.pairCount(d.total)} · ${t.pageOf(p, pages)}`}>
+      <PagedList csv="sums-parallels" res={res} empty={t.empty} summary={(d, p, pages) => `${t.pairCount(d.total)} · ${t.pageOf(p, pages)}`}>
         {(d, stale) => (
           <ol className={`hits ${stale}`}>
             {d.items.map((r) => (

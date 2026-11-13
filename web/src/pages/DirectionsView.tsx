@@ -206,6 +206,7 @@ function EchoList({ books }: { books: Book[] }) {
         </label>
       </div>
       <PagedList
+        csv="echoes"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}

@@ -6,7 +6,6 @@ export const parHe: typeof parEn = {
   book: 'ספר',
   allBooks: 'כל הספרים',
   differentBooks: 'רק בין ספרים שונים',
-  includeQ: 'כולל q > 0.05',
   arrow: '←',
   pairsPage: (n: number, page: number, pages: number) =>
     `${countHe(n, 'זוג אחד', 'שני זוגות', 'זוגות')} · עמוד ${page} מתוך ${pages}`,
@@ -57,8 +56,6 @@ export const parHe: typeof parEn = {
       mixed: { label: 'סדר משתנה', hint: 'אותה סצנה מסופרת בסדר אחר' },
       any: { label: 'כל סדר', hint: 'שרשראות באותו סדר, בסדר הפוך ובסדר משתנה' },
     },
-    significance: 'מובהקות',
-    qOptions: { '0.05': 'q ≤ 0.05 (חזק)', '0.2': 'q ≤ 0.2', all: 'כל השרשראות' },
     hideRepeatsTitle: 'הסתרת חזרות בתוך פרק אחד (רשימות כמו במדבר ז)',
     hideRepeats: 'הסתרת חזרות בתוך פרק',
     none: 'אין רצפים התואמים את הסינון.',

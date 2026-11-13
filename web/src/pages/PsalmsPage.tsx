@@ -11,6 +11,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/psalms'
 import '../styles/pages/PsalmsPage.css'
+import { Choice } from '../components/Controls'
 
 const PAGE_SIZE = 20
 const SHOWN = ['first_singular', 'first_plural', 'second', 'imperative_plural', 'distress', 'praise']
@@ -254,16 +255,7 @@ function List({ meta }: { meta: PsalmsMeta }) {
             ))}
           </select>
         </label>
-        <label className="control">
-          <span>{t.sortLabel}</span>
-          <select value={sort} onChange={(e) => set({ sort: e.target.value === 'turn' ? 'turn' : null })}>
-            {Object.entries(t.sorts).map(([k, label]) => (
-              <option key={k} value={k}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={t.sortLabel} value={sort} options={Object.entries(t.sorts).map(([k, label]) => ({ value: k, label }))} onChange={(v) => set({ sort: v === 'turn' ? 'turn' : null })} />
         <label className="check">
           <input type="checkbox" checked={turned} onChange={(e) => set({ turned: e.target.checked ? '1' : null })} />
           {t.turnedOnly}

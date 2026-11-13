@@ -142,7 +142,9 @@ describe('RefrainsPage', () => {
     expect(calls.some((c) => c.startsWith('/api/refrains/list?') && c.includes('unit=c%3A16%3A4') && c.includes('strongest=0'))).toBe(true)
     fireEvent.click(screen.getByLabelText('Named in advance only'))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/refrains?unit=c%3A16%3A4&all=1&known=1'))
-    fireEvent.click(screen.getByLabelText('Strongest of each group'))
+    // `all=1` is the older spelling of `q=all`: read, and taken out when the filter is set
+    expect(screen.getByRole('radio', { name: 'All' }).getAttribute('aria-checked')).toBe('true')
+    fireEvent.click(screen.getByRole('radio', { name: 'Strongest of each group' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/refrains?unit=c%3A16%3A4&known=1'))
   })
 

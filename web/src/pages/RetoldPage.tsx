@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useRetold, useRetoldItems } from '../api/hooks'
 import type { RetoldGroup, RetoldOrder, RetoldPair, RetoldResponse, RetoldSide } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { Segmented, KnownOnly, Choice } from '../components/Controls'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -141,20 +141,17 @@ function Passages() {
     <section aria-labelledby="rt-list">
       <h2 id="rt-list">{t.listTitle}</h2>
       <div className="toolbar">
-        <Segmented<RetoldGroup | 'all'>
+        <Choice<RetoldGroup | 'all'>
           label={t.show.label}
           value={group ?? 'all'}
           options={[{ value: 'all', label: t.show.all }, ...GROUPS.map((g) => ({ value: g, label: t.groups[g] }))]}
           onChange={(v) => set({ group: v === 'all' ? null : v })}
         />
         <Segmented<RetoldOrder> label={t.order.label} value={order} options={ORDERS.map((v) => ({ value: v, label: t.order[v] }))} onChange={(v) => set({ order: v === 'canon' ? null : v })} />
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
-          {t.knownOnly}
-        </label>
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? '1' : null })} />
       </div>
       <DiffLegend />
-      <PagedList res={res} empty={t.empty} summary={(p, n, pages) => `${t.count(p.total)} · ${t.pageOf(n, pages)}`}>
+      <PagedList csv="retold" res={res} empty={t.empty} summary={(p, n, pages) => `${t.count(p.total)} · ${t.pageOf(n, pages)}`}>
         {(p, stale) => (
           <ol className={`hits rt-list ${stale}`}>
             {p.items.map((r) => (

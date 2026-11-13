@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { useBooks, useRootFamily } from '../api/hooks'
 import { HebrewText } from '../components/HebrewText'
-import { Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -29,7 +29,6 @@ export function RootPage() {
   const f = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   const most = Math.max(...f.by_book.map((b) => b.n_verses))
-  const pages = Math.max(1, Math.ceil(f.total / PAGE_SIZE))
   return (
     <div className="page concordance-page root-page">
       <h1>
@@ -82,21 +81,24 @@ export function RootPage() {
         {t.verses(f.total)}
         {book !== undefined && names.get(book) ? t.inBook(bookName(names.get(book)!, locale)) : ''}
       </h2>
-      <ol className={`hits ${res.isPlaceholderData ? 'stale' : ''}`}>
-        {f.items.map((h) => (
-          <li key={h.verse.verse_id} className="hit">
-            <div className="hit-head">
-              <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
-                <UnitName en={h.label_en} he={h.label_he} />
-              </Link>
-            </div>
-            <p className="hit-text">
-              <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
-            </p>
-          </li>
-        ))}
-      </ol>
-      <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
+      <PagedList csv="root-verses" res={res} empty={m.concordance.none}>
+        {(d, stale) => (
+          <ol className={`hits ${stale}`}>
+            {d.items.map((h) => (
+              <li key={h.verse.verse_id} className="hit">
+                <div className="hit-head">
+                  <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
+                    <UnitName en={h.label_en} he={h.label_he} />
+                  </Link>
+                </div>
+                <p className="hit-text">
+                  <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </PagedList>
     </div>
   )
 }

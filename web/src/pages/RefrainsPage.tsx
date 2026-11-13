@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { BookSelect } from '../components/Controls'
+import { BookSelect, SignificanceFilter, KnownOnly } from '../components/Controls'
 import { refrainParams, useBooks, useRefrainList, useRefrains } from '../api/hooks'
 import type { Refrain, RefrainsResponse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
@@ -11,7 +11,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
 import { readLink, unitLink } from '../lib/links'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import '../i18n/pages/refrains'
 import { PrecisionNote } from '../components/PrecisionNote'
@@ -119,7 +119,9 @@ function List({ alpha }: { alpha: number }) {
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const unit = params.get('unit') ?? undefined
-  const strongest = params.get('all') !== '1'
+  // the strongest of each group, or all (`all=1` is the older spelling of `q=all`)
+  const sig = parseSignificance(params, undefined, [['all', '1']])
+  const strongest = sig.choice !== 'all'
   const known = params.get('known') === '1'
   const page = parsePage(params.get('page'))
   const books = useBooks()
@@ -132,14 +134,8 @@ function List({ alpha }: { alpha: number }) {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="check" title={t.strongestTitle}>
-          <input type="checkbox" checked={strongest} onChange={(e) => set({ all: e.target.checked ? null : '1' })} />
-          {t.strongestOnly}
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
-          {t.knownOnly}
-        </label>
+        <SignificanceFilter value={sig.choice} strict={t.strongestOnly} strictTitle={t.strongestTitle} onChange={(v) => set(significanceChange(v, [['all', '1']]))} />
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? '1' : null })} />
       </div>
       <PagedList
         res={res}

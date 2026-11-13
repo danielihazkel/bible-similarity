@@ -5,9 +5,10 @@ import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import '../i18n/pages/patterns'
 import { TableWrap } from '../components/TableCsv'
+import { SignificanceFilter } from '../components/Controls'
 
 const PAGE_SIZE = 50
 
@@ -17,8 +18,9 @@ export function WordPairsView() {
   const t = m.pat.wordPairs
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
-  const all = params.get('pq') === 'all'
-  const query = { maxQ: all ? undefined : 0.05, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+  // `pq=all` is this filter's older spelling
+  const sig = parseSignificance(params, undefined, [['pq', 'all']])
+  const query = { maxQ: sig.maxQ, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
   const res = useWordPairs(query)
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const he = (s: string) => (
@@ -30,10 +32,7 @@ export function WordPairsView() {
     <>
       <p className="lede">{t.lede}</p>
       <div className="toolbar">
-        <label className="check">
-          <input type="checkbox" checked={all} onChange={(e) => update({ pq: e.target.checked ? 'all' : null, page: null })} />
-          {m.pat.includeQ}
-        </label>
+        <SignificanceFilter value={sig.choice} onChange={(v) => update({ ...significanceChange(v, [['pq', 'all']]), page: null })} />
       </div>
       <PagedList
         res={res}

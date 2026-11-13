@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { structureParams, useStructureRanking } from '../api/hooks'
 import type { LeitwortNumbers, StructureRank, StructureSort, UnitType } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { Segmented, Choice } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { useLocale, useT } from '../context/localeContext'
@@ -80,26 +80,8 @@ function UnitRanking() {
           onChange={(v) => set({ type: v === 'chapter' ? null : v })}
           options={TYPES.map((v) => ({ value: v, label: m.units.type(v) }))}
         />
-        <label className="control">
-          <span>{t.sortBy}</span>
-          <select value={by} onChange={(e) => set({ by: e.target.value === 'semantic_chiasm' ? null : e.target.value })}>
-            {SORTS.map((s) => (
-              <option key={s} value={s}>
-                {t.sorts[s]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="control">
-          <span>{t.atLeast}</span>
-          <select value={minVerses} onChange={(e) => set({ min: e.target.value === '8' ? null : e.target.value })}>
-            {MIN_VERSES.map((n) => (
-              <option key={n} value={n}>
-                {t.minVerses(n)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={t.sortBy} value={by} options={SORTS.map((x) => ({ value: x as string, label: t.sorts[x] }))} onChange={(v) => set({ by: v === 'semantic_chiasm' ? null : v })} />
+        <Choice<string> label={t.atLeast} value={String(minVerses)} options={MIN_VERSES.map((n) => ({ value: String(n), label: t.minVerses(n) }))} onChange={(v) => set({ min: v === '8' ? null : v })} />
       </div>
       <p className="muted small">{t.note}</p>
       {res.data?.leitwort_numbers && <SevenNote n={res.data.leitwort_numbers} />}

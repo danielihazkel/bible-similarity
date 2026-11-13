@@ -297,7 +297,8 @@ test('gematria: a word in each system, its forms and lemmas, and a verse total f
   await expect(page.getByText(/The value of ראשית in each system/)).toBeVisible()
   await expect(page.getByText(/911 \(Standard\): 1 written form \(4 words in the text\), 1 lemma and 0 verses\./)).toBeVisible()
   await expect(page.locator('.gm-forms li')).toHaveCount(1)
-  await page.getByRole('button', { name: /Ordinal/ }).click()
+  // the word's value in each system: one choice of a few (M174)
+  await page.locator('.gm-systems').getByRole('radio', { name: /Ordinal/ }).click()
   await expect(page).toHaveURL(/system=ordinal/)
   await page.goto('/read/c%3A0%3A1?layers=gematria')
   await expect(page.locator('.reader-text .w-mark').first()).toHaveText('=913')
@@ -665,7 +666,8 @@ test('retold speech: the checks, the groups, the passages and their changes, a f
   await expect(page.locator('li.rt-pair').nth(1).locator('.rt-teller').nth(1)).toHaveText('Told again by the narrator')
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
-  await page.getByRole('radio', { name: 'Carried out by the narrator' }).click()
+  // six groups and "all": a dropdown, by the toolbar's rule (M174)
+  await page.getByRole('combobox', { name: 'Show' }).selectOption('carried')
   await expect(page).toHaveURL(/\/retold\?group=carried/)
   await expect(page.locator('li.rt-pair')).toHaveCount(1)
 })
@@ -1139,7 +1141,8 @@ test('the prophetic forms: the passages named in advance, a woe saying, its word
   await page.goto('/prophetic')
   await expect(page.locator('.pf-known .dv-verdict')).toHaveText(['Not all found', 'Found'])
   await expect(page.locator('.pf-item')).toHaveCount(3)
-  await page.getByRole('radio', { name: 'Woe saying' }).click()
+  // five forms and "all": a dropdown, by the toolbar's rule (M174)
+  await page.getByRole('combobox', { name: 'Form' }).selectOption('woe')
   await expect(page).toHaveURL(/\/prophetic\?form=woe$/)
   await expect(page.locator('.pf-item')).toHaveCount(1)
   await expect(page.locator('.pf-item .w-focus')).toHaveCount(2)
@@ -1891,5 +1894,108 @@ test.describe('the reader’s layers (M173)', () => {
     await expect(notes.first().locator('b')).toHaveText('Speakers')
     const results = await new AxeBuilder({ page }).include('.word-panel').withTags(['wcag2a', 'wcag2aa']).analyze()
     expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
+  })
+})
+
+// M174: one way to filter
+test.describe('one way to filter (M174)', () => {
+  // every page with a significance filter: its address, and the name of its first option
+  const SIGNIFICANCE: [string, string][] = [
+    ['/acrostics', 'q ≤ 0.05'],
+    ['/sequences', 'q ≤ 0.05'],
+    ['/shifts', 'q ≤ 0.05'],
+    ['/typescenes', 'q ≤ 0.05'],
+    ['/changes?view=rewrites', 'q ≤ 0.05'],
+    ['/wordplay?view=rhyme', 'q ≤ 0.05'],
+    ['/poetry?view=pairs', 'q ≤ 0.05'],
+    ['/refrains', 'Strongest of each group'],
+  ]
+  for (const [path, first] of SIGNIFICANCE) {
+    test(`the significance filter of ${path} is the one every list has`, async ({ page }) => {
+      await loads(page, path)
+      const filter = page.getByRole('radiogroup', { name: 'Significance' })
+      await expect(filter.getByRole('radio').first()).toHaveText(first)
+      await expect(filter.getByRole('radio').first()).toBeChecked()
+      await expect(filter.getByRole('radio').last()).toHaveText('All')
+      await filter.getByRole('radio', { name: 'All' }).click()
+      await expect(page).toHaveURL(/[?&]q=all(&|$)/)
+      await expect(filter.getByRole('radio', { name: 'All' })).toBeChecked()
+      await filter.getByRole('radio').first().click()
+      await expect(page).not.toHaveURL(/[?&]q=/)
+    })
+  }
+
+  test('an address written before the filters were one still shows what it showed', async ({ page }) => {
+    for (const path of ['/wordplay?view=rhyme&rq=all', '/changes?view=rewrites&rq=all', '/poetry?view=pairs&pq=all', '/refrains?all=1', '/shifts?q=all', '/sequences?q=0.2']) {
+      await loads(page, path)
+      const checked = page.getByRole('radiogroup', { name: 'Significance' }).getByRole('radio', { checked: true })
+      await expect(checked, path).toHaveText(path.includes('0.2') ? 'q ≤ 0.2' : 'All')
+    }
+    // setting the filter takes the older spelling out
+    await loads(page, '/refrains?all=1')
+    await page.getByRole('radio', { name: 'Strongest of each group' }).click()
+    await expect(page).toHaveURL(/\/refrains$/)
+  })
+
+  test('a choice of a few short options is a row of buttons, of more a dropdown', async ({ page }) => {
+    await loads(page, '/ketiv')
+    await expect(page.getByRole('combobox', { name: 'Kind' })).toBeVisible() // nine kinds and "any"
+    await expect(page.getByRole('combobox', { name: 'Grammar' })).toBeVisible() // four options, but each a phrase
+    await expect(page.getByRole('radiogroup', { name: 'Parallel' }).getByRole('radio')).toHaveCount(4)
+    await page.getByRole('combobox', { name: 'Grammar' }).selectOption({ index: 1 })
+    await expect(page).toHaveURL(/grammar=/)
+    await loads(page, '/sequences')
+    await expect(page.getByRole('radiogroup', { name: 'Order' }).getByRole('radio')).toHaveText(['Same order', 'Mirrored', 'Reordered', 'Any order'])
+    await page.getByRole('radiogroup', { name: 'Order' }).getByRole('radio', { name: 'Mirrored' }).click()
+    await expect(page).toHaveURL(/order=reverse/)
+    await loads(page, '/retold')
+    await expect(page.getByRole('combobox', { name: 'Show' })).toBeVisible() // six groups and "all"
+    await loads(page, '/roots')
+    await expect(page.getByRole('radiogroup', { name: 'Kind' })).toBeVisible()
+    await loads(page, '/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA')
+    await expect(page.locator('.gm-systems').getByRole('radio')).toHaveCount(4)
+    await expect(page.locator('.gm-systems').getByRole('radio', { checked: true })).toContainText('Standard')
+  })
+
+  // every list page: the page as listed, and every row from the server
+  const LISTS = [
+    '/brackets', '/ciphers', '/citations', '/network?view=directions', '/divisions', '/gematria-links', '/gematria?q=%D7%A8%D7%90%D7%A9%D7%99%D7%AA',
+    '/ketiv', '/laws', '/laws?view=laws', '/mainline', '/place-links', '/places?p=1', '/prophetic', '/retold', '/shifts?q=all',
+    '/structure?view=small', '/structure?view=small&list=verses', '/sums',
+    '/phrases?view=spread&all=1', '/reception', '/reception?unit=v%3A0', '/witnesses', '/lemma/7225', '/domains/002',
+  ]
+  for (const path of LISTS) {
+    test(`the list of ${path} can be exported, its page and all of it`, async ({ page, request }) => {
+      await loads(page, path)
+      const main = page.locator('main')
+      await expect(main.getByRole('button', { name: 'Export page (CSV)' }).first()).toBeVisible()
+      const all = main.getByRole('link', { name: 'Export all (CSV)' }).first()
+      const href = await all.getAttribute('href')
+      expect(href).toMatch(/^\/api\/export\/[a-z-]+\.csv/)
+      expect(href).not.toMatch(/[?&](limit|offset)=/)
+      const r = await request.get(href!)
+      expect(r.status(), href!).toBe(200)
+      const lines = (await r.text()).trim().split(/\r?\n/)
+      expect(lines.length, href!).toBeGreaterThan(1) // a header and at least a row
+    })
+  }
+
+  test('a page export writes the rows on screen, a verse as its reference', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await loads(page, '/reception')
+    const [download] = await Promise.all([page.waitForEvent('download'), page.locator('main').getByRole('button', { name: 'Export page (CSV)' }).first().click()])
+    expect(download.suggestedFilename()).toBe('reception-verses-p1.csv')
+    const text = (await (await download.createReadStream()).toArray()).map(String).join('')
+    const [header, first] = text.replace(/^\uFEFF/, '').trim().split(/\r?\n/)
+    expect(header.split(',')).toContain('verse')
+    expect(header).not.toContain('text_display')
+    expect(first.length).toBeGreaterThan(0)
+  })
+
+  test('a list that placed its own pager is the shared one: an empty page past the end offers the last', async ({ page }) => {
+    await page.goto('/lemma/7225?page=9')
+    await page.getByRole('button', { name: /last page/i }).click()
+    await expect(page).toHaveURL(/\/lemma\/7225$/)
+    await expect(page.locator('.hits .hit').first()).toBeVisible()
   })
 })

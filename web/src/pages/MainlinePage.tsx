@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useBooks, useMainline, useMainlinePauses } from '../api/hooks'
 import { isStageMissing } from '../api/client'
 import type { MainlineOrder, MainlinePause, MainlineResponse } from '../api/types'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, KnownOnly } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { PrecisionNote } from '../components/PrecisionNote'
@@ -133,12 +133,9 @@ function Pauses() {
       <div className="toolbar">
         <Segmented<MainlineOrder> label={t.order.label} value={order} options={ORDERS.map((v) => ({ value: v, label: t.order[v] }))} onChange={(v) => set({ order: v === 'longest' ? null : v })} />
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
-          {t.knownOnly}
-        </label>
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? '1' : null })} />
       </div>
-      <PagedList res={res} empty={t.none} summary={(d, p, pages) => t.pauseCount(d.total, p, pages)}>
+      <PagedList csv="mainline" res={res} empty={t.none} summary={(d, p, pages) => t.pauseCount(d.total, p, pages)}>
         {(d, stale) => (
           <ol className={`hits ml-pauses ${stale}`}>
             {d.items.map((p) => (

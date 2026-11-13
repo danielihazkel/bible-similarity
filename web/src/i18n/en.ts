@@ -424,6 +424,12 @@ const core = {
   filter: {
     onlyTouching: 'Only those touching',
     showAll: 'Show all',
+    significance: 'Significance',
+    q: (max: string) => `q ≤ ${max}`,
+    qTitle: 'Only what holds after correcting for the many tests made (Benjamini–Hochberg q at most 0.05)',
+    qLooseTitle: 'The candidates too: a looser cut, with more chance finds among them',
+    all: 'All',
+    allTitle: 'Everything found, whatever its q',
   },
 
   csv: { page: 'Export page (CSV)', all: 'Export all (CSV)', table: 'Export table (CSV)', region: 'Table' },
@@ -572,6 +578,7 @@ const core = {
   },
 
   concordance: {
+    none: 'No verses here.',
     occurrences: (words: number, verses: number, books: number) =>
       `${num(words)} occurrences in ${num(verses)} verses, ${books} books.`,
     byBook: 'By book',

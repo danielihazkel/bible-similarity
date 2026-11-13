@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { BookSelect } from '../components/Controls'
+import { BookSelect, Choice } from '../components/Controls'
 import { meterParams, useBooks, useMeter } from '../api/hooks'
 import type { MeterChapter, MeterGroup, MeterResponse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
@@ -45,17 +45,7 @@ export function MeterView() {
         <h2>{t.rankTitle}</h2>
         {meta?.min_lines != null && <p className="muted small">{t.rankNote(meta.min_lines)}</p>}
         <div className="toolbar">
-          <label className="control">
-            <span>{t.cols.group}</span>
-            <select value={group ?? ''} onChange={(e) => set({ group: e.target.value || null })}>
-              <option value="">{t.anyGroup}</option>
-              {GROUPS.map((g) => (
-                <option key={g} value={g}>
-                  {t.groups[g]}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Choice<string> label={t.cols.group} value={group ?? ''} options={[{ value: '', label: t.anyGroup }, ...GROUPS.map((x) => ({ value: x as string, label: t.groups[x] }))]} onChange={(v) => set({ group: v || null })} />
           <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
         </div>
         <PagedList

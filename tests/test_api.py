@@ -875,6 +875,88 @@ def test_export_csv(client):
         assert client.get(f"/api/export/{name}.csv").status_code == 200, name
 
 
+# M174: the lists that had no export, each with the list route it pages through and the
+# parameters the route needs
+EXPORTED_LISTS = [
+    ("brackets", "/api/brackets/items", ""),
+    ("cipher-hits", "/api/ciphers/hits", ""),
+    ("citations", "/api/citations/list", ""),
+    ("echoes", "/api/echoes/list", ""),
+    ("divisions", "/api/segments/gaps", ""),
+    ("gematria-pairs", "/api/gematria-links/pairs", ""),
+    ("gematria-forms", "/api/gematria/forms", "value=913"),
+    ("gematria-lemmas", "/api/gematria/lemmas", "value=913"),
+    ("gematria-verses", "/api/gematria/verses", "value=913"),
+    ("ketiv", "/api/ketiv/pairs", ""),
+    ("mainline", "/api/mainline/pauses", ""),
+    ("place-links", "/api/place-links/pairs", ""),
+    ("place-verses", "/api/places/1/verses", "place_id=1"),
+    ("prophetic", "/api/prophetic/items", ""),
+    ("retold", "/api/retold/items", ""),
+    ("shifts", "/api/shifts", "max_q=1"),
+    ("mirror-clauses", "/api/mirrors/clauses", ""),
+    ("mirror-verses", "/api/mirrors/verses", ""),
+    ("sums-parallels", "/api/sums/parallels", ""),
+    # the lists that placed their own pager
+    ("allusions", "/api/allusions", ""),
+    ("reception-verses", "/api/reception/verses", ""),
+    ("reception-citations", "/api/reception/citations", "unit=v:0"),
+    ("witness-pluses", "/api/witnesses/pluses", "kind=sp"),
+    ("root-verses", "/api/root/7218", "root=7218"),
+    ("domain-verses", "/api/domain/002", "code=002"),
+]
+
+
+@pytest.mark.parametrize(("name", "route", "query"), EXPORTED_LISTS)
+def test_export_csv_of_every_list(client, name, route, query):
+    """Every row of the list under its filters, as the list route itself counts them."""
+    import csv
+    import io
+
+    r = client.get(f"/api/export/{name}.csv?{query}")
+    assert r.status_code == 200, r.text
+    assert r.headers["content-disposition"] == f'attachment; filename="{name}.csv"'
+    # a list with its key in its path takes it as a parameter in the export
+    in_path = query.split("=")[0] in ("place_id", "root", "code")
+    listed = client.get(route if in_path else f"{route}?{query}").json()
+    rows = list(csv.DictReader(io.StringIO(r.content.decode("utf-8-sig"))))
+    assert len(rows) == listed["total"]
+    if rows:  # verse texts are left out, nested objects are labels or dotted columns
+        assert not {"text_display", "display_tokens", "a_verse", "b_verse"} & set(rows[0])
+        assert all(any(v != "" for v in row.values()) for row in rows)
+
+
+def test_export_csv_takes_a_list_route_filters(client):
+    """The export's parameters are the list's own: a filter narrows it, a bad value is 422."""
+    def lines(url):
+        return client.get(url).content.decode("utf-8-sig").strip().splitlines()
+
+    every, one = lines("/api/export/ketiv.csv"), lines("/api/export/ketiv.csv?book=0")
+    total = client.get("/api/ketiv/pairs?book=0").json()["total"]
+    assert len(one) - 1 == total <= len(every) - 1
+    assert client.get("/api/export/gematria-forms.csv").status_code == 422  # `value` is required
+    assert client.get("/api/export/place-verses.csv?place_id=x").status_code == 422
+
+
+def test_export_csv_names_a_row_by_its_verse(client):
+    """A list keyed by a verse alone has the verse's reference in each row, not its text."""
+    import csv
+    import io
+
+    keyed = (
+        ("place-verses", "place_id=1"),
+        ("reception-verses", ""),
+        ("witness-pluses", "kind=sp"),
+    )
+    for name, query in keyed:
+        text = client.get(f"/api/export/{name}.csv?{query}").content.decode("utf-8-sig")
+        rows = list(csv.DictReader(io.StringIO(text)))
+        assert rows and all(row["verse"] for row in rows), name
+        assert "text_display" not in rows[0]
+    # the per-verse variants of the witnesses are nested, not rows: no export
+    assert client.get("/api/export/witness-verses.csv?unit=c:0:1").status_code == 404
+
+
 def test_flatten_labels_nested_values():
     from bsim.api.routes.export import flatten
 

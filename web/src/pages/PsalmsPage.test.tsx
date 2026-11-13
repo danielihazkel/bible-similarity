@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PsalmsListResponse, PsalmsResponse } from '../api/types'
@@ -155,7 +155,8 @@ describe('PsalmsPage', () => {
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/psalms?unit=c%3A26%3A13&genre=hymn'))
     fireEvent.click(screen.getByLabelText('Turn above chance only'))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/psalms?unit=c%3A26%3A13&genre=hymn&turned=1'))
-    fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'turn' } })
+    // two orders: a row of buttons, by the toolbar's rule
+    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Order' })).getByRole('radio', { name: 'Clearest turn first' }))
     await waitFor(() => expect(calls.some((c) => c.includes('sort=turn') && c.includes('turned=1'))).toBe(true))
   })
 

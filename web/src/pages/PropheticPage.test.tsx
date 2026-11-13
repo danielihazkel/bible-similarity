@@ -125,7 +125,8 @@ describe('PropheticPage (DESIGN.md §16.92, D154)', () => {
   it('asks for one form and the known passages through the address', async () => {
     mockApi()
     renderAt('/prophetic')
-    fireEvent.click(await screen.findByRole('radio', { name: 'Covenant lawsuit' }))
+    // six forms with "all": a dropdown, by the toolbar's rule
+    fireEvent.change(await screen.findByRole('combobox', { name: 'Form' }), { target: { value: 'lawsuit' } })
     fireEvent.click(screen.getByRole('checkbox', { name: 'Only those in a passage named in advance' }))
     expect(screen.getByTestId('loc').textContent).toBe('/prophetic?form=lawsuit&known=1')
     await vi.waitFor(() => expect(calls).toContain('/api/prophetic/items?form=lawsuit&known=true&limit=25&offset=0'))

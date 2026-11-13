@@ -237,7 +237,7 @@ function PlacePanel({ placeId, books, onPick, onClose }: { placeId: number; book
         </>
       )}
       <h3>{t.verses}</h3>
-      <PagedList res={verses} empty={t.emptyVerses} summary={(d, pg, pages) => `${t.verseCount(d.total)} · ${t.pageOf(pg, pages)}`}>
+      <PagedList csv="place-verses" res={verses} empty={t.emptyVerses} summary={(d, pg, pages) => `${t.verseCount(d.total)} · ${t.pageOf(pg, pages)}`}>
         {(d, stale) => (
           <ol className={`hits ${stale}`}>
             {d.items.map((x) => {

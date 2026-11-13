@@ -69,6 +69,38 @@ export function Segmented<T extends string | number>({ label, value, options, on
   )
 }
 
+/** The most options, and the most letters of their labels together, that are still a row of
+ * buttons: past either, a choice is a dropdown (DESIGN.md §11). */
+const CHOICE_MAX_OPTIONS = 5
+const CHOICE_MAX_LETTERS = 48
+
+/** One choice of a toolbar, drawn by the toolbar's one rule: up to five short options are a row of
+ * buttons (a `Segmented`, its name shown before it), more or longer ones a dropdown. A page says
+ * what the choice is; how it is drawn follows from its options. */
+export function Choice<T extends string>({ label, value, options, onChange }: SegmentedProps<T>) {
+  const letters = options.reduce((n, o) => n + o.label.length, 0)
+  if (options.length <= CHOICE_MAX_OPTIONS && letters <= CHOICE_MAX_LETTERS) {
+    return (
+      <span className="control choice">
+        <span aria-hidden="true">{label}</span>
+        <Segmented label={label} value={value} options={options} onChange={onChange} />
+      </span>
+    )
+  }
+  return (
+    <label className="control choice">
+      <span>{label}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value as T)}>
+        {options.map((o) => (
+          <option key={o.value} value={o.value} title={o.title}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 export function ModeToggle({ value, onChange, modes = MODES }: { value: Mode; onChange: (m: Mode) => void; modes?: Mode[] }) {
   const m = useT()
   return (
@@ -159,6 +191,49 @@ export function ExcludeFilters({
         </label>
       ))}
     </div>
+  )
+}
+
+/** A list's significance filter, the same on every page that has one (DESIGN.md §11): q ≤ 0.05,
+ * a list's second step where it has one, and all. `strict` renames the first option where the
+ * list's cut is not a q (the strongest of each group of refrains). */
+export function SignificanceFilter({
+  value,
+  second,
+  onChange,
+  strict,
+  strictTitle,
+}: {
+  value: string
+  second?: string
+  onChange: (v: string) => void
+  strict?: string
+  strictTitle?: string
+}) {
+  const m = useT()
+  return (
+    <Segmented
+      className="significance"
+      label={m.filter.significance}
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: '0.05', label: strict ?? m.filter.q('0.05'), title: strictTitle ?? m.filter.qTitle },
+        ...(second ? [{ value: second, label: m.filter.q(second), title: m.filter.qLooseTitle }] : []),
+        { value: 'all', label: m.filter.all, title: m.filter.allTitle },
+      ]}
+    />
+  )
+}
+
+/** "Only the known cases" (the ones named in advance, the ones the scholarship lists): one
+ * checkbox, the same on every page that has it. */
+export function KnownOnly({ checked, onChange, label, title }: { checked: boolean; onChange: (on: boolean) => void; label: string; title?: string }) {
+  return (
+    <label className="check known-only" title={title}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      {label}
+    </label>
   )
 }
 

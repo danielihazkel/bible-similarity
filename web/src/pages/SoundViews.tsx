@@ -6,8 +6,9 @@ import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import '../i18n/pages/patterns'
+import { SignificanceFilter } from '../components/Controls'
 
 const PAGE_SIZE = 50
 const SOUND_NAMES: Record<string, string> = { sh: 'שׁ', s: 'שׂ' }
@@ -28,6 +29,7 @@ export function AlliterationView({ book }: { book?: number }) {
       <p className="muted small">{t.alliterationNote}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null, page: null })} />}
       <PagedList
+        csv="alliteration"
         res={res}
         empty={t.empty}
         summary={(data) => (
@@ -74,25 +76,20 @@ export function RhymeView({ book }: { book?: number }) {
   const t = m.pat.sound
   const [params, update] = useQueryParams()
   const page = parsePage(params.get('page'))
-  const all = params.get('rq') === 'all'
+  // `rq=all` is this filter's older spelling
+  const sig = parseSignificance(params, undefined, [['rq', 'all']])
   const unit = params.get('unit') || undefined
-  const res = useRhymes({ book, maxQ: all ? undefined : 0.05, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
+  const res = useRhymes({ book, maxQ: sig.maxQ, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   return (
     <>
       <p className="lede">{t.rhymeLede}</p>
       {unit && <UnitFilter unitId={unit} onClear={() => update({ unit: null, page: null })} />}
       <div className="toolbar">
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={all}
-            onChange={(e) => update({ rq: e.target.checked ? 'all' : null, page: null })}
-          />
-          {m.pat.includeQ}
-        </label>
+        <SignificanceFilter value={sig.choice} onChange={(v) => update({ ...significanceChange(v, [['rq', 'all']]), page: null })} />
       </div>
       <PagedList
+        csv="rhymes"
         res={res}
         empty={t.rhymeEmpty}
         summary={(data) => (

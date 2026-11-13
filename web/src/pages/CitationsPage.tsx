@@ -124,6 +124,7 @@ function CitationList({ books, name }: { books: Book[]; name: (id: number) => st
         </label>
       </div>
       <PagedList
+        csv="citations"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}

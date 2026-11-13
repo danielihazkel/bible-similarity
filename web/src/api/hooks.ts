@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { hasHebrew } from '../lib/hebrew'
 import { getJson, getJsonWithTotal, sendJson, type Params } from './client'
 import type {
@@ -212,6 +212,11 @@ import type {
 // The DB is read-only while the server runs: everything except search is immutable.
 const forever = { staleTime: Infinity, gcTime: 30 * 60_000 }
 
+/** A paged list's result with the parameters it was asked with, so the list's "export all" asks
+ * the server for the same rows (`components/Pager.tsx`: `PagedList csv=`). */
+export type Listed<T> = UseQueryResult<T> & { params: Params }
+const listed = <T,>(res: UseQueryResult<T>, params: Params): Listed<T> => Object.assign(res, { params })
+
 export const useBooks = () =>
   useQuery({ queryKey: ['books'], queryFn: ({ signal }) => getJson<Book[]>('/books', {}, signal), ...forever })
 
@@ -373,24 +378,34 @@ export const useDomains = () =>
   })
 
 /** The verses of a domain and its subdomains, with its place in the tree. */
-export const useDomain = (code: string, book: number | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['domain', code, book, limit, offset],
-    queryFn: ({ signal }) =>
-      getJson<DomainResponse>(`/domain/${encodeURIComponent(code)}`, { book, limit, offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useDomain = (code: string, book: number | undefined, limit: number, offset: number) => {
+  const params = { book, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['domain', code, book, limit, offset],
+      queryFn: ({ signal }) =>
+        getJson<DomainResponse>(`/domain/${encodeURIComponent(code)}`, params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    { code, ...params },
+  )
+}
 
 /** Lemmas ranked by how much their senses (`sense`) or uses (`use`) differ across the canon. */
-export const useShifts = (by: 'sense' | 'use', maxQ: number | null, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['shifts', by, maxQ, limit, offset],
-    queryFn: ({ signal }) =>
-      getJson<ShiftsResponse>('/shifts', { by, max_q: maxQ ?? undefined, limit, offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useShifts = (by: 'sense' | 'use', maxQ: number | null, limit: number, offset: number) => {
+  const params = { by, max_q: maxQ ?? undefined, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['shifts', by, maxQ, limit, offset],
+      queryFn: ({ signal }) =>
+        getJson<ShiftsResponse>('/shifts', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** One lemma's dictionary senses and contextual uses by corpus group. */
 export const useLemmaSenses = (lemma: string) =>
@@ -516,63 +531,83 @@ export const useMainline = () =>
   useQuery({ queryKey: ['mainline'], queryFn: ({ signal }) => getJson<MainlineResponse>('/mainline', {}, signal), ...forever })
 
 /** A page of the main line's pauses. */
-export const useMainlinePauses = (q: { order: MainlineOrder; book?: number; known: boolean; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['mainline-pauses', q],
-    queryFn: ({ signal }) =>
-      getJson<MainlinePauses>(
-        '/mainline/pauses',
-        { order: q.order, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useMainlinePauses = (q: { order: MainlineOrder; book?: number; known: boolean; unit?: string; limit: number; offset: number }) => {
+  const params = { order: q.order, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['mainline-pauses', q],
+      queryFn: ({ signal }) =>
+        getJson<MainlinePauses>(
+          '/mainline/pauses',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** The prophetic forms (§16.92): each form's findings by book, the passages named in advance. */
 export const useProphetic = () =>
   useQuery({ queryKey: ['prophetic'], queryFn: ({ signal }) => getJson<PropheticResponse>('/prophetic', {}, signal), ...forever })
 
 /** A page of the prophetic forms' findings, in canon order. */
-export const usePropheticItems = (q: { form?: ProphForm; book?: number; known: boolean; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['prophetic-items', q],
-    queryFn: ({ signal }) =>
-      getJson<ProphItems>(
-        '/prophetic/items',
-        { form: q.form, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const usePropheticItems = (q: { form?: ProphForm; book?: number; known: boolean; unit?: string; limit: number; offset: number }) => {
+  const params = { form: q.form, book: q.book, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['prophetic-items', q],
+      queryFn: ({ signal }) =>
+        getJson<ProphItems>(
+          '/prophetic/items',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** The law codes (§16.93): each code's profile, the pairs named in advance. */
 export const useLaws = () =>
   useQuery({ queryKey: ['laws'], queryFn: ({ signal }) => getJson<LawsResponse>('/laws', {}, signal), ...forever })
 
 /** A page of laws in canon order. */
-export const useLawList = (q: { code?: LawCode; form?: LawForm; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['law-list', q],
-    queryFn: ({ signal }) => getJson<LawList>('/laws/list', { code: q.code, form: q.form, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useLawList = (q: { code?: LawCode; form?: LawForm; limit: number; offset: number }) => {
+  const params = { code: q.code, form: q.form, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['law-list', q],
+      queryFn: ({ signal }) => getJson<LawList>('/laws/list', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** A page of matched law pairs. */
-export const useLawPairs = (q: { order: 'score' | 'canon'; code?: LawCode; known: boolean; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['law-pairs', q],
-    queryFn: ({ signal }) =>
-      getJson<LawPairs>(
-        '/laws/pairs',
-        { order: q.order, code: q.code, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useLawPairs = (q: { order: 'score' | 'canon'; code?: LawCode; known: boolean; unit?: string; limit: number; offset: number }) => {
+  const params = { order: q.order, code: q.code, known: q.known ? 'true' : undefined, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['law-pairs', q],
+      queryFn: ({ signal }) =>
+        getJson<LawPairs>(
+          '/laws/pairs',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** One matched pair side by side. */
 export const useLawPair = (id: number) =>
@@ -683,14 +718,19 @@ export const useVoice = (key: string | undefined) =>
 export const useSegments = () =>
   useQuery({ queryKey: ['segments'], queryFn: ({ signal }) => getJson<SegmentsResponse>('/segments', {}, signal), ...forever })
 
-export const useSegmentGaps = (q: { kind?: SegmentKind; book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['segment-gaps', q],
-    queryFn: ({ signal }) =>
-      getJson<SegmentGapsResponse>('/segments/gaps', { kind: q.kind, book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useSegmentGaps = (q: { kind?: SegmentKind; book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { kind: q.kind, book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['segment-gaps', q],
+      queryFn: ({ signal }) =>
+        getJson<SegmentGapsResponse>('/segments/gaps', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useSegmentCurve = (bookId: number | undefined) =>
   useQuery({
@@ -879,14 +919,19 @@ export interface BracketsQuery {
   offset: number
 }
 
-export const useBracketItems = (q: BracketsQuery) =>
-  useQuery({
-    queryKey: ['bracket-items', q],
-    queryFn: ({ signal }) =>
-      getJson<BracketsPage>('/brackets/items', { show: q.show, order: q.order, book: q.book, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useBracketItems = (q: BracketsQuery) => {
+  const params = { show: q.show, order: q.order, book: q.book, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['bracket-items', q],
+      queryFn: ({ signal }) =>
+        getJson<BracketsPage>('/brackets/items', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useRetold = () =>
   useQuery({ queryKey: ['retold'], queryFn: ({ signal }) => getJson<RetoldResponse>('/retold', {}, signal), ...forever })
@@ -899,14 +944,19 @@ export interface RetoldQuery {
   offset: number
 }
 
-export const useRetoldItems = (q: RetoldQuery) =>
-  useQuery({
-    queryKey: ['retold-items', q],
-    queryFn: ({ signal }) =>
-      getJson<RetoldPage>('/retold/items', { group: q.group, known: q.known ? 'true' : undefined, order: q.order, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useRetoldItems = (q: RetoldQuery) => {
+  const params = { group: q.group, known: q.known ? 'true' : undefined, order: q.order, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['retold-items', q],
+      queryFn: ({ signal }) =>
+        getJson<RetoldPage>('/retold/items', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useHaftarot = () =>
   useQuery({ queryKey: ['haftarot'], queryFn: ({ signal }) => getJson<HaftarotResponse>('/haftarot', {}, signal), ...forever })
@@ -940,22 +990,32 @@ export const useSumsItems = (key: string) =>
 export const useReception = () =>
   useQuery({ queryKey: ['reception'], queryFn: ({ signal }) => getJson<ReceptionResponse>('/reception', {}, signal), ...forever })
 
-export const useReceptionVerses = (corpus: string | undefined, book: number | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['reception-verses', corpus, book, limit, offset],
-    queryFn: ({ signal }) => getJson<ReceptionVersesResponse>('/reception/verses', { corpus, book, limit, offset }, signal),
-    ...forever,
-    placeholderData: keepPreviousData,
-  })
+export const useReceptionVerses = (corpus: string | undefined, book: number | undefined, limit: number, offset: number) => {
+  const params = { corpus, book, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['reception-verses', corpus, book, limit, offset],
+      queryFn: ({ signal }) => getJson<ReceptionVersesResponse>('/reception/verses', params, signal),
+      ...forever,
+      placeholderData: keepPreviousData,
+    }),
+    params,
+  )
+}
 
-export const useReceptionCitations = (unit: string | undefined, corpus: string | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['reception-citations', unit, corpus, limit, offset],
-    queryFn: ({ signal }) => getJson<ReceptionCitationsResponse>('/reception/citations', { unit: unit!, corpus, limit, offset }, signal),
-    enabled: unit !== undefined,
-    ...forever,
-    placeholderData: keepPreviousData,
-  })
+export const useReceptionCitations = (unit: string | undefined, corpus: string | undefined, limit: number, offset: number) => {
+  const params = { unit: unit!, corpus, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['reception-citations', unit, corpus, limit, offset],
+      queryFn: ({ signal }) => getJson<ReceptionCitationsResponse>('/reception/citations', params, signal),
+      enabled: unit !== undefined,
+      ...forever,
+      placeholderData: keepPreviousData,
+    }),
+    params,
+  )
+}
 
 export const useSourceExamples = () =>
   useQuery({ queryKey: ['source-examples'], queryFn: ({ signal }) => getJson<SourceExamples>('/source-find/examples', {}, signal), ...forever })
@@ -973,22 +1033,32 @@ export const useSourceFind = (text: string | undefined) =>
 export const useWitnesses = () =>
   useQuery({ queryKey: ['witnesses'], queryFn: ({ signal }) => getJson<WitnessesResponse>('/witnesses', {}, signal), ...forever })
 
-export const useWitnessPluses = (kind: 'sp' | 'scroll', book: number | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['witness-pluses', kind, book, limit, offset],
-    queryFn: ({ signal }) => getJson<WitnessPlusesResponse>('/witnesses/pluses', { kind, book, limit, offset }, signal),
-    ...forever,
-    placeholderData: keepPreviousData,
-  })
+export const useWitnessPluses = (kind: 'sp' | 'scroll', book: number | undefined, limit: number, offset: number) => {
+  const params = { kind, book, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['witness-pluses', kind, book, limit, offset],
+      queryFn: ({ signal }) => getJson<WitnessPlusesResponse>('/witnesses/pluses', params, signal),
+      ...forever,
+      placeholderData: keepPreviousData,
+    }),
+    params,
+  )
+}
 
-export const useWitnessUnit = (unit: string | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['witness-unit', unit, limit, offset],
-    queryFn: ({ signal }) => getJson<WitnessUnitResponse>('/witnesses/unit', { unit: unit!, limit, offset }, signal),
-    enabled: unit !== undefined,
-    ...forever,
-    placeholderData: keepPreviousData,
-  })
+export const useWitnessUnit = (unit: string | undefined, limit: number, offset: number) => {
+  const params = { unit: unit!, limit, offset }
+  return listed(
+    useQuery({
+      queryKey: ['witness-unit', unit, limit, offset],
+      queryFn: ({ signal }) => getJson<WitnessUnitResponse>('/witnesses/unit', params, signal),
+      enabled: unit !== undefined,
+      ...forever,
+      placeholderData: keepPreviousData,
+    }),
+    params,
+  )
+}
 
 export const useVocabulary = () =>
   useQuery({ queryKey: ['vocabulary'], queryFn: ({ signal }) => getJson<VocabularyResponse>('/vocabulary', {}, signal), ...forever })
@@ -1009,18 +1079,23 @@ export interface SumsParallelsQuery {
   offset: number
 }
 
-export const useSumsParallels = (q: SumsParallelsQuery) =>
-  useQuery({
-    queryKey: ['sums-parallels', q],
-    queryFn: ({ signal }) =>
-      getJson<SumsParallelsResponse>(
-        '/sums/parallels',
-        { across: q.across ? undefined : 'false', one_step: q.oneStep === undefined ? undefined : String(q.oneStep), book: q.book, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useSumsParallels = (q: SumsParallelsQuery) => {
+  const params = { across: q.across ? undefined : 'false', one_step: q.oneStep === undefined ? undefined : String(q.oneStep), book: q.book, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['sums-parallels', q],
+      queryFn: ({ signal }) =>
+        getJson<SumsParallelsResponse>(
+          '/sums/parallels',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export interface ContrastQuery {
   a: string
@@ -1122,37 +1197,47 @@ const gematriaList = <T,>(path: string, q: GematriaQuery | undefined) => ({
   ...forever,
 })
 
-export const useGematriaForms = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaFormsResponse>('/gematria/forms', q))
-export const useGematriaLemmas = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaLemmasResponse>('/gematria/lemmas', q))
-export const useGematriaVerses = (q: GematriaQuery | undefined) => useQuery(gematriaList<GematriaVersesResponse>('/gematria/verses', q))
+export const useGematriaForms = (q: GematriaQuery | undefined) => listed(useQuery(gematriaList<GematriaFormsResponse>('/gematria/forms', q)), { ...q })
+export const useGematriaLemmas = (q: GematriaQuery | undefined) => listed(useQuery(gematriaList<GematriaLemmasResponse>('/gematria/lemmas', q)), { ...q })
+export const useGematriaVerses = (q: GematriaQuery | undefined) => listed(useQuery(gematriaList<GematriaVersesResponse>('/gematria/verses', q)), { ...q })
 
 export const useGematriaLinks = () =>
   useQuery({ queryKey: ['gematria-links'], queryFn: ({ signal }) => getJson<GematriaLinksResponse>('/gematria-links', {}, signal), ...forever })
 
 export type GematriaPairsQuery = { value?: number; sort: GematriaPairSort; sameLetters: boolean; limit: number; offset: number }
 
-export const useGematriaPairs = (q: GematriaPairsQuery) =>
-  useQuery({
-    queryKey: ['gematria-pairs', q],
-    queryFn: ({ signal }) =>
-      getJson<GematriaPairsResponse>('/gematria-links/pairs', { value: q.value, sort: q.sort, same_letters: q.sameLetters ? 'true' : undefined, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useGematriaPairs = (q: GematriaPairsQuery) => {
+  const params = { value: q.value, sort: q.sort, same_letters: q.sameLetters ? 'true' : undefined, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['gematria-pairs', q],
+      queryFn: ({ signal }) =>
+        getJson<GematriaPairsResponse>('/gematria-links/pairs', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useCiphers = () =>
   useQuery({ queryKey: ['ciphers'], queryFn: ({ signal }) => getJson<CiphersResponse>('/ciphers', {}, signal), ...forever })
 
 export type CipherHitsQuery = { cipher?: CipherName; book?: number; unit?: string; known: boolean; limit: number; offset: number }
 
-export const useCipherHits = (q: CipherHitsQuery) =>
-  useQuery({
-    queryKey: ['cipher-hits', q],
-    queryFn: ({ signal }) =>
-      getJson<CipherHitsResponse>('/ciphers/hits', { cipher: q.cipher, book: q.book, unit: q.unit, known: q.known ? 'true' : undefined, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useCipherHits = (q: CipherHitsQuery) => {
+  const params = { cipher: q.cipher, book: q.book, unit: q.unit, known: q.known ? 'true' : undefined, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['cipher-hits', q],
+      queryFn: ({ signal }) =>
+        getJson<CipherHitsResponse>('/ciphers/hits', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useCipherValue = (text: string | undefined) =>
   useQuery({
@@ -1185,13 +1270,17 @@ export const usePlace = (placeId: number | undefined) =>
   })
 
 export const usePlaceVerses = (placeId: number | undefined, limit: number, offset: number) =>
-  useQuery({
-    queryKey: ['place-verses', placeId, limit, offset],
-    queryFn: ({ signal }) => getJson<PlaceVersesResponse>(`/places/${placeId}/verses`, { limit, offset }, signal),
-    enabled: placeId !== undefined,
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+  listed(
+    useQuery({
+      queryKey: ['place-verses', placeId, limit, offset],
+      queryFn: ({ signal }) => getJson<PlaceVersesResponse>(`/places/${placeId}/verses`, { limit, offset }, signal),
+      enabled: placeId !== undefined,
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    // the export takes the place as a parameter (the list has it in its path)
+    { place_id: placeId, limit, offset },
+  )
 
 export const usePlaceLists = () =>
   useQuery({ queryKey: ['place-lists'], queryFn: ({ signal }) => getJson<PlaceListsResponse>('/place-lists', {}, signal), ...forever })
@@ -1220,13 +1309,18 @@ export const usePlaceArcBook = (bookId: number | undefined) =>
 export const usePlaceLinks = () =>
   useQuery({ queryKey: ['place-links'], queryFn: ({ signal }) => getJson<PlaceLinksResponse>('/place-links', {}, signal), ...forever })
 
-export const usePlaceLinkPairs = (q: { place?: number; sort: PlaceLinkSort; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['place-link-pairs', q],
-    queryFn: ({ signal }) => getJson<PlaceLinkPairsResponse>('/place-links/pairs', q, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const usePlaceLinkPairs = (q: { place?: number; sort: PlaceLinkSort; limit: number; offset: number }) => {
+  const params = q
+  return listed(
+    useQuery({
+      queryKey: ['place-link-pairs', q],
+      queryFn: ({ signal }) => getJson<PlaceLinkPairsResponse>('/place-links/pairs', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 /** The family tree, compact: every node and the link it hangs by (§16.63). */
 export const useGenealogySkeleton = () =>
@@ -1289,73 +1383,91 @@ export const useHiddenRoots = (q: HiddenRootsQuery) =>
     ...forever,
   })
 
-export const useRootFamily = (root: string | undefined, q: { book?: number; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['root', root, q],
-    queryFn: ({ signal }) => getJson<RootFamily>(`/root/${encodeURIComponent(root!)}`, { book: q.book, limit: q.limit, offset: q.offset }, signal),
-    enabled: !!root,
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useRootFamily = (root: string | undefined, q: { book?: number; limit: number; offset: number }) => {
+  const params = { book: q.book, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['root', root, q],
+      queryFn: ({ signal }) => getJson<RootFamily>(`/root/${encodeURIComponent(root!)}`, params, signal),
+      enabled: !!root,
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    { root, ...params },
+  )
+}
 
 const flag = (b: boolean | undefined) => (b === undefined ? undefined : String(b))
 
-export const useMirrorVerses = (q: { book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['mirror-verses', q],
-    queryFn: ({ signal }) => getJson<MirrorVersesResponse>('/mirrors/verses', { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useMirrorVerses = (q: { book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['mirror-verses', q],
+      queryFn: ({ signal }) => getJson<MirrorVersesResponse>('/mirrors/verses', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
-export const useMirrorClauses = (q: { pair?: string; mirrored?: boolean; poetic?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['mirror-clauses', q],
-    queryFn: ({ signal }) =>
-      getJson<MirrorClausesResponse>(
-        '/mirrors/clauses',
-        { pair: q.pair, mirrored: flag(q.mirrored), poetic: flag(q.poetic), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useMirrorClauses = (q: { pair?: string; mirrored?: boolean; poetic?: boolean; book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { pair: q.pair, mirrored: flag(q.mirrored), poetic: flag(q.poetic), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['mirror-clauses', q],
+      queryFn: ({ signal }) =>
+        getJson<MirrorClausesResponse>(
+          '/mirrors/clauses',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
-export const useAllusions = (q: { known?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['allusions', q],
-    queryFn: ({ signal }) =>
-      getJson<AllusionsResponse>(
-        '/allusions',
-        { known: q.known === undefined ? undefined : String(q.known), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useAllusions = (q: { known?: boolean; book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { known: q.known === undefined ? undefined : String(q.known), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['allusions', q],
+      queryFn: ({ signal }) =>
+        getJson<AllusionsResponse>(
+          '/allusions',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useCitations = () =>
   useQuery({ queryKey: ['citations'], queryFn: ({ signal }) => getJson<CitationsResponse>('/citations', {}, signal), ...forever })
 
-export const useCitationList = (q: { family?: CitationFamily; resolved?: boolean; book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['citation-list', q],
-    queryFn: ({ signal }) =>
-      getJson<CitationListResponse>(
-        '/citations/list',
-        {
-          family: q.family,
-          resolved: q.resolved === undefined ? undefined : String(q.resolved),
-          book: q.book,
-          unit: q.unit,
-          limit: q.limit,
-          offset: q.offset,
-        },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useCitationList = (q: { family?: CitationFamily; resolved?: boolean; book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { family: q.family, resolved: q.resolved === undefined ? undefined : String(q.resolved), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['citation-list', q],
+      queryFn: ({ signal }) =>
+        getJson<CitationListResponse>(
+          '/citations/list',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useFindings = () =>
   useQuery({ queryKey: ['findings'], queryFn: ({ signal }) => getJson<FindingsResponse>('/findings', {}, signal), ...forever })
@@ -1371,26 +1483,23 @@ export const useEchoList = (q: {
   unit?: string
   limit: number
   offset: number
-}) =>
-  useQuery({
-    queryKey: ['echo-list', q],
-    queryFn: ({ signal }) =>
-      getJson<EchoListResponse>(
-        '/echoes/list',
-        {
-          basis: q.basis,
-          directed: q.directed === undefined ? undefined : String(q.directed),
-          backward: q.backward === undefined ? undefined : String(q.backward),
-          book: q.book,
-          unit: q.unit,
-          limit: q.limit,
-          offset: q.offset,
-        },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+}) => {
+  const params = { basis: q.basis, directed: q.directed === undefined ? undefined : String(q.directed), backward: q.backward === undefined ? undefined : String(q.backward), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['echo-list', q],
+      queryFn: ({ signal }) =>
+        getJson<EchoListResponse>(
+          '/echoes/list',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useKetiv = () =>
   useQuery({ queryKey: ['ketiv'], queryFn: ({ signal }) => getJson<KetivResponse>('/ketiv', {}, signal), ...forever })
@@ -1404,18 +1513,23 @@ export const useKqPairs = (q: {
   unit?: string
   limit: number
   offset: number
-}) =>
-  useQuery({
-    queryKey: ['ketiv-pairs', q],
-    queryFn: ({ signal }) =>
-      getJson<KqPairsResponse>(
-        '/ketiv/pairs',
-        { cls: q.cls, grammar: q.grammar, parallel: q.parallel, euphemism: q.euphemism === undefined ? undefined : String(q.euphemism), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+}) => {
+  const params = { cls: q.cls, grammar: q.grammar, parallel: q.parallel, euphemism: q.euphemism === undefined ? undefined : String(q.euphemism), book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['ketiv-pairs', q],
+      queryFn: ({ signal }) =>
+        getJson<KqPairsResponse>(
+          '/ketiv/pairs',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useSpeechBook = (bookId: number | undefined) =>
   useQuery({
@@ -1953,23 +2067,33 @@ export const useWordPairs = (q: WordPairsQuery) =>
     ...forever,
   })
 
-export const useAlliteration = (q: { book?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['alliteration', q],
-    queryFn: ({ signal }) =>
-      getJson<AlliterationResponse>('/alliteration', { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useAlliteration = (q: { book?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { book: q.book, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['alliteration', q],
+      queryFn: ({ signal }) =>
+        getJson<AlliterationResponse>('/alliteration', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
-export const useRhymes = (q: { book?: number; maxQ?: number; unit?: string; limit: number; offset: number }) =>
-  useQuery({
-    queryKey: ['rhymes', q],
-    queryFn: ({ signal }) =>
-      getJson<RhymesResponse>('/rhymes', { book: q.book, max_q: q.maxQ, unit: q.unit, limit: q.limit, offset: q.offset }, signal),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+export const useRhymes = (q: { book?: number; maxQ?: number; unit?: string; limit: number; offset: number }) => {
+  const params = { book: q.book, max_q: q.maxQ, unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['rhymes', q],
+      queryFn: ({ signal }) =>
+        getJson<RhymesResponse>('/rhymes', params, signal),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}
 
 export const useTypeScenes = (q: {
   book?: number
@@ -1978,22 +2102,20 @@ export const useTypeScenes = (q: {
   unit?: string
   limit: number
   offset: number
-}) =>
-  useQuery({
-    queryKey: ['typescenes', q],
-    queryFn: ({ signal }) =>
-      getJson<TypeScenesResponse>(
-        '/typescenes',
-        {
-          book: q.book,
-          max_q: q.maxQ ?? 1,
-          hide_textual: q.hideTextual ? 'true' : 'false',
-          unit: q.unit,
-          limit: q.limit,
-          offset: q.offset,
-        },
-        signal,
-      ),
-    placeholderData: keepPreviousData,
-    ...forever,
-  })
+}) => {
+  const params = { book: q.book, max_q: q.maxQ ?? 1, hide_textual: q.hideTextual ? 'true' : 'false', unit: q.unit, limit: q.limit, offset: q.offset }
+  return listed(
+    useQuery({
+      queryKey: ['typescenes', q],
+      queryFn: ({ signal }) =>
+        getJson<TypeScenesResponse>(
+          '/typescenes',
+          params,
+          signal,
+        ),
+      placeholderData: keepPreviousData,
+      ...forever,
+    }),
+    params,
+  )
+}

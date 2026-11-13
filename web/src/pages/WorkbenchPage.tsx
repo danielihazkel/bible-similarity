@@ -150,7 +150,7 @@ function Side({ title, rows, feature, side }: { title: string; rows: ContrastRow
     <section className="wb-side">
       <h2>{title}</h2>
       {rows.length === 0 ? (
-        <p className="muted">{t.none}</p>
+        <p className="status">{t.none}</p>
       ) : (
         <div className="table-wrap" tabIndex={0} role="region" aria-label={title}>
           <table className="change-table wb-table">

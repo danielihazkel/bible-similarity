@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { listsParams, sayingsParams, useBooks, useForms, useLists, useSayings } from '../api/hooks'
 import type { FormsKind, FormsList, FormsResponse, FormsSaying, VerseLabel } from '../api/types'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, KnownOnly, Choice } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -179,10 +179,7 @@ function Sayings() {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
-          {t.knownOnly}
-        </label>
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? '1' : null })} />
       </div>
       <PagedList
         res={res}
@@ -324,17 +321,7 @@ function Lists() {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <FormsBookSelect book={book} onChange={(b) => set({ book: b })} />
-        <label className="control">
-          <span>{t.kindFilter}</span>
-          <select value={kind ?? ''} onChange={(e) => set({ kind: e.target.value || null })}>
-            <option value="">{t.allKinds}</option>
-            {KINDS.map((k) => (
-              <option key={k} value={k}>
-                {t.kind[k]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={t.kindFilter} value={kind ?? ''} options={[{ value: '', label: t.allKinds }, ...KINDS.map((k) => ({ value: k as string, label: t.kind[k] }))]} onChange={(v) => set({ kind: v || null })} />
       </div>
       <PagedList
         res={res}

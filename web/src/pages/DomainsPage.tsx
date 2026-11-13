@@ -3,7 +3,7 @@ import { useBooks, useDomain, useDomains } from '../api/hooks'
 import type { DomainInfo } from '../api/types'
 import { DomainChip, DomainName } from '../components/DomainName'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -85,7 +85,6 @@ function DomainVerses({ code }: { code: string }) {
   const d = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   const most = Math.max(1, ...d.by_book.map((b) => b.n_verses))
-  const pages = Math.max(1, Math.ceil(d.total / PAGE_SIZE))
   return (
     <div className="page domains-page">
       <nav className="crumbs muted small" aria-label={t.broader}>
@@ -145,25 +144,24 @@ function DomainVerses({ code }: { code: string }) {
         {book !== undefined && names.get(book) ? t.versesIn(bookName(names.get(book)!, locale)) : t.allVerses}{' '}
         <span className="muted small">({m.num(d.total)})</span>
       </h2>
-      {d.items.length === 0 ? (
-        <EmptyList total={d.total} limit={d.limit}>{t.empty}</EmptyList>
-      ) : (
-        <ol className={`hits ${res.isPlaceholderData ? 'stale' : ''}`}>
-          {d.items.map((h) => (
-            <li key={h.verse.verse_id} className="hit">
-              <div className="hit-head">
-                <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
-                  <UnitName en={h.label_en} he={h.label_he} />
-                </Link>
-              </div>
-              <p className="hit-text">
-                <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
-              </p>
-            </li>
-          ))}
-        </ol>
-      )}
-      <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
+      <PagedList csv="domain-verses" res={res} empty={t.empty}>
+        {(x, stale) => (
+          <ol className={`hits ${stale}`}>
+            {x.items.map((h) => (
+              <li key={h.verse.verse_id} className="hit">
+                <div className="hit-head">
+                  <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
+                    <UnitName en={h.label_en} he={h.label_he} />
+                  </Link>
+                </div>
+                <p className="hit-text">
+                  <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </PagedList>
     </div>
   )
 }

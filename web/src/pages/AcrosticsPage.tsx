@@ -7,12 +7,12 @@ import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, parseSignificance, significanceChange, useQueryParams } from '../lib/urlState'
+import { SignificanceFilter } from '../components/Controls'
 import '../i18n/pages/patterns'
 import { PrecisionNote } from '../components/PrecisionNote'
 
 const PAGE_SIZE = 50
-const Q_OPTIONS = ['0.05', '0.5', 'all']
 
 /** Chapters whose lines run through the alphabet (alphabetic acrostics, whole or broken). */
 export function AcrosticsPage() {
@@ -21,12 +21,11 @@ export function AcrosticsPage() {
   const [params, update] = useQueryParams()
   const bookParam = params.get('book')
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
-  const qRaw = params.get('q') ?? '0.05'
-  const qChoice = Q_OPTIONS.includes(qRaw) ? qRaw : '0.05'
+  const sig = parseSignificance(params, '0.5')
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const query = {
-    maxQ: qChoice === 'all' ? undefined : Number(qChoice),
+    maxQ: sig.maxQ,
     book,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
@@ -47,16 +46,7 @@ export function AcrosticsPage() {
       {res.data?.known_recall != null && <p className="muted small">{t.check(res.data.known_recall)}</p>}
       <div className="toolbar">
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="control">
-          <span>{m.pat.show}</span>
-          <select value={qChoice} onChange={(e) => set({ q: e.target.value === '0.05' ? null : e.target.value })}>
-            {Q_OPTIONS.map((o) => (
-              <option key={o} value={o}>
-                {t.q[o]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SignificanceFilter value={sig.choice} second="0.5" onChange={(v) => set(significanceChange(v))} />
       </div>
 
       <PagedList

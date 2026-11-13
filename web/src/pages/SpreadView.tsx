@@ -3,7 +3,7 @@ import { BookSelect } from '../components/Controls'
 import { useAllusions, useBooks } from '../api/hooks'
 import type { Allusion, Verse } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
-import { EmptyList, Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -30,7 +30,6 @@ export function SpreadView() {
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useAllusions({ known: onlyNew ? false : undefined, book, unit, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
-  const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   if (res.isPending) return <Loading />
   if (res.error) return <ErrorBox error={res.error} />
@@ -53,21 +52,15 @@ export function SpreadView() {
           </label>
         )}
       </div>
-      {res.data.items.length === 0 ? (
-        <EmptyList total={res.data.total} limit={res.data.limit}>
-          {t.none}
-        </EmptyList>
-      ) : (
-        <>
-          <p className="muted small">{t.page(res.data.total, page, pages)}</p>
-          <ol className={`disc-list ${res.isPlaceholderData ? 'stale' : ''}`}>
-            {res.data.items.map((a) => (
+      <PagedList csv="allusions" res={res} empty={t.none} summary={(d, n, of) => t.page(d.total, n, of)}>
+        {(d, stale) => (
+          <ol className={`disc-list ${stale}`}>
+            {d.items.map((a) => (
               <SpreadItem key={a.allusion_id} a={a} />
             ))}
           </ol>
-          <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </>
   )
 }

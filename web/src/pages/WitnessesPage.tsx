@@ -3,7 +3,7 @@ import { isStageMissing } from '../api/client'
 import { useBooks, useUnit, useWitnesses, useWitnessPluses, useWitnessUnit } from '../api/hooks'
 import type { ChronologyRow, OpCounts, WitnessesResponse, WitnessReading, WitnessVerse } from '../api/types'
 import { Segmented } from '../components/Controls'
-import { Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
@@ -138,21 +138,17 @@ function Checks({ d }: { d: WitnessesResponse }) {
 function Pluses({ kind }: { kind: WitnessKind }) {
   const { m, locale } = useLocale()
   const t = m.wt
-  const [params, update] = useQueryParams()
+  const [params] = useQueryParams()
   const page = parsePage(params.get('page'))
   const res = useWitnessPluses(kind, undefined, PAGE, (page - 1) * PAGE)
   return (
     <section aria-labelledby="wt-pluses">
       <h2 id="wt-pluses">{t.plusesTitle}</h2>
       <p className="muted small">{t.plusesHint}</p>
-      {res.isError ? (
-        <ErrorBox error={res.error} />
-      ) : !res.data ? (
-        <Loading />
-      ) : (
-        <>
-          <ol className="wt-pluses rc-verses" start={(page - 1) * PAGE + 1}>
-            {res.data.items.map((v) => (
+      <PagedList csv="witness-pluses" res={res} empty={t.unitNone}>
+        {(d, stale) => (
+          <ol className={`wt-pluses rc-verses ${stale}`} start={(page - 1) * PAGE + 1}>
+            {d.items.map((v) => (
               <li key={`${v.witness}|${v.verse.verse_id}`}>
                 <Link to={witnessUrl({ unit: `v:${v.verse.verse_id}` })}>{verseRef(v.verse, locale)}</Link> <span className="rc-n">{t.plusOf(v.plus)}</span>{' '}
                 <span className="muted small">
@@ -164,9 +160,8 @@ function Pluses({ kind }: { kind: WitnessKind }) {
               </li>
             ))}
           </ol>
-          <Pager page={page} pages={Math.ceil(res.data.total / PAGE)} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </section>
   )
 }
@@ -174,7 +169,7 @@ function Pluses({ kind }: { kind: WitnessKind }) {
 function UnitWitnesses({ unit }: { unit: string }) {
   const { m, locale } = useLocale()
   const t = m.wt
-  const [params, update] = useQueryParams()
+  const [params] = useQueryParams()
   const page = parsePage(params.get('vpage'))
   const detail = useUnit(unit)
   const res = useWitnessUnit(unit, PAGE, (page - 1) * PAGE)
@@ -191,20 +186,19 @@ function UnitWitnesses({ unit }: { unit: string }) {
           </>
         )}
       </p>
-      {res.isError || detail.isError ? (
-        <ErrorBox error={res.error ?? detail.error} />
-      ) : !res.data ? (
-        <Loading />
-      ) : res.data.total === 0 ? (
-        <p className="muted">{t.unitNone}</p>
+      {detail.isError ? (
+        <ErrorBox error={detail.error} />
       ) : (
-        <>
-          <OpsKey />
-          {res.data.items.map((v) => (
-            <VerseWitnesses key={v.verse.verse_id} v={v} />
-          ))}
-          <Pager page={page} pages={Math.ceil(res.data.total / PAGE)} onPage={(p) => update({ vpage: p === 1 ? null : String(p) }, false)} />
-        </>
+        <PagedList pageParam="vpage" res={res} empty={t.unitNone}>
+          {(d, stale) => (
+            <div className={stale}>
+              <OpsKey />
+              {d.items.map((v) => (
+                <VerseWitnesses key={v.verse.verse_id} v={v} />
+              ))}
+            </div>
+          )}
+        </PagedList>
       )}
     </section>
   )

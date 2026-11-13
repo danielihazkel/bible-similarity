@@ -75,20 +75,13 @@ export function GematriaPage() {
             <section aria-label={t.valuesOf(typed.letters)}>
               <p>
                 {t.valuesOf(typed.letters)}{' '}
-                <span className="chips">
-                  {SYSTEMS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className={`chip ${s === system ? 'on' : ''}`}
-                      aria-pressed={s === system}
-                      title={t.systemHints[s]}
-                      onClick={() => update({ system: s === 'standard' ? null : s, page: null })}
-                    >
-                      {t.systems[s]} <b>{m.num(typed.values[s])}</b>
-                    </button>
-                  ))}
-                </span>
+                <Segmented
+                  className="gm-systems"
+                  label={t.valuesOf(typed.letters)}
+                  value={system}
+                  onChange={(s) => update({ system: s === 'standard' ? null : s, page: null })}
+                  options={SYSTEMS.map((s) => ({ value: s, label: `${t.systems[s]} ${m.num(typed.values[s])}`, title: t.systemHints[s] }))}
+                />
               </p>
             </section>
           )}
@@ -132,7 +125,7 @@ function Forms({ data }: { data: GematriaResponse }) {
   const t = m.gm
   const res = useGematriaForms(usePageQuery(data))
   return (
-    <PagedList res={res} empty={t.empty.forms} summary={(_, p, pages) => t.pageOf(p, pages)}>
+    <PagedList csv="gematria-forms" res={res} empty={t.empty.forms} summary={(_, p, pages) => t.pageOf(p, pages)}>
       {(d, stale) => (
         <ol className={`gm-forms ${stale}`}>
           {d.items.map((f) => (
@@ -162,7 +155,7 @@ function Lemmas({ data }: { data: GematriaResponse }) {
   const t = m.gm
   const res = useGematriaLemmas(usePageQuery(data))
   return (
-    <PagedList res={res} empty={t.empty.lemmas} summary={(_, p, pages) => t.pageOf(p, pages)}>
+    <PagedList csv="gematria-lemmas" res={res} empty={t.empty.lemmas} summary={(_, p, pages) => t.pageOf(p, pages)}>
       {(d, stale) => (
         <div className={`chips gm-lemmas ${stale}`}>
           {d.items.map((l) => (
@@ -194,7 +187,7 @@ function Verses({ data }: { data: GematriaResponse }) {
       <div className="toolbar">
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => update({ book: v, page: null })} />
       </div>
-      <PagedList res={res} empty={t.empty.verses} summary={(_, p, pages) => t.pageOf(p, pages)}>
+      <PagedList csv="gematria-verses" res={res} empty={t.empty.verses} summary={(_, p, pages) => t.pageOf(p, pages)}>
         {(d, stale) => (
           <ol className={`hits ${stale}`}>
             {d.items.map((h) => (

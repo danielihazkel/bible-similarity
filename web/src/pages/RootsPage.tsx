@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { hiddenRootsParams, rootPairsParams, useBooks, useHiddenRoots, useRootPairs, useRoots } from '../api/hooks'
 import type { RootPairKind, RootsResponse } from '../api/types'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, Choice } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -122,17 +122,7 @@ function Pairs({ data }: { data: RootsResponse }) {
       </details>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{t.kind}</span>
-          <select value={kind ?? ''} onChange={(e) => set({ kind: e.target.value || null })}>
-            <option value="">{t.anyKind}</option>
-            {KINDS.map((k) => (
-              <option key={k} value={k}>
-                {t.kinds[k]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={t.kind} value={kind ?? ''} options={[{ value: '', label: t.anyKind }, ...KINDS.map((k) => ({ value: k as string, label: t.kinds[k] }))]} onChange={(v) => set({ kind: v || null })} />
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
       </div>
       <PagedList

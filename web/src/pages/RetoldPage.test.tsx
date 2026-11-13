@@ -151,7 +151,8 @@ describe('RetoldPage', () => {
 
   it('filters by group, order and the known through the address and the API', async () => {
     const { container } = renderAt('/retold')
-    fireEvent.click(await screen.findByRole('radio', { name: 'Carried out by the narrator' }))
+    // seven groups with "all": a dropdown, by the toolbar's rule
+    fireEvent.change(await screen.findByRole('combobox', { name: 'Show' }), { target: { value: 'carried' } })
     expect(screen.getByTestId('loc').textContent).toBe('/retold?group=carried')
     await screen.findByText('1 passage · page 1 of 1')
     expect(container.querySelectorAll('li.rt-pair')).toHaveLength(1)

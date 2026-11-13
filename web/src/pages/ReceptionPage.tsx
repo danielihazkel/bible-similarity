@@ -5,7 +5,7 @@ import { useBooks, useReception, useReceptionCitations, useReceptionVerses, useU
 import type { ReceptionChapter, ReceptionCitation, ReceptionResponse } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HeatStrip, type HeatRow } from '../components/HeatStrip'
-import { Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
@@ -116,7 +116,7 @@ function Checks({ d }: { d: ReceptionResponse }) {
 function TopVerses({ corpus }: { corpus: CorpusChoice }) {
   const { m, locale } = useLocale()
   const t = m.rc
-  const [params, update] = useQueryParams()
+  const [params] = useQueryParams()
   const page = parsePage(params.get('page'))
   const bp = params.get('book')
   const book = bp !== null && bp !== '' && Number.isInteger(Number(bp)) ? Number(bp) : undefined
@@ -131,14 +131,10 @@ function TopVerses({ corpus }: { corpus: CorpusChoice }) {
           <Link to={corpus === 'all' ? '/reception' : `/reception?corpus=${corpus}`}>{t.allBooks}</Link>
         </p>
       )}
-      {res.isError ? (
-        <ErrorBox error={res.error} />
-      ) : !res.data ? (
-        <Loading />
-      ) : (
-        <>
-          <ol className="rc-verses" start={(page - 1) * PAGE + 1}>
-            {res.data.items.map((v) => (
+      <PagedList csv="reception-verses" res={res} empty={t.unitNone}>
+        {(d, stale) => (
+          <ol className={`rc-verses ${stale}`} start={(page - 1) * PAGE + 1}>
+            {d.items.map((v) => (
               <li key={v.verse.verse_id}>
                 <Link to={`/reception?unit=${encodeURIComponent(`v:${v.verse.verse_id}`)}${corpus === 'all' ? '' : `&corpus=${corpus}`}`}>{verseRef(v.verse, locale)}</Link>{' '}
                 <span className="rc-n">{m.num(countOf(v, corpus))}</span> <span className="muted small">{parts(v, t.corpora, m.num)}</span>
@@ -148,9 +144,8 @@ function TopVerses({ corpus }: { corpus: CorpusChoice }) {
               </li>
             ))}
           </ol>
-          <Pager page={page} pages={Math.ceil(res.data.total / PAGE)} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
-        </>
-      )}
+        )}
+      </PagedList>
     </section>
   )
 }
@@ -158,7 +153,7 @@ function TopVerses({ corpus }: { corpus: CorpusChoice }) {
 function UnitCitations({ unit, corpus }: { unit: string; corpus: CorpusChoice }) {
   const { m, locale } = useLocale()
   const t = m.rc
-  const [params, update] = useQueryParams()
+  const [params] = useQueryParams()
   const page = parsePage(params.get('cpage'))
   const detail = useUnit(unit)
   const res = useReceptionCitations(unit, corpus === 'all' ? undefined : corpus, PAGE, (page - 1) * PAGE)
@@ -185,15 +180,12 @@ function UnitCitations({ unit, corpus }: { unit: string; corpus: CorpusChoice })
           </>
         )}
       </p>
-      {res.isError || detail.isError ? (
-        <ErrorBox error={res.error ?? detail.error} />
-      ) : !res.data ? (
-        <Loading />
-      ) : res.data.total === 0 ? (
-        <p className="muted">{t.unitNone}</p>
+      {detail.isError ? (
+        <ErrorBox error={detail.error} />
       ) : (
-        <>
-          <p className="muted small">{parts(res.data.counts, t.corpora, m.num)}</p>
+        <PagedList csv="reception-citations" pageParam="cpage" res={res} empty={t.unitNone} summary={(d) => parts(d.counts, t.corpora, m.num)}>
+          {(_, stale) => (
+            <div className={stale}>
           {groups.map((g) => (
             <div key={g.verse} className="rc-group">
               <h3>
@@ -220,8 +212,9 @@ function UnitCitations({ unit, corpus }: { unit: string; corpus: CorpusChoice })
               </ul>
             </div>
           ))}
-          <Pager page={page} pages={Math.ceil(res.data.total / PAGE)} onPage={(p) => update({ cpage: p === 1 ? null : String(p) }, false)} />
-        </>
+            </div>
+          )}
+        </PagedList>
       )}
     </section>
   )

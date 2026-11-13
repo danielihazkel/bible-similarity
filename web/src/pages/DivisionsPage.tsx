@@ -261,6 +261,7 @@ function GapList({ book }: { book?: number }) {
       </div>
       {kind && <p className="muted small">{t.kinds[kind].hint}</p>}
       <PagedList
+        csv="divisions"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}

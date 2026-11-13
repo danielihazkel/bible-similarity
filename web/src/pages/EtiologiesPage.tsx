@@ -102,7 +102,7 @@ function Namings({ d }: { d: EtiologiesResponse }) {
         />
       </div>
       {shown.length === 0 ? (
-        <p className="muted">{t.empty}</p>
+        <p className="status">{t.empty}</p>
       ) : (
         <ul className="hits ety-list">
           {shown.map((n) => (

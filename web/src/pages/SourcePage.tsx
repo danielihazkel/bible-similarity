@@ -81,7 +81,7 @@ export function SourcePage() {
 
 function Result({ r }: { r: SourceResponse }) {
   const t = useLocale().m.sf
-  if (r.passages.length === 0) return <p className="muted">{t.none}</p>
+  if (r.passages.length === 0) return <p className="status">{t.none}</p>
   // each token's passage (its number from 1), and the tokens a verse matched exactly
   const of = new Map<number, number>()
   const exact = new Set<number>()

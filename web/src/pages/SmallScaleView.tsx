@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useMirrorClauses, useMirrors, useMirrorVerses } from '../api/hooks'
 import type { MirrorClause, MirrorsMeta, MirrorVerse } from '../api/types'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, Choice } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -146,20 +146,14 @@ function ClauseList({ book, unit, pairs }: { book?: number; unit?: string; pairs
             ))}
           </select>
         </label>
-        <label className="control">
-          <span>{t.filters.genre}</span>
-          <select value={g ?? ''} onChange={(e) => set({ genre: e.target.value || null })}>
-            <option value="">{t.filters.any}</option>
-            <option value="poetry">{t.filters.poetry}</option>
-            <option value="prose">{t.filters.prose}</option>
-          </select>
-        </label>
+        <Choice<string> label={t.filters.genre} value={g ?? ''} options={[{ value: '', label: t.filters.any }, { value: 'poetry', label: t.filters.poetry }, { value: 'prose', label: t.filters.prose }]} onChange={(v) => set({ genre: v || null })} />
         <label className="check">
           <input type="checkbox" checked={mirrored === true} onChange={(e) => set({ mirrored: e.target.checked ? '1' : null })} />
           {t.filters.mirrored}
         </label>
       </div>
       <PagedList
+        csv="mirror-clauses"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}
@@ -203,6 +197,7 @@ function VerseList({ book, unit, k, total }: { book?: number; unit?: string; k: 
       <p className="muted small">{t.fullNote(total, k)}</p>
       <PrecisionNote detector="mirrors" />
       <PagedList
+        csv="mirror-verses"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}

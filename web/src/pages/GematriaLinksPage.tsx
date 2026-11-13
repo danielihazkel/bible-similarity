@@ -252,7 +252,7 @@ function Pairs() {
           <input type="checkbox" checked={sameLetters} onChange={(e) => set({ same: e.target.checked ? '1' : null })} /> {t.sameLetters}
         </label>
       </div>
-      <PagedList res={res} empty={t.emptyPairs} summary={(d, pg, pages) => `${t.pairsSummary(d.total)} · ${t.pageOf(pg, pages)}`}>
+      <PagedList csv="gematria-pairs" res={res} empty={t.emptyPairs} summary={(d, pg, pages) => `${t.pairsSummary(d.total)} · ${t.pageOf(pg, pages)}`}>
         {(d, stale) => (
           <ol className={`gl-pairs ${stale}`}>
             {d.items.map((p) => (

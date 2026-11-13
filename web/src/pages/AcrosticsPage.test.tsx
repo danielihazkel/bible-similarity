@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AcrosticsResponse } from '../api/types'
@@ -75,7 +75,9 @@ describe('AcrosticsPage', () => {
     const letters = [...container.querySelectorAll('.acrostic-chain span')].map((e) => e.textContent).join('')
     expect(letters).toBe('אבגדהוזחטיכלמנספעצקרשת')
     expect(calls.some((c) => c.startsWith('/api/acrostics?max_q=0.05'))).toBe(true)
-    fireEvent.change(screen.getByLabelText('Show'), { target: { value: 'all' } })
+    // the significance filter every list has: q ≤ 0.05, this list's second step, all
+    expect(within(screen.getByRole('radiogroup', { name: 'Significance' })).getAllByRole('radio').map((r) => r.textContent)).toEqual(['q ≤ 0.05', 'q ≤ 0.5', 'All'])
+    fireEvent.click(screen.getByRole('radio', { name: 'All' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/acrostics?q=all'))
     await waitFor(() => expect(calls.some((c) => c.startsWith('/api/acrostics?max_q=1&'))).toBe(true))
   })
@@ -107,7 +109,7 @@ describe('AcrosticsPage', () => {
     expect(screen.getByText('21 אותיות, 1 חסרות')).toBeTruthy()
     expect(screen.getByText('פסוק אחר פסוק · פ לפני ע')).toBeTruthy()
     expect(screen.getByText(/פרק אחד · עמוד 1 מתוך 1/)).toBeTruthy()
-    expect(screen.getByLabelText('הצגה')).toBeTruthy()
+    expect(screen.getByRole('radiogroup', { name: 'מובהקות' })).toBeTruthy()
     expect(screen.queryByText(/Lamentations/)).toBeNull()
     expect(screen.queryByText(/letters/)).toBeNull()
   })

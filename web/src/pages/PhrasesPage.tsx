@@ -1,6 +1,6 @@
 import { useBooks, usePhrases, phrasesParams } from '../api/hooks'
 import { PagedList } from '../components/Pager'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, Choice } from '../components/Controls'
 import { ExportCsv } from '../components/ExportCsv'
 import { PhraseCard } from '../components/PhraseCard'
 import { UnitFilter } from '../components/UnitFilter'
@@ -70,16 +70,7 @@ function PhraseList() {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <BookSelect label={m.par.book} all={m.par.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="control">
-          <span>{m.par.phrases.atLeast}</span>
-          <select value={minTokens} onChange={(e) => set({ min: e.target.value === '3' ? null : e.target.value })}>
-            {MIN_TOKENS.map((n) => (
-              <option key={n} value={n}>
-                {m.cards.lemmas(n)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={m.par.phrases.atLeast} value={String(minTokens)} options={MIN_TOKENS.map((n) => ({ value: String(n), label: m.cards.lemmas(n) }))} onChange={(v) => set({ min: v === '3' ? null : v })} />
         <label className="check">
           <input type="checkbox" checked={crossBook} onChange={(e) => set({ cross: e.target.checked ? '1' : null })} />
           {m.par.differentBooks}

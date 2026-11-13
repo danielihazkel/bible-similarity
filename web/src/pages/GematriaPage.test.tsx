@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
@@ -113,7 +113,10 @@ describe('GematriaPage', () => {
   it('values a word in each system and lists the forms of the same value', async () => {
     const { calls } = renderAt('/gematria?q=%D7%90%D7%9C%D7%99%D7%A2%D7%96%D7%A8')
     expect(await screen.findByText(/The value of אליעזר in each system/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: /Ordinal 66/ })).toBeTruthy()
+    // the word's value in each system: one choice of a few, the system in use chosen
+    const values = screen.getByRole('radiogroup', { name: /The value of אליעזר in each system/ })
+    expect(within(values).getByRole('radio', { name: /Ordinal 66/ })).toBeTruthy()
+    expect(within(values).getByRole('radio', { name: /Standard 318/ }).getAttribute('aria-checked')).toBe('true')
     expect(await screen.findByText(/318 \(Standard\): 65 written forms \(675 words in the text\), 17 lemmas and 1 verse\./)).toBeTruthy()
     expect(await screen.findByText('וישב')).toBeTruthy()
     expect(screen.getByText(/239 times in 228 verses/)).toBeTruthy()

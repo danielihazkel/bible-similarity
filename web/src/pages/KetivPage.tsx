@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { TableCsv } from '../components/TableCsv'
-import { BookSelect } from '../components/Controls'
+import { BookSelect, Choice } from '../components/Controls'
 import { useBooks, useKetiv, useKqPairs } from '../api/hooks'
 import type { Book, KetivMeta, KqBook, KqClass, KqGrammar, KqLetter, KqPair, KqParallel } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
@@ -229,39 +229,9 @@ function PairList({ books }: { books: Book[] }) {
       <h2>{t.listTitle}</h2>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
-        <label className="control">
-          <span>{t.filters.cls}</span>
-          <select value={cls ?? ''} onChange={(e) => set({ cls: e.target.value || null })}>
-            <option value="">{t.filters.any}</option>
-            {CLASSES.map((c) => (
-              <option key={c} value={c}>
-                {t.classes[c].label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="control">
-          <span>{t.filters.grammar}</span>
-          <select value={grammar ?? ''} onChange={(e) => set({ grammar: e.target.value || null })}>
-            <option value="">{t.filters.any}</option>
-            {GRAMMARS.map((g) => (
-              <option key={g} value={g}>
-                {t.grammar[g]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="control">
-          <span>{t.filters.parallel}</span>
-          <select value={parallel ?? ''} onChange={(e) => set({ parallel: e.target.value || null })}>
-            <option value="">{t.filters.any}</option>
-            {PARALLELS.map((p) => (
-              <option key={p} value={p}>
-                {t.parallelOpt[p]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={t.filters.cls} value={cls ?? ''} options={[{ value: '', label: t.filters.any }, ...CLASSES.map((c) => ({ value: c as string, label: t.classes[c].label }))]} onChange={(v) => set({ cls: v || null })} />
+        <Choice<string> label={t.filters.grammar} value={grammar ?? ''} options={[{ value: '', label: t.filters.any }, ...GRAMMARS.map((g) => ({ value: g as string, label: t.grammar[g] }))]} onChange={(v) => set({ grammar: v || null })} />
+        <Choice<string> label={t.filters.parallel} value={parallel ?? ''} options={[{ value: '', label: t.filters.any }, ...PARALLELS.map((x) => ({ value: x as string, label: t.parallelOpt[x] }))]} onChange={(v) => set({ parallel: v || null })} />
         <BookSelect label={t.filters.book} all={m.par.allBooks} books={books} value={book} onChange={(v) => set({ book: v })} />
         <label className="check">
           <input type="checkbox" checked={euphemism === true} onChange={(e) => set({ euphemism: e.target.checked ? '1' : null })} />
@@ -269,6 +239,7 @@ function PairList({ books }: { books: Book[] }) {
         </label>
       </div>
       <PagedList
+        csv="ketiv"
         res={res}
         empty={t.none}
         summary={(data) => t.page(data.total, page, pages)}

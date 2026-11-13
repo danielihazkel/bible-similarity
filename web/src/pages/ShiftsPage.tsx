@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
 import { useShifts } from '../api/hooks'
-import { Segmented } from '../components/Controls'
+import { Segmented, SignificanceFilter } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
-import { parsePage, useQueryParams } from '../lib/urlState'
+import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
 import '../i18n/pages/patterns'
 import '../i18n/pages/senses'
@@ -18,9 +18,9 @@ export function ShiftsPage() {
   const t = m.sen
   const [params, update] = useQueryParams()
   const by = params.get('by') === 'use' ? 'use' : 'sense'
-  const all = params.get('q') === 'all'
+  const sig = parseSignificance(params)
   const page = parsePage(params.get('page'))
-  const res = useShifts(by, all ? 1 : 0.05, PAGE_SIZE, (page - 1) * PAGE_SIZE)
+  const res = useShifts(by, sig.maxQ ?? 1, PAGE_SIZE, (page - 1) * PAGE_SIZE)
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
   const pages = res.data ? Math.max(1, Math.ceil(res.data.total / PAGE_SIZE)) : 1
   return (
@@ -38,12 +38,10 @@ export function ShiftsPage() {
           onChange={(v) => set({ by: v === 'sense' ? null : v })}
           options={(['sense', 'use'] as const).map((v) => ({ value: v, label: t.bys[v] }))}
         />
-        <label className="check">
-          <input type="checkbox" checked={all} onChange={(e) => set({ q: e.target.checked ? 'all' : null })} />
-          {t.includeAll}
-        </label>
+        <SignificanceFilter value={sig.choice} onChange={(v) => set(significanceChange(v))} />
       </div>
       <PagedList
+        csv="shifts"
         res={res}
         empty={t.empty}
         summary={(data) => (

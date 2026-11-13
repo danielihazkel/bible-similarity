@@ -122,7 +122,7 @@ function Repetitions({ d }: { d: BracketsResponse }) {
           </select>
         </label>
       </div>
-      <PagedList res={res} empty={t.empty} summary={(p, n, pages) => `${t.count(p.total)} · ${t.pageOf(n, pages)}`}>
+      <PagedList csv="brackets" res={res} empty={t.empty} summary={(p, n, pages) => `${t.count(p.total)} · ${t.pageOf(n, pages)}`}>
         {(p, stale) => (
           <ol className={`hits brk-list ${stale}`}>
             {p.items.map((b) => (

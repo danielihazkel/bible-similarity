@@ -398,7 +398,8 @@ test('numbers and lists: Amos 1 among the sayings, Genesis 5 among the lists', a
 
 test('gematria: Eliezer is 318, Genesis 1:1 adds up to 2701, and the reader links the two', async ({ page }) => {
   await page.goto('/gematria?q=%D7%90%D7%9C%D7%99%D7%A2%D7%96%D7%A8')
-  await expect(page.getByRole('button', { name: /Standard 318/ })).toBeVisible()
+  // the word's value in each system: one choice of a few (M174)
+  await expect(page.locator('.gm-systems').getByRole('radio', { name: /Standard 318/ })).toBeChecked()
   await expect(page.locator('.gm-forms li').first()).toContainText('וישב')
   await page.getByRole('radio', { name: /Lemmas/ }).click()
   await expect(page.locator('.gm-lemmas .lemma-chip', { hasText: 'אֱלִיעֶזֶר' }).first()).toBeVisible()
@@ -942,4 +943,35 @@ test('the reader: eight layers and the first verse of Genesis 22 on the first sc
   // a word under a speaker's tint says who speaks it
   await page.locator('.reader-text .spk').first().click()
   await expect(page.locator('.word-panel .word-notes li').first()).toContainText('Speakers')
+})
+
+// M174: one way to filter, on the real data
+test('the sequences’ significance filter loosens the list, and its export has every row', async ({ page, request }) => {
+  await page.goto('/sequences')
+  const count = async () => Number(((await page.locator('main p.muted.small', { hasText: 'page 1 of' }).first().innerText()).match(/^([\d,]+)/)?.[1] ?? '0').replace(/,/g, ''))
+  await expect(page.locator('.hits li, .disc-list li').first()).toBeVisible()
+  const strict = await count()
+  const filter = page.getByRole('radiogroup', { name: 'Significance' })
+  await expect(filter.getByRole('radio')).toHaveText(['q ≤ 0.05', 'q ≤ 0.2', 'All'])
+  await filter.getByRole('radio', { name: 'q ≤ 0.2' }).click()
+  await expect(page).toHaveURL(/q=0\.2/)
+  await expect.poll(count).toBeGreaterThan(strict)
+  const loose = await count()
+  const href = await page.locator('main').getByRole('link', { name: 'Export all (CSV)' }).getAttribute('href')
+  expect(href).toContain('max_q=0.2')
+  const lines = (await (await request.get(href!)).text()).trim().split(/\r?\n/)
+  expect(lines.length - 1).toBe(loose)
+})
+
+test('lists that had no export have one: the ketiv pairs, a place’s verses, a root’s verses', async ({ page, request }) => {
+  for (const [path, list] of [['/ketiv', 'ketiv'], ['/places?p=1', 'place-verses'], ['/root/7218', 'root-verses'], ['/reception', 'reception-verses']]) {
+    await page.goto(path)
+    const all = page.locator('main').getByRole('link', { name: 'Export all (CSV)' }).first()
+    await expect(all, path).toHaveAttribute('href', new RegExp(`^/api/export/${list}\\.csv`))
+    const r = await request.get((await all.getAttribute('href'))!)
+    expect(r.status(), path).toBe(200)
+    const [header, first] = (await r.text()).replace(/^\uFEFF/, '').trim().split(/\r?\n/)
+    expect(first, path).toBeTruthy()
+    if (list !== 'ketiv') expect(header.split(','), path).toContain(list === 'root-verses' ? 'label_en' : 'verse')
+  }
 })

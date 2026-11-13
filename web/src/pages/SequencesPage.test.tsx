@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SequenceDetail, SequenceSummary, SequencesResponse } from '../api/types'
@@ -141,10 +141,11 @@ describe('SequencesPage order filter', () => {
     renderAt('/sequences', calls)
     await screen.findByText('II Samuel 22:1–3')
     expect(calls.some((c) => c.startsWith('/api/sequences?') && c.includes('direction=forward'))).toBe(true)
-    fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'reverse' } })
+    const order = within(screen.getByRole('radiogroup', { name: 'Order' }))
+    fireEvent.click(order.getByRole('radio', { name: 'Mirrored' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/sequences?order=reverse'))
     await waitFor(() => expect(calls.some((c) => c.includes('direction=reverse'))).toBe(true))
-    fireEvent.change(screen.getByLabelText('Order'), { target: { value: 'any' } })
+    fireEvent.click(order.getByRole('radio', { name: 'Any order' }))
     await waitFor(() => expect(calls.some((c) => c.startsWith('/api/sequences?') && !c.includes('direction='))).toBe(true))
   })
 })
@@ -172,7 +173,7 @@ describe('Sequences in Hebrew', () => {
     expect(screen.getByRole('heading', { name: 'רצפים מקבילים' })).toBeTruthy()
     expect(screen.getByText('ספריא מקשרת 1/2')).toBeTruthy()
     expect(screen.getByText(/רצף אחד · עמוד 1 מתוך 1/)).toBeTruthy()
-    expect(screen.getByRole('option', { name: 'סדר הפוך' })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: 'סדר הפוך' })).toBeTruthy()
   })
 
   it('shows the ladder with Hebrew references', async () => {

@@ -19,19 +19,36 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 
 from bsim.api.routes import (
+    brackets,
+    ciphers,
+    citations,
     core,
     dialogue,
+    domains,
+    echoes,
     forms,
+    gematria,
+    ketiv,
     laws,
+    mainline,
     meter,
+    mirrors,
     parallels,
     patterns,
     pentateuch,
     phrases,
+    places,
     poetics,
+    prophetic,
     psalms,
+    reception,
     refrains,
+    retold,
     roots,
+    segments,
+    senses,
+    sums,
+    witnesses,
 )
 from bsim.api.routes import corpus as corpus_routes
 from bsim.api.routes._common import Conn, State, book_or_404, unprocessable
@@ -67,6 +84,33 @@ EXPORTS: dict[str, Callable[..., dict[str, Any]]] = {
     "patterns": patterns.patterns,
     "laws": laws.law_list,
     "law-pairs": laws.law_pairs,
+    # M174: the lists that had no export
+    "brackets": brackets.bracket_items,
+    "cipher-hits": ciphers.cipher_hits,
+    "citations": citations.citation_list,
+    "echoes": echoes.echo_list,
+    "divisions": segments.segment_gaps,
+    "gematria-pairs": gematria.gematria_link_pairs,
+    "gematria-forms": gematria.gematria_forms,
+    "gematria-lemmas": gematria.gematria_lemmas,
+    "gematria-verses": gematria.gematria_verses,
+    "ketiv": ketiv.ketiv_pairs,
+    "mainline": mainline.mainline_pauses,
+    "place-links": places.place_link_pairs,
+    "place-verses": places.place_verses,
+    "prophetic": prophetic.prophetic_items,
+    "retold": retold.retold_items,
+    "shifts": senses.shifts,
+    "mirror-clauses": mirrors.mirror_clauses,
+    "mirror-verses": mirrors.mirror_verses,
+    "sums-parallels": sums.sums_parallels,
+    # the lists that placed their own pager
+    "root-verses": roots.root_family,
+    "allusions": phrases.allusions,
+    "domain-verses": domains.domain,
+    "reception-verses": reception.reception_verses,
+    "reception-citations": reception.reception_citations,
+    "witness-pluses": witnesses.witnesses_pluses,
 }
 SKIPPED = {
     "verse", "verses", "a_verse", "b_verse", "text_display", "display_tokens", "matrix", "marks",
@@ -95,10 +139,15 @@ def _label(v: dict[str, Any]) -> Any:
 
 def flatten(item: dict[str, Any], prefix: str = "") -> dict[str, Any]:
     out: dict[str, Any] = {}
+    # an item with no label of its own is named by its verse: the verse's reference is its key
+    by_verse = not any(k in item for k in ("label_en", "label", "ref"))
     for k, v in item.items():
+        name = f"{prefix}{k}"
+        if by_verse and k == "verse" and isinstance(v, dict) and "ref" in v:
+            out[name] = v["ref"]
+            continue
         if k in SKIPPED:
             continue
-        name = f"{prefix}{k}"
         if isinstance(v, dict):
             label = _label(v)
             if label is not None:

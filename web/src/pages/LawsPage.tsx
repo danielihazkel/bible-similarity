@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useLawList, useLawPair, useLawPairs, useLaws } from '../api/hooks'
 import { isStageMissing } from '../api/client'
 import type { Law, LawPair, LawSideVerse, LawsResponse } from '../api/types'
-import { Segmented } from '../components/Controls'
+import { Segmented, KnownOnly, Choice } from '../components/Controls'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
@@ -174,17 +174,7 @@ function Lists({ d }: { d: LawsResponse }) {
 function CodeSelect({ value, onChange }: { value: LawCodeKey | undefined; onChange: (v: string | null) => void }) {
   const t = useLocale().m.laws
   return (
-    <label>
-      {t.code}{' '}
-      <select value={value ?? ''} onChange={(e) => onChange(e.target.value || null)}>
-        <option value="">{t.allCodes}</option>
-        {CODES.map((c) => (
-          <option key={c} value={c}>
-            {t.codes[c]}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Choice<string> label={t.code} value={value ?? ''} options={[{ value: '', label: t.allCodes }, ...CODES.map((c) => ({ value: c as string, label: t.codes[c] }))]} onChange={(v) => onChange(v || null)} />
   )
 }
 
@@ -214,12 +204,9 @@ function Pairs({ d }: { d: LawsResponse }) {
           onChange={(v) => set({ order: v === 'score' ? null : v })}
         />
         <CodeSelect value={code} onChange={(v) => set({ code: v })} />
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? '1' : null })} />
-          {t.knownOnly}
-        </label>
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? '1' : null })} />
       </div>
-      <PagedList res={res} empty={t.none} summary={(x, p, pages) => t.pairCount(x.total, p, pages)}>
+      <PagedList csv="law-pairs" res={res} empty={t.none} summary={(x, p, pages) => t.pairCount(x.total, p, pages)}>
         {(x, stale) => (
           <ol className={`hits lw-pairs ${stale}`}>
             {x.items.map((p) => (
@@ -280,7 +267,7 @@ function LawList() {
           onChange={(v) => set({ form: v === 'all' ? null : v })}
         />
       </div>
-      <PagedList res={res} empty={t.none} summary={(x, p, pages) => t.lawCount(x.total, p, pages)}>
+      <PagedList csv="laws" res={res} empty={t.none} summary={(x, p, pages) => t.lawCount(x.total, p, pages)}>
         {(x, stale) => (
           <ol className={`hits lw-laws ${stale}`}>
             {x.items.map((l) => (

@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { TableCsv } from '../components/TableCsv'
 import { useBooks, useCipherHits, useCiphers } from '../api/hooks'
 import type { CipherHit, CipherName, CiphersResponse } from '../api/types'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, KnownOnly } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
@@ -155,12 +155,9 @@ function Hits() {
           options={[{ value: 'both', label: t.both }, ...CIPHERS.map((x) => ({ value: x, label: t.ciphers[x] }))]}
         />
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="check">
-          <input type="checkbox" checked={known} onChange={(e) => set({ known: e.target.checked ? null : '0' })} />
-          {t.knownOnly}
-        </label>
+        <KnownOnly checked={known} label={t.knownOnly} onChange={(on) => set({ known: on ? null : '0' })} />
       </div>
-      <PagedList res={res} empty={t.emptyHits} summary={(d, p, pages) => `${t.hitCount(d.total)} · ${t.pageOf(p, pages)}`}>
+      <PagedList csv="cipher-hits" res={res} empty={t.emptyHits} summary={(d, p, pages) => `${t.hitCount(d.total)} · ${t.pageOf(p, pages)}`}>
         {(d, stale) => (
           <ol className={`hits ${stale}`}>
             {d.items.map((h) => (

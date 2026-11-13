@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router'
 import { useBooks, useLemma } from '../api/hooks'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
-import { Pager } from '../components/Pager'
+import { PagedList } from '../components/Pager'
 import { SensesPanel } from '../components/SensesPanel'
 import { ErrorBox, Loading } from '../components/Status'
 import { UnitName } from '../components/UnitName'
@@ -31,7 +31,6 @@ export function ConcordancePage() {
   const c = conc.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   const most = Math.max(...c.by_book.map((b) => b.n_verses))
-  const pages = Math.max(1, Math.ceil(c.total / PAGE_SIZE))
   return (
     <div className="page concordance-page">
       <h1>
@@ -85,28 +84,34 @@ export function ConcordancePage() {
           : m.concordance.verses}{' '}
         <span className="muted small">({m.num(c.total)})</span>
       </h2>
-      <p className="muted small">
-        <ExportCsv
-          filename={`concordance-${lemma}-p${page}.csv`}
-          rows={() => c.items.map((h) => ({ verse: h.label_en, reference: h.label_he, text: h.verse.text_display }))}
-          all={{ list: 'concordance', params: { lemma, book } }}
-        />
-      </p>
-      <ol className={`hits ${conc.isPlaceholderData ? 'stale' : ''}`}>
-        {c.items.map((h) => (
-          <li key={h.verse.verse_id} className="hit">
-            <div className="hit-head">
-              <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
-                <UnitName en={h.label_en} he={h.label_he} />
-              </Link>
-            </div>
-            <p className="hit-text">
-              <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
-            </p>
-          </li>
-        ))}
-      </ol>
-      <Pager page={page} pages={pages} onPage={(p) => update({ page: p === 1 ? null : String(p) }, false)} />
+      <PagedList
+        res={conc}
+        empty={m.concordance.none}
+        summary={(d) => (
+          <ExportCsv
+            filename={`concordance-${lemma}-p${page}.csv`}
+            rows={() => d.items.map((h) => ({ verse: h.label_en, reference: h.label_he, text: h.verse.text_display }))}
+            all={{ list: 'concordance', params: { lemma, book } }}
+          />
+        )}
+      >
+        {(d, stale) => (
+          <ol className={`hits ${stale}`}>
+            {d.items.map((h) => (
+              <li key={h.verse.verse_id} className="hit">
+                <div className="hit-head">
+                  <Link className="hit-ref" to={unitLink(`v:${h.verse.verse_id}`)}>
+                    <UnitName en={h.label_en} he={h.label_he} />
+                  </Link>
+                </div>
+                <p className="hit-text">
+                  <HebrewText verse={h.verse} highlight={new Map(h.display_idxs.map((i) => [i, 'shared'])) as Highlight} />
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </PagedList>
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { WordplayCard } from '../components/WordplayCard'
 import { useLocale } from '../context/localeContext'
 import { parsePage, useQueryParams } from '../lib/urlState'
 import { AlliterationView, RhymeView } from './SoundViews'
-import { BookSelect, Segmented } from '../components/Controls'
+import { BookSelect, Segmented, Choice } from '../components/Controls'
 import '../i18n/pages/patterns'
 import { PrecisionNote } from '../components/PrecisionNote'
 
@@ -82,17 +82,7 @@ function PairsView() {
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
         <BookSelect label={m.search.book} all={m.search.allBooks} books={books.data} value={book} onChange={(v) => set({ book: v })} />
-        <label className="control">
-          <span>{m.pat.kind}</span>
-          <select value={kind ?? ''} onChange={(e) => set({ kind: e.target.value || null })}>
-            <option value="">{m.pat.any}</option>
-            {KINDS.map((k) => (
-              <option key={k} value={k}>
-                {t.kinds[k]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Choice<string> label={m.pat.kind} value={kind ?? ''} options={[{ value: '', label: m.pat.any }, ...KINDS.map((k) => ({ value: k as string, label: t.kinds[k] }))]} onChange={(v) => set({ kind: v || null })} />
       </div>
 
       <PagedList

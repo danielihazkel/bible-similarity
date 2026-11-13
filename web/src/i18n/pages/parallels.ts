@@ -10,7 +10,6 @@ export const parEn = {
   book: 'Book',
   allBooks: 'All books',
   differentBooks: 'Different books only',
-  includeQ: 'Include q > 0.05',
   /** "from → to" between two passages or words */
   arrow: '→',
   pairsPage: (n: number, page: number, pages: number) => `${numEn(n)} pairs · page ${page} of ${pages}`,
@@ -61,8 +60,6 @@ export const parEn = {
       mixed: { label: 'Reordered', hint: 'The same scene told in another order' },
       any: { label: 'Any order', hint: 'Same, mirrored and reordered chains' },
     } satisfies Record<SequenceDirection | 'any', Labelled>,
-    significance: 'Significance',
-    qOptions: { '0.05': 'q ≤ 0.05 (strong)', '0.2': 'q ≤ 0.2', all: 'All chains' } as Record<string, string>,
     hideRepeatsTitle: 'Hide repeats inside one chapter (lists such as Numbers 7)',
     hideRepeats: 'Hide repeats within a chapter',
     none: 'No sequences match these filters.',

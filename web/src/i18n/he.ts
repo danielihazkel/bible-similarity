@@ -420,6 +420,12 @@ export const he: Messages = {
   filter: {
     onlyTouching: 'רק אלה הנוגעים ב',
     showAll: 'הצגת הכול',
+    significance: 'מובהקות',
+    q: (max: string) => `q ≤ ${max}`,
+    qTitle: 'רק מה שעומד אחרי תיקון למספר המבחנים שנעשו (q של בנימיני–הוכברג, 0.05 לכל היותר)',
+    qLooseTitle: 'גם המועמדים: סף רופף יותר, וביניהם יותר ממצאים מקריים',
+    all: 'הכול',
+    allTitle: 'כל מה שנמצא, יהיה ה־q שלו אשר יהיה',
   },
 
   csv: { page: 'ייצוא העמוד (CSV)', all: 'ייצוא הכול (CSV)', table: 'ייצוא הטבלה (CSV)', region: 'טבלה' },
@@ -566,6 +572,7 @@ export const he: Messages = {
   },
 
   concordance: {
+    none: 'אין כאן פסוקים.',
     occurrences: (words: number, verses: number, books: number) =>
       `${num(words)} מופעים ב־${num(verses)} פסוקים, ${books} ספרים.`,
     byBook: 'לפי ספר',
