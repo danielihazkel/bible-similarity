@@ -6,12 +6,12 @@
 .syn-row {
   display: grid;
   grid-template-columns: repeat(var(--syn-cols, 3), minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: var(--space-4);
 }
 
 .syn-head {
-  margin-top: 1rem;
-  font-size: 0.85rem;
+  margin-top: var(--space-6);
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--muted);
 }
@@ -24,7 +24,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.4rem 0.6rem;
+  padding: var(--space-3) var(--space-4);
   min-width: 0;
 }
 
@@ -38,12 +38,12 @@
 }
 
 .syn-cell .hit-text {
-  font-size: 1.1rem;
-  margin: 0.15rem 0 0;
+  font-size: var(--fs-xl);
+  margin: var(--space-1) 0 0;
 }
 
 .syn-flag {
-  margin-inline-start: 0.4rem;
+  margin-inline-start: var(--space-3);
   color: var(--muted);
 }
 
@@ -53,8 +53,8 @@
     }
   .syn-row {
       grid-template-columns: 1fr;
-      gap: 0.25rem;
-      padding-bottom: 0.4rem;
+      gap: var(--space-2);
+      padding-bottom: var(--space-3);
       border-bottom: 2px solid var(--border);
     }
   .syn-cell.empty {

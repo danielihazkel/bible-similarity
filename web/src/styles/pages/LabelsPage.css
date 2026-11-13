@@ -9,11 +9,11 @@
 
 .labels-list > li {
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 0;
+  padding: var(--space-4) 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem 0.9rem;
+  gap: var(--space-3) var(--space-6);
 }
 
 .labels-list .label-pair {
@@ -35,20 +35,20 @@
 /* the label queue (DESIGN.md §16.79): two verses to judge, one under the other */
 
 .queue-list {
-  padding-inline-start: 1.6rem;
+  padding-inline-start: var(--space-8);
 }
 
 .queue-list > li {
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 0;
+  padding: var(--space-4) 0;
 }
 
 .queue-list p {
-  margin: 0.25rem 0;
+  margin: var(--space-2) 0;
 }
 
 .queue-text {
-  font-size: 1.1rem;
+  font-size: var(--fs-xl);
   line-height: 1.7;
 }
 
@@ -58,5 +58,5 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem 0.9rem;
+  gap: var(--space-3) var(--space-6);
 }

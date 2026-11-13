@@ -10,13 +10,12 @@ import { bookName, unitLabel } from '../lib/names'
 import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { DirectionsView } from './DirectionsView'
 import { TableCsv } from '../components/TableCsv'
+import { SECTIONS, sectionColour, sectionIndex } from '../lib/palette'
 import '../i18n/pages/echoes'
 import '../i18n/pages/overview'
 import '../styles/pages/NetworkPage.css'
 
 const TYPES: UnitType[] = ['chapter', 'pericope']
-const SECTIONS = ['Torah', 'Prophets', 'Writings']
-const SECTION_HUES = [210, 25, 140]
 const sectionName = (names: Record<string, string>, s: string | undefined) => (s === undefined ? undefined : (names[s] ?? s))
 const W = 960
 const H = 620
@@ -159,7 +158,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
   const px = (n: NetworkNode) => PAD + n.x * (W - 2 * PAD)
   const py = (n: NetworkNode) => PAD + n.y * (H - 2 * PAD)
   const radius = (n: NetworkNode) => 3 + 9 * Math.sqrt(n.pagerank / maxRank)
-  const hue = (n: NetworkNode) => SECTION_HUES[Math.max(0, SECTIONS.indexOf(bookOf.get(n.unit.book_id)?.section ?? 'Torah'))]
+  const colour = (n: NetworkNode) => sectionColour(sectionIndex(bookOf.get(n.unit.book_id)?.section))
   const labelled = new Set(
     [...nodes]
       .sort((a, b) => b.pagerank - a.pagerank)
@@ -174,7 +173,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
       <p className="section-legend small" aria-hidden="true">
         {SECTIONS.map((s, i) => (
           <span key={s}>
-            <span className="swatch" style={{ background: `hsl(${SECTION_HUES[i]}, 62%, 48%)` }} /> {m.units.sections[s] ?? s}
+            <span className="swatch" style={{ background: sectionColour(i) }} /> {m.units.sections[s] ?? s}
           </span>
         ))}
       </p>
@@ -199,7 +198,7 @@ function CommunityGraph({ data, bookOf, focus }: { data: CommunityResponse; book
                 cx={px(n)}
                 cy={py(n)}
                 r={radius(n) + (on ? 3 : 0)}
-                fill={`hsl(${hue(n)}, 62%, 48%)`}
+                style={{ fill: colour(n) }}
                 className={on ? 'node focus' : 'node'}
               />
               {labelled.has(n.unit.unit_id) && (

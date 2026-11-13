@@ -1,0 +1,41 @@
+/* What stands in a list's place while it loads (M176): quiet rows, so the page keeps its shape
+   and a quick answer shows nothing at all (the rows come in after a moment). */
+
+.list-placeholder {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 46rem;
+  padding: var(--space-6) 0;
+  opacity: 0;
+  animation: placeholder-in 0.2s 0.3s forwards;
+}
+
+.list-placeholder > span[aria-hidden] {
+  height: 0.9rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.list-placeholder > span[aria-hidden]:nth-of-type(3n + 1) { width: 64%; }
+
+.list-placeholder > span[aria-hidden]:nth-of-type(3n) { width: 82%; }
+
+/* a page whose heading is its data (a passage, a lemma): the heading's place */
+.heading-placeholder {
+  width: min(18rem, 60%);
+  height: var(--fs-3xl);
+  margin: var(--space-6) 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  opacity: 0;
+  animation: placeholder-in 0.2s 0.3s forwards;
+}
+
+@keyframes placeholder-in {
+  to { opacity: 1; }
+}
+
+@media print {
+  .list-placeholder,
+  .heading-placeholder { display: none; }
+}

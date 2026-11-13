@@ -4,7 +4,7 @@
 
 .main:has(> .genealogy-page) { max-width: none; }
 
-.gt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 1rem; margin-bottom: 0.6rem; }
+.gt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-6); margin-bottom: var(--space-4); }
 
 .gt-head h1 { margin: 0; }
 
@@ -14,24 +14,24 @@
 
 .gt-about summary { color: var(--muted); cursor: pointer; width: max-content; }
 
-.gt-about .lede { margin-block: 0.3rem 0; }
+.gt-about .lede { margin-block: var(--space-2) 0; }
 
-.gt-stage { position: relative; height: calc(100dvh - 10rem); min-height: 480px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.gt-stage { position: relative; height: calc(100dvh - 10rem); min-height: 480px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 
 .gt-stage:fullscreen { height: 100vh; border: 0; border-radius: 0; }
 
 /* above the phone's bottom sheet */
 
-.gt-idle { position: absolute; top: 0.75rem; inset-inline-end: 0.75rem; z-index: 4; max-width: 17rem; margin: 0; padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); pointer-events: none; }
+.gt-idle { position: absolute; top: 0.75rem; inset-inline-end: 0.75rem; z-index: 4; max-width: 17rem; margin: 0; padding: var(--space-3) var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); pointer-events: none; }
 
 /* the person's card, over the tree's far side */
 
 .gt-side { display: none; }
 
-.gt-side.open { display: block; position: absolute; top: 0.75rem; bottom: 0.75rem; inset-inline-end: 0.75rem; z-index: 20; width: clamp(18rem, 28vw, 28rem); overflow: auto; padding: 0.4rem 1rem 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: 0 6px 24px rgb(40 25 5 / 0.16); }
+.gt-side.open { display: block; position: absolute; top: 0.75rem; bottom: 0.75rem; inset-inline-end: 0.75rem; z-index: 20; width: clamp(18rem, 28vw, 28rem); overflow: auto; padding: var(--space-3) var(--space-6) var(--space-6); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .gt-stage { height: 72dvh; min-height: 400px; }
   .gt-idle { display: none; }
-  .gt-side.open { position: fixed; inset: auto 0 0 0; top: auto; width: auto; max-height: 55vh; z-index: 30; padding: 0.75rem 1rem 1.5rem; border: 0; border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; box-shadow: 0 -4px 18px rgb(0 0 0 / 0.18); }
+  .gt-side.open { position: fixed; inset: auto 0 0 0; top: auto; width: auto; max-height: 55vh; z-index: 30; padding: var(--space-5) var(--space-6) var(--space-8); border: 0; border-top: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-up); }
 }

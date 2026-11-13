@@ -4,7 +4,7 @@
 
 .borrow-pair {
   border-bottom: 1px solid var(--border);
-  padding: 0.4rem 0;
+  padding: var(--space-3) 0;
 }
 
 .borrow-pair summary {
@@ -12,13 +12,13 @@
 }
 
 .known-tag {
-  margin-inline-start: 0.5rem;
-  border-radius: 999px;
-  padding: 0.05rem 0.5rem;
+  margin-inline-start: var(--space-4);
+  border-radius: var(--radius-pill);
+  padding: 1px var(--space-4);
   background: var(--known-soft);
   color: var(--known);
 }
 
 .sign-checks {
-  padding-inline-start: 1.2rem;
+  padding-inline-start: var(--space-7);
 }

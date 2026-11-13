@@ -5,7 +5,7 @@ import type { NotebookCollection, NotebookEntry } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
 import { PrintButton } from '../components/PrintButton'
 import { ChangeError, DropButton, EntryEditor } from '../components/NotebookPanel'
-import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { NotComputed, PageWait } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
@@ -35,8 +35,7 @@ export function NotebookPage() {
         <NotComputed>{m.server.personalOff}</NotComputed>
       </div>
     )
-  if (nb.isPending) return <Loading />
-  if (nb.error) return <ErrorBox error={nb.error} />
+  if (nb.isPending || nb.error) return <PageWait className="page notebook-page" title={t.title} lede={t.lede} error={nb.error} />
   const { entries, collections, writable, hidden } = nb.data
   const raw = params.get('c')
   const current = collections.find((c) => String(c.collection_id) === raw)

@@ -3,28 +3,28 @@
 /* Word analysis (click a word in the source text) */
 
 .word-panel {
-  margin-top: 0.75rem;
+  margin-top: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--accent);
   border-radius: var(--radius);
-  padding: 0.6rem 0.9rem;
+  padding: var(--space-4) var(--space-6);
 }
 
 .word-form {
-  font-size: 1.6rem;
+  font-size: var(--fs-3xl);
 }
 
 .word-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.4rem 1.2rem;
-  padding: 0.35rem 0;
+  gap: var(--space-3) var(--space-7);
+  padding: var(--space-3) 0;
   border-top: 1px solid var(--border);
 }
 
 .word-surface {
-  font-size: 1.25rem;
+  font-size: var(--fs-2xl);
   min-width: 5em;
 }
 
@@ -33,14 +33,14 @@
   margin: 0;
   padding: 0;
   font-family: var(--font-he);
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
   color: var(--text);
 }
 
 /* Semantic domains (DESIGN.md §16.22) */
 
 .word-domains {
-  margin-top: 0.3rem;
+  margin-top: var(--space-2);
 }
 
 /* ---------- Print (§11.1) ----------
@@ -56,12 +56,12 @@
 
 .word-notes {
   list-style: none;
-  margin: 0.3rem 0 0.5rem;
+  margin: var(--space-2) 0 var(--space-4);
   padding: 0;
   display: grid;
-  gap: 0.15rem;
+  gap: var(--space-1);
 }
 
 .word-notes b {
-  margin-inline-end: 0.35rem;
+  margin-inline-end: var(--space-3);
 }

@@ -4,7 +4,7 @@ import type { SegmentGap, SegmentKind, SegmentPoint, SegmentsMeta } from '../api
 import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
-import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { Loading, PageWait, PanelError } from '../components/Status'
 import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -45,8 +45,7 @@ export function DivisionsPage() {
   const books = useBooks()
   const res = useSegments()
   const set = (changes: Record<string, string | null>) => update({ ...changes, page: null })
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page divisions-page" title={t.title} error={res.error} />
   const { meta } = res.data
   const bookObj = books.data?.find((b) => b.book_id === book)
   return (

@@ -1,8 +1,8 @@
 /* PagesPage.tsx (/pages): every page by menu and section, a star and a hint on each row */
 
 .pages-index h3 {
-  margin: 0.9rem 0 0.2rem;
-  font-size: 0.75rem;
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: var(--fs-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -16,15 +16,15 @@
   margin: 0;
   padding: 0;
   columns: 3 19rem;
-  column-gap: 1.75rem;
+  column-gap: var(--space-8);
 }
 
 .pages-row {
   display: grid;
   grid-template-columns: 1.75rem minmax(0, 1fr);
-  column-gap: 0.35rem;
+  column-gap: var(--space-3);
   align-items: baseline;
-  padding: 0.3rem 0;
+  padding: var(--space-2) 0;
   line-height: 1.35;
   break-inside: avoid;
 }
@@ -48,7 +48,7 @@
   border: 0;
   border-radius: var(--radius);
   background: none;
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
 }
 
 .pages-index .toolbar input[type='search'] {

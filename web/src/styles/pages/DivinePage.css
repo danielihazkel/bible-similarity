@@ -6,19 +6,19 @@
 
 /* haftarot (§16.69): a haftarah within the first chapters, the parasha shown, its list */
 
-.dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.dv-ramp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 
 .dv-table tr.dv-sig td:first-child { border-inline-start: 3px solid var(--accent); }
 
-.dv-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.dv-table .he { font-family: var(--font-he); font-size: var(--fs-xl); }
 
-.dv-count + .dv-count { margin-inline-start: 0.7rem; }
+.dv-count + .dv-count { margin-inline-start: var(--space-5); }
 
 .dv-count [lang='he'] { font-family: var(--font-he); }
 
-.dv-pair { margin-block: 0.8rem; }
+.dv-pair { margin-block: var(--space-5); }
 
-.dv-pair h3 { font-size: 1rem; margin-bottom: 0.1rem; }
+.dv-pair h3 { font-size: var(--fs-lg); margin-bottom: var(--space-1); }
 
 /* a change keeps the text colour; the series colour is a bar beside it */
 

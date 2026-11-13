@@ -2,9 +2,9 @@
 
 /* Psalms (DESIGN.md §16.42): praise above the line, distress below, the turn as a rule */
 
-.psalm-features { margin: 0.2rem 0; }
+.psalm-features { margin: var(--space-2) 0; }
 
-.mood-strip { display: block; margin: 0.3rem 0 0.2rem; max-width: 100%; }
+.mood-strip { display: block; margin: var(--space-2) 0 var(--space-2); max-width: 100%; }
 
 .mood-axis { stroke: var(--muted); stroke-width: 1; }
 

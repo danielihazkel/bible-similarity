@@ -5,7 +5,7 @@ import type { LadderRow, SynopsisSummary, Verse } from '../api/types'
 import { BorrowLineForSequence } from '../components/BorrowLine'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { similarityBand } from '../lib/format'
 import { diffHighlight, type Highlight } from '../lib/highlight'
@@ -24,8 +24,7 @@ export function SequencePage() {
   const synopses = useSynopses()
   const [showChanges, setShowChanges] = useState(true)
   if (!valid) return <p className="status">{m.par.sequence.notId}</p>
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page sequence-page" error={res.error} />
   const { sequence: s, rows, verses } = res.data
   const verse = (v: number | null) => (v === null ? undefined : verses[String(v)])
   const onlyA = rows.filter((r) => r.b === null).length

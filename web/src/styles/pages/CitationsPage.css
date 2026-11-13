@@ -11,12 +11,12 @@
 
 /* ---------- Citations (§16.31) ---------- */
 
-.cite-books { columns: 3 14rem; padding-inline-start: 1.2rem; }
+.cite-books { columns: 3 14rem; padding-inline-start: var(--space-7); }
 
-.cite-books li { margin: 0.15rem 0; }
+.cite-books li { margin: var(--space-1) 0; }
 
-.cite-source { border-inline-start: 3px solid var(--border); padding-inline-start: 0.75rem; margin: 0.4rem 0; }
+.cite-source { border-inline-start: 3px solid var(--border); padding-inline-start: var(--space-5); margin: var(--space-3) 0; }
 
-.cite-source p { margin: 0 0 0.2rem; }
+.cite-source p { margin: 0 0 var(--space-2); }
 
 .cite-source-text { color: var(--muted); }

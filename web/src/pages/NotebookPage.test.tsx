@@ -232,7 +232,8 @@ describe('NotebookPage', () => {
     fakeServer()
     renderAt('/notebook', 'he')
     expect(await screen.findByRole('heading', { name: 'המחברת שלכם', level: 1 })).toBeTruthy()
-    expect(screen.getByText(/עדיין לא נשמר דבר/)).toBeTruthy()
+    // the heading is there before the notebook has come (M176)
+    expect(await screen.findByText(/עדיין לא נשמר דבר/)).toBeTruthy()
   })
 })
 

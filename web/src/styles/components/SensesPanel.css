@@ -13,10 +13,10 @@
 }
 
 .sense-examples {
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
   min-width: 18rem;
 }
 
 .sense-examples > div + div {
-  margin-top: 0.3rem;
+  margin-top: var(--space-2);
 }

@@ -17,7 +17,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin: 0.5rem 0;
+  margin: var(--space-4) 0;
 }
 
 .chart-line { fill: none; stroke: var(--accent); stroke-width: 1.5; }
@@ -27,23 +27,23 @@
 .chart-peak { fill: var(--sem); }
 
 .seam-list {
-  padding-inline-start: 1.2rem;
-  margin: 0.5rem 0 1.5rem;
+  padding-inline-start: var(--space-7);
+  margin: var(--space-4) 0 var(--space-8);
 }
 
-.seam-list li { margin: 0.25rem 0; }
+.seam-list li { margin: var(--space-2) 0; }
 
 .seam-features {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-inline-start: 0.5rem;
+  gap: var(--space-2);
+  margin-inline-start: var(--space-4);
 }
 
 .seam-feature {
-  font-size: 0.8rem;
-  border-radius: 999px;
-  padding: 0 0.45rem;
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-4);
   background: var(--surface-2);
 }
 

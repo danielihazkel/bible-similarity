@@ -2,8 +2,8 @@
 
 /* Gematria (DESIGN.md §16.53): the page, the reader's verse totals, the word panel's chip */
 
-.gm-forms { columns: 2 18rem; padding-inline-start: 1.6rem; }
+.gm-forms { columns: 2 18rem; padding-inline-start: var(--space-8); }
 
-.gm-forms li { break-inside: avoid; margin-block: 0.2rem; }
+.gm-forms li { break-inside: avoid; margin-block: var(--space-2); }
 
-.gm-forms .he-label { font-size: 1.15rem; }
+.gm-forms .he-label { font-size: var(--fs-xl); }

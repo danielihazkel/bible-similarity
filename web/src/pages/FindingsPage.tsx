@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useFindings } from '../api/hooks'
 import type { Finding, FindingKey } from '../api/types'
 import { PrecisionTable } from '../components/PrecisionNote'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { Glossed } from '../components/Term'
 import { firstUses } from '../lib/gloss'
 import { useLocale } from '../context/localeContext'
@@ -107,8 +107,7 @@ export function FindingsPage() {
   const { m, locale } = useLocale()
   const t = m.find
   const res = useFindings()
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page findings-page" title={t.title} error={res.error} />
   const { items, alpha } = res.data
   // a term is marked where it is first used on the page, in the order the groups show the items
   const shown = VERDICTS.flatMap((v) => items.filter((f) => f.verdict === v))

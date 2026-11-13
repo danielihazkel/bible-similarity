@@ -5,7 +5,7 @@ import type { SynopsisCell, Verse } from '../api/types'
 import { DiffLegend } from '../components/DiffLegend'
 import { HebrewText } from '../components/HebrewText'
 import { PrintButton } from '../components/PrintButton'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { diffHighlight } from '../lib/highlight'
 import { unitLink } from '../lib/links'
@@ -27,8 +27,7 @@ export function SynopsisPage() {
   const res = useSynopsis(valid ? id : undefined, base)
   const [showChanges, setShowChanges] = useState(true)
   if (!valid) return <p className="status">{t.notId}</p>
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page synopsis-page" error={res.error} />
   const { synopsis: s, rows, verses } = res.data
   const label = (k: number) => (locale === 'he' ? s.columns[k].label_he : s.columns[k].label)
   const style = { '--syn-cols': s.columns.length } as CSSProperties

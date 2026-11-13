@@ -5,6 +5,6 @@
 .goto {
   background: var(--accent-soft);
   border-radius: var(--radius);
-  padding: 0.5rem 0.9rem;
+  padding: var(--space-4) var(--space-6);
   font-weight: 600;
 }

@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useDating, useDatingBook } from '../api/hooks'
 import type { DatingBook } from '../api/types'
-import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { Loading, PageWait, PanelError } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
 import { unitLink } from '../lib/links'
@@ -24,8 +24,7 @@ export function LanguagePage() {
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const books = useBooks()
   const res = useDating()
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page language-page" title={t.title} lede={t.lede} error={res.error} />
   const d = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, bookName(b, locale)]) ?? [])
   const syn = d.synoptic

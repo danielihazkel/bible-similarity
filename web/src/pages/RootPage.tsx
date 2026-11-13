@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router'
 import { useBooks, useRootFamily } from '../api/hooks'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
@@ -24,8 +24,7 @@ export function RootPage() {
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useRootFamily(root, { book, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page concordance-page root-page" error={res.error} />
   const f = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   const most = Math.max(...f.by_book.map((b) => b.n_verses))

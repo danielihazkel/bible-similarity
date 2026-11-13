@@ -2,28 +2,28 @@
 
 /* other witnesses (§16.78) */
 
-.wt-known { margin: 0; padding-inline-start: 1.1rem; }
+.wt-known { margin: 0; padding-inline-start: var(--space-6); }
 
-.wt-known li { margin: 0.2rem 0; }
+.wt-known li { margin: var(--space-2) 0; }
 
 .witnesses-page > p a,
 .wt-known a,
 .wt-pluses a,
 .wt-chron a { text-decoration: underline; text-underline-offset: 2px; }
 
-.wt-verse { margin: 0.8rem 0 1rem; }
+.wt-verse { margin: var(--space-5) 0 var(--space-6); }
 
-.wt-verse h3 { font-size: 1rem; margin: 0 0 0.3rem; }
+.wt-verse h3 { font-size: var(--fs-lg); margin: 0 0 var(--space-2); }
 
-.wt-lines { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 0.8rem; margin: 0; }
+.wt-lines { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-5); margin: 0; }
 
-.wt-lines dt { color: var(--muted); font-size: 0.85rem; padding-top: 0.3rem; }
+.wt-lines dt { color: var(--muted); font-size: var(--fs-sm); padding-top: var(--space-2); }
 
 .wt-lines dd { margin: 0; }
 
-.wt-lines .he { font-family: var(--font-he); font-size: 1.15rem; line-height: 1.8; }
+.wt-lines .he { font-family: var(--font-he); font-size: var(--fs-xl); line-height: 1.8; }
 
-.wt-w { border-radius: 3px; padding: 0 0.1rem; }
+.wt-w { border-radius: var(--radius-sm); padding: 0 var(--space-1); }
 
 .wt-spelling { background: var(--wt-spelling); }
 
@@ -46,7 +46,7 @@
 .wt-flood th,
 .wt-flood td { font-weight: 600; }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   .wt-lines { grid-template-columns: 1fr; }
-  .wt-lines dt { padding-top: 0.4rem; }
+  .wt-lines dt { padding-top: var(--space-3); }
 }

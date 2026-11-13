@@ -2,12 +2,12 @@
 
 /* word pairs (§16.72) */
 
-.bn-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.bn-table .he { font-family: var(--font-he); font-size: var(--fs-xl); }
 
 .bn-table td.bn-turned { font-weight: 600; }
 
 .bn-table tr.selected th { box-shadow: inset 3px 0 0 var(--known); }
 
-.bn-panel { margin-bottom: 1rem; }
+.bn-panel { margin-bottom: var(--space-6); }
 
-.bn-panel h4 { font-size: 0.95rem; margin: 0.6rem 0 0.2rem; }
+.bn-panel h4 { font-size: var(--fs-md); margin: var(--space-4) 0 var(--space-2); }

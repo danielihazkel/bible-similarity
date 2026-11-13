@@ -5,7 +5,7 @@ import { useBooks, useKetiv, useKqPairs } from '../api/hooks'
 import type { Book, KetivMeta, KqBook, KqClass, KqGrammar, KqLetter, KqPair, KqParallel } from '../api/types'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
@@ -35,8 +35,7 @@ export function KetivPage() {
   const t = m.kq
   const res = useKetiv()
   const books = useBooks()
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page ketiv-page" title={t.title} lede={t.lede} error={res.error} />
   const { meta } = res.data
   const byId = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   return (

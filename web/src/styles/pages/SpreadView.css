@@ -2,8 +2,8 @@
 
 /* ---------- Rare words spread over verses (§16.32) ---------- */
 
-.spread-lemmas { margin: 0.25rem 0; font-size: 1.1rem; color: var(--accent); }
+.spread-lemmas { margin: var(--space-2) 0; font-size: var(--fs-xl); color: var(--accent); }
 
-.spread-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0.5rem 1.5rem; }
+.spread-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--space-4) var(--space-8); }
 
-.spread-side p { margin: 0.15rem 0; }
+.spread-side p { margin: var(--space-1) 0; }

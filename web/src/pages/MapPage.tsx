@@ -12,6 +12,7 @@ import { UnitName } from '../components/UnitName'
 import { useLocale, useT } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
+import { SECTIONS, usePalette, type Palette } from '../lib/palette'
 import { useIntParam, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/overview'
 
@@ -19,15 +20,12 @@ const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
 type ColorBy = 'cluster' | 'section' | 'lists'
 type Order = 'related' | 'canon'
 
-// Categorical hues (12, colour-blind-aware order), cycled for >12 clusters; sections use the first 3.
-const HUES = [210, 25, 140, 330, 50, 270, 175, 0, 95, 300, 230, 120]
-const color = (i: number, alpha = 1) => `hsla(${HUES[i % HUES.length]}, 62%, ${i >= HUES.length ? 38 : 48}%, ${alpha})`
-const SECTIONS = ['Torah', 'Prophets', 'Writings']
-// the share of a unit's verses in a list (§16.45): one hue, lighter to darker
-const shade = (share: number, alpha = 1) => `hsla(25, 70%, ${Math.round(88 - share * 55)}%, ${alpha})`
+// The colours are tokens (lib/palette.ts): twelve for the clusters, in turn; the canon's three
+// sections; and for the share of a unit's verses in a list (§16.45) one hue, from little to much.
 
 export function MapPage() {
   const m = useT()
+  const palette = usePalette()
   const [params, update] = useQueryParams()
   const raw = params.get('type') as UnitType | null
   const unitType = raw && TYPES.includes(raw) ? raw : 'chapter'
@@ -75,6 +73,7 @@ export function MapPage() {
             books={books.data}
             colorBy={colorBy}
             focus={focus}
+            palette={palette}
           />
           {colorBy === 'cluster' ? (
             <ul className="cluster-legend" aria-label={m.ov.map.clusters}>
@@ -86,7 +85,7 @@ export function MapPage() {
                     aria-pressed={focus === c.cluster}
                     onClick={() => setFocus(focus === c.cluster ? undefined : c.cluster)}
                   >
-                    <span className="swatch" style={{ background: color(c.cluster) }} />
+                    <span className="swatch" style={{ background: palette.cluster(c.cluster) }} />
                     <span dir="rtl" lang="he" className="he">
                       {c.lemmas.map((l) => l.he_lemma).join(' · ')}
                     </span>
@@ -98,8 +97,8 @@ export function MapPage() {
           ) : colorBy === 'lists' ? (
             <div className="cluster-legend">
               <p className="small">
-                <span className="swatch" style={{ background: shade(0) }} /> <span className="swatch" style={{ background: shade(0.5) }} />{' '}
-                <span className="swatch" style={{ background: shade(1) }} /> {m.ov.map.listsLegend}
+                <span className="swatch" style={{ background: palette.share(0) }} /> <span className="swatch" style={{ background: palette.share(0.5) }} />{' '}
+                <span className="swatch" style={{ background: palette.share(1) }} /> {m.ov.map.listsLegend}
               </p>
             </div>
           ) : (
@@ -107,7 +106,7 @@ export function MapPage() {
               {SECTIONS.map((s, i) => (
                 <li key={s}>
                   <span className="legend-row">
-                    <span className="swatch" style={{ background: color(i) }} /> {m.units.sections[s] ?? s}
+                    <span className="swatch" style={{ background: palette.section(i) }} /> {m.units.sections[s] ?? s}
                   </span>
                 </li>
               ))}
@@ -134,7 +133,7 @@ export function MapPage() {
   )
 }
 
-function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; books: Book[]; colorBy: ColorBy; focus?: number }) {
+function MapScatter({ points, books, colorBy, focus, palette }: { points: MapPoint[]; books: Book[]; colorBy: ColorBy; focus?: number; palette: Palette }) {
   const m = useT()
   const section = useMemo(() => new Map(books.map((b) => [b.book_id, SECTIONS.indexOf(b.section)])), [books])
   const r = points.length > 1000 ? 3 : points.length > 100 ? 4.5 : 8
@@ -146,8 +145,11 @@ function MapScatter({ points, books, colorBy, focus }: { points: MapPoint[]; boo
       label={m.ov.map.scatter}
       fill={(p) =>
         colorBy === 'lists'
-          ? shade(p.list_verses / Math.max(p.n_verses, 1), 0.9)
-          : color(colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0), focus !== undefined && p.cluster !== focus ? 0.12 : 0.85)
+          ? palette.share(p.list_verses / Math.max(p.n_verses, 1), 0.9)
+          : (colorBy === 'cluster' ? palette.cluster : palette.section)(
+              colorBy === 'cluster' ? p.cluster : (section.get(p.book_id) ?? 0),
+              focus !== undefined && p.cluster !== focus ? 0.12 : 0.85,
+            )
       }
       radius={() => r}
       front={focus === undefined ? undefined : (p) => p.cluster === focus}

@@ -10,18 +10,18 @@
 
 /* ---------- Written and read (§16.30) ---------- */
 
-.ketiv-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 2rem; }
+.ketiv-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 var(--space-9); }
 
-.kq-classes { padding-inline-start: 1.2rem; }
+.kq-classes { padding-inline-start: var(--space-7); }
 
-.kq-classes li { margin: 0.2rem 0; }
+.kq-classes li { margin: var(--space-2) 0; }
 
-.kq-features { columns: 2 16rem; padding-inline-start: 1.2rem; }
+.kq-features { columns: 2 16rem; padding-inline-start: var(--space-7); }
 
-.kq-pair { font-family: var(--font-he, inherit); font-size: 1.15rem; }
+.kq-pair { font-family: var(--font-he, inherit); font-size: var(--fs-xl); }
 
 .kq-read { color: var(--accent); }
 
-.kq-features-line { margin: 0.2rem 0; }
+.kq-features-line { margin: var(--space-2) 0; }
 
-.kq-item .he { font-size: 1.05rem; }
+.kq-item .he { font-size: var(--fs-lg); }

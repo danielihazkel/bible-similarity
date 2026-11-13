@@ -3,39 +3,39 @@
 /* ---------- Unit detail ---------- */
 
 .source-text {
-  font-size: 1.7rem;
+  font-size: var(--fs-3xl);
   line-height: 2.1;
   margin: 0;
   text-align: right;
 }
 
 .results-head h2 {
-  margin-bottom: 0.2rem;
+  margin-bottom: var(--space-2);
 }
 
 /* ---------- Small screens ---------- */
 
 @media (max-width: 720px) {
   .source-text {
-      font-size: 1.4rem;
+      font-size: var(--fs-2xl);
     }
 }
 
 /* ---------- Verse halves / poetry (§16.9) ---------- */
 
 .parallel-badge {
-  margin-inline-start: 0.4rem;
+  margin-inline-start: var(--space-3);
   color: var(--accent);
   font-weight: 700;
   cursor: help;
 }
 
 .halves-bar {
-  margin-bottom: 0.4rem;
+  margin-bottom: var(--space-3);
 }
 
 .meter-badge {
-  margin-inline-start: 0.5rem;
+  margin-inline-start: var(--space-4);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -45,7 +45,7 @@
 /* Acrostics */
 
 .acrostic-bar {
-  gap: 0.75rem;
+  gap: var(--space-5);
   align-items: baseline;
   flex-wrap: wrap;
 }
@@ -61,7 +61,7 @@
    foreground here is ≥ 5:1 on every speaker tint, in both themes. */
 
 .read-link {
-  margin-inline-end: 0.75rem;
+  margin-inline-end: var(--space-5);
   font-weight: 600;
 }
 
@@ -70,12 +70,12 @@
 .head-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.9rem;
-  margin: -0.4rem 0 0.6rem;
+  gap: var(--space-6);
+  margin: calc(-1 * var(--space-3)) 0 var(--space-4);
 }
 
 /* the controls of the list of similar units, one row on a desktop */
 
 .results-bar {
-  gap: 0.6rem 1rem;
+  gap: var(--space-4) var(--space-6);
 }

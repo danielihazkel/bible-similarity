@@ -12,14 +12,14 @@
 
 .refrain-text {
   font-family: var(--font-he);
-  font-size: 1.25rem;
+  font-size: var(--fs-2xl);
 }
 
 .refrains-page .he-cell {
   font-family: var(--font-he);
-  font-size: 1.1rem;
+  font-size: var(--fs-xl);
 }
 
 .refrain .verse-ref {
-  margin-inline-end: 0.4rem;
+  margin-inline-end: var(--space-3);
 }

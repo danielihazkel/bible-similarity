@@ -5,7 +5,7 @@
 .pls-table tr.on td { background: var(--surface-2); font-weight: 600; }
 
 .pls-detail,
-.pls-districts { margin-block-start: 2rem; }
+.pls-districts { margin-block-start: var(--space-9); }
 
 .pls-table td:has(.dlg-verdict) { white-space: nowrap; }
 
@@ -16,7 +16,7 @@
 
 .places-layout.pls-district-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .places-layout.pls-district-layout { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -24,7 +24,7 @@
 
 .pls-path.short { stroke: var(--muted); stroke-dasharray: 4 3; }
 
-.pls-hist { margin: 1rem 0 0; max-width: 26rem; }
+.pls-hist { margin: var(--space-6) 0 0; max-width: 26rem; }
 
 .pls-hist svg { display: block; width: 100%; height: auto; }
 
@@ -33,7 +33,7 @@
 .pls-axis { stroke: var(--border); }
 
 .pls-tick,
-.pls-mark text { fill: var(--muted); font-size: 10px; font-family: var(--font-ui); }
+.pls-mark text { fill: var(--muted); font-size: var(--fs-chart-xs); font-family: var(--font-ui); }
 
 .pls-mark line { stroke-width: 2px; }
 
@@ -43,11 +43,11 @@
 
 .pls-mark.short line { stroke: var(--muted); stroke-dasharray: 3 2; }
 
-.pls-steps { padding-inline-start: 2.2rem; max-height: 34rem; overflow-y: auto; }
+.pls-steps { padding-inline-start: var(--space-9); max-height: 34rem; overflow-y: auto; }
 
-.pls-steps li { margin-block: 0.15rem; }
+.pls-steps li { margin-block: var(--space-1); }
 
-.pls-steps .he { font-size: 1.1rem; }
+.pls-steps .he { font-size: var(--fs-xl); }
 
 .pls-steps li.on { background: var(--surface-2); }
 

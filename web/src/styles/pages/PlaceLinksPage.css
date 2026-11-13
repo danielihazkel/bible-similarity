@@ -7,14 +7,14 @@
 .plk-table td a,
 .plk-pairs a { text-decoration: underline; }
 
-.plk-chart { margin: 0.5rem 0 0; max-width: 40rem; }
+.plk-chart { margin: var(--space-4) 0 0; max-width: 40rem; }
 
 .plk-chart svg { display: block; width: 100%; height: auto; }
 
 .plk-tick line { stroke: var(--border); }
 
 .plk-tick text,
-.plk-axis { fill: var(--muted); font-size: 11px; font-family: var(--font-ui); }
+.plk-axis { fill: var(--muted); font-size: var(--fs-chart-sm); font-family: var(--font-ui); }
 
 .plk-far-line { stroke: var(--muted); stroke-dasharray: 4 3; }
 
@@ -22,7 +22,7 @@
 
 .plk-dot.far { fill: var(--accent); opacity: 0.9; }
 
-.plk-key { display: inline-block; inline-size: 0.6rem; block-size: 0.6rem; border-radius: 50%; background: var(--geo-none); }
+.plk-key { display: inline-block; inline-size: 0.6rem; block-size: 0.6rem; border-radius: var(--radius-round); background: var(--geo-none); }
 
 .plk-key.far { background: var(--accent); }
 
@@ -30,15 +30,15 @@
 
 .plk-link { fill: none; stroke: var(--accent); stroke-width: 1.4px; opacity: 0.6; }
 
-.plk-leads { margin-block-start: 2rem; }
+.plk-leads { margin-block-start: var(--space-9); }
 
 .places-layout.plk-leads-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .places-layout.plk-leads-layout { grid-template-columns: minmax(0, 1fr); }
 }
 
-.plk-pairs li { margin-block: 0.2rem; }
+.plk-pairs li { margin-block: var(--space-2); }
 
 .plk-pairs .he,
-.plk-table .he { font-size: 1.1rem; }
+.plk-table .he { font-size: var(--fs-xl); }

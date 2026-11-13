@@ -34,7 +34,7 @@
 
 .w-click {
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 
 .w-click:hover,
@@ -67,7 +67,7 @@
 
 .w-mark {
   font-family: var(--font-ui);
-  font-size: 0.55em;
+  font-size: var(--fs-tiny);
   font-weight: 400;
   padding-inline-start: 0.1em;
 }

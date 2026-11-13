@@ -4,4 +4,4 @@
 
 .align-chip.meaning { box-shadow: inset 0 -2px var(--lex); }
 
-.align-chip .cos { font-size: 0.75em; }
+.align-chip .cos { font-size: var(--fs-smaller); }

@@ -17,11 +17,11 @@
 .diff-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem 0.9rem;
+  gap: var(--space-3) var(--space-6);
   align-items: center;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
 }
 
 .diff-legend .w {
-  padding: 0 0.3rem;
+  padding: 0 var(--space-2);
 }

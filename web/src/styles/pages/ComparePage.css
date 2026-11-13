@@ -14,24 +14,24 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-5);
 }
 
 .bma {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin: 1rem 0 0.5rem;
+  gap: var(--space-5);
+  margin: var(--space-6) 0 var(--space-4);
 }
 
 .side-tag {
   display: inline-block;
   background: var(--accent);
   color: var(--surface);
-  border-radius: 4px;
-  padding: 0 0.4rem;
-  margin-inline-end: 0.5rem;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  margin-inline-end: var(--space-4);
 }
 
 .align-list {
@@ -46,10 +46,10 @@
 }
 
 .align-row {
-  padding: 0.45rem 0.75rem 0.45rem 0.6rem;
+  padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4);
   border-inline-start: 5px solid var(--sim-0);
   border-bottom: 1px solid var(--border);
-  font-size: 1.2rem;
+  font-size: var(--fs-xl);
   line-height: 1.85;
   text-align: right;
   cursor: default;
@@ -75,10 +75,10 @@
 
 .align-meta {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-5);
   align-items: baseline;
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   color: var(--muted);
   direction: ltr;
   text-align: left;
@@ -106,16 +106,16 @@
 .pair-panel {
   position: sticky;
   bottom: 0;
-  margin-top: 0.75rem;
+  margin-top: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--accent);
   border-radius: var(--radius);
-  padding: 0.5rem 0.9rem;
+  padding: var(--space-4) var(--space-6);
   box-shadow: var(--shadow);
 }
 
 .pair-panel .chips {
-  margin-top: 0.25rem;
+  margin-top: var(--space-2);
 }
 
 /* ---------- Small screens ---------- */

@@ -5,7 +5,7 @@
 .picker-ref {
   position: relative;
   display: flex;
-  gap: 0.3rem;
+  gap: var(--space-2);
 }
 
 /* what the reference typed so far names, under the field */
@@ -18,7 +18,7 @@
   min-width: 100%;
   width: max-content;
   max-width: min(22rem, 90vw);
-  padding: 0.25rem;
+  padding: var(--space-2);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -29,8 +29,8 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.3rem 0.55rem;
+  gap: var(--space-5);
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius);
   cursor: pointer;
 }
@@ -50,7 +50,7 @@
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.3rem 0.7rem;
+  padding: var(--space-2) var(--space-5);
 }
 
 .picker-ref input {
@@ -60,7 +60,7 @@
 .picker-status {
   flex-basis: 100%;
   margin: 0;
-  font-size: 0.85em;
+  font-size: var(--fs-smaller);
   color: var(--muted);
 }
 

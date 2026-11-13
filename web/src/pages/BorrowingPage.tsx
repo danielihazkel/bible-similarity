@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useBooks, useBorrowing } from '../api/hooks'
 import type { BorrowingBookPair, BorrowingSequence } from '../api/types'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { sequenceLink } from '../lib/links'
@@ -21,8 +21,7 @@ export function BorrowingPage() {
   const unit = params.get('unit') || undefined
   const books = useBooks()
   const res = useBorrowing(unit)
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page borrowing-page" title={t.title} lede={t.lede} error={res.error} />
   const d = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, bookName(b, locale)]) ?? [])
   const name = (id: number) => names.get(id) ?? String(id)

@@ -4,7 +4,7 @@ import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { SensesPanel } from '../components/SensesPanel'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
@@ -25,8 +25,7 @@ export function ConcordancePage() {
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const conc = useLemma(lemma, book, PAGE_SIZE, (page - 1) * PAGE_SIZE)
-  if (conc.isPending) return <Loading />
-  if (conc.error) return <ErrorBox error={conc.error} />
+  if (conc.isPending || conc.error) return <PageWait className="page concordance-page" error={conc.error} />
 
   const c = conc.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])

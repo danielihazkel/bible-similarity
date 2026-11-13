@@ -206,7 +206,7 @@ function collectErrors(page: Page): string[] {
 async function loads(page: Page, path: string) {
   await page.goto(path)
   await expect(page.locator('h1').first()).not.toBeEmpty()
-  await expect(page.locator('p.status[role="status"]')).toHaveCount(0)
+  await expect(page.locator('p.status[role="status"], .list-placeholder')).toHaveCount(0)
   await expect(page.locator('.status.error')).toHaveCount(0)
 }
 
@@ -2035,5 +2035,87 @@ test.describe('tables and terms (M175)', () => {
     const offsets = await stickyOffsets(page)
     expect(offsets.length).toBeGreaterThan(0)
     for (const off of offsets) expect(Math.abs(off)).toBeLessThanOrEqual(1)
+  })
+})
+
+// M176: a type and spacing scale; headings before data
+test.describe('the scales, the chart palettes, headings before data (M176)', () => {
+  test('a page’s heading is there while its data is still on the way', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    test.setTimeout(240_000)
+    // the heading of these pages is their data (a passage, a lemma, a chain): its place is held
+    const HELD = /^\/(unit|read|neighbourhood|lemma|root|domains\/|sequences\/|synopses\/)/
+    // every answer but the two a page has from the start (the books, the build) waits for `open`
+    let open: Promise<void> = Promise.resolve()
+    await page.route('**/api/**', async (route) => {
+      if (!/^\/api\/(books|meta)$/.test(new URL(route.request().url()).pathname)) await open
+      await route.continue().catch(() => {})
+    })
+    const seen = new Set<string>()
+    for (const path of PAGES) {
+      const name = path.split('?')[0]
+      if (seen.has(name)) continue
+      seen.add(name)
+      let release = () => {}
+      open = new Promise((r) => (release = r))
+      await page.goto(path, { waitUntil: 'commit' })
+      await expect(page.locator('main h1, main .heading-placeholder').first(), path).toBeAttached()
+      if (!HELD.test(path)) await expect(page.locator('main h1').first(), path).not.toBeEmpty()
+      // never the bare word in the page's place
+      await expect(page.locator('main > p.status[role="status"]'), path).toHaveCount(0)
+      release()
+    }
+    expect(seen.size).toBeGreaterThan(60)
+  })
+
+  test('a held page shows quiet rows, and then its data', async ({ page }) => {
+    let release = () => {}
+    const open = new Promise<void>((r) => (release = r))
+    await page.route('**/api/ketiv**', async (route) => {
+      await open
+      await route.continue().catch(() => {})
+    })
+    await page.goto('/ketiv')
+    await expect(page.locator('main h1')).not.toBeEmpty()
+    const rows = page.locator('main .list-placeholder')
+    await expect(rows).toBeVisible()
+    await expect(rows).toHaveCSS('opacity', '1')
+    await expect(rows.locator('.sr-only')).toHaveText('Loading…')
+    release()
+    await expect(rows).toHaveCount(0)
+    await expect(page.locator('main table.data-table').first()).toBeVisible()
+  })
+
+  test('the chart colours are tokens with a dark value', async ({ page }) => {
+    const token = (name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name)
+    const rgb = (hex: string) => `rgb(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ')})`
+    const sections = async () => (await Promise.all(['--sec-0', '--sec-1', '--sec-2'].map(token))).map(rgb)
+    const fills = () => page.locator('.network-graph circle.node').evaluateAll((els) => [...new Set(els.map((el) => getComputedStyle(el).fill))])
+    await loads(page, '/network')
+    const swatch = page.locator('.section-legend .swatch').first()
+    expect(await token('--sec-0')).toBe('#2a78d6')
+    await expect(swatch).toHaveCSS('background-color', rgb('#2a78d6'))
+    expect((await fills()).length).toBeGreaterThan(0)
+    for (const fill of await fills()) expect(await sections()).toContain(fill)
+    // the dark theme has its own values
+    await page.evaluate(() => localStorage.setItem('bsim.theme', 'dark'))
+    await loads(page, '/network')
+    expect(await token('--sec-0')).toBe('#3987e5')
+    await expect(swatch).toHaveCSS('background-color', rgb('#3987e5'))
+    for (const fill of await fills()) expect(await sections()).toContain(fill)
+  })
+
+  test('the page’s text sizes are steps of the scale', async ({ page }) => {
+    await loads(page, '/divine')
+    const sizes = await page.evaluate(() => {
+      const steps = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'].map((s) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(`--fs-${s}`)) * 16)
+      const size = (sel: string) => parseFloat(getComputedStyle(document.querySelector(sel)!).fontSize)
+      return { steps, body: size('body'), h1: size('main h1'), h2: size('main h2'), cell: size('main table.data-table td') }
+    })
+    expect(sizes.steps.map((s) => Math.round(s * 10) / 10)).toEqual([12, 13.6, 15, 16, 18.4, 21.6, 25.6])
+    expect(sizes.body).toBeCloseTo(15, 1)
+    expect(sizes.h1).toBeCloseTo(25.6, 1)
+    expect(sizes.h2).toBeCloseTo(18.4, 1)
+    expect(sizes.steps.some((s) => Math.abs(s - sizes.cell) < 0.05)).toBe(true)
   })
 })

@@ -14,15 +14,15 @@
 .nbh-kinds {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem 1rem;
+  gap: var(--space-2) var(--space-6);
   border: 0;
   padding: 0;
-  margin: 0.4rem 0;
+  margin: var(--space-3) 0;
 }
 .nbh-kinds legend {
   font-weight: 600;
   padding: 0;
-  margin-bottom: 0.2rem;
+  margin-bottom: var(--space-2);
 }
 .nbh-swatch {
   display: inline-block;
@@ -30,7 +30,7 @@
   height: 0;
   border-top: 3px solid var(--muted);
   vertical-align: middle;
-  margin-inline-end: 0.35rem;
+  margin-inline-end: var(--space-3);
 }
 
 /* the zoom and export buttons: the page's surface, not the browser's grey (4.2:1 in the dark theme) */
@@ -38,7 +38,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.3rem 0.7rem;
+  padding: var(--space-2) var(--space-5);
 }
 .nbh-tools button:hover {
   border-color: var(--accent);

@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router'
 import { useNeighbourhood } from '../api/hooks'
 import type { NeighbourEdge, NeighbourNode } from '../api/types'
 import { Segmented } from '../components/Controls'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
 import { neighbourhoodLink, unitLink } from '../lib/links'
@@ -35,8 +35,7 @@ export function NeighbourhoodPage() {
   const hops = HOPS.includes(hRaw) ? hRaw : undefined
   const off = new Set((params.get('off') ?? '').split(',').filter(Boolean))
   const res = useNeighbourhood(unitId, k, hops)
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page nbh-page" error={res.error} />
   const d = res.data
   const label = unitLabel(d.unit, locale)
   const toggle = (kind: string) => {

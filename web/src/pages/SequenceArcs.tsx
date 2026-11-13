@@ -5,6 +5,7 @@ import type { Book, SequenceDirection, SequenceSummary } from '../api/types'
 import { ErrorBox, Loading } from '../components/Status'
 import { useLocale } from '../context/localeContext'
 import { bookName } from '../lib/names'
+import { sectionColour, sectionIndex } from '../lib/palette'
 import '../i18n/pages/parallels'
 import '../styles/pages/SequenceArcs.css'
 
@@ -13,8 +14,6 @@ const H = 380
 const PAD = 12
 const BASE = H - 46 // the line the books sit on
 const BAND = 12
-const SECTIONS = ['Torah', 'Prophets', 'Writings']
-const SECTION_HUES = [210, 25, 140]
 
 interface Props {
   maxQ?: number
@@ -92,11 +91,11 @@ export function SequenceArcs({ maxQ, direction, book, crossBook, hideSameChapter
             const xs = [x(b.start), x(b.end + 1)]
             const left = Math.min(...xs)
             const width = Math.abs(xs[1] - xs[0])
-            const hue = SECTION_HUES[Math.max(0, SECTIONS.indexOf(info?.section ?? 'Torah'))]
+            const colour = sectionColour(sectionIndex(info?.section))
             const short = locale === 'he' ? (info?.he_name ?? name) : (info?.osis ?? name)
             return (
               <g key={b.book_id} className={book === b.book_id ? 'arc-book on' : 'arc-book'}>
-                <rect x={left} y={BASE} width={width} height={BAND} fill={`hsl(${hue}, 55%, ${i % 2 ? 62 : 48}%)`}>
+                <rect x={left} y={BASE} width={width} height={BAND} className={i % 2 ? 'arc-band alt' : 'arc-band'} style={{ color: colour }}>
                   <title>{name}</title>
                 </rect>
                 {width >= short.length * 6.5 && (

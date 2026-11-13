@@ -5,7 +5,7 @@
 }
 
 .display-button span {
-  font-size: 0.7em;
+  font-size: var(--fs-tiny);
   opacity: 0.7;
 }
 
@@ -18,10 +18,10 @@
   top: calc(100% + 0.3rem);
   inset-inline-end: 0;
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-5);
   width: max-content;
   max-width: calc(100vw - 1rem);
-  padding: 0.75rem;
+  padding: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -33,15 +33,15 @@
 
 .display-row {
   display: grid;
-  gap: 0.25rem;
+  gap: var(--space-2);
   justify-items: start;
 }
 
 .display-label {
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 
 .display-panel > .copy-link {
-  padding: 0.35rem 0.55rem;
+  padding: var(--space-3) var(--space-4);
 }

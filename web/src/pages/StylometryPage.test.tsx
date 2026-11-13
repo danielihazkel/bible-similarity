@@ -126,7 +126,8 @@ describe('StylometryPage in Hebrew', () => {
   it('names books, axes and seams in Hebrew and keeps the charts left to right', async () => {
     const { container } = renderAt('/style?book=1', 'he')
     expect(await screen.findByRole('heading', { name: 'סגנון' })).toBeTruthy()
-    expect(screen.getByText('הציר האופקי')).toBeTruthy()
+    // the heading is there before the data has come (M176)
+    expect(await screen.findByText('הציר האופקי')).toBeTruthy()
     expect(await screen.findByRole('heading', { name: 'היכן הסגנון משתנה' })).toBeTruthy()
     const profile = await screen.findByLabelText('הפרופיל הסגנוני של הספר')
     expect(profile.textContent).toContain('תהילים')

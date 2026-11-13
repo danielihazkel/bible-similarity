@@ -11,12 +11,12 @@
 /* ---------- About ---------- */
 
 .meta-table {
-  font-size: 0.82rem;
+  font-size: var(--fs-sm);
 }
 
 .meta-table th,
 .meta-table td {
-  padding: 0.3rem 0.5rem;
+  padding: var(--space-2) var(--space-4);
 }
 
 .meta-table th {

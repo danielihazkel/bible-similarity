@@ -8,7 +8,7 @@
 
 /* Who speaks → To whom (§16.44) */
 
-.dlg-network { margin: 0.5rem 0 1rem; max-width: 30rem; }
+.dlg-network { margin: var(--space-4) 0 var(--space-6); max-width: 30rem; }
 
 .dlg-network svg { width: 100%; height: auto; display: block; }
 
@@ -22,6 +22,6 @@
 
 .dlg-node.rank-2 circle { fill: var(--accent); }
 
-.dlg-node text { fill: var(--text); font-size: 13px; }
+.dlg-node text { fill: var(--text); font-size: var(--fs-chart); }
 
 .dlg-parties { font-weight: 600; }

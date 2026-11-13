@@ -4,11 +4,11 @@
 
 .voice-checks ul,
 .voice-profile .inline-list {
-  padding-inline-start: 1.2rem;
+  padding-inline-start: var(--space-7);
 }
 
 .voice-checks li + li {
-  margin-top: 0.3rem;
+  margin-top: var(--space-2);
 }
 
 .voice-table tr.on td {
@@ -17,7 +17,7 @@
 
 .voice-table button.linkish {
   font: inherit;
-  font-size: 1.1rem;
+  font-size: var(--fs-xl);
   text-decoration: underline;
   cursor: pointer;
 }

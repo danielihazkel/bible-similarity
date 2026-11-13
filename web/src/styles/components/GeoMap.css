@@ -33,16 +33,16 @@
 
 .geo-label { fill: var(--text); font-family: var(--font-he); paint-order: stroke; stroke: var(--geo-land); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }
 
-.geo-zoom { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.geo-zoom { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; flex-direction: column; gap: var(--space-2); }
 
-.geo-zoom button { width: 2rem; height: 2rem; font-size: 1.1rem; line-height: 1; }
+.geo-zoom button { width: 2rem; height: 2rem; font-size: var(--fs-xl); line-height: 1; }
 
 /* ---------- Print (§11.1) ----------
    A page on paper (or a PDF from the print dialog): the light theme (the dark tokens are for the
    screen only), on white, the whole width; no menus, tour bar, controls or panels; the marks'
    colours kept; verses and synopsis rows not split across pages. */
 
-.geo-save { margin: 0.25rem 0 0; text-align: end; }
+.geo-save { margin: var(--space-2) 0 0; text-align: end; }
 
 @media print {
   .geo-zoom,

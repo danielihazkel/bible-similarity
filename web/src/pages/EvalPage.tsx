@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { useEval } from '../api/hooks'
 import type { EncoderEval, EtcbcEval, Gain, MetricSet, SupervisionEval, UnitListEval } from '../api/types'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { useT } from '../context/localeContext'
 import { TableCsv } from '../components/TableCsv'
 import { Term } from '../components/Term'
@@ -23,8 +23,7 @@ const fmt = (v: number | undefined) => (v === undefined ? '–' : v.toFixed(3))
 export function EvalPage() {
   const m = useT()
   const res = useEval()
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page eval-page" title={m.ov.eval.title} error={res.error} />
   const { splits, openbible, etcbc, supervision, encoders, units, final } = res.data
   const splitNames = ['dev', 'test'].filter((s) => s in splits).concat(Object.keys(splits).filter((s) => s !== 'dev' && s !== 'test'))
 

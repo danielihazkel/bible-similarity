@@ -14,9 +14,9 @@
 /* in the top bar it is a bordered button like its neighbours (`.copy-link`) */
 
 .topbar .pin-button {
-  padding: 0.2rem 0.45rem;
+  padding: var(--space-2) var(--space-4);
 }
 
 .topbar .pin-button span {
-  font-size: 1rem;
+  font-size: var(--fs-lg);
 }

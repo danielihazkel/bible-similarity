@@ -3,5 +3,5 @@
 /* narrow screens: everything behind the menu button, groups as labelled lists */
 
 .unit-filter {
-  margin: 0.5rem 0;
+  margin: var(--space-4) 0;
 }

@@ -259,6 +259,8 @@ bible-similarity/
 │   │                               #   tables.ts: the tables' rules both suites check in the page (M175)
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   ├── scripts/icons.mjs           # the app's PNG icons (public/), drawn from the favicon's design
+│   ├── scripts/shots.mjs           # screenshots of every fixture route (both languages and themes) and their comparison,
+│   │                               #   for a change of look that is checked by eye (M176)
 │   ├── vite.config.ts              # the build, and the offline app: manifest + service worker (DESIGN.md §11.1)
 │   └── src/
 │       ├── api/                    # types (aliases of the generated schema; open JSON fields by hand + drift check), fetch client, TanStack Query hooks
@@ -267,7 +269,7 @@ bible-similarity/
 │       ├── context/                # te'amim / niqqud / consonants, interface-language and theme (auto / light / dark) preferences
 │       ├── components/             # HebrewText, controls, hit card, unit picker, paged list + pager, jump box (Ctrl+K), layout + footer, the Display menu (text display, language, theme, copy link), the pin star, the copy buttons (`CopyButton.tsx`), a page's section strip (`SectionStrip.tsx`), the unit page's panel registry (UnitPanels)
 │       ├── pages/                  # the start page with the books, findings, book, unit, compare, search, discoveries, phrases, sequences, synopses, changes (+ rewrites), poetry, wordplay, names, domains, structure, acrostics, roots, refrains, forms, gematria, ciphers, names of God, masorah, equal values, letters at equal skips, places (the map), place lists, the geographic arc, places named together, query, workbench, notebook, psalms, reader, map, network, style, shifts, language, pentateuch, lemma, eval, sums, vocabulary, reception, other witnesses, source finder, glossary, tours, week, about, the index of every page (`/pages`)
-│       └── styles/                 # global.css (tokens, base, layout, what pages share); pages/<Page>.css and components/<Component>.css, each imported by its module (D150)
+│       └── styles/                 # global.css (tokens: colours, the scales, the chart palettes; base, layout, what pages share); pages/<Page>.css and components/<Component>.css, each imported by its module (D150); scales.test.ts holds every stylesheet to the scales (M176)
 ├── video/                          # two short films about the project: scripts, voice, score, subtitles,
 │                                   #   a line-art page rendered in Edge (video/README.md; renders in video/out/, gitignored)
 ├── tests/                          # pytest (fixture DB: src/bsim/fixture.py)

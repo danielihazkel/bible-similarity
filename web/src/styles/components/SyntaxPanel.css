@@ -3,8 +3,8 @@
 /* BHSA clauses and speakers (DESIGN.md §16.26) */
 
 .syntax-panel .syntax-ref {
-  font-size: 0.9rem;
-  margin: 0.8rem 0 0.2rem;
+  font-size: var(--fs-md);
+  margin: var(--space-5) 0 var(--space-2);
 }
 
 .clause-type {
@@ -24,21 +24,21 @@
 }
 
 .seg .he {
-  font-size: 1.15rem;
+  font-size: var(--fs-xl);
 }
 
 .seg .fn {
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   color: var(--text);
   font-family: var(--font-ui);
 }
 
 .same-shape ol {
-  padding-inline-start: 1.4rem;
+  padding-inline-start: var(--space-8);
 }
 
 .same-shape li {
-  margin: 0.2rem 0;
+  margin: var(--space-2) 0;
 }
 
 /* Who speaks (DESIGN.md §16.26) */

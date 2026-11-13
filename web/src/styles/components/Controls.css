@@ -3,11 +3,11 @@
 /* ---------- Controls ---------- */
 
 .lang-seg button {
-  padding: 0.15rem 0.5rem;
+  padding: var(--space-1) var(--space-4);
 }
 
 .he-seg button {
   font-family: var(--font-he);
-  font-size: 1rem;
-  padding: 0.15rem 0.6rem;
+  font-size: var(--fs-lg);
+  padding: var(--space-1) var(--space-4);
 }

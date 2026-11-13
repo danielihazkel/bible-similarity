@@ -4,13 +4,13 @@
 
 .sm-table tr.sm-off td { font-weight: 600; }
 
-.sm-panel { margin-bottom: 1rem; }
+.sm-panel { margin-bottom: var(--space-6); }
 
-.sm-known { margin: 0; padding-inline-start: 1.1rem; }
+.sm-known { margin: 0; padding-inline-start: var(--space-6); }
 
 .sm-known a,
 .sm-parallel .hit-text a { text-decoration: underline; }
 
-.sm-total { border-top: 1px solid var(--border); padding-top: 0.4rem; }
+.sm-total { border-top: 1px solid var(--border); padding-top: var(--space-3); }
 
-.sm-parallel .hit-text .verse-ref { margin-inline-end: 0.4rem; }
+.sm-parallel .hit-text .verse-ref { margin-inline-end: var(--space-3); }

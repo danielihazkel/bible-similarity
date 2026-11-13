@@ -2,18 +2,18 @@
 
 /* the source finder (§11.1) */
 
-.sf-form label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+.sf-form label { display: block; font-weight: 600; margin-bottom: var(--space-2); }
 
-.sf-form textarea { width: 100%; box-sizing: border-box; font-family: var(--font-he); font-size: 1.15rem; line-height: 1.7; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+.sf-form textarea { width: 100%; box-sizing: border-box; font-family: var(--font-he); font-size: var(--fs-xl); line-height: 1.7; padding: var(--space-4); background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); }
 
-.sf-actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+.sf-actions { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-6); align-items: center; }
 
-.sf-error { color: var(--text); border-inline-start: 3px solid var(--gt-conflict, #b5542f); padding-inline-start: 0.5rem; }
+.sf-error { color: var(--text); border-inline-start: 3px solid var(--gt-conflict, #b5542f); padding-inline-start: var(--space-4); }
 
-.sf-text { font-family: var(--font-he); font-size: 1.2rem; line-height: 2; }
+.sf-text { font-family: var(--font-he); font-size: var(--fs-xl); line-height: 2; }
 
 .sf-text mark,
-.sf-passages mark { color: var(--text); border-radius: 3px; padding: 0 0.1rem; }
+.sf-passages mark { color: var(--text); border-radius: var(--radius-sm); padding: 0 var(--space-1); }
 
 .sf-hit-0 { background: var(--sf-0); }
 
@@ -27,15 +27,15 @@
 
 .sf-passages mark.sf-exact { background: var(--sf-0); }
 
-.sf-num a { text-decoration: none; font-weight: 600; padding: 0 0.15rem; }
+.sf-num a { text-decoration: none; font-weight: 600; padding: 0 var(--space-1); }
 
-.sf-passages { padding-inline-start: 1.6rem; }
+.sf-passages { padding-inline-start: var(--space-8); }
 
-.sf-passages li { margin: 0.8rem 0; }
+.sf-passages li { margin: var(--space-5) 0; }
 
-.sf-passages p { margin: 0.15rem 0; }
+.sf-passages p { margin: var(--space-1) 0; }
 
 .sf-passages a,
 .source-page > p a { text-decoration: underline; text-underline-offset: 2px; }
 
-.sf-quote { font-family: var(--font-he); font-size: 1.1rem; }
+.sf-quote { font-family: var(--font-he); font-size: var(--fs-xl); }

@@ -6,8 +6,8 @@
   text-decoration: none;
   background: var(--surface);  /* muted counts need ≥ 4.5:1; --surface-2 gives 4.3 */
   color: var(--text);
-  font-size: 0.85rem;
-  padding: 0.05rem 0.6rem;
+  font-size: var(--fs-sm);
+  padding: 1px var(--space-4);
 }
 
 .domain-chip:hover {

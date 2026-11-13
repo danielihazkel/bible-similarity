@@ -128,7 +128,7 @@ export function PagedList<T extends Page>({
     const el = top.current
     if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: 'start' })
   }, [page])
-  if (res.isPending) return <Loading />
+  if (res.isPending) return <Loading list />
   if (res.isError) return <ErrorBox error={res.error} />
   const data = res.data
   if (data.items.length === 0) {

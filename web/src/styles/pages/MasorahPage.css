@@ -13,8 +13,8 @@
 
 .msr-middles { list-style: none; padding-inline-start: 0; }
 
-.msr-middle { margin-block: 1rem 1.4rem; }
+.msr-middle { margin-block: var(--space-6) var(--space-8); }
 
-.msr-middle p { margin-block: 0.35rem; }
+.msr-middle p { margin-block: var(--space-3); }
 
 .msr-totals tr.msr-differs td:first-child { font-weight: 600; }

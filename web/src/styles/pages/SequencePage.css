@@ -5,12 +5,12 @@
 .rung {
   display: grid;
   grid-template-columns: 1fr 2.2rem 1fr;
-  gap: 0.75rem;
+  gap: var(--space-5);
   align-items: start;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.45rem 0.8rem;
+  padding: var(--space-4) var(--space-5);
 }
 
 .rung.skip {
@@ -22,28 +22,28 @@
 .rung-mid {
   display: flex;
   justify-content: center;
-  padding-top: 0.35rem;
+  padding-top: var(--space-3);
 }
 
 .rung-mid .sim-swatch {
   width: 1.8rem;
   height: 1.1rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
   line-height: 1.1rem;
   text-align: center;
   color: var(--text);
 }
 
 .rung-side .hit-text {
-  font-size: 1.15rem;
-  margin: 0.15rem 0 0;
+  font-size: var(--fs-xl);
+  margin: var(--space-1) 0 0;
 }
 
 @media (max-width: 720px) {
   .rung {
       grid-template-columns: 1fr;
-      gap: 0.3rem;
+      gap: var(--space-2);
     }
   .rung-side.empty {
       display: none;
@@ -58,7 +58,7 @@
 
 .rung-cos {
   display: block;
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }

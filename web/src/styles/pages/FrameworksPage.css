@@ -3,7 +3,7 @@
 /* the narrative frameworks (§16.71) */
 
 .fw-cycle .he,
-.fw-kings .he { font-family: var(--font-he); font-size: 1.1rem; }
+.fw-kings .he { font-family: var(--font-he); font-size: var(--fs-xl); }
 
 .fw-slot { text-align: center; }
 
@@ -19,4 +19,4 @@
 
 .fw-kings tr.fw-israel th .muted { font-style: italic; }
 
-.fw-panel .hit-text { margin: 0.3rem 0; }
+.fw-panel .hit-text { margin: var(--space-2) 0; }

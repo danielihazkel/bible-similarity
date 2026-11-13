@@ -5,10 +5,10 @@
 .chapter-grid {
   list-style: none;
   padding: 0;
-  margin: 1rem 0;
+  margin: var(--space-6) 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
-  gap: 0.4rem;
+  gap: var(--space-3);
 }
 
 .chapter-grid a,
@@ -19,7 +19,7 @@
   font: inherit;
   cursor: pointer;
   text-align: center;
-  padding: 0.5rem 0;
+  padding: var(--space-4) 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -41,18 +41,18 @@
 .unit-list {
   list-style: none;
   padding: 0;
-  margin: 1rem 0;
+  margin: var(--space-6) 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.3rem 1rem;
+  gap: var(--space-2) var(--space-6);
 }
 
 .unit-list a {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-4);
   align-items: baseline;
   flex-wrap: wrap;
-  padding: 0.3rem 0;
+  padding: var(--space-2) 0;
   border-bottom: 1px dashed var(--border);
 }
 

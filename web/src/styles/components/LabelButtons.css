@@ -8,7 +8,7 @@
   flex-wrap: wrap;
   gap: 0;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
@@ -16,8 +16,8 @@
   border: 0;
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.78rem;
-  padding: 0.05rem 0.55rem;
+  font-size: var(--fs-xs);
+  padding: 1px var(--space-4);
   cursor: pointer;
 }
 
@@ -47,11 +47,11 @@
 }
 
 .label-tag {
-  font-size: 0.78rem;
-  border-radius: 999px;
-  padding: 0.05rem 0.55rem;
+  font-size: var(--fs-xs);
+  border-radius: var(--radius-pill);
+  padding: 1px var(--space-4);
 }
 
 .label-buttons .error {
-  padding-inline: 0.5rem;
+  padding-inline: var(--space-4);
 }

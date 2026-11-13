@@ -4,14 +4,14 @@
 
 .els-table td:has(.dlg-verdict) { white-space: nowrap; }
 
-.els-terms .he { font-size: 1.1rem; }
+.els-terms .he { font-size: var(--fs-xl); }
 
-.els-strip { margin: 1rem 0 0; max-width: 40rem; }
+.els-strip { margin: var(--space-6) 0 0; max-width: 40rem; }
 
 .els-strip svg { display: block; width: 100%; height: auto; }
 
 .els-row,
-.els-tick { fill: var(--muted); font-size: 11px; font-family: var(--font-ui); }
+.els-tick { fill: var(--muted); font-size: var(--fs-chart-sm); font-family: var(--font-ui); }
 
 .els-axis { stroke: var(--border); }
 
@@ -19,6 +19,6 @@
 
 .els-text { stroke: var(--accent); stroke-width: 2px; }
 
-.els-text-label { fill: var(--accent); font-size: 11px; font-family: var(--font-ui); }
+.els-text-label { fill: var(--accent); font-size: var(--fs-chart-sm); font-family: var(--font-ui); }
 
-.els-blocks li { margin-block: 0.15rem; }
+.els-blocks li { margin-block: var(--space-1); }

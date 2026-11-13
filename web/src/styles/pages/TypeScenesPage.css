@@ -3,6 +3,6 @@
 /* Network */
 
 .action-chain {
-  margin: 0.35rem 0 0;
+  margin: var(--space-3) 0 0;
   line-height: 1.9;
 }

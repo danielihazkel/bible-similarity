@@ -2,7 +2,7 @@
 
 /* Places on the map (§16.57) */
 
-.geo-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; list-style: none; padding: 0; margin: 0.5rem 0; }
+.geo-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); list-style: none; padding: 0; margin: var(--space-4) 0; }
 
 .type-tag.place-town { background: var(--geo-town); }
 
@@ -24,4 +24,4 @@
   :root[data-theme='dark'] .type-tag.place-water { color: #17140f; }
 }
 
-.place-panel .he { font-size: 1.15rem; }
+.place-panel .he { font-size: var(--fs-xl); }

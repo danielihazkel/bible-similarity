@@ -2,21 +2,21 @@
 
 /* Workbench (§16.64): sets side by side, then the two sides of a contrast */
 
-.workbench-page .segmented { margin-block: 0.6rem; }
+.workbench-page .segmented { margin-block: var(--space-4); }
 
-.wb-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 0.8rem; margin-block: 0.8rem; }
+.wb-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--space-5); margin-block: var(--space-5); }
 
-.wb-set { border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.8rem 0.7rem; min-width: 0; }
+.wb-set { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4) var(--space-5) var(--space-5); min-width: 0; }
 
-.wb-set legend { font-weight: 600; padding-inline: 0.3rem; }
+.wb-set legend { font-weight: 600; padding-inline: var(--space-2); }
 
-.wb-items { list-style: none; padding: 0; margin: 0.2rem 0 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.wb-items { list-style: none; padding: 0; margin: var(--space-2) 0 var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
-.wb-items .chip { display: inline-flex; align-items: center; gap: 0.3rem; max-width: 100%; overflow-wrap: anywhere; }
+.wb-items .chip { display: inline-flex; align-items: center; gap: var(--space-2); max-width: 100%; overflow-wrap: anywhere; }
 
-.wb-remove { font-size: 1.05rem; line-height: 1; padding-inline: 0.2rem; }
+.wb-remove { font-size: var(--fs-lg); line-height: 1; padding-inline: var(--space-2); }
 
-.wb-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.4rem 0.7rem; margin-block: 0.3rem; }
+.wb-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3) var(--space-5); margin-block: var(--space-2); }
 
 .wb-add input[type="number"] { width: 5.5rem; }
 
@@ -24,25 +24,25 @@
 
 .wb-pattern input { width: 100%; }
 
-.wb-text { margin-top: 0.4rem; }
+.wb-text { margin-top: var(--space-3); }
 
-.wb-text summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+.wb-text summary { cursor: pointer; color: var(--muted); font-size: var(--fs-md); }
 
-.wb-counts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
+.wb-counts { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-7); }
 
-.wb-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+.wb-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: var(--space-6); }
 
 .wb-side { min-width: 0; }
 
-.wb-side h2 { font-size: 1.1rem; }
+.wb-side h2 { font-size: var(--fs-xl); }
 
-.wb-table .he { font-family: var(--font-he); font-size: 1.1rem; }
+.wb-table .he { font-family: var(--font-he); font-size: var(--fs-xl); }
 
 .wb-table tr.wb-sig td:first-child { border-inline-start: 3px solid var(--accent); }
 
-.wb-examples { font-size: 0.85rem; min-width: 8rem; }
+.wb-examples { font-size: var(--fs-sm); min-width: 8rem; }
 
-.wb-verdict { font-size: 1.05rem; }
+.wb-verdict { font-size: var(--fs-lg); }
 
 .wb-table td.num,
 .wb-table th.num { white-space: nowrap; }
@@ -50,4 +50,4 @@
 /* the set editor's own buttons and fields take the page's colours, not the browser's (dark scheme contrast) */
 
 .workbench-page button[type='submit']:not(.primary),
-.wb-add input { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.3rem 0.6rem; }
+.wb-add input { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-2) var(--space-4); }

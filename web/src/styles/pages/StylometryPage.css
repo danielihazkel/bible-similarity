@@ -3,5 +3,5 @@
 /* Style */
 
 .axes-notes .he {
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
 }

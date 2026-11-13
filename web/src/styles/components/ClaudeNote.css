@@ -4,7 +4,7 @@
 
 .queue-suggestion {
   border-inline-start: 3px solid var(--border);
-  padding-inline-start: 0.6rem;
+  padding-inline-start: var(--space-4);
   color: var(--muted);
 }
 

@@ -3,7 +3,7 @@ import { useBooks, useUnit, useUnits } from '../api/hooks'
 import type { Book, UnitType } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
-import { ErrorBox, Loading } from '../components/Status'
+import { ErrorBox, Loading, PageWait } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { verseRef } from '../lib/names'
@@ -27,8 +27,7 @@ export function BookPage() {
   const listType = TAB_TYPE[tab]
   const units = useUnits(listType ?? 'chapter', book && listType ? bookId : undefined)
 
-  if (books.isPending) return <Loading />
-  if (books.error) return <ErrorBox error={books.error} />
+  if (books.isPending || books.error) return <PageWait error={books.error} />
   if (!book) return <p className="status error">{m.units.unknownBook}</p>
 
   return (

@@ -5,7 +5,7 @@ import type { DivineName, PlaceKind, ReaderGap, ReaderResponse, ReaderSpeaker, R
 import { Segmented } from '../components/Controls'
 import { HebrewText, type WordLook } from '../components/HebrewText'
 import { PrintButton } from '../components/PrintButton'
-import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { PageWait, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { WordPanel } from '../components/WordPanel'
 import { useLocale, useT } from '../context/localeContext'
@@ -60,8 +60,7 @@ export function ReaderPage() {
   const unitId = useParams().unitId!
   const { search } = useLocation()
   const detail = useUnit(unitId)
-  if (detail.isPending) return <Loading />
-  if (detail.error) return <ErrorBox error={detail.error} />
+  if (detail.isPending || detail.error) return <PageWait className="page reader-page" error={detail.error} />
   const { unit, verses } = detail.data
   // a verse is read in its chapter, at the verse
   if (unit.unit_type === 'verse') return <Navigate replace to={`${readLink(`c:${unit.book_id}:${verses[0].chapter}`, search)}#v${verses[0].verse_id}`} />

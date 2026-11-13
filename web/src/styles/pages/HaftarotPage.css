@@ -8,10 +8,10 @@
 
 .hf-table tr.selected button { font-weight: 600; }
 
-.hf-chapters { margin: 0.4rem 0; padding-inline-start: 1.6rem; }
+.hf-chapters { margin: var(--space-3) 0; padding-inline-start: var(--space-8); }
 
-.hf-chapters li { margin: 0.15rem 0; }
+.hf-chapters li { margin: var(--space-1) 0; }
 
 .hf-chapters a { text-decoration: underline; }
 
-.hf-chapters li.hf-hit { border-inline-start: 3px solid var(--known); padding-inline-start: 0.4rem; }
+.hf-chapters li.hf-hit { border-inline-start: 3px solid var(--known); padding-inline-start: var(--space-3); }

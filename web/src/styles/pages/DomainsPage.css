@@ -3,14 +3,14 @@
 /* Semantic domains (DESIGN.md §16.22) */
 
 .domain-top {
-  margin-top: 1.4rem;
+  margin-top: var(--space-8);
 }
 
 .domain-mid {
-  margin: 0.6rem 0 0.9rem;
+  margin: var(--space-4) 0 var(--space-6);
 }
 
 .domain-mid h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--fs-lg);
 }

@@ -4,17 +4,17 @@
 
 .ch-scroll { overflow-x: auto; }
 
-.ch-chart { width: 100%; min-width: 600px; height: auto; display: block; margin: 0.6rem 0; direction: ltr; }
+.ch-chart { width: 100%; min-width: 600px; height: auto; display: block; margin: var(--space-4) 0; direction: ltr; }
 
 .ch-grid { stroke: var(--border); stroke-width: 1; }
 
-.ch-axis { fill: var(--muted); font-size: 11px; }
+.ch-axis { fill: var(--muted); font-size: var(--fs-chart-sm); }
 
 .ch-mark { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
 
-.ch-mark-label { fill: var(--muted); font-size: 11px; font-weight: 600; }
+.ch-mark-label { fill: var(--muted); font-size: var(--fs-chart-sm); font-weight: 600; }
 
-.ch-name { fill: var(--text); font-family: var(--font-he); font-size: 13px; }
+.ch-name { fill: var(--text); font-family: var(--font-he); font-size: var(--fs-chart); }
 
 .ch-bar { fill: var(--accent); }
 
@@ -24,7 +24,7 @@
 
 .ch-life:hover .ch-name { font-weight: 700; }
 
-.ch-row-label { fill: var(--text); font-size: 12px; font-weight: 600; }
+.ch-row-label { fill: var(--text); font-size: var(--fs-chart-sm); font-weight: 600; }
 
 .ch-reign rect { fill: color-mix(in oklab, var(--ch-judah) 18%, var(--surface)); stroke: var(--ch-judah); stroke-width: 1; }
 
@@ -36,7 +36,7 @@
 
 .ch-reign:hover rect { stroke-width: 2; }
 
-.ch-reign-name { fill: var(--text); font-family: var(--font-he); font-size: 11px; pointer-events: none; }
+.ch-reign-name { fill: var(--text); font-family: var(--font-he); font-size: var(--fs-chart-sm); pointer-events: none; }
 
 .ch-sync { stroke-width: 2; }
 
@@ -50,7 +50,7 @@ line.ch-sync:hover { stroke-width: 3.5; }
 
 .ch-events .he,
 .ch-numbers .he,
-.ch-reigns .he { font-family: var(--font-he); font-size: 1.05rem; }
+.ch-reigns .he { font-family: var(--font-he); font-size: var(--fs-lg); }
 
 .ch-events th { font-weight: normal; }
 
@@ -61,15 +61,15 @@ line.ch-sync:hover { stroke-width: 3.5; }
 
 .ch-digits tr.ch-end th { border-inline-start: 3px solid var(--known); font-weight: 600; }
 
-.ch-conflicts li { margin: 0.2rem 0; }
+.ch-conflicts li { margin: var(--space-2) 0; }
 
 .ch-conflicts a,
 .ch-numbers a { text-decoration: underline; }
 
-.ch-numbers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0.2rem 1rem; }
+.ch-numbers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: var(--space-2) var(--space-6); }
 
 .ch-numbers li.ch-odd-end b { color: var(--gt-conflict-ink); }
 
-.ch-reigns { margin-top: 0.8rem; }
+.ch-reigns { margin-top: var(--space-5); }
 
 .ch-reigns summary { cursor: pointer; }

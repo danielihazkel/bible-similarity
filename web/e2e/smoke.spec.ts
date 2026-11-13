@@ -1003,3 +1003,26 @@ test('a long table’s headings stay under the top bar', async ({ page }, info) 
   await expect(page.locator(`[id="${await q.getAttribute('aria-describedby')}"]`)).toBeVisible()
   await expect(page.locator(`[id="${await q.getAttribute('aria-describedby')}"]`)).toContainText('q-value')
 })
+
+// M176: headings before data, on the real data
+test('a page’s heading is there before its data, and a passage’s place is held', async ({ page }) => {
+  let release = () => {}
+  let open = new Promise<void>((r) => (release = r))
+  await page.route('**/api/**', async (route) => {
+    if (!/^\/api\/(books|meta)$/.test(new URL(route.request().url()).pathname)) await open
+    await route.continue().catch(() => {})
+  })
+  for (const path of ['/ketiv', '/citations', '/style', '/findings']) {
+    open = new Promise<void>((r) => (release = r))
+    await page.goto(path, { waitUntil: 'commit' })
+    await expect(page.locator('main h1'), path).not.toBeEmpty()
+    await expect(page.locator('main .list-placeholder'), path).toBeAttached()
+    release()
+    await expect(page.locator('main .list-placeholder'), path).toHaveCount(0, { timeout: 30_000 })
+  }
+  open = new Promise<void>((r) => (release = r))
+  await page.goto('/unit/c%3A0%3A1', { waitUntil: 'commit' })
+  await expect(page.locator('main .heading-placeholder')).toBeAttached()
+  release()
+  await expect(page.locator('main h1')).toContainText('Genesis 1', { timeout: 30_000 })
+})

@@ -5,17 +5,17 @@
 .names-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  gap: 1.5rem;
+  gap: var(--space-8);
   align-items: start;
 }
 
 .name-list {
   list-style: none;
   padding: 0;
-  margin: 0.5rem 0;
+  margin: var(--space-4) 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: var(--space-3);
 }
 
 .name-list.stale {
@@ -28,7 +28,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.8rem 1rem;
+  padding: var(--space-5) var(--space-6);
   position: sticky;
   top: 1rem;
 }
@@ -58,11 +58,11 @@
 .ego-node text,
 .ego-centre-label {
   font-family: var(--font-he);
-  font-size: 13px;
+  font-size: var(--fs-chart);
   fill: var(--text);
 }
 
-.ego-centre-label { font-weight: 700; font-size: 15px; }
+.ego-centre-label { font-weight: 700; font-size: var(--fs-md); }
 
 @media (max-width: 720px) {
   .names-grid { grid-template-columns: 1fr; }

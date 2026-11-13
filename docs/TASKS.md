@@ -112,14 +112,14 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ Every p / q heading opens its glossary entry; numbers line up on the right on every page.
 
-## M176: A type and spacing scale; headings before data (proposed O10)
-- [ ] Tokens: a type scale, a spacing scale, radii, shadows through `--shadow`; two breakpoints, written in §11
-- [ ] The section and district palettes hard-coded in five page modules as tokens with dark values
-- [ ] The 33 pages that show "Loading…" before their heading draw the heading and lede first; a quiet placeholder for lists
-- [ ] Screenshots of every fixture route before and after, gone through by eye
-- [ ] Tests
+## M176: A type and spacing scale; headings before data (D165; proposed O10)
+- [x] Tokens (`global.css`): a type scale of seven steps (`--fs-xs` … `--fs-3xl`; the 34 sizes the stylesheets wrote, with three relative steps for a mark inside its text and three for a drawing's own text), a spacing scale of ten on a 4px grid (`--space-1` … `--space-10`, for padding, margin and gap), five radii (`--radius-sm`, `--radius`, `--radius-lg`, `--radius-pill`, `--radius-round`) and three shadows (`--shadow`, `--shadow-lg`, `--shadow-up`); all 109 stylesheets rewritten onto them (about 1,000 declarations). Two breakpoints, 720px and 900px (the 600, 640, 760 and 860px ones moved to them), written in §11
+- [x] The section, cluster and district palettes of five page modules as tokens with dark values (`--sec-*`, `--cl-*`, `--dist-*`, `--seq-lo` / `--seq-hi`; `lib/palette.ts`). The three sections take a trio checked for colour blindness in both themes
+- [x] The 18 pages that showed "Loading…" before their heading (47 of the fixture's routes; the audit had counted 33) draw the heading and lede first (`PageWait`, `components/Status.tsx`); the eight whose heading is their data (a passage, a lemma, a chain) hold its place. A quiet placeholder for lists (`Loading list`), in every paged list
+- [x] Screenshots of every fixture route before and after (`web/scripts/shots.mjs`: 171 routes, English and Hebrew, light and dark, 684 pairs): every pair differs, by 3.5% to 16% of its pixels; none overflows sideways, the top bar is one row on all (52px, was 54px). Looked at by eye: the pages that changed most, and one of each kind of page (about thirty-five of the 171 routes, mostly in English and light, some in Hebrew and dark), then the changed charts on the real build; the rest by the numbers above, not by eye
+- [x] Tests: vitest 584 (`styles/scales.test.ts`: every stylesheet held to the scales and the two breakpoints, no colour in a module, a dark value for each palette token; `lib/palette.test.tsx`; `Status.test.tsx`: `Loading list`, `PageWait`); fixture e2e 1,659 passed (the heading or its held place on every route with the data held back; the placeholder rows; the section colours in both themes; text sizes on the scale), its 2 failures (a socket error, a slow service worker) passing when run again; smoke 370 on the real build (headings before data on four pages and a passage); on the real build 82 pages in both languages at 1366px and 390px with no sideways overflow, the bar one row at the same widths as before, the reader’s first verse at 430px (was 462px)
 
-✔ No raw font size or radius left in `global.css`; a page's title is there before its data.
+✔ No raw font size or radius left in `global.css` (nor in any other stylesheet); a page's title is there before its data.
 
 ## M177: Saving and feedback (proposed O11)
 - [ ] `components/Toaster.tsx`, `useToast`: one live region for saved, removed with Undo, and failures

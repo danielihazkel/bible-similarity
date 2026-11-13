@@ -9,15 +9,15 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 10vh 16px 0;
+  padding: 10vh var(--space-6) 0;
   background: rgb(20 14 6 / 0.35);
 }
 
 .jump-input {
   width: 100%;
   box-sizing: border-box;
-  font-size: 1.05rem;
-  padding: 0.5rem 0.65rem;
+  font-size: var(--fs-lg);
+  padding: var(--space-4) var(--space-5);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg);
@@ -27,21 +27,21 @@
 .jump-list {
   max-height: 60vh;
   overflow-y: auto;
-  margin-top: 0.4rem;
+  margin-top: var(--space-3);
 }
 
 .jump-heading {
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   color: var(--muted);
-  padding: 0.5rem 0.65rem 0.15rem;
+  padding: var(--space-4) var(--space-5) var(--space-1);
 }
 
 .jump-option {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.4rem 0.65rem;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
   border-radius: var(--radius);
   cursor: pointer;
 }
@@ -62,11 +62,11 @@
 }
 
 .jump-option .he {
-  font-size: 1.15rem;
+  font-size: var(--fs-xl);
 }
 
 .jump-keys {
-  margin: 0.4rem 0.65rem 0;
+  margin: var(--space-3) var(--space-5) 0;
 }
 
 @media (max-width: 720px) {
@@ -80,7 +80,7 @@
 .jump-inline {
   position: relative;
   max-width: 40rem;
-  margin: 0.25rem 0 1.25rem;
+  margin: var(--space-2) 0 var(--space-7);
 }
 
 .jump-pop {
@@ -88,7 +88,7 @@
   inset-inline: 0;
   top: calc(100% + 0.3rem);
   z-index: 5;
-  padding: 0.3rem 0.4rem 0.5rem;
+  padding: var(--space-2) var(--space-3) var(--space-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);

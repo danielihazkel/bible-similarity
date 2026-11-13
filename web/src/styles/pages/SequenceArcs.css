@@ -25,8 +25,17 @@
 }
 
 .arc-book-label {
-  font-size: 10px;
+  font-size: var(--fs-chart-xs);
   fill: var(--muted);
+}
+
+/* a book's band in its section's colour (`color`, set on the band); every other book a step paler */
+.arc-band {
+  fill: currentColor;
+}
+
+.arc-band.alt {
+  fill: color-mix(in srgb, currentColor 68%, var(--bg));
 }
 
 .arc-book.on rect {

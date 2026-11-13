@@ -4,9 +4,9 @@
 
 .acrostic-chain {
   display: block;
-  font-size: 1.15rem;
+  font-size: var(--fs-xl);
   letter-spacing: 0.15em;
-  margin-top: 0.35rem;
+  margin-top: var(--space-3);
 }
 
 .acrostic-chain .acr-in {

@@ -10,4 +10,4 @@
 
 .pent-grid tr.fixed td { font-weight: 700; }
 
-.pent-words { columns: 2 14rem; padding-inline-start: 1.2rem; }
+.pent-words { columns: 2 14rem; padding-inline-start: var(--space-7); }

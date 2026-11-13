@@ -4,7 +4,7 @@
 
 .pa-book,
 .pa-moves,
-.pa-oracles { margin-block-start: 2rem; }
+.pa-oracles { margin-block-start: var(--space-9); }
 
 .pa-table tr.on td { background: var(--surface-2); font-weight: 600; }
 
@@ -16,16 +16,16 @@
 
 .pa-path.move { stroke-width: 2.2px; opacity: 0.9; }
 
-.pa-chapters { padding-inline-start: 0.5rem; list-style: none; max-height: 34rem; overflow-y: auto; }
+.pa-chapters { padding-inline-start: var(--space-4); list-style: none; max-height: 34rem; overflow-y: auto; }
 
-.pa-chapters li { margin-block: 0.2rem; }
+.pa-chapters li { margin-block: var(--space-2); }
 
 /* links inside a line of text are underlined (axe: link-in-text-block) */
 
 .pa-chapters a,
 .pa-table td a { text-decoration: underline; }
 
-.pa-chapters .he { font-size: 1.1rem; }
+.pa-chapters .he { font-size: var(--fs-xl); }
 
 .pa-chapters li.on { background: var(--surface-2); }
 
@@ -35,6 +35,6 @@
 
 .places-layout.pa-moves-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .places-layout.pa-moves-layout { grid-template-columns: minmax(0, 1fr); }
 }

@@ -7,21 +7,20 @@ import { FeatureBars as Features } from '../components/FeatureBars'
 import { BookHeatmap } from '../components/BookHeatmap'
 import { SeamsPanel } from '../components/SeamsPanel'
 import { Scatter } from '../components/Scatter'
-import { ErrorBox, Loading } from '../components/Status'
+import { ErrorBox, Loading, PageWait } from '../components/Status'
 import { useLocale, useT } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { bookName, unitLabel } from '../lib/names'
+import { SECTIONS, usePalette, type Palette } from '../lib/palette'
 import { useQueryParams } from '../lib/urlState'
 import '../i18n/pages/overview'
 import '../styles/pages/StylometryPage.css'
 
-const SECTIONS = ['Torah', 'Prophets', 'Writings']
-const HUES = [210, 25, 140]
-const color = (i: number, alpha: number) => `hsla(${HUES[i] ?? 0}, 62%, 46%, ${alpha})`
 
 /** Style profiles: chapter PCA of function-word and morphology rates, books by Burrows' Delta. */
 export function StylometryPage() {
   const { m, locale } = useLocale()
+  const palette = usePalette()
   const [params, update] = useQueryParams()
   const books = useBooks()
   const st = useStylometry()
@@ -29,9 +28,9 @@ export function StylometryPage() {
   const book = bookParam === null || bookParam === '' ? undefined : Number(bookParam)
   const [pair, setPair] = useState<string | null>(null)
 
-  if (st.isPending || books.isPending) return <Loading />
-  if (st.error) return <ErrorBox error={st.error} />
-  if (books.error) return <ErrorBox error={books.error} />
+  if (st.isPending || books.isPending || st.error || books.error) {
+    return <PageWait className="page stylometry-page" title={m.ov.style.title} lede={m.ov.style.lede} error={st.error ?? books.error} />
+  }
   const name = new Map(books.data.map((b) => [b.book_id, bookName(b, locale)]))
   const deltas = new Map<string, number>()
   for (const d of st.data.delta) {
@@ -50,7 +49,7 @@ export function StylometryPage() {
         <BookSelect label={m.ov.style.book} all={m.ov.style.highlight} books={books.data} value={book} onChange={(v) => update({ book: v })} />
       </div>
       <div className="map-grid">
-        <StyleScatter points={st.data.points} books={books.data} book={book} />
+        <StyleScatter points={st.data.points} books={books.data} book={book} palette={palette} />
         <div className="axes-notes">
           {st.data.axes.map((a) => (
             <p key={a.pc} className="fact">
@@ -72,7 +71,7 @@ export function StylometryPage() {
             {SECTIONS.map((s, i) => (
               <li key={s}>
                 <span className="legend-row">
-                  <span className="swatch" style={{ background: color(i, 1) }} /> {m.units.sections[s] ?? s}
+                  <span className="swatch" style={{ background: palette.section(i) }} /> {m.units.sections[s] ?? s}
                 </span>
               </li>
             ))}
@@ -124,7 +123,7 @@ function BookProfile({ book, name }: { book: number; name: Map<number, string> }
   )
 }
 
-function StyleScatter({ points, books, book }: { points: StyloPoint[]; books: Book[]; book?: number }) {
+function StyleScatter({ points, books, book, palette }: { points: StyloPoint[]; books: Book[]; book?: number; palette: Palette }) {
   const { m, locale } = useLocale()
   const section = useMemo(() => new Map(books.map((b) => [b.book_id, SECTIONS.indexOf(b.section)])), [books])
   const on = (p: StyloPoint) => book !== undefined && p.book_id === book
@@ -134,7 +133,7 @@ function StyleScatter({ points, books, book }: { points: StyloPoint[]; books: Bo
       width={720}
       height={520}
       label={m.ov.style.scatter}
-      fill={(p) => color(section.get(p.book_id) ?? 0, book === undefined ? 0.75 : on(p) ? 0.95 : 0.1)}
+      fill={(p) => palette.section(section.get(p.book_id) ?? 0, book === undefined ? 0.75 : on(p) ? 0.95 : 0.1)}
       radius={(p) => (on(p) ? 5.5 : 4)}
       front={book === undefined ? undefined : on}
       caption={(p) => (

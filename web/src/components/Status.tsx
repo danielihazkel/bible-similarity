@@ -2,13 +2,42 @@ import type { ReactNode } from 'react'
 import { ApiError, isStageMissing } from '../api/client'
 import { useT } from '../context/localeContext'
 import { useOnline } from '../lib/pwa'
+import '../styles/components/Status.css'
 
-export function Loading({ label }: { label?: string }) {
+const PLACEHOLDER_ROWS = 6
+
+/** Loading. `list`: quiet rows in a list's place (the words are still there for a screen reader). */
+export function Loading({ label, list = false }: { label?: string; list?: boolean }) {
   const m = useT()
+  if (list) {
+    return (
+      <div className="list-placeholder" role="status">
+        <span className="sr-only">{label ?? m.status.loading}</span>
+        {Array.from({ length: PLACEHOLDER_ROWS }, (_, i) => (
+          <span key={i} aria-hidden="true" />
+        ))}
+      </div>
+    )
+  }
   return (
     <p className="status" role="status">
       {label ?? m.status.loading}
     </p>
+  )
+}
+
+/**
+ * A page before its data has come (M176): its heading and lede at once, then the list's
+ * placeholder or the error. A page whose heading is its data (a passage, a lemma) gives no
+ * `title` and gets the heading's place held.
+ */
+export function PageWait({ className = 'page', title, lede, error }: { className?: string; title?: ReactNode; lede?: ReactNode; error?: unknown }) {
+  return (
+    <div className={className}>
+      {title !== undefined ? <h1>{title}</h1> : !error && <div className="heading-placeholder" aria-hidden="true" />}
+      {lede !== undefined && <p className="lede">{lede}</p>}
+      {error ? <ErrorBox error={error} /> : <Loading list />}
+    </div>
   )
 }
 

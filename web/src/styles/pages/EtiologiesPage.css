@@ -2,4 +2,4 @@
 
 /* naming etiologies (§16.66): a naming beyond chance carries a bar at its start */
 
-.ety-naming.ety-lead { border-inline-start: 3px solid var(--known); padding-inline-start: 0.6rem; }
+.ety-naming.ety-lead { border-inline-start: 3px solid var(--known); padding-inline-start: var(--space-4); }

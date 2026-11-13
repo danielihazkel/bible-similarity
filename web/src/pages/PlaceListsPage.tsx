@@ -10,6 +10,7 @@ import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
+import { districtColour } from '../lib/palette'
 import { useIntParam, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/placeLists'
 import '../styles/pages/PlaceListsPage.css'
@@ -266,10 +267,6 @@ function NullHist({ hist, path, short, mean }: { hist: NullHistogram; path: numb
   )
 }
 
-/** A district's colour: twelve distinct ones, in turn (a 13th district reuses the first). */
-const DISTRICT_COLOURS = ['#c0392b', '#2471a3', '#d68910', '#229954', '#7d3c98', '#17a589', '#a04000', '#d4499a', '#5d6d7e', '#7d9c1e', '#1b4f72', '#b7950b']
-const districtFill = (d: number) => DISTRICT_COLOURS[(d - 1 + DISTRICT_COLOURS.length) % DISTRICT_COLOURS.length]
-
 function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha: number }) {
   const { m, locale } = useLocale()
   const t = m.pls
@@ -316,7 +313,7 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
               onBounds={(b) => setMoved({ key, bounds: b })}
               onSelect={() => undefined}
               label={t.districtMap(name(key))}
-              fillOf={(p) => districtFill(districtOf.get(p.place_id) ?? 0)}
+              fillOf={(p) => districtColour(districtOf.get(p.place_id) ?? 0)}
             />
           )}
         </div>
@@ -336,7 +333,7 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
               {g.districts.map((d) => (
                 <tr key={d.district}>
                   <td>
-                    <span className="geo-key" style={{ background: districtFill(d.district) }} aria-hidden="true" />{' '}
+                    <span className="geo-key" style={{ background: districtColour(d.district) }} aria-hidden="true" />{' '}
                     <Link to={unitLink(`v:${d.first_vid}`)}>{locale === 'he' ? d.label_he : d.label_en}</Link>
                   </td>
                   <td className="num">{d.all?.n ?? 0}</td>

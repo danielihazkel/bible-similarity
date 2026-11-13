@@ -26,17 +26,17 @@
 .rc-cell.rc-5,
 .dv-swatch.rc-5 { fill: var(--rc-5); background: var(--rc-5); }
 
-.rc-known { margin: 0; padding-inline-start: 1.1rem; }
+.rc-known { margin: 0; padding-inline-start: var(--space-6); }
 
-.rc-group h3 { font-size: 1rem; margin: 0.8rem 0 0.2rem; }
+.rc-group h3 { font-size: var(--fs-lg); margin: var(--space-5) 0 var(--space-2); }
 
 .rc-cites { list-style: none; margin: 0; padding: 0; }
 
-.rc-cites li { margin: 0.15rem 0; }
+.rc-cites li { margin: var(--space-1) 0; }
 
-.rc-cites a[lang='he'] { font-family: var(--font-he); font-size: 1.1rem; }
+.rc-cites a[lang='he'] { font-family: var(--font-he); font-size: var(--fs-xl); }
 
-.rc-tag { display: inline-block; min-width: 4.8rem; font-size: 0.75rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0 0.45rem; text-align: center; }
+.rc-tag { display: inline-block; min-width: 4.8rem; font-size: var(--fs-xs); color: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 var(--space-4); text-align: center; }
 
 /* links inside a line of text are underlined (axe: link-in-text-block) */
 

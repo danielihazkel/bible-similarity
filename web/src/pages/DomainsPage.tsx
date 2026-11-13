@@ -4,7 +4,7 @@ import type { DomainInfo } from '../api/types'
 import { DomainChip, DomainName } from '../components/DomainName'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import type { Highlight } from '../lib/highlight'
@@ -27,8 +27,7 @@ function DomainTree() {
   const { m } = useLocale()
   const t = m.dom
   const doms = useDomains()
-  if (doms.isPending) return <Loading />
-  if (doms.error) return <ErrorBox error={doms.error} />
+  if (doms.isPending || doms.error) return <PageWait className="page domains-page" title={t.title} lede={t.lede} error={doms.error} />
   const children = new Map<string, DomainInfo[]>()
   for (const d of doms.data) {
     if (d.parent !== null) children.set(d.parent, [...(children.get(d.parent) ?? []), d])
@@ -79,8 +78,7 @@ function DomainVerses({ code }: { code: string }) {
   const page = parsePage(params.get('page'))
   const books = useBooks()
   const res = useDomain(code, book, PAGE_SIZE, (page - 1) * PAGE_SIZE)
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page domains-page" error={res.error} />
 
   const d = res.data
   const names = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])

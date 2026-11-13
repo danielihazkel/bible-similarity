@@ -4,7 +4,7 @@ import type { Book, Citation, CitationBook, CitationFamily, CitationsMeta } from
 import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
-import { ErrorBox, Loading } from '../components/Status'
+import { PageWait } from '../components/Status'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { compareLink, unitLink } from '../lib/links'
@@ -23,8 +23,7 @@ export function CitationsPage() {
   const t = m.cit
   const res = useCitations()
   const books = useBooks()
-  if (res.isPending) return <Loading />
-  if (res.error) return <ErrorBox error={res.error} />
+  if (res.isPending || res.error) return <PageWait className="page citations-page" title={t.title} lede={t.lede} error={res.error} />
   const { meta } = res.data
   const byId = new Map(books.data?.map((b) => [b.book_id, b]) ?? [])
   const name = (id: number) => {

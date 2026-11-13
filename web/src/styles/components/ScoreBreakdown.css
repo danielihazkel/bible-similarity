@@ -5,7 +5,7 @@
 .breakdown {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-5);
 }
 
 .rankbars {
@@ -18,15 +18,15 @@
   display: grid;
   grid-template-columns: 2.2em 80px 2.6em;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.7rem;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
   color: var(--muted);
 }
 
 .rankbar-track {
   height: 6px;
   background: var(--surface-2);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 

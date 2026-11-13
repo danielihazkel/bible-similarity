@@ -2,7 +2,7 @@
 
 /* retold speech (§16.68): who tells each side, and the two groups the claim compares */
 
-.rt-teller { margin: 0.4rem 0 0; color: var(--muted); }
+.rt-teller { margin: var(--space-3) 0 0; color: var(--muted); }
 
 .rt-groups th[scope='row'] { font-weight: normal; }
 

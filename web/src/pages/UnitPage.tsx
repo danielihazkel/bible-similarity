@@ -20,7 +20,7 @@ import { NotebookPanel } from '../components/NotebookPanel'
 import { CopyPassage } from '../components/CopyButton'
 import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
-import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { ErrorBox, Loading, PageWait, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
 import { type PageSection, SectionStrip } from '../components/SectionStrip'
 import { UnitPanels } from '../components/UnitPanels'
@@ -44,8 +44,7 @@ const ACROSTIC_MAX_Q = 0.05
 export function UnitPage() {
   const unitId = useParams().unitId!
   const detail = useUnit(unitId)
-  if (detail.isPending) return <Loading />
-  if (detail.error) return <ErrorBox error={detail.error} />
+  if (detail.isPending || detail.error) return <PageWait className="page unit-page" error={detail.error} />
   // key: reset hover / pin state when navigating to another unit
   return <UnitView key={unitId} detail={detail.data} />
 }
