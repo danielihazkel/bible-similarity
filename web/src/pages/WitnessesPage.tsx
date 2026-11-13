@@ -282,14 +282,20 @@ function Chronology({ rows }: { rows: ChronologyRow[] }) {
       <h2 id="wt-chron">{t.chronTitle}</h2>
       <p className="muted small">{t.chronHint}</p>
       <TableCsv name="witnesses-chronology" tabIndex={0} role="region" aria-labelledby="wt-chron">
-        <table className="change-table wt-chron">
+        <table className="data-table wt-chron">
           <thead>
             <tr>
               <th scope="col">{t.chronCols.event}</th>
               <th scope="col">{t.chronCols.verse}</th>
-              <th scope="col">{t.chronCols.mt}</th>
-              <th scope="col">{t.chronCols.sp}</th>
-              <th scope="col">{t.chronCols.gap}</th>
+              <th scope="col" className="num">
+                {t.chronCols.mt}
+              </th>
+              <th scope="col" className="num">
+                {t.chronCols.sp}
+              </th>
+              <th scope="col" className="num">
+                {t.chronCols.gap}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -320,15 +326,23 @@ function Books({ d }: { d: WitnessesResponse }) {
     <section aria-labelledby="wt-books">
       <h2 id="wt-books">{t.booksTitle}</h2>
       <TableCsv name="witnesses-books" tabIndex={0} role="region" aria-labelledby="wt-books">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.kindLabel}</th>
               <th scope="col">{t.cols.book}</th>
-              <th scope="col">{t.cols.verses}</th>
-              <th scope="col">{t.cols.read}</th>
-              <th scope="col">{t.cols.variants}</th>
-              <th scope="col">{t.cols.pluses}</th>
+              <th scope="col" className="num">
+                {t.cols.verses}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.read}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.variants}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.pluses}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -363,15 +377,23 @@ function Scrolls({ d }: { d: WitnessesResponse }) {
       <h2 id="wt-scrolls">{t.scrollsTitle}</h2>
       <p className="muted small">{t.scrollsHint(rows.length)}</p>
       <TableCsv name="witnesses-scrolls" tabIndex={0} role="region" aria-labelledby="wt-scrolls">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.scroll}</th>
               <th scope="col">{t.cols.book}</th>
-              <th scope="col">{t.cols.verses}</th>
-              <th scope="col">{t.cols.read}</th>
-              <th scope="col">{t.cols.variants}</th>
-              <th scope="col">{t.cols.pluses}</th>
+              <th scope="col" className="num">
+                {t.cols.verses}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.read}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.variants}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.pluses}
+              </th>
             </tr>
           </thead>
           <tbody>

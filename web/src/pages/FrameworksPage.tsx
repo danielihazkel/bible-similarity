@@ -114,7 +114,7 @@ function Cycle({ d }: { d: FrameworksResponse }) {
         {t.cycleLede(d.open)} {t.formulas}
       </p>
       <TableCsv name="frameworks-1" tabIndex={0} role="region" aria-labelledby="fw-cycle">
-        <table className="change-table fw-cycle">
+        <table className="data-table fw-cycle">
           <thead>
             <tr>
               <th scope="col">{t.episode}</th>
@@ -165,7 +165,7 @@ function Kings({ d }: { d: FrameworksResponse }) {
       <p className="muted small">{t.kingsLede}</p>
       <p className="small">{t.wording(d.within.judah, d.within.israel, d.between)}</p>
       <TableCsv name="frameworks-2" tabIndex={0} role="region" aria-labelledby="fw-kings">
-        <table className="change-table fw-kings">
+        <table className="data-table fw-kings">
           <thead>
             <tr>
               <th scope="col">{t.king}</th>
@@ -203,7 +203,7 @@ function Kings({ d }: { d: FrameworksResponse }) {
       <h3>{t.byKingdomTitle}</h3>
       <p className="muted small">{t.byKingdomLede}</p>
       <TableCsv name="frameworks-3" tabIndex={0} role="region" aria-label={t.byKingdomTitle}>
-        <table className="change-table fw-by-kingdom">
+        <table className="data-table fw-by-kingdom">
           <thead>
             <tr>
               <th scope="col" />

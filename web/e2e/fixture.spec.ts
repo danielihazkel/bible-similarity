@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
 import { expect, type Locator, type Page, test } from '@playwright/test'
+import { stickyOffsets, tableFaults } from './tables'
 
 // CI end-to-end tests against `bsim fixture-serve`: the tiny synthetic DB of `bsim.fixture` (six
 // verses in Genesis and Exodus, verse and chapter units, made-up lists, analyses and word senses). Every page
@@ -220,6 +221,8 @@ for (const path of PAGES) {
     await expect
       .poll(() => page.evaluate(() => [...document.querySelectorAll('.table-wrap')].filter((w) => w.scrollWidth > w.clientWidth + 1 && !w.hasAttribute('tabindex')).length))
       .toBe(0)
+    // the one table style, number columns at the end, the statistics' headings as terms (M175)
+    expect(await tableFaults(page)).toEqual([])
   })
 }
 
@@ -617,7 +620,7 @@ test('names of God: the checks, the strip, a book and the reader layer', async (
   await expect(page.locator('rect.dv-cell.dv-mid')).toHaveCount(1) // Genesis 1: יהוה 2, אלהים 2
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([])
-  await page.getByRole('region', { name: 'Books' }).getByRole('button').first().click()
+  await page.getByRole('region', { name: 'Books' }).locator('tbody').getByRole('button').first().click()
   await expect(page).toHaveURL(/\/divine\?book=0/)
   await page.locator('#chapters').getByRole('link', { name: '1', exact: true }).click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=divine/)
@@ -1997,5 +2000,40 @@ test.describe('one way to filter (M174)', () => {
     await page.getByRole('button', { name: /last page/i }).click()
     await expect(page).toHaveURL(/\/lemma\/7225$/)
     await expect(page.locator('.hits .hit').first()).toBeVisible()
+  })
+})
+
+// M175: tables and terms
+test.describe('tables and terms (M175)', () => {
+  test('a p or q heading opens its glossary entry', async ({ page }) => {
+    await loads(page, '/divine')
+    const p = page.locator('main thead th').getByRole('button', { name: 'p', exact: true }).first()
+    // by the keyboard: under a mouse the entry is open on hover, and a click closes it
+    await p.focus()
+    const entry = page.locator(`[id="${await p.getAttribute('aria-describedby')}"]`)
+    await expect(entry).toBeVisible()
+    await expect(entry).toContainText('p-value')
+    await page.keyboard.press('Escape')
+    await expect(entry).toBeHidden()
+    // q beside it; every other page's statistics are checked with its route (`tableFaults`)
+    await expect(page.locator('main thead th').getByRole('button', { name: 'q', exact: true }).first()).toBeVisible()
+  })
+
+  test('a table’s headings stay under the top bar while its rows scroll, on a desktop', async ({ page }, info) => {
+    // a short window, so that the fixture's few rows scroll
+    await page.setViewportSize({ width: info.project.name === 'desktop' ? 1280 : 390, height: 300 })
+    await loads(page, '/masorah')
+    const th = page.locator('main table.data-table thead th').first()
+    await expect(th).toBeVisible()
+    if (info.project.name !== 'desktop') {
+      // a phone's table scrolls sideways in its wrapper: plain headings
+      await expect(th).toHaveCSS('position', 'static')
+      return
+    }
+    await expect(page.locator('main .table-wrap.fits').first()).toBeVisible()
+    await expect(th).toHaveCSS('position', 'sticky')
+    const offsets = await stickyOffsets(page)
+    expect(offsets.length).toBeGreaterThan(0)
+    for (const off of offsets) expect(Math.abs(off)).toBeLessThanOrEqual(1)
   })
 })

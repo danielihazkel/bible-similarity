@@ -7,6 +7,7 @@ import { Segmented } from '../components/Controls'
 import { GeoMap } from '../components/GeoMap'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -82,15 +83,15 @@ function Variants({ data }: { data: PlaceLinksResponse }) {
     <section aria-label={t.variantsTitle}>
       <h2>{t.variantsTitle}</h2>
       <TableCsv name="place-links-1" tabIndex={0} role="region" aria-label={t.variantsTitle}>
-        <table className="change-table plk-table">
+        <table className="data-table plk-table">
           <thead>
             <tr>
               <th>{t.vcols.variant}</th>
-              <th>{t.vcols.places}</th>
-              <th>{t.vcols.pairs}</th>
-              <th>{t.vcols.rho}</th>
-              <th>{t.vcols.shuffled}</th>
-              <th>{t.vcols.p}</th>
+              <th className="num">{t.vcols.places}</th>
+              <th className="num">{t.vcols.pairs}</th>
+              <StatTh k="rho" className="num">{t.vcols.rho}</StatTh>
+              <StatTh k="shuffle" className="num">{t.vcols.shuffled}</StatTh>
+              <StatTh k="p" className="num">{t.vcols.p}</StatTh>
             </tr>
           </thead>
           <tbody>
@@ -106,11 +107,11 @@ function Variants({ data }: { data: PlaceLinksResponse }) {
                   </td>
                 ) : (
                   <>
-                    <td>{r.test.places}</td>
-                    <td>{r.test.pairs}</td>
-                    <td>{t.rho(r.test.rho)}</td>
-                    <td>{t.range(r.test.null_mean ?? 0, r.test.null_q05 ?? 0, r.test.null_q95 ?? 0)}</td>
-                    <td>
+                    <td className="num">{r.test.places}</td>
+                    <td className="num">{r.test.pairs}</td>
+                    <td className="num">{t.rho(r.test.rho)}</td>
+                    <td className="num">{t.range(r.test.null_mean ?? 0, r.test.null_q05 ?? 0, r.test.null_q95 ?? 0)}</td>
+                    <td className="num">
                       <Verdict holds={holdsOf(r, alpha)} /> {fp(r.test.p)}
                     </td>
                   </>
@@ -201,26 +202,26 @@ function Bins({ data }: { data: PlaceLinksResponse }) {
         />
       )}
       <TableCsv name="place-links-2" tabIndex={0} role="region" aria-label={t.binsTitle}>
-        <table className="change-table plk-table plk-bins">
+        <table className="data-table plk-table plk-bins">
           <thead>
             <tr>
               <th>{t.bcols.km}</th>
-              <th>{t.bcols.pairs}</th>
-              <th>{t.bcols.linked}</th>
+              <th className="num">{t.bcols.pairs}</th>
+              <th className="num">{t.bcols.linked}</th>
               <th>{t.bcols.share}</th>
-              <th>{t.bcols.g2}</th>
+              <StatTh k="g2" className="num">{t.bcols.g2}</StatTh>
             </tr>
           </thead>
           <tbody>
             {row.bins.map((b) => (
               <tr key={b.bin}>
                 <td>{t.bin(b.lo_km, b.hi_km)}</td>
-                <td>{b.pairs.toLocaleString('en-US')}</td>
-                <td>{b.linked}</td>
+                <td className="num">{b.pairs.toLocaleString('en-US')}</td>
+                <td className="num">{b.linked}</td>
                 <td>
                   <span className="plk-bar" style={{ inlineSize: `${((b.share ?? 0) / max) * 6}rem` }} aria-hidden="true" /> {b.share == null ? '–' : t.share(b.share)}
                 </td>
-                <td>{b.median_g2 == null ? '–' : t.g2(b.median_g2)}</td>
+                <td className="num">{b.median_g2 == null ? '–' : t.g2(b.median_g2)}</td>
               </tr>
             ))}
           </tbody>
@@ -269,14 +270,14 @@ function Leads({ data }: { data: PlaceLinksResponse }) {
       ))}
       <div className="places-layout plk-leads-layout">
         <TableCsv name="place-links-3" tabIndex={0} role="region" aria-label={t.leadsTitle}>
-          <table className="change-table plk-table">
+          <table className="data-table plk-table">
             <thead>
               <tr>
                 <th>{t.lcols.rank}</th>
                 <th>{t.lcols.pair}</th>
-                <th>{t.lcols.together}</th>
-                <th>{t.lcols.g2}</th>
-                <th>{t.lcols.km}</th>
+                <th className="num">{t.lcols.together}</th>
+                <StatTh k="g2" className="num">{t.lcols.g2}</StatTh>
+                <th className="num">{t.lcols.km}</th>
               </tr>
             </thead>
             <tbody>
@@ -286,9 +287,9 @@ function Leads({ data }: { data: PlaceLinksResponse }) {
                   <td>
                     <PlaceName id={l.a.place_id} he={l.a.he} /> – <PlaceName id={l.b.place_id} he={l.b.he} />
                   </td>
-                  <td>{l.n_together}</td>
-                  <td>{t.g2(l.g2)}</td>
-                  <td>{t.km(l.km)}</td>
+                  <td className="num">{l.n_together}</td>
+                  <td className="num">{t.g2(l.g2)}</td>
+                  <td className="num">{t.km(l.km)}</td>
                 </tr>
               ))}
             </tbody>

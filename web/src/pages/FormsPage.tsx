@@ -6,6 +6,7 @@ import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { TableWrap } from '../components/TableCsv'
 import { UnitFilter } from '../components/UnitFilter'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -117,8 +118,8 @@ function SayingChecks({ data }: { data: FormsResponse }) {
       </section>
       <section aria-label={t.knownTitle}>
         <h2>{t.knownTitle}</h2>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownTitle}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.knownTitle}>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.knownCols.name}</th>
@@ -140,7 +141,7 @@ function SayingChecks({ data }: { data: FormsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </section>
     </>
   )
@@ -266,8 +267,8 @@ function ListChecks({ data }: { data: FormsResponse }) {
       )}
       <section aria-label={t.knownListsTitle}>
         <h2>{t.knownListsTitle}</h2>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownListsTitle}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.knownListsTitle}>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.knownListsCols.name}</th>
@@ -289,7 +290,7 @@ function ListChecks({ data }: { data: FormsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </section>
       {li.kinds && (
         <section aria-label={t.kindsTitle}>

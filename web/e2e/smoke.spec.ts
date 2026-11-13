@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page, test } from '@playwright/test'
+import { stickyOffsets, tableFaults } from './tables'
 
 // Every page loads against the real API, renders its heading and logs no errors.
 const PAGES: [string, RegExp][] = [
@@ -974,4 +975,31 @@ test('lists that had no export have one: the ketiv pairs, a place’s verses, a 
     expect(first, path).toBeTruthy()
     if (list !== 'ketiv') expect(header.split(','), path).toContain(list === 'root-verses' ? 'label_en' : 'verse')
   }
+})
+
+// M175: tables and terms, on the real data
+test('number columns are at the end and the statistics’ headings are terms, on the pages that had neither', async ({ page }) => {
+  test.setTimeout(120_000)
+  for (const path of ['/place-lists', '/place-links', '/place-arc', '/els', '/gematria-links', '/ciphers', '/masorah', '/witnesses', '/reception', '/divine', '/structure', '/poetry?view=meter', '/pentateuch']) {
+    await page.goto(path)
+    await expect(page.locator('main table.data-table tbody tr').first(), path).toBeVisible({ timeout: 30_000 })
+    expect(await tableFaults(page), path).toEqual([])
+  }
+})
+
+test('a long table’s headings stay under the top bar', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop')
+  for (const path of ['/divine', '/masorah', '/structure']) {
+    await page.goto(path)
+    await expect(page.locator('main .table-wrap.fits tbody tr').first(), path).toBeVisible({ timeout: 30_000 })
+    const offsets = await stickyOffsets(page)
+    expect(offsets.length, path).toBeGreaterThan(0)
+    for (const off of offsets) expect(Math.abs(off), path).toBeLessThanOrEqual(1)
+  }
+  // and the heading is still a term there
+  await page.goto('/divine')
+  const q = page.locator('main thead th').getByRole('button', { name: 'q', exact: true }).first()
+  await q.focus()
+  await expect(page.locator(`[id="${await q.getAttribute('aria-describedby')}"]`)).toBeVisible()
+  await expect(page.locator(`[id="${await q.getAttribute('aria-describedby')}"]`)).toContainText('q-value')
 })

@@ -7,7 +7,7 @@ import { useQueryParams } from '../lib/urlState'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { TableCsv } from '../components/TableCsv'
-import { Term } from '../components/Term'
+import { StatTh } from '../components/Term'
 import '../i18n/pages/haftarot'
 import '../styles/pages/HaftarotPage.css'
 
@@ -91,13 +91,13 @@ function Modes({ d }: { d: HaftarotResponse }) {
       <h2 id="hf-modes">{t.modesTitle}</h2>
       <p className="muted small">{t.modesLede(d.thematic)}</p>
       <TableCsv name="haftarot-1" tabIndex={0} role="region" aria-label={t.modesTitle}>
-        <table className="change-table hf-modes">
+        <table className="data-table hf-modes">
           <thead>
             <tr>
               <th scope="col">{t.cols.system}</th>
-              <th scope="col" className="num">
-                <Term k="mrr">{t.cols.mrr}</Term>
-              </th>
+              <StatTh k="mrr" className="num">
+                {t.cols.mrr}
+              </StatTh>
               <th scope="col" className="num">
                 {t.cols.hits(d.list)}
               </th>
@@ -142,7 +142,7 @@ function Parashot({ d }: { d: HaftarotResponse }) {
     <section aria-labelledby="hf-parashot">
       <h2 id="hf-parashot">{t.cols.parasha}</h2>
       <TableCsv name="haftarot-2" tabIndex={0} role="region" aria-labelledby="hf-parashot">
-        <table className="change-table hf-table">
+        <table className="data-table hf-table">
           <thead>
             <tr>
               <th scope="col" className="num">

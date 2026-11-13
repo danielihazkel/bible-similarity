@@ -40,7 +40,7 @@ export function TheophoricSection({ names }: { names: Map<number, string> }) {
       <p className="muted small">{t.notInModel}</p>
       <h3>{t.booksTitle}</h3>
       <TableCsv name="theophoric-books">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.book}</th>
@@ -84,7 +84,7 @@ export function TheophoricSection({ names }: { names: Map<number, string> }) {
       </TableCsv>
       <h3>{t.namesTitle}</h3>
       <TableCsv name="theophoric-names">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.namesCols.name}</th>

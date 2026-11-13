@@ -5,6 +5,7 @@ import { BookSelect, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { hebrewNumeral } from '../lib/hebrew'
@@ -88,7 +89,7 @@ function Tests({ meta }: { meta: SegmentsMeta }) {
       <h2>{t.tests}</h2>
       <p className="muted small">{t.testsLede}</p>
       <TableCsv name="divisions-1" tabIndex={0} role="region" aria-label={t.tests}>
-        <table className="change-table division-table">
+        <table className="data-table division-table">
           <thead>
             <tr>
               <th>{t.cols.kind}</th>
@@ -96,7 +97,7 @@ function Tests({ meta }: { meta: SegmentsMeta }) {
               <th className="num">{t.cols.score}</th>
               <th className="num">{t.cols.lex}</th>
               <th className="num">{t.cols.sem}</th>
-              <th className="num">{t.cols.p}</th>
+              <StatTh k="p" className="num">{t.cols.p}</StatTh>
             </tr>
           </thead>
           <tbody>

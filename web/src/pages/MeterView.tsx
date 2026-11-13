@@ -11,6 +11,7 @@ import { parsePage, useQueryParams } from '../lib/urlState'
 import '../i18n/pages/meter'
 import '../i18n/pages/patterns'
 import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 
 const PAGE_SIZE = 50
 const GROUPS: MeterGroup[] = ['test', 'control', 'pool', 'poetic', 'prose']
@@ -104,15 +105,15 @@ function Tests({ data }: { data: MeterResponse }) {
       {meta.grid && meta.grid.length > 0 && (
         <section aria-label={t.gridTitle}>
           <h2>{t.gridTitle}</h2>
-          <div className="table-wrap" tabIndex={0} role="region" aria-label={t.gridTitle}>
-            <table className="change-table">
+          <TableWrap tabIndex={0} role="region" aria-label={t.gridTitle}>
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>{t.grid.length}</th>
+                  <th className="num">{t.grid.length}</th>
                   <th className="num">{t.grid.lam}</th>
                   <th className="num">{t.grid.pool}</th>
-                  <th className="num">{t.grid.p}</th>
-                  <th className="num">{t.grid.poeticP}</th>
+                  <StatTh k="p" className="num">{t.grid.p}</StatTh>
+                  <StatTh k="p" className="num">{t.grid.poeticP}</StatTh>
                 </tr>
               </thead>
               <tbody>
@@ -129,7 +130,7 @@ function Tests({ data }: { data: MeterResponse }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         </section>
       )}
       {named && named.p != null && (
@@ -168,7 +169,7 @@ function ChapterTable({ rows, stale = '', withGroup = false, label }: { rows: Me
   const { m, locale } = useLocale()
   const t = m.met
   const table = (
-    <table className={`change-table ${stale}`}>
+    <table className={`data-table ${stale}`}>
       <thead>
         <tr>
           <th>{t.cols.chapter}</th>
@@ -212,9 +213,9 @@ function ChapterTable({ rows, stale = '', withGroup = false, label }: { rows: Me
     </table>
   )
   return label ? (
-    <div className="table-wrap" tabIndex={0} role="region" aria-label={label}>
+    <TableWrap tabIndex={0} role="region" aria-label={label}>
       {table}
-    </div>
+    </TableWrap>
   ) : (
     <TableWrap>{table}</TableWrap>
   )

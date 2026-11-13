@@ -6,6 +6,7 @@ import type { DistrictGrouping, NullHistogram, PlaceList, PlaceListsResponse, Pl
 import { Segmented } from '../components/Controls'
 import { GeoMap } from '../components/GeoMap'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
@@ -67,18 +68,22 @@ function Lists({ data }: { data: PlaceListsResponse }) {
       <section aria-label={t.listsTitle}>
         <h2>{t.listsTitle}</h2>
         <TableCsv name="place-lists-1" tabIndex={0} role="region" aria-label={t.listsTitle}>
-          <table className="change-table pls-table">
+          <table className="data-table pls-table">
             <thead>
               <tr>
                 <th>{t.cols.list}</th>
                 <th>{t.cols.kind}</th>
-                <th title={t.colHints.places}>{t.cols.places}</th>
-                <th>{t.cols.path}</th>
-                <th>{t.cols.random}</th>
-                <th>{t.cols.short}</th>
-                <th title={t.colHints.order}>{t.cols.order}</th>
-                <th>{t.cols.p}</th>
-                <th>{t.cols.sure}</th>
+                <th className="num" title={t.colHints.places}>
+                  {t.cols.places}
+                </th>
+                <th className="num">{t.cols.path}</th>
+                <StatTh k="shuffle" className="num">{t.cols.random}</StatTh>
+                <th className="num">{t.cols.short}</th>
+                <th className="num" title={t.colHints.order}>
+                  {t.cols.order}
+                </th>
+                <StatTh k="p" className="num">{t.cols.p}</StatTh>
+                <th className="num">{t.cols.sure}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,23 +98,23 @@ function Lists({ data }: { data: PlaceListsResponse }) {
                       </button>
                     </td>
                     <td>{t.kinds[l.kind]}</td>
-                    <td>{t.placesOf(a.n, l.n_named)}</td>
+                    <td className="num">{t.placesOf(a.n, l.n_named)}</td>
                     {a.p == null ? (
                       <td colSpan={6} className="muted">
                         {t.untested(a.n)}
                       </td>
                     ) : (
                       <>
-                        <td>{t.km(a.path_km ?? 0)}</td>
-                        <td>{t.km(a.null_mean ?? 0)}</td>
-                        <td>{t.km(a.short_km ?? 0)}</td>
-                        <td>{a.order_score == null ? '–' : t.order(a.order_score)}</td>
-                        <td>
+                        <td className="num">{t.km(a.path_km ?? 0)}</td>
+                        <td className="num">{t.km(a.null_mean ?? 0)}</td>
+                        <td className="num">{t.km(a.short_km ?? 0)}</td>
+                        <td className="num">{a.order_score == null ? '–' : t.order(a.order_score)}</td>
+                        <td className="num">
                           <Verdict holds={a.p <= alpha} /> {t.p(a.p)}
                         </td>
                       </>
                     )}
-                    <td className={s.p == null ? 'muted' : undefined}>
+                    <td className={s.p == null ? 'num muted' : 'num'}>
                       {s.p == null ? t.untested(s.n) : `${t.placesOf(s.n, l.n_named)} · p ${t.p(s.p)}`}
                     </td>
                   </tr>
@@ -316,15 +321,15 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
           )}
         </div>
         <TableCsv name="place-lists-2" tabIndex={0} role="region" aria-label={t.districtsTitle}>
-          <table className="change-table pls-table">
+          <table className="data-table pls-table">
             <thead>
               <tr>
                 <th>{t.dcols.district}</th>
-                <th>{t.dcols.towns}</th>
-                <th>{t.dcols.apart}</th>
-                <th>{t.dcols.random}</th>
-                <th>{t.dcols.p}</th>
-                <th>{t.dcols.sure}</th>
+                <th className="num">{t.dcols.towns}</th>
+                <th className="num">{t.dcols.apart}</th>
+                <StatTh k="shuffle" className="num">{t.dcols.random}</StatTh>
+                <StatTh k="p" className="num">{t.dcols.p}</StatTh>
+                <th className="num">{t.dcols.sure}</th>
               </tr>
             </thead>
             <tbody>
@@ -334,21 +339,21 @@ function Districts({ groupings, alpha }: { groupings: DistrictGrouping[]; alpha:
                     <span className="geo-key" style={{ background: districtFill(d.district) }} aria-hidden="true" />{' '}
                     <Link to={unitLink(`v:${d.first_vid}`)}>{locale === 'he' ? d.label_he : d.label_en}</Link>
                   </td>
-                  <td>{d.all?.n ?? 0}</td>
+                  <td className="num">{d.all?.n ?? 0}</td>
                   {d.all?.p == null ? (
                     <td colSpan={3} className="muted">
                       {t.single}
                     </td>
                   ) : (
                     <>
-                      <td>{t.km(d.all.within_km ?? 0)}</td>
-                      <td>{t.km(d.all.null_mean ?? 0)}</td>
-                      <td>
+                      <td className="num">{t.km(d.all.within_km ?? 0)}</td>
+                      <td className="num">{t.km(d.all.null_mean ?? 0)}</td>
+                      <td className="num">
                         <Verdict holds={d.all.p <= alpha} /> {t.p(d.all.p)}
                       </td>
                     </>
                   )}
-                  <td className={d.sure?.p == null ? 'muted' : undefined}>{d.sure?.p == null ? (d.sure?.n ?? 0) : `${d.sure.n} · p ${t.p(d.sure.p)}`}</td>
+                  <td className={d.sure?.p == null ? 'num muted' : 'num'}>{d.sure?.p == null ? (d.sure?.n ?? 0) : `${d.sure.n} · p ${t.p(d.sure.p)}`}</td>
                 </tr>
               ))}
             </tbody>

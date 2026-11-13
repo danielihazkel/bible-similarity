@@ -47,7 +47,6 @@ export const patEn = {
     empty: 'No scored units.',
     unit: 'Unit',
     verses: 'Verses',
-    qTitle: 'Benjamini–Hochberg q of the sorted score',
     sevens: (leitworte: number, multiples: number, expected: number, ratio: string, divisors: string, range: string | null, below: number) =>
       `Sevens: of ${numEn(leitworte)} chapter Leitworte, ${multiples} occur a multiple of 7 times against ${expected} expected from words with similar counts (${ratio}×). Other divisors (${divisors}) show ${range ?? 'no data'}${below === 0 ? ', so nothing singles out 7.' : `; ${below} of them less than 7.`}`,
   },

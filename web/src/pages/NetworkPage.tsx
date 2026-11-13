@@ -235,7 +235,7 @@ function NodeTable({
   const { m, locale } = useLocale()
   return (
     <TableCsv name={name} tabIndex={0} role="region" aria-label={label}>
-      <table className="rank-table">
+      <table className="data-table tight">
         <thead>
           <tr>
             <th scope="col">{m.ov.network.passage}</th>

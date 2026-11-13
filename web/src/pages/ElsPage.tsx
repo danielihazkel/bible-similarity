@@ -4,6 +4,7 @@ import { useEls } from '../api/hooks'
 import type { ElsControlKey, ElsKnown, ElsResponse, ElsScope } from '../api/types'
 import { Segmented } from '../components/Controls'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { unitLink } from '../lib/links'
 import { unitLabel } from '../lib/names'
@@ -68,13 +69,13 @@ function Scope({ data }: { data: ElsResponse }) {
       <p className="muted small">{t.claim(alpha)}</p>
       <h2>{t.controlsTitle}</h2>
       <TableCsv name="equal-skips-1" tabIndex={0} role="region" aria-label={t.controlsTitle}>
-        <table className="change-table els-table">
+        <table className="data-table els-table">
           <thead>
             <tr>
               <th>{t.ccols.control}</th>
-              <th>{t.ccols.n}</th>
-              <th>{t.ccols.mean}</th>
-              <th>{t.ccols.p}</th>
+              <th className="num">{t.ccols.n}</th>
+              <th className="num">{t.ccols.mean}</th>
+              <StatTh k="p" className="num">{t.ccols.p}</StatTh>
               <th>{t.ccols.verdict}</th>
             </tr>
           </thead>
@@ -85,9 +86,9 @@ function Scope({ data }: { data: ElsResponse }) {
                 ? [
                     <tr key={c}>
                       <td>{t.controls[c]}</td>
-                      <td>{x.n}</td>
-                      <td>{t.range(x.mean, x.q05, x.q95)}</td>
-                      <td>{t.p(x.p)}</td>
+                      <td className="num">{x.n}</td>
+                      <td className="num">{t.range(x.mean, x.q05, x.q95)}</td>
+                      <td className="num">{t.p(x.p)}</td>
                       <td>
                         <Verdict holds={x.p > alpha} />
                       </td>
@@ -176,19 +177,19 @@ function Terms({ scope }: { scope: ElsScope }) {
       <h2>{t.termsTitle}</h2>
       <p className="muted small">{t.termsLede}</p>
       <TableCsv name="equal-skips-2" tabIndex={0} role="region" aria-label={t.termsTitle}>
-        <table className="change-table els-table els-terms">
+        <table className="data-table els-table els-terms">
           <thead>
             <tr>
               <th>{t.tcols.term}</th>
-              <th>{t.tcols.fwd}</th>
-              <th>{t.tcols.back}</th>
-              <th>{t.tcols.hits}</th>
-              <th>{t.tcols.expected}</th>
-              <th>{t.tcols.ratio}</th>
-              <th>{t.tcols.letters}</th>
-              <th>{t.tcols.p}</th>
-              <th>{t.tcols.verses}</th>
-              <th>{t.tcols.blocks}</th>
+              <th className="num">{t.tcols.fwd}</th>
+              <th className="num">{t.tcols.back}</th>
+              <th className="num">{t.tcols.hits}</th>
+              <th className="num">{t.tcols.expected}</th>
+              <th className="num">{t.tcols.ratio}</th>
+              <StatTh k="shuffle" className="num">{t.tcols.letters}</StatTh>
+              <StatTh k="p" className="num">{t.tcols.p}</StatTh>
+              <StatTh k="shuffle" className="num">{t.tcols.verses}</StatTh>
+              <th className="num">{t.tcols.blocks}</th>
             </tr>
           </thead>
           <tbody>
@@ -199,15 +200,15 @@ function Terms({ scope }: { scope: ElsScope }) {
                     {x.term}
                   </span>
                 </td>
-                <td>{t.num(x.forward)}</td>
-                <td>{t.num(x.backward)}</td>
-                <td>{t.num(x.hits)}</td>
-                <td>{t.num(x.expected)}</td>
-                <td>{t.ratio(Math.exp(x.log_ratio))}</td>
-                <td>{t.lettersRange(x.letters_q05, x.letters_q95)}</td>
-                <td>{t.p(x.letters_p)}</td>
-                <td>{t.num(x.verses_mean)}</td>
-                <td>{x.blocks_log_ratio == null ? '–' : t.ratio(Math.exp(x.blocks_log_ratio))}</td>
+                <td className="num">{t.num(x.forward)}</td>
+                <td className="num">{t.num(x.backward)}</td>
+                <td className="num">{t.num(x.hits)}</td>
+                <td className="num">{t.num(x.expected)}</td>
+                <td className="num">{t.ratio(Math.exp(x.log_ratio))}</td>
+                <td className="num">{t.lettersRange(x.letters_q05, x.letters_q95)}</td>
+                <td className="num">{t.p(x.letters_p)}</td>
+                <td className="num">{t.num(x.verses_mean)}</td>
+                <td className="num">{x.blocks_log_ratio == null ? '–' : t.ratio(Math.exp(x.blocks_log_ratio))}</td>
               </tr>
             ))}
           </tbody>
@@ -225,12 +226,12 @@ function Known({ known }: { known: ElsKnown[] }) {
       <h2>{t.knownTitle}</h2>
       <p className="muted small">{t.knownLede}</p>
       <TableCsv name="equal-skips-3" tabIndex={0} role="region" aria-label={t.knownTitle}>
-        <table className="change-table els-table">
+        <table className="data-table els-table">
           <thead>
             <tr>
               <th>{t.kcols.verse}</th>
               <th>{t.kcols.term}</th>
-              <th>{t.kcols.skip}</th>
+              <th className="num">{t.kcols.skip}</th>
               <th>{t.kcols.found}</th>
               <th>{t.kcols.torah}</th>
             </tr>
@@ -246,7 +247,7 @@ function Known({ known }: { known: ElsKnown[] }) {
                     {k.term}
                   </span>
                 </td>
-                <td>{k.skip}</td>
+                <td className="num">{k.skip}</td>
                 <td>
                   <Verdict holds={k.found} /> {t.found(k.offset ?? null)}
                 </td>

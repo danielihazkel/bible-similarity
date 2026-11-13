@@ -5,6 +5,7 @@ import type { GematriaLinksResponse, GematriaPairSort, LinkLemma, LinkMeasure, L
 import { Segmented } from '../components/Controls'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { lemmaLink, unitLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -54,14 +55,14 @@ function TestTable({ tests, label }: { tests: Partial<Record<LinkMeasure, LinkTe
   const t = useLocale().m.gl
   return (
     <TableCsv name="equal-values-1" tabIndex={0} role="region" aria-label={label}>
-      <table className="change-table gl-tests">
+      <table className="data-table gl-tests">
         <thead>
           <tr>
             <th>{t.cols.measure}</th>
-            <th>{t.cols.pairs}</th>
-            <th>{t.cols.matched}</th>
-            <th>{t.cols.range}</th>
-            <th>{t.cols.p}</th>
+            <th className="num">{t.cols.pairs}</th>
+            <th className="num">{t.cols.matched}</th>
+            <th className="num">{t.cols.range}</th>
+            <StatTh k="p" className="num">{t.cols.p}</StatTh>
           </tr>
         </thead>
         <tbody>
@@ -70,12 +71,12 @@ function TestTable({ tests, label }: { tests: Partial<Record<LinkMeasure, LinkTe
             return (
               <tr key={x}>
                 <td title={t.measureHints[x]}>{t.measures[x]}</td>
-                <td>{num(r.observed, x)}</td>
-                <td>{num(r.null_mean, x)}</td>
-                <td>
+                <td className="num">{num(r.observed, x)}</td>
+                <td className="num">{num(r.null_mean, x)}</td>
+                <td className="num">
                   {num(r.null_q05, x)} – {num(r.null_q95, x)}
                 </td>
-                <td>{r.p < 0.001 ? '< 0.001' : r.p.toFixed(3)}</td>
+                <td className="num">{r.p < 0.001 ? '< 0.001' : r.p.toFixed(3)}</td>
               </tr>
             )
           })}
@@ -132,14 +133,14 @@ function Equivalences({ data }: { data: GematriaLinksResponse }) {
       <h2>{t.eqTitle}</h2>
       <p className="muted small">{t.eqLede}</p>
       <TableCsv name="equal-values-2" tabIndex={0} role="region" aria-label={t.eqTitle}>
-        <table className="change-table gl-eq">
+        <table className="data-table gl-eq">
           <thead>
             <tr>
               <th>{t.eqCols.pair}</th>
-              <th>{t.eqCols.value}</th>
-              <th>{t.eqCols.domains}</th>
+              <th className="num">{t.eqCols.value}</th>
+              <th className="num">{t.eqCols.domains}</th>
               <th>{t.eqCols.root}</th>
-              <th>{t.eqCols.vector}</th>
+              <th className="num">{t.eqCols.vector}</th>
             </tr>
           </thead>
           <tbody>
@@ -160,12 +161,12 @@ function Equivalences({ data }: { data: GematriaLinksResponse }) {
                   </td>
                 ) : (
                   <>
-                    <td>
+                    <td className="num">
                       <Link to={`/gematria?q=${e.value}`}>{e.value}</Link>
                     </td>
-                    <td>{e.domains == null ? '–' : `${Math.round(100 * e.domains)}%`}</td>
+                    <td className="num">{e.domains == null ? '–' : `${Math.round(100 * e.domains)}%`}</td>
                     <td>{e.root ? t.same : t.differ}</td>
-                    <td>
+                    <td className="num">
                       {e.vector?.toFixed(2)} <span className="muted small">({t.rank(e.vector_rank ?? 0)})</span>
                     </td>
                   </>
@@ -190,12 +191,12 @@ function Genesis({ data }: { data: GematriaLinksResponse }) {
     <section aria-label={t.verseTitle(ref)} id="genesis">
       <h2>{t.verseTitle(ref)}</h2>
       <TableCsv name="equal-values-3" tabIndex={0} role="region" aria-label={t.verseTitle(ref)}>
-        <table className="change-table gl-props">
+        <table className="data-table gl-props">
           <thead>
             <tr>
               <th>{t.propCols.prop}</th>
               <th>{t.propCols.here}</th>
-              <th>{t.propCols.verses}</th>
+              <th className="num">{t.propCols.verses}</th>
             </tr>
           </thead>
           <tbody>
@@ -203,7 +204,7 @@ function Genesis({ data }: { data: GematriaLinksResponse }) {
               <tr key={p.key}>
                 <td>{t.props(p)}</td>
                 <td>{p.holds_here ? '✓' : '–'}</td>
-                <td>{p.verses.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')}</td>
+                <td className="num">{p.verses.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')}</td>
               </tr>
             ))}
           </tbody>

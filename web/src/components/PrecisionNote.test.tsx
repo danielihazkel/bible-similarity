@@ -128,7 +128,7 @@ describe('PrecisionTable', () => {
     expect((await screen.findByRole('link', { name: 'Main line' })).getAttribute('href')).toBe('/mainline')
     expect(screen.getByRole('link', { name: 'Prophetic forms' }).getAttribute('href')).toBe('/prophetic')
     const table = container.querySelector('table')!
-    expect(table.className).toBe('change-table precision-table')
+    expect(table.className).toBe('data-table precision-table')
     expect(table.parentElement?.className).toBe('table-wrap')
   })
 

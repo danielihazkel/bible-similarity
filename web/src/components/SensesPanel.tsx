@@ -53,7 +53,7 @@ function SenseTable({ title, rows, order }: { title: string; rows: LemmaSense[];
     <>
       <h3>{title}</h3>
       <TableWrap>
-        <table className="change-table senses-table">
+        <table className="data-table senses-table">
           <thead>
             <tr>
               <th />

@@ -93,7 +93,7 @@ function BookTable({ books, name }: { books: EchoBook[]; name: (id: number) => s
       <h3>{t.booksTitle}</h3>
       <p className="muted small">{t.booksLede}</p>
       <TableCsv name="directions-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
-        <table className="rank-table">
+        <table className="data-table tight">
           <thead>
             <tr>
               <th scope="col">{t.filters.book}</th>
@@ -129,7 +129,7 @@ function SourceTable({ sources }: { sources: EchoChapter[] }) {
       <h3>{t.sourcesTitle}</h3>
       <p className="muted small">{t.sourcesLede}</p>
       <TableCsv name="directions-2" tabIndex={0} role="region" aria-label={t.sourcesTitle}>
-        <table className="rank-table">
+        <table className="data-table tight">
           <thead>
             <tr>
               <th scope="col">{t.chapter}</th>

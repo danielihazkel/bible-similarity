@@ -106,7 +106,7 @@ function Books({ d }: { d: PropheticResponse }) {
       <h2 id="pf-books">{t.booksTitle}</h2>
       <p className="muted small">{t.booksLede}</p>
       <TableCsv name="prophetic-books" tabIndex={0} role="region" aria-labelledby="pf-books">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.book}</th>

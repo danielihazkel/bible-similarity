@@ -5,6 +5,7 @@ import { useBasemap, usePlaceArc, usePlaceArcBook } from '../api/hooks'
 import type { ArcBook, ArcChapter, ArcMove, ArcMoveEnd, ArcOracles, PlaceArcResponse } from '../api/types'
 import { GeoMap } from '../components/GeoMap'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { type Bounds, fitBounds, type GeoPoint, VIEWS } from '../lib/geo'
 import { placeLink, unitLink } from '../lib/links'
@@ -204,15 +205,17 @@ function Books({ books, alpha }: { books: ArcBook[]; alpha: number }) {
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
       <TableCsv name="place-arc-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
-        <table className="change-table pa-table">
+        <table className="data-table pa-table">
           <thead>
             <tr>
               <th>{t.cols.book}</th>
-              <th>{t.cols.placed}</th>
-              <th>{t.cols.step}</th>
-              <th>{t.cols.shuffled}</th>
-              <th title={t.colHints.ratio}>{t.cols.ratio}</th>
-              <th>{t.cols.p}</th>
+              <th className="num">{t.cols.placed}</th>
+              <th className="num">{t.cols.step}</th>
+              <StatTh k="shuffle" className="num">{t.cols.shuffled}</StatTh>
+              <th className="num" title={t.colHints.ratio}>
+                  {t.cols.ratio}
+                </th>
+              <StatTh k="p" className="num">{t.cols.p}</StatTh>
             </tr>
           </thead>
           <tbody>
@@ -225,17 +228,17 @@ function Books({ books, alpha }: { books: ArcBook[]; alpha: number }) {
                       {bookName(b, locale)}
                     </button>
                   </td>
-                  <td>{t.placedOf(b.n, b.chapters)}</td>
+                  <td className="num">{t.placedOf(b.n, b.chapters)}</td>
                   {b.p == null || b.mean_step == null || b.null_mean == null ? (
                     <td colSpan={4} className="muted">
                       {t.untested}
                     </td>
                   ) : (
                     <>
-                      <td>{t.km(b.mean_step)}</td>
-                      <td>{t.km(b.null_mean)}</td>
-                      <td>{b.ratio == null ? '–' : t.ratio(b.ratio)}</td>
-                      <td>
+                      <td className="num">{t.km(b.mean_step)}</td>
+                      <td className="num">{t.km(b.null_mean)}</td>
+                      <td className="num">{b.ratio == null ? '–' : t.ratio(b.ratio)}</td>
+                      <td className="num">
                         <Verdict holds={b.p <= alpha && b.mean_step < b.null_mean} /> {fp(b.p)}
                       </td>
                     </>
@@ -281,13 +284,13 @@ function Moves({ moves }: { moves: ArcMove[] }) {
       <p>{t.movesSummary(tested.filter((x) => x.holds).length, tested.length)}</p>
       <div className="places-layout pa-moves-layout">
         <TableCsv name="place-arc-2" tabIndex={0} role="region" aria-label={t.movesTitle}>
-          <table className="change-table pa-table">
+          <table className="data-table pa-table">
             <thead>
               <tr>
                 <th>{t.mcols.move}</th>
                 <th>{t.mcols.before}</th>
                 <th>{t.mcols.after}</th>
-                <th>{t.mcols.km}</th>
+                <th className="num">{t.mcols.km}</th>
               </tr>
             </thead>
             <tbody>
@@ -303,7 +306,7 @@ function Moves({ moves }: { moves: ArcMove[] }) {
                   </td>
                   <td>{endCell(x.start, x)}</td>
                   <td>{endCell(x.end, x)}</td>
-                  <td>{x.km == null ? '–' : t.km(x.km)}</td>
+                  <td className="num">{x.km == null ? '–' : t.km(x.km)}</td>
                 </tr>
               ))}
             </tbody>
@@ -340,14 +343,14 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
       </p>
       {tests.length > 0 && (
         <TableCsv name="place-arc-3" tabIndex={0} role="region" aria-label={t.oraclesTitle}>
-          <table className="change-table pa-table">
+          <table className="data-table pa-table">
             <thead>
               <tr>
                 <th>{t.ocols.measure}</th>
                 <th>{t.ocols.oracles}</th>
                 <th>{t.ocols.others}</th>
-                <th>{t.ocols.shuffled}</th>
-                <th>{t.ocols.p}</th>
+                <StatTh k="shuffle" className="num">{t.ocols.shuffled}</StatTh>
+                <StatTh k="p" className="num">{t.ocols.p}</StatTh>
               </tr>
             </thead>
             <tbody>
@@ -356,8 +359,8 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
                   <td>{t.measures[key] ?? key}</td>
                   <td>{t.meanMedian(r.observed, r.median, r.n)}</td>
                   <td>{t.meanMedian(r.other, r.other_median, r.n_other)}</td>
-                  <td>{t.km(r.null_mean)}</td>
-                  <td>
+                  <td className="num">{t.km(r.null_mean)}</td>
+                  <td className="num">
                     <Verdict holds={r.p <= o.alpha} /> {fp(r.p)}
                   </td>
                 </tr>
@@ -370,14 +373,14 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
         <>
           <h3>{t.oracleChapters}</h3>
           <TableCsv name="place-arc-4" tabIndex={0} role="region" aria-label={t.oracleChapters}>
-            <table className="change-table pa-table pa-oracle-chapters">
+            <table className="data-table pa-table pa-oracle-chapters">
               <thead>
                 <tr>
                   <th>{t.chcols.chapter}</th>
                   <th>{t.chcols.place}</th>
-                  <th>{t.chcols.places}</th>
-                  <th>{t.chcols.spread}</th>
-                  <th>{t.chcols.reach}</th>
+                  <th className="num">{t.chcols.places}</th>
+                  <th className="num">{t.chcols.spread}</th>
+                  <th className="num">{t.chcols.reach}</th>
                 </tr>
               </thead>
               <tbody>
@@ -393,9 +396,9 @@ function Oracles({ oracles: o }: { oracles: ArcOracles }) {
                         </Link>
                       )}
                     </td>
-                    <td>{c.n_places}</td>
-                    <td>{t.km(c.spread_km)}</td>
-                    <td>{t.km(c.reach_km)}</td>
+                    <td className="num">{c.n_places}</td>
+                    <td className="num">{t.km(c.spread_km)}</td>
+                    <td className="num">{t.km(c.reach_km)}</td>
                   </tr>
                 ))}
               </tbody>

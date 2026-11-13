@@ -11,7 +11,8 @@ import { domainLink, lemmaLink, rootLink, unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { addItem, formatP, joinSet, parseRange, patternFor, removeItem, splitSet, type SetItem } from '../lib/workbench'
-import { Term } from '../components/Term'
+import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import '../i18n/pages/query'
 import '../i18n/pages/workbench'
 import '../styles/pages/WorkbenchPage.css'
@@ -152,8 +153,8 @@ function Side({ title, rows, feature, side }: { title: string; rows: ContrastRow
       {rows.length === 0 ? (
         <p className="status">{t.none}</p>
       ) : (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={title}>
-          <table className="change-table wb-table">
+        <TableWrap tabIndex={0} role="region" aria-label={title}>
+          <table className="data-table wb-table">
             <thead>
               <tr>
                 <th>{t.cols.value}</th>
@@ -162,12 +163,12 @@ function Side({ title, rows, feature, side }: { title: string; rows: ContrastRow
                 <th className="num" title={t.ratioTitle}>
                   {t.cols.ratio}
                 </th>
-                <th className="num">
-                  <Term k="g2">{t.cols.g2}</Term>
-                </th>
-                <th className="num">
-                  <Term k="q">{t.cols.q}</Term>
-                </th>
+                <StatTh k="g2" className="num">
+                  {t.cols.g2}
+                </StatTh>
+                <StatTh k="q" className="num">
+                  {t.cols.q}
+                </StatTh>
                 <th>{t.cols.verses}</th>
               </tr>
             </thead>
@@ -205,7 +206,7 @@ function Side({ title, rows, feature, side }: { title: string; rows: ContrastRow
               })}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
     </section>
   )
@@ -309,8 +310,8 @@ function CheckResult({ d, stale, locale }: { d: CheckResponse; stale: boolean; l
         <p className="status">{t.untestable}</p>
       )}
       {d.books.length > 1 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.byBook}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.byBook}>
+          <table className="data-table">
             <caption>{t.byBook}</caption>
             <thead>
               <tr>
@@ -334,7 +335,7 @@ function CheckResult({ d, stale, locale }: { d: CheckResponse; stale: boolean; l
               })}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
       <p className="muted small">{t.checkMethod}</p>
     </section>

@@ -138,7 +138,7 @@ function FromAdam({ d }: { d: ChronologyResponse }) {
         </>
       )}
       <TableCsv name="chronology-1" tabIndex={0} role="region" aria-labelledby="ch-adam">
-        <table className="change-table ch-events">
+        <table className="data-table ch-events">
           <thead>
             <tr>
               <th scope="col">{t.cols.event}</th>
@@ -270,7 +270,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
       </div>
       <p className="small">{t.ends(d.division, d.ends.judah, d.ends.israel, tradition)}</p>
       <TableCsv name="chronology-2" tabIndex={0} role="region" aria-label={t.kingsLabel}>
-        <table className="change-table ch-syncs">
+        <table className="data-table ch-syncs">
           <thead>
             <tr>
               <th scope="col">{t.cols.verse}</th>
@@ -302,7 +302,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
       <h3>{t.rulesTitle}</h3>
       <p className="muted small">{t.rulesLede}</p>
       <TableCsv name="chronology-3" tabIndex={0} role="region" aria-label={t.rulesTitle}>
-        <table className="change-table ch-rules">
+        <table className="data-table ch-rules">
           <thead>
             <tr>
               <th scope="col">{t.cols.rules}</th>
@@ -330,7 +330,7 @@ function Kingdoms({ d }: { d: ChronologyResponse }) {
       <details className="ch-reigns" {...openProps('reigns')}>
         <summary>{t.kingsTable}</summary>
         <TableCsv name="chronology-4" tabIndex={0} role="region" aria-label={t.kingsTable}>
-          <table className="change-table">
+          <table className="data-table">
             <thead>
               <tr>
                 <th scope="col">{t.cols.king}</th>
@@ -429,7 +429,7 @@ function Digits({ d }: { d: ChronologyResponse }) {
       <h2 id="ch-digits">{t.digitsTitle}</h2>
       <p className="muted small">{t.digitsLede(g.n, d.digits_min)}</p>
       <TableCsv name="chronology-5" tabIndex={0} role="region" aria-label={t.digitsTitle}>
-        <table className="change-table ch-digits">
+        <table className="data-table ch-digits">
           <thead>
             <tr>
               <th scope="col" className="num">

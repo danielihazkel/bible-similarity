@@ -41,7 +41,6 @@ export const patHe: typeof patEn = {
     empty: 'אין יחידות מדורגות.',
     unit: 'יחידה',
     verses: 'פסוקים',
-    qTitle: 'q של בנימיני–הוכברג לציון שלפיו ממוין',
     sevens: (leitworte: number, multiples: number, expected: number, ratio: string, divisors: string, range: string | null, below: number) =>
       `שבע: מתוך ${numHe(leitworte)} מילים מנחות בפרקים, ${multiples} מופיעות מספר פעמים שהוא כפולה של 7, לעומת ${expected} הצפויות ממילים בשכיחות דומה (${ratio}×). מחלקים אחרים (${divisors}) מראים ${range ?? 'אין נתונים'}${below === 0 ? ', כך שאין דבר המייחד את 7.' : `; ${below} מהם פחות מ־7.`}`,
   },

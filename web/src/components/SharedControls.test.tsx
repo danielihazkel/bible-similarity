@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as csv from '../lib/csv'
 import { BookSelect, Segmented } from './Controls'
@@ -93,6 +93,18 @@ describe('TableWrap (M167)', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(screen.queryByRole('region')).toBeNull()
     expect(container.querySelector('.table-wrap')?.hasAttribute('tabindex')).toBe(false)
+    vi.unstubAllGlobals()
+  })
+
+  it('marks a table that fits, so that its headings can stay under the top bar (M175)', async () => {
+    widths(390, 390)
+    const { container, rerender } = render(page(<TableWrap className="mine">{table}</TableWrap>))
+    const wrapper = container.querySelector('.table-wrap')!
+    await waitFor(() => expect(wrapper.className).toBe('table-wrap fits mine'))
+    vi.unstubAllGlobals()
+    widths(900, 390)
+    rerender(page(<TableWrap className="mine">{table}</TableWrap>))
+    await waitFor(() => expect(wrapper.className).toBe('table-wrap mine'))
     vi.unstubAllGlobals()
   })
 

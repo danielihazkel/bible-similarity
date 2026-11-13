@@ -73,7 +73,7 @@ export function PrecisionTable() {
       <h2 id="precision-table">{t.tableTitle}</h2>
       <p className="muted small">{t.tableLede}</p>
       <TableWrap>
-        <table className="change-table precision-table">
+        <table className="data-table precision-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.detector}</th>

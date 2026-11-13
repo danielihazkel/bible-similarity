@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useLayoutEffect, useRef, useState } from 'react'
+import { type ReactNode, type ThHTMLAttributes, useId, useLayoutEffect, useRef, useState } from 'react'
 import { useLocale } from '../context/localeContext'
 import type { TermKey } from '../i18n/pages/glossary'
 import '../i18n/pages/glossary'
@@ -46,6 +46,16 @@ export function Term({ k, children }: { k: TermKey; children?: ReactNode }) {
         <b>{entry.name}.</b> {entry.def}
       </span>
     </span>
+  )
+}
+
+/** A column heading that is a statistic of the glossary (p, q, G², rho …): the heading opens the
+ * term's entry (M175). Its text is the page's own heading, or the term's name where none is given. */
+export function StatTh({ k, children, ...th }: { k: TermKey; children?: ReactNode } & ThHTMLAttributes<HTMLTableCellElement>) {
+  return (
+    <th scope="col" {...th}>
+      <Term k={k}>{children}</Term>
+    </th>
   )
 }
 

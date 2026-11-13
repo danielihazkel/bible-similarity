@@ -146,7 +146,7 @@ function SupervisionSection({ sup }: { sup: SupervisionEval }) {
       </p>
       {(['fused', 'semantic'] as const).map((list) => (
         <TableCsv key={list} name={`eval-supervision-${list}`} tabIndex={0} role="region" aria-label={t.supList[list]}>
-          <table className="rank-table eval-table">
+          <table className="data-table tight eval-table">
             <caption>{t.supCaption(t.supList[list], sup.baseline, golds.map((g) => `${t.gold[g] ?? g} ${(sup.baseline_scores[list]?.[g] ?? 0).toFixed(3)}`).join(', '))}</caption>
             <thead>
               <tr>
@@ -225,7 +225,7 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
       </p>
       {(['fused', 'semantic'] as const).map((list) => (
         <TableCsv key={list} name={`eval-encoders-${list}`} tabIndex={0} role="region" aria-label={t.encList[list]}>
-          <table className="rank-table eval-table">
+          <table className="data-table tight eval-table">
             <caption>{t.supCaption(t.encList[list], enc.baseline, scores(enc.baseline_scores[list]))}</caption>
             {head(list === 'fused')}
             <tbody>
@@ -249,7 +249,7 @@ function EncodersSection({ enc }: { enc: EncoderEval }) {
       ))}
       {zero.length > 0 && (
         <TableCsv name="eval-zero-shot" tabIndex={0} role="region" aria-label={t.encZeroLabel}>
-          <table className="rank-table eval-table">
+          <table className="data-table tight eval-table">
             <caption>{t.encZero(enc.reference, scores(enc.reference_scores.semantic))}</caption>
             {head(false)}
             <tbody>
@@ -301,7 +301,7 @@ function UnitListsSection({ ux }: { ux: UnitListEval }) {
         return (
           <Fragment key={type}>
             <TableCsv name={`eval-units-${type}`} tabIndex={0} role="region" aria-label={t.unitCaption(type, scores)}>
-              <table className="rank-table eval-table">
+              <table className="data-table tight eval-table">
                 <caption>{t.unitCaption(type, scores)}</caption>
                 <thead>
                   <tr>
@@ -336,7 +336,7 @@ function UnitListsSection({ ux }: { ux: UnitListEval }) {
               </table>
             </TableCsv>
             <TableCsv name={`eval-units-alone-${type}`} tabIndex={0} role="region" aria-label={t.unitAloneCaption(type)}>
-              <table className="rank-table eval-table">
+              <table className="data-table tight eval-table">
                 <caption>{t.unitAloneCaption(type)}</caption>
                 <thead>
                   <tr>
@@ -393,7 +393,7 @@ function MetricTable({ caption, rows, glossed = false }: { caption: string; rows
   return (
     // focusable so keyboard users can scroll a wide table on a narrow screen
     <TableCsv name="eval-6" tabIndex={0} role="region" aria-label={caption}>
-      <table className="rank-table eval-table">
+      <table className="data-table tight eval-table">
         <caption>{caption}</caption>
         <thead>
           <tr>

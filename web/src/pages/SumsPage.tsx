@@ -108,7 +108,7 @@ function Lists({ d }: { d: SumsResponse }) {
       <h2 id="sm-lists">{t.listsTitle}</h2>
       {sel && <ListPanel l={sel} name={name(sel)} onClose={() => update({ list: null }, false)} />}
       <TableCsv name="sums-1" tabIndex={0} role="region" aria-labelledby="sm-lists">
-        <table className="change-table sm-table">
+        <table className="data-table sm-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.list}</th>

@@ -103,7 +103,7 @@ function Pairs({ d }: { d: BinomialsResponse }) {
         <p className="status">{t.empty}</p>
       ) : (
         <TableCsv name="binomials-1" tabIndex={0} role="region" aria-labelledby="bn-list">
-          <table className="change-table bn-table">
+          <table className="data-table bn-table">
             <thead>
               <tr>
                 <th scope="col">{t.cols.pair}</th>

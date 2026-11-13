@@ -104,11 +104,11 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ The significance filter looks and behaves the same on every page that has one; every paged list can be exported.
 
-## M175: Tables and terms (proposed O9)
-- [ ] One table style; `.num` on every numeric column
-- [ ] Sticky table headers on desktop
-- [ ] p, q, G² and the glossary's other terms in table headings through `Term`
-- [ ] Tests
+## M175: Tables and terms (D164; proposed O9)
+- [x] One table style: every table is a `.data-table` (`global.css`; it was `change-table` on 83 tables and `rank-table` on 10, two names for one look, and the About page's own `meta-table`), with one variant, `.tight`, for a table of many number columns (the evaluation tables, the structure and network lists). `.num` on every number column, heading and cells: about ninety columns of twenty-five tables lacked it on one or both (the place pages, ELS, the gematria links, the ciphers' chapters, the Masorah's, the witnesses' and the reception's headings); a number is not broken over two lines (`td.num`). The row's name (the first column) and a column of drawn bars stay where they are
+- [x] Sticky headings on a desktop (from 901px, where the top bar is one sticky row): `TableWrap` marks a wrapper whose table fits (`fits`), which is then no scroll box, so `thead th` stays under the top bar (`--topbar-h`) while the rows scroll. A table wider than the page (two evaluation tables and the workbench's at 1366px) keeps its sideways scroll and plain headings, as every table does on a phone. The nineteen hand-written `.table-wrap` divs go through `TableWrap`
+- [x] `StatTh` (`components/Term.tsx`): a column heading that is a statistic of the glossary opens the term's entry. Forty headings of twenty-one pages: every p and q, G² (also where the page calls it "Strength"), rho, kappa, AUC, MRR and the columns of a shuffle
+- [x] Tests: vitest (`components/Term.test.tsx`: `StatTh`; `components/SharedControls.test.tsx`: the `fits` mark); the fixture e2e: on every route `tableFaults` (`e2e/tables.ts`: the class and the wrapper, the number columns, the statistics' headings), a heading's entry opened from the keyboard, sticky headings in a short window and plain ones on a phone; the smoke on the real build (the same rules on thirteen pages, sticky headings on three long tables); the 203 tables of 178 real pages surveyed in both languages (no fault, the headings at the bar on every tall table; two evaluation tables and the workbench's are wider than 1366px and keep their scroll), and 76 pages at a phone's width (no overflow, no sticky heading)
 
 ✔ Every p / q heading opens its glossary entry; numbers line up on the right on every page.
 

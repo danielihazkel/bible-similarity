@@ -126,7 +126,7 @@ function ChangesByWord() {
       >
         {(data, stale) => (
           <TableWrap>
-            <table className={`change-table ${stale}`}>
+            <table className={`data-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{m.par.changes.earlier}</th>

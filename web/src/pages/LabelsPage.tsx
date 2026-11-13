@@ -9,6 +9,7 @@ import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { LabelButtons } from '../components/LabelButtons'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
 import { formatScore } from '../lib/format'
@@ -218,7 +219,7 @@ function Separation() {
       <h2>{t.evalTitle}</h2>
       <p className="muted small">{t.evalLede(ev.data.k, ev.data.min_pairs)}</p>
       <TableWrap>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.unitType}</th>
@@ -226,7 +227,7 @@ function Separation() {
               <th className="num">{t.realFound}</th>
               <th className="num">{t.notFound}</th>
               <th className="num">{t.precision}</th>
-              <th className="num">{t.auc}</th>
+              <StatTh k="auc" className="num">{t.auc}</StatTh>
             </tr>
           </thead>
           <tbody>

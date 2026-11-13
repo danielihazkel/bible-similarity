@@ -6,6 +6,7 @@ import type { Book, KetivMeta, KqBook, KqClass, KqGrammar, KqLetter, KqPair, KqP
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { withFinals } from '../lib/hebrew'
@@ -123,7 +124,7 @@ function BookTable({ books, byId }: { books: KqBook[]; byId: Map<number, Book> }
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
       <TableCsv name="ketiv-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.bookCols.book}</th>
@@ -160,14 +161,14 @@ function LetterTable({ letters }: { letters: KqLetter[] }) {
       <h2>{t.lettersTitle}</h2>
       <p className="muted small">{t.lettersLede}</p>
       <TableCsv name="ketiv-2" tabIndex={0} role="region" aria-label={t.lettersTitle}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.letterCols.pair}</th>
               <th className="num">{t.letterCols.n}</th>
               <th className="num">{t.letterCols.expected}</th>
               <th className="num">{t.letterCols.ratio}</th>
-              <th className="num">{t.letterCols.q}</th>
+              <StatTh k="q" className="num">{t.letterCols.q}</StatTh>
             </tr>
           </thead>
           <tbody>

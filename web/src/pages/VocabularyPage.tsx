@@ -184,7 +184,7 @@ function BookTable({ d, books }: { d: VocabularyResponse; books: Book[] | undefi
       <h2 id="vc-table">{t.tableTitle}</h2>
       <p className="muted small">{t.limits}</p>
       <TableCsv name="vocabulary-1" tabIndex={0} role="region" aria-labelledby="vc-table">
-        <table className="change-table vc-table">
+        <table className="data-table vc-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.book}</th>

@@ -9,6 +9,7 @@ import { parsePage, useQueryParams, parseSignificance, significanceChange } from
 import '../i18n/pages/parallels'
 import { TableWrap } from '../components/TableCsv'
 import { SignificanceFilter, Choice } from '../components/Controls'
+import { StatTh } from '../components/Term'
 
 const PAGE_SIZE = 50
 const OPS: RewriteOp[] = ['substitution', 'omitted', 'added']
@@ -101,7 +102,7 @@ export function RewritesView() {
       >
         {(data, stale) => (
           <TableWrap>
-            <table className={`change-table ${stale}`}>
+            <table className={`data-table ${stale}`}>
               <thead>
                 <tr>
                   {!profile && <th>{m.par.rewrites.books}</th>}
@@ -111,8 +112,8 @@ export function RewritesView() {
                   <th className="num" title={m.par.rewrites.timesTitle}>
                     {m.par.changes.times}
                   </th>
-                  <th className="num">G²</th>
-                  <th>q</th>
+                  <StatTh k="g2" className="num" />
+                  <StatTh k="q" />
                   <th />
                 </tr>
               </thead>

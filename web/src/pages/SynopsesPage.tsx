@@ -22,7 +22,7 @@ export function SynopsesPage() {
         <>
           <p className="muted small">{t.count(res.data.items.length)}</p>
           <TableCsv name="synopses-1" tabIndex={0} role="region" aria-label={t.title}>
-            <table className="change-table synopses-table">
+            <table className="data-table synopses-table">
               <thead>
                 <tr>
                   <th scope="col">{t.passages}</th>

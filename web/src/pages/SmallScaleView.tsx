@@ -57,7 +57,7 @@ function Tests({ meta }: { meta: MirrorsMeta }) {
           <h2>{t.clausesTitle}</h2>
           <p className="small">{t.clauses(c.poetry, c.poetry_n, c.prose, c.prose_n, t.fp(c.p))}</p>
           <TableCsv name="small-scale-1" tabIndex={0} role="region" aria-label={t.clausesTitle}>
-            <table className="change-table">
+            <table className="data-table">
               <thead>
                 <tr>
                   <th>{t.cols.pair}</th>

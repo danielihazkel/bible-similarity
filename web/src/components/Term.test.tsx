@@ -6,7 +6,7 @@ import { LocaleProvider } from '../context/Locale'
 import { glossEn } from '../i18n/pages/glossary'
 import { tableRows } from '../lib/csv'
 import { firstUses } from '../lib/gloss'
-import { Glossed, Term } from './Term'
+import { Glossed, StatTh, Term } from './Term'
 
 afterEach(cleanup)
 
@@ -74,5 +74,61 @@ describe('Term', () => {
       </table>,
     )
     expect(tableRows(container.querySelector('table')!)).toEqual([{ MRR: '0.5' }])
+  })
+})
+
+describe('StatTh: a statistic’s column heading (M175)', () => {
+  const head = (th: React.ReactNode, locale: 'en' | 'he' = 'en') =>
+    wrap(
+      <table>
+        <thead>
+          <tr>
+            <th>Book</th>
+            {th}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Genesis</td>
+            <td>0.01</td>
+          </tr>
+        </tbody>
+      </table>,
+      locale,
+    )
+
+  it('is a column heading whose text opens the term’s entry', () => {
+    const { container } = head(<StatTh k="q" className="num" />)
+    const th = container.querySelectorAll('th')[1]
+    expect(th.getAttribute('scope')).toBe('col')
+    expect(th.className).toBe('num')
+    const button = screen.getByRole('button', { name: 'q' })
+    expect(th.contains(button)).toBe(true)
+    const tip = document.getElementById(button.getAttribute('aria-describedby')!)!
+    expect(tip.className).toBe('term-tip')
+    fireEvent.click(button)
+    expect(tip.className).toBe('term-tip open')
+    expect(tip.textContent).toContain(glossEn.terms.q.name)
+    fireEvent.keyDown(button, { key: 'Escape' })
+    expect(tip.className).toBe('term-tip')
+  })
+
+  it('keeps the page’s own heading where it gives one, and the heading’s attributes', () => {
+    const { container } = head(
+      <StatTh k="g2" title="how far from chance">
+        Strength
+      </StatTh>,
+    )
+    const th = container.querySelectorAll('th')[1]
+    expect(th.getAttribute('title')).toBe('how far from chance')
+    expect(th.className).toBe('')
+    expect(screen.getByRole('button', { name: 'Strength' })).toBeTruthy()
+    // the table's CSV has the heading, not the entry
+    expect(tableRows(container.querySelector('table')!)).toEqual([{ Book: 'Genesis', Strength: '0.01' }])
+  })
+
+  it('names the term in the interface’s language where the page gives no heading', () => {
+    head(<StatTh k="shuffle" />, 'he')
+    expect(document.querySelector('.term-button')?.textContent).not.toBe(glossEn.terms.shuffle.term)
   })
 })

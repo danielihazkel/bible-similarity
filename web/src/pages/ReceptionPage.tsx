@@ -281,18 +281,24 @@ function Books({ d, corpus }: { d: ReceptionResponse; corpus: CorpusChoice }) {
     <section aria-labelledby="rc-books">
       <h2 id="rc-books">{t.booksTitle}</h2>
       <TableCsv name="reception-books">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.book}</th>
-              <th scope="col">{t.cols.verses}</th>
+              <th scope="col" className="num">
+                {t.cols.verses}
+              </th>
               {CORPORA.map((c) => (
-                <th key={c} scope="col">
+                <th key={c} scope="col" className="num">
                   {t.corpora[c]}
                 </th>
               ))}
-              <th scope="col">{t.cols.total}</th>
-              <th scope="col">{t.cols.perVerse}</th>
+              <th scope="col" className="num">
+                {t.cols.total}
+              </th>
+              <th scope="col" className="num">
+                {t.cols.perVerse}
+              </th>
             </tr>
           </thead>
           <tbody>

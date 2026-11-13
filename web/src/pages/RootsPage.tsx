@@ -89,8 +89,8 @@ function Pairs({ data }: { data: RootsResponse }) {
       </section>
       <details className="roots-books" {...openProps('books')}>
         <summary>{t.booksTitle}</summary>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.booksTitle}>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.booksCols.book}</th>
@@ -118,7 +118,7 @@ function Pairs({ data }: { data: RootsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </details>
       {unit && <UnitFilter unitId={unit} onClear={() => set({ unit: null })} />}
       <div className="toolbar">
@@ -203,8 +203,8 @@ function KeyRoots({ data }: { data: RootsResponse }) {
         <p className="small">
           {t.known(meta.known_top_root ?? 0, meta.known_top_lemma ?? 0, data.known.length, meta.top ?? 0, meta.known_better ?? 0)}
         </p>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownTitle}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.knownTitle}>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.knownCols.chapter}</th>
@@ -228,7 +228,7 @@ function KeyRoots({ data }: { data: RootsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </section>
       <section aria-label={t.hiddenTitle}>
         <h2>{t.hiddenTitle}</h2>
@@ -254,7 +254,7 @@ function KeyRoots({ data }: { data: RootsResponse }) {
         >
           {(d, stale) => (
             <TableWrap>
-              <table className={`change-table ${stale}`}>
+              <table className={`data-table ${stale}`}>
                 <thead>
                   <tr>
                     <th>{t.hiddenCols.chapter}</th>

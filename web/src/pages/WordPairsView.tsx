@@ -9,6 +9,7 @@ import { parsePage, useQueryParams, parseSignificance, significanceChange } from
 import '../i18n/pages/patterns'
 import { TableWrap } from '../components/TableCsv'
 import { SignificanceFilter } from '../components/Controls'
+import { StatTh } from '../components/Term'
 
 const PAGE_SIZE = 50
 
@@ -53,7 +54,7 @@ export function WordPairsView() {
       >
         {(data, stale) => (
           <TableWrap>
-            <table className={`change-table ${stale}`}>
+            <table className={`data-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{t.first}</th>
@@ -65,7 +66,7 @@ export function WordPairsView() {
                   <th className="num" title={t.reversedTitle}>
                     {t.reversed}
                   </th>
-                  <th>q</th>
+                  <StatTh k="q" />
                   <th>{t.examples}</th>
                 </tr>
               </thead>

@@ -4,6 +4,8 @@ import type { PentateuchResponse, SourceWord } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import { useLocale } from '../context/localeContext'
 import { readLink } from '../lib/links'
 import { parsePage, useQueryParams } from '../lib/urlState'
@@ -62,8 +64,8 @@ function Tests({ data }: { data: PentateuchResponse }) {
       <p>{t.genesis(k.kappa_genesis.observed, k.kappa_genesis.null, k.kappa_genesis.p)}</p>
       {n && <p>{t.names(k.names.observed, k.names.null, k.names.p, n.p_like.share, n.non_p.share, n.reference_p, n.reference_non)}</p>}
       {c && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.confusionTitle}>
-          <table className="change-table pent-confusion">
+        <TableWrap tabIndex={0} role="region" aria-label={t.confusionTitle}>
+          <table className="data-table pent-confusion">
             <caption>{t.confusionTitle}</caption>
             <thead>
               <tr>
@@ -85,11 +87,11 @@ function Tests({ data }: { data: PentateuchResponse }) {
               </tr>
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
       {meta.books && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.booksTitle}>
-          <table className="change-table pent-books">
+        <TableWrap tabIndex={0} role="region" aria-label={t.booksTitle}>
+          <table className="data-table pent-books">
             <caption>{t.booksTitle}</caption>
             <thead>
               <tr>
@@ -112,11 +114,11 @@ function Tests({ data }: { data: PentateuchResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
       {meta.grid && meta.grid.length > 1 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.gridTitle}>
-          <table className="change-table pent-grid">
+        <TableWrap tabIndex={0} role="region" aria-label={t.gridTitle}>
+          <table className="data-table pent-grid">
             <caption>
               {t.gridTitle}: {t.gridLede}
             </caption>
@@ -124,7 +126,7 @@ function Tests({ data }: { data: PentateuchResponse }) {
               <tr>
                 <th className="num">{t.gridCols.chunk}</th>
                 <th className="num">{t.gridCols.smooth}</th>
-                <th className="num">{t.gridCols.kappa}</th>
+                <StatTh k="kappa" className="num">{t.gridCols.kappa}</StatTh>
                 <th className="num">{t.gridCols.genesis}</th>
                 <th className="num">{t.gridCols.names}</th>
               </tr>
@@ -141,7 +143,7 @@ function Tests({ data }: { data: PentateuchResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
     </section>
   )
@@ -178,15 +180,15 @@ function Words({ data }: { data: PentateuchResponse }) {
       <h2>{t.wordsTitle}</h2>
       <WordList title={t.pLikeWords} words={data.p_like} />
       <WordList title={t.nonPWords} words={data.non_p} />
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.synonymsTitle}>
-        <table className="change-table pent-synonyms">
+      <TableWrap tabIndex={0} role="region" aria-label={t.synonymsTitle}>
+        <table className="data-table pent-synonyms">
           <caption>{t.synonymsTitle}</caption>
           <thead>
             <tr>
               <th>{t.synCols.set}</th>
               <th>{t.synCols.members}</th>
-              <th>{t.synCols.pLike}</th>
-              <th>{t.synCols.nonP}</th>
+              <th className="num">{t.synCols.pLike}</th>
+              <th className="num">{t.synCols.nonP}</th>
             </tr>
           </thead>
           <tbody>
@@ -201,14 +203,14 @@ function Words({ data }: { data: PentateuchResponse }) {
                   <td dir="rtl" lang="he" className="he-cell">
                     {forms.join(' / ')}
                   </td>
-                  <td>{s.p_like.join(' / ')}</td>
-                  <td>{s.non_p.join(' / ')}</td>
+                  <td className="num">{s.p_like.join(' / ')}</td>
+                  <td className="num">{s.non_p.join(' / ')}</td>
                 </tr>
               )
             })}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </section>
   )
 }

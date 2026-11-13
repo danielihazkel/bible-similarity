@@ -12,6 +12,7 @@ import { SmallScaleView } from './SmallScaleView'
 import '../i18n/pages/mirrors'
 import '../i18n/pages/patterns'
 import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 
 const PAGE_SIZE = 50
 const TYPES: UnitType[] = ['chapter', 'pericope', 'parasha']
@@ -109,7 +110,7 @@ function UnitRanking() {
       >
         {(data, stale) => (
           <TableWrap>
-            <table className={`rank-table ${stale}`}>
+            <table className={`data-table tight ${stale}`}>
               <thead>
                 <tr>
                   <th>#</th>
@@ -120,7 +121,7 @@ function UnitRanking() {
                       {t.cols[c.key]}
                     </th>
                   ))}
-                  <th title={t.qTitle}>q</th>
+                  <StatTh k="q" />
                 </tr>
               </thead>
               <tbody>

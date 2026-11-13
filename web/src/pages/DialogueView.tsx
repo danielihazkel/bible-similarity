@@ -4,6 +4,7 @@ import type { DialogueMeta, DialogueParty, DialoguePair } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
+import { TableWrap } from '../components/TableCsv'
 import { useLocale } from '../context/localeContext'
 import { readLink } from '../lib/links'
 import { bookName } from '../lib/names'
@@ -132,8 +133,8 @@ function BookPairs({ bookId, name }: { bookId: number; name: string }) {
   return (
     <>
       <Network pairs={pairs} name={name} />
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.pairsTitle(name)}>
-        <table className="change-table dlg-pairs">
+      <TableWrap tabIndex={0} role="region" aria-label={t.pairsTitle(name)}>
+        <table className="data-table dlg-pairs">
           <caption>{t.pairsTitle(name)}</caption>
           <thead>
             <tr>
@@ -161,7 +162,7 @@ function BookPairs({ bookId, name }: { bookId: number; name: string }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </>
   )
 }

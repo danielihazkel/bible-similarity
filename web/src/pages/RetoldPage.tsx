@@ -96,7 +96,7 @@ function Groups({ d }: { d: RetoldResponse }) {
     <section aria-labelledby="rt-groups">
       <h2 id="rt-groups">{t.groupsTitle}</h2>
       <TableCsv name="retold-groups" tabIndex={0} role="region" aria-labelledby="rt-groups">
-        <table className="change-table rt-groups">
+        <table className="data-table rt-groups">
           <thead>
             <tr>
               <th scope="col">{t.cols.group}</th>

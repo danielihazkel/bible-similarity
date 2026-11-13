@@ -4,6 +4,8 @@ import type { Psalm, PsalmsMeta, PsalmsResponse, PsalmVerse } from '../api/types
 import { ExportCsv } from '../components/ExportCsv'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { useLocale } from '../context/localeContext'
 import { readLink, unitLink } from '../lib/links'
@@ -59,8 +61,8 @@ function Genres({ meta }: { meta: PsalmsMeta }) {
       <p className="small">{t.genreLede(meta.labelled ?? 0, meta.k ?? 0, meta.title_words ?? 0)}</p>
       <p>{t.genreResult(g.nmi, g.null, g.p)}</p>
       {r && <p className="muted small">{t.robustGenres(r.form_only.nmi, r.form_only.p, r.domains_only.nmi, r.domains_only.p, r.titles_kept.nmi)}</p>}
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.crosstabTitle}>
-        <table className="change-table psalm-crosstab">
+      <TableWrap tabIndex={0} role="region" aria-label={t.crosstabTitle}>
+        <table className="data-table psalm-crosstab">
           <caption>{t.crosstabTitle}</caption>
           <thead>
             <tr>
@@ -88,9 +90,9 @@ function Genres({ meta }: { meta: PsalmsMeta }) {
             ))}
           </tbody>
         </table>
-      </div>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.profileTitle}>
-        <table className="change-table psalm-profiles">
+      </TableWrap>
+      <TableWrap tabIndex={0} role="region" aria-label={t.profileTitle}>
+        <table className="data-table psalm-profiles">
           <caption>
             {t.profileTitle} ({t.per100})
           </caption>
@@ -117,7 +119,7 @@ function Genres({ meta }: { meta: PsalmsMeta }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </section>
   )
 }
@@ -132,8 +134,8 @@ function Checks({ meta }: { meta: PsalmsMeta }) {
     <section aria-label={t.checksTitle}>
       <h2>{t.checksTitle}</h2>
       <p className="small">{t.checksLede(meta.checks_held ?? 0, checks.length)}</p>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.checksTitle}>
-        <table className="change-table">
+      <TableWrap tabIndex={0} role="region" aria-label={t.checksTitle}>
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.checkCols.genre}</th>
@@ -141,7 +143,7 @@ function Checks({ meta }: { meta: PsalmsMeta }) {
               <th>{t.checkCols.expected}</th>
               <th className="num">{t.checkCols.mean}</th>
               <th className="num">{t.checkCols.rest}</th>
-              <th className="num">{t.checkCols.q}</th>
+              <StatTh k="q" className="num">{t.checkCols.q}</StatTh>
             </tr>
           </thead>
           <tbody>
@@ -157,7 +159,7 @@ function Checks({ meta }: { meta: PsalmsMeta }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </section>
   )
 }
@@ -175,13 +177,13 @@ function Turns({ data }: { data: PsalmsResponse }) {
       <p className="small">{t.turnLede(meta.min_side ?? 2)}</p>
       {k && <p>{t.knownLede(k.found, k.n, k.expected, k.p, meta.tolerance ?? 1)}</p>}
       {tol && <p className="muted small">{t.robustTolerance(Object.entries(tol).map(([tl, r]) => ({ tol: tl, ...r })))}</p>}
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownCols.named}>
-        <table className="change-table">
+      <TableWrap tabIndex={0} role="region" aria-label={t.knownCols.named}>
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.knownCols.named}</th>
               <th>{t.knownCols.found}</th>
-              <th className="num">{t.knownCols.p}</th>
+              <StatTh k="p" className="num">{t.knownCols.p}</StatTh>
               <th className="num">{t.knownCols.chance}</th>
             </tr>
           </thead>
@@ -207,7 +209,7 @@ function Turns({ data }: { data: PsalmsResponse }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
       {lvh && <p>{t.lvh(lvh.laments, lvh.n_laments, lvh.hymns, lvh.n_hymns, lvh.p)}</p>}
     </section>
   )

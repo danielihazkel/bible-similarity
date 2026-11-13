@@ -11,17 +11,12 @@
 /* ---------- About ---------- */
 
 .meta-table {
-  border-collapse: collapse;
   font-size: 0.82rem;
-  width: 100%;
 }
 
 .meta-table th,
 .meta-table td {
-  text-align: start;
-  vertical-align: top;
   padding: 0.3rem 0.5rem;
-  border-bottom: 1px solid var(--border);
 }
 
 .meta-table th {

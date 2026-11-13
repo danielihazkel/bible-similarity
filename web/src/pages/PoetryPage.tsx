@@ -134,7 +134,7 @@ function UnitsView() {
       >
         {(data, stale) => (
           <TableWrap>
-            <table className={`change-table ${stale}`}>
+            <table className={`data-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{m.units.type(unitType)}</th>

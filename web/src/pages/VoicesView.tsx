@@ -11,6 +11,7 @@ import { unitLink } from '../lib/links'
 import { bookName } from '../lib/names'
 import { useQueryParams } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import '../i18n/pages/syntax'
 import '../styles/pages/VoicesView.css'
 
@@ -83,7 +84,7 @@ export function VoicesView() {
       <section aria-label={t.speakers}>
         <h2>{t.speakers}</h2>
         <TableCsv name="voices-1" tabIndex={0} role="region" aria-label={t.speakers}>
-          <table className="change-table voice-table">
+          <table className="data-table voice-table">
             <thead>
               <tr>
                 <th>{t.cols.speaker}</th>
@@ -93,7 +94,7 @@ export function VoicesView() {
                 <th className="num" title={t.effectTitle}>
                   {t.cols.effect}
                 </th>
-                <th className="num">{t.cols.q}</th>
+                <StatTh k="q" className="num">{t.cols.q}</StatTh>
               </tr>
             </thead>
             <tbody>

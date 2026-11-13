@@ -6,6 +6,7 @@ import { useLocale } from '../context/localeContext'
 import { lemmaLink } from '../lib/links'
 import { parsePage, useQueryParams, parseSignificance, significanceChange } from '../lib/urlState'
 import { TableCsv } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import '../i18n/pages/patterns'
 import '../i18n/pages/senses'
 import '../styles/pages/ShiftsPage.css'
@@ -52,7 +53,7 @@ export function ShiftsPage() {
       >
         {(data, stale) => (
           <TableCsv name="shifts-1" tabIndex={0} role="region" aria-label={t.title}>
-            <table className={`change-table ${stale}`}>
+            <table className={`data-table ${stale}`}>
               <thead>
                 <tr>
                   <th>{t.word}</th>
@@ -60,7 +61,7 @@ export function ShiftsPage() {
                   <th className="num" title={t.shiftTitle}>
                     {t.shift}
                   </th>
-                  <th className="num">{t.q}</th>
+                  <StatTh k="q" className="num">{t.q}</StatTh>
                   <th className="num">{by === 'sense' ? t.senses : t.uses}</th>
                   <th title={t.groupsTitle}>{data.group_order.map((g) => t.groups[g] ?? g).join(' · ')}</th>
                 </tr>

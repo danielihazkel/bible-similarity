@@ -153,15 +153,15 @@ function Totals({ rows, byId }: { rows: MasorahTotal[]; byId: Map<number, Book> 
       <p className="muted small">{t.totalsLede}</p>
       <p>{t.booksAgree(agree, rows.length)}</p>
       <TableCsv name="masorah-1" tabIndex={0} role="region" aria-label={t.totalsTitle}>
-        <table className="change-table msr-totals">
+        <table className="data-table msr-totals">
           <thead>
             <tr>
               <th>{t.cols.book}</th>
-              <th>{t.cols.tradition}</th>
-              <th>{t.cols.ours}</th>
-              <th>{t.cols.diff}</th>
+              <th className="num">{t.cols.tradition}</th>
+              <th className="num">{t.cols.ours}</th>
+              <th className="num">{t.cols.diff}</th>
               <th>{t.cols.why}</th>
-              <th>{t.cols.also}</th>
+              <th className="num">{t.cols.also}</th>
             </tr>
           </thead>
           <tbody>
@@ -197,16 +197,16 @@ function Sections({ rows }: { rows: MasorahTotal[] }) {
       <h2>{t.sectionsTitle}</h2>
       <p className="muted small">{t.sectionsLede}</p>
       <TableCsv name="masorah-2" tabIndex={0} role="region" aria-label={t.sectionsTitle}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.sectionCols.section}</th>
               <th>{t.sectionCols.count}</th>
               <th>{t.sectionCols.source}</th>
-              <th>{t.sectionCols.tradition}</th>
-              <th>{t.sectionCols.ours}</th>
-              <th>{t.sectionCols.diff}</th>
-              <th>{t.sectionCols.bookSum}</th>
+              <th className="num">{t.sectionCols.tradition}</th>
+              <th className="num">{t.sectionCols.ours}</th>
+              <th className="num">{t.sectionCols.diff}</th>
+              <th className="num">{t.sectionCols.bookSum}</th>
             </tr>
           </thead>
           <tbody>
@@ -237,15 +237,15 @@ function BookCounts({ data, byId }: { data: MasorahResponse; byId: Map<number, B
     <section aria-label={t.booksTitle}>
       <h2>{t.booksTitle}</h2>
       <TableCsv name="masorah-3" tabIndex={0} role="region" aria-label={t.booksTitle}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{c.book}</th>
-              <th>{c.verses}</th>
-              <th>{c.wordsK}</th>
-              <th>{c.wordsQ}</th>
-              <th>{c.lettersK}</th>
-              <th>{c.lettersQ}</th>
+              <th className="num">{c.verses}</th>
+              <th className="num">{c.wordsK}</th>
+              <th className="num">{c.wordsQ}</th>
+              <th className="num">{c.lettersK}</th>
+              <th className="num">{c.lettersQ}</th>
             </tr>
           </thead>
           <tbody>

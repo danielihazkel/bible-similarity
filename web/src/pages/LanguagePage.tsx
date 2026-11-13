@@ -115,7 +115,7 @@ function BookChapters({ bookId, name }: { bookId: number; name: string }) {
     <section aria-label={t.chapters(name)}>
       <h2>{t.chapters(name)}</h2>
       <TableCsv name="language-1" tabIndex={0} role="region" aria-label={t.chapters(name)}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.chapter}</th>

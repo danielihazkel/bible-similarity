@@ -20,10 +20,13 @@ function headingBefore(el: Element): string {
  * from the keyboard (WCAG 2.1.1; axe `scrollable-region-focusable`): while the table is wider
  * than its wrapper, the wrapper is a tab stop and a region named after the heading above it. A
  * table that fits adds no tab stop. A caller's own `tabIndex`, `role` and `aria-label` win.
+ * A wrapper whose table fits is marked `fits`: on a desktop it is then no scroll box, so the
+ * table's headings can stay under the top bar while its rows scroll (M175; `global.css`).
  */
 export function TableWrap({
   children,
   wrapRef,
+  className,
   ...given
 }: { children: ReactNode; wrapRef?: RefObject<HTMLDivElement | null> } & HTMLAttributes<HTMLDivElement>) {
   const m = useT()
@@ -31,19 +34,25 @@ export function TableWrap({
   const ref = wrapRef ?? own
   // the region's name while the wrapper scrolls, `null` while the table fits
   const [name, setName] = useState<string | null>(null)
+  // measured, and the table is no wider than the wrapper
+  const [fits, setFits] = useState(false)
   // measured again after every render (new rows, another table) and on every resize; the
   // observer reports once on `observe`, so the first measure needs no call of its own
   useEffect(() => {
     const el = ref.current
     if (!el || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setName(el.scrollWidth > el.clientWidth + 1 ? headingBefore(el) || m.csv.region : null))
+    const observer = new ResizeObserver(() => {
+      const wide = el.scrollWidth > el.clientWidth + 1
+      setName(wide ? headingBefore(el) || m.csv.region : null)
+      setFits(!wide)
+    })
     observer.observe(el)
     if (el.firstElementChild) observer.observe(el.firstElementChild)
     return () => observer.disconnect()
   })
   const region = name === null ? {} : { tabIndex: 0, role: 'region', 'aria-label': name }
   return (
-    <div className="table-wrap" ref={ref} {...region} {...given}>
+    <div className={`table-wrap${fits ? ' fits' : ''}${className ? ` ${className}` : ''}`} ref={ref} {...region} {...given}>
       {children}
     </div>
   )

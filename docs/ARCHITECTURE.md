@@ -255,7 +255,8 @@ bible-similarity/
 │       └── search.py               # free-text search (dense + surface BM25)
 ├── web/                            # Vite + React + TypeScript viewer (npm; build → web/dist)
 │   ├── e2e/                        # Playwright + axe: smoke.spec.ts against `bsim serve` (`npm run e2e`, local Edge),
-│   │                               #   fixture.spec.ts against `bsim fixture-serve` (`npm run e2e:fixture`, CI)
+│   │                               #   fixture.spec.ts against `bsim fixture-serve` (`npm run e2e:fixture`, CI);
+│   │                               #   tables.ts: the tables' rules both suites check in the page (M175)
 │   ├── scripts/gen-api.mjs         # `npm run gen:api`: OpenAPI → src/api/schema.gen.ts + drift.gen.ts
 │   ├── scripts/icons.mjs           # the app's PNG icons (public/), drawn from the favicon's design
 │   ├── vite.config.ts              # the build, and the offline app: manifest + service worker (DESIGN.md §11.1)

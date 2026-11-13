@@ -6,6 +6,8 @@ import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { TableWrap } from '../components/TableCsv'
+import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -59,15 +61,15 @@ function Tests({ data }: { data: RefrainsResponse }) {
       <section aria-label={t.knownTitle}>
         <h2>{t.knownTitle}</h2>
         <p className="small">{t.knownLede(meta.known_found ?? 0, data.known.length)}</p>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label={t.knownTitle}>
-          <table className="change-table">
+        <TableWrap tabIndex={0} role="region" aria-label={t.knownTitle}>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.knownCols.name}</th>
                 <th>{t.knownCols.where}</th>
                 <th>{t.knownCols.found}</th>
                 <th className="num">{t.knownCols.k}</th>
-                <th className="num">{t.knownCols.q}</th>
+                <StatTh k="q" className="num">{t.knownCols.q}</StatTh>
               </tr>
             </thead>
             <tbody>
@@ -94,7 +96,7 @@ function Tests({ data }: { data: RefrainsResponse }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </section>
       {g && g.testable > 0 && (
         <section aria-label={t.regularTitle}>

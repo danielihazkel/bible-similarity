@@ -185,7 +185,7 @@ describe('LawsPage (DESIGN.md §16.93, D155)', () => {
     const { container } = renderAt('/laws')
     await screen.findByRole('heading', { level: 2, name: 'Matched pairs' })
     expect(container.querySelector('.unit-filter')).toBeNull()
-    expect(container.querySelector('table')?.className).toBe('change-table')
+    expect(container.querySelector('table')?.className).toBe('data-table')
   })
 
   it('runs in the Hebrew interface', async () => {

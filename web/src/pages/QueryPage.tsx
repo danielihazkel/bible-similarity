@@ -5,6 +5,7 @@ import type { PatternProblem, PatternVerse } from '../api/types'
 import { ExportCsv } from '../components/ExportCsv'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
+import { TableWrap } from '../components/TableCsv'
 import { UnitFilter } from '../components/UnitFilter'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -210,8 +211,8 @@ function Help() {
           <li key={s}>{s}</li>
         ))}
       </ul>
-      <div className="table-wrap" tabIndex={0} role="region" aria-label={t.keysCaption}>
-        <table className="change-table">
+      <TableWrap tabIndex={0} role="region" aria-label={t.keysCaption}>
+        <table className="data-table">
           <caption>{t.keysCaption}</caption>
           <thead>
             <tr>
@@ -232,7 +233,7 @@ function Help() {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </details>
   )
 }

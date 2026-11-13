@@ -6,6 +6,7 @@ import { BookSelect, Segmented, KnownOnly } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { PagedList } from '../components/Pager'
 import { ErrorBox, Loading } from '../components/Status'
+import { StatTh } from '../components/Term'
 import { UnitFilter } from '../components/UnitFilter'
 import { UnitName } from '../components/UnitName'
 import { useLocale } from '../context/localeContext'
@@ -92,7 +93,7 @@ function Checks({ data }: { data: CiphersResponse }) {
       <section aria-label={t.knownTitle}>
         <h2>{t.knownTitle}</h2>
         <TableCsv name="ciphers-1" tabIndex={0} role="region" aria-label={t.knownTitle}>
-          <table className="change-table">
+          <table className="data-table">
             <thead>
               <tr>
                 <th>{t.knownCols.where}</th>
@@ -207,15 +208,15 @@ function Chapters({ data }: { data: CiphersResponse }) {
       <h2>{t.chaptersTitle}</h2>
       <p className="muted small">{t.chaptersLede(data.meta.n_chapters ?? 0)}</p>
       <TableCsv name="ciphers-2" tabIndex={0} role="region" aria-label={t.chaptersTitle}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.chaptersCols.chapter}</th>
               <th>{t.chaptersCols.cipher}</th>
-              <th>{t.chaptersCols.hits}</th>
-              <th>{t.chaptersCols.expected}</th>
-              <th>{t.chaptersCols.p}</th>
-              <th>{t.chaptersCols.q}</th>
+              <th className="num">{t.chaptersCols.hits}</th>
+              <th className="num">{t.chaptersCols.expected}</th>
+              <StatTh k="p" className="num">{t.chaptersCols.p}</StatTh>
+              <StatTh k="q" className="num">{t.chaptersCols.q}</StatTh>
             </tr>
           </thead>
           <tbody>
@@ -227,10 +228,10 @@ function Chapters({ data }: { data: CiphersResponse }) {
                   </Link>
                 </td>
                 <td>{t.ciphers[r.cipher]}</td>
-                <td>{m.num(r.hits)}</td>
-                <td>{r.expected.toFixed(2)}</td>
-                <td>{r.p.toFixed(3)}</td>
-                <td>{r.q.toFixed(2)}</td>
+                <td className="num">{m.num(r.hits)}</td>
+                <td className="num">{r.expected.toFixed(2)}</td>
+                <td className="num">{r.p.toFixed(3)}</td>
+                <td className="num">{r.q.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

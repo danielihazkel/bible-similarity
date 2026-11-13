@@ -11,6 +11,7 @@ import { formatP } from '../lib/workbench'
 import { isStageMissing } from '../api/client'
 import { ErrorBox, Loading, NotComputed } from '../components/Status'
 import { HeatStrip, type HeatRow } from '../components/HeatStrip'
+import { StatTh } from '../components/Term'
 import '../i18n/pages/divine'
 import '../styles/pages/DivinePage.css'
 
@@ -164,7 +165,7 @@ function Books({ d }: { d: DivineResponse }) {
     <section>
       <h2>{t.booksTitle}</h2>
       <TableCsv name="names-of-god-1" tabIndex={0} role="region" aria-label={t.booksTitle}>
-        <table className="change-table dv-table">
+        <table className="data-table dv-table">
           <thead>
             <tr>
               <th>{t.cols.book}</th>
@@ -175,8 +176,8 @@ function Books({ d }: { d: DivineResponse }) {
               <th className="num">{t.cols.share}</th>
               <th className="num">{t.cols.split}</th>
               <th className="num">{t.cols.shares}</th>
-              <th className="num">{t.cols.p}</th>
-              <th className="num">{t.cols.q}</th>
+              <StatTh k="p" className="num">{t.cols.p}</StatTh>
+              <StatTh k="q" className="num">{t.cols.q}</StatTh>
             </tr>
           </thead>
           <tbody>
@@ -214,7 +215,7 @@ function BookChapters({ book, bookId, d }: { book: Book | undefined; bookId: num
   const num = (x: number) => x.toLocaleString(locale === 'he' ? 'he-IL' : 'en-US')
   return (
     <TableCsv name="names-of-god-2" id="chapters" tabIndex={0} role="region" aria-label={t.chaptersTitle(name)}>
-      <table className="change-table dv-table">
+      <table className="data-table dv-table">
         <caption>{t.chaptersTitle(name)}</caption>
         <thead>
           <tr>
@@ -266,7 +267,7 @@ function Pairs() {
           <h3>{t.pairHead(p.e, p.y)}</h3>
           <p className="muted small">{t.pairCounts(p.e_ward, p.y_ward, p.same)}</p>
           <TableCsv name="names-of-god-3" tabIndex={0} role="region" aria-label={t.pairHead(p.e, p.y)}>
-            <table className="change-table dv-table">
+            <table className="data-table dv-table">
               <thead>
                 <tr>
                   <th>{t.placeCols.inside}</th>

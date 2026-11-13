@@ -85,7 +85,7 @@ function BookPair({ p, name }: { p: BorrowingBookPair; name: (id: number) => str
         <span className="muted small"> · {t.counts(p.sequences, p.direction === 'b_to_a' ? p.b_to_a : p.a_to_b, p.direction === 'b_to_a' ? p.a_to_b : p.b_to_a)}</span>
       </summary>
       <TableCsv name={`borrowing-${p.a_book}-${p.b_book}`} tabIndex={0} role="region" aria-label={label}>
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>{t.parallel}</th>

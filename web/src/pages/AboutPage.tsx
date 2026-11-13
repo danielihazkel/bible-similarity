@@ -119,7 +119,7 @@ export function AboutPage() {
       ) : (
         // build keys and values are technical: left to right in either language
         <TableCsv name="about-build" tabIndex={0} role="region" aria-labelledby="about-build">
-          <table className="meta-table" dir="ltr">
+          <table className="data-table meta-table" dir="ltr">
             <tbody>
               {Object.entries({ ...meta.data.build, ...meta.data.runtime }).map(([key, v]) => (
                 <tr key={key}>

@@ -72,7 +72,7 @@ function Profile({ d }: { d: LawsResponse }) {
         ))}
       </ul>
       <TableCsv name="law-codes" tabIndex={0} role="region" aria-labelledby="lw-profile">
-        <table className="change-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{t.cols.code}</th>
