@@ -2013,3 +2013,62 @@ kbd {
   .hit-card { break-inside: avoid; }
   thead { display: table-header-group; }
 }
+
+/* A toolbar's filters behind one button (Controls.tsx ExcludeMenu): "Hide", the number on, a panel */
+
+.filter-menu {
+  position: relative;
+}
+
+.filter-menu-button {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-menu-button[aria-expanded='true'] {
+  background: var(--accent-soft);
+}
+
+.filter-menu-button span[aria-hidden] {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+.filter-menu-count {
+  display: inline-block;
+  min-width: 1.3em;
+  margin-inline-start: 0.35rem;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.filter-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  inset-inline-start: 0;
+  z-index: 6;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.filter-menu-panel .filters {
+  flex-direction: column;
+  gap: 0.4rem;
+}

@@ -73,3 +73,9 @@
   gap: 0.9rem;
   margin: -0.4rem 0 0.6rem;
 }
+
+/* the controls of the list of similar units, one row on a desktop */
+
+.results-bar {
+  gap: 0.6rem 1rem;
+}

@@ -2,11 +2,50 @@
 
 /* Dossier: what the analyses found about a unit (DESIGN.md §10) */
 
-.dossier-found {
+/* the findings under the nav's families: a family's name, then its chips */
+
+.dossier-families {
+  margin: 0.25rem 0 0.4rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.dossier-family {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-items: baseline;
+}
+
+.dossier-family dt {
+  text-align: end;
+}
+
+.dossier-family dd {
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem 0.5rem;
+}
+
+/* the analyses that found nothing here, folded away */
+
+.dossier-rest summary {
+  cursor: pointer;
+}
+
+.dossier-rest p {
+  margin: 0.3rem 0 0;
+}
+
+@media (max-width: 720px) {
+  .dossier-family {
+      grid-template-columns: 1fr;
+    }
+  .dossier-family dt {
+      text-align: start;
+    }
 }
 
 .dossier-chip {

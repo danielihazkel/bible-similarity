@@ -1,0 +1,53 @@
+/* SectionStrip.tsx: links to a long page's sections, sticky under the top bar (its height is kept
+   in --topbar-h by Layout) */
+
+.section-strip {
+  position: sticky;
+  top: var(--topbar-h, 3.4rem);
+  z-index: 5;
+  display: flex;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.35rem 0;
+  overflow-x: auto;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.section-strip[hidden] {
+  display: none;
+}
+
+.section-strip a {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+
+.section-strip a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.section-strip a[aria-current='true'] {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+/* a section jumped to stops under the bar and the strip, not behind them */
+
+.section-strip ~ [id],
+.section-strip ~ * [id] {
+  scroll-margin-top: calc(var(--topbar-h, 3.4rem) + 3.2rem);
+}
+
+/* where the top bar is the tall phone menu, the strip is a plain row at the head of the page */
+
+@media (max-width: 900px) {
+  .section-strip {
+      position: static;
+    }
+}

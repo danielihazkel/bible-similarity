@@ -75,11 +75,13 @@ Chosen after an audit of the code and of the screen (30 desktop pages from `bsim
 
 ✔ "Read with layers" from Genesis 22:2 opens chapter 22 at verse 2; Back from a hit returns to the same hit.
 
-## M172: The unit page (proposed O6)
-- [ ] `DossierBar`: the chips grouped under the nav's families (from the nav section of the page a chip links to), the rest behind "more"
-- [ ] A sticky strip that jumps to the page's sections, the one in view marked
-- [ ] The results controls in one row, a Reset link, the text options under one group
-- [ ] Tests
+## M172: The unit page (D161; proposed O6)
+- [x] `DossierBar`: the findings grouped under the nav's families, a family's name and then its chips, in the nav's order (Parallels, the four sections of Patterns, Overview). The family is that of the nav page a finding's link opens (`lib/dossier.ts entryFamily`, from `NAV`); the nine kinds read on the unit page itself or in the reader name the page of their analysis. A family shows its first four and the rest behind "+N more" (`?found=all`, "Show fewer" back); the analyses that found nothing and those not computed are folded into one line (`open=nothing`)
+- [x] A sticky strip that jumps to the page's sections (`components/SectionStrip.tsx`), the one in view marked: the text, the structure and syntax panels, the similar units and the registry's panels that have a heading of their own (`section` in `lib/unitPanels.ts`: where this happens, shared phrases, wordplay, parallel runs); it lists the sections that are drawn. A link scrolls its section to under the strip and gives it the focus; the address does not change. It sticks under the top bar, whose height `Layout` keeps in `--topbar-h`; where the bar is the phone menu (900px and under) the strip is a plain row
+- [x] The results controls in one row on a desktop: the filters behind one "Hide" button with the number switched on (`ExcludeMenu` in `components/Controls.tsx`), a Reset link when the list is not the one it opens with, the mode's hint and the keys in one line
+- [x] The text's options (verse halves, finer clauses, stresses) under one "Show in the text" group; Read with layers and the neighbourhood graph moved up beside the copies, under the heading
+- [x] The panel registry split: what is shown where in `lib/unitPanels.ts`, the panels by id in `components/UnitPanels.tsx`
+- [x] Tests: vitest (`pages/UnitPage.test.tsx`: the families and "more", the strip and a jump, the Hide button, Reset, the text's group, Hebrew; `lib/dossier.test.ts`: a family for every kind of finding, the nav's order); the fixture e2e (the families in both languages with axe in both themes, the strip sticking, marking and jumping, the Hide panel and Reset, the controls in one row at 1280px; the tests that follow a finding's chip open the page with `?found=all`); the smoke on the real build (Genesis 22: the families, the strip's sections, the similar chapters one click from the top); the page looked at on the real build for a verse, a chapter and Psalm 119, in both languages and themes, at the two-row bar's width and on a phone
 
 ✔ On a chapter page the similar passages are one click from the top; the chips read as groups.
 

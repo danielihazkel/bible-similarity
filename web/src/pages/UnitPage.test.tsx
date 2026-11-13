@@ -278,6 +278,8 @@ describe('UnitPage', () => {
     renderAt('/unit/v:0')
     const bar = await screen.findByRole('navigation', { name: 'What the analyses found here' })
     const link = (name: string | RegExp) => screen.getByRole('link', { name }).getAttribute('href')
+    // every finding: a family shows its first four until "more"
+    fireEvent.click(within(bar).getByRole('button', { name: '+1 more' }))
     expect(link('1 shared phrase')).toBe('/phrases?unit=v%3A0')
     expect(link('3 word changes in parallels')).toBe('/changes?unit=v%3A0')
     expect(link('acrostic, q < 0.001 (chapter)')).toBe('/unit/c%3A25%3A118?acrostic=1')
@@ -335,6 +337,7 @@ describe('UnitPage', () => {
     renderAt('/unit/v:0')
     const hit = (await screen.findByText('Test 1:6')).closest('li')!
     expect(hit.querySelector('.link-badge')?.getAttribute('title')).toContain('quotation')
+    fireEvent.click(screen.getByRole('button', { name: /^Hide/ }))
     fireEvent.click(screen.getByLabelText('Hide Sefaria-linked'))
     await waitFor(() => expect(calls.some((c) => c.includes('exclude=neighbors%2Cknown'))).toBe(true))
   })
@@ -404,5 +407,113 @@ describe('UnitPage', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Lexical' }))
     await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?exclude=&mode=lexical'))
     await waitFor(() => expect(calls.some((c) => c.includes('mode=lexical&k=10&exclude='))).toBe(true))
+  })
+
+  it('groups the findings under the nav’s families, the first few of each and the rest behind "more"', async () => {
+    mockApi()
+    const { container } = renderAt('/unit/v:0')
+    const bar = await screen.findByRole('navigation', { name: 'What the analyses found here' })
+    const groups = () => [...bar.querySelectorAll('.dossier-family')].map((f) => [f.querySelector('dt')!.textContent, f.querySelectorAll('.dossier-chip').length])
+    // the nav's order: Parallels, the four sections of Patterns, Overview
+    expect(groups()).toEqual([
+      ['Parallels', 4],
+      ['Poetry and form', 4],
+      ['Words and names', 2],
+      ['Letters and numbers', 2],
+      ['Overview', 4],
+    ])
+    expect(within(bar).queryByRole('link', { name: /3 people in the family tree/ })).toBeNull()
+    const more = within(bar).getByRole('button', { name: '+1 more' })
+    expect(more.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(more)
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?found=all'))
+    expect(groups().at(-1)).toEqual(['Overview', 5])
+    expect(within(bar).queryByRole('button', { name: /more$/ })).toBeNull()
+    fireEvent.click(within(bar).getByRole('button', { name: 'Show fewer' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0'))
+    expect(groups().at(-1)).toEqual(['Overview', 4])
+    // the analyses that found nothing are folded away, and open in the URL
+    const rest = container.querySelector('details.dossier-rest') as HTMLDetailsElement
+    expect(rest.open).toBe(false)
+    expect(rest.querySelector('summary')?.textContent).toBe('Nothing found by 3 other analyses; 1 not computed in this build')
+    rest.open = true
+    fireEvent(rest, new Event('toggle'))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?open=nothing'))
+  })
+
+  it('lists the page’s sections that are drawn in a strip, marks one, and jumps to a section on a click', async () => {
+    const into = vi.fn()
+    Element.prototype.scrollIntoView = into
+    mockApi()
+    renderAt('/unit/v:0')
+    await screen.findByLabelText('Shared phrases')
+    const strip = screen.getByRole('navigation', { name: 'On this page' })
+    // a verse has no structure panel, and wordplay and runs found nothing here
+    await waitFor(() => expect(within(strip).getAllByRole('link').map((a) => a.textContent)).toEqual(['Text', 'Clauses and speakers', 'Similar verses', 'Shared phrases']))
+    expect(within(strip).getAllByRole('link').filter((a) => a.getAttribute('aria-current') === 'true')).toHaveLength(1)
+    fireEvent.click(within(strip).getByRole('link', { name: 'Similar verses' }))
+    const similar = document.getElementById('unit-similar')!
+    expect(into).toHaveBeenCalledWith({ block: 'start' })
+    expect(into.mock.instances.at(-1)).toBe(similar)
+    expect(document.activeElement).toBe(similar)
+    expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0') // the address does not change
+  })
+
+  it('keeps the list’s filters behind one Hide button, with the number switched on', async () => {
+    const calls = mockApi()
+    renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    const hide = screen.getByRole('button', { name: /^Hide/ })
+    expect(hide.textContent).toContain('1') // neighbours ±2, the default of a verse
+    expect(hide.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByLabelText('Hide same book')).toBeNull()
+    fireEvent.click(hide)
+    expect((screen.getByLabelText('Hide neighbours ±2') as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(screen.getByLabelText('Hide same book'))
+    await waitFor(() => expect(calls.some((c) => c.includes('exclude=neighbors%2Cbook'))).toBe(true))
+    expect(screen.getByRole('button', { name: /^Hide/ }).textContent).toContain('2')
+    // Escape closes it and gives the focus back; so does a click outside
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByLabelText('Hide same book')).toBeNull()
+    expect(document.activeElement).toBe(hide)
+    fireEvent.click(hide)
+    fireEvent.mouseDown(document.body)
+    expect(screen.queryByLabelText('Hide same book')).toBeNull()
+  })
+
+  it('offers Reset once the list is not the default one, and goes back to it', async () => {
+    mockApi()
+    renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull()
+    fireEvent.click(screen.getByRole('radio', { name: 'Lexical' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?mode=lexical'))
+    fireEvent.click(screen.getByRole('radio', { name: 'Changes' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0?mode=lexical&marks=changes'))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    await waitFor(() => expect(screen.getByTestId('loc').textContent).toBe('/unit/v:0'))
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull()
+    expect(screen.getByRole('radio', { name: 'Fused' }).getAttribute('aria-checked')).toBe('true')
+  })
+
+  it('puts the text’s options under one group, and the ways out of the page under the heading', async () => {
+    mockApi()
+    const { container } = renderAt('/unit/v:0')
+    await screen.findByText('Test 1:6')
+    const group = screen.getByRole('group', { name: 'Show in the text:' })
+    expect(within(group).getByLabelText("Verse halves (te'amim)")).toBeTruthy()
+    const actions = container.querySelector('.head-actions')!
+    expect([...actions.querySelectorAll('a, button')].map((x) => x.textContent)).toEqual(['Read with layers', 'Its neighbourhood as a graph', 'Copy reference', 'Copy text'])
+  })
+
+  it('names the families and the controls in Hebrew', async () => {
+    mockApi()
+    renderAt('/unit/v:0', 'he')
+    const bar = await screen.findByRole('navigation', { name: 'מה מצאו הניתוחים כאן' })
+    expect([...bar.querySelectorAll('.dossier-family dt')].map((d) => d.textContent)).toEqual(['מקבילות', 'שירה וצורה', 'מילים ושמות', 'אותיות ומספרים', 'מבט־על'])
+    expect(within(bar).getByRole('button', { name: 'ועוד 1' })).toBeTruthy()
+    expect(screen.getByRole('navigation', { name: 'בעמוד הזה' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^הסתרה/ })).toBeTruthy()
+    expect(screen.getByRole('group', { name: 'להציג בטקסט:' })).toBeTruthy()
   })
 })

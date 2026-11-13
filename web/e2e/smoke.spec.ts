@@ -715,13 +715,13 @@ test('Ctrl+K jumps to a chapter by reference and to a word by its form', async (
 })
 
 test('Jeremiah 25 names its places, hides Babylon in ששך, and Genesis 49 holds יבא שילה', async ({ page }) => {
-  await page.goto('/unit/c%3A12%3A25')
+  await page.goto('/unit/c%3A12%3A25?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await expect(bar.getByRole('link', { name: /places on the map, most named/ })).toHaveAttribute('href', '/places?unit=c%3A12%3A25')
   await bar.getByRole('link', { name: /read through atbash or albam/ }).click()
   await expect(page).toHaveURL(/\/ciphers\?unit=c%3A12%3A25/)
   await expect(page.locator('.cipher-hit').filter({ hasText: 'ששך' }).first()).toBeVisible()
-  await page.goto('/unit/c%3A0%3A49')
+  await page.goto('/unit/c%3A0%3A49?found=all')
   const gm = page.getByRole('navigation', { name: 'What the analyses found here' }).getByRole('link', { name: /the tradition.s values: .*יבא שילה/ })
   await expect(gm).toHaveAttribute('href', '/read/c%3A0%3A49?layers=gematria')
 })
@@ -901,4 +901,24 @@ test('a page change in a list goes to the list’s top, and Back to the foot of 
   await page.goBack()
   await expect(page).toHaveURL(/\/phrases$/)
   await expect.poll(async () => Math.abs((await scrollY()) - foot)).toBeLessThanOrEqual(40)
+})
+
+// M172: the unit page on the real data
+test('on a chapter page the similar chapters are one click from the top, and the findings read as groups', async ({ page }, info) => {
+  await page.goto('/unit/c%3A0%3A22')
+  await expect(page.locator('h1').first()).toContainText('Genesis 22')
+  await expect(page.locator('.dossier-family dt').first()).toHaveText('Parallels')
+  expect(await page.locator('.dossier-family').count()).toBeGreaterThanOrEqual(5)
+  await expect(page.locator('details.dossier-rest summary')).toContainText('Nothing found by')
+  const strip = page.getByRole('navigation', { name: 'On this page' })
+  await expect(strip.getByRole('link')).toHaveText(['Text', 'Where this happens', 'Structure', 'Clauses and speakers', 'Similar chapters'])
+  await expect(page.locator('#unit-similar h2')).not.toBeInViewport()
+  await strip.getByRole('link', { name: 'Similar chapters' }).click()
+  await expect(page.locator('#unit-similar h2')).toBeInViewport()
+  await expect(page.locator('.hits .hit').first()).toBeInViewport()
+  if (info.project.name === 'desktop') {
+    const at = await page.evaluate(() => ({ bar: document.querySelector('.topbar')!.getBoundingClientRect().bottom, strip: document.querySelector('.section-strip')!.getBoundingClientRect().top }))
+    expect(Math.abs(at.strip - at.bar)).toBeLessThanOrEqual(1)
+    await expect(strip.locator('a[aria-current]')).toHaveText('Similar chapters')
+  }
 })

@@ -8,6 +8,15 @@ export const dosHe: typeof dosEn = {
   found: 'נמצא כאן:',
   none: 'לא נמצא:',
   notComputed: 'לא חושב בבנייה זו:',
+  other: 'אחר',
+  more: (n: number) => `ועוד ${numHe(n)}`,
+  fewer: 'להציג פחות',
+  rest: (none: number, missing: number) =>
+    none > 0 && missing > 0
+      ? `${countHe(none, 'ניתוח אחד אחר לא מצא', 'שני ניתוחים אחרים לא מצאו', 'ניתוחים אחרים לא מצאו')} כאן דבר; ${numHe(missing)} לא חושבו בבנייה זו`
+      : none > 0
+        ? `${countHe(none, 'ניתוח אחד אחר לא מצא', 'שני ניתוחים אחרים לא מצאו', 'ניתוחים אחרים לא מצאו')} כאן דבר`
+        : `${countHe(missing, 'ניתוח אחד לא חושב', 'שני ניתוחים לא חושבו', 'ניתוחים לא חושבו')} בבנייה זו`,
   inChapter: ' (בפרק)',
   chip: {
     phrases: (n: number) => countHe(n, 'צירוף משותף אחד', 'שני צירופים משותפים', 'צירופים משותפים'),

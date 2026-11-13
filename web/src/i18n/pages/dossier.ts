@@ -13,6 +13,15 @@ export const dosEn = {
   found: 'Found here:',
   none: 'Nothing found:',
   notComputed: 'Not computed in this build:',
+  other: 'Other',
+  more: (n: number) => `+${numEn(n)} more`,
+  fewer: 'Show fewer',
+  rest: (none: number, missing: number) =>
+    none > 0 && missing > 0
+      ? `Nothing found by ${countEn(none, 'other analysis', 'other analyses')}; ${numEn(missing)} not computed in this build`
+      : none > 0
+        ? `Nothing found by ${countEn(none, 'other analysis', 'other analyses')}`
+        : `${countEn(missing, 'analysis', 'analyses')} not computed in this build`,
   inChapter: ' (chapter)',
   /** a finding, with its count or value */
   chip: {

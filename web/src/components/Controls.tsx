@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from 'react'
+import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
 import type { Exclude, Mode, UnitType } from '../api/types'
 import { useLocale, useT } from '../context/localeContext'
 import { useTextMode } from '../context/textModeContext'
@@ -158,6 +158,48 @@ export function ExcludeFilters({
           {m.modes.exclude[e]}
         </label>
       ))}
+    </div>
+  )
+}
+
+/** The same filters behind one button of a toolbar ("Hide", with the number switched on): the
+ * panel opens on a click and closes on Escape (the focus back on the button) or a click outside. */
+export function ExcludeMenu({ type, value, onChange }: { type: UnitType; value: Exclude[]; onChange: (v: Exclude[]) => void }) {
+  const m = useT()
+  const id = useId()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const button = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        button.current?.focus()
+      }
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+  const on = value.filter((e) => allowedExcludes(type).includes(e)).length
+  return (
+    <div className={`filter-menu ${open ? 'open' : ''}`} ref={ref}>
+      <button type="button" ref={button} className="filter-menu-button" title={m.modes.hideTitle} aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen((o) => !o)}>
+        {m.modes.hide}
+        {on > 0 && <span className="filter-menu-count">{on}</span>} <span aria-hidden="true">▾</span>
+      </button>
+      {open && (
+        <div id={id} className="filter-menu-panel" role="group" aria-label={m.modes.hide}>
+          <ExcludeFilters type={type} value={value} onChange={onChange} />
+        </div>
+      )}
     </div>
   )
 }

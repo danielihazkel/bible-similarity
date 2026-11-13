@@ -11,7 +11,7 @@ import {
   useUnitParallelism,
 } from '../api/hooks'
 import type { Acrostic, DossierKind, Leitwort, MeterLine, UnitDetail, UnitSummary, Verse, VerseHalves } from '../api/types'
-import { ExcludeFilters, KSelect, ModeToggle, Segmented } from '../components/Controls'
+import { ExcludeMenu, KSelect, ModeToggle, Segmented } from '../components/Controls'
 import { HebrewText } from '../components/HebrewText'
 import { HitCard } from '../components/HitCard'
 import { StructurePanel } from '../components/StructurePanel'
@@ -22,7 +22,9 @@ import { SyntaxPanel } from '../components/SyntaxPanel'
 import { WordPanel } from '../components/WordPanel'
 import { ErrorBox, Loading, PanelError } from '../components/Status'
 import { UnitName } from '../components/UnitName'
+import { type PageSection, SectionStrip } from '../components/SectionStrip'
 import { UnitPanels } from '../components/UnitPanels'
+import { panelSections } from '../lib/unitPanels'
 import { useLocale, useT } from '../context/localeContext'
 import { neighbourhoodLink, readLink, unitLink } from '../lib/links'
 import '../i18n/pages/neighbourhood'
@@ -118,6 +120,18 @@ function UnitView({ detail }: { detail: UnitDetail }) {
     }, on ? 120 : 200)
   }
 
+  // the page's sections, in page order: the strip lists those that are drawn
+  const sections: PageSection[] = [
+    { id: 'unit-text', label: m.unit.sectionText },
+    ...panelSections(unit, 'context', m),
+    ...(isVerse ? [] : [{ id: 'unit-structure', label: m.nav.structure.label }]),
+    { id: 'unit-syntax', label: m.syn.panel },
+    { id: 'unit-similar', label: m.unit.similarOf(unit.unit_type) },
+    ...panelSections(unit, 'after', m),
+  ]
+  // the list of similar units as it is by default: Reset is offered when it is not
+  const listChanged = mode !== DEFAULT_MODE || k !== DEFAULT_K || params.get('exclude') !== null || marks === 'changes'
+
   return (
     <div className="page unit-page">
       <Crumbs detail={detail} search={search} />
@@ -126,18 +140,20 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         <span className="type-tag">{m.units.type(unit.unit_type)}</span>
       </h1>
       <p className="head-actions small no-print">
-        <CopyPassage en={unit.label_en} he={unit.label_he} verses={verses} />
-      </p>
-      <DossierBar unit={unit} dossier={dossier.data} error={dossier.error} />
-      <NotebookPanel unitId={unit.unit_id} />
-
-      <div className="toolbar halves-bar">
         <Link className="read-link" to={readLink(unit.unit_id)} title={m.reader.openTitle}>
           {m.reader.open}
         </Link>
         <Link className="read-link" to={neighbourhoodLink(unit.unit_id)}>
           {m.nbh.link}
         </Link>
+        <CopyPassage en={unit.label_en} he={unit.label_he} verses={verses} />
+      </p>
+      <SectionStrip sections={sections} label={m.unit.onThisPage} />
+      <DossierBar unit={unit} dossier={dossier.data} error={dossier.error} />
+      <NotebookPanel unitId={unit.unit_id} />
+
+      <div className="toolbar halves-bar" role="group" aria-label={m.unit.showInText}>
+        <span className="muted small">{m.unit.showInText}</span>
         <label className="check" title={m.unit.halvesTitle}>
           <input type="checkbox" checked={halvesOn} onChange={(e) => update({ halves: e.target.checked ? '1' : null }, false)} />
           {m.unit.halves}
@@ -180,7 +196,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
           onToggle={(on) => update({ acrostic: on ? '1' : null }, false)}
         />
       )}
-      <section className={`source ${isVerse ? 'single' : ''}`} aria-label={m.unit.source}>
+      <section id="unit-text" className={`source ${isVerse ? 'single' : ''}`} aria-label={m.unit.source}>
         {isVerse ? (
           <p className="source-text">
             <HebrewText
@@ -225,6 +241,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
 
       {!isVerse && (
         <details
+          id="unit-structure"
           className="structure"
           open={structureOpen}
           onToggle={(e) => {
@@ -246,6 +263,7 @@ function UnitView({ detail }: { detail: UnitDetail }) {
       )}
 
       <details
+        id="unit-syntax"
         className="structure syntax"
         open={syntaxOpen}
         onToggle={(e) => {
@@ -257,13 +275,13 @@ function UnitView({ detail }: { detail: UnitDetail }) {
         {syntaxOpen && <SyntaxPanel unitId={unit.unit_id} />}
       </details>
 
-      <section className="results" aria-label={m.unit.similar}>
+      <section id="unit-similar" className="results" aria-label={m.unit.similar}>
         <div className="results-head">
           <h2>{m.unit.similarOf(unit.unit_type)}</h2>
-          <div className="toolbar">
+          <div className="toolbar results-bar">
             <ModeToggle value={mode} onChange={(m) => update({ mode: m === DEFAULT_MODE ? null : m })} />
             <KSelect value={k} onChange={(v) => update({ k: v === DEFAULT_K ? null : String(v) })} />
-            <ExcludeFilters type={unit.unit_type} value={exclude} onChange={(v) => update({ exclude: v.join(',') })} />
+            <ExcludeMenu type={unit.unit_type} value={exclude} onChange={(v) => update({ exclude: v.join(',') })} />
             {isVerse && (
               <Segmented
                 label={m.hit.markBy}
@@ -275,14 +293,22 @@ function UnitView({ detail }: { detail: UnitDetail }) {
                 ]}
               />
             )}
+            {listChanged && (
+              <button type="button" className="linkish" title={m.unit.resetTitle} onClick={() => update({ mode: null, k: null, exclude: null, marks: null }, false)}>
+                {m.unit.reset}
+              </button>
+            )}
           </div>
-          {similar.data && similar.data.hits.length > 1 && (
-            <p className="muted small">
-              {m.unit.keys} <kbd>j</kbd> / <kbd>k</kbd> {m.unit.keysNext}
-              {isVerse ? m.unit.keysMarked : ''}.
-            </p>
-          )}
-          <p className="muted small">{m.modes.hints[mode]}</p>
+          <p className="muted small">
+            {m.modes.hints[mode]}
+            {similar.data && similar.data.hits.length > 1 && (
+              <>
+                {' · '}
+                {m.unit.keys} <kbd>j</kbd> / <kbd>k</kbd> {m.unit.keysNext}
+                {isVerse ? m.unit.keysMarked : ''}
+              </>
+            )}
+          </p>
         </div>
         {similar.isPending ? (
           <Loading />

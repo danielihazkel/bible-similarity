@@ -3,25 +3,36 @@ import type { DivineName, Dossier, DossierEntry, UnitSummary } from '../api/type
 import type { Corpus } from '../i18n/pages/reception'
 import '../i18n/pages/reception'
 import { useLocale } from '../context/localeContext'
-import { entryLink, isFound } from '../lib/dossier'
+import { entryLink, families, isFound } from '../lib/dossier'
+import { useOpenSections, useQueryParams } from '../lib/urlState'
 import { PanelError } from './Status'
 import '../i18n/pages/divine'
 import '../i18n/pages/dossier'
 import '../i18n/pages/witnesses'
 import '../styles/components/DossierBar.css'
 
+/** The findings of a family shown before "more". */
+const SHOWN = 4
+
 /**
- * What every analysis found about this unit (`/dossier`): findings as links to where they are
- * read in full, then the analyses that found nothing here and those this build did not run.
+ * What every analysis found about this unit (`/dossier`): the findings as links to where they are
+ * read in full, grouped under the nav's families (the menu, or the section of Patterns, of the
+ * page each belongs to), the first few of a family and the rest behind "more" (`?found=all`);
+ * then, folded away, the analyses that found nothing here and those this build did not run.
  */
 export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossier?: Dossier; error?: unknown }) {
   const { m } = useLocale()
   const t = m.dos
+  const [params, update] = useQueryParams()
+  const openProps = useOpenSections()
   if (error) return <PanelError what={t.what} error={error} />
   if (!dossier) return null
   const found = dossier.entries.filter(isFound)
   const none = dossier.entries.filter((e) => e.computed && !isFound(e))
   const missing = dossier.entries.filter((e) => !e.computed)
+  const all = params.get('found') === 'all'
+  const groups = families(found, unit)
+  const folded = groups.some((g) => g.entries.length > SHOWN)
   const chip = (e: DossierEntry): string => {
     const c = t.chip
     const text =
@@ -55,31 +66,59 @@ export function DossierBar({ unit, dossier, error }: { unit: UnitSummary; dossie
   return (
     <nav className="dossier" aria-label={t.label}>
       {found.length > 0 && (
-        <p className="dossier-found">
+        <div className="dossier-found">
           <span className="muted small">{t.found}</span>
-          {found.map((e) => {
-            const to = entryLink(e, unit)
-            return to ? (
-              <Link key={e.kind} to={to} className="dossier-chip">
-                {chip(e)}
-              </Link>
-            ) : (
-              <span key={e.kind} className="dossier-chip">
-                {chip(e)}
-              </span>
-            )
-          })}
-        </p>
+          <dl className="dossier-families">
+            {groups.map((g) => {
+              const shown = all ? g.entries : g.entries.slice(0, SHOWN)
+              const more = g.entries.length - shown.length
+              return (
+                <div key={g.section ?? g.group ?? 'other'} className="dossier-family">
+                  <dt className="muted small">{g.section ? m.navSections[g.section] : g.group ? m.nav[g.group] : t.other}</dt>
+                  <dd>
+                    {shown.map((e) => {
+                      const to = entryLink(e, unit)
+                      return to ? (
+                        <Link key={e.kind} to={to} className="dossier-chip">
+                          {chip(e)}
+                        </Link>
+                      ) : (
+                        <span key={e.kind} className="dossier-chip">
+                          {chip(e)}
+                        </span>
+                      )
+                    })}
+                    {more > 0 && (
+                      <button type="button" className="linkish small" aria-expanded={false} onClick={() => update({ found: 'all' })}>
+                        {t.more(more)}
+                      </button>
+                    )}
+                  </dd>
+                </div>
+              )
+            })}
+          </dl>
+          {all && folded && (
+            <button type="button" className="linkish small" aria-expanded={true} onClick={() => update({ found: null })}>
+              {t.fewer}
+            </button>
+          )}
+        </div>
       )}
-      {none.length > 0 && (
-        <p className="muted small">
-          {t.none} {none.map((e) => t.kinds[e.kind]).join(' · ')}
-        </p>
-      )}
-      {missing.length > 0 && (
-        <p className="muted small">
-          {t.notComputed} {missing.map((e) => t.kinds[e.kind]).join(' · ')}
-        </p>
+      {none.length + missing.length > 0 && (
+        <details className="dossier-rest" {...openProps('nothing')}>
+          <summary className="muted small">{t.rest(none.length, missing.length)}</summary>
+          {none.length > 0 && (
+            <p className="muted small">
+              {t.none} {none.map((e) => t.kinds[e.kind]).join(' · ')}
+            </p>
+          )}
+          {missing.length > 0 && (
+            <p className="muted small">
+              {t.notComputed} {missing.map((e) => t.kinds[e.kind]).join(' · ')}
+            </p>
+          )}
+        </details>
       )}
     </nav>
   )

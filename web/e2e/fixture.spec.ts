@@ -231,7 +231,7 @@ test('a verse lists its similar verses and links to them', async ({ page }) => {
 })
 
 test('a verse page says what the analyses found and links to the filtered lists', async ({ page }) => {
-  await page.goto('/unit/v%3A1')
+  await page.goto('/unit/v%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await expect(bar).toBeVisible()
   await bar.getByRole('link', { name: /parallel with a borrowing estimate/ }).click()
@@ -241,7 +241,7 @@ test('a verse page says what the analyses found and links to the filtered lists'
 })
 
 test('a verse page names its places, its hidden names and its letter value', async ({ page }) => {
-  await page.goto('/unit/v%3A0')
+  await page.goto('/unit/v%3A0?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: /1 place on the map, most named אמר/ }).click()
   await expect(page).toHaveURL(/\/places\?unit=v%3A0/)
@@ -256,7 +256,7 @@ test('a verse page names its places, its hidden names and its letter value', asy
 })
 
 test('a chapter whose lines fall like a lament links to the stresses of its lines', async ({ page }) => {
-  await page.goto('/unit/v%3A1')
+  await page.goto('/unit/v%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: /lines fall like a lament/ }).click()
   await expect(page).toHaveURL(/\/unit\/c%3A0%3A1\?halves=1&meter=1/)
@@ -266,7 +266,7 @@ test('a chapter whose lines fall like a lament links to the stresses of its line
 })
 
 test('a verse with two words of one root links to them, and on to the root', async ({ page }) => {
-  await page.goto('/unit/v%3A0')
+  await page.goto('/unit/v%3A0?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: /pair of words of one root/ }).click()
   await expect(page).toHaveURL(/\/roots\?unit=v%3A0/)
@@ -528,7 +528,7 @@ test('a place name shows where it lies: its site, kind and point', async ({ page
 })
 
 test('a verse in two refrains links to them, and on to the refrain in its passage', async ({ page }) => {
-  await page.goto('/unit/v%3A2')
+  await page.goto('/unit/v%3A2?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '2 refrains' }).click()
   await expect(page).toHaveURL(/\/refrains\?unit=v%3A2&all=1/)
@@ -539,7 +539,7 @@ test('a verse in two refrains links to them, and on to the refrain in its passag
 })
 
 test('a psalm links to its form and turn, and on to its words of distress and praise', async ({ page }) => {
-  await page.goto('/unit/c%3A0%3A1')
+  await page.goto('/unit/c%3A0%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '1 psalm: its genre, form and turn' }).click()
   await expect(page).toHaveURL(/\/psalms\?unit=c%3A0%3A1/)
@@ -552,7 +552,7 @@ test('a psalm links to its form and turn, and on to its words of distress and pr
 })
 
 test('a chapter of the Pentateuch opens in the reader with its side of the P / non-P split', async ({ page }) => {
-  await page.goto('/unit/c%3A0%3A1')
+  await page.goto('/unit/c%3A0%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '3 verses on the P-like side' }).click()
   await expect(page).toHaveURL(/\/read\/c%3A0%3A1\?layers=sources/)
@@ -563,7 +563,7 @@ test('a chapter of the Pentateuch opens in the reader with its side of the P / n
 })
 
 test('a chapter with an exchange links to who speaks to whom, and on to the reader', async ({ page }) => {
-  await page.goto('/unit/c%3A0%3A1')
+  await page.goto('/unit/c%3A0%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '1 exchange between two speakers' }).click()
   await expect(page).toHaveURL(/\/speech\?view=dialogue&book=0$/)
@@ -576,7 +576,7 @@ test('a chapter with an exchange links to who speaks to whom, and on to the read
 })
 
 test('a chapter with a numerical saying and a list links to them on the Numbers and lists page', async ({ page }) => {
-  await page.goto('/unit/c%3A0%3A1')
+  await page.goto('/unit/c%3A0%3A1?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '2 graded numerical sayings and lists' }).click()
   await expect(page).toHaveURL(/\/forms\?unit=c%3A0%3A1$/)
@@ -753,7 +753,7 @@ test('rabbinic reception: the checks, who cites a verse, the reader’s counts a
   await expect(cite).toHaveAttribute('href', 'https://www.sefaria.org/Mishnah_Berakhot.1.3?lang=he')
   await page.getByRole('link', { name: 'Read with its citations' }).click()
   await expect(page.locator('.reader-text .rc-total').first()).toHaveText('3')
-  await page.goto('/unit/v%3A0')
+  await page.goto('/unit/v%3A0?found=all')
   await expect(page.locator('.dossier-chip').filter({ hasText: 'rabbinic citations' })).toHaveAttribute('href', '/reception?unit=v%3A0')
 })
 
@@ -778,7 +778,7 @@ test('other witnesses: the checks, a plus compared word by word, the reader’s 
   await expect(sp.locator('.wt-added')).toHaveCount(4)
   await page.getByRole('link', { name: 'Read with the witnesses' }).click()
   await expect(page.locator('.reader-text .wt-total').first()).toHaveText('ש 0')
-  await page.goto('/unit/c%3A0%3A1')
+  await page.goto('/unit/c%3A0%3A1?found=all')
   await expect(page.locator('.dossier-chip').filter({ hasText: 'other witnesses' })).toHaveAttribute('href', '/witnesses?unit=c%3A0%3A1')
 })
 
@@ -861,7 +861,7 @@ test('workbench: a set built from the form, its contrast, a broken pattern item,
 })
 
 test('a chapter that starts in running text links to its place on the Divisions page', async ({ page }) => {
-  await page.goto('/unit/c%3A0%3A2')
+  await page.goto('/unit/c%3A0%3A2?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: 'a chapter start inside running text' }).click()
   await expect(page).toHaveURL(/\/divisions\?book=0&unit=c%3A0%3A2/)
@@ -871,7 +871,7 @@ test('a chapter that starts in running text links to its place on the Divisions 
 })
 
 test('a verse with a ketiv / qere links to it, and the parallel that writes the qere', async ({ page }) => {
-  await page.goto('/unit/v%3A4')
+  await page.goto('/unit/v%3A4?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '1 word written one way and read another' }).click()
   await expect(page).toHaveURL(/\/ketiv\?unit=v%3A4/)
@@ -882,7 +882,7 @@ test('a verse with a ketiv / qere links to it, and the parallel that writes the 
 })
 
 test('a verse that is cited links to the citation and its source', async ({ page }) => {
-  await page.goto('/unit/v%3A0')
+  await page.goto('/unit/v%3A0?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '1 explicit citation' }).click()
   await expect(page).toHaveURL(/\/citations\?unit=v%3A0/)
@@ -893,7 +893,7 @@ test('a verse that is cited links to the citation and its source', async ({ page
 })
 
 test('a verse in a chapter echoed by another book links to its directed echoes', async ({ page }) => {
-  await page.goto('/unit/v%3A5')
+  await page.goto('/unit/v%3A5?found=all')
   const bar = page.getByRole('navigation', { name: 'What the analyses found here' })
   await bar.getByRole('link', { name: '2 directed echoes with other books' }).click()
   await expect(page).toHaveURL(/\/network\?view=directions&unit=v%3A5/)
@@ -1730,5 +1730,98 @@ test.describe('the reading flow (M171)', () => {
     await field.press('ArrowDown')
     await field.press('Enter')
     await expect(page).toHaveURL(/[?&]a=c%3A0%3A1/)
+  })
+})
+
+// M172: the unit page
+test.describe('the unit page (M172)', () => {
+  for (const locale of ['en', 'he'] as const) {
+    test(`the findings read as groups, the rest behind "more" and the empty analyses folded (${locale})`, async ({ page }) => {
+      await page.addInitScript((l) => localStorage.setItem('bsim.locale', l), locale)
+      await loads(page, '/unit/c%3A0%3A1')
+      const families = page.locator('.dossier-family')
+      await expect(families.first()).toBeVisible() // the dossier comes after the page
+      expect(await families.count()).toBeGreaterThan(2)
+      // the nav's own names, in its order
+      const names = await families.locator('dt').allInnerTexts()
+      const order = locale === 'en' ? ['Parallels', 'Poetry and form', 'Words and names', 'Letters and numbers', 'Narrative', 'Overview'] : ['מקבילות', 'שירה וצורה', 'מילים ושמות', 'אותיות ומספרים', 'סיפור', 'מבט־על']
+      expect(names).toEqual(order.filter((n) => names.includes(n)))
+      for (const n of await families.evaluateAll((fs) => fs.map((f) => f.querySelectorAll('.dossier-chip').length))) expect(n).toBeLessThanOrEqual(4)
+      const before = await page.locator('.dossier-chip').count()
+      await page.locator('.dossier-family button').first().click()
+      await expect(page).toHaveURL(/found=all/)
+      expect(await page.locator('.dossier-chip').count()).toBeGreaterThan(before)
+      await expect(page.locator('.dossier-family button')).toHaveCount(0)
+      const rest = page.locator('details.dossier-rest')
+      await expect(rest).not.toHaveAttribute('open', '')
+      await rest.locator('summary').click()
+      await expect(page).toHaveURL(/open=nothing/)
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
+        const results = await new AxeBuilder({ page }).include('.dossier').include('.section-strip').withTags(['wcag2a', 'wcag2aa']).analyze()
+        expect(results.violations.map((v) => v.id), theme).toEqual([])
+      }
+    })
+  }
+
+  test('the section strip sticks under the bar, marks the section in view, and the similar chapters are one click from the top', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop') // on a phone the strip is a plain row at the head of the page
+    await page.setViewportSize({ width: 1280, height: 420 }) // short: the page scrolls
+    await loads(page, '/unit/c%3A0%3A1')
+    const strip = page.getByRole('navigation', { name: 'On this page' })
+    await expect(strip.getByRole('link').first()).toHaveText('Text')
+    await expect(strip.locator('a[aria-current]')).toHaveCount(1)
+    await strip.getByRole('link', { name: 'Similar chapters' }).click()
+    const head = page.locator('#unit-similar h2')
+    await expect(head).toBeInViewport()
+    await expect(page.locator('#unit-similar')).toBeFocused()
+    await expect(strip.locator('a[aria-current]')).toHaveText('Similar chapters')
+    await expect(page).toHaveURL(/\/unit\/c%3A0%3A1$/) // a jump is not an address
+    // the strip is right under the bar, the heading right under the strip
+    const at = await page.evaluate(() => ({
+      bar: document.querySelector('.topbar')!.getBoundingClientRect().bottom,
+      strip: document.querySelector('.section-strip')!.getBoundingClientRect(),
+      head: document.querySelector('#unit-similar')!.getBoundingClientRect().top,
+    }))
+    expect(Math.abs(at.strip.top - at.bar)).toBeLessThanOrEqual(1)
+    expect(at.head).toBeGreaterThanOrEqual(at.strip.bottom - 1)
+    await strip.getByRole('link', { name: 'Text' }).click()
+    await expect(strip.locator('a[aria-current]')).toHaveText('Text')
+  })
+
+  test('the list’s controls: the filters behind Hide, and Reset back to the list as it opens', async ({ page }) => {
+    await loads(page, '/unit/v%3A0')
+    const bar = page.locator('.results-bar')
+    await expect(bar.getByRole('button', { name: 'Reset' })).toHaveCount(0)
+    const hide = bar.getByRole('button', { name: /^Hide/ })
+    await expect(hide.locator('.filter-menu-count')).toHaveText('1') // a verse hides its neighbours
+    await hide.click()
+    const results = await new AxeBuilder({ page }).include('.results-head').withTags(['wcag2a', 'wcag2aa']).analyze()
+    expect(results.violations.map((v) => v.id)).toEqual([])
+    const panel = page.locator('.filter-menu-panel')
+    const box = (await panel.boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width)
+    await panel.getByLabel('Hide same book').click()
+    await expect(page).toHaveURL(/exclude=neighbors%2Cbook/)
+    await expect(hide.locator('.filter-menu-count')).toHaveText('2')
+    await page.keyboard.press('Escape')
+    await expect(panel).toHaveCount(0)
+    await expect(hide).toBeFocused()
+    await bar.getByRole('radio', { name: 'Lexical' }).click()
+    await expect(page).toHaveURL(/mode=lexical/)
+    await bar.getByRole('button', { name: 'Reset' }).click()
+    await expect(page).toHaveURL(/\/unit\/v%3A0$/)
+    await expect(bar.getByRole('button', { name: 'Reset' })).toHaveCount(0)
+    await expect(bar.getByRole('radio', { name: 'Fused' })).toBeChecked()
+  })
+
+  test('the controls of the list are one row on a desktop', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop')
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await loads(page, '/unit/v%3A0?mode=lexical') // with Reset in the row
+    const tops = await page.locator('.results-bar > *').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => [r.top, r.bottom]))
+    expect(tops.length).toBeGreaterThanOrEqual(5) // the modes, the top k, Hide, the marks, Reset
+    expect(Math.max(...tops.map((t) => t[0]))).toBeLessThan(Math.min(...tops.map((t) => t[1])))
   })
 })

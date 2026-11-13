@@ -45,10 +45,21 @@ export function Layout() {
   // Escape closes the phone menu and gives the focus back to its button; an open group inside it
   // or the open Display menu takes the key first (each closes itself)
   const menuToggle = useRef<HTMLButtonElement>(null)
+  // the bar's height, for what sticks under it (a page's section strip) and scrolls to under it
+  const bar = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const el = bar.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const set = () => document.documentElement.style.setProperty('--topbar-h', `${Math.round(el.getBoundingClientRect().height)}px`)
+    set()
+    const seen = new ResizeObserver(set)
+    seen.observe(el)
+    return () => seen.disconnect()
+  }, [])
   useEffect(() => {
     if (!mobileOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || document.querySelector('#main-nav .nav-group.open, .display-menu.open')) return
+      if (e.key !== 'Escape' || document.querySelector('#main-nav .nav-group.open, .display-menu.open, .filter-menu.open')) return
       setMobileOpen(false)
       menuToggle.current?.focus()
     }
@@ -67,7 +78,7 @@ export function Layout() {
       <a className="skip-link" href="#main">
         {m.site.skip}
       </a>
-      <header className="topbar">
+      <header className="topbar" ref={bar}>
         <Link to="/" className="brand">
           <span className="brand-mark" dir="rtl" lang="he">
             מקבילות
